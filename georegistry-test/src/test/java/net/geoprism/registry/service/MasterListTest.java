@@ -60,14 +60,11 @@ public class MasterListTest
 
   private static AttributeTermType testTerm;
 
-  private static Organization      org;
-
   @BeforeClass
   public static void setUpClass()
   {
-    setupOrg();
-
     testData = USATestData.newTestData();
+    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
 
     setUpInReq();
@@ -85,35 +82,12 @@ public class MasterListTest
     testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
   }
 
-  @Request
-  private static void setupOrg()
-  {
-    org = new Organization();
-    org.setCode("Org A");
-    org.getDisplayLabel().setValue("Org A");
-    org.apply();
-
-    final Roles role = org.getRegistryAdminiRole();
-    RoleDAO.get(role.getOid()).assignMember(UserDAO.findUser("admin"));
-  }
-
   @AfterClass
   public static void cleanUpClass()
   {
     if (testData != null)
     {
       testData.tearDownMetadata();
-    }
-
-    tearDownOrg();
-  }
-
-  @Request
-  private static void tearDownOrg()
-  {
-    if (org != null)
-    {
-      org.delete();
     }
   }
 
@@ -141,7 +115,7 @@ public class MasterListTest
     /*
      * Reload permissions for the new attributes
      */
-    SessionFacade.getSessionForRequest(testData.adminClientRequest.getSessionId()).reloadPermissions();
+    SessionFacade.getSessionForRequest(testData.clientRequest.getSessionId()).reloadPermissions();
   }
 
   @Test
@@ -162,7 +136,7 @@ public class MasterListTest
     list.setAcknowledgements("Acknowledgements");
     list.setDisclaimer("Disclaimer");
     list.setContactName("Contact Name");
-    list.setOrganization(org);
+    list.setOrganization(testData.ORG_NPS.getServerObject());
     list.setTelephoneNumber("Telephone Number");
     list.setEmail("Email");
     list.setIsMaster(false);
@@ -255,7 +229,7 @@ public class MasterListTest
   @Request
   public void testCreateMultiple()
   {
-    JsonObject json = getJson(org, testData.HIER_ADMIN, testData.STATE);
+    JsonObject json = getJson(testData.ORG_NPS.getServerObject(), testData.HIER_ADMIN, testData.STATE);
 
     MasterList test1 = MasterList.create(json);
 
@@ -277,34 +251,34 @@ public class MasterListTest
   @Test
   public void testServiceCreateAndRemove()
   {
-    JsonObject listJson = getJson(org, testData.HIER_ADMIN, testData.STATE);
+    JsonObject listJson = getJson(testData.ORG_NPS.getServerObject(), testData.HIER_ADMIN, testData.STATE);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
 
-    service.remove(testData.adminClientRequest.getSessionId(), oid);
+    service.remove(testData.clientRequest.getSessionId(), oid);
   }
 
   @Test
   public void testList()
   {
-    JsonObject listJson = getJson(org, testData.HIER_ADMIN, testData.STATE);
+    JsonObject listJson = getJson(testData.ORG_NPS.getServerObject(), testData.HIER_ADMIN, testData.STATE);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
 
     try
     {
-      JsonArray results = service.listAll(testData.adminClientRequest.getSessionId());
+      JsonArray results = service.listAll(testData.clientRequest.getSessionId());
 
       Assert.assertEquals(1, results.size());
     }
     finally
     {
       String oid = result.get(ComponentInfo.OID).getAsString();
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
   }
 
@@ -312,7 +286,7 @@ public class MasterListTest
   @Request
   public void testPublishVersion()
   {
-    JsonObject json = getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject json = getJson(testData.ORG_NPS.getServerObject(), testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -342,24 +316,24 @@ public class MasterListTest
   @Test
   public void testCreatePublishedVersions()
   {
-    JsonObject listJson = getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = getJson(testData.ORG_NPS.getServerObject(), testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
     {
-      service.createPublishedVersions(testData.adminClientRequest.getSessionId(), oid);
+      service.createPublishedVersions(testData.clientRequest.getSessionId(), oid);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
     }
     finally
     {
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
   }
 

@@ -122,7 +122,14 @@ public class TestGeoObjectTypeInfo
 
     public Universal getUniversal()
     {
-      return this.universal;
+      if (this.universal != null)
+      {
+        return this.universal;
+      }
+      else
+      {
+        return Universal.getByKey(this.getCode());
+      }
     }
     
     public TestOrganizationInfo getOrganization()
@@ -132,7 +139,12 @@ public class TestGeoObjectTypeInfo
     
     public ServerGeoObjectType getServerObject()
     {
-      if (this.serverObject != null)
+      return this.getServerObject(false);
+    }
+    
+    public ServerGeoObjectType getServerObject(boolean forceFetch)
+    {
+      if (this.serverObject != null && !forceFetch)
       {
         return this.serverObject;
       }
@@ -142,7 +154,9 @@ public class TestGeoObjectTypeInfo
         
         if (got.isPresent())
         {
-          return ServerGeoObjectType.get(getCode());
+          this.serverObject = ServerGeoObjectType.get(getCode());
+          
+          return this.serverObject;
         }
         else
         {
@@ -153,9 +167,9 @@ public class TestGeoObjectTypeInfo
             return null;
           }
           
-          ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
+          this.serverObject = new ServerGeoObjectTypeConverter().build(uni);
           
-          return type;
+          return this.serverObject;
         }
       }
     }
@@ -221,6 +235,11 @@ public class TestGeoObjectTypeInfo
     @Transaction
     private void applyInTrans()
     {
+      if (this.getServerObject() != null)
+      {
+        return;
+      }
+      
       String organizationCode = this.getOrganization().getCode();
  
       GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, ServiceFactory.getAdapter());

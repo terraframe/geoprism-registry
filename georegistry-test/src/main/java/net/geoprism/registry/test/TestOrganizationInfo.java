@@ -147,6 +147,11 @@ public class TestOrganizationInfo
   @Request
   public void apply()
   {
+    if (this.getServerObject(true) != null)
+    {
+      return;
+    }
+    
     this.serverObj = new OrganizationConverter().create(this.toDTO());
   }
 }

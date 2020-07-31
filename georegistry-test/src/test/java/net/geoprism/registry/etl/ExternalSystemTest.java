@@ -18,155 +18,66 @@
  */
 package net.geoprism.registry.etl;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.Locale;
 
-import org.commongeoregistry.adapter.RegistryAdapterServer;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.ClientSession;
-import com.runwaysdk.constants.CommonProperties;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 
 import junit.framework.Assert;
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.RevealExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.USATestData;
 
 public class ExternalSystemTest
 {
-  // public static RegistryAdapter adapter = null;
-
-  public static RegistryService service      = null;
-
-  public static ClientSession   adminSession = null;
-
-  public static final String    DISTRICT     = "District";
-
-  public static final String    VILLAGE      = "Village";
-
-  public static final String    MOI_ORG_CODE = "MOI";
-
+  protected static FastTestDataset testData;
+  
+  public static final String EXTERNAL_SYSTEM_ID = "ExternalSystemTest";
+  
   @BeforeClass
   public static void setUpClass()
   {
-    adminSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
-
-    service = RegistryService.getInstance();
+    testData = FastTestDataset.newTestData();
+    testData.setSessionUser(testData.USER_CGOV_RA);
+    testData.setUpMetadata();
   }
 
   @AfterClass
   public static void cleanUpClass()
   {
-    if (adminSession != null)
+    if (testData != null)
     {
-      adminSession.logout();
+      testData.tearDownMetadata();
     }
   }
-
+  
   @Before
   public void setUp()
   {
-    deleteGeoObjectType(VILLAGE);
-    deleteOrganization(MOI_ORG_CODE);
+    if (testData != null)
+    {
+      testData.setUpInstanceData();
+    }
+    
+    TestDataSet.deleteExternalSystems(EXTERNAL_SYSTEM_ID);
   }
 
   @After
-  public void tearDown() throws IOException
+  public void tearDown()
   {
-    deleteGeoObjectType(VILLAGE);
-    deleteOrganization(MOI_ORG_CODE);
-  }
-
-  /**
-   * Precondition: Needs to be called within {@link Request} and
-   * {@link Transaction} annotations.
-   * 
-   * @param organizationCode
-   * 
-   */
-  @Request
-  public static void deleteOrganization(String organizationCode)
-  {
-    Organization organization = null;
-
-    try
+    if (testData != null)
     {
-      organization = Organization.getByKey(organizationCode);
-      organization.delete();
-    }
-    catch (com.runwaysdk.dataaccess.cache.DataNotFoundException e)
-    {
-    }
-  }
-
-  /**
-   * Precondition: Needs to be called within {@link Request} and
-   * {@link Transaction} annotations.
-   * 
-   * @param organizationCode
-   * 
-   * @return created and persisted {@link Organization} object.
-   */
-  @Request
-  public static Organization createOrganization(String organizationCode)
-  {
-    Organization organization = new Organization();
-    organization.setCode(organizationCode);
-    organization.getDisplayLabel().setDefaultValue(organizationCode);
-    organization.getContactInfo().setDefaultValue("Contact Fred at 555...");
-    organization.apply();
-
-    return organization;
-  }
-
-  @Request
-  public static void createGeoObjectType(String organizationCode, String geoObjectTypeCode)
-  {
-    RegistryAdapterServer registry = new RegistryAdapterServer(RegistryIdService.getInstance());
-    GeoObjectType province = MetadataFactory.newGeoObjectType(geoObjectTypeCode, GeometryType.POLYGON, new LocalizedValue(geoObjectTypeCode + " DisplayLabel"), new LocalizedValue(""), true, organizationCode, registry);
-
-    ServerGeoObjectType serverGeoObjectType = new ServerGeoObjectTypeConverter().create(province.toJSON().toString());
-
-    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(serverGeoObjectType.getType());
-  }
-
-  @Request
-  public static void deleteGeoObjectType(String geoObjectTypeCode)
-  {
-    try
-    {
-      ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
-
-      if (type != null)
-      {
-        type.delete();
-      }
-    }
-    catch (com.runwaysdk.dataaccess.cache.DataNotFoundException e)
-    {
+      testData.tearDownInstanceData();
     }
   }
 
@@ -174,142 +85,64 @@ public class ExternalSystemTest
   @Request
   public void testCreateRevealExternalSystem()
   {
+    RevealExternalSystem system = new RevealExternalSystem();
+    system.setId(EXTERNAL_SYSTEM_ID);
+    system.setOrganization(testData.ORG_CGOV.getServerObject());
+    system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
+    system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
+    system.apply();
 
-    try
-    {
-      Organization organization = createOrganization(MOI_ORG_CODE);
+    ExternalSystem test = ExternalSystem.get(system.getOid());
 
-      RevealExternalSystem system = new RevealExternalSystem();
-      system.setId("Test");
-      system.setOrganization(organization);
-      system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
-      system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
-      system.apply();
-
-      try
-      {
-        ExternalSystem test = ExternalSystem.get(system.getOid());
-
-        Assert.assertEquals(system.getId(), test.getId());
-      }
-      finally
-      {
-        system.delete();
-      }
-    }
-    finally
-    {
-      deleteOrganization(MOI_ORG_CODE);
-    }
+    Assert.assertEquals(system.getId(), test.getId());
   }
 
   @Test
   @Request
   public void testAddExternalId()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
+    RevealExternalSystem system = new RevealExternalSystem();
+    system.setId(EXTERNAL_SYSTEM_ID);
+    system.setOrganization(testData.ORG_CGOV.getServerObject());
+    system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
+    system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
+    system.apply();
 
-    try
-    {
-      Organization organization = createOrganization(MOI_ORG_CODE);
-      createGeoObjectType(MOI_ORG_CODE, VILLAGE);
+    String expected = "EXTERNAL ID";
+    
+    ServerGeoObjectIF serverGO = testData.PROV_CENTRAL.getServerObject();
 
-      RevealExternalSystem system = new RevealExternalSystem();
-      system.setId("Test");
-      system.setOrganization(organization);
-      system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
-      system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
-      system.apply();
+    serverGO.createExternalId(system, expected);
 
-      try
-      {
-        String expected = "EXTERNAL ID";
+    String actual = serverGO.getExternalId(system);
 
-        ServerGeoObjectType type = ServerGeoObjectType.get(VILLAGE);
-
-        ServerGeoObjectIF serverGO = service.newInstance(type);
-        serverGO.setCode("00");
-        serverGO.setDisplayLabel(createLocalizedValue("Test Label"));
-        serverGO.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-        serverGO.setStatus(GeoObjectStatus.ACTIVE);
-        serverGO.apply(false);
-
-        serverGO.createExternalId(system, expected);
-
-        String actual = serverGO.getExternalId(system);
-
-        Assert.assertEquals(expected, actual);
-      }
-      finally
-      {
-        system.delete();
-      }
-    }
-    finally
-    {
-      deleteGeoObjectType(VILLAGE);
-      deleteOrganization(MOI_ORG_CODE);
-    }
+    Assert.assertEquals(expected, actual);
   }
 
   @Test
   @Request
   public void testVertexExternalIdRestriction()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
+    RevealExternalSystem system = new RevealExternalSystem();
+    system.setId(EXTERNAL_SYSTEM_ID);
+    system.setOrganization(testData.ORG_CGOV.getServerObject());
+    system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
+    system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
+    system.apply();
 
-    try
-    {
-      Organization organization = createOrganization(MOI_ORG_CODE);
-      createGeoObjectType(MOI_ORG_CODE, VILLAGE);
+    String externalId = "EXTERNAL ID";
 
-      RevealExternalSystem system = new RevealExternalSystem();
-      system.setId("Test");
-      system.setOrganization(organization);
-      system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
-      system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
-      system.apply();
+    ServerGeoObjectIF serverGO = testData.PROV_CENTRAL.getServerObject();
 
-      try
-      {
-        String externalId = "EXTERNAL ID";
+    serverGO.createExternalId(system, externalId);
 
-        ServerGeoObjectType type = ServerGeoObjectType.get(VILLAGE);
+    VertexGeoObjectQuery query = new VertexGeoObjectQuery(testData.PROVINCE.getServerObject(), new Date());
+    query.setRestriction(new ServerExternalIdRestriction(system, externalId));
 
-        ServerGeoObjectIF serverGO = service.newInstance(type);
-        serverGO.setCode("00");
-        serverGO.setDisplayLabel(createLocalizedValue("Test Label"));
-        serverGO.setUid(ServiceFactory.getIdService().getUids(1)[0]);
-        serverGO.setStatus(GeoObjectStatus.ACTIVE);
-        serverGO.apply(false);
+    ServerGeoObjectIF result = query.getSingleResult();
 
-        serverGO.createExternalId(system, externalId);
-
-        VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, new Date());
-        query.setRestriction(new ServerExternalIdRestriction(system, externalId));
-
-        ServerGeoObjectIF result = query.getSingleResult();
-
-        Assert.assertNotNull(result);
-        Assert.assertEquals(serverGO.getCode(), result.getCode());
-      }
-      finally
-      {
-        system.delete();
-      }
-    }
-    finally
-    {
-      deleteGeoObjectType(VILLAGE);
-      deleteOrganization(MOI_ORG_CODE);
-    }
-  }
-
-  private LocalizedValue createLocalizedValue(String text)
-  {
-    LocalizedValue value = new LocalizedValue(text);
-    value.setValue(LocalizedValue.DEFAULT_LOCALE, text);
-    return value;
+    Assert.assertNotNull(result);
+    Assert.assertEquals(serverGO.getCode(), result.getCode());
   }
 
 }

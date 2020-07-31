@@ -20,6 +20,7 @@ package net.geoprism.registry.test;
 
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -30,6 +31,8 @@ public class USATestData extends TestDataSet
   public final String                TEST_DATA_KEY    = "USATestData";
   
   public final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(this.getTestDataKey() + "NPS");
+  
+  public final TestUserInfo          USER_NPS_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "npsra", "npsra", TEST_DATA_KEY + "@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_NPS.getCode())});
   
   public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(this.getTestDataKey() +  "Admin", ORG_NPS);
   
@@ -113,13 +116,15 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(MEXICO_CITY_TWO);
     managedGeoObjectInfos.add(MEXICO_STATE_ONE);
     managedGeoObjectInfos.add(MEXICO_STATE_TWO);
+    
+    managedUsers.add(USER_NPS_RA);
   }
   
   public static USATestData newTestData()
   {
     return new USATestData();
   }
-
+  
   @Transaction
   @Override
   public void setUpClassRelationships()

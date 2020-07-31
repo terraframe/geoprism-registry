@@ -55,6 +55,7 @@ public class ConversionTest
   public static void setUpClass()
   {
     testData = USATestData.newTestData();
+    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
     
     testGo = testData.newTestGeoObjectInfo("ConversionTest", testData.STATE);
@@ -84,7 +85,7 @@ public class ConversionTest
   @Test
   public void testAttributeTypeDateTree()
   {
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
 
     Calendar calendar = Calendar.getInstance();
     calendar.clear();
@@ -143,7 +144,7 @@ public class ConversionTest
   @Test
   public void testAttributeTypeBooleanTree()
   {
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
 
     // Add a new custom attribute
     AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
@@ -194,7 +195,7 @@ public class ConversionTest
   @Test
   public void testAttributeTypeFloatTree()
   {
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
 
     // Add a new custom attribute
     AttributeType testFloat = AttributeType.factory("testFloat", new LocalizedValue("testFloatLocalName"), new LocalizedValue("testFloatLocalDescrip"), AttributeFloatType.TYPE, false, false, false);
@@ -245,7 +246,7 @@ public class ConversionTest
   @Test
   public void testAttributeTypeIntegerTree()
   {
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
 
     // Add a new custom attribute
     AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
@@ -295,7 +296,7 @@ public class ConversionTest
   @Test
   public void testAttributeTypeCharacterTree()
   {
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
 
     // Add a new custom attribute
     AttributeType testCharacter = AttributeType.factory("testCharacter", new LocalizedValue("testCharacterLocalName"), new LocalizedValue("testCharacterLocalDescrip"), AttributeCharacterType.TYPE, false, false, false);
@@ -347,7 +348,7 @@ public class ConversionTest
   @SuppressWarnings("unchecked")
   public void testAttributeTypeTermTree()
   {
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
 
     // Add a new custom attribute
     AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
@@ -415,7 +416,7 @@ public class ConversionTest
   @Test
   public void testUpdateTree()
   {
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
 
     // Create a new GeoObject with the custom attribute
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(sessionId, this.testData.STATE.getCode());

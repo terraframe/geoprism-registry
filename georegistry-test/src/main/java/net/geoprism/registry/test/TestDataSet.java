@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -34,21 +35,38 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.junit.Assert;
 
 import com.runwaysdk.ClientSession;
+import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.business.rbac.UserDAO;
+import com.runwaysdk.business.rbac.UserDAOIF;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.LocalProperties;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.ValueObject;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.resource.ClasspathResource;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.VaultFile;
+import com.runwaysdk.system.VaultFileQuery;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -56,17 +74,28 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
 
+import net.geoprism.GeoprismUser;
+import net.geoprism.GeoprismUserQuery;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierQuery;
+import net.geoprism.registry.IdRecord;
+import net.geoprism.registry.IdRecordQuery;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.UserInfo;
+import net.geoprism.registry.UserInfoQuery;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.WMSService;
 
@@ -89,12 +118,14 @@ abstract public class TestDataSet
   protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfos       = new ArrayList<TestHierarchyTypeInfo>();
   
   protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfosExtras = new ArrayList<TestHierarchyTypeInfo>();
+  
+  protected ArrayList<TestUserInfo>          managedUsers                    = new ArrayList<TestUserInfo>();
 
-  public TestRegistryAdapterClient           adapter = new TestRegistryAdapterClient();
+  public TestRegistryAdapterClient           adapter                         = new TestRegistryAdapterClient();
 
-  public ClientSession                       adminSession                    = null;
+  public ClientSession                       clientSession                   = null;
 
-  public ClientRequestIF                     adminClientRequest              = null;
+  public ClientRequestIF                     clientRequest                   = null;
 
   public static final String                 ADMIN_USER_NAME                 = "admin";
 
@@ -107,6 +138,8 @@ abstract public class TestDataSet
   public static final String                 WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
 
   abstract public String getTestDataKey();
+  
+  private TestUserInfo sessionUser;
 
   public TestDataSet()
   {
@@ -144,6 +177,15 @@ abstract public class TestDataSet
 
     return all;
   }
+  
+  public ArrayList<TestUserInfo> getManagedUsers()
+  {
+    ArrayList<TestUserInfo> all = new ArrayList<TestUserInfo>();
+
+    all.addAll(managedUsers);
+
+    return all;
+  }
 
   public ArrayList<TestGeoObjectTypeInfo> getManagedGeoObjectTypeExtras()
   {
@@ -165,27 +207,48 @@ abstract public class TestDataSet
     return managedHierarchyTypeInfosExtras;
   }
   
-  @Request
-  public void setUp()
+  public TestUserInfo getSessionUser()
   {
-    setUpMetadata();
-
-    setUpInstanceData();
+    return sessionUser;
   }
 
-  @Request
-  public void cleanUp()
+  public void setSessionUser(TestUserInfo defaultUser)
   {
-    tearDownMetadata();
-
-    tearDownInstanceData();
+    this.sessionUser = defaultUser;
   }
+
+//  @Request
+//  public void setUp()
+//  {
+//    setUpMetadata();
+//
+//    setUpInstanceData();
+//  }
+//
+//  @Request
+//  public void cleanUp()
+//  {
+//    tearDownMetadata();
+//
+//    tearDownInstanceData();
+//  }
   
   public void setUpSessions()
   {
-    adminSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
-    adminClientRequest = adminSession.getRequest();
-    adapter.setClientRequest(this.adminClientRequest);
+    if (this.getSessionUser() == null)
+    {
+      this.clientSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
+      this.clientRequest = clientSession.getRequest();
+      this.adapter.setClientRequest(this.clientRequest);
+    }
+    else
+    {
+      TestUserInfo user = this.getSessionUser();
+      
+      this.clientSession = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
+      this.clientRequest = clientSession.getRequest();
+      this.adapter.setClientRequest(this.clientRequest);
+    }
   }
 
   @Request
@@ -232,6 +295,11 @@ abstract public class TestDataSet
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
       uni.apply();
+    }
+    
+    for (TestUserInfo user : managedUsers)
+    {
+      user.apply();
     }
   }
 
@@ -320,11 +388,22 @@ abstract public class TestDataSet
     {
       org.delete();
     }
-
-    if (adminSession != null)
+    
+    for (TestUserInfo user : this.getManagedUsers())
     {
-      adminSession.logout();
+      user.delete();
     }
+
+    if (clientSession != null)
+    {
+      clientSession.logout();
+    }
+  }
+  
+  @Request
+  public void reloadPermissions()
+  {
+    SessionFacade.getSessionForRequest(this.clientRequest.getSessionId()).reloadPermissions();
   }
 
   @Request
@@ -336,19 +415,73 @@ abstract public class TestDataSet
   @Transaction
   protected void cleanUpTestInTrans()
   {
-    for (TestGeoObjectInfo go : managedGeoObjectInfos)
-    {
-      go.delete();
-    }
-    for (TestGeoObjectInfo go : managedGeoObjectInfosExtras)
-    {
-      go.delete();
-    }
+//    for (TestGeoObjectInfo go : managedGeoObjectInfos)
+//    {
+//      go.delete();
+//    }
+//    for (TestGeoObjectInfo go : managedGeoObjectInfosExtras)
+//    {
+//      go.delete();
+//    }
 
+    deleteAllGeoObjects();
+    
     deleteAllActions();
     deleteAllChangeRequests();
 
     managedGeoObjectInfosExtras = new ArrayList<TestGeoObjectInfo>();
+  }
+  
+  @Request
+  private void deleteAllGeoObjects()
+  {
+    for (TestGeoObjectTypeInfo type : this.getManagedGeoObjectTypes())
+    {
+      ServerGeoObjectType got = type.getServerObject();
+      
+      if (got == null) { continue; }
+      
+      MdVertexDAOIF mdVertex = got.getMdVertex();
+
+      StringBuilder statement = new StringBuilder();
+      statement.append("SELECT FROM " + mdVertex.getDBClassName());
+
+      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+
+      List<VertexObject> vObjects = query.getResults();
+      
+      for (VertexObject vObject : vObjects)
+      {
+        VertexServerGeoObject serverGo = new VertexServerGeoObject(got, vObject);
+        
+        QueryFactory qf = new QueryFactory();
+        BusinessQuery bq = qf.businessQuery(type.getServerObject().getUniversal().getMdBusiness().definesType());
+        bq.WHERE(bq.aCharacter(DefaultAttribute.CODE.getName()).EQ(serverGo.getCode()));
+        OIterator<? extends Business> bit = bq.getIterator();
+        try
+        {
+          while (bit.hasNext())
+          {
+            Business biz = bit.next();
+
+            biz.delete();
+          }
+        }
+        finally
+        {
+          bit.close();
+        }
+
+        vObject.delete();
+        
+        TestDataSet.deleteGeoEntity(serverGo.getCode());
+      }
+    }
+    
+    for (TestGeoObjectInfo go : this.getManagedGeoObjects())
+    {
+      go.clean();
+    }
   }
 
 //  private void rebuildAllpaths()
@@ -507,6 +640,133 @@ abstract public class TestDataSet
   }
   
   @Request
+  public static GeoprismUser createUser(String username, String password, String email, String[] roleNameArray)
+  {
+    GeoprismUser geoprismUser = new GeoprismUser();
+    geoprismUser.setUsername(username);
+    geoprismUser.setPassword(password);
+    geoprismUser.setFirstName(username);
+    geoprismUser.setLastName(username);
+    geoprismUser.setEmail(email);
+    geoprismUser.apply();
+    
+    if (roleNameArray != null)
+    {
+      List<Roles> newRoles = new LinkedList<Roles>();
+
+      Set<String> roleIdSet = new HashSet<String>();
+      for (String roleName : roleNameArray)
+      {
+        Roles role = Roles.findRoleByName(roleName);
+
+        roleIdSet.add(role.getOid());
+        newRoles.add(role);
+      }
+
+      UserDAOIF user = UserDAO.get(geoprismUser.getOid());
+
+      Set<String> organizationSet = new HashSet<String>();
+      for (Roles role : newRoles)
+      {
+        RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
+        roleDAO.assignMember(user);
+
+        RegistryRole registryRole = new RegistryRoleConverter().build(role);
+        if (registryRole != null)
+        {
+          String organizationCode = registryRole.getOrganizationCode();
+
+          if (organizationCode != null && !organizationCode.equals("") && !organizationSet.contains(organizationCode))
+          {
+            Organization organization = Organization.getByCode(organizationCode);
+            organization.addUsers(geoprismUser).apply();
+            organizationSet.add(organizationCode);
+          }
+        }
+      }
+    }
+
+    UserInfo info = new UserInfo();
+    info.setGeoprismUser(geoprismUser);
+    info.apply();
+    
+    return geoprismUser;
+  }
+  
+  @Request
+  public static void deleteUser(String username)
+  {
+    QueryFactory qf = new QueryFactory();
+    
+    ValueQuery vq = new ValueQuery(qf);
+    
+    UserInfoQuery uiq = new UserInfoQuery(qf);
+    
+    GeoprismUserQuery guq = new GeoprismUserQuery(qf);
+    
+    vq.SELECT(uiq.getOid("userInfoOid"));
+    vq.SELECT(guq.getOid("geoprismUserOid"));
+    
+    vq.WHERE(guq.getUsername().EQ(username));
+    vq.AND(uiq.getGeoprismUser().EQ(guq));
+    
+    OIterator<? extends ValueObject> it = vq.getIterator();
+    
+    try
+    {
+      while (it.hasNext())
+      {
+        ValueObject vo = it.next();
+        
+        UserInfo ui = UserInfo.get(vo.getValue("userInfoOid"));
+        GeoprismUser gu = GeoprismUser.get(vo.getValue("geoprismUserOid"));
+        
+        
+        // Delete all referenced IdRecords
+        IdRecordQuery irq = new IdRecordQuery(new QueryFactory());
+        irq.WHERE(irq.getOwner().EQ(gu));
+        OIterator<? extends IdRecord> reqit = irq.getIterator();
+        try
+        {
+          while (reqit.hasNext())
+          {
+            reqit.next().delete();
+          }
+        }
+        finally
+        {
+          reqit.close();
+        }
+        
+        // Delete all referenced VaultFiles
+        VaultFileQuery vfq = new VaultFileQuery(new QueryFactory());
+        vfq.WHERE(vfq.getOwner().EQ(gu));
+        OIterator<? extends VaultFile> vfit = vfq.getIterator();
+        try
+        {
+          while (vfit.hasNext())
+          {
+            vfit.next().delete();
+          }
+        }
+        finally
+        {
+          vfit.close();
+        }
+        
+        
+        
+        ui.delete();
+        gu.delete();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+  }
+  
+  @Request
   public static void deleteClassifier(String classifierId)
   {
     Classifier clazz = getClassifierIfExist(classifierId);
@@ -636,12 +896,42 @@ abstract public class TestDataSet
       
       for (ExternalSystem es : list)
       {
+        TestDataSet.deleteExternalIds(es);
+        
         es.delete(false);
       }
     }
     catch (net.geoprism.registry.DataNotFoundException ex)
     {
       // Do nothing
+    }
+  }
+  
+  @Request
+  public static void deleteExternalIds(ExternalSystem system)
+  {
+    final MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT FROM " + mdEdge.getDBClassName());
+
+    if (system != null)
+    {
+      builder.append(" WHERE out = :system");
+    }
+    
+    final GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(builder.toString());
+    
+    if (system != null)
+    {
+      query.setParameter("system", system.getRID());
+    }
+
+    List<EdgeObject> edges = query.getResults();
+    
+    for (EdgeObject edge : edges)
+    {
+      edge.delete();
     }
   }
   

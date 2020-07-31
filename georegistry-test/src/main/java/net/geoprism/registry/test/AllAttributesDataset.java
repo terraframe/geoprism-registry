@@ -29,6 +29,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -46,6 +47,8 @@ public class AllAttributesDataset extends TestDataSet
   public static final String                TEST_DATA_KEY    = "AllAttr";
   
   public final TestOrganizationInfo  ORG          = new TestOrganizationInfo(this.getTestDataKey() + "Org");
+  
+  public final TestUserInfo          USER_ORG_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "ra", "ra", TEST_DATA_KEY + "@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG.getCode())});
   
   public final TestHierarchyTypeInfo HIER       = new TestHierarchyTypeInfo(this.getTestDataKey() +  "Hier", ORG);
   
@@ -129,6 +132,8 @@ public class AllAttributesDataset extends TestDataSet
     managedGeoObjectInfos.add(GO_BOOL);
     managedGeoObjectInfos.add(GO_DATE);
     managedGeoObjectInfos.add(GO_TERM);
+    
+    managedUsers.add(USER_ORG_RA);
   }
 
   public static AllAttributesDataset newTestData()

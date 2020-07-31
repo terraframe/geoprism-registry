@@ -85,9 +85,13 @@ public class DHIS2ExportTest
     TestDataSet.deleteExternalSystems("DHIS2ExportTest");
     
     testData = AllAttributesDataset.newTestData();
+    testData.setSessionUser(testData.USER_ORG_RA);
     testData.setUpMetadata();
     
-    SchedulerManager.start();
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
   }
 
   @AfterClass
@@ -98,7 +102,7 @@ public class DHIS2ExportTest
       testData.tearDownMetadata();
     }
     
-    SchedulerManager.shutdown();
+//    SchedulerManager.shutdown();
   }
 
   @Before
@@ -260,10 +264,10 @@ public class DHIS2ExportTest
     
     SynchronizationConfig config = createSyncConfig(level2);
     
-    JsonObject jo = syncService.run(testData.adminSession.getSessionId(), config.getOid());
+    JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
     Assert.assertEquals(2, payloads.size());
@@ -418,7 +422,7 @@ public class DHIS2ExportTest
   {
     SynchronizationConfig config = createSyncConfig(null);
     
-    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.adminSession.getSessionId(), config.getSystem(), testData.GOT_ALL.getCode());
+    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.clientSession.getSessionId(), config.getSystem(), testData.GOT_ALL.getCode());
     
     System.out.println(custConfig.toString());
     

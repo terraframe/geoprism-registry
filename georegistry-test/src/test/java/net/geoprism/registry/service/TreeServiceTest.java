@@ -26,16 +26,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.test.FastTestDataset;
 
 public class TreeServiceTest
 {
-  protected static USATestData               testData;
+  protected static FastTestDataset               testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
   }
   
@@ -69,7 +69,7 @@ public class TreeServiceTest
   @Test
   public void testGetHierarchies()
   {
-    JSONArray ptn = testData.adapter.getHierarchiesForGeoObjectOverTime(testData.CO_D_ONE.getCode(), testData.CO_D_ONE.getGeoObjectType().getCode());
+    JSONArray ptn = testData.adapter.getHierarchiesForGeoObjectOverTime(testData.PROV_CENTRAL.getCode(), testData.PROVINCE.getCode());
     
     Assert.assertTrue(ptn.length() > 0);
   }

@@ -57,17 +57,17 @@ import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.ListIterator;
-import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectShapefileExporterTest
 {
-  private static USATestData     testData;
+  private static FastTestDataset     testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
   }
   
@@ -104,7 +104,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
@@ -126,7 +126,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
@@ -145,7 +145,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     List<GeoObject> objects = new GeoObjectQuery(type).getIterator().getAll();
@@ -197,15 +197,15 @@ public class GeoObjectShapefileExporterTest
     String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
     String label = ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE;
 
-    Assert.assertEquals(testData.USA.getCode(), feature.getAttribute(exporter.getColumnName(code)));
-    Assert.assertEquals(testData.USA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName(label)));
+    Assert.assertEquals(testData.CAMBODIA.getCode(), feature.getAttribute(exporter.getColumnName(code)));
+    Assert.assertEquals(testData.CAMBODIA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName(label)));
   }
 
   @Test
   @Request
   public void testWriteToFile() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
@@ -231,7 +231,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();

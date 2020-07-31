@@ -152,6 +152,11 @@ public class TestHierarchyTypeInfo
   @Request
   public void apply()
   {
+    if (this.getServerObject(true) != null)
+    {
+      return;
+    }
+    
     HierarchyType dto = this.toDTO();
     
     this.serverObj = new ServerHierarchyTypeBuilder().createHierarchyType(dto);

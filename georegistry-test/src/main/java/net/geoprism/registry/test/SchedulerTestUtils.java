@@ -20,22 +20,26 @@ package net.geoprism.registry.test;
 
 import org.junit.Assert;
 
+import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 public class SchedulerTestUtils
 {
-  public static void waitUntilStatus(JobHistory hist, AllJobStatus status) throws InterruptedException
+  @Request
+  public static void waitUntilStatus(String histId, AllJobStatus status) throws InterruptedException
   {
     int waitTime = 0;
     while (true)
     {
-      hist = JobHistory.get(hist.getOid());
+      JobHistory hist = JobHistory.get(histId);
       if (hist.getStatus().get(0) == status)
       {
         break;
       }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE)
+      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE
+          || hist.getStatus().get(0) == AllJobStatus.FEEDBACK || hist.getStatus().get(0) == AllJobStatus.CANCELED
+          || hist.getStatus().get(0) == AllJobStatus.STOPPED || hist.getStatus().get(0) == AllJobStatus.WARNING)
       {
         Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
       }
@@ -43,7 +47,7 @@ public class SchedulerTestUtils
       Thread.sleep(10);
 
       waitTime += 10;
-      if (waitTime > 20000000)
+      if (waitTime > 600000)
       {
 //        String extra = "";
 //        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
@@ -59,5 +63,6 @@ public class SchedulerTestUtils
     }
 
     Thread.sleep(100);
+    waitTime += 100;
   }
 }
