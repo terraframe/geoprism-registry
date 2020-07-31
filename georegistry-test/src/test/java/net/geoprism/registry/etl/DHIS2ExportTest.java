@@ -257,9 +257,9 @@ public class DHIS2ExportTest
     level2.setAttributes(mappings);
     
     Map<String, String> terms = new HashMap<String, String>();
-    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getOid(), "TEST_EXTERNAL_ID");
-    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getOid(), "TEST_EXTERNAL_ID");
-    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getOid(), "TEST_EXTERNAL_ID");
+    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getClassifierId(), "TEST_EXTERNAL_ID");
+    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getClassifierId(), "TEST_EXTERNAL_ID");
+    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getClassifierId(), "TEST_EXTERNAL_ID");
     mapping.setTerms(terms);
     
     SynchronizationConfig config = createSyncConfig(level2);

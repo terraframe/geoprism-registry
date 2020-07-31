@@ -208,7 +208,7 @@ public class AllAttributesDataset extends TestDataSet
     
     Classifier allVal1 = new Classifier();
     allVal1.setClassifierId(TEST_DATA_KEY + "ALL_VAL1");
-    allVal1.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    allVal1.setClassifierPackage(allRoot.getKey());
     allVal1.getDisplayLabel().setDefaultValue("All Value 1");
     allVal1.apply();
     
@@ -218,7 +218,7 @@ public class AllAttributesDataset extends TestDataSet
     
     Classifier allVal2 = new Classifier();
     allVal2.setClassifierId(TEST_DATA_KEY + "_ALLVAL2");
-    allVal2.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    allVal2.setClassifierPackage(allRoot.getKey());
     allVal2.getDisplayLabel().setDefaultValue("All Value 2");
     allVal2.apply();
     
@@ -243,7 +243,7 @@ public class AllAttributesDataset extends TestDataSet
     
     Classifier termVal1 = new Classifier();
     termVal1.setClassifierId(TEST_DATA_KEY + "_TERMVAL1");
-    termVal1.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    termVal1.setClassifierPackage(termRoot.getKey());
     termVal1.getDisplayLabel().setDefaultValue("All Value 1");
     termVal1.apply();
     
@@ -252,7 +252,7 @@ public class AllAttributesDataset extends TestDataSet
     
     Classifier termVal2 = new Classifier();
     termVal2.setClassifierId(TEST_DATA_KEY + "_TERMVAL2");
-    termVal2.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
+    termVal2.setClassifierPackage(termRoot.getKey());
     termVal2.getDisplayLabel().setDefaultValue("All Value 2");
     termVal2.apply();
     
