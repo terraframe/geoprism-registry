@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -37,7 +38,6 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import junit.framework.Assert;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.TermConverter;
 
 public class CambodiaTestDataset extends TestDataSet
@@ -46,7 +46,11 @@ public class CambodiaTestDataset extends TestDataSet
   
   public final TestOrganizationInfo  ORG_CENTRAL          = new TestOrganizationInfo("CentralGovernmentOrg", "Central Government");
   
+  public final TestUserInfo          USER_ORG_RA      = new TestUserInfo("cgovra", "cgovra", "cgovra@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_CENTRAL.getCode())});
+  
   public final TestOrganizationInfo  ORG_MOH          = new TestOrganizationInfo("MinistryOfHealthOrg", "Ministry Of Health");
+  
+  public final TestUserInfo          USER_MOH_RA      = new TestUserInfo("mohra", "mohra", "mohra@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_MOH.getCode())});
   
   public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo("AdminDivisions", "Administrative Divisions", ORG_CENTRAL);
   
@@ -103,6 +107,9 @@ public class CambodiaTestDataset extends TestDataSet
 
     managedGeoObjectInfos.add(GO_Cambodia);
     managedGeoObjectInfos.add(GO_Oddar_Meanchey);
+    
+    managedUsers.add(USER_ORG_RA);
+    managedUsers.add(USER_MOH_RA);
   }
   
   public static void main(String[] args)

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -51,15 +52,16 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.Roles;
 
 import junit.framework.Assert;
-import net.geoprism.DefaultConfiguration;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.task.Task.TaskStatus;
-import net.geoprism.registry.task.Task.TaskType;
 import net.geoprism.registry.task.Task.TaskTypeIF;
-import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestUserInfo;
 
 public class TaskTest
 {
+  public static final TestUserInfo USER_SRA = new TestUserInfo("task_sra", "task_sra", "task_sra@noreply.com", new String[] {RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE});
+  
   public ClientSession chineseSession = null;
   
   public ClientSession koreanSession = null;
@@ -103,45 +105,6 @@ public class TaskTest
     }
   }
   
-  public static void main(String[] args)
-  {
-    mainInReq();
-  }
-  @Request
-  public static void mainInReq()
-  {
-    final List<Roles> roles = new ArrayList<Roles>();
-    roles.add(Roles.findRoleByName(DefaultConfiguration.ADMIN));
-    
-    Map<String, LocalizedValue> values = new HashMap<String, LocalizedValue>();
-    
-    LocalizedValue lvTypeName = new LocalizedValue(null);
-    lvTypeName.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "District");
-    values.put("typeName", lvTypeName);
-    
-    LocalizedValue lvOldParentName = new LocalizedValue("");
-    lvOldParentName.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "D1");
-    values.put("oldParentName", lvOldParentName);
-    
-    LocalizedValue lvNewParentName1 = new LocalizedValue("");
-    lvNewParentName1.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "D2");
-    values.put("newParentName1", lvNewParentName1);
-    
-    LocalizedValue lvNewParentName2 = new LocalizedValue("");
-    lvNewParentName2.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "D3");
-    values.put("newParentName2", lvNewParentName2);
-    
-    LocalizedValue lvSplitDate = new LocalizedValue("");
-    lvSplitDate.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "2012-11-15");
-    values.put("splitDate", lvSplitDate);
-    
-    LocalizedValue lvChildTypeName = new LocalizedValue("");
-    lvChildTypeName.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "Health Facility");
-    values.put("childTypeName", lvChildTypeName);
-    
-    Task.createNewTask(roles, TaskType.GeoObjectSplitOrphanedChildren, values);
-  }
-  
   @BeforeClass
   @Request
   public static void setUpClass()
@@ -162,12 +125,16 @@ public class TaskTest
     {
       LocalizationFacade.install(Locale.CANADA);
     }
+    
+    USER_SRA.apply();
   }
   
   @AfterClass
   @Request
   public static void tearDownClass()
   {
+    USER_SRA.delete();
+    
     LocalizationFacade.uninstall(Locale.CHINESE);
     LocalizationFacade.uninstall(Locale.KOREAN);
     LocalizationFacade.uninstall(Locale.CANADA);
@@ -221,10 +188,10 @@ public class TaskTest
   @Before
   public void setUp()
   {
-    chineseSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { Locale.CHINESE });
-    koreanSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { Locale.KOREAN });
-    canadaSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { Locale.CANADA });
-    italianSession = ClientSession.createUserSession(TestDataSet.ADMIN_USER_NAME, TestDataSet.ADMIN_PASSWORD, new Locale[] { Locale.ITALIAN });
+    chineseSession = ClientSession.createUserSession(USER_SRA.getUsername(), USER_SRA.getPassword(), new Locale[] { Locale.CHINESE });
+    koreanSession = ClientSession.createUserSession(USER_SRA.getUsername(), USER_SRA.getPassword(), new Locale[] { Locale.KOREAN });
+    canadaSession = ClientSession.createUserSession(USER_SRA.getUsername(), USER_SRA.getPassword(), new Locale[] { Locale.CANADA });
+    italianSession = ClientSession.createUserSession(USER_SRA.getUsername(), USER_SRA.getPassword(), new Locale[] { Locale.ITALIAN });
     
     deleteAllTasks();
   }
@@ -270,6 +237,22 @@ public class TaskTest
     }
   }
   
+  private JSONObject getTaskByName(String name, JSONArray array)
+  {
+    for (int i = 0; i < array.length(); ++i)
+    {
+      JSONObject jo = array.getJSONObject(i);
+      
+      if (jo.getString("templateKey").equals(name))
+      {
+        return jo;
+      }
+    }
+    
+    Assert.fail("Could not find task by name [" + name + "] in array [" + array + "].");
+    throw new UnsupportedOperationException();
+  }
+  
   @Test
   public void testCreateAndFetchTasks()
   {
@@ -284,8 +267,7 @@ public class TaskTest
     
     createInstanceData(chineseSession.getSessionId());
     
-    JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), chinaJO.getString("templateKey"));
+    JSONObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
     Assert.assertNotNull(chinaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(chinaJO.getString("createDate"))));
@@ -299,8 +281,7 @@ public class TaskTest
     
     System.out.println(chinaJO);
     
-    JSONObject koreaJO = TaskService.getTasksForCurrentUser(koreanSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), koreaJO.getString("templateKey"));
+    JSONObject koreaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(koreanSession.getSessionId()).getJSONArray("results"));
     Assert.assertNotNull(koreaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), koreaJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(koreaJO.getString("createDate"))));
@@ -312,8 +293,7 @@ public class TaskTest
     );
     Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.KOREAN), koreaJO.getString("title"));
     
-    JSONObject canadaJO = TaskService.getTasksForCurrentUser(canadaSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), canadaJO.getString("templateKey"));
+    JSONObject canadaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(canadaSession.getSessionId()).getJSONArray("results"));
     Assert.assertNotNull(canadaJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), canadaJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(canadaJO.getString("createDate"))));
@@ -325,8 +305,7 @@ public class TaskTest
     );
     Assert.assertEquals(LocalizedValueStore.getByKey(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTitleKey()).getStoreValue().getValue(Locale.CANADA), canadaJO.getString("title"));
     
-    JSONObject italianJO = TaskService.getTasksForCurrentUser(italianSession.getSessionId()).getJSONArray("results").getJSONObject(0);
-    Assert.assertEquals(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), italianJO.getString("templateKey"));
+    JSONObject italianJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(italianSession.getSessionId()).getJSONArray("results"));
     Assert.assertNotNull(italianJO.getString("id"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), italianJO.getString("status"));
 //    Assert.assertTrue(dateMin.before(parseDate(italianJO.getString("createDate"))));
@@ -354,12 +333,12 @@ public class TaskTest
     
     createInstanceData(chineseSession.getSessionId());
     
-    JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results").getJSONObject(0);
+    JSONObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
     Assert.assertTrue(chinaJO.isNull("completedDate"));
     Assert.assertEquals(TaskStatus.UNRESOLVED.name(), chinaJO.getString("status"));
     
     TaskService.completeTask(chineseSession.getSessionId(), chinaJO.getString("id"));
-    JSONObject chinaJO2 = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results").getJSONObject(0);
+    JSONObject chinaJO2 = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
     
     Task t = Task.get(chinaJO2.getString("id"));
     Assert.assertEquals(TaskStatus.RESOLVED.name(), t.getStatus());
@@ -374,7 +353,7 @@ public class TaskTest
   {
     createInstanceData(chineseSession.getSessionId());
     
-    JSONObject chinaJO = TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results").getJSONObject(0);
+    JSONObject chinaJO = getTaskByName(TestTaskType.TestGeoObjectSplitOrphanedChildren.getTemplateKey(), TaskService.getTasksForCurrentUser(chineseSession.getSessionId()).getJSONArray("results"));
     
     TaskService.deleteTask(chineseSession.getSessionId(), chinaJO.getString("id"));
     
@@ -393,7 +372,7 @@ public class TaskTest
   private static void createInstanceData(String sessionId)
   {
     final List<Roles> roles = new ArrayList<Roles>();
-    roles.add(Roles.findRoleByName(DefaultConfiguration.ADMIN));
+    roles.add(Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE));
     
     
     LocalizedValueStore lv = new LocalizedValueStore();

@@ -31,76 +31,50 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.MasterListTest;
+import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.USATestData;
 
 public class PublishShapefileJobTest
 {
-  protected static USATestData testData;
-
-  private static Organization  org;
+  protected static FastTestDataset testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    setupOrg();
-
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
+    testData.setSessionUser(testData.USER_CGOV_RA);
     testData.setUpMetadata();
 
-    SchedulerManager.start();
-  }
-
-  @Request
-  private static void setupOrg()
-  {
-    org = new Organization();
-    org.setCode("Testzzz");
-    org.getDisplayLabel().setValue("Testzzz");
-    org.apply();
-
-    final Roles role = org.getRegistryAdminiRole();
-    RoleDAO.get(role.getOid()).assignMember(UserDAO.findUser("admin"));
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
   }
 
   @AfterClass
   public static void cleanUpClass()
   {
-    SchedulerManager.shutdown();
+//    SchedulerManager.shutdown();
 
     if (testData != null)
     {
       testData.tearDownMetadata();
-    }
-
-    tearDownOrg();
-  }
-
-  @Request
-  private static void tearDownOrg()
-  {
-    if (org != null)
-    {
-      org.delete();
     }
   }
 
@@ -147,54 +121,23 @@ public class PublishShapefileJobTest
       }
     }
   }
-
-  @Request
-  private void waitUntilStatus(String historyId, AllJobStatus status) throws InterruptedException
-  {
-    int waitTime = 0;
-    while (true)
-    {
-      final JobHistory hist = JobHistory.get(historyId);
-      if (hist.getStatus().get(0) == status)
-      {
-        break;
-      }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE)
-      {
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
-      }
-
-      Thread.sleep(10);
-
-      waitTime += 10;
-      if (waitTime > 2000000)
-      {
-        String extra = "";
-
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") " + extra);
-        return;
-      }
-    }
-
-    Thread.sleep(100);
-  }
-
+  
   @Test
   public void testCreate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
     {
-      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+      String historyId = service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
 
-      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
@@ -205,11 +148,11 @@ public class PublishShapefileJobTest
 
       final String versionId = version.get(MasterListVersion.OID).getAsString();
 
-      String historyId2 = service.generateShapefile(testData.adminClientRequest.getSessionId(), versionId);
+      String historyId2 = service.generateShapefile(testData.clientRequest.getSessionId(), versionId);
 
-      this.waitUntilStatus(historyId2, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(historyId2, AllJobStatus.SUCCESS);
 
-      final JsonObject response = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      final JsonObject response = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray array = response.get(MasterList.VERSIONS).getAsJsonArray();
       final JsonObject test = array.get(0).getAsJsonObject();
 
@@ -217,7 +160,7 @@ public class PublishShapefileJobTest
     }
     finally
     {
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
 
   }

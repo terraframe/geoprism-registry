@@ -33,14 +33,11 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -51,59 +48,34 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.MasterListTest;
-import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.SchedulerTestUtils;
 
 public class PublishMasterListJobTest
 {
-  protected static USATestData testData;
-
-  private static Organization  org;
+  protected static FastTestDataset testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    setupOrg();
-
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
+    testData.setSessionUser(testData.USER_CGOV_RA);
     testData.setUpMetadata();
 
-    SchedulerManager.start();
-  }
-
-  @Request
-  private static void setupOrg()
-  {
-    org = new Organization();
-    org.setCode("Testzzz");
-    org.getDisplayLabel().setValue("Testzzz");
-    org.apply();
-
-    final Roles role = org.getRegistryAdminiRole();
-    RoleDAO.get(role.getOid()).assignMember(UserDAO.findUser("admin"));
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
   }
 
   @AfterClass
   public static void cleanUpClass()
   {
-    SchedulerManager.shutdown();
-
     if (testData != null)
     {
       testData.tearDownMetadata();
-    }
-
-    tearDownOrg();
-  }
-
-  @Request
-  private static void tearDownOrg()
-  {
-    if (org != null)
-    {
-      org.delete();
     }
   }
 
@@ -151,60 +123,29 @@ public class PublishMasterListJobTest
     }
   }
 
-  @Request
-  private void waitUntilStatus(String historyId, AllJobStatus status) throws InterruptedException
-  {
-    int waitTime = 0;
-    while (true)
-    {
-      final JobHistory hist = JobHistory.get(historyId);
-      if (hist.getStatus().get(0) == status)
-      {
-        break;
-      }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE)
-      {
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
-      }
-
-      Thread.sleep(10);
-
-      waitTime += 10;
-      if (waitTime > 2000000)
-      {
-        String extra = "";
-
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") " + extra);
-        return;
-      }
-    }
-
-    Thread.sleep(100);
-  }
-
   @Test
   public void testNewAndUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
     {
-      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+      String historyId = service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
 
-      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
     }
     finally
     {
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
 
   }
@@ -212,19 +153,19 @@ public class PublishMasterListJobTest
   @Test
   public void testGetPublishJobs() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
     {
-      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+      String historyId = service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
 
-      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JSONObject response = service.getPublishJobs(testData.adminClientRequest.getSessionId(), oid, 10, 1, null, true);
+      final JSONObject response = service.getPublishJobs(testData.clientRequest.getSessionId(), oid, 10, 1, null, true);
       Assert.assertEquals(1, response.getInt("count"));
       Assert.assertEquals(1, response.getInt("pageNumber"));
       Assert.assertEquals(10, response.getInt("pageSize"));
@@ -237,15 +178,15 @@ public class PublishMasterListJobTest
       final JSONObject object = json.getJSONObject(0);
 
       Assert.assertEquals(oid, object.getString(PublishMasterListJob.MASTERLIST));
-      Assert.assertEquals(testData.STATE.getDisplayLabel().getValue(), object.getString(PublishMasterListJob.TYPE));
+      Assert.assertEquals(testData.PROVINCE.getDisplayLabel().getValue(), object.getString(PublishMasterListJob.TYPE));
       Assert.assertEquals(AllJobStatus.SUCCESS.getDisplayLabel(), object.getString(JobHistory.STATUS));
-      Assert.assertEquals("admin", object.getString("author"));
+      Assert.assertEquals(testData.USER_CGOV_RA.getUsername(), object.getString("author"));
       Assert.assertTrue(object.has("createDate"));
       Assert.assertTrue(object.has("lastUpdateDate"));
     }
     finally
     {
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
 
   }
@@ -253,19 +194,19 @@ public class PublishMasterListJobTest
   @Test
   public void testCreateMultiple() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
     {
-      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+      String historyId = service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
 
       try
       {
-        service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+        service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
 
         Assert.fail("Able to publish a masterlist multiple times concurrently");
       }
@@ -274,16 +215,16 @@ public class PublishMasterListJobTest
         // This is expected
       }
 
-      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
     }
     finally
     {
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
 
   }
@@ -291,68 +232,68 @@ public class PublishMasterListJobTest
   @Test
   public void testChangeFrequency() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
     {
-      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+      String historyId = service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
 
-      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
 
       result.addProperty(MasterList.FREQUENCY, ChangeFrequency.QUARTER.name());
 
-      service.create(testData.adminClientRequest.getSessionId(), result);
+      service.create(testData.clientRequest.getSessionId(), result);
 
-      object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(0, json.size());
     }
     finally
     {
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
   }
 
   @Test
   public void testUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(org, testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.adminClientRequest.getSessionId(), listJson);
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
     {
-      String historyId = service.createPublishedVersionsJob(testData.adminClientRequest.getSessionId(), oid);
+      String historyId = service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
 
-      this.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      JsonObject object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
 
-      service.create(testData.adminClientRequest.getSessionId(), result);
+      service.create(testData.clientRequest.getSessionId(), result);
 
-      object = service.getVersions(testData.adminClientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
       Assert.assertEquals(1, json.size());
     }
     finally
     {
-      service.remove(testData.adminClientRequest.getSessionId(), oid);
+      service.remove(testData.clientRequest.getSessionId(), oid);
     }
 
   }

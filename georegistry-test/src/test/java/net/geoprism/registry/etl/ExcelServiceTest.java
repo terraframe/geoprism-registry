@@ -31,6 +31,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -51,7 +52,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.business.Business;
+import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -89,6 +94,7 @@ import net.geoprism.registry.io.PostalCodeFactory;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.query.postgres.CodeRestriction;
 import net.geoprism.registry.query.postgres.GeoObjectIterator;
@@ -98,85 +104,76 @@ import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
+import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class ExcelServiceTest
 {
   protected static USATestData testData;
 
-  protected ClientRequestIF    adminCR;
+  private static AttributeTermType    testTerm;
 
-  private AttributeTermType    testTerm;
+  private static AttributeIntegerType testInteger;
 
-  private AttributeIntegerType testInteger;
+  private static AttributeDateType    testDate;
 
-  private AttributeDateType    testDate;
-
-  private AttributeBooleanType testBoolean;
+  private static AttributeBooleanType testBoolean;
 
   private final Integer        ROW_COUNT = 2;
-
-  @Before
-  public void setUp()
-  {
-    testData = USATestData.newTestData();
-    testData.setUpMetadata();
-
-    AttributeTermType testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    this.testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testTerm.toJSON().toString());
-
-    AttributeBooleanType testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
-    this.testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testBoolean.toJSON().toString());
-
-    AttributeDateType testDate = (AttributeDateType) AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
-    this.testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testDate.toJSON().toString());
-
-    AttributeIntegerType testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
-    this.testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), testInteger.toJSON().toString());
-
-    reload();
-
-    clearData();
-  }
-
-  @After
-  public void tearDown()
-  {
-    // testData.cleanUpTest();
-
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-
-    clearData();
-  }
 
   @BeforeClass
   @Request
   public static void classSetUp()
   {
-    clearData();
+    testData = USATestData.newTestData();
+    testData.setSessionUser(testData.USER_NPS_RA);
+    testData.setUpMetadata();
 
-    SchedulerManager.start();
+    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testTerm.toJSON().toString());
+
+    testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
+    testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testBoolean.toJSON().toString());
+
+    testDate = (AttributeDateType) AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
+    testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testDate.toJSON().toString());
+
+    testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
+    testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testInteger.toJSON().toString());
+
+    testData.reloadPermissions();
+    
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
   }
 
   @AfterClass
   @Request
   public static void classTearDown()
   {
-    SchedulerManager.shutdown();
+    if (testData != null)
+    {
+      testData.tearDownMetadata();
+    }
   }
-
-  @Request
-  public static void reload()
+  
+  @Before
+  public void setUp()
   {
-    /*
-     * Reload permissions for the new attributes
-     */
-    SessionFacade.getSessionForRequest(testData.adminClientRequest.getSessionId()).reloadPermissions();
+    clearData();
   }
 
+  @After
+  public void tearDown()
+  {
+    testData.tearDownInstanceData();
+
+    clearData();
+  }
+  
   @Request
   private static void clearData()
   {
@@ -230,7 +227,7 @@ public class ExcelServiceTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JSONObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -283,18 +280,20 @@ public class ExcelServiceTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JSONObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
 
-  private ImportHistory importExcelFile(String sessionId, String config)
+  private ImportHistory importExcelFile(String sessionId, String config) throws InterruptedException
   {
     String retConfig = new ETLService().doImport(sessionId, config).toString();
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
     String historyId = configuration.getHistoryId();
+    
+    Thread.sleep(100);
 
     return ImportHistory.get(historyId);
   }
@@ -315,9 +314,9 @@ public class ExcelServiceTest
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -325,7 +324,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -360,9 +359,9 @@ public class ExcelServiceTest
     configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -370,7 +369,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals(new Long(123), object.getValue(this.testInteger.getName()));
@@ -393,9 +392,9 @@ public class ExcelServiceTest
     configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(1), hist.getWorkTotal());
@@ -428,9 +427,9 @@ public class ExcelServiceTest
     configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(1), hist.getWorkTotal());
@@ -463,9 +462,9 @@ public class ExcelServiceTest
     configuration.setFunction(this.testDate.getName(), new BasicColumnFunction("Test Date"));
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -473,7 +472,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -501,9 +500,9 @@ public class ExcelServiceTest
     configuration.setFunction(this.testBoolean.getName(), new BasicColumnFunction("Test Boolean"));
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -511,7 +510,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals(new Boolean(true), object.getValue(this.testBoolean.getName()));
@@ -533,9 +532,9 @@ public class ExcelServiceTest
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -568,7 +567,7 @@ public class ExcelServiceTest
   @Request
   public void testExport() throws IOException
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -581,7 +580,7 @@ public class ExcelServiceTest
       GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
       Point point = geometryFactory.createPoint(new Coordinate(-104.991531, 39.742043));
 
-      GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.DISTRICT.getCode());
+      GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.DISTRICT.getCode());
       geoObj.setCode("00");
       geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
       geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -619,7 +618,7 @@ public class ExcelServiceTest
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
     }
   }
 
@@ -627,7 +626,7 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithParent() throws InterruptedException
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.adminClientRequest.getSessionId(), testData.STATE.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), testData.STATE.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -652,9 +651,9 @@ public class ExcelServiceTest
 
     configuration.addParent(new Location(testData.STATE.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -662,7 +661,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    String sessionId = testData.adminClientRequest.getSessionId();
+    String sessionId = testData.clientRequest.getSessionId();
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
@@ -702,7 +701,7 @@ public class ExcelServiceTest
       }
     });
 
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.adminClientRequest.getSessionId(), this.testData.STATE.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.STATE.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -727,9 +726,9 @@ public class ExcelServiceTest
 
     configuration.addParent(new Location(this.testData.STATE.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -737,7 +736,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    String sessionId = this.testData.adminClientRequest.getSessionId();
+    String sessionId = this.testData.clientRequest.getSessionId();
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
@@ -769,9 +768,9 @@ public class ExcelServiceTest
     configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
     configuration.addExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, "00");
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -805,9 +804,9 @@ public class ExcelServiceTest
 
     configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -815,7 +814,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -830,7 +829,7 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithTerm() throws InterruptedException
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("Test Term", new LocalizedValue("Test Term"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -849,9 +848,9 @@ public class ExcelServiceTest
       GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
       configuration.setHierarchy(hierarchyType);
 
-      ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+      ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
       
-      SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
       
       hist = ImportHistory.get(hist.getOid());
       Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -859,14 +858,14 @@ public class ExcelServiceTest
       Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-      String sessionId = this.testData.adminClientRequest.getSessionId();
+      String sessionId = this.testData.clientRequest.getSessionId();
       GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
 
       Assert.assertEquals("0001", object.getCode());
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(testData.adminClientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
 
       TestDataSet.refreshTerms(testTerm);
     }
@@ -889,9 +888,9 @@ public class ExcelServiceTest
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), configuration.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
     
-    SchedulerTestUtils.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
     
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -899,7 +898,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(0), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.VALIDATION_RESOLVE, hist.getStage().get(0));
 
-    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject page = new JSONObject(new ETLService().getValidationProblems(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray results = page.getJSONArray("results");
     Assert.assertEquals(1, results.length());
 
@@ -920,7 +919,7 @@ public class ExcelServiceTest
 
   private JSONObject getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm)
   {
-    JSONObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

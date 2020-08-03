@@ -21,6 +21,7 @@ package net.geoprism.registry.service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -41,17 +42,18 @@ import com.vividsolutions.jts.geom.Geometry;
 import junit.framework.Assert;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.test.USATestData;
 
 public class RegistryVersionTest
 {
-  protected static USATestData               testData;
+  protected static FastTestDataset               testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
+    testData.setSessionUser(testData.USER_CGOV_RA);
     testData.setUpMetadata();
   }
   
@@ -85,16 +87,16 @@ public class RegistryVersionTest
   @Test
   public void testGetGeoObjectOverTimeByCode()
   {
-    this.addVersionData(testData.COLORADO);
+    this.addVersionData(testData.PROV_CENTRAL);
     
-    GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(testData.COLORADO.getCode(), testData.COLORADO.getGeoObjectType().getCode());
+    GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(testData.PROV_CENTRAL.getCode(), testData.PROV_CENTRAL.getGeoObjectType().getCode());
     
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     
     try
     {
-      Assert.assertEquals(testData.COLORADO.getCode(), goTime.getCode());
+      Assert.assertEquals(testData.PROV_CENTRAL.getCode(), goTime.getCode());
       Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, goTime.getStatus(dateFormat.parse("1990-01-01")).getCode());
       Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.NEW.code, goTime.getStatus(dateFormat.parse("1990-02-01")).getCode());
       Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, goTime.getStatus(dateFormat.parse("1990-03-01")).getCode());
@@ -107,7 +109,7 @@ public class RegistryVersionTest
       Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
       Assert.assertEquals(dateFormat.format(ValueOverTime.INFINITY_END_DATE), dateFormat.format(allStatus.get(2).getEndDate()));
       
-      Geometry expectedGeom = testData.COLORADO.asGeoObject().getGeometry();
+      Geometry expectedGeom = testData.PROV_CENTRAL.asGeoObject().getGeometry();
       Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
       Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
     }
@@ -118,18 +120,18 @@ public class RegistryVersionTest
   }
   
 //  @Test
-//  public void testSetAttributeVersions()
+  //  public void testSetAttributeVersions()
 //  {
 //    String attributeName = "status";
 //    AttributeType type = getAttributeType(attributeName);
 //    
-//    ServerGeoObjectIF serverObj = testData.COLORADO.getServerObject();
+//    ServerGeoObjectIF serverObj = testData.PROV_CENTRAL.getServerObject();
 //    
 //    Assert.assertEquals(0, serverObj.getValuesOverTime(attributeName).size());
 //    
 //    ValueOverTimeCollectionDTO dto = buildVersionDTO(type);
 //    
-//    testData.adapter.setAttributeVersions(testData.COLORADO.getCode(), testData.COLORADO.getGeoObjectType().getCode(), "status", dto);
+//    testData.adapter.setAttributeVersions(testData.PROV_CENTRAL.getCode(), testData.PROV_CENTRAL.getGeoObjectType().getCode(), "status", dto);
 //    
 //    assertVersionData(ValueOverTimeConverter.colToDTO(serverObj.getValuesOverTime(attributeName), type));
 //  }
@@ -162,6 +164,7 @@ public class RegistryVersionTest
 //  }
 //  
   @Request
+  @SuppressWarnings("unchecked")
   private void addVersionData(TestGeoObjectInfo geoObj)
   {
     SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
@@ -171,10 +174,20 @@ public class RegistryVersionTest
     {
       ServerGeoObjectIF serverObj = geoObj.getServerObject();
       serverObj.getValuesOverTime("status").clear();
+      
       serverObj.setStatus(GeoObjectStatus.INACTIVE, dateFormat.parse("01-01-1990"), null);
+      Assert.assertEquals(GeoObjectStatus.INACTIVE.getOid(), ((Set<String>)serverObj.getValue("status", dateFormat.parse("01-01-1990"))).iterator().next());
+      
       serverObj.setStatus(GeoObjectStatus.NEW, dateFormat.parse("02-01-1990"), null);
+      Assert.assertEquals(GeoObjectStatus.INACTIVE.getOid(), ((Set<String>)serverObj.getValue("status", dateFormat.parse("01-01-1990"))).iterator().next());
+      
       serverObj.setStatus(GeoObjectStatus.PENDING, dateFormat.parse("03-01-1990"), null);
+      
+      Assert.assertEquals(GeoObjectStatus.INACTIVE.getOid(), ((Set<String>)serverObj.getValue("status", dateFormat.parse("01-01-1990"))).iterator().next());
+      
       serverObj.apply(false);
+      
+      Assert.assertEquals(GeoObjectStatus.INACTIVE.getOid(), ((Set<String>)serverObj.getValue("status", dateFormat.parse("01-01-1990"))).iterator().next());
     }
     catch (ParseException e)
     {
@@ -206,6 +219,6 @@ public class RegistryVersionTest
 //  @Request
 //  private AttributeType getAttributeType(String attributeName)
 //  {
-//    return testData.COLORADO.getGeoObjectType().getGeoObjectType().getAttribute(attributeName).get();
+//    return testData.PROV_CENTRAL.getGeoObjectType().getGeoObjectType().getAttribute(attributeName).get();
 //  }
 }
