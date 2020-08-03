@@ -50,7 +50,6 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.session.SessionFacade;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -169,8 +168,8 @@ public class ShapefileServiceTest
       if (hist instanceof ImportHistory)
       {
         ExecutableJob job = jhr.getParent();
-        jhr.delete();
-        job.delete();
+        JobHistoryRecord.get(jhr.getOid()).delete();
+        ExecutableJob.get(job.getOid()).delete();
       }
     }
 
@@ -799,13 +798,15 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist2.getStage().get(0));
   }
 
-  private ImportHistory importShapefile(String sessionId, String config)
+  private ImportHistory importShapefile(String sessionId, String config) throws InterruptedException
   {
     String retConfig = new ETLService().doImport(sessionId, config).toString();
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
     String historyId = configuration.getHistoryId();
+    
+    Thread.sleep(100);
 
     return ImportHistory.get(historyId);
   }

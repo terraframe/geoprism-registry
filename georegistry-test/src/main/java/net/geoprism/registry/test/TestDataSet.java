@@ -437,7 +437,7 @@ abstract public class TestDataSet
   {
     for (TestGeoObjectTypeInfo type : this.getManagedGeoObjectTypes())
     {
-      ServerGeoObjectType got = type.getServerObject();
+      ServerGeoObjectType got = type.getServerObject(true);
       
       if (got == null) { continue; }
       

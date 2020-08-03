@@ -47,7 +47,7 @@ public class SchedulerTestUtils
       Thread.sleep(10);
 
       waitTime += 10;
-      if (waitTime > 600000)
+      if (waitTime > 200000)
       {
 //        String extra = "";
 //        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))

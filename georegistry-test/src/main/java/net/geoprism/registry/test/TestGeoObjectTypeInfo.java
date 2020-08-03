@@ -260,7 +260,7 @@ public class TestGeoObjectTypeInfo
     @Transaction
     private void deleteInTrans()
     {
-      ServerGeoObjectType type = this.getServerObject();
+      ServerGeoObjectType type = this.getServerObject(true);
       
       if (type != null)
       {

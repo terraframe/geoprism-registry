@@ -285,13 +285,15 @@ public class ExcelServiceTest
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
 
-  private ImportHistory importExcelFile(String sessionId, String config)
+  private ImportHistory importExcelFile(String sessionId, String config) throws InterruptedException
   {
     String retConfig = new ETLService().doImport(sessionId, config).toString();
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
     String historyId = configuration.getHistoryId();
+    
+    Thread.sleep(100);
 
     return ImportHistory.get(historyId);
   }
