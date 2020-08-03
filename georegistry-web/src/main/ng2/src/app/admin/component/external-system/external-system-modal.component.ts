@@ -81,7 +81,7 @@ export class ExternalSystemModalComponent implements OnInit {
 	}
 
 	public error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

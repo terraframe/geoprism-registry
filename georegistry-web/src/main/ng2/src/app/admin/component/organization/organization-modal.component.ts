@@ -24,7 +24,6 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { ErrorHandler } from '@shared/component';
 import { Organization } from '@shared/model/core';
-import { SettingsService } from '@admin/service/settings.service';
 
 import { LocalizationService, OrganizationService } from '@shared/service';
 
@@ -41,7 +40,7 @@ export class OrganizationModalComponent implements OnInit {
 
 	public onSuccess: Subject<Organization>;
 
-	constructor(private service: SettingsService, private orgService: OrganizationService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
+	constructor(private orgService: OrganizationService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
 
 	ngOnInit(): void {
 		this.onSuccess = new Subject();

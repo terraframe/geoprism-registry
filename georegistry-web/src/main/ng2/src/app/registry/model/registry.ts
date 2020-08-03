@@ -1,4 +1,4 @@
-import { LocalizedValue, Organization } from '@shared/model/core';
+import { LocalizedValue } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
 import { ImportConfiguration } from './io';
 

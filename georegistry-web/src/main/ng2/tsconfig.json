@@ -19,19 +19,22 @@
 		"typeRoots": [
 			"./node_modules/@types"
 		],
-		"baseUrl": "src",
+		"baseUrl": "./",
 		"paths": {
 			"@shared/*": [
-				"app/shared/*"
+				"src/app/shared/*"
 			],
 			"@registry/*": [
-				"app/registry/*"
+				"src/app/registry/*"
 			],
 			"@core/*": [
-				"app/core/*"
+				"src/app/core/*"
 			],
 			"@admin/*": [
-				"app/admin/*"
+				"src/app/admin/*"
+			],
+			"@test/*": [
+				"test/src/*"
 			]
 		}
 	},
