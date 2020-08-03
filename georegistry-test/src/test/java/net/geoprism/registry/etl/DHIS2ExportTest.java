@@ -31,6 +31,7 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -308,15 +309,17 @@ public class DHIS2ExportTest
         
         Assert.assertNotNull(attributeValue.get("created").getAsString());
         
-        if (attr.toDTO() instanceof AttributeIntegerType)
+        AttributeType attrDto = attr.fetchDTO();
+        
+        if (attrDto instanceof AttributeIntegerType)
         {
           Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsLong());
         }
-        else if (attr.toDTO() instanceof AttributeFloatType)
+        else if (attrDto instanceof AttributeFloatType)
         {
           Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsDouble());
         }
-        else if (attr.toDTO() instanceof AttributeDateType)
+        else if (attrDto instanceof AttributeDateType)
         {
           // TODO : If we fetch the object from the database in this manner the miliseconds aren't included on the date. But if we fetch the object via a query (as in DataExportJob) then the miliseconds ARE included...
 //          String expected = DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) go.getServerObject().getValue(attr.getAttributeName()));
@@ -326,11 +329,11 @@ public class DHIS2ExportTest
           
           Assert.assertEquals(expected, actual);
         }
-        else if (attr.toDTO() instanceof AttributeBooleanType)
+        else if (attrDto instanceof AttributeBooleanType)
         {
           Assert.assertEquals(go.getServerObject().getValue(attr.getAttributeName()), attributeValue.get("value").getAsBoolean());
         }
-        else if (attr.toDTO() instanceof AttributeTermType)
+        else if (attrDto instanceof AttributeTermType)
         {
           String dhis2Id = attributeValue.get("value").getAsString();
           
@@ -579,12 +582,12 @@ public class DHIS2ExportTest
         Assert.fail("Unexpected attribute name [" + name + "].");
       }
       
-      Assert.assertEquals(attrType.toDTO().getLabel().getValue(), attr.get("label").getAsString());
+      Assert.assertEquals(attrType.fetchDTO().getLabel().getValue(), attr.get("label").getAsString());
       
-      Assert.assertEquals(attrType.toDTO().getType(), attr.get("type").getAsString());
+      Assert.assertEquals(attrType.fetchDTO().getType(), attr.get("type").getAsString());
       
       Assert.assertNotNull(attr.get("typeLabel").getAsString());
-      Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.toDTO().getType()), attr.get("typeLabel").getAsString());
+      Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.fetchDTO().getType()), attr.get("typeLabel").getAsString());
     }
   }
 }

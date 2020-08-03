@@ -179,12 +179,12 @@ public class AllAttributesDataset extends TestDataSet
     this.AT_GO_TERM = TestDataSet.createTermAttribute("testterm", "testterm", GOT_TERM, TERM_TERM_ROOT);
     
     // TODO : Delete this test?
-    AttributeTermType att = (AttributeTermType) this.AT_ALL_TERM.toDTO();
+    AttributeTermType att = (AttributeTermType) this.AT_ALL_TERM.fetchDTO();
 //    TestDataSet.refreshTerms(att);
     Assert.assertEquals(2, att.getRootTerm().getChildren().size());
     
     // TODO : Delete this test?
-    AttributeTermType att2 = (AttributeTermType) this.AT_GO_TERM.toDTO();
+    AttributeTermType att2 = (AttributeTermType) this.AT_GO_TERM.fetchDTO();
 //    TestDataSet.refreshTerms(att2);
     Assert.assertEquals(2, att2.getRootTerm().getChildren().size());
     

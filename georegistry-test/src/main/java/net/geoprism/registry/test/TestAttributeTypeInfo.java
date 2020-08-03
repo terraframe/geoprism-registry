@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.test;
 
+import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -25,6 +27,10 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 public class TestAttributeTypeInfo
 {
   private String name;
+  
+  private String label;
+  
+  private String type;
   
   private TestGeoObjectTypeInfo got;
   
@@ -45,6 +51,14 @@ public class TestAttributeTypeInfo
     this.got = got;
   }
 
+  public TestAttributeTypeInfo(String name, String label, TestGeoObjectTypeInfo got, String type)
+  {
+    this.name = name;
+    this.label = label;
+    this.got = got;
+    this.type = type;
+  }
+
   public String getAttributeName()
   {
     return name;
@@ -55,14 +69,18 @@ public class TestAttributeTypeInfo
     this.name = attributeName;
   }
   
-  public AttributeType toDTO()
+  public AttributeType fetchDTO()
   {
-    if (dto == null)
-    {
-      dto = got.toDTO().getAttribute(this.name).get();
-    }
+    Optional<AttributeType> optional = got.toDTO().getAttribute(this.name);
     
-    return dto;
+    if (optional.isPresent())
+    {
+      return optional.get();
+    }
+    else
+    {
+      return null;
+    }
   }
   
   public MdAttributeConcreteDAOIF getServerObject()
@@ -73,5 +91,21 @@ public class TestAttributeTypeInfo
     }
     
     return serverObject;
+  }
+  
+  public void apply()
+  {
+    if (this.fetchDTO() == null)
+    {
+      TestDataSet.createAttribute(this.name, this.label, this.got, this.type);
+    }
+  }
+  
+  public void applyTerm(Term attrRoot)
+  {
+    if (this.fetchDTO() == null)
+    {
+      TestDataSet.createTermAttribute(this.name, this.label, this.got, attrRoot);
+    }
   }
 }
