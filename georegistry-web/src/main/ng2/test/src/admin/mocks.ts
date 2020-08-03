@@ -1,7 +1,7 @@
 import { ExternalSystem, Organization } from "@shared/model/core";
 import { LOCALIZED_LABEL } from "@test/shared/mocks";
 import { Email } from "@admin/model/email";
-import { User } from "@admin/model/account";
+import { User, Account } from "@admin/model/account";
 
 export const EXTERNAL_SYSTEM: ExternalSystem = {
 	id: "my-test-id",
@@ -38,5 +38,11 @@ export const USER: User = {
 	inactive: false,
 	newInstance: false,
 	roles: []
+}
+
+export const ACCOUNT: Account = {
+	changePassword : false,
+	user: USER,
+	roles : []
 }
 

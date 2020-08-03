@@ -20,8 +20,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { Location } from '@angular/common';
-
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
