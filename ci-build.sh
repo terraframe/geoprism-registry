@@ -54,7 +54,7 @@ if [ "$run_tests" == "true" ]; then
   cd $WORKSPACE/georegistry
   mvn install -B
   cd $WORKSPACE/georegistry/georegistry-server
-  mvn install -B -P patch -Droot.clean=true -Ddatabase.port=5432
+  mvn install -B -P database -Ddb.clean=true -Ddatabase.port=5432 -Ddb.patch=false -Ddb.rootUser=postgres -Ddb.rootPass=postgres -Ddb.rootDb=postgres
   cd $WORKSPACE/georegistry/georegistry-test
   mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432
 
