@@ -45,10 +45,7 @@ export class AccountsComponent implements OnInit {
 	bsModalRef: BsModalRef;
 	message: string = null;
 
-	constructor(
-		private service: AccountService,
-		private modalService: BsModalService
-	) { }
+	constructor(private service: AccountService, private modalService: BsModalService) { }
 
 	ngOnInit(): void {
 		this.service.page(1).then(res => {
@@ -71,7 +68,7 @@ export class AccountsComponent implements OnInit {
 
 		let that = this;
 		this.bsModalRef.content.onEdit.subscribe((data: Account) => {
-			
+
 			let index = that.res.resultSet.findIndex(u => u.oid === data.user.oid);
 
 			if (index !== -1) {
@@ -105,7 +102,7 @@ export class AccountsComponent implements OnInit {
 	}
 
 	public error(err: HttpErrorResponse): void {
-			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-			this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+		this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 	}
 }

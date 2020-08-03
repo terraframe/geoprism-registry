@@ -1,5 +1,7 @@
 import { ExternalSystem, Organization } from "@shared/model/core";
 import { LOCALIZED_LABEL } from "@test/shared/mocks";
+import { Email } from "@admin/model/email";
+import { User } from "@admin/model/account";
 
 export const EXTERNAL_SYSTEM: ExternalSystem = {
 	id: "my-test-id",
@@ -14,4 +16,27 @@ export const ORGANIZATION: Organization = {
 	label: LOCALIZED_LABEL,
 	contactInfo: LOCALIZED_LABEL
 };
+
+export const EMAIL: Email = {
+	oid: 'test-email-oid',
+	server: 'test.terraframe.com',
+	username: 'test.user',
+	password: 'test.password',
+	port: 8234,
+	from: 'Test@terraframe.com',
+	to: 'Test@terraframe.com'
+};
+
+export const USER: User = {
+	oid: "TEST-USER-ID",
+	username: "test",
+	password: "test",
+	firstName: "test",
+	lastName: "test",
+	email: "test@terraframe.com",
+	phoneNumber: "15555555555",
+	inactive: false,
+	newInstance: false,
+	roles: []
+}
 

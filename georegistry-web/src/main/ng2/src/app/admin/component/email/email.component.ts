@@ -17,9 +17,7 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
 
@@ -32,56 +30,50 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 
 @Component({
 
-  selector: 'email',
-  templateUrl: './email.component.html',
-  styleUrls: []
+	selector: 'email',
+	templateUrl: './email.component.html',
+	styleUrls: []
 })
 export class EmailComponent implements OnInit {
-  message: string = null;
-  public email: Email = {
-    oid: '',
-    server: '',
-    username: '',
-    password: '',
-    port: 0,
-    from: '',
-    to: '',
-  };
+	message: string = null;
+	public email: Email = {
+		oid: '',
+		server: '',
+		username: '',
+		password: '',
+		port: 0,
+		from: '',
+		to: '',
+	};
 
-  public onSuccess: Subject<any>;
+	public onSuccess: Subject<any>;
 
-  constructor(
-    private service: EmailService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private location: Location,
-    public bsModalRef: BsModalRef) {
-  }
+	constructor(private service: EmailService, public bsModalRef: BsModalRef) { }
 
-  ngOnInit(): void {
-    this.service.getInstance().then(email => {
-      this.email = email;
-    });
+	ngOnInit(): void {
+		this.service.getInstance().then(email => {
+			this.email = email;
+		});
 
-    this.onSuccess = new Subject();
-  }
+		this.onSuccess = new Subject();
+	}
 
-  cancel(): void {
-    this.bsModalRef.hide();
-  }
+	cancel(): void {
+		this.bsModalRef.hide();
+	}
 
-  onSubmit(): void {
-    this.service.apply(this.email)
-      .then(email => {
-        this.onSuccess.next(true);
-        this.bsModalRef.hide();
-      })
-      .catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
-  }
+	onSubmit(): void {
+		this.service.apply(this.email)
+			.then(() => {
+				this.onSuccess.next(true);
+				this.bsModalRef.hide();
+			})
+			.catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+	}
 
-  error(err: HttpErrorResponse): void {
-      this.message = ErrorHandler.getMessageFromError(err);
-  }
+	error(err: HttpErrorResponse): void {
+		this.message = ErrorHandler.getMessageFromError(err);
+	}
 }
