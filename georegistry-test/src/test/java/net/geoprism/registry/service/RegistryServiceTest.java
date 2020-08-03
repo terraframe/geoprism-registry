@@ -60,6 +60,7 @@ public class RegistryServiceTest
   public static void setUpClass()
   {
     testData = USATestData.newTestData();
+    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
   }
 

@@ -92,21 +92,21 @@ public class TestGeoObjectInfo
   
   private HashMap<String, Object> defaultValues;
 
-  protected TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
   {
-    initialize(genKey, testUni, statusCode, isNew);
+    initialize(code, testUni, statusCode, isNew);
     this.wkt = wkt;
   }
 
-  protected TestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni)
   {
-    initialize(genKey, testUni, DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
+    initialize(code, testUni, DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
   }
 
-  private void initialize(String genKey, TestGeoObjectTypeInfo testUni, String statusCode, Boolean isNew)
+  private void initialize(String code, TestGeoObjectTypeInfo testUni, String statusCode, Boolean isNew)
   {
-    this.code = genKey;
-    this.displayLabel = genKey;
+    this.code = code;
+    this.displayLabel = code;
     this.geoObjectType = testUni;
     this.children = new LinkedList<TestGeoObjectInfo>();
     this.parents = new LinkedList<TestGeoObjectInfo>();
@@ -114,6 +114,12 @@ public class TestGeoObjectInfo
     this.isNew = isNew;
     this.date = new Date();
     this.defaultValues = new HashMap<String, Object>();
+    
+    this.registryId = null;
+    this.oid = null;
+    this.geoEntity = null;
+    this.business = null;
+    this.serverGO = null;
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
     if (geom == GeometryType.POLYGON)
@@ -679,6 +685,21 @@ public class TestGeoObjectInfo
     this.business = null;
     this.geoEntity = null;
     this.isNew = true;
+  }
+  
+  public void clean()
+  {
+//    this.children.clear();
+//    this.parents.clear();
+//    this.defaultValues = new HashMap<String, Object>();
+
+    this.isNew = true;
+    
+    this.registryId = null;
+    this.oid = null;
+    this.geoEntity = null;
+    this.business = null;
+    this.serverGO = null;
   }
 
   /**

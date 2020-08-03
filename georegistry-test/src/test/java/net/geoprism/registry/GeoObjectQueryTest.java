@@ -411,7 +411,7 @@ public class GeoObjectQueryTest
   {
     ServerGeoObjectType type = testData.STATE.getServerObject();
 
-    LookupRestriction restriction = new LookupRestriction("Co", testData.USA.getCode(), LocatedIn.class.getSimpleName());
+    LookupRestriction restriction = new LookupRestriction("Co", testData.USA.getCode(), testData.HIER_ADMIN.getCode());
 
     GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(restriction);
@@ -432,7 +432,7 @@ public class GeoObjectQueryTest
   {
     ServerGeoObjectType type = testData.STATE.getServerObject();
 
-    LookupRestriction restriction = new LookupRestriction("Co", testData.CANADA.getCode(), LocatedIn.class.getSimpleName());
+    LookupRestriction restriction = new LookupRestriction("Co", testData.CANADA.getCode(), testData.HIER_ADMIN.getCode());
 
     GeoObjectQuery query = new GeoObjectQuery(type);
     query.setRestriction(restriction);

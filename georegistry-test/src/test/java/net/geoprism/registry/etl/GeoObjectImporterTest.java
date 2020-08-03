@@ -61,6 +61,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.DataNotFoundException;
+import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
@@ -73,6 +74,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ExcelService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -87,9 +89,13 @@ public class GeoObjectImporterTest
   public static void setUpClass()
   {
     testData = USATestData.newTestData();
+    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
 
-    SchedulerManager.start();
+    if (!SchedulerManager.initialized())
+    {
+      SchedulerManager.start();
+    }
   }
 
   @AfterClass
@@ -100,7 +106,7 @@ public class GeoObjectImporterTest
       testData.tearDownMetadata();
     }
 
-    SchedulerManager.shutdown();
+//    SchedulerManager.shutdown();
   }
 
   @Before
@@ -145,10 +151,8 @@ public class GeoObjectImporterTest
     {
       JobHistoryRecord jhr = jhrs.next();
 
-      JobHistory hist = jhr.getChild();
       ExecutableJob job = jhr.getParent();
       jhr.delete();
-      // hist.delete();
       job.delete();
     }
 
@@ -162,51 +166,15 @@ public class GeoObjectImporterTest
     }
   }
 
-  private void waitUntilStatus(JobHistory hist, AllJobStatus status) throws InterruptedException
-  {
-    int waitTime = 0;
-    while (true)
-    {
-      hist = JobHistory.get(hist.getOid());
-      if (hist.getStatus().get(0) == status)
-      {
-        break;
-      }
-      else if (hist.getStatus().get(0) == AllJobStatus.SUCCESS || hist.getStatus().get(0) == AllJobStatus.FAILURE)
-      {
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
-      }
-
-      Thread.sleep(10);
-
-      waitTime += 10;
-      if (waitTime > 2000000)
-      {
-        // String extra = "";
-        // if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-        // {
-        // extra = new
-        // ETLService().getImportErrors(Session.getCurrentSession().getOid(),
-        // hist.getOid(), false, 100, 1).toString();
-        //
-        // extra = extra + " " + ((ImportHistory)hist).getValidationProblems();
-        // }
-
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
-        return;
-      }
-    }
-
-    Thread.sleep(100);
-  }
-
-  private ImportHistory importExcelFile(String sessionId, String config)
+  private ImportHistory importExcelFile(String sessionId, String config) throws InterruptedException
   {
     String retConfig = new ETLService().doImport(sessionId, config).toString();
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
     String historyId = configuration.getHistoryId();
+    
+    Thread.sleep(100);
 
     return ImportHistory.get(historyId);
   }
@@ -233,9 +201,9 @@ public class GeoObjectImporterTest
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.SUCCESS);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -243,7 +211,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(new Long(3), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -260,7 +228,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(expected, geometry);
 
-    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.adminClientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
+    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
 
     Double cd1_lat = new Double(4.3333);
     Double cd1_lon = new Double(1.222);
@@ -271,7 +239,7 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     
     Assert.assertEquals(0, json.getJSONArray("results").length());
   }
@@ -298,9 +266,9 @@ public class GeoObjectImporterTest
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.UPDATE_ONLY);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -310,7 +278,7 @@ public class GeoObjectImporterTest
 
     try
     {
-      ServiceFactory.getRegistryService().getGeoObjectByCode(testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+      ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
       Assert.fail();
     }
@@ -323,7 +291,7 @@ public class GeoObjectImporterTest
       }
     }
 
-    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.adminClientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
+    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
 
     Double cd1_lat = new Double(4.3333);
     Double cd1_lon = new Double(1.222);
@@ -334,7 +302,7 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     
     Assert.assertEquals(2, json.getJSONArray("results").length());
   }
@@ -361,9 +329,9 @@ public class GeoObjectImporterTest
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -371,7 +339,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(new Long(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.adminClientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -388,7 +356,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(expected, geometry);
 
-    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.adminClientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
+    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
 
     Double cd1_lat = new Double(80);
     Double cd1_lon = new Double(110);
@@ -399,7 +367,7 @@ public class GeoObjectImporterTest
     Geometry cd1_geometry = coloradoDistOne.getGeometry();
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
-    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     
     Assert.assertEquals(1, json.getJSONArray("results").length());
   }
@@ -437,11 +405,11 @@ public class GeoObjectImporterTest
     config.setStartDate(new Date());
     config.setEndDate(new Date());
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
-    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
     JSONArray errors = json.getJSONArray("results");
     
     hist = ImportHistory.get(hist.getOid());
@@ -458,7 +426,7 @@ public class GeoObjectImporterTest
 
     Assert.assertTrue(error.has("id"));
 
-    Assert.assertEquals("net.geoprism.registry.DuplicateGeoObjectException", error.getJSONObject("exception").getString("type"));
+    Assert.assertEquals(DuplicateGeoObjectCodeException.CLASS, error.getJSONObject("exception").getString("type"));
 
     JSONObject object = error.getJSONObject("object");
     Assert.assertTrue(object.has("geoObject"));
@@ -491,11 +459,11 @@ public class GeoObjectImporterTest
     resolution.put("resolution", ErrorResolution.IGNORE);
     resolution.put("historyId", hist.getOid());
 
-    new ETLService().submitImportErrorResolution(testData.adminClientRequest.getSessionId(), resolution.toString());
+    new ETLService().submitImportErrorResolution(testData.clientRequest.getSessionId(), resolution.toString());
 
     Assert.assertEquals(ErrorResolution.IGNORE.name(), ieq.getIterator().next().getResolution());
 
-    new ETLService().resolveImport(testData.adminClientRequest.getSessionId(), hist.getOid());
+    new ETLService().resolveImport(testData.clientRequest.getSessionId(), hist.getOid());
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(2), hist.getWorkTotal());
@@ -536,9 +504,9 @@ public class GeoObjectImporterTest
     config.setStartDate(startDate);
     config.setEndDate(endDate);
 
-    ImportHistory hist = importExcelFile(testData.adminClientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
-    this.waitUntilStatus(hist, AllJobStatus.FEEDBACK);
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
@@ -546,7 +514,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(new Long(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
-    JSONObject jo = new JSONObject(new ETLService().getImportDetails(testData.adminClientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
+    JSONObject jo = new JSONObject(new ETLService().getImportDetails(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -561,7 +529,7 @@ public class GeoObjectImporterTest
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)
   {
-    JSONObject result = service.getExcelConfiguration(testData.adminClientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, strategy);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, strategy);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

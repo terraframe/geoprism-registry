@@ -52,16 +52,16 @@ import com.runwaysdk.session.Session;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
-import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.test.FastTestDataset;
 
 public class GeoObjectAtTimeShapefileExporterTest
 {
-  private static USATestData testData;
+  private static FastTestDataset testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
   }
 
@@ -98,7 +98,7 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
 
     GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
 
@@ -119,7 +119,7 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.STATE.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
 
     GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
     SimpleFeatureType featureType = exporter.createFeatureType();
@@ -137,7 +137,7 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
 
     GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
     SimpleFeatureType featureType = exporter.createFeatureType();
@@ -148,17 +148,17 @@ public class GeoObjectAtTimeShapefileExporterTest
 
     final FeatureIterator<SimpleFeature> it = features.features();
 
-    boolean hasColorado = false;
+    boolean hasCentralProvince = false;
 
     while (it.hasNext())
     {
       SimpleFeature feature = it.next();
 
-      if (feature.getID().equals("USATestDataColorado"))
+      if (feature.getID().equals(testData.PROV_CENTRAL.getCode()))
       {
-        hasColorado = true;
+        hasCentralProvince = true;
 
-        final ServerGeoObjectIF object = testData.COLORADO.getServerObject();
+        final ServerGeoObjectIF object = testData.PROV_CENTRAL.getServerObject();
 
         Object geometry = feature.getDefaultGeometry();
         Assert.assertNotNull(geometry);
@@ -188,7 +188,7 @@ public class GeoObjectAtTimeShapefileExporterTest
       }
     }
 
-    Assert.assertTrue("Unable to find the colorado feature", hasColorado);
+    Assert.assertTrue("Unable to find the central province feature", hasCentralProvince);
 
   }
 
@@ -196,7 +196,7 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testWriteToFile() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
 
     GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
     File directory = exporter.writeToFile();
@@ -212,7 +212,7 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
 
     GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
     InputStream export = exporter.export();
