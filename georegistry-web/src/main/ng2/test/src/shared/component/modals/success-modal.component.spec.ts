@@ -3,17 +3,17 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { ErrorModalComponent } from "@shared/component/modals/error-modal.component";
+import { SuccessModalComponent } from "@shared/component/modals/success-modal.component";
 import { LocalizationService } from "@shared/service";
 
-describe("ErrorModalComponent", () => {
-	let component: ErrorModalComponent;
-	let fixture: ComponentFixture<ErrorModalComponent>;
+describe("SuccessModalComponent", () => {
+	let component: SuccessModalComponent;
+	let fixture: ComponentFixture<SuccessModalComponent>;
 	let mockService: LocalizationService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ErrorModalComponent],
+			declarations: [SuccessModalComponent],
 			schemas: [NO_ERRORS_SCHEMA],
 			imports: [
 				HttpClientTestingModule,
@@ -33,7 +33,7 @@ describe("ErrorModalComponent", () => {
 		mockService.decode = jasmine.createSpy().and.returnValue('Test Message');
 
 		// initialize component
-		fixture = TestBed.createComponent(ErrorModalComponent);
+		fixture = TestBed.createComponent(SuccessModalComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -41,6 +41,10 @@ describe("ErrorModalComponent", () => {
 	it('should create', () => {
 		expect(component).toBeTruthy();
 	});
+
+	it(`should have a title 'Test Message'`, async(() => {
+		expect(component.message).toEqual('Test Message');
+	}));
 
 	it(`should have a title 'Test Message'`, async(() => {
 		expect(component.message).toEqual('Test Message');

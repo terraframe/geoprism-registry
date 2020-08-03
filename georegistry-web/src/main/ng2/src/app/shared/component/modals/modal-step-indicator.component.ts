@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
+import { ModalStepIndicatorService } from '@shared/service';
 
 import { Step, StepConfig } from '@shared/model/modal';
 import { Subscription } from 'rxjs';
@@ -16,7 +16,7 @@ export class ModalStepIndicatorComponent {
     step: Step;
     stepSubscription: Subscription;
 
-    constructor( private localizeService: LocalizationService, private modalStepIndicatorService: ModalStepIndicatorService ) { 
+    constructor( private modalStepIndicatorService: ModalStepIndicatorService ) { 
         this.stepSubscription = modalStepIndicatorService.modalStepChange.subscribe( stepConfig => {
             this.stepConfig = stepConfig;
         })

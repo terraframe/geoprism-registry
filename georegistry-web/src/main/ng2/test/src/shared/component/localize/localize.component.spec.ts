@@ -1,27 +1,23 @@
 import { TestBed, ComponentFixture, async } from "@angular/core/testing";
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from "@angular/core";
-import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA, DebugElement } from "@angular/core";
 
-import { ErrorModalComponent } from "@shared/component/modals/error-modal.component";
+import { LocalizeComponent } from "@shared/component/localize/localize.component";
 import { LocalizationService } from "@shared/service";
 
-describe("ErrorModalComponent", () => {
-	let component: ErrorModalComponent;
-	let fixture: ComponentFixture<ErrorModalComponent>;
+describe("LocalizeComponent", () => {
+	let component: LocalizeComponent;
+	let fixture: ComponentFixture<LocalizeComponent>;
 	let mockService: LocalizationService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ErrorModalComponent],
+			declarations: [LocalizeComponent],
 			schemas: [NO_ERRORS_SCHEMA],
 			imports: [
 				HttpClientTestingModule,
-				ModalModule.forRoot()
 			],
 			providers: [
-				BsModalService,
-				BsModalRef,
 				LocalizationService
 			]
 		}).compileComponents();
@@ -33,7 +29,7 @@ describe("ErrorModalComponent", () => {
 		mockService.decode = jasmine.createSpy().and.returnValue('Test Message');
 
 		// initialize component
-		fixture = TestBed.createComponent(ErrorModalComponent);
+		fixture = TestBed.createComponent(LocalizeComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -43,6 +39,6 @@ describe("ErrorModalComponent", () => {
 	});
 
 	it(`should have a title 'Test Message'`, async(() => {
-		expect(component.message).toEqual('Test Message');
+		expect(component.text).toEqual('Test Message');
 	}));
 });

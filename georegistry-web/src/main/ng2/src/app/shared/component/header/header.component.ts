@@ -1,12 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
-
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ProfileComponent } from '../profile/profile.component';
 
-import { AuthService, SessionService, ProfileService } from '@shared/service';
+import { AuthService, ProfileService } from '@shared/service';
 
 import { RegistryRoleType } from '@shared/model/core';
 
@@ -28,10 +26,8 @@ export class CgrHeaderComponent {
     @Input() loggedIn: boolean = true;
 
     constructor(
-        private sessionService: SessionService,
         private modalService: BsModalService,
         private profileService: ProfileService,
-        private router: Router,
         private service: AuthService
     ) {
         this.context = acp;
@@ -52,7 +48,7 @@ export class CgrHeaderComponent {
       }
       else if (item === "IMPORT")
       {
-        return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+        return  this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
       }
       else if (item === "SCHEDULED-JOBS")
       {
@@ -94,7 +90,6 @@ export class CgrHeaderComponent {
     }
 
     getUsername() {
-        let role: string = this.service.getRoleDisplayLabels();
         let name: string = this.service.getUsername();
 
         return name;

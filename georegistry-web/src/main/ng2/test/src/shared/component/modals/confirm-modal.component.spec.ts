@@ -3,17 +3,19 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { ErrorModalComponent } from "@shared/component/modals/error-modal.component";
+import { ConfirmModalComponent } from "@shared/component/modals/confirm-modal.component";
 import { LocalizationService } from "@shared/service";
+import { ModalTypes } from '@shared/model/modal';
 
-describe("ErrorModalComponent", () => {
-	let component: ErrorModalComponent;
-	let fixture: ComponentFixture<ErrorModalComponent>;
+
+describe("ConfirmModalComponent", () => {
+	let component: ConfirmModalComponent;
+	let fixture: ComponentFixture<ConfirmModalComponent>;
 	let mockService: LocalizationService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [ErrorModalComponent],
+			declarations: [ConfirmModalComponent],
 			schemas: [NO_ERRORS_SCHEMA],
 			imports: [
 				HttpClientTestingModule,
@@ -33,7 +35,7 @@ describe("ErrorModalComponent", () => {
 		mockService.decode = jasmine.createSpy().and.returnValue('Test Message');
 
 		// initialize component
-		fixture = TestBed.createComponent(ErrorModalComponent);
+		fixture = TestBed.createComponent(ConfirmModalComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -44,5 +46,17 @@ describe("ErrorModalComponent", () => {
 
 	it(`should have a title 'Test Message'`, async(() => {
 		expect(component.message).toEqual('Test Message');
+	}));
+
+	it(`should have a cancel text 'Test Message'`, async(() => {
+		expect(component.cancelText).toEqual('Test Message');
+	}));
+
+	it(`should have a submit text 'Test Message'`, async(() => {
+		expect(component.submitText).toEqual('Test Message');
+	}));
+
+	it(`should have a type equal to warning`, async(() => {
+		expect(component.type).toEqual(ModalTypes.warning);
 	}));
 });
