@@ -174,7 +174,7 @@ public class TileCache extends TileCacheBase
     }
   }
 
-  private static byte[] getCachedTile(String versionId, int x, int y, int zoom)
+  public static byte[] getCachedTile(String versionId, int x, int y, int zoom)
   {
     TileCacheQuery query = new TileCacheQuery(new QueryFactory());
     query.WHERE(query.getVersion().EQ(versionId));
