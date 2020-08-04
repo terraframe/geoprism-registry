@@ -55,7 +55,6 @@ public class ConversionTest
   public static void setUpClass()
   {
     testData = USATestData.newTestData();
-    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
     
     testGo = testData.newTestGeoObjectInfo("ConversionTest", testData.STATE);
@@ -74,11 +73,15 @@ public class ConversionTest
   public void setUp()
   {
     testGo.delete();
+    
+    testData.logIn(testData.USER_NPS_RA);
   }
   
   @After
   public void tearDown()
   {
+    testData.logOut();
+    
     testGo.delete();
   }
 

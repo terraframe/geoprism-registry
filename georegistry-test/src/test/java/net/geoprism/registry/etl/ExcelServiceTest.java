@@ -130,19 +130,23 @@ public class ExcelServiceTest
     testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
 
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testTerm.toJSON().toString());
-
-    testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
-    testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testBoolean.toJSON().toString());
-
-    testDate = (AttributeDateType) AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
-    testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testDate.toJSON().toString());
-
-    testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
-    testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testInteger.toJSON().toString());
-
-    testData.reloadPermissions();
+//    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+//    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testTerm.toJSON().toString());
+    testTerm = (AttributeTermType) TestDataSet.createTermAttribute("testTerm", "testTermLocalName", testData.DISTRICT, null).fetchDTO();
+    
+//    testBoolean = (AttributeBooleanType) AttributeType.factory("testBoolean", new LocalizedValue("testBooleanLocalName"), new LocalizedValue("testBooleanLocalDescrip"), AttributeBooleanType.TYPE, false, false, false);
+//    testBoolean = (AttributeBooleanType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testBoolean.toJSON().toString());
+    testBoolean = (AttributeBooleanType) TestDataSet.createAttribute("testBoolean", "testBooleanLocalName", testData.DISTRICT, AttributeBooleanType.TYPE).fetchDTO();
+    
+//    testDate = (AttributeDateType) AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
+//    testDate = (AttributeDateType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testDate.toJSON().toString());
+    testDate = (AttributeDateType) TestDataSet.createAttribute("testDate", "testDateLocalName", testData.DISTRICT, AttributeDateType.TYPE).fetchDTO();
+    
+//    testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
+//    testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), testInteger.toJSON().toString());
+    testInteger = (AttributeIntegerType) TestDataSet.createAttribute("testInteger", "testIntegerLocalName", testData.DISTRICT, AttributeIntegerType.TYPE).fetchDTO();
+    
+//    testData.reloadPermissions();
     
     if (!SchedulerManager.initialized())
     {
@@ -164,6 +168,8 @@ public class ExcelServiceTest
   public void setUp()
   {
     clearData();
+    
+    testData.logIn();
   }
 
   @After

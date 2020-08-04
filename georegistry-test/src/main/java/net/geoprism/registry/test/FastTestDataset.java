@@ -60,7 +60,7 @@ public class FastTestDataset extends TestDataSet
   
   public final TestOrganizationInfo  ORG_CGOV         = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "CGOV", "Central Government");
   
-  public final TestUserInfo          USER_CGOV_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode())});
+  public final TestUserInfo          USER_CGOV_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode())});
   
   public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
   
@@ -84,6 +84,12 @@ public class FastTestDataset extends TestDataSet
   
   public final TestAttributeTypeInfo AT_RELIGION = new TestAttributeTypeInfo("Religion", "Religion", COUNTRY, AttributeTermType.TYPE);
   
+  public final TestUserInfo          USER_CGOV_RM      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrm", "cgovrm", TEST_DATA_KEY + "cgovrm@noreply.com", new String[] {RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
+  
+  public final TestUserInfo          USER_CGOV_RC      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrc", "cgovrc", TEST_DATA_KEY + "cgovrc@noreply.com", new String[] {RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
+  
+  public final TestUserInfo          USER_CGOV_AC      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovac", "cgovac", TEST_DATA_KEY + "cgovac@noreply.com", new String[] {RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
+  
   public Term T_Religion;
   
   public Term T_Buddhism;
@@ -106,6 +112,11 @@ public class FastTestDataset extends TestDataSet
     managedGeoObjectInfos.add(PROV_CENTRAL);
     
     managedUsers.add(USER_CGOV_RA);
+    managedUsers.add(USER_CGOV_RM);
+    managedUsers.add(USER_CGOV_RC);
+    managedUsers.add(USER_CGOV_AC);
+    
+    this.setRAUser(USER_CGOV_RA);
   }
   
   public static FastTestDataset newTestData()
