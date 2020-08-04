@@ -4,20 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.TimeZone;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -35,20 +38,17 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.rbac.RoleDAO;
-import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.SessionFacade;
-import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.TileCache;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
@@ -68,13 +68,15 @@ public class MasterListTest
 
     setUpInReq();
   }
-  
+
   @Request
   private static void setUpInReq()
   {
     testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-//    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(null, testData.STATE.getCode(), testTerm.toJSON().toString());
-    
+    // testTerm = (AttributeTermType)
+    // ServiceFactory.getRegistryService().createAttributeType(null,
+    // testData.STATE.getCode(), testTerm.toJSON().toString());
+
     ServerGeoObjectType got = ServerGeoObjectType.get(testData.STATE.getCode());
     testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
   }
@@ -321,6 +323,54 @@ public class MasterListTest
     {
       service.remove(testData.clientRequest.getSessionId(), oid);
     }
+  }
+
+  @Test
+  public void testGetTile() throws IOException
+  {
+    JsonObject listJson = getJson(testData.ORG_NPS.getServerObject(), testData.HIER_ADMIN, testData.STATE, testData.COUNTRY);
+
+    MasterListService service = new MasterListService();
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    String oid = result.get(ComponentInfo.OID).getAsString();
+
+    try
+    {
+      service.createPublishedVersions(testData.clientRequest.getSessionId(), oid);
+
+      final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
+      final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
+
+      Assert.assertEquals(1, json.size());
+
+      String versionId = json.get(0).getAsJsonObject().get("oid").getAsString();
+
+      JSONObject tileObj = new JSONObject();
+      tileObj.put("oid", versionId);
+      tileObj.put("x", 1);
+      tileObj.put("y", 1);
+      tileObj.put("z", 1);
+
+      try (InputStream tile = service.getTile(testData.clientRequest.getSessionId(), tileObj))
+      {
+        Assert.assertNotNull(tile);
+
+        byte[] ctile = getCachedTile(versionId);
+
+        Assert.assertNotNull(ctile);
+        Assert.assertTrue(ctile.length > 0);
+      }
+    }
+    finally
+    {
+      service.remove(testData.clientRequest.getSessionId(), oid);
+    }
+  }
+
+  @Request
+  private byte[] getCachedTile(String versionId)
+  {
+    return TileCache.getCachedTile(versionId, 1, 1, 1);
   }
 
   @Test

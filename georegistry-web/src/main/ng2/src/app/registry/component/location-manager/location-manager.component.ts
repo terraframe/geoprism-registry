@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { Map, LngLatBounds, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
+import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -8,7 +8,6 @@ import { AllGeoJSON } from '@turf/helpers'
 import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
-import { LocalizationService } from '@shared/service';
 
 import { GeoObject, MasterList, ContextLayer, ContextLayerGroup } from '@registry/model/registry';
 import { LocationInformation } from '@registry/model/location-manager';
@@ -16,7 +15,6 @@ import { LocationInformation } from '@registry/model/location-manager';
 import { ContextLayerModalComponent } from './context-layer-modal.component';
 
 import { MapService, RegistryService } from '@registry/service';
-import { timeout } from 'rxjs/operators';
 
 declare var acp: string;
 
@@ -27,7 +25,7 @@ declare var acp: string;
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
-	private bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
     /* 
      * Root nodes of the tree
@@ -280,8 +278,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	refresh(): void {
-		console.log(this.hierarchy);
-
 		if (this.current == null) {
 			this.mapService.roots(this.childType, this.hierarchy, this.dateStr).then(data => {
 				(<any>this.map.getSource('children')).setData(data.geojson);
@@ -482,8 +478,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			}
 		}
 	}
-
-
 
 	drillDown(node: GeoObject): void {
 		this.mapService.select(node.properties.code, node.properties.type, null, this.hierarchy, this.dateStr).then(data => {
