@@ -1,7 +1,7 @@
 import { ExternalSystem, Organization } from "@shared/model/core";
 import { LOCALIZED_LABEL } from "@test/shared/mocks";
 import { Email } from "@admin/model/email";
-import { User, Account } from "@admin/model/account";
+import { User, Account, Role } from "@admin/model/account";
 
 export const EXTERNAL_SYSTEM: ExternalSystem = {
 	id: "my-test-id",
@@ -41,8 +41,18 @@ export const USER: User = {
 }
 
 export const ACCOUNT: Account = {
-	changePassword : false,
+	changePassword: false,
 	user: USER,
-	roles : []
+	roles: []
 }
 
+export const ROLE: Role = {
+	type: "RA",
+	name: "Test.Role",
+	label: LOCALIZED_LABEL,
+	orgCode: "Role.Code",
+	orgLabel: LOCALIZED_LABEL,
+	geoObjectTypeCode: "TestType",
+	geoObjectTypeLabel: LOCALIZED_LABEL,
+	assigned: false
+}

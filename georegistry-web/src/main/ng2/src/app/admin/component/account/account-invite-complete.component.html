@@ -155,9 +155,7 @@
 	              <div class="holder" >
 	                <span class="text">
 	                  <input type="password" [(ngModel)]="user.password" name="password" #password="ngModel" required minlength="5" maxlength="50" >
-	                  <ng2-password-strength-bar
-	                    [passwordToCheck]="user.password">
-	                  </ng2-password-strength-bar>                              
+                      <password-strength-bar [passwordToCheck]="user.password"></password-strength-bar>
 	                </span>
 	              </div>
 	            </div>  

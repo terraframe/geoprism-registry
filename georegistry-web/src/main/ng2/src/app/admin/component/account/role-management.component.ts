@@ -17,9 +17,7 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorHandler } from '@shared/component';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { AuthService } from '@shared/service';
@@ -33,7 +31,7 @@ import { RegistryRoleType } from '@shared/model/core';
 	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
 	styleUrls: ['./role-management.css']
 })
-export class RoleManagementComponent implements OnInit {
+export class RoleManagementComponent {
 
 	message: string = null;
 	isAdmin: boolean;
@@ -57,20 +55,12 @@ export class RoleManagementComponent implements OnInit {
 	@Input() newInstance: boolean = true;
 
 
-	constructor(
-		public bsModalRef: BsModalRef, private authService: AuthService
-	) {
-
+	constructor(public bsModalRef: BsModalRef, private authService: AuthService) {
 		this.isSRA = authService.isSRA();
 		this.isAdmin = authService.isAdmin();
 		this.isMaintainer = this.isAdmin || authService.isMaintainer();
 		this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-
 	}
-
-	ngOnInit(): void {
-	}
-
 
 	formatRoles(roles: Role[]): any {
 
@@ -200,15 +190,15 @@ export class RoleManagementComponent implements OnInit {
 		this.onChangeRole();
 	}
 
-	setGroupRole(group: FormattedGeoObjectTypeRoleGroup, role: Role, event:any): void {	
-		
-		if(role === null){
+	setGroupRole(group: FormattedGeoObjectTypeRoleGroup, role: Role, event: any): void {
+
+		if (role === null) {
 			group.ENABLEDROLE = "";
 		}
-		else{
+		else {
 			group.ENABLEDROLE = (event.target.checked) ? role.name : "";
 		}
-		
+
 		this.onChangeRole();
 	}
 
@@ -232,7 +222,7 @@ export class RoleManagementComponent implements OnInit {
 			}
 		});
 
-		if(this._roles.SRA && this._roles.SRA.assigned) {
+		if (this._roles.SRA && this._roles.SRA.assigned) {
 			newRoleIds.push(this._roles.SRA.name);
 		}
 
@@ -253,10 +243,4 @@ export class RoleManagementComponent implements OnInit {
 	showData() {
 		console.log(this._roles)
 	}
-
-
-	public error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
-	}
-
 }

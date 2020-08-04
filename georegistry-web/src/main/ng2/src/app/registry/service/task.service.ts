@@ -18,12 +18,10 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 
-import { Task } from '@registry/model/registry';
-import { Progress } from '@shared/model/progress';
+import { PaginationPage } from '@registry/model/registry';
 import { EventService } from '@shared/service';
 
 declare var acp: any;
@@ -32,48 +30,48 @@ declare var acp: any;
 @Injectable()
 export class TaskService {
 
-    constructor( private http: HttpClient, private eventService: EventService ) { }
+	constructor(private http: HttpClient, private eventService: EventService) { }
 
-    getMyTasks( pageNum: number, pageSize: number, whereStatus: string ): Promise<any> {
-      let params: HttpParams = new HttpParams();
-      
-      params = params.set( 'orderBy', 'createDate' );
-      params = params.set( 'pageNum', pageNum.toString() );
-      params = params.set( 'pageSize', pageSize.toString() );
-      params = params.set( 'whereStatus', whereStatus );
-    
-      return this.http
-          .get<any>( acp + '/tasks/get', { params: params } )
-          .toPromise();
-    }
-    
-    completeTask( taskId: string ): Promise<Response> {
-      let headers = new HttpHeaders( {
-        'Content-Type': 'application/json'
-      } );
-      
-      this.eventService.start();
-      
-      return this.http
-        .post<any>( acp + '/tasks/complete', JSON.stringify( { 'id': taskId } ), { headers: headers } )
+	getMyTasks(pageNum: number, pageSize: number, whereStatus: string): Promise<PaginationPage> {
+		let params: HttpParams = new HttpParams();
+
+		params = params.set('orderBy', 'createDate');
+		params = params.set('pageNum', pageNum.toString());
+		params = params.set('pageSize', pageSize.toString());
+		params = params.set('whereStatus', whereStatus);
+
+		return this.http
+			.get<PaginationPage>(acp + '/tasks/get', { params: params })
+			.toPromise();
+	}
+
+	completeTask(taskId: string): Promise<Response> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
+
+		this.eventService.start();
+
+		return this.http
+			.post<any>(acp + '/tasks/complete', JSON.stringify({ 'id': taskId }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-        .toPromise();
-    }
-    
-    setTaskStatus( taskId: string, status: string ): Promise<Response> {
-      let headers = new HttpHeaders( {
-        'Content-Type': 'application/json'
-      } );
-      
-      this.eventService.start();
-      
-      return this.http
-        .post<any>( acp + '/tasks/setTaskStatus', JSON.stringify( { 'id': taskId, 'status': status } ), { headers: headers } )
+			.toPromise();
+	}
+
+	setTaskStatus(taskId: string, status: string): Promise<Response> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
+
+		this.eventService.start();
+
+		return this.http
+			.post<any>(acp + '/tasks/setTaskStatus', JSON.stringify({ 'id': taskId, 'status': status }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-        .toPromise();
-    }
+			.toPromise();
+	}
 }
