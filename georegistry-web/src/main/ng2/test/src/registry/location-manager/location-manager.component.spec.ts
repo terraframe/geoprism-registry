@@ -1,4 +1,4 @@
-import { TestBed, ComponentFixture, async, tick, fakeAsync, flush, discardPeriodicTasks } from "@angular/core/testing";
+import { TestBed, ComponentFixture, async, tick, fakeAsync } from "@angular/core/testing";
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { NO_ERRORS_SCHEMA } from "@angular/core";
@@ -8,7 +8,6 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { LocationManagerComponent } from "@registry/component/location-manager/location-manager.component";
 import { LocalizationService, EventService, ProfileService, AuthService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
-import { MOCK_HTTP_ERROR_RESPONSE, PAGE } from "@test/shared/mocks";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MapService, RegistryService } from "@registry/service";
 import { ActivatedRoute } from "@angular/router";
