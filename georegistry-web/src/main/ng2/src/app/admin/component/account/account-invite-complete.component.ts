@@ -17,9 +17,10 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
+import { Subscription } from 'rxjs';
 
 import { User } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
@@ -33,9 +34,9 @@ declare let acp: string;
 	templateUrl: './account-invite-complete.component.html',
 	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}']
 })
-export class AccountInviteCompleteComponent implements OnInit {
+export class AccountInviteCompleteComponent implements OnInit, OnDestroy {
 	user: User;
-	private sub: any;
+	sub: Subscription;
 	token: string;
 	message: string = null;
 
@@ -47,14 +48,17 @@ export class AccountInviteCompleteComponent implements OnInit {
 	ngOnInit(): void {
 		this.service.newUserInstance().then((user: User) => {
 			this.user = user;
-		})
-			.catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 
 		this.sub = this.route.params.subscribe(params => {
 			this.token = params['token'];
 		});
+	}
+
+	ngOnDestroy(): void {
+		this.sub.unsubscribe();
 	}
 
 	cancel(): void {
@@ -64,10 +68,9 @@ export class AccountInviteCompleteComponent implements OnInit {
 	onSubmit(): void {
 		this.service.inviteComplete(this.user, this.token).then(response => {
 			window.location.href = acp;
-		})
-			.catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 	}
 
 	error(err: HttpErrorResponse): void {

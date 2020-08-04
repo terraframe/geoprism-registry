@@ -35,8 +35,14 @@ export class LocalizationManagerService {
 
 
 	getNewLocaleInfo(): Promise<AllLocaleInfo> {
+
+		this.eventService.start();
+
 		return this.http
 			.get<AllLocaleInfo>(acp + '/localization/getNewLocaleInformation')
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
 			.toPromise();
 	}
 
@@ -55,8 +61,13 @@ export class LocalizationManagerService {
 			params = params.set('variant', variant);
 		}
 
+		this.eventService.start();
+
 		return this.http
 			.get<{ locale: string }>(acp + '/localization/installLocale', { params: params })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
 			.toPromise();
 	}
 
