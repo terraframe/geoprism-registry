@@ -79,7 +79,6 @@ export const HIERARCHY_TYPE: HierarchyType = {
 	organizationCode: "TEST-ORG"
 }
 
-
 export const LOCATION_INFORMATION: LocationInformation = {
 	types: [GEO_OBJECT_TYPE],
 	hierarchies: [HIERARCHY_TYPE],
@@ -91,5 +90,3 @@ export const LOCATION_INFORMATION: LocationInformation = {
 		features: [GEO_OBJECT]
 	}
 }
-
-
