@@ -47,7 +47,10 @@ export class SynchronizationConfigComponent implements OnInit {
 	}
 
 	ngOnDestroy() {
-		this.pollingData.unsubscribe();
+
+		if (this.pollingData != null) {
+			this.pollingData.unsubscribe();
+		}
 	}
 
 	onRun(): void {
@@ -78,7 +81,7 @@ export class SynchronizationConfigComponent implements OnInit {
 		}
 	}
 
-	formatJobStatus(job: ExportScheduledJob) {
+	formatJobStatus(job: ExportScheduledJob): string {
 		if (job.status === "FEEDBACK") {
 			return this.lService.decode("etl.JobStatus.FEEDBACK");
 		}
@@ -153,7 +156,7 @@ export class SynchronizationConfigComponent implements OnInit {
 
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }
