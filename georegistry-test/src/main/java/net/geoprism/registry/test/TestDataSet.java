@@ -71,6 +71,7 @@ import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
+import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
 
@@ -79,6 +80,7 @@ import net.geoprism.GeoprismUserQuery;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierQuery;
 import net.geoprism.registry.IdRecord;
 import net.geoprism.registry.IdRecordQuery;
@@ -962,5 +964,35 @@ abstract public class TestDataSet
     att = (AttributeTermType) got.getServerObject().createAttributeType(attributeTypeJSON);
     
     return new TestAttributeTypeInfo(att, got);
+  }
+  
+  public static Term createTerm(TestAttributeTypeInfo termAttr, String classifierId, String displayLabel)
+  {
+    Classifier parentTerm = TestDataSet.getClassifierIfExist(termAttr.getRootTerm().getCode());
+    
+    Classifier child = TestDataSet.getClassifierIfExist(classifierId);
+    if (child == null)
+    {
+      child = new Classifier();
+      child.setClassifierId(classifierId);
+      child.setClassifierPackage(parentTerm.getKey());
+      child.getDisplayLabel().setDefaultValue(displayLabel);
+      child.apply();
+      
+      child.addLink(parentTerm, ClassifierIsARelationship.CLASS).apply();
+    }
+    
+    return new TermConverter(child.getKeyName()).build();
+  }
+  
+  public static Term createAttributeRootTerm(TestGeoObjectTypeInfo got, TestAttributeTypeInfo attr)
+  {
+    MdBusiness mdBiz = got.getServerObject().getMdBusiness();
+    
+    Classifier mdBizClassy = TermConverter.buildIfNotExistdMdBusinessClassifier(mdBiz);
+    
+    Classifier classifier = TermConverter.buildIfNotExistAttribute(mdBiz, attr.getAttributeName(), mdBizClassy);
+    
+    return new TermConverter(classifier.getKeyName()).build();
   }
 }
