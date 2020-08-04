@@ -140,6 +140,8 @@ abstract public class TestDataSet
   abstract public String getTestDataKey();
   
   private TestUserInfo sessionUser;
+  
+  private TestUserInfo raUser;
 
   public TestDataSet()
   {
@@ -216,6 +218,16 @@ abstract public class TestDataSet
   {
     this.sessionUser = defaultUser;
   }
+  
+  public void setRAUser(TestUserInfo raUser)
+  {
+    this.raUser = raUser;
+  }
+  
+  public TestUserInfo getRAUser()
+  {
+    return raUser;
+  }
 
 //  @Request
 //  public void setUp()
@@ -233,9 +245,19 @@ abstract public class TestDataSet
 //    tearDownInstanceData();
 //  }
   
-  public void setUpSessions()
+  public void logIn()
   {
-    if (this.getSessionUser() == null)
+    this.logIn(null);
+  }
+  
+  public void logIn(TestUserInfo user)
+  {
+    if (user == null)
+    {
+      user = this.getSessionUser();
+    }
+    
+    if (user == null)
     {
       this.clientSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
       this.clientRequest = clientSession.getRequest();
@@ -243,31 +265,35 @@ abstract public class TestDataSet
     }
     else
     {
-      TestUserInfo user = this.getSessionUser();
-      
       this.clientSession = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
       this.clientRequest = clientSession.getRequest();
       this.adapter.setClientRequest(this.clientRequest);
+    }
+    
+    adapter.refreshMetadataCache();
+  }
+  
+  public void logOut()
+  {
+    if (clientSession != null)
+    {
+      clientSession.logout();
     }
   }
 
   @Request
   public void setUpMetadata()
   {
-    tearDownMetadata(); // will log us out if logged in
+    tearDownMetadata();
 
     setUpOrgsInTrans();
     setUpMetadataInTrans();
     
-    setUpSessions(); // logs us in
-    
     RegistryService.getInstance().refreshMetadataCache();
-    adapter.refreshMetadataCache();
 
     setUpClassRelationships();
     
     RegistryService.getInstance().refreshMetadataCache();
-    adapter.refreshMetadataCache();
   }
   
   public void setUpClassRelationships()
@@ -308,6 +334,18 @@ abstract public class TestDataSet
   {
     tearDownInstanceData();
 
+    setUpTestInTrans();
+
+    RegistryService.getInstance().refreshMetadataCache();
+
+    setUpRelationships();
+
+    RegistryService.getInstance().refreshMetadataCache();
+
+    setUpAfterApply();
+    
+    logIn(this.getSessionUser()); // logs us in
+    
     try
     {
       adapter.getIdService().populate(1000);
@@ -316,18 +354,6 @@ abstract public class TestDataSet
     {
       throw new RuntimeException(e);
     }
-
-    setUpTestInTrans();
-
-    RegistryService.getInstance().refreshMetadataCache();
-    adapter.refreshMetadataCache();
-
-    setUpRelationships();
-
-    RegistryService.getInstance().refreshMetadataCache();
-    adapter.refreshMetadataCache();
-
-    setUpAfterApply();
   }
 
   @Transaction
@@ -393,11 +419,6 @@ abstract public class TestDataSet
     {
       user.delete();
     }
-
-    if (clientSession != null)
-    {
-      clientSession.logout();
-    }
   }
   
   @Request
@@ -406,8 +427,15 @@ abstract public class TestDataSet
     SessionFacade.getSessionForRequest(this.clientRequest.getSessionId()).reloadPermissions();
   }
 
-  @Request
   public void tearDownInstanceData()
+  {
+    logOut();
+    
+    tearDownInstanceDataInRequest();
+  }
+  
+  @Request
+  public void tearDownInstanceDataInRequest()
   {
     cleanUpTestInTrans();
   }
@@ -957,7 +985,10 @@ abstract public class TestDataSet
     final String type = AttributeTermType.TYPE;
     
     AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
-    att.setRootTerm(attrRoot);
+    if (attrRoot != null)
+    {
+      att.setRootTerm(attrRoot);
+    }
     
     String attributeTypeJSON = att.toJSON().toString();
     

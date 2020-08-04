@@ -82,6 +82,7 @@ import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
 import net.geoprism.registry.test.SchedulerTestUtils;
+import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
@@ -89,9 +90,9 @@ public class ShapefileServiceTest
 {
   protected static USATestData        testData;
 
-  private static AttributeTermType    testTerm;
+  private static TestAttributeTypeInfo testTerm;
 
-  private static AttributeIntegerType testInteger;
+  private static TestAttributeTypeInfo testInteger;
 
   @BeforeClass
   @Request
@@ -100,14 +101,12 @@ public class ShapefileServiceTest
     testData = USATestData.newTestData();
     testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
-
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    testTerm = (AttributeTermType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.STATE.getCode(), testTerm.toJSON().toString());
-
-    testInteger = (AttributeIntegerType) AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
-    testInteger = (AttributeIntegerType) ServiceFactory.getRegistryService().createAttributeType(testData.clientRequest.getSessionId(), testData.STATE.getCode(), testInteger.toJSON().toString());
-
-    testData.reloadPermissions();
+    
+    testTerm = new TestAttributeTypeInfo("testTerm", "testTermLocalName", testData.STATE, AttributeTermType.TYPE);
+    testTerm.apply();
+    
+    testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", testData.STATE, AttributeIntegerType.TYPE);
+    testInteger.apply();
 
     if (!SchedulerManager.initialized())
     {
@@ -130,6 +129,8 @@ public class ShapefileServiceTest
   public void setUp()
   {
     clearData();
+    
+    testData.logIn();
   }
 
   @After
@@ -406,7 +407,7 @@ public class ShapefileServiceTest
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
-    config.setFunction(this.testInteger.getName(), new BasicColumnFunction("ALAND"));
+    config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setHierarchy(hierarchyType);
 
     ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
@@ -665,7 +666,7 @@ public class ShapefileServiceTest
 
     try
     {
-      TestDataSet.refreshTerms(this.testTerm);
+      TestDataSet.refreshTerms((AttributeTermType) this.testTerm.fetchDTO());
 
       InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -673,7 +674,7 @@ public class ShapefileServiceTest
 
       ShapefileService service = new ShapefileService();
 
-      GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, testTerm);
+      GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, (AttributeTermType) testTerm.fetchDTO());
 
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
@@ -698,7 +699,7 @@ public class ShapefileServiceTest
     {
       ServiceFactory.getRegistryService().deleteTerm(this.testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
 
-      TestDataSet.refreshTerms(this.testTerm);
+      TestDataSet.refreshTerms((AttributeTermType) testTerm.fetchDTO());
     }
   }
 
@@ -712,7 +713,7 @@ public class ShapefileServiceTest
 
     ShapefileService service = new ShapefileService();
 
-    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, testTerm);
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, (AttributeTermType) testTerm.fetchDTO());
 
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
 
@@ -736,9 +737,9 @@ public class ShapefileServiceTest
     JSONObject problem = results.getJSONObject(0);
 
     Assert.assertEquals("00", problem.getString("label"));
-    Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.getString("parentCode"));
-    Assert.assertEquals(this.testTerm.getName(), problem.getString("attributeCode"));
-    Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.getString("attributeLabel"));
+    Assert.assertEquals(testTerm.getRootTerm().getCode(), problem.getString("parentCode"));
+    Assert.assertEquals(testTerm.getName(), problem.getString("attributeCode"));
+    Assert.assertEquals(testTerm.getLabel(), problem.getString("attributeLabel"));
 
     // Ensure the geo objects were not created
     GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());

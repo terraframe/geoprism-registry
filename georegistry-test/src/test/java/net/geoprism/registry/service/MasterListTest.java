@@ -69,8 +69,6 @@ public class MasterListTest
     testData.setUpMetadata();
 
     setUpInReq();
-
-    reload();
   }
 
   @Request
@@ -110,15 +108,6 @@ public class MasterListTest
     {
       testData.tearDownInstanceData();
     }
-  }
-
-  @Request
-  public static void reload()
-  {
-    /*
-     * Reload permissions for the new attributes
-     */
-    SessionFacade.getSessionForRequest(testData.clientRequest.getSessionId()).reloadPermissions();
   }
 
   @Test
@@ -276,7 +265,7 @@ public class MasterListTest
     {
       JsonArray results = service.listAll(testData.clientRequest.getSessionId());
 
-      Assert.assertEquals(1, results.size());
+      Assert.assertTrue(results.size() > 1);
     }
     finally
     {
