@@ -214,6 +214,7 @@ public class TestGeoObjectTypeInfo
       Assert.assertEquals(code, got.getCode());
       Assert.assertEquals(displayLabel.getValue(), got.getLabel().getValue());
       Assert.assertEquals(description.getValue(), got.getDescription().getValue());
+      Assert.assertEquals(this.organization.getCode(), got.getOrganizationCode());
     }
 
     public void assertEquals(Universal uni)

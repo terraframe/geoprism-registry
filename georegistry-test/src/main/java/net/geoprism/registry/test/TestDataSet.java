@@ -139,10 +139,6 @@ abstract public class TestDataSet
 
   abstract public String getTestDataKey();
   
-  private TestUserInfo sessionUser;
-  
-  private TestUserInfo raUser;
-
   public TestDataSet()
   {
     checkDuplicateClasspathResources();
@@ -208,26 +204,6 @@ abstract public class TestDataSet
   {
     return managedHierarchyTypeInfosExtras;
   }
-  
-  public TestUserInfo getSessionUser()
-  {
-    return sessionUser;
-  }
-
-  public void setSessionUser(TestUserInfo defaultUser)
-  {
-    this.sessionUser = defaultUser;
-  }
-  
-  public void setRAUser(TestUserInfo raUser)
-  {
-    this.raUser = raUser;
-  }
-  
-  public TestUserInfo getRAUser()
-  {
-    return raUser;
-  }
 
 //  @Request
 //  public void setUp()
@@ -254,11 +230,6 @@ abstract public class TestDataSet
   {
     if (user == null)
     {
-      user = this.getSessionUser();
-    }
-    
-    if (user == null)
-    {
       this.clientSession = ClientSession.createUserSession(ADMIN_USER_NAME, ADMIN_PASSWORD, new Locale[] { CommonProperties.getDefaultLocale() });
       this.clientRequest = clientSession.getRequest();
       this.adapter.setClientRequest(this.clientRequest);
@@ -271,11 +242,20 @@ abstract public class TestDataSet
     }
     
     adapter.refreshMetadataCache();
+    
+    try
+    {
+      adapter.getIdService().populate(1000);
+    }
+    catch (Exception e)
+    {
+      throw new RuntimeException(e);
+    }
   }
   
   public void logOut()
   {
-    if (clientSession != null)
+    if (clientSession != null && clientRequest != null && clientRequest.isLoggedIn())
     {
       clientSession.logout();
     }
@@ -343,17 +323,6 @@ abstract public class TestDataSet
     RegistryService.getInstance().refreshMetadataCache();
 
     setUpAfterApply();
-    
-    logIn(this.getSessionUser()); // logs us in
-    
-    try
-    {
-      adapter.getIdService().populate(1000);
-    }
-    catch (Exception e)
-    {
-      throw new RuntimeException(e);
-    }
   }
 
   @Transaction
@@ -429,8 +398,6 @@ abstract public class TestDataSet
 
   public void tearDownInstanceData()
   {
-    logOut();
-    
     tearDownInstanceDataInRequest();
   }
   

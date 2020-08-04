@@ -39,35 +39,29 @@ public class TreeServiceTest
   public static void setUpClass()
   {
     testData = USATestData.newTestData();
-    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
   }
   
   @AfterClass
   public static void cleanUpClass()
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    testData.tearDownMetadata();
   }
   
   @Before
   public void setUp()
   {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
+    testData.setUpInstanceData();
+    
+    testData.logIn(testData.USER_NPS_RA);
   }
 
   @After
   public void tearDown()
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    testData.logOut();
+    
+    testData.tearDownInstanceData();
   }
   
   @Test

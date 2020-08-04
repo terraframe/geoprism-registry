@@ -58,19 +58,17 @@ public class GeoObjectUtilTest
   @Before
   public void setUp()
   {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
+    testData.setUpInstanceData();
+    
+    testData.logIn();
   }
 
   @After
   public void tearDown()
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    testData.logOut();
+    
+    testData.tearDownInstanceData();
   }
 
   @Test

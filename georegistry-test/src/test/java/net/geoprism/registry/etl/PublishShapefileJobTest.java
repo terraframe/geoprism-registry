@@ -58,7 +58,6 @@ public class PublishShapefileJobTest
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
-    testData.setSessionUser(testData.USER_CGOV_RA);
     testData.setUpMetadata();
 
     if (!SchedulerManager.initialized())
@@ -70,32 +69,25 @@ public class PublishShapefileJobTest
   @AfterClass
   public static void cleanUpClass()
   {
-//    SchedulerManager.shutdown();
-
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    testData.tearDownMetadata();
   }
 
   @Before
   public void setUp()
   {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
+    testData.setUpInstanceData();
 
     clearData();
+    
+    testData.logIn(testData.USER_CGOV_RA);
   }
 
   @After
   public void tearDown() throws IOException
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    testData.logOut();
+    
+    testData.tearDownInstanceData();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
 

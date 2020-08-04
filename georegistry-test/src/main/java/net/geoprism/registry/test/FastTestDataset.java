@@ -115,8 +115,6 @@ public class FastTestDataset extends TestDataSet
     managedUsers.add(USER_CGOV_RM);
     managedUsers.add(USER_CGOV_RC);
     managedUsers.add(USER_CGOV_AC);
-    
-    this.setRAUser(USER_CGOV_RA);
   }
   
   public static FastTestDataset newTestData()

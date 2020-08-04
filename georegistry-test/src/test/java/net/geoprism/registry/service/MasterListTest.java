@@ -64,7 +64,6 @@ public class MasterListTest
   public static void setUpClass()
   {
     testData = USATestData.newTestData();
-    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
 
     setUpInReq();
@@ -92,19 +91,17 @@ public class MasterListTest
   @Before
   public void setUp()
   {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
+    testData.setUpInstanceData();
+    
+    testData.logIn(testData.USER_NPS_RA);
   }
 
   @After
   public void tearDown()
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    testData.logOut();
+    
+    testData.tearDownInstanceData();
   }
 
   @Test
