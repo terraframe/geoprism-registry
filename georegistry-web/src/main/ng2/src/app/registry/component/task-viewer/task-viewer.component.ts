@@ -29,8 +29,6 @@ export class TaskViewerComponent implements OnInit {
 		results: []
 	};
 
-	message: string;
-
 	isViewAllOpen: boolean = false;
 
 	activeTimeCounter: number = 0;
@@ -93,15 +91,12 @@ export class TaskViewerComponent implements OnInit {
 	}
 
 	onInProgressTasksPageChange(pageNumber: any): void {
-		this.message = null;
-
 		this.taskService.getMyTasks(pageNumber, this.inProgressTasks.pageSize, 'UNRESOLVED').then(page => {
 			this.inProgressTasks = page;
 		});
 	}
 
 	onCompletedTasksPageChange(pageNumber: any): void {
-		this.message = null;
 
 		this.taskService.getMyTasks(pageNumber, this.completedTasks.pageSize, 'RESOLVED').then(page => {
 			this.completedTasks = page;
@@ -112,7 +107,13 @@ export class TaskViewerComponent implements OnInit {
 		// this.isViewAllOpen = true;
 
 		this.taskService.completeTask(task.id).then(() => {
-			this.inProgressTasks.results.splice(this.inProgressTasks.results.indexOf(task), 1);
+
+			const index = this.inProgressTasks.results.findIndex(t => t.id === task.id);
+
+			if (index !== -1) {
+				this.inProgressTasks.results.splice(index, 1);
+			}
+
 			this.completedTasks.results.push(task);
 			// this.onCompletedTasksPageChange(1);
 		});
@@ -122,9 +123,15 @@ export class TaskViewerComponent implements OnInit {
 		this.isViewAllOpen = true;
 
 		this.taskService.setTaskStatus(task.id, 'UNRESOLVED').then(() => {
-			this.completedTasks.results.splice(this.completedTasks.results.indexOf(task), 1);
+
+			const index = this.completedTasks.results.findIndex(t => t.id === task.id);
+
+			if (index !== -1) {
+				this.completedTasks.results.splice(index, 1);
+			}
+
+			this.completedTasks.results.splice(index, 1);
 			this.inProgressTasks.results.push(task);
-			this.onInProgressTasksPageChange(1);
 		});
 	}
 
