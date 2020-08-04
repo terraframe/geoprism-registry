@@ -43,7 +43,6 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.SessionFacade;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
