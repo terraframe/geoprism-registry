@@ -10,9 +10,10 @@ public class LocationServiceRMTest extends AbstractLocationServiceTest
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
-    testData.setSessionUser(testData.USER_CGOV_RM);
 
     testData.setUpMetadata();
     testData.setUpInstanceData();
+    
+    testData.logIn(testData.USER_CGOV_RM);
   }
 }

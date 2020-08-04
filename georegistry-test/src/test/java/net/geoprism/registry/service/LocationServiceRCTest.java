@@ -10,9 +10,10 @@ public class LocationServiceRCTest extends AbstractLocationServiceTest
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
-    testData.setSessionUser(testData.USER_CGOV_RC);
 
     testData.setUpMetadata();
     testData.setUpInstanceData();
+    
+    testData.logIn(testData.USER_CGOV_RC);
   }
 }

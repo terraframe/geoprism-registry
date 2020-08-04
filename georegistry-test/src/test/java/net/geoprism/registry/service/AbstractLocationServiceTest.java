@@ -16,10 +16,9 @@ public abstract class AbstractLocationServiceTest
   @AfterClass
   public static void cleanUpClass()
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    testData.logOut();
+    
+    testData.tearDownMetadata();
   }
 
   @Test
