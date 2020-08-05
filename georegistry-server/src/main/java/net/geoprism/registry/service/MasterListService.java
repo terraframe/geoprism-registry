@@ -20,7 +20,6 @@ package net.geoprism.registry.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.json.JSONArray;
@@ -46,7 +45,6 @@ import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.TileCache;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.MasterListJob;

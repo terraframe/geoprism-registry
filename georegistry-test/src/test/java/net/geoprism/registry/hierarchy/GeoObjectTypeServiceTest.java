@@ -12,7 +12,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -31,13 +34,14 @@ import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectTypeServiceTest
 {
-  public static TestGeoObjectTypeInfo  TEST_GOT = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
-  
-  protected static FastTestDataset testData;
-  
+  public static TestGeoObjectTypeInfo TEST_GOT = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
+
+  protected static FastTestDataset    testData;
+
   @BeforeClass
   public static void setUpClass()
   {
@@ -55,9 +59,9 @@ public class GeoObjectTypeServiceTest
   public void setUp()
   {
     testData.setUpInstanceData();
-    
+
     setUpExtras();
-    
+
     testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
@@ -65,29 +69,29 @@ public class GeoObjectTypeServiceTest
   public void tearDown()
   {
     testData.logOut();
-    
+
     cleanUpExtras();
 
     testData.tearDownInstanceData();
   }
-  
+
   private void cleanUpExtras()
   {
     TestDataSet.deleteClassifier("termValue1");
     TestDataSet.deleteClassifier("termValue2");
-    
+
     TEST_GOT.delete();
   }
-  
+
   private void setUpExtras()
   {
     cleanUpExtras();
   }
-  
+
   @Test
   public void testCreateGeoObjectType()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
 
@@ -98,11 +102,26 @@ public class GeoObjectTypeServiceTest
     checkMdBusinessAttributes(TEST_GOT.getCode());
     checkMdGraphAttributes(TEST_GOT.getCode());
   }
-  
+
+  @Test(expected = SmartExceptionDTO.class)
+  public void testCreateGeoObjectTypeAsDifferentOrg()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+
+    String gtJSON = province.toJSON().toString();
+
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+
+      adapter.createGeoObjectType(request.getSessionId(), gtJSON);
+    });
+  }
+
   @Test
   public void testUpdateGeoObjectType()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
 
@@ -124,211 +143,270 @@ public class GeoObjectTypeServiceTest
     Assert.assertEquals("Description  was not updated on a GeoObjectType", "Some Description 2", province.getDescription().getValue());
   }
 
-//Heads up: clean up do we remove these tests?
- // @Test
- // public void testCreateGeoObjectTypePoint()
- // {
- // RegistryAdapterServer registry = new
- // RegistryAdapterServer(RegistryIdService.getInstance());
- //
- // String organizationCode = testData.ORG_CGOV.getCode();
- //
- // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
- // GeometryType.POINT, new LocalizedValue("Village"), new LocalizedValue(""),
- // true, organizationCode, registry);
- //
- // String villageJSON = village.toJSON().toString();
- //
- // service.createGeoObjectType(testData.adminSession.getSessionId(),
- // villageJSON);
- //
- // checkAttributePoint(VILLAGE.getCode());
- // }
- //
- // @Test
- // public void testCreateGeoObjectTypeLine()
- // {
- // RegistryAdapterServer registry = new
- // RegistryAdapterServer(RegistryIdService.getInstance());
- //
- // String organizationCode = testData.ORG_CGOV.getCode();
- //
- // GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(),
- // GeometryType.LINE, new LocalizedValue("River"), new LocalizedValue(""),
- // true, organizationCode, registry);
- //
- // String riverJSON = river.toJSON().toString();
- //
- // service.createGeoObjectType(testData.adminSession.getSessionId(),
- // riverJSON);
- //
- // checkAttributeLine(RIVER.getCode());
- // }
- //
- // @Test
- // public void testCreateGeoObjectTypePolygon()
- // {
- // RegistryAdapterServer registry = new
- // RegistryAdapterServer(RegistryIdService.getInstance());
- //
- // String organizationCode = testData.ORG_CGOV.getCode();
- //
- // GeoObjectType geoObjectType =
- // MetadataFactory.newGeoObjectType(DISTRICT.getCode(), GeometryType.POLYGON,
- // new LocalizedValue("District"), new LocalizedValue(""), true,
- // organizationCode, registry);
- //
- // String gtJSON = geoObjectType.toJSON().toString();
- //
- // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
- //
- // checkAttributePolygon(DISTRICT.getCode());
- // }
- //
- // @Test
- // public void testCreateGeoObjectTypeMultiPoint()
- // {
- // RegistryAdapterServer registry = new
- // RegistryAdapterServer(RegistryIdService.getInstance());
- //
- // String organizationCode = testData.ORG_CGOV.getCode();
- //
- // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
- // GeometryType.MULTIPOINT, new LocalizedValue("Village"), new
- // LocalizedValue(""), true, organizationCode, registry);
- //
- // String villageJSON = village.toJSON().toString();
- //
- // service.createGeoObjectType(testData.adminSession.getSessionId(),
- // villageJSON);
- //
- // checkAttributeMultiPoint(VILLAGE.getCode());
- // }
- //
- // @Test
- // public void testCreateGeoObjectTypeMultiLine()
- // {
- // RegistryAdapterServer registry = new
- // RegistryAdapterServer(RegistryIdService.getInstance());
- //
- // String organizationCode = testData.ORG_CGOV.getCode();
- //
- // GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(),
- // GeometryType.MULTILINE, new LocalizedValue("River"), new
- // LocalizedValue(""),true, organizationCode, registry);
- //
- // String riverJSON = river.toJSON().toString();
- //
- // service.createGeoObjectType(testData.adminSession.getSessionId(),
- // riverJSON);
- //
- // checkAttributeMultiLine(RIVER.getCode());
- // }
- //
- // @Test
- // public void testCreateGeoObjectTypeMultiPolygon()
- // {
- // RegistryAdapterServer registry = new
- // RegistryAdapterServer(RegistryIdService.getInstance());
- //
- // String organizationCode = testData.ORG_CGOV.getCode();
- //
- // GeoObjectType geoObjectType =
- // MetadataFactory.newGeoObjectType(DISTRICT.getCode(),
- // GeometryType.MULTIPOLYGON, new LocalizedValue("District"), new
- // LocalizedValue(""), true, organizationCode, registry);
- //
- // String gtJSON = geoObjectType.toJSON().toString();
- //
- // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
- //
- // checkAttributeMultiPolygon(DISTRICT.getCode());
- // }
+  @Test(expected = SmartExceptionDTO.class)
+  public void testUpdateGeoObjectTypeAsDifferentOrg()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-  
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
+
+    String gtJSON = province.toJSON().toString();
+
+    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+
+    province = testData.adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
+
+    province.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Province Test 2");
+    province.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Some Description 2");
+
+    final String updateJSON = province.toJSON().toString();
+
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+
+      adapter.updateGeoObjectType(updateJSON);
+    });
+  }
+
+  @Test
+  public void testGetGeoObjectTypeAsDifferentOrgWithWriteContext()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
+
+    String gtJSON = province.toJSON().toString();
+
+    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+      GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.WRITE);
+
+      Assert.assertEquals(0, response.length);
+    });
+  }
+
+  @Test
+  public void testGetGeoObjectTypeAsDifferentOrgWithReadContext()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
+
+    String gtJSON = province.toJSON().toString();
+
+    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+      GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ);
+
+      Assert.assertEquals(1, response.length);
+    });
+  }
+
+  // Heads up: clean up do we remove these tests?
+  // @Test
+  // public void testCreateGeoObjectTypePoint()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_CGOV.getCode();
+  //
+  // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
+  // GeometryType.POINT, new LocalizedValue("Village"), new LocalizedValue(""),
+  // true, organizationCode, registry);
+  //
+  // String villageJSON = village.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // villageJSON);
+  //
+  // checkAttributePoint(VILLAGE.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeLine()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_CGOV.getCode();
+  //
+  // GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(),
+  // GeometryType.LINE, new LocalizedValue("River"), new LocalizedValue(""),
+  // true, organizationCode, registry);
+  //
+  // String riverJSON = river.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // riverJSON);
+  //
+  // checkAttributeLine(RIVER.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypePolygon()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_CGOV.getCode();
+  //
+  // GeoObjectType geoObjectType =
+  // MetadataFactory.newGeoObjectType(DISTRICT.getCode(), GeometryType.POLYGON,
+  // new LocalizedValue("District"), new LocalizedValue(""), true,
+  // organizationCode, registry);
+  //
+  // String gtJSON = geoObjectType.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+  //
+  // checkAttributePolygon(DISTRICT.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeMultiPoint()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_CGOV.getCode();
+  //
+  // GeoObjectType village = MetadataFactory.newGeoObjectType(VILLAGE.getCode(),
+  // GeometryType.MULTIPOINT, new LocalizedValue("Village"), new
+  // LocalizedValue(""), true, organizationCode, registry);
+  //
+  // String villageJSON = village.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // villageJSON);
+  //
+  // checkAttributeMultiPoint(VILLAGE.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeMultiLine()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_CGOV.getCode();
+  //
+  // GeoObjectType river = MetadataFactory.newGeoObjectType(RIVER.getCode(),
+  // GeometryType.MULTILINE, new LocalizedValue("River"), new
+  // LocalizedValue(""),true, organizationCode, registry);
+  //
+  // String riverJSON = river.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(),
+  // riverJSON);
+  //
+  // checkAttributeMultiLine(RIVER.getCode());
+  // }
+  //
+  // @Test
+  // public void testCreateGeoObjectTypeMultiPolygon()
+  // {
+  // RegistryAdapterServer registry = new
+  // RegistryAdapterServer(RegistryIdService.getInstance());
+  //
+  // String organizationCode = testData.ORG_CGOV.getCode();
+  //
+  // GeoObjectType geoObjectType =
+  // MetadataFactory.newGeoObjectType(DISTRICT.getCode(),
+  // GeometryType.MULTIPOLYGON, new LocalizedValue("District"), new
+  // LocalizedValue(""), true, organizationCode, registry);
+  //
+  // String gtJSON = geoObjectType.toJSON().toString();
+  //
+  // service.createGeoObjectType(testData.adminSession.getSessionId(), gtJSON);
+  //
+  // checkAttributeMultiPolygon(DISTRICT.getCode());
+  // }
+
   /*
    * Utility methods for this test class:
    */
-  
- @Request
- private void checkAttributePoint(String code)
- {
-   Universal universal = Universal.getByKey(code);
-   MdBusiness mdBusiness = universal.getMdBusiness();
 
-   MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+  @Request
+  private void checkAttributePoint(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
 
-   MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
 
-   Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
- }
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
- @Request
- private void checkAttributeLine(String code)
- {
-   Universal universal = Universal.getByKey(code);
-   MdBusiness mdBusiness = universal.getMdBusiness();
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+  }
 
-   MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+  @Request
+  private void checkAttributeLine(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
 
-   MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
 
-   Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
- }
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
 
- @Request
- private void checkAttributePolygon(String code)
- {
-   Universal universal = Universal.getByKey(code);
-   MdBusiness mdBusiness = universal.getMdBusiness();
+  }
 
-   MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+  @Request
+  private void checkAttributePolygon(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
 
-   MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
 
-   Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
- }
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
- @Request
- private void checkAttributeMultiPoint(String code)
- {
-   Universal universal = Universal.getByKey(code);
-   MdBusiness mdBusiness = universal.getMdBusiness();
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+  }
 
-   MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+  @Request
+  private void checkAttributeMultiPoint(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
 
-   MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
 
-   Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
- }
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
- @Request
- private void checkAttributeMultiLine(String code)
- {
-   Universal universal = Universal.getByKey(code);
-   MdBusiness mdBusiness = universal.getMdBusiness();
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+  }
 
-   MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+  @Request
+  private void checkAttributeMultiLine(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
 
-   MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
 
-   Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
- }
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
- @Request
- private void checkAttributeMultiPolygon(String code)
- {
-   Universal universal = Universal.getByKey(code);
-   MdBusiness mdBusiness = universal.getMdBusiness();
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+  }
 
-   MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
+  @Request
+  private void checkAttributeMultiPolygon(String code)
+  {
+    Universal universal = Universal.getByKey(code);
+    MdBusiness mdBusiness = universal.getMdBusiness();
 
-   MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) BusinessFacade.getEntityDAO(mdBusiness);
 
-   Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
- }
-  
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = mdBusinessDAOIF.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
+
+    Assert.assertNotNull("A GeoObjectType did not define the proper geometry type attribute: " + RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, mdAttributeConcreteDAOIF);
+  }
+
   @Request
   private void checkMdGraphAttributes(String code)
   {

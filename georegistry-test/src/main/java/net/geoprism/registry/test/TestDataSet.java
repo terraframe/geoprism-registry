@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -104,7 +103,11 @@ import net.geoprism.registry.service.WMSService;
 
 abstract public class TestDataSet
 {
-  
+  public static interface RequestExecutor
+  {
+    public void execute(ClientRequestIF request, TestRegistryAdapterClient adapter);
+  }
+
   public static final String                 ADMIN_USER_NAME                 = "admin";
 
   public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
@@ -114,13 +117,13 @@ abstract public class TestDataSet
   public static final String                 WKT_DEFAULT_POINT               = "POINT (110 80)";
 
   public static final String                 WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
-  
+
   protected int                              debugMode                       = 0;
 
   protected ArrayList<TestOrganizationInfo>  managedOrganizationInfos        = new ArrayList<TestOrganizationInfo>();
-  
+
   protected ArrayList<TestOrganizationInfo>  managedOrganizationInfosExtras  = new ArrayList<TestOrganizationInfo>();
-  
+
   protected ArrayList<TestGeoObjectInfo>     managedGeoObjectInfos           = new ArrayList<TestGeoObjectInfo>();
 
   protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfos       = new ArrayList<TestGeoObjectTypeInfo>();
@@ -130,9 +133,9 @@ abstract public class TestDataSet
   protected ArrayList<TestGeoObjectTypeInfo> managedGeoObjectTypeInfosExtras = new ArrayList<TestGeoObjectTypeInfo>();
 
   protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfos       = new ArrayList<TestHierarchyTypeInfo>();
-  
+
   protected ArrayList<TestHierarchyTypeInfo> managedHierarchyTypeInfosExtras = new ArrayList<TestHierarchyTypeInfo>();
-  
+
   protected ArrayList<TestUserInfo>          managedUsers                    = new ArrayList<TestUserInfo>();
 
   public TestRegistryAdapterClient           adapter                         = new TestRegistryAdapterClient();
@@ -142,7 +145,7 @@ abstract public class TestDataSet
   public ClientRequestIF                     clientRequest                   = null;
 
   abstract public String getTestDataKey();
-  
+
   public TestDataSet()
   {
     checkDuplicateClasspathResources();
@@ -159,7 +162,7 @@ abstract public class TestDataSet
 
     return all;
   }
-  
+
   public ArrayList<TestGeoObjectInfo> getManagedGeoObjects()
   {
     ArrayList<TestGeoObjectInfo> all = new ArrayList<TestGeoObjectInfo>();
@@ -179,7 +182,7 @@ abstract public class TestDataSet
 
     return all;
   }
-  
+
   public ArrayList<TestUserInfo> getManagedUsers()
   {
     ArrayList<TestUserInfo> all = new ArrayList<TestUserInfo>();
@@ -209,27 +212,27 @@ abstract public class TestDataSet
     return managedHierarchyTypeInfosExtras;
   }
 
-//  @Request
-//  public void setUp()
-//  {
-//    setUpMetadata();
-//
-//    setUpInstanceData();
-//  }
-//
-//  @Request
-//  public void cleanUp()
-//  {
-//    tearDownMetadata();
-//
-//    tearDownInstanceData();
-//  }
-  
+  // @Request
+  // public void setUp()
+  // {
+  // setUpMetadata();
+  //
+  // setUpInstanceData();
+  // }
+  //
+  // @Request
+  // public void cleanUp()
+  // {
+  // tearDownMetadata();
+  //
+  // tearDownInstanceData();
+  // }
+
   public void logIn()
   {
     this.logIn(null);
   }
-  
+
   public void logIn(TestUserInfo user)
   {
     if (user == null)
@@ -244,12 +247,11 @@ abstract public class TestDataSet
       this.clientRequest = clientSession.getRequest();
       this.adapter.setClientRequest(this.clientRequest);
     }
-    
+
     adapter.refreshMetadataCache();
-    
-    
+
     boolean isRAorRM = false;
-    
+
     for (String roleName : user.getRoleNameArray())
     {
       if (RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRA_Role(roleName))
@@ -258,7 +260,7 @@ abstract public class TestDataSet
         break;
       }
     }
-    
+
     if (isRAorRM)
     {
       try
@@ -271,7 +273,7 @@ abstract public class TestDataSet
       }
     }
   }
-  
+
   public void logOut()
   {
     if (clientSession != null && clientRequest != null && clientRequest.isLoggedIn())
@@ -287,14 +289,14 @@ abstract public class TestDataSet
 
     setUpOrgsInTrans();
     setUpMetadataInTrans();
-    
+
     RegistryService.getInstance().refreshMetadataCache();
 
     setUpClassRelationships();
-    
+
     RegistryService.getInstance().refreshMetadataCache();
   }
-  
+
   public void setUpClassRelationships()
   {
 
@@ -308,7 +310,7 @@ abstract public class TestDataSet
       org.apply();
     }
   }
-  
+
   @Transaction
   protected void setUpMetadataInTrans()
   {
@@ -316,12 +318,12 @@ abstract public class TestDataSet
     {
       ht.apply();
     }
-    
+
     for (TestGeoObjectTypeInfo uni : managedGeoObjectTypeInfos)
     {
       uni.apply();
     }
-    
+
     for (TestUserInfo user : managedUsers)
     {
       user.apply();
@@ -392,23 +394,23 @@ abstract public class TestDataSet
     {
       got.delete();
     }
-    
+
     for (TestHierarchyTypeInfo ht : this.getManagedHierarchyTypes())
     {
       ht.delete();
     }
-    
+
     for (TestOrganizationInfo org : this.getManagedOrganizations())
     {
       org.delete();
     }
-    
+
     for (TestUserInfo user : this.getManagedUsers())
     {
       user.delete();
     }
   }
-  
+
   @Request
   public void reloadPermissions()
   {
@@ -419,7 +421,7 @@ abstract public class TestDataSet
   {
     tearDownInstanceDataInRequest();
   }
-  
+
   @Request
   public void tearDownInstanceDataInRequest()
   {
@@ -429,32 +431,35 @@ abstract public class TestDataSet
   @Transaction
   protected void cleanUpTestInTrans()
   {
-//    for (TestGeoObjectInfo go : managedGeoObjectInfos)
-//    {
-//      go.delete();
-//    }
-//    for (TestGeoObjectInfo go : managedGeoObjectInfosExtras)
-//    {
-//      go.delete();
-//    }
+    // for (TestGeoObjectInfo go : managedGeoObjectInfos)
+    // {
+    // go.delete();
+    // }
+    // for (TestGeoObjectInfo go : managedGeoObjectInfosExtras)
+    // {
+    // go.delete();
+    // }
 
     deleteAllGeoObjects();
-    
+
     deleteAllActions();
     deleteAllChangeRequests();
 
     managedGeoObjectInfosExtras = new ArrayList<TestGeoObjectInfo>();
   }
-  
+
   @Request
   private void deleteAllGeoObjects()
   {
     for (TestGeoObjectTypeInfo type : this.getManagedGeoObjectTypes())
     {
       ServerGeoObjectType got = type.getServerObject(true);
-      
-      if (got == null) { continue; }
-      
+
+      if (got == null)
+      {
+        continue;
+      }
+
       MdVertexDAOIF mdVertex = got.getMdVertex();
 
       StringBuilder statement = new StringBuilder();
@@ -463,11 +468,11 @@ abstract public class TestDataSet
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
 
       List<VertexObject> vObjects = query.getResults();
-      
+
       for (VertexObject vObject : vObjects)
       {
         VertexServerGeoObject serverGo = new VertexServerGeoObject(got, vObject);
-        
+
         QueryFactory qf = new QueryFactory();
         BusinessQuery bq = qf.businessQuery(type.getServerObject().getUniversal().getMdBusiness().definesType());
         bq.WHERE(bq.aCharacter(DefaultAttribute.CODE.getName()).EQ(serverGo.getCode()));
@@ -487,38 +492,39 @@ abstract public class TestDataSet
         }
 
         vObject.delete();
-        
+
         TestDataSet.deleteGeoEntity(serverGo.getCode());
       }
     }
-    
+
     for (TestGeoObjectInfo go : this.getManagedGeoObjects())
     {
       go.clean();
     }
   }
 
-//  private void rebuildAllpaths()
-//  {
-//    Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
-//    Universal.getStrategy().initialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
-//    GeoEntity.getStrategy().initialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
-//
-//    if (new AllowedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
-//    {
-//      Universal.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
-//    }
-//
-//    if (new LocatedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
-//    {
-//      GeoEntity.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
-//    }
-//
-//    if (new ClassifierIsARelationshipAllPathsTableQuery(new QueryFactory()).getCount() == 0)
-//    {
-//      Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
-//    }
-//  }
+  // private void rebuildAllpaths()
+  // {
+  // Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
+  // Universal.getStrategy().initialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
+  // GeoEntity.getStrategy().initialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
+  //
+  // if (new AllowedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+  // {
+  // Universal.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.AllowedIn.CLASS);
+  // }
+  //
+  // if (new LocatedInAllPathsTableQuery(new QueryFactory()).getCount() == 0)
+  // {
+  // GeoEntity.getStrategy().reinitialize(com.runwaysdk.system.gis.geo.LocatedIn.CLASS);
+  // }
+  //
+  // if (new ClassifierIsARelationshipAllPathsTableQuery(new
+  // QueryFactory()).getCount() == 0)
+  // {
+  // Classifier.getStrategy().reinitialize(ClassifierIsARelationship.CLASS);
+  // }
+  // }
 
   @Request
   public static void deleteAllActions()
@@ -559,11 +565,13 @@ abstract public class TestDataSet
   @Request
   public static void assertEqualsHierarchyType(String relationshipType, HierarchyType compare)
   {
-//    MdRelationship mdr = MdRelationship.getMdRelationship(relationshipType);
-//
-//    Assert.assertEquals(mdr.getTypeName(), compare.getCode());
-//    Assert.assertEquals(mdr.getDescription().getValue(), compare.getDescription().getValue());
-//    Assert.assertEquals(mdr.getDisplayLabel().getValue(), compare.getLabel().getValue());
+    // MdRelationship mdr = MdRelationship.getMdRelationship(relationshipType);
+    //
+    // Assert.assertEquals(mdr.getTypeName(), compare.getCode());
+    // Assert.assertEquals(mdr.getDescription().getValue(),
+    // compare.getDescription().getValue());
+    // Assert.assertEquals(mdr.getDisplayLabel().getValue(),
+    // compare.getLabel().getValue());
 
     // compare.getRootGeoObjectTypes() // TODO
   }
@@ -632,7 +640,7 @@ abstract public class TestDataSet
       git.close();
     }
   }
-  
+
   public static Classifier getClassifierIfExist(String classifierId)
   {
     ClassifierQuery query = new ClassifierQuery(new QueryFactory());
@@ -652,7 +660,7 @@ abstract public class TestDataSet
 
     return null;
   }
-  
+
   @Request
   public static GeoprismUser createUser(String username, String password, String email, String[] roleNameArray)
   {
@@ -663,7 +671,7 @@ abstract public class TestDataSet
     geoprismUser.setLastName(username);
     geoprismUser.setEmail(email);
     geoprismUser.apply();
-    
+
     if (roleNameArray != null)
     {
       List<Roles> newRoles = new LinkedList<Roles>();
@@ -703,39 +711,38 @@ abstract public class TestDataSet
     UserInfo info = new UserInfo();
     info.setGeoprismUser(geoprismUser);
     info.apply();
-    
+
     return geoprismUser;
   }
-  
+
   @Request
   public static void deleteUser(String username)
   {
     QueryFactory qf = new QueryFactory();
-    
+
     ValueQuery vq = new ValueQuery(qf);
-    
+
     UserInfoQuery uiq = new UserInfoQuery(qf);
-    
+
     GeoprismUserQuery guq = new GeoprismUserQuery(qf);
-    
+
     vq.SELECT(uiq.getOid("userInfoOid"));
     vq.SELECT(guq.getOid("geoprismUserOid"));
-    
+
     vq.WHERE(guq.getUsername().EQ(username));
     vq.AND(uiq.getGeoprismUser().EQ(guq));
-    
+
     OIterator<? extends ValueObject> it = vq.getIterator();
-    
+
     try
     {
       while (it.hasNext())
       {
         ValueObject vo = it.next();
-        
+
         UserInfo ui = UserInfo.get(vo.getValue("userInfoOid"));
         GeoprismUser gu = GeoprismUser.get(vo.getValue("geoprismUserOid"));
-        
-        
+
         // Delete all referenced IdRecords
         IdRecordQuery irq = new IdRecordQuery(new QueryFactory());
         irq.WHERE(irq.getOwner().EQ(gu));
@@ -751,7 +758,7 @@ abstract public class TestDataSet
         {
           reqit.close();
         }
-        
+
         // Delete all referenced VaultFiles
         VaultFileQuery vfq = new VaultFileQuery(new QueryFactory());
         vfq.WHERE(vfq.getOwner().EQ(gu));
@@ -767,9 +774,7 @@ abstract public class TestDataSet
         {
           vfit.close();
         }
-        
-        
-        
+
         ui.delete();
         gu.delete();
       }
@@ -779,7 +784,7 @@ abstract public class TestDataSet
       it.close();
     }
   }
-  
+
   @Request
   public static void deleteClassifier(String classifierId)
   {
@@ -888,7 +893,7 @@ abstract public class TestDataSet
       existingResources.add(resource);
     }
   }
-  
+
   @Request
   public static void deleteExternalSystems(String systemId)
   {
@@ -907,11 +912,11 @@ abstract public class TestDataSet
       query.setParameter("id", systemId);
 
       List<ExternalSystem> list = query.getResults();
-      
+
       for (ExternalSystem es : list)
       {
         TestDataSet.deleteExternalIds(es);
-        
+
         es.delete(false);
       }
     }
@@ -920,7 +925,7 @@ abstract public class TestDataSet
       // Do nothing
     }
   }
-  
+
   @Request
   public static void deleteExternalIds(ExternalSystem system)
   {
@@ -933,60 +938,60 @@ abstract public class TestDataSet
     {
       builder.append(" WHERE out = :system");
     }
-    
+
     final GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(builder.toString());
-    
+
     if (system != null)
     {
       query.setParameter("system", system.getRID());
     }
 
     List<EdgeObject> edges = query.getResults();
-    
+
     for (EdgeObject edge : edges)
     {
       edge.delete();
     }
   }
-  
+
   @Request
   public static void refreshTerms(AttributeTermType attribute)
   {
     attribute.setRootTerm(new TermConverter(TermConverter.buildClassifierKeyFromTermCode(attribute.getRootTerm().getCode())).build());
   }
-  
+
   public static TestAttributeTypeInfo createAttribute(String name, String label, TestGeoObjectTypeInfo got, String type)
   {
     AttributeType at = AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
-    
+
     String attributeTypeJSON = at.toJSON().toString();
-    
+
     at = got.getServerObject().createAttributeType(attributeTypeJSON);
-    
+
     return new TestAttributeTypeInfo(at, got);
   }
-  
+
   public static TestAttributeTypeInfo createTermAttribute(String name, String label, TestGeoObjectTypeInfo got, Term attrRoot)
   {
     final String type = AttributeTermType.TYPE;
-    
+
     AttributeTermType att = (AttributeTermType) AttributeType.factory(name, new LocalizedValue(label), new LocalizedValue("Description for " + name), type, false, false, false);
     if (attrRoot != null)
     {
       att.setRootTerm(attrRoot);
     }
-    
+
     String attributeTypeJSON = att.toJSON().toString();
-    
+
     att = (AttributeTermType) got.getServerObject().createAttributeType(attributeTypeJSON);
-    
+
     return new TestAttributeTypeInfo(att, got);
   }
-  
+
   public static Term createTerm(TestAttributeTypeInfo termAttr, String classifierId, String displayLabel)
   {
     Classifier parentTerm = TestDataSet.getClassifierIfExist(termAttr.getRootTerm().getCode());
-    
+
     Classifier child = TestDataSet.getClassifierIfExist(classifierId);
     if (child == null)
     {
@@ -995,21 +1000,46 @@ abstract public class TestDataSet
       child.setClassifierPackage(parentTerm.getKey());
       child.getDisplayLabel().setDefaultValue(displayLabel);
       child.apply();
-      
+
       child.addLink(parentTerm, ClassifierIsARelationship.CLASS).apply();
     }
-    
+
     return new TermConverter(child.getKeyName()).build();
   }
-  
+
   public static Term createAttributeRootTerm(TestGeoObjectTypeInfo got, TestAttributeTypeInfo attr)
   {
     MdBusiness mdBiz = got.getServerObject().getMdBusiness();
-    
+
     Classifier mdBizClassy = TermConverter.buildIfNotExistdMdBusinessClassifier(mdBiz);
-    
+
     Classifier classifier = TermConverter.buildIfNotExistAttribute(mdBiz, attr.getAttributeName(), mdBizClassy);
-    
+
     return new TermConverter(classifier.getKeyName()).build();
   }
+
+  public static void runAsUser(TestUserInfo user, RequestExecutor executor)
+  {
+    ClientSession session = null;
+
+    try
+    {
+      session = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
+
+      ClientRequestIF request = session.getRequest();
+
+      TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
+      adapter.setClientRequest(request);
+
+      executor.execute(request, adapter);
+    }
+    finally
+    {
+      if (session != null)
+      {
+        session.logout();
+      }
+    }
+  }
+
 }

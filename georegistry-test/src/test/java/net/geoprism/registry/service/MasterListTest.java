@@ -289,13 +289,7 @@ public class MasterListTest
 
     try
     {
-      TestUserInfo user = USATestData.USER_PPP_RA;
-
-      ClientSession session = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
-
-      try
-      {
-        ClientRequestIF request = session.getRequest();
+      USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
 
         JsonArray orgs = service.listByOrg(request.getSessionId());
         JsonObject org = orgs.get(0).getAsJsonObject();
@@ -304,11 +298,7 @@ public class MasterListTest
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
         Assert.assertFalse(org.get("admin").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
-      }
-      finally
-      {
-        session.logout();
-      }
+      });
     }
     finally
     {
@@ -327,14 +317,7 @@ public class MasterListTest
 
     try
     {
-      TestUserInfo user = USATestData.USER_PPP_RA;
-
-      ClientSession session = ClientSession.createUserSession(user.getUsername(), user.getPassword(), new Locale[] { CommonProperties.getDefaultLocale() });
-
-      try
-      {
-        ClientRequestIF request = session.getRequest();
-
+      USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
         JsonArray orgs = service.listByOrg(request.getSessionId());
         JsonObject org = orgs.get(0).getAsJsonObject();
 
@@ -342,11 +325,7 @@ public class MasterListTest
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
         Assert.assertFalse(org.get("admin").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() == 0);
-      }
-      finally
-      {
-        session.logout();
-      }
+      });
     }
     finally
     {

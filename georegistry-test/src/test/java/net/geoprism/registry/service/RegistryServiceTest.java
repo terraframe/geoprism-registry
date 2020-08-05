@@ -75,7 +75,7 @@ public class RegistryServiceTest
   {
     testData.setUpInstanceData();
     
-    testData.logIn(testData.USER_CGOV_RA);
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
@@ -89,9 +89,9 @@ public class RegistryServiceTest
   @Test
   public void testGetGeoObject()
   {
-    GeoObject geoObj = testData.adapter.getGeoObject(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode());
+    GeoObject geoObj = testData.adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
-    testData.CAMBODIA.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+    FastTestDataset.CAMBODIA.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
   }
 
   @Test
@@ -101,10 +101,10 @@ public class RegistryServiceTest
     Point point = builder.point(48.44, -123.37);
 
     // 1. Test creating a new one
-    GeoObject geoObj = testData.adapter.newGeoObjectInstance(testData.PROVINCE.getCode());
+    GeoObject geoObj = testData.adapter.newGeoObjectInstance(FastTestDataset.PROVINCE.getCode());
     geoObj.setGeometry(point);
-    geoObj.setCode(testData.CAMBODIA.getCode());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.CAMBODIA.getDisplayLabel());
+    geoObj.setCode(FastTestDataset.CAMBODIA.getCode());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
 
     try
     {
@@ -122,7 +122,7 @@ public class RegistryServiceTest
   @Test
   public void testGetGeoObjectByCode()
   {
-    GeoObject geoObj = testData.adapter.getGeoObjectByCode(testData.CAMBODIA.getCode(), testData.CAMBODIA.getGeoObjectType().getCode());
+    GeoObject geoObj = testData.adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(testData.adapter, geoObj.toJSON().toString()).toJSON().toString());
     testData.assertGeoObjectStatus(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
@@ -131,7 +131,7 @@ public class RegistryServiceTest
   @Test
   public void testUpdateGeoObject()
   {
-    TestGeoObjectInfo testUpdateGO = testData.newTestGeoObjectInfo("TEST_UPDATE_GO", testData.PROVINCE);
+    TestGeoObjectInfo testUpdateGO = testData.newTestGeoObjectInfo("TEST_UPDATE_GO", FastTestDataset.PROVINCE);
 
     // 1. Test creating a new one
     GeoObject geoObj = testUpdateGO.asGeoObject();
@@ -141,14 +141,14 @@ public class RegistryServiceTest
     // 2. Test updating the one we created earlier
     GeoObject waGeoObj = testData.adapter.getGeoObject(geoObj.getUid(), testUpdateGO.getGeoObjectType().getCode());
     LocalizedValue displayLabel = waGeoObj.getDisplayLabel();
-    displayLabel.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, testData.CAMBODIA.getDisplayLabel());
+    displayLabel.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
 
-    waGeoObj.setWKTGeometry(testData.CAMBODIA.getWkt());
+    waGeoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
     waGeoObj.setDisplayLabel(displayLabel);
     waGeoObj.setStatus(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
 
-    testUpdateGO.setWkt(testData.CAMBODIA.getWkt());
-    testUpdateGO.setDisplayLabel(testData.CAMBODIA.getDisplayLabel());
+    testUpdateGO.setWkt(FastTestDataset.CAMBODIA.getWkt());
+    testUpdateGO.setDisplayLabel(FastTestDataset.CAMBODIA.getDisplayLabel());
 
     GeoObject returnedUpdate = testData.adapter.updateGeoObject(waGeoObj.toJSON().toString());
     testUpdateGO.setRegistryId(returnedUpdate.getUid());
@@ -188,29 +188,29 @@ public class RegistryServiceTest
   @Test
   public void testGetGeoObjectSuggestions()
   {
-    JSONArray results = testData.adapter.getGeoObjectSuggestions(testData.PROV_CENTRAL.getDisplayLabel().substring(0, 3), testData.PROVINCE.getCode(), testData.CAMBODIA.getCode(), testData.HIER_ADMIN.getCode(), null);
+    JSONArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.HIER_ADMIN.getCode(), null);
 
     Assert.assertEquals(1, results.length());
 
     JSONObject result = results.getJSONObject(0);
 
-    Assert.assertEquals(testData.PROV_CENTRAL.getDisplayLabel(), result.getString("name"));
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.getString("name"));
 //    Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id")); // This is commented out because the ids are different due to postgres + orientdb inconsistencies
-    Assert.assertEquals(testData.PROV_CENTRAL.getCode(), result.getString(GeoObject.CODE));
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.getString(GeoObject.CODE));
   }
 
   @Test
   public void testGetGeoObjectSuggestionsNoParent()
   {
-    JSONArray results = testData.adapter.getGeoObjectSuggestions(testData.PROV_CENTRAL.getDisplayLabel().substring(0, 3), testData.PROVINCE.getCode(), null, null, null);
+    JSONArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null);
 
     Assert.assertEquals(1, results.length());
 
     JSONObject result = results.getJSONObject(0);
 
-    Assert.assertEquals(testData.PROV_CENTRAL.getDisplayLabel(), result.getString("name"));
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.getString("name"));
 //    Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id")); // This is commented out because the ids are different due to postgres + orientdb inconsistencies
-    Assert.assertEquals(testData.PROV_CENTRAL.getCode(), result.getString(GeoObject.CODE));
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.getString(GeoObject.CODE));
   }
 
   /**
@@ -221,10 +221,10 @@ public class RegistryServiceTest
   public void testUnissuedIdCreate()
   {
     // Create
-    GeoObject geoObj = testData.adapter.newGeoObjectInstance(testData.PROVINCE.getCode());
-    geoObj.setWKTGeometry(testData.CAMBODIA.getWkt());
-    geoObj.setCode(testData.CAMBODIA.getCode());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.CAMBODIA.getDisplayLabel());
+    GeoObject geoObj = testData.adapter.newGeoObjectInstance(FastTestDataset.PROVINCE.getCode());
+    geoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
+    geoObj.setCode(FastTestDataset.CAMBODIA.getCode());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
     geoObj.setUid(UUID.randomUUID().toString());
     testData.adapter.createGeoObject(geoObj.toJSON().toString());
   }
@@ -237,9 +237,9 @@ public class RegistryServiceTest
   public void testUnissuedIdUpdate()
   {
     // Update
-    GeoObject waGeoObj = testData.adapter.getGeoObject(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode());
-    waGeoObj.setWKTGeometry(testData.CAMBODIA.getWkt());
-    waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, testData.CAMBODIA.getDisplayLabel());
+    GeoObject waGeoObj = testData.adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+    waGeoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
+    waGeoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
     waGeoObj.setUid(UUID.randomUUID().toString());
     testData.adapter.updateGeoObject(waGeoObj.toJSON().toString());
   }
@@ -247,7 +247,7 @@ public class RegistryServiceTest
   @Test
   public void testGetGeoObjectTypes()
   {
-    String[] codes = new String[] { testData.COUNTRY.getCode(), testData.PROVINCE.getCode() };
+    String[] codes = new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() };
 
     GeoObjectType[] gots = testData.adapter.getGeoObjectTypes(codes, null, PermissionContext.READ);
 
@@ -255,11 +255,11 @@ public class RegistryServiceTest
 
     GeoObjectType state = gots[0];
     Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), testData.adapter).toJSON().toString());
-    testData.COUNTRY.assertEquals(state);
+    FastTestDataset.COUNTRY.assertEquals(state);
 
     GeoObjectType district = gots[1];
     Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), testData.adapter).toJSON().toString());
-    testData.PROVINCE.assertEquals(district);
+    FastTestDataset.PROVINCE.assertEquals(district);
 
     // Test to make sure we can provide none
     GeoObjectType[] gots2 = testData.adapter.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
@@ -296,77 +296,77 @@ public class RegistryServiceTest
   @Test
   public void testGetChildGeoObjects()
   {
-    String parentId = testData.CAMBODIA.getRegistryId();
-    String parentTypeCode = testData.CAMBODIA.getGeoObjectType().getCode();
-    String[] childrenTypes = new String[] { testData.PROVINCE.getCode() };
+    String parentId = FastTestDataset.CAMBODIA.getRegistryId();
+    String parentTypeCode = FastTestDataset.CAMBODIA.getGeoObjectType().getCode();
+    String[] childrenTypes = new String[] { FastTestDataset.PROVINCE.getCode() };
 
     // Recursive
     ChildTreeNode tn = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, childrenTypes, true);
-    testData.CAMBODIA.assertEquals(tn, childrenTypes, true);
+    FastTestDataset.CAMBODIA.assertEquals(tn, childrenTypes, true);
     Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Not recursive
     ChildTreeNode tn2 = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, childrenTypes, false);
-    testData.CAMBODIA.assertEquals(tn2, childrenTypes, false);
+    FastTestDataset.CAMBODIA.assertEquals(tn2, childrenTypes, false);
     Assert.assertEquals(tn2.toJSON().toString(), ChildTreeNode.fromJSON(tn2.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test only getting districts
-    String[] distArr = new String[] { testData.CAMBODIA.getCode() };
+    String[] distArr = new String[] { FastTestDataset.CAMBODIA.getCode() };
     ChildTreeNode tn3 = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, distArr, true);
-    testData.CAMBODIA.assertEquals(tn3, distArr, true);
+    FastTestDataset.CAMBODIA.assertEquals(tn3, distArr, true);
     Assert.assertEquals(tn3.toJSON().toString(), ChildTreeNode.fromJSON(tn3.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test null children types. We're using Mexico because it has no leaf
     // nodes.
-    ChildTreeNode tn4 = testData.adapter.getChildGeoObjects(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode(), null, true);
-    testData.CAMBODIA.assertEquals(tn4, null, true);
+    ChildTreeNode tn4 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), null, true);
+    FastTestDataset.CAMBODIA.assertEquals(tn4, null, true);
     Assert.assertEquals(tn4.toJSON().toString(), ChildTreeNode.fromJSON(tn4.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test empty children types. We're using Mexico because it has no leaf
     // nodes.
-    ChildTreeNode tn5 = testData.adapter.getChildGeoObjects(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode(), new String[] {}, true);
-    testData.CAMBODIA.assertEquals(tn5, null, true);
+    ChildTreeNode tn5 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), new String[] {}, true);
+    FastTestDataset.CAMBODIA.assertEquals(tn5, null, true);
     Assert.assertEquals(tn5.toJSON().toString(), ChildTreeNode.fromJSON(tn5.toJSON().toString(), testData.adapter).toJSON().toString());
   }
   
   @Test
   public void testGetParentGeoObjects()
   {
-    String childId = testData.PROV_CENTRAL.getRegistryId();
-    String childTypeCode = testData.PROVINCE.getCode();
-    String[] parentTypes = new String[] { testData.COUNTRY.getCode() };
+    String childId = FastTestDataset.PROV_CENTRAL.getRegistryId();
+    String childTypeCode = FastTestDataset.PROVINCE.getCode();
+    String[] parentTypes = new String[] { FastTestDataset.COUNTRY.getCode() };
 
     // Recursive
     ParentTreeNode tn = testData.adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, true, null);
-    testData.PROV_CENTRAL.assertEquals(tn, parentTypes, true);
+    FastTestDataset.PROV_CENTRAL.assertEquals(tn, parentTypes, true);
     Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Not recursive
     ParentTreeNode tn2 = testData.adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, false, null);
-    testData.PROV_CENTRAL.assertEquals(tn2, parentTypes, false);
+    FastTestDataset.PROV_CENTRAL.assertEquals(tn2, parentTypes, false);
     Assert.assertEquals(tn2.toJSON().toString(), ParentTreeNode.fromJSON(tn2.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test only getting countries
-    String[] countryArr = new String[] { testData.COUNTRY.getCode() };
+    String[] countryArr = new String[] { FastTestDataset.COUNTRY.getCode() };
     ParentTreeNode tn3 = testData.adapter.getParentGeoObjects(childId, childTypeCode, countryArr, true, null);
-    testData.PROV_CENTRAL.assertEquals(tn3, countryArr, true);
+    FastTestDataset.PROV_CENTRAL.assertEquals(tn3, countryArr, true);
     Assert.assertEquals(tn3.toJSON().toString(), ParentTreeNode.fromJSON(tn3.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test null parent types
     ParentTreeNode tn4 = testData.adapter.getParentGeoObjects(childId, childTypeCode, null, true, null);
-    testData.PROV_CENTRAL.assertEquals(tn4, null, true);
+    FastTestDataset.PROV_CENTRAL.assertEquals(tn4, null, true);
     Assert.assertEquals(tn4.toJSON().toString(), ParentTreeNode.fromJSON(tn4.toJSON().toString(), testData.adapter).toJSON().toString());
 
     // Test empty parent types
     ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childId, childTypeCode, new String[] {}, true, null);
-    testData.PROV_CENTRAL.assertEquals(tn5, null, true);
+    FastTestDataset.PROV_CENTRAL.assertEquals(tn5, null, true);
     Assert.assertEquals(tn5.toJSON().toString(), ParentTreeNode.fromJSON(tn5.toJSON().toString(), testData.adapter).toJSON().toString());
   }
 
   @Test
   public void testGetHierarchyTypes()
   {
-    String[] types = new String[] { testData.HIER_ADMIN.getCode() };
+    String[] types = new String[] { FastTestDataset.HIER_ADMIN.getCode() };
 
     HierarchyType[] hts = testData.adapter.getHierarchyTypes(types);
 
@@ -387,15 +387,15 @@ public class RegistryServiceTest
   @Test
   public void testAddChild()
   {
-    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", testData.PROVINCE);
+    TestGeoObjectInfo testAddChild = testData.newTestGeoObjectInfo("TEST_ADD_CHILD", FastTestDataset.PROVINCE);
     testAddChild.apply();
 
-    ParentTreeNode ptnTestState = testData.adapter.addChild(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), testData.HIER_ADMIN.getCode());
+    ParentTreeNode ptnTestState = testData.adapter.addChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), testAddChild.getRegistryId(), testAddChild.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
     boolean found = false;
     for (ParentTreeNode ptnCAMBODIA : ptnTestState.getParents())
     {
-      if (ptnCAMBODIA.getGeoObject().getCode().equals(testData.CAMBODIA.getCode()))
+      if (ptnCAMBODIA.getGeoObject().getCode().equals(FastTestDataset.CAMBODIA.getCode()))
       {
         found = true;
         break;
@@ -404,7 +404,7 @@ public class RegistryServiceTest
     Assert.assertTrue("Did not find our test object in the list of returned children", found);
     testAddChild.assertEquals(ptnTestState.getGeoObject());
 
-    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode(), new String[] { testData.PROVINCE.getCode() }, false);
+    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), new String[] { FastTestDataset.PROVINCE.getCode() }, false);
 
     found = false;
     for (ChildTreeNode ctnState : ctnCAMBODIA2.getChildren())
@@ -424,17 +424,17 @@ public class RegistryServiceTest
     /*
      * Remove Child
      */
-    testData.adapter.removeChild(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode(), testData.PROV_CENTRAL.getRegistryId(), testData.PROVINCE.getCode(), testData.HIER_ADMIN.getCode());
+    testData.adapter.removeChild(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.PROV_CENTRAL.getRegistryId(), FastTestDataset.PROVINCE.getCode(), FastTestDataset.HIER_ADMIN.getCode());
 
     /*
      * Fetch the children and validate ours was removed
      */
-    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(testData.CAMBODIA.getRegistryId(), testData.CAMBODIA.getGeoObjectType().getCode(), new String[] { testData.PROVINCE.getCode() }, false);
+    ChildTreeNode ctnCAMBODIA2 = testData.adapter.getChildGeoObjects(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), new String[] { FastTestDataset.PROVINCE.getCode() }, false);
 
     boolean found = false;
     for (ChildTreeNode ctnState : ctnCAMBODIA2.getChildren())
     {
-      if (ctnState.getGeoObject().getCode().equals(testData.CAMBODIA.getCode()))
+      if (ctnState.getGeoObject().getCode().equals(FastTestDataset.CAMBODIA.getCode()))
       {
         found = true;
         break;
