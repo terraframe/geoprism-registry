@@ -13,7 +13,7 @@ public class LocationServiceRMTest extends AbstractLocationServiceTest
 
     testData.setUpMetadata();
     testData.setUpInstanceData();
-    
-    testData.logIn(testData.USER_CGOV_RM);
+
+    testData.logIn(FastTestDataset.USER_CGOV_RM);
   }
 }

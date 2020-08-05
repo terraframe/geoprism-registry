@@ -14,6 +14,6 @@ public class LocationServiceRCTest extends AbstractLocationServiceTest
     testData.setUpMetadata();
     testData.setUpInstanceData();
     
-    testData.logIn(testData.USER_CGOV_RC);
+    testData.logIn(FastTestDataset.USER_CGOV_RC);
   }
 }

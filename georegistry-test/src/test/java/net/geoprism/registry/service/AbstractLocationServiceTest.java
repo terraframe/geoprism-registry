@@ -36,8 +36,8 @@ public abstract class AbstractLocationServiceTest
     LocationInformation information = service.getLocationInformation(testData.clientRequest.getSessionId(), new Date(), null, null);
 
     Assert.assertNotNull(information);
-    Assert.assertEquals(testData.HIER_ADMIN.getCode(), information.getHierarchy());
-    Assert.assertEquals(testData.COUNTRY.getCode(), information.getChildType().getCode());
+    Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), information.getHierarchy());
+    Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), information.getChildType().getCode());
     Assert.assertEquals(1, information.getChildren().size());
     Assert.assertNull(information.getEntity());
     Assert.assertEquals(1, information.getHierarchies().size());
@@ -48,13 +48,13 @@ public abstract class AbstractLocationServiceTest
   public void testGetLocationInformationWithParent()
   {
     LocationService service = new LocationService();
-    LocationInformation information = service.getLocationInformation(testData.clientRequest.getSessionId(), testData.CAMBODIA.getCode(), testData.COUNTRY.getCode(), new Date(), testData.PROVINCE.getCode(), null);
+    LocationInformation information = service.getLocationInformation(testData.clientRequest.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), new Date(), FastTestDataset.PROVINCE.getCode(), null);
 
     Assert.assertNotNull(information);
-    Assert.assertEquals(testData.HIER_ADMIN.getCode(), information.getHierarchy());
-    Assert.assertEquals(testData.PROVINCE.getCode(), information.getChildType().getCode());
+    Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), information.getHierarchy());
+    Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), information.getChildType().getCode());
     Assert.assertEquals(1, information.getChildren().size());
-    Assert.assertEquals(testData.CAMBODIA.getCode(), information.getEntity().getCode());
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), information.getEntity().getCode());
     Assert.assertEquals(1, information.getHierarchies().size());
     Assert.assertEquals(1, information.getChildTypes().size());
   }
@@ -63,13 +63,13 @@ public abstract class AbstractLocationServiceTest
   public void testSerialize()
   {
     LocationService service = new LocationService();
-    LocationInformation information = service.getLocationInformation(testData.clientRequest.getSessionId(), testData.CAMBODIA.getCode(), testData.COUNTRY.getCode(), new Date(), testData.PROVINCE.getCode(), null);
+    LocationInformation information = service.getLocationInformation(testData.clientRequest.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), new Date(), FastTestDataset.PROVINCE.getCode(), null);
 
     JsonObject response = (JsonObject) information.toJson(new DefaultSerializer());
 
     Assert.assertNotNull(response);
-    Assert.assertEquals(testData.HIER_ADMIN.getCode(), response.get("hierarchy").getAsString());
-    Assert.assertEquals(testData.PROVINCE.getCode(), response.get("childType").getAsString());
+    Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), response.get("hierarchy").getAsString());
+    Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), response.get("childType").getAsString());
     Assert.assertEquals(1, response.get("hierarchies").getAsJsonArray().size());
     Assert.assertEquals(1, response.get("types").getAsJsonArray().size());
 
@@ -81,7 +81,7 @@ public abstract class AbstractLocationServiceTest
     JsonObject entity = response.get("entity").getAsJsonObject();
 
     Assert.assertNotNull(entity);
-    Assert.assertEquals(testData.CAMBODIA.getCode(), entity.get("properties").getAsJsonObject().get("code").getAsString());
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), entity.get("properties").getAsJsonObject().get("code").getAsString());
   }
 
 }
