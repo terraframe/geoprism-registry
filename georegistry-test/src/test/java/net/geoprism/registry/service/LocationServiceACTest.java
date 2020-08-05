@@ -13,6 +13,6 @@ public class LocationServiceACTest extends AbstractLocationServiceTest
     testData.setUpMetadata();
     testData.setUpInstanceData();
 
-    testData.setSessionUser(testData.USER_CGOV_AC);
+    testData.logIn(testData.USER_CGOV_AC);
   }
 }

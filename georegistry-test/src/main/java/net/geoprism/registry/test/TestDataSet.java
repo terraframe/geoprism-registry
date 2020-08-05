@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -246,13 +247,28 @@ abstract public class TestDataSet
     
     adapter.refreshMetadataCache();
     
-    try
+    
+    boolean isRAorRM = false;
+    
+    for (String roleName : user.getRoleNameArray())
     {
-      adapter.getIdService().populate(1000);
+      if (RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRA_Role(roleName))
+      {
+        isRAorRM = true;
+        break;
+      }
     }
-    catch (Exception e)
+    
+    if (isRAorRM)
     {
-      throw new RuntimeException(e);
+      try
+      {
+        adapter.getIdService().populate(1000);
+      }
+      catch (Exception e)
+      {
+        throw new RuntimeException(e);
+      }
     }
   }
   
