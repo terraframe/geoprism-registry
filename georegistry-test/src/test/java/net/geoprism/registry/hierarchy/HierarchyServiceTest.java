@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -42,6 +42,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
@@ -81,12 +82,12 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 public class HierarchyServiceTest
 {
 
-  public static final TestGeoObjectTypeInfo  TEST_GOT = new TestGeoObjectTypeInfo("HMST_Country", FastTestDataset.ORG_CGOV);
+  public static final TestGeoObjectTypeInfo TEST_GOT = new TestGeoObjectTypeInfo("HMST_Country", FastTestDataset.ORG_CGOV);
 
-  public static final TestHierarchyTypeInfo TEST_HT = new TestHierarchyTypeInfo("HMST_ReportDiv", FastTestDataset.ORG_CGOV);
-  
-  protected static FastTestDataset         testData;
-  
+  public static final TestHierarchyTypeInfo TEST_HT  = new TestHierarchyTypeInfo("HMST_ReportDiv", FastTestDataset.ORG_CGOV);
+
+  protected static FastTestDataset          testData;
+
   @BeforeClass
   public static void setUpClass()
   {
@@ -114,7 +115,7 @@ public class HierarchyServiceTest
   public void tearDown()
   {
     testData.logOut();
-    
+
     deleteExtraMetadata();
 
     testData.tearDownInstanceData();
@@ -126,7 +127,6 @@ public class HierarchyServiceTest
     TEST_GOT.delete();
   }
 
-  
   @Test
   public void testCreateHierarchyType()
   {
@@ -191,10 +191,24 @@ public class HierarchyServiceTest
     Assert.assertEquals("The type name of the MdTermRelationshp defining the geoentities was not correctly defined for the given code.", expectedMdTermRelGeoEntity, mdTermRelGeoEntity);
   }
 
+  @Test(expected = SmartExceptionDTO.class)
+  public void testCreateHierarchyTypeAsDifferentOrg()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
+    String gtJSON = reportingDivision.toJSON().toString();
+
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+
+      ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), gtJSON);
+    });
+  }
+
   @Test
   public void testUpdateHierarchyType()
   {
-    HierarchyType reportingDivision = testData.HIER_ADMIN.toDTO();
+    HierarchyType reportingDivision = FastTestDataset.HIER_ADMIN.toDTO();
     String gtJSON = reportingDivision.toJSON().toString();
 
     reportingDivision.setLabel(new LocalizedValue("Reporting Division 2"));
@@ -208,6 +222,41 @@ public class HierarchyServiceTest
     Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
     Assert.assertEquals("Reporting Division 2", reportingDivision.getLabel().getValue());
     Assert.assertEquals("The rporting division hieracy 2", reportingDivision.getDescription().getValue());
+  }
+
+  @Test(expected = SmartExceptionDTO.class)
+  public void testUpdateHierarchyTypeAsDifferentOrg()
+  {
+    HierarchyType reportingDivision = FastTestDataset.HIER_ADMIN.toDTO();
+    reportingDivision.setLabel(new LocalizedValue("Reporting Division 2"));
+    reportingDivision.setDescription(new LocalizedValue("The rporting division hieracy 2"));
+
+    final String updateJSON = reportingDivision.toJSON().toString();
+
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+
+      ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), updateJSON);
+    });
+  }
+
+  @Test
+  public void testGetHierarchyTypeAsDifferentOrgWithWriteContext()
+  {
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+      HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.WRITE);
+
+      Assert.assertEquals(0, hierarchyTypes.length);
+    });
+  }
+
+  @Test
+  public void testGetHierarchyTypeAsDifferentOrgWithReadContext()
+  {
+    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+      HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
+
+      Assert.assertEquals(1, hierarchyTypes.length);
+    });
   }
 
   @Test
