@@ -99,7 +99,6 @@ public class ShapefileServiceTest
   public static void classSetUp()
   {
     testData = USATestData.newTestData();
-    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
     
     testTerm = new TestAttributeTypeInfo("testTerm", "testTermLocalName", testData.STATE, AttributeTermType.TYPE);
@@ -117,10 +116,7 @@ public class ShapefileServiceTest
   @AfterClass
   public static void classTearDown() throws IOException
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    testData.tearDownMetadata();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
@@ -130,12 +126,14 @@ public class ShapefileServiceTest
   {
     clearData();
     
-    testData.logIn();
+    testData.logIn(testData.USER_NPS_RA);
   }
 
   @After
   public void tearDown()
   {
+    testData.logOut();
+    
     testData.tearDownInstanceData();
 
     clearData();

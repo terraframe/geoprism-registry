@@ -27,17 +27,20 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.mvc.AbstractResponseSerializer;
@@ -78,7 +81,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     this.getMetadataCache().rebuild();
 
-    GeoObjectType[] gots = this.getGeoObjectTypes(new String[] {}, new String[] {});
+    GeoObjectType[] gots = this.getGeoObjectTypes(new String[] {}, new String[] {}, PermissionContext.READ);
 
     for (GeoObjectType got : gots)
     {
@@ -121,6 +124,41 @@ public class TestRegistryAdapterClient extends RegistryAdapter
       throw new RuntimeException(e);
     }
   }
+  
+  public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
+  {
+    return responseToAttributeType(this.controller.createAttributeType(clientRequest, geoObjectTypeCode, attributeTypeJSON));
+  }
+
+  public AttributeType updateAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
+  {
+    return responseToAttributeType(this.controller.updateAttributeType(clientRequest, geoObjectTypeCode, attributeTypeJSON));
+  }
+
+  public Term createTerm(String parentTermCode, String termJSON)
+  {
+    return responseToTerm(this.controller.createTerm(clientRequest, parentTermCode, termJSON));
+  }
+
+  public Term updateTerm(String parentTermCode, String termJSON)
+  {
+    return responseToTerm(this.controller.updateTerm(clientRequest, parentTermCode, termJSON));
+  }
+
+  public void deleteTerm(String parentTermCode, String termCode)
+  {
+    this.controller.deleteTerm(clientRequest, parentTermCode, termCode);
+  }
+  
+  public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
+  {
+    return responseToGeoObjectType(this.controller.createGeoObjectType(this.clientRequest, gtJSON));
+  }
+  
+  public GeoObjectType updateGeoObjectType(String gtJSON)
+  {
+    return responseToGeoObjectType(this.controller.updateGeoObjectType(clientRequest, gtJSON));
+  }
 
   public GeoObject getGeoObject(String registryId, String code)
   {
@@ -147,12 +185,17 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return responseToGeoObject(this.controller.updateGeoObject(this.clientRequest, jGeoObj));
   }
 
-  public GeoObjectType[] getGeoObjectTypes(String[] codes, String[] hierarchies)
+  public GeoObjectType[] getGeoObjectTypes(String[] codes, String[] hierarchies, PermissionContext pc)
   {
     String saCodes = this.serialize(codes);
     String saHierarchies = this.serialize(hierarchies);
+    
+    if (pc == null)
+    {
+      pc = PermissionContext.READ;
+    }
 
-    return responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.clientRequest, saCodes, saHierarchies, PermissionContext.READ.name()));
+    return responseToGeoObjectTypes(this.controller.getGeoObjectTypes(this.clientRequest, saCodes, saHierarchies, pc.name()));
   }
 
   public HierarchyType[] getHierarchyTypes(String[] codes)
@@ -261,6 +304,20 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return HierarchyType.fromJSONArray( ( responseToString(resp) ), this);
   }
+  
+  private AttributeType responseToAttributeType(ResponseIF resp)
+  {
+    JsonObject attrObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
+    
+    return AttributeType.parse(attrObj);
+  }
+  
+  private Term responseToTerm(ResponseIF resp)
+  {
+    JsonObject termObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
+    
+    return Term.fromJSON(termObj);
+  }
 
   protected String[] responseToStringArray(ResponseIF resp)
   {
@@ -293,4 +350,5 @@ public class TestRegistryAdapterClient extends RegistryAdapter
 
     return ja.toString();
   }
+  
 }

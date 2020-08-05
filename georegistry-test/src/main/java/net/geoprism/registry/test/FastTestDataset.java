@@ -115,8 +115,6 @@ public class FastTestDataset extends TestDataSet
     managedUsers.add(USER_CGOV_RM);
     managedUsers.add(USER_CGOV_RC);
     managedUsers.add(USER_CGOV_AC);
-    
-    this.setRAUser(USER_CGOV_RA);
   }
   
   public static FastTestDataset newTestData()
@@ -195,9 +193,9 @@ public class FastTestDataset extends TestDataSet
     CAMBODIA.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
     
     
-    createReligionTerms();
+    this.AT_RELIGION.apply();
     
-    this.AT_RELIGION.applyTerm(T_Religion);
+    createReligionTerms();
     
     this.CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
   }
@@ -211,72 +209,17 @@ public class FastTestDataset extends TestDataSet
     }
   }
   
-  
   public void createReligionTerms()
   {
-    MdBusiness countryMdBiz = this.COUNTRY.getServerObject().getMdBusiness();
+    T_Religion = TestDataSet.createAttributeRootTerm(this.COUNTRY, this.AT_RELIGION);
     
-    Classifier cCountry = TermConverter.buildIfNotExistdMdBusinessClassifier(countryMdBiz);
+    T_Buddhism = TestDataSet.createTerm(this.AT_RELIGION, "Buddhism", "Buddhism");
+    T_Islam = TestDataSet.createTerm(this.AT_RELIGION, "Islam", "Islam");
+    T_Christianity = TestDataSet.createTerm(this.AT_RELIGION, "Christianity", "Christianity");
+    T_Other = TestDataSet.createTerm(this.AT_RELIGION, "Other", "Other");
     
-    Classifier cReligion = TermConverter.buildIfNotExistAttribute(countryMdBiz, "Religion", cCountry);
-    T_Religion = new TermConverter(cReligion.getKeyName()).build();
-    
-    Classifier cBuddhism = TestDataSet.getClassifierIfExist("Buddhism");
-    if (cBuddhism == null)
-    {
-      cBuddhism = new Classifier();
-      cBuddhism.setClassifierId("Buddhism");
-      cBuddhism.setClassifierPackage(cReligion.getKey());
-      cBuddhism.getDisplayLabel().setDefaultValue("Buddhism");
-      cBuddhism.apply();
-      
-      cBuddhism.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    }
-    T_Buddhism = new TermConverter(cBuddhism.getKeyName()).build();
-    
-    Classifier cIslam = TestDataSet.getClassifierIfExist("Islam");
-    if (cIslam == null)
-    {
-      cIslam = new Classifier();
-      cIslam.setClassifierId("Islam");
-      cIslam.setClassifierPackage(cReligion.getKey());
-      cIslam.getDisplayLabel().setDefaultValue("Islam");
-      cIslam.apply();
-      
-      cIslam.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    }
-    T_Islam = new TermConverter(cIslam.getKeyName()).build();
-    
-    
-    Classifier cChristianity = TestDataSet.getClassifierIfExist("Christianity");
-    if (cChristianity == null)
-    {
-      cChristianity = new Classifier();
-      cChristianity.setClassifierId("Christianity");
-      cChristianity.setClassifierPackage(cReligion.getKey());
-      cChristianity.getDisplayLabel().setDefaultValue("Christianity");
-      cChristianity.apply();
-      
-      cChristianity.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    }
-    T_Christianity = new TermConverter(cChristianity.getKeyName()).build();
-    
-    
-    Classifier cOther = TestDataSet.getClassifierIfExist("Other");
-    if (cOther == null)
-    {
-      cOther = new Classifier();
-      cOther.setClassifierId("Other");
-      cOther.setClassifierPackage(cReligion.getKey());
-      cOther.getDisplayLabel().setDefaultValue("Other");
-      cOther.apply();
-      
-      cOther.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    }
-    T_Other = new TermConverter(cOther.getKeyName()).build();
-    
-    
-    List<? extends Classifier> childClassifiers = cReligion.getAllIsAChild().getAll();
+    Classifier rootClassy = TestDataSet.getClassifierIfExist(this.AT_RELIGION.getRootTerm().getCode());
+    List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
     Assert.assertEquals(4, childClassifiers.size());
   }
 }

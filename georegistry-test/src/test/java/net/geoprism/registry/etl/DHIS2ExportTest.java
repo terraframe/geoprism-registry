@@ -84,9 +84,7 @@ public class DHIS2ExportTest
   public static void setUpClass()
   {
     TestDataSet.deleteExternalSystems("DHIS2ExportTest");
-    
     testData = AllAttributesDataset.newTestData();
-    testData.setSessionUser(testData.USER_ORG_RA);
     testData.setUpMetadata();
     
     if (!SchedulerManager.initialized())
@@ -98,21 +96,13 @@ public class DHIS2ExportTest
   @AfterClass
   public static void cleanUpClass()
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-    
-//    SchedulerManager.shutdown();
+    testData.tearDownMetadata();
   }
 
   @Before
   public void setUp()
   {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
+    testData.setUpInstanceData();
     
     this.dhis2 = new DHIS2TestService();
     DataExportServiceFactory.setDhis2Service(this.dhis2);
@@ -127,15 +117,16 @@ public class DHIS2ExportTest
     
     
 //    createExternalIds();
+    
+    testData.logIn(testData.USER_ORG_RA);
   }
   
   @After
   public void tearDown()
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    testData.logOut();
+    
+    testData.tearDownInstanceData();
     
 //    deleteExternalIds();
     TestDataSet.deleteExternalSystems("DHIS2ExportTest");

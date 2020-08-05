@@ -89,7 +89,6 @@ public class GeoObjectImporterTest
   public static void setUpClass()
   {
     testData = USATestData.newTestData();
-    testData.setSessionUser(testData.USER_NPS_RA);
     testData.setUpMetadata();
 
     if (!SchedulerManager.initialized())
@@ -101,32 +100,25 @@ public class GeoObjectImporterTest
   @AfterClass
   public static void cleanUpClass()
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
-
-//    SchedulerManager.shutdown();
+    testData.tearDownMetadata();
   }
 
   @Before
   public void setUp()
   {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
+    testData.setUpInstanceData();
 
     clearData();
+    
+    testData.logIn(testData.USER_NPS_RA);
   }
 
   @After
   public void tearDown() throws IOException
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    testData.logOut();
+    
+    testData.tearDownInstanceData();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
 

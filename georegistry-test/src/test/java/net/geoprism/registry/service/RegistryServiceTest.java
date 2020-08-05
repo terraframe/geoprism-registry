@@ -48,6 +48,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -60,35 +61,29 @@ public class RegistryServiceTest
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
-    testData.setSessionUser(testData.USER_CGOV_RA);
     testData.setUpMetadata();
   }
 
   @AfterClass
   public static void cleanUpClass()
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    testData.tearDownMetadata();
   }
 
   @Before
   public void setUp()
   {
-    if (testData != null)
-    {
-      testData.setUpInstanceData();
-    }
+    testData.setUpInstanceData();
+    
+    testData.logIn(testData.USER_CGOV_RA);
   }
 
   @After
   public void tearDown()
   {
-    if (testData != null)
-    {
-      testData.tearDownInstanceData();
-    }
+    testData.logOut();
+    
+    testData.tearDownInstanceData();
   }
 
   @Test
@@ -254,7 +249,7 @@ public class RegistryServiceTest
   {
     String[] codes = new String[] { testData.COUNTRY.getCode(), testData.PROVINCE.getCode() };
 
-    GeoObjectType[] gots = testData.adapter.getGeoObjectTypes(codes, null);
+    GeoObjectType[] gots = testData.adapter.getGeoObjectTypes(codes, null, PermissionContext.READ);
 
     Assert.assertEquals(codes.length, gots.length);
 
@@ -267,10 +262,10 @@ public class RegistryServiceTest
     testData.PROVINCE.assertEquals(district);
 
     // Test to make sure we can provide none
-    GeoObjectType[] gots2 = testData.adapter.getGeoObjectTypes(new String[] {}, null);
+    GeoObjectType[] gots2 = testData.adapter.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
     Assert.assertTrue(gots2.length > 0);
 
-    GeoObjectType[] gots3 = testData.adapter.getGeoObjectTypes(null, null);
+    GeoObjectType[] gots3 = testData.adapter.getGeoObjectTypes(null, null, PermissionContext.READ);
     Assert.assertTrue(gots3.length > 0);
   }
 

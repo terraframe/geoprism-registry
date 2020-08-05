@@ -282,9 +282,9 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE)
-  public ResponseIF createAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjTypeId, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
+  public ResponseIF createAttributeType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_PARAM) String geoObjectTypeCode, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_ADD_ATTRIBUTE_TYPE_PARAM) String attributeType)
   {
-    AttributeType attrType = this.registryService.createAttributeType(request.getSessionId(), geoObjTypeId, attributeType);
+    AttributeType attrType = this.registryService.createAttributeType(request.getSessionId(), geoObjectTypeCode, attributeType);
 
     return new RestBodyResponse(attrType.toJSON());
   }

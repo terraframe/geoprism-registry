@@ -168,65 +168,27 @@ public class CambodiaTestDataset extends TestDataSet
     this.AT_DATE_OF_FORMATION = TestDataSet.createAttribute("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
     GO_Cambodia.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
     
-    
-    createReligionTerms();
-    
-    this.AT_RELIGION = TestDataSet.createTermAttribute("Religion", "Religion", GOT_Country, T_Religion);
-    
-    this.GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
+    createTermAttribute();
   }
   
-  public void createReligionTerms()
+  public void createTermAttribute()
   {
-    MdBusiness countryMdBiz = this.GOT_Country.getServerObject().getMdBusiness();
-    
-    Classifier cCountry = TermConverter.buildIfNotExistdMdBusinessClassifier(countryMdBiz);
-    
-    Classifier cReligion = TermConverter.buildIfNotExistAttribute(countryMdBiz, "Religion", cCountry);
-    T_Religion = new TermConverter(cReligion.getKeyName()).build();
-    
-    Classifier cBuddhism = new Classifier();
-    cBuddhism.setClassifierId("Buddhism");
-    cBuddhism.setClassifierPackage(cReligion.getKey());
-    cBuddhism.getDisplayLabel().setDefaultValue("Buddhism");
-    cBuddhism.apply();
-    
-    cBuddhism.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    T_Buddhism = new TermConverter(cBuddhism.getKeyName()).build();
+    this.AT_RELIGION = TestDataSet.createTermAttribute("Religion", "Religion", GOT_Country, T_Religion);
     
     
-    Classifier cIslam = new Classifier();
-    cIslam.setClassifierId("Islam");
-    cIslam.setClassifierPackage(cReligion.getKey());
-    cIslam.getDisplayLabel().setDefaultValue("Islam");
-    cIslam.apply();
+    T_Religion = TestDataSet.createAttributeRootTerm(this.GOT_Country, this.AT_RELIGION);
     
-    cIslam.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    T_Islam = new TermConverter(cIslam.getKeyName()).build();
+    T_Buddhism = TestDataSet.createTerm(this.AT_RELIGION, "Buddhism", "Buddhism");
+    T_Islam = TestDataSet.createTerm(this.AT_RELIGION, "Islam", "Islam");
+    T_Christianity = TestDataSet.createTerm(this.AT_RELIGION, "Christianity", "Christianity");
+    T_Other = TestDataSet.createTerm(this.AT_RELIGION, "Other", "Other");
     
-    
-    Classifier cChristianity = new Classifier();
-    cChristianity.setClassifierId("Christianity");
-    cChristianity.setClassifierPackage(cReligion.getKey());
-    cChristianity.getDisplayLabel().setDefaultValue("Christianity");
-    cChristianity.apply();
-    
-    cChristianity.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    T_Christianity = new TermConverter(cChristianity.getKeyName()).build();
-    
-    
-    Classifier cOther = new Classifier();
-    cOther.setClassifierId("Other");
-    cOther.setClassifierPackage(cReligion.getKey());
-    cOther.getDisplayLabel().setDefaultValue("Other");
-    cOther.apply();
-    
-    cOther.addLink(cReligion, ClassifierIsARelationship.CLASS).apply();
-    T_Other = new TermConverter(cOther.getKeyName()).build();
-    
-    
-    List<? extends Classifier> childClassifiers = cReligion.getAllIsAChild().getAll();
+    Classifier rootClassy = TestDataSet.getClassifierIfExist(this.AT_RELIGION.getRootTerm().getCode());
+    List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
     Assert.assertEquals(4, childClassifiers.size());
+    
+    
+    this.GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
   }
 
   @Override
