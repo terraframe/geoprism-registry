@@ -53,26 +53,21 @@ import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
 public class AttributeTypeServiceTest
 {
-protected static FastTestDataset         testData;
+  public static final TestGeoObjectTypeInfo  TEST_GOT = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
   
-  public static TestGeoObjectTypeInfo  TEST_GOT;
+  protected static FastTestDataset         testData;
   
   @BeforeClass
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
-
-    TEST_GOT = testData.newTestGeoObjectTypeInfo("GOTTest_TEST1", testData.ORG_CGOV);
   }
 
   @AfterClass
   public static void cleanUpClass()
   {
-    if (testData != null)
-    {
-      testData.tearDownMetadata();
-    }
+    testData.tearDownMetadata();
   }
 
   @Before
@@ -82,7 +77,7 @@ protected static FastTestDataset         testData;
     
     setUpExtras();
     
-    testData.logIn(testData.USER_CGOV_RA);
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After

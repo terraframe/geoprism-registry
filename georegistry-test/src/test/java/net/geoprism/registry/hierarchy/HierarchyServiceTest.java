@@ -81,21 +81,17 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 public class HierarchyServiceTest
 {
 
+  public static final TestGeoObjectTypeInfo  TEST_GOT = new TestGeoObjectTypeInfo("HMST_Country", FastTestDataset.ORG_CGOV);
+
+  public static final TestHierarchyTypeInfo TEST_HT = new TestHierarchyTypeInfo("HMST_ReportDiv", FastTestDataset.ORG_CGOV);
+  
   protected static FastTestDataset         testData;
   
-  public static TestGeoObjectTypeInfo  TEST_GOT;
-
-  private static TestHierarchyTypeInfo TEST_HT;
-
   @BeforeClass
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
-
-    TEST_GOT = testData.newTestGeoObjectTypeInfo("HMST_Country", testData.ORG_CGOV);
-
-    TEST_HT = new TestHierarchyTypeInfo("HMST_ReportDiv", testData.ORG_CGOV);
   }
 
   @AfterClass
@@ -111,7 +107,7 @@ public class HierarchyServiceTest
 
     deleteExtraMetadata();
 
-    testData.logIn(testData.USER_CGOV_RA);
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After

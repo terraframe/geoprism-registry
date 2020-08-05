@@ -46,39 +46,39 @@ public class AllAttributesDataset extends TestDataSet
 {
   public static final String                TEST_DATA_KEY    = "AllAttr";
   
-  public final TestOrganizationInfo  ORG          = new TestOrganizationInfo(this.getTestDataKey() + "Org");
+  public static final TestOrganizationInfo  ORG          = new TestOrganizationInfo(TEST_DATA_KEY + "Org");
   
-  public final TestUserInfo          USER_ORG_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "ra", "ra", TEST_DATA_KEY + "@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG.getCode())});
+  public static final TestUserInfo          USER_ORG_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "ra", "ra", TEST_DATA_KEY + "@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG.getCode())});
   
-  public final TestHierarchyTypeInfo HIER       = new TestHierarchyTypeInfo(this.getTestDataKey() +  "Hier", ORG);
+  public static final TestHierarchyTypeInfo HIER       = new TestHierarchyTypeInfo(TEST_DATA_KEY +  "Hier", ORG);
   
-  public final TestGeoObjectTypeInfo GOT_ALL          = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "All", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_ALL          = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "All", GeometryType.MULTIPOLYGON, ORG);
 
-  public final TestGeoObjectTypeInfo GOT_CHAR            = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "CHAR", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_CHAR            = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "CHAR", GeometryType.MULTIPOLYGON, ORG);
   
-  public final TestGeoObjectTypeInfo GOT_INT            = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "INT", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_INT            = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "INT", GeometryType.MULTIPOLYGON, ORG);
   
-  public final TestGeoObjectTypeInfo GOT_FLOAT            = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "FLOAT", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_FLOAT            = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "FLOAT", GeometryType.MULTIPOLYGON, ORG);
   
-  public final TestGeoObjectTypeInfo GOT_BOOL            = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "BOOL", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_BOOL            = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "BOOL", GeometryType.MULTIPOLYGON, ORG);
   
-  public final TestGeoObjectTypeInfo GOT_DATE             = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "DATE", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_DATE             = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "DATE", GeometryType.MULTIPOLYGON, ORG);
   
-  public final TestGeoObjectTypeInfo GOT_TERM             = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "TERM", GeometryType.MULTIPOLYGON, ORG);
+  public static final TestGeoObjectTypeInfo GOT_TERM             = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "TERM", GeometryType.MULTIPOLYGON, ORG);
 
-  public final TestGeoObjectInfo     GO_ALL              = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_ALL", GOT_ALL);
+  public static final TestGeoObjectInfo     GO_ALL              = new TestGeoObjectInfo(TEST_DATA_KEY +  "GO_ALL", GOT_ALL);
   
-  public final TestGeoObjectInfo     GO_CHAR              = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_CHAR", GOT_CHAR);
+  public static final TestGeoObjectInfo     GO_CHAR              = new TestGeoObjectInfo(TEST_DATA_KEY +  "GO_CHAR", GOT_CHAR);
   
-  public final TestGeoObjectInfo     GO_INT              = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_INT", GOT_INT);
+  public static final TestGeoObjectInfo     GO_INT              = new TestGeoObjectInfo(TEST_DATA_KEY +  "GO_INT", GOT_INT);
   
-  public final TestGeoObjectInfo     GO_FLOAT              = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_FLOAT", GOT_FLOAT);
+  public static final TestGeoObjectInfo     GO_FLOAT              = new TestGeoObjectInfo(TEST_DATA_KEY +  "GO_FLOAT", GOT_FLOAT);
   
-  public final TestGeoObjectInfo     GO_BOOL              = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_BOOL", GOT_BOOL);
+  public static final TestGeoObjectInfo     GO_BOOL              = new TestGeoObjectInfo(TEST_DATA_KEY +  "GO_BOOL", GOT_BOOL);
   
-  public final TestGeoObjectInfo     GO_DATE               = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_DATE", GOT_DATE);
+  public static final TestGeoObjectInfo     GO_DATE               = new TestGeoObjectInfo(TEST_DATA_KEY +  "GO_DATE", GOT_DATE);
   
-  public final TestGeoObjectInfo     GO_TERM               = new TestGeoObjectInfo(this.getTestDataKey() +  "GO_TERM", GOT_TERM);
+  public static final TestGeoObjectInfo     GO_TERM               = new TestGeoObjectInfo(TEST_DATA_KEY +  "GO_TERM", GOT_TERM);
   
   public TestAttributeTypeInfo AT_ALL_CHAR;
   public TestAttributeTypeInfo AT_GO_CHAR;

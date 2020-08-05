@@ -56,39 +56,39 @@ import net.geoprism.registry.conversion.TermConverter;
  */
 public class FastTestDataset extends TestDataSet
 {
-  public final String                TEST_DATA_KEY    = "FAST";
+  public static final String                TEST_DATA_KEY    = "FAST";
   
-  public final TestOrganizationInfo  ORG_CGOV         = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "CGOV", "Central Government");
+  public static final TestOrganizationInfo  ORG_CGOV         = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "CGOV", "Central Government");
   
-  public final TestUserInfo          USER_CGOV_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode())});
+  public static final TestUserInfo          USER_CGOV_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode())});
   
-  public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
+  public static final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
   
-  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_CGOV);
+  public static final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
-  public final TestGeoObjectTypeInfo PROVINCE            = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Province", GeometryType.MULTIPOLYGON, ORG_CGOV);
+  public static final TestGeoObjectTypeInfo PROVINCE            = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Province", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
-  public final TestGeoObjectInfo     CAMBODIA         = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY);
+  public static final TestGeoObjectInfo     CAMBODIA         = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY);
 
-  public final TestGeoObjectInfo     PROV_CENTRAL     = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE);
+  public static final TestGeoObjectInfo     PROV_CENTRAL     = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE);
   
-  public final TestAttributeTypeInfo AT_National_Anthem = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", COUNTRY, AttributeCharacterType.TYPE);
+  public static final TestAttributeTypeInfo AT_National_Anthem = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", COUNTRY, AttributeCharacterType.TYPE);
   
-  public final TestAttributeTypeInfo AT_PHONE_COUNTRY_CODE = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", COUNTRY, AttributeIntegerType.TYPE);
+  public static final TestAttributeTypeInfo AT_PHONE_COUNTRY_CODE = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", COUNTRY, AttributeIntegerType.TYPE);
   
-  public final TestAttributeTypeInfo AT_UN_MEMBER = new TestAttributeTypeInfo("UnMember", "UN Member", COUNTRY, AttributeBooleanType.TYPE);
+  public static final TestAttributeTypeInfo AT_UN_MEMBER = new TestAttributeTypeInfo("UnMember", "UN Member", COUNTRY, AttributeBooleanType.TYPE);
   
-  public final TestAttributeTypeInfo AT_GDP = new TestAttributeTypeInfo("GDP", "Gross Domestic Product", COUNTRY, AttributeFloatType.TYPE);
+  public static final TestAttributeTypeInfo AT_GDP = new TestAttributeTypeInfo("GDP", "Gross Domestic Product", COUNTRY, AttributeFloatType.TYPE);
   
-  public final TestAttributeTypeInfo AT_DATE_OF_FORMATION = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", COUNTRY, AttributeDateType.TYPE);
+  public static final TestAttributeTypeInfo AT_DATE_OF_FORMATION = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", COUNTRY, AttributeDateType.TYPE);
   
-  public final TestAttributeTypeInfo AT_RELIGION = new TestAttributeTypeInfo("Religion", "Religion", COUNTRY, AttributeTermType.TYPE);
+  public static final TestAttributeTypeInfo AT_RELIGION = new TestAttributeTypeInfo("Religion", "Religion", COUNTRY, AttributeTermType.TYPE);
   
-  public final TestUserInfo          USER_CGOV_RM      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrm", "cgovrm", TEST_DATA_KEY + "cgovrm@noreply.com", new String[] {RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
+  public static final TestUserInfo          USER_CGOV_RM      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrm", "cgovrm", TEST_DATA_KEY + "cgovrm@noreply.com", new String[] {RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
   
-  public final TestUserInfo          USER_CGOV_RC      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrc", "cgovrc", TEST_DATA_KEY + "cgovrc@noreply.com", new String[] {RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
+  public static final TestUserInfo          USER_CGOV_RC      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrc", "cgovrc", TEST_DATA_KEY + "cgovrc@noreply.com", new String[] {RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
   
-  public final TestUserInfo          USER_CGOV_AC      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovac", "cgovac", TEST_DATA_KEY + "cgovac@noreply.com", new String[] {RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
+  public static final TestUserInfo          USER_CGOV_AC      = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovac", "cgovac", TEST_DATA_KEY + "cgovac@noreply.com", new String[] {RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode())});
   
   public Term T_Religion;
   
@@ -203,10 +203,6 @@ public class FastTestDataset extends TestDataSet
   @Override
   protected void cleanUpClassInTrans()
   {
-    if (clientSession != null)
-    {
-      clientSession.logout();
-    }
   }
   
   public void createReligionTerms()

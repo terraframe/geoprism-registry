@@ -28,63 +28,63 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 public class USATestData extends TestDataSet
 {
-  public final String                TEST_DATA_KEY    = "USATestData";
+  public static final String                TEST_DATA_KEY    = "USATestData";
   
-  public final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(this.getTestDataKey() + "NPS");
+  public static final TestOrganizationInfo  ORG_NPS          = new TestOrganizationInfo(TEST_DATA_KEY + "NPS");
   
-  public final TestUserInfo          USER_NPS_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "npsra", "npsra", TEST_DATA_KEY + "@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_NPS.getCode())});
+  public static final TestUserInfo          USER_NPS_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "npsra", "npsra", TEST_DATA_KEY + "@noreply.com", new String[] {RegistryRole.Type.getRA_RoleName(ORG_NPS.getCode())});
   
-  public final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(this.getTestDataKey() +  "Admin", ORG_NPS);
+  public static final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(TEST_DATA_KEY +  "Admin", ORG_NPS);
   
-  public final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "State", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "State", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "County", GeometryType.MULTIPOLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "County", GeometryType.MULTIPOLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Area", GeometryType.POLYGON, ORG_NPS);
+  public static final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "Area", GeometryType.POLYGON, ORG_NPS);
 
-  public final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "District", GeometryType.POINT, ORG_NPS);
+  public static final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "District", GeometryType.POINT, ORG_NPS);
 
-  public final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(this.getTestDataKey() +  "USA", COUNTRY);
+  public static final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(TEST_DATA_KEY +  "USA", COUNTRY);
 
-  public final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo(this.getTestDataKey() +  "Colorado", STATE);
+  public static final TestGeoObjectInfo     COLORADO         = new TestGeoObjectInfo(TEST_DATA_KEY +  "Colorado", STATE);
 
-  public final TestGeoObjectInfo     CO_D_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoDistrictOne", DISTRICT);
+  public static final TestGeoObjectInfo     CO_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY +  "ColoradoDistrictOne", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoDistrictTwo", DISTRICT);
+  public static final TestGeoObjectInfo     CO_D_TWO         = new TestGeoObjectInfo(TEST_DATA_KEY +  "ColoradoDistrictTwo", DISTRICT);
 
-  public final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoDistrictThree", DISTRICT, TestDataSet.WKT_DEFAULT_POINT, DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, true);
+  public static final TestGeoObjectInfo     CO_D_THREE       = new TestGeoObjectInfo(TEST_DATA_KEY +  "ColoradoDistrictThree", DISTRICT, TestDataSet.WKT_DEFAULT_POINT, DefaultTerms.GeoObjectStatusTerm.INACTIVE.code, true);
 
-  public final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoCountyOne", COUNTY);
+  public static final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY +  "ColoradoCountyOne", COUNTY);
 
-  public final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "ColoradoAreaOne", AREA);
+  public static final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY +  "ColoradoAreaOne", AREA);
 
-  public final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(this.getTestDataKey() +  "Washington", STATE, "MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))", DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
+  public static final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(TEST_DATA_KEY +  "Washington", STATE, "MULTIPOLYGON(((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))", DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
 
-  public final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(this.getTestDataKey() +  "WashingtonDistrictOne", DISTRICT);
+  public static final TestGeoObjectInfo     WA_D_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY +  "WashingtonDistrictOne", DISTRICT);
 
-  public final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(this.getTestDataKey() +  "WashingtonDistrictTwo", DISTRICT);
+  public static final TestGeoObjectInfo     WA_D_TWO         = new TestGeoObjectInfo(TEST_DATA_KEY +  "WashingtonDistrictTwo", DISTRICT);
 
-  public final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(this.getTestDataKey() +  "CANADA", COUNTRY);
+  public static final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(TEST_DATA_KEY +  "CANADA", COUNTRY);
 
   /**
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
 
-  public final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Mexico_City_GOT", ORG_NPS);
+  public static final TestGeoObjectTypeInfo MEXICO_CITY_GOT  = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "Mexico_City_GOT", ORG_NPS);
 
-  public final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(this.getTestDataKey() +  "Mexico_State_GOT", ORG_NPS);
+  public static final TestGeoObjectTypeInfo MEXICO_STATE     = new TestGeoObjectTypeInfo(TEST_DATA_KEY +  "Mexico_State_GOT", ORG_NPS);
 
-  public final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico", COUNTRY);
+  public static final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(TEST_DATA_KEY +  "Mexico", COUNTRY);
 
-  public final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico City One", MEXICO_CITY_GOT);
+  public static final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(TEST_DATA_KEY +  "Mexico City One", MEXICO_CITY_GOT);
 
-  public final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico City Two", MEXICO_CITY_GOT);
+  public static final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(TEST_DATA_KEY +  "Mexico City Two", MEXICO_CITY_GOT);
 
-  public final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico State One", MEXICO_STATE);
+  public static final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(TEST_DATA_KEY +  "Mexico State One", MEXICO_STATE);
 
-  public final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(this.getTestDataKey() +  "Mexico State Two", MEXICO_STATE);
+  public static final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(TEST_DATA_KEY +  "Mexico State Two", MEXICO_STATE);
 
   {
     managedOrganizationInfos.add(ORG_NPS);
