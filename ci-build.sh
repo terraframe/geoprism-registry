@@ -76,18 +76,23 @@ fi
 : ----------------------------------
 :
 if [ "$deploy" == "true" ]; then
-cd $WORKSPACE/geoprism-platform/ansible
+  cd $WORKSPACE/geoprism-platform/ansible
 
-[ -e ./roles ] && unlink ./roles
-ln -s $WORKSPACE/geoprism-cloud/ansible/roles ./roles
-[ -e ./georegistry.yml ] && unlink ./georegistry.yml
-ln -s $WORKSPACE/geoprism-cloud/ansible/georegistry.yml ./georegistry.yml
+  [ -e ./roles ] && unlink ./roles
+  ln -s $WORKSPACE/geoprism-cloud/ansible/roles ./roles
+  [ -e ./georegistry.yml ] && unlink ./georegistry.yml
+  ln -s $WORKSPACE/geoprism-cloud/ansible/georegistry.yml ./georegistry.yml
 
-sudo chmod 400 ../permissions/geoprism-dev.pem
-sudo chmod 400 ../permissions/geoprism-staging.pem
-sudo chmod 400 ../permissions/georegistry-singapore.pem
-sudo chmod 400 ../permissions/RichardsMacbook.pem
-pip install boto
+  sudo chmod 400 ../permissions/geoprism-dev.pem
+  sudo chmod 400 ../permissions/geoprism-staging.pem
+  sudo chmod 400 ../permissions/georegistry-singapore.pem
+  sudo chmod 400 ../permissions/RichardsMacbook.pem
+  pip install boto
 
-ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini
+  ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini
+
+  if [ "$environment" == "demo" ]; then
+    ansible-playbook aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
+  fi
+
 fi
