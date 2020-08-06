@@ -164,25 +164,40 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code));
   }
+  
+  public GeoObjectOverTime getGeoObjectOverTime(String registryId, String typeCode)
+  {
+    return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTime(clientRequest, registryId, typeCode));
+  }
 
   public GeoObject getGeoObjectByCode(String code, String typeCode)
   {
     return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode));
   }
-
+  
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)
   {
-    return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTimeByCode(this.clientRequest, code, typeCode));
+    return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTimeByCode(clientRequest, code, typeCode));
   }
 
   public GeoObject createGeoObject(String jGeoObj)
   {
     return responseToGeoObject(this.controller.createGeoObject(this.clientRequest, jGeoObj));
   }
+  
+  public GeoObjectOverTime createGeoObjectOverTime(String jGeoObj)
+  {
+    return responseToGeoObjectOverTime(this.controller.createGeoObjectOverTime(this.clientRequest, jGeoObj));
+  }
 
   public GeoObject updateGeoObject(String jGeoObj)
   {
     return responseToGeoObject(this.controller.updateGeoObject(this.clientRequest, jGeoObj));
+  }
+  
+  public GeoObjectOverTime updateGeoObjectOverTime(String jGeoObj)
+  {
+    return responseToGeoObjectOverTime(this.controller.updateGeoObjectOverTime(this.clientRequest, jGeoObj));
   }
 
   public GeoObjectType[] getGeoObjectTypes(String[] codes, String[] hierarchies, PermissionContext pc)
@@ -350,5 +365,5 @@ public class TestRegistryAdapterClient extends RegistryAdapter
 
     return ja.toString();
   }
-  
+
 }

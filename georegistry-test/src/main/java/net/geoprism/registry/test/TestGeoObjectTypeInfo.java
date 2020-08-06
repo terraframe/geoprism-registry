@@ -174,7 +174,7 @@ public class TestGeoObjectTypeInfo
       }
     }
     
-    public GeoObjectType toDTO()
+    public GeoObjectType fetchDTO()
     {
       return this.getServerObject().getType();
     }
@@ -307,5 +307,12 @@ public class TestGeoObjectTypeInfo
       }
       
       return exists;
+    }
+
+    public void assertApplied()
+    {
+      ServerGeoObjectType type = this.getServerObject(true);
+      
+      this.assertEquals(type.getType());
     }
   }

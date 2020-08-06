@@ -38,19 +38,22 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestRegistryAdapterClient;
 import net.geoprism.registry.test.TestUserInfo;
 
 public class GeoObjectServiceTest
 {
   protected static FastTestDataset testData;
+  
+  public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
 
   @BeforeClass
   public static void setUpClass()
@@ -69,6 +72,8 @@ public class GeoObjectServiceTest
   public void setUp()
   {
     testData.setUpInstanceData();
+    
+    TEST_GO.delete();
     
     testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
@@ -92,7 +97,9 @@ public class GeoObjectServiceTest
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         GeoObject geoObj = adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
-        FastTestDataset.CAMBODIA.assertEquals(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+        FastTestDataset.CAMBODIA.assertEquals(geoObj);
+        
+        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
       });
     }
     
@@ -128,7 +135,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        testData.assertGeoObjectStatus(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
       });
     }
     
@@ -158,7 +165,6 @@ public class GeoObjectServiceTest
     GeometryBuilder builder = new GeometryBuilder(new GeometryFactory());
     Point point = builder.point(48.44, -123.37);
 
-    // 1. Test creating a new one
     GeoObject geoObj = testData.adapter.newGeoObjectInstance(FastTestDataset.PROVINCE.getCode());
     geoObj.setGeometry(point);
     geoObj.setCode(FastTestDataset.CAMBODIA.getCode());
@@ -176,43 +182,101 @@ public class GeoObjectServiceTest
       Assert.assertEquals(GeometryTypeException.CLASS, e.getType());
     }
   }
+  
+  @Test
+  public void testCreateGeoObject()
+  {
+    TestUserInfo[] allowedUsers = new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM};
+    
+    for (TestUserInfo user : allowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        GeoObject returned = adapter.createGeoObject(TEST_GO.newGeoObject(adapter).toJSON().toString());
+        
+        TEST_GO.assertEquals(returned);
+        
+        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, returned.getStatus().getCode());
+        
+        TEST_GO.assertApplied();
+        TEST_GO.delete();
+      });
+    }
+    
+    
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] {FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_MOHA_RA};
+    
+    for (TestUserInfo user : disallowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        try
+        {
+          adapter.createGeoObject(TEST_GO.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString());
+          
+          Assert.fail();
+        }
+        catch (SmartExceptionDTO ex)
+        {
+          // expected
+        }
+      });
+    }
+  }
+  
+  private void updateGO(TestRegistryAdapterClient adapter, TestGeoObjectInfo go)
+  {
+    go.setWkt(TestDataSet.WKT_POLYGON_2);
+    go.setDisplayLabel("Some new value");
+    
+    GeoObject update = go.fetchGeoObject();
+    go.populate(update);
+    
+    GeoObject returnedUpdate = adapter.updateGeoObject(update.toJSON().toString());
+
+    go.assertEquals(returnedUpdate);
+    
+    go.assertApplied();
+  }
 
   @Test
   public void testUpdateGeoObject()
   {
-    TestGeoObjectInfo testUpdateGO = testData.newTestGeoObjectInfo("TEST_UPDATE_GO", FastTestDataset.PROVINCE);
-
-    // 1. Test creating a new one
-    GeoObject geoObj = testUpdateGO.asGeoObject();
-    testData.adapter.createGeoObject(geoObj.toJSON().toString());
-    testUpdateGO.assertApplied();
-
-    // 2. Test updating the one we created earlier
-    GeoObject waGeoObj = testData.adapter.getGeoObject(geoObj.getUid(), testUpdateGO.getGeoObjectType().getCode());
-    LocalizedValue displayLabel = waGeoObj.getDisplayLabel();
-    displayLabel.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, FastTestDataset.CAMBODIA.getDisplayLabel());
-
-    waGeoObj.setWKTGeometry(FastTestDataset.CAMBODIA.getWkt());
-    waGeoObj.setDisplayLabel(displayLabel);
-    waGeoObj.setStatus(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
-
-    testUpdateGO.setWkt(FastTestDataset.CAMBODIA.getWkt());
-    testUpdateGO.setDisplayLabel(FastTestDataset.CAMBODIA.getDisplayLabel());
-
-    GeoObject returnedUpdate = testData.adapter.updateGeoObject(waGeoObj.toJSON().toString());
-    testUpdateGO.setRegistryId(returnedUpdate.getUid());
-
-    // Assert that the database is applied correctly
-    testUpdateGO.assertApplied();
-
-    // Assert the GeoObject they returned to us is correct
-    testUpdateGO.assertEquals(returnedUpdate);
-    testData.assertGeoObjectStatus(returnedUpdate, DefaultTerms.GeoObjectStatusTerm.INACTIVE);
-
-    // Assert when we fetch our own GeoObject its also correct
-    GeoObject freshFetched = testData.adapter.getGeoObject(geoObj.getUid(), testUpdateGO.getGeoObjectType().getCode());
-    testUpdateGO.assertEquals(returnedUpdate);
-    testData.assertGeoObjectStatus(freshFetched, DefaultTerms.GeoObjectStatusTerm.INACTIVE);
+    // Allowed Users
+    TestUserInfo[] allowedUsers = new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM};
+    
+    for (TestUserInfo user : allowedUsers)
+    {
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+      go.apply();
+      
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        updateGO(adapter, go);
+      });
+      
+      go.delete();
+    }
+    
+    
+    // Disallowed Users
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] {FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_MOHA_RA};
+    
+    for (TestUserInfo user : disallowedUsers)
+    {
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.COUNTRY);
+      go.apply();
+      
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        try
+        {
+          updateGO(adapter, go);
+          
+          Assert.fail();
+        }
+        catch (SmartExceptionDTO ex)
+        {
+          // expected
+        }
+      });
+    }
   }
 
   @Test

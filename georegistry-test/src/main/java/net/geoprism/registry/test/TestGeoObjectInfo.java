@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -112,7 +113,7 @@ public class TestGeoObjectInfo
     this.parents = new LinkedList<TestGeoObjectInfo>();
     this.statusCode = statusCode;
     this.isNew = isNew;
-    this.date = new Date();
+    this.date = TestDataSet.DEFAULT_OVER_TIME_DATE;
     this.defaultValues = new HashMap<String, Object>();
     
     this.registryId = null;
@@ -251,31 +252,29 @@ public class TestGeoObjectInfo
       throw new ProgrammingErrorException(e);
     }
   }
+  
+  @Request
+  public GeoObject fetchGeoObject()
+  {
+    return this.getServerObject().toGeoObject();
+  }
+  
+  @Request
+  public GeoObjectOverTime fetchGeoObjectOverTime()
+  {
+    return this.getServerObject().toGeoObjectOverTime();
+  }
 
   /**
    * Constructs a new GeoObject and populates all attributes from the data
    * contained within this test wrapper.
    */
   @Request
-  public GeoObject asGeoObject()
+  public GeoObject newGeoObject(RegistryAdapter adapter)
   {
-    GeoObject geoObj = ServiceFactory.getAdapter().newGeoObjectInstance(this.geoObjectType.getCode());
+    GeoObject geoObj = adapter.newGeoObjectInstance(this.geoObjectType.getCode());
 
-    geoObj.setWKTGeometry(this.getWkt());
-    geoObj.setCode(this.getCode());
-    geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
-    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
-    geoObj.setStatus(this.statusCode);
-
-    if (registryId != null)
-    {
-      geoObj.setUid(registryId);
-    }
-    
-    for (String attrName : this.defaultValues.keySet())
-    {
-      geoObj.setValue(attrName, this.defaultValues.get(attrName));
-    }
+    this.populate(geoObj);
 
     return geoObj;
   }
@@ -285,29 +284,11 @@ public class TestGeoObjectInfo
    * contained within this test wrapper.
    */
   @Request
-  public GeoObjectOverTime asGeoObject(Date date)
+  public GeoObjectOverTime newGeoObjectOverTime(RegistryAdapter adapter)
   {
-    GeoObjectOverTime geoObj = ServiceFactory.getAdapter().newGeoObjectOverTimeInstance(this.geoObjectType.getCode());
+    GeoObjectOverTime geoObj = adapter.newGeoObjectOverTimeInstance(this.geoObjectType.getCode());
 
-    final LocalizedValue label = new LocalizedValue(this.getDisplayLabel());
-    label.setValue(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
-
-    final Geometry geometry = this.getGeometry();
-
-    geoObj.setGeometry(geometry, date, ValueOverTime.INFINITY_END_DATE);
-    geoObj.setCode(this.getCode());
-    geoObj.setDisplayLabel(label, date, ValueOverTime.INFINITY_END_DATE);
-    geoObj.setStatus(this.statusCode, date, ValueOverTime.INFINITY_END_DATE);
-
-    if (registryId != null)
-    {
-      geoObj.setUid(registryId);
-    }
-    
-    for (String attrName : this.defaultValues.keySet())
-    {
-      geoObj.setValue(attrName, this.defaultValues.get(attrName), date, ValueOverTime.INFINITY_END_DATE);
-    }
+    this.populate(geoObj);
 
     return geoObj;
   }
@@ -453,35 +434,37 @@ public class TestGeoObjectInfo
       }
     }
   }
-
+  
   /**
    * Asserts that the given GeoObject contains all the same data which is
-   * defined by this test object. Does not check the GeoObject status (for
-   * now...)
+   * defined by this test object.
+   */
+  public void assertEquals(GeoObjectOverTime geoObj)
+  {
+    Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
+//    Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
+    Assert.assertEquals(this.getCode(), geoObj.getCode());
+    Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry(date).toText()));
+    Assert.assertEquals(this.getDisplayLabel(), geoObj.getDisplayLabel(this.date).getValue());
+    this.getGeoObjectType().assertEquals(geoObj.getType());
+
+//    Assert.assertEquals(status.code, geoObj.getStatus().getCode());
+  }
+  
+  /**
+   * Asserts that the given GeoObject contains all the same data which is
+   * defined by this test object.
    */
   public void assertEquals(GeoObject geoObj)
   {
-    assertEquals(geoObj, null);
-  }
-
-  /**
-   * Asserts that the given GeoObject contains all the same data which is
-   * defined by this test object. If status is provided we will assert it as
-   * well.
-   */
-  public void assertEquals(GeoObject geoObj, DefaultTerms.GeoObjectStatusTerm status)
-  {
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(ServiceFactory.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
-    Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
+//    Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
     Assert.assertEquals(this.getCode(), geoObj.getCode());
     Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
     Assert.assertEquals(this.getDisplayLabel(), geoObj.getLocalizedDisplayLabel());
     this.getGeoObjectType().assertEquals(geoObj.getType());
 
-    if (status != null)
-    {
-      Assert.assertEquals(status.code, geoObj.getStatus().getCode());
-    }
+//    Assert.assertEquals(status.code, geoObj.getStatus().getCode());
   }
 
   public void assertEquals(GeoEntity geoEnt)
@@ -522,7 +505,7 @@ public class TestGeoObjectInfo
     // return child.getGeoEntity().addLink(geoEntity, relationshipType);
     // }
 
-    this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), new Date(), new Date());
+    this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), date, date);
   }
 
   private void addParent(TestGeoObjectInfo parent)
@@ -587,10 +570,10 @@ public class TestGeoObjectInfo
   {
     if (date == null)
     {
-      return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.asGeoObject(), this.isNew, false);
+      return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.newGeoObject(ServiceFactory.getAdapter()), this.isNew, false);
     }
 
-    return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.asGeoObject(date), this.isNew, false);
+    return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.newGeoObjectOverTime(ServiceFactory.getAdapter()), this.isNew, false);
   }
 
   /**
@@ -721,6 +704,58 @@ public class TestGeoObjectInfo
       return this.geoEntity.getChildren(relationshipType);
     }
   }
+  
+  /**
+   * Populates the GeoObject with the values contained in this test object.
+   * 
+   * @param go
+   */
+  public void populate(GeoObject geoObj)
+  {
+    geoObj.setWKTGeometry(this.getWkt());
+    geoObj.setCode(this.getCode());
+    geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
+    geoObj.setStatus(this.statusCode);
+
+    if (registryId != null)
+    {
+      geoObj.setUid(registryId);
+    }
+    
+    for (String attrName : this.defaultValues.keySet())
+    {
+      geoObj.setValue(attrName, this.defaultValues.get(attrName));
+    }
+  }
+  
+  /**
+   * Populates the GeoObject with the values contained in this test object.
+   * 
+   * @param go
+   */
+  public void populate(GeoObjectOverTime geoObj)
+  {
+    final LocalizedValue label = new LocalizedValue(this.getDisplayLabel());
+    label.setValue(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
+
+    final Geometry geometry = this.getGeometry();
+
+    geoObj.setGeometry(geometry, date, ValueOverTime.INFINITY_END_DATE);
+    geoObj.setCode(this.getCode());
+    geoObj.setDisplayLabel(label, date, ValueOverTime.INFINITY_END_DATE);
+    geoObj.setStatus(this.statusCode, date, ValueOverTime.INFINITY_END_DATE);
+
+    if (registryId != null)
+    {
+      geoObj.setUid(registryId);
+    }
+    
+    for (String attrName : this.defaultValues.keySet())
+    {
+      geoObj.setValue(attrName, this.defaultValues.get(attrName), date, ValueOverTime.INFINITY_END_DATE);
+    }
+  }
 
   /**
    * Asserts that the GeoObject that this test wrapper represents has been
@@ -730,14 +765,8 @@ public class TestGeoObjectInfo
   @Request
   public void assertApplied()
   {
-    GeoEntity myGeo = this.getGeoEntity();
-    if (myGeo == null)
-    {
-      myGeo = GeoEntity.getByKey(this.getCode());
-    }
+    ServerGeoObjectIF serverGO = this.getServerObject();
 
-    Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(myGeo.getWkt()));
-    Assert.assertEquals(this.getCode(), myGeo.getGeoId());
-    Assert.assertEquals(this.getDisplayLabel(), myGeo.getDisplayLabel().getValue());
+    this.assertEquals(serverGO.toGeoObject());
   }
 }

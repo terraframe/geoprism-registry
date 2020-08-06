@@ -20,6 +20,7 @@ package net.geoprism.registry.test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -115,10 +116,12 @@ abstract public class TestDataSet
   public static final TestUserInfo           ADMIN_USER                      = new TestUserInfo(ADMIN_USER_NAME, ADMIN_PASSWORD, null, null);
 
   public static final String                 WKT_DEFAULT_POLYGON             = "POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))";
-
+  
   public static final String                 WKT_DEFAULT_POINT               = "POINT (110 80)";
 
   public static final String                 WKT_DEFAULT_MULTIPOLYGON        = "MULTIPOLYGON (((1 1,5 1,5 5,1 5,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
+  
+  public static final String                 WKT_POLYGON_2                   = "MULTIPOLYGON(((1 1,10 1,10 10,1 10,1 1),(2 2, 3 2, 3 3, 2 3,2 2)))";
 
   protected int                              debugMode                       = 0;
 
@@ -145,6 +148,8 @@ abstract public class TestDataSet
   public ClientSession                       clientSession                   = null;
 
   public ClientRequestIF                     clientRequest                   = null;
+  
+  public static final Date DEFAULT_OVER_TIME_DATE = new Date();
 
   abstract public String getTestDataKey();
 
@@ -557,11 +562,6 @@ abstract public class TestDataSet
   public void setDebugMode(int level)
   {
     this.debugMode = level;
-  }
-
-  public void assertGeoObjectStatus(GeoObject geoObj, GeoObjectStatusTerm status)
-  {
-    Assert.assertEquals(adapter.getMetadataCache().getTerm(status.code).get(), geoObj.getStatus());
   }
 
   @Request
