@@ -105,7 +105,7 @@ abstract public class TestDataSet
 {
   public static interface RequestExecutor
   {
-    public void execute(ClientRequestIF request, TestRegistryAdapterClient adapter);
+    public void execute(ClientRequestIF request, TestRegistryAdapterClient adapter) throws Exception;
   }
 
   public static final String                 ADMIN_USER_NAME                 = "admin";
@@ -1031,7 +1031,18 @@ abstract public class TestDataSet
       TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
       adapter.setClientRequest(request);
 
-      executor.execute(request, adapter);
+      try
+      {
+        executor.execute(request, adapter);
+      }
+      catch (RuntimeException e)
+      {
+        throw e;
+      }
+      catch (Exception e)
+      {
+        throw new RuntimeException(e);
+      }
     }
     finally
     {

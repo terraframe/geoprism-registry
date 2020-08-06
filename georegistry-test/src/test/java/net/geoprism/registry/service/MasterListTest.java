@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -39,9 +38,7 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.ClientSession;
-import com.runwaysdk.constants.ClientRequestIF;
-import com.runwaysdk.constants.CommonProperties;
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
@@ -56,7 +53,6 @@ import net.geoprism.registry.TileCache;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
-import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class MasterListTest
@@ -387,6 +383,63 @@ public class MasterListTest
     {
       service.remove(testData.clientRequest.getSessionId(), oid);
     }
+  }
+
+  @Test(expected = SmartExceptionDTO.class)
+  public void testCreateFromOtherOrg()
+  {
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+
+    USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+
+      MasterListService service = new MasterListService();
+      service.create(request.getSessionId(), listJson);
+    });
+  }
+
+  @Test(expected = SmartExceptionDTO.class)
+  public void testRemoveFromOtherOrg()
+  {
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+
+    MasterListService service = new MasterListService();
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    String oid = result.get(ComponentInfo.OID).getAsString();
+
+    try
+    {
+      USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+
+        service.remove(request.getSessionId(), oid);
+      });
+    }
+    finally
+    {
+      service.remove(testData.clientRequest.getSessionId(), oid);
+    }
+  }
+
+  @Test(expected = SmartExceptionDTO.class)
+  public void testCreatePublishedVersionsFromOtherOrg()
+  {
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+
+    MasterListService service = new MasterListService();
+    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    String oid = result.get(ComponentInfo.OID).getAsString();
+
+    try
+    {
+      USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+
+        service.createPublishedVersions(request.getSessionId(), oid);
+      });
+    }
+    finally
+    {
+      service.remove(testData.clientRequest.getSessionId(), oid);
+    }
+
   }
 
   @Test

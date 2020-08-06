@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
@@ -52,6 +53,7 @@ import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.MasterListTest;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
+import net.geoprism.registry.test.TestUserInfo;
 
 public class PublishMasterListJobTest
 {
@@ -81,15 +83,15 @@ public class PublishMasterListJobTest
     testData.setUpInstanceData();
 
     clearData();
-    
-    testData.logIn(testData.USER_CGOV_RA);
+
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
   public void tearDown() throws IOException
   {
     testData.logOut();
-    
+
     testData.tearDownInstanceData();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
@@ -120,7 +122,7 @@ public class PublishMasterListJobTest
   @Test
   public void testNewAndUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -147,40 +149,46 @@ public class PublishMasterListJobTest
   @Test
   public void testGetPublishJobs() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, testData.COUNTRY);
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
 
-    MasterListService service = new MasterListService();
-    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
-    String oid = result.get(ComponentInfo.OID).getAsString();
-
-    try
+    for (TestUserInfo user : users)
     {
-      String historyId = service.createPublishedVersionsJob(testData.clientRequest.getSessionId(), oid);
+      JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
 
-      SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+      MasterListService service = new MasterListService();
+      JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+      String oid = result.get(ComponentInfo.OID).getAsString();
 
-      final JSONObject response = service.getPublishJobs(testData.clientRequest.getSessionId(), oid, 10, 1, null, true);
-      Assert.assertEquals(1, response.getInt("count"));
-      Assert.assertEquals(1, response.getInt("pageNumber"));
-      Assert.assertEquals(10, response.getInt("pageSize"));
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
 
-      final JSONArray json = response.getJSONArray("results");
-      Assert.assertEquals(1, json.length());
+          String historyId = service.createPublishedVersionsJob(request.getSessionId(), oid);
 
-      System.out.println(json);
+          SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-      final JSONObject object = json.getJSONObject(0);
+          final JSONObject response = service.getPublishJobs(request.getSessionId(), oid, 10, 1, null, true);
+          Assert.assertEquals(1, response.getInt("count"));
+          Assert.assertEquals(1, response.getInt("pageNumber"));
+          Assert.assertEquals(10, response.getInt("pageSize"));
 
-      Assert.assertEquals(oid, object.getString(PublishMasterListJob.MASTERLIST));
-      Assert.assertEquals(testData.PROVINCE.getDisplayLabel().getValue(), object.getString(PublishMasterListJob.TYPE));
-      Assert.assertEquals(AllJobStatus.SUCCESS.getDisplayLabel(), object.getString(JobHistory.STATUS));
-      Assert.assertEquals(testData.USER_CGOV_RA.getUsername(), object.getString("author"));
-      Assert.assertTrue(object.has("createDate"));
-      Assert.assertTrue(object.has("lastUpdateDate"));
-    }
-    finally
-    {
-      service.remove(testData.clientRequest.getSessionId(), oid);
+          final JSONArray json = response.getJSONArray("results");
+          Assert.assertEquals(1, json.length());
+
+          final JSONObject object = json.getJSONObject(0);
+
+          Assert.assertEquals(oid, object.getString(PublishMasterListJob.MASTERLIST));
+          Assert.assertEquals(FastTestDataset.PROVINCE.getDisplayLabel().getValue(), object.getString(PublishMasterListJob.TYPE));
+          Assert.assertEquals(AllJobStatus.SUCCESS.getDisplayLabel(), object.getString(JobHistory.STATUS));
+          Assert.assertEquals(user.getUsername(), object.getString("author"));
+          Assert.assertTrue(object.has("createDate"));
+          Assert.assertTrue(object.has("lastUpdateDate"));
+        });
+      }
+      finally
+      {
+        service.remove(testData.clientRequest.getSessionId(), oid);
+      }
     }
 
   }
@@ -188,7 +196,7 @@ public class PublishMasterListJobTest
   @Test
   public void testCreateMultiple() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -226,7 +234,7 @@ public class PublishMasterListJobTest
   @Test
   public void testChangeFrequency() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -261,7 +269,7 @@ public class PublishMasterListJobTest
   @Test
   public void testUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -288,6 +296,41 @@ public class PublishMasterListJobTest
     finally
     {
       service.remove(testData.clientRequest.getSessionId(), oid);
+    }
+  }
+
+  @Test
+  public void testPublishJobsAsBadUser() throws InterruptedException
+  {
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC };
+
+    for (TestUserInfo user : users)
+    {
+
+      JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+
+      MasterListService service = new MasterListService();
+      JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+      String oid = result.get(ComponentInfo.OID).getAsString();
+
+      try
+      {
+
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          String historyId = service.createPublishedVersionsJob(request.getSessionId(), oid);
+          SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
+
+          Assert.fail("Able to publish master list versions as the user [" + user.getUsername() + "]");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+      finally
+      {
+        service.remove(testData.clientRequest.getSessionId(), oid);
+      }
     }
 
   }

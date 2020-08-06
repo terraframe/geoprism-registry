@@ -34,6 +34,7 @@ import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectTypeServiceTest
@@ -103,19 +104,33 @@ public class GeoObjectTypeServiceTest
     checkMdGraphAttributes(TEST_GOT.getCode());
   }
 
-  @Test(expected = SmartExceptionDTO.class)
-  public void testCreateGeoObjectTypeAsDifferentOrg()
+  @Test
+  public void testCreateGeoObjectTypeAsBadUser()
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    for (TestUserInfo user : users)
+    {
+      String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
-    String gtJSON = province.toJSON().toString();
+      GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
 
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+      String gtJSON = province.toJSON().toString();
 
-      adapter.createGeoObjectType(request.getSessionId(), gtJSON);
-    });
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+          adapter.createGeoObjectType(request.getSessionId(), gtJSON);
+
+          Assert.fail("Able to create a geo object type as a user with bad roles");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
   }
 
   @Test
@@ -143,8 +158,8 @@ public class GeoObjectTypeServiceTest
     Assert.assertEquals("Description  was not updated on a GeoObjectType", "Some Description 2", province.getDescription().getValue());
   }
 
-  @Test(expected = SmartExceptionDTO.class)
-  public void testUpdateGeoObjectTypeAsDifferentOrg()
+  @Test
+  public void testUpdateGeoObjectTypeAsBadUser()
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
@@ -161,10 +176,25 @@ public class GeoObjectTypeServiceTest
 
     final String updateJSON = province.toJSON().toString();
 
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
-      adapter.updateGeoObjectType(updateJSON);
-    });
+    for (TestUserInfo user : users)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+          adapter.updateGeoObjectType(updateJSON);
+
+          Assert.fail("Able to update a geo object type as a user with bad roles");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
+
   }
 
   @Test

@@ -41,6 +41,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.runwaysdk.RunwayExceptionDTO;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
@@ -78,6 +79,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
+import net.geoprism.registry.test.TestUserInfo;
 
 public class HierarchyServiceTest
 {
@@ -192,17 +194,32 @@ public class HierarchyServiceTest
   }
 
   @Test(expected = SmartExceptionDTO.class)
-  public void testCreateHierarchyTypeAsDifferentOrg()
+  public void testCreateHierarchyTypeAsBadRole()
   {
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
     String gtJSON = reportingDivision.toJSON().toString();
 
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
 
-      ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), gtJSON);
-    });
+    for (TestUserInfo user : users)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+          ServiceFactory.getHierarchyService().createHierarchyType(request.getSessionId(), gtJSON);
+        });
+
+        Assert.fail("Able to update a geo object type as a user with bad roles");
+      }
+      catch (RunwayExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
+
   }
 
   @Test
@@ -224,8 +241,8 @@ public class HierarchyServiceTest
     Assert.assertEquals("The rporting division hieracy 2", reportingDivision.getDescription().getValue());
   }
 
-  @Test(expected = SmartExceptionDTO.class)
-  public void testUpdateHierarchyTypeAsDifferentOrg()
+  @Test
+  public void testUpdateHierarchyTypeAsBadRole()
   {
     HierarchyType reportingDivision = FastTestDataset.HIER_ADMIN.toDTO();
     reportingDivision.setLabel(new LocalizedValue("Reporting Division 2"));
@@ -233,10 +250,24 @@ public class HierarchyServiceTest
 
     final String updateJSON = reportingDivision.toJSON().toString();
 
-    FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
 
-      ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), updateJSON);
-    });
+    for (TestUserInfo user : users)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+          ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), updateJSON);
+        });
+
+        Assert.fail("Able to update a geo object type as a user with bad roles");
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
   }
 
   @Test
