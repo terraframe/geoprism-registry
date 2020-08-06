@@ -337,6 +337,7 @@ export class MasterListVersion {
 	isGeometryEditable: boolean;
 	locales?: string[];
 	shapefile?: boolean;
+	isWritable?: boolean;
 }
 
 export class HierarchyOverTime {

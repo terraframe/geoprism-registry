@@ -38,7 +38,6 @@ export class MasterListComponent implements OnInit {
 	};
 	sort = { attribute: 'code', order: 'ASC' };
 	isPublished: boolean = true;
-
 	isRefreshing: boolean = false;
 
     /*
@@ -48,19 +47,11 @@ export class MasterListComponent implements OnInit {
 
 	public searchPlaceholder = "";
 
-	private isAdmin: boolean;
-	private isMaintainer: boolean;
-	private isContributor: boolean;
-
 
 	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router,
 		private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService) {
 
 		this.searchPlaceholder = localizeService.decode("masterlist.search");
-
-		this.isAdmin = authService.isAdmin();
-		this.isMaintainer = this.isAdmin || authService.isMaintainer();
-		this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
 	}
 
 	ngOnInit(): void {
