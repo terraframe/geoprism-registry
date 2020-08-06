@@ -20,17 +20,8 @@ package net.geoprism.registry.hierarchy;
 
 import java.util.List;
 
-import org.commongeoregistry.adapter.RegistryAdapter;
-import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
@@ -44,39 +35,21 @@ import org.junit.Test;
 import com.runwaysdk.RunwayExceptionDTO;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.constants.MdBusinessInfo;
-import com.runwaysdk.dataaccess.DuplicateDataException;
-import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.gis.constants.MdGeoVertexInfo;
-import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
-import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 
-import net.geoprism.ontology.Classifier;
-import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
-import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
@@ -201,7 +174,7 @@ public class HierarchyServiceTest
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
     String gtJSON = reportingDivision.toJSON().toString();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
 
     for (TestUserInfo user : users)
     {
@@ -250,7 +223,7 @@ public class HierarchyServiceTest
 
     final String updateJSON = reportingDivision.toJSON().toString();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
 
     for (TestUserInfo user : users)
     {
@@ -259,6 +232,36 @@ public class HierarchyServiceTest
         FastTestDataset.runAsUser(user, (request, adapter) -> {
 
           ServiceFactory.getHierarchyService().updateHierarchyType(request.getSessionId(), updateJSON);
+        });
+
+        Assert.fail("Able to update a geo object type as a user with bad roles");
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
+  }
+
+  @Test
+  public void testDeleteHierarchyTypeAsBadRole()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+
+    HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
+    String gtJSON = reportingDivision.toJSON().toString();
+
+    ServiceFactory.getHierarchyService().createHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
+
+    for (TestUserInfo user : users)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+          ServiceFactory.getHierarchyService().deleteHierarchyType(request.getSessionId(), TEST_HT.getCode());
         });
 
         Assert.fail("Able to update a geo object type as a user with bad roles");
@@ -293,7 +296,7 @@ public class HierarchyServiceTest
   @Test
   public void testAddToHierarchy()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     GeoObjectType country = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Country Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
 
@@ -301,7 +304,7 @@ public class HierarchyServiceTest
     String gtJSON = country.toJSON().toString();
     country = testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
 
-    HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.clientSession.getSessionId(), testData.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
+    HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.clientSession.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
 
     List<HierarchyType.HierarchyNode> rootGots = adminHierarchy.getRootGeoObjectTypes();
 
@@ -314,6 +317,37 @@ public class HierarchyServiceTest
     }
 
     Assert.fail("We did not find the child we just added.");
+  }
+
+  @Test
+  public void testAddToHierarchyAsBadRole()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+
+    GeoObjectType country = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Country Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
+
+    // Create the GeoObjectTypes
+    String gtJSON = country.toJSON().toString();
+    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
+
+    for (TestUserInfo user : users)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+          ServiceFactory.getHierarchyService().addToHierarchy(request.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
+        });
+
+        Assert.fail("Able to update a geo object type as a user with bad roles");
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
   }
 
   @Request
