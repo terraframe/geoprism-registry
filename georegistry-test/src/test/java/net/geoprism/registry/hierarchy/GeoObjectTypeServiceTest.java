@@ -102,6 +102,7 @@ public class GeoObjectTypeServiceTest
     checkMdGraphAttributes(TEST_GOT.getCode());
     
     TEST_GOT.assertEquals(returned);
+    TEST_GOT.assertApplied();
   }
 
   @Test
@@ -144,7 +145,7 @@ public class GeoObjectTypeServiceTest
   
   private void updateGot(ClientRequestIF request, TestRegistryAdapterClient adapter)
   {
-    GeoObjectType got = TEST_GOT.toDTO();
+    GeoObjectType got = TEST_GOT.fetchDTO();
     
     final String newLabel = "Some Label 2";
     got.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, newLabel);
@@ -170,6 +171,9 @@ public class GeoObjectTypeServiceTest
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         updateGot(request, adapter);
+        
+        TEST_GOT.delete();
+        TEST_GOT.apply();
       });
     }
   }

@@ -72,7 +72,7 @@ public class TestAttributeTypeInfo
   
   public AttributeType fetchDTO()
   {
-    Optional<AttributeType> optional = got.toDTO().getAttribute(this.name);
+    Optional<AttributeType> optional = got.fetchDTO().getAttribute(this.name);
     
     if (optional.isPresent())
     {
