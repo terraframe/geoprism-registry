@@ -299,7 +299,7 @@ public class HierarchyServiceTest
 
     // Create the GeoObjectTypes
     String gtJSON = country.toJSON().toString();
-    country = testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    country = testData.adapter.createGeoObjectType(gtJSON);
 
     HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.clientSession.getSessionId(), testData.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
 

@@ -116,7 +116,7 @@ public class AttributeTypeServiceTest
 
     AttributeType testChar = AttributeType.factory("testChar", new LocalizedValue("testCharLocalName"), new LocalizedValue("testCharLocalDescrip"), AttributeCharacterType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    testData.adapter.createGeoObjectType(gtJSON);
     String attributeTypeJSON = testChar.toJSON().toString();
     testChar = testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);
 
@@ -145,7 +145,7 @@ public class AttributeTypeServiceTest
 
     AttributeType testDate = AttributeType.factory("testDate", new LocalizedValue("testDateLocalName"), new LocalizedValue("testDateLocalDescrip"), AttributeDateType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    testData.adapter.createGeoObjectType(gtJSON);
 
     String geoObjectTypeCode = province.getCode();
     String attributeTypeJSON = testDate.toJSON().toString();
@@ -168,7 +168,7 @@ public class AttributeTypeServiceTest
 
     AttributeType testInteger = AttributeType.factory("testInteger", new LocalizedValue("testIntegerLocalName"), new LocalizedValue("testIntegerLocalDescrip"), AttributeIntegerType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    testData.adapter.createGeoObjectType(gtJSON);
 
     String geoObjectTypeCode = province.getCode();
     String attributeTypeJSON = testInteger.toJSON().toString();
@@ -191,7 +191,7 @@ public class AttributeTypeServiceTest
 
     AttributeType testBoolean = AttributeType.factory("testBoolean", new LocalizedValue("testBooleanName"), new LocalizedValue("testBooleanDescrip"), AttributeBooleanType.TYPE, false, false, false);
 
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    testData.adapter.createGeoObjectType(gtJSON);
 
     String geoObjectTypeCode = province.getCode();
     String attributeTypeJSON = testBoolean.toJSON().toString();
@@ -220,7 +220,7 @@ public class AttributeTypeServiceTest
 
     String gtJSON = province.toJSON().toString();
 
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    testData.adapter.createGeoObjectType(gtJSON);
 
     String attributeTypeJSON = attributeTermType.toJSON().toString();
     attributeTermType = (AttributeTermType) testData.adapter.createAttributeType(geoObjectTypeCode, attributeTypeJSON);

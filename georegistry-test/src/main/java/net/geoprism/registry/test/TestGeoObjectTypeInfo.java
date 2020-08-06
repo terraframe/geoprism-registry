@@ -256,6 +256,8 @@ public class TestGeoObjectTypeInfo
     public void delete()
     {
       deleteInTrans();
+      
+      this.serverObject = null;
     }
 
     @Transaction
