@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.service;
 
-import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,7 +26,6 @@ import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.geotools.geometry.jts.GeometryBuilder;
 import org.json.JSONArray;
@@ -39,8 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.session.Request;
@@ -48,10 +44,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
-import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
-import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
 
 public class GeoObjectServiceTest
@@ -117,6 +111,42 @@ public class GeoObjectServiceTest
       }
       catch (SmartExceptionDTO e)
       {
+        // Expected
+      }
+    }
+  }
+  
+  @Test
+  public void testGetGeoObjectByCode()
+  {
+    // Allowed Users
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+
+        Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
+        testData.assertGeoObjectStatus(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
+      });
+    }
+    
+    // Disallowed Users
+    TestUserInfo[] disllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA };
+
+    for (TestUserInfo user : disllowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+
+          Assert.fail();
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
         // This is expected
       }
     }
@@ -145,15 +175,6 @@ public class GeoObjectServiceTest
       // This is expected
       Assert.assertEquals(GeometryTypeException.CLASS, e.getType());
     }
-  }
-
-  @Test
-  public void testGetGeoObjectByCode()
-  {
-    GeoObject geoObj = testData.adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
-
-    Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(testData.adapter, geoObj.toJSON().toString()).toJSON().toString());
-    testData.assertGeoObjectStatus(geoObj, DefaultTerms.GeoObjectStatusTerm.ACTIVE);
   }
 
   @Test

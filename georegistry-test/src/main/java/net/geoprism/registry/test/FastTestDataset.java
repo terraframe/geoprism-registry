@@ -58,7 +58,7 @@ public class FastTestDataset extends TestDataSet
 
   public static final TestOrganizationInfo  ORG_CGOV              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "CGOV", "Central Government");
 
-  public static final TestOrganizationInfo  ORG_MOHA              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "MOHA", "Central Government");
+  public static final TestOrganizationInfo  ORG_MOHA              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "MOHA", "Ministry of Home Affairs");
 
   public static final TestUserInfo          USER_CGOV_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode()) });
 
