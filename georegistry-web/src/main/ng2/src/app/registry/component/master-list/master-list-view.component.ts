@@ -21,7 +21,7 @@ export class MasterListViewComponent implements OnInit {
 	/*
 	 * Reference to the modal current showing
      */
-	private bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
 
 	constructor(private service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute) {
@@ -51,9 +51,6 @@ export class MasterListViewComponent implements OnInit {
 		this.bsModalRef.content.master = this.list;
 		this.bsModalRef.content.isNew = false;
 	}
-
-
-
 
 	renderContent(content: string): void {
 		this.content = content;

@@ -8,7 +8,6 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TaskViewerComponent } from "@registry/component/task-viewer/task-viewer.component";
 import { LocalizationService, EventService, ProfileService, AuthService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
-import { MOCK_HTTP_ERROR_RESPONSE } from "@test/shared/mocks";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { TaskService } from "@registry/service";
 import { TASK } from "../mocks";

@@ -115,7 +115,7 @@ export class MasterListManagerComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

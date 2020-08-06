@@ -1,4 +1,4 @@
-import { Task, SynchronizationConfig, ExportScheduledJob, GeoObject, GeoObjectType } from "@registry/model/registry";
+import { Task, SynchronizationConfig, ExportScheduledJob, GeoObject, GeoObjectType, MasterListByOrg, MasterList } from "@registry/model/registry";
 import { LocationInformation } from "@registry/model/location-manager";
 import { HierarchyType } from "@registry/model/hierarchy";
 import { LOCALIZED_LABEL } from "@test/shared/mocks";
@@ -90,3 +90,62 @@ export const LOCATION_INFORMATION: LocationInformation = {
 		features: [GEO_OBJECT]
 	}
 }
+
+export const MASTER_LIST_BY_ORG: MasterListByOrg = {
+	oid: "ORG-ID",
+	label: "ORG-LABEL",
+	admin: true,
+	lists: [
+		{
+			label: 'LIST-LABEL',
+			oid: 'LIST-ID',
+			createDate: '02/20/2020',
+			lastUpdateDate: '02/20/2020',
+			isMaster: false
+		},
+		{
+			label: 'LIST-LABEL-2',
+			oid: 'LIST-ID-2',
+			createDate: '02/20/2020',
+			lastUpdateDate: '02/20/2020',
+			isMaster: true
+		}
+	]
+}
+
+export const MASTER_LIST: MasterList = {
+	oid: 'LIST-ID',
+	typeCode: "TEST-TYPE",
+	displayLabel: LOCALIZED_LABEL,
+	code: 'LIST-CODE',
+	representativityDate: new Date(),
+	publishDate: new Date(),
+	listAbstract: "Test Abstract",
+	process: "Test Process",
+	progress: "Test Progress",
+	accessConstraints: "Test Constraints",
+	useConstraints: "Test Constraints",
+	acknowledgements: "Test Acknowledgements",
+	disclaimer: "Test Disclaimer",
+	contactName: "Test Contact",
+	organization: "TEST-ORG",
+	telephoneNumber: "15555555555",
+	email: "test@terraframe.com",
+	hierarchies: [
+		{
+			label: "Around", code: "AROUND", parents: [
+				{ label: "Country", code: "COUNTRY" },
+				{ label: "Province", code: "PROVINCE" },
+				{ label: "District", code: "DISTRICT" },
+			]
+		}
+	],
+	leaf: false,
+	frequency: "ANNUAL",
+	isMaster: false,
+	visibility: "PUBLIC",
+	admin: true,
+	read: true,
+	versions: []
+}
+

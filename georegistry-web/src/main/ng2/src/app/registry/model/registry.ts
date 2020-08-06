@@ -363,7 +363,8 @@ export enum ImportStrategy {
 export class MasterListByOrg {
 	oid: string;
 	label: string;
-	lists: { label: string, oid: string, createDate: string, lastUpdateDate: string, admin: boolean, isMaster: boolean }[];
+	admin: boolean;
+	lists: { label: string, oid: string, createDate: string, lastUpdateDate: string, isMaster: boolean }[];
 }
 
 export class SynchronizationConfig {
