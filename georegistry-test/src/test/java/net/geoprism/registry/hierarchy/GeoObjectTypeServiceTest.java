@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -12,8 +13,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -32,6 +31,8 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.RegistryService;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
@@ -123,7 +124,7 @@ public class GeoObjectTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeAsBadUser()
   {
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : users)
     {
@@ -183,7 +184,7 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : users)
     {
@@ -200,7 +201,37 @@ public class GeoObjectTypeServiceTest
         // This is expected
       }
     }
+  }
 
+  @Test
+  public void testDeleteGeoObjectTypeAsBadUser()
+  {
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+
+    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
+
+    String gtJSON = province.toJSON().toString();
+
+    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+
+    for (TestUserInfo user : users)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+          ServiceFactory.getRegistryService().deleteGeoObjectType(request.getSessionId(), province.getCode());
+
+          Assert.fail("Able to delete a geo object type as a user with bad roles");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
   }
 
   @Test

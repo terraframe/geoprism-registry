@@ -51,8 +51,10 @@ import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.TileCache;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
+import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class MasterListTest
@@ -385,20 +387,31 @@ public class MasterListTest
     }
   }
 
-  @Test(expected = SmartExceptionDTO.class)
-  public void testCreateFromOtherOrg()
+  @Test
+  public void testCreateFromBadRole()
   {
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
 
-    USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+    TestUserInfo[] users = new TestUserInfo[] { USATestData.ADMIN_USER, USATestData.USER_PPP_RA };
 
-      MasterListService service = new MasterListService();
-      service.create(request.getSessionId(), listJson);
-    });
+    for (TestUserInfo user : users)
+    {
+      try
+      {
+        USATestData.runAsUser(user, (request, adapter) -> {
+          MasterListService service = new MasterListService();
+          service.create(request.getSessionId(), listJson);
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        // This is expected
+      }
+    }
   }
 
-  @Test(expected = SmartExceptionDTO.class)
-  public void testRemoveFromOtherOrg()
+  @Test
+  public void testRemoveFromBadRole()
   {
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
 
@@ -408,10 +421,22 @@ public class MasterListTest
 
     try
     {
-      USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+      TestUserInfo[] users = new TestUserInfo[] { USATestData.ADMIN_USER, USATestData.USER_PPP_RA };
 
-        service.remove(request.getSessionId(), oid);
-      });
+      for (TestUserInfo user : users)
+      {
+        try
+        {
+          USATestData.runAsUser(user, (request, adapter) -> {
+
+            service.remove(request.getSessionId(), oid);
+          });
+        }
+        catch (SmartExceptionDTO e)
+        {
+          // This is expected
+        }
+      }
     }
     finally
     {
@@ -419,7 +444,7 @@ public class MasterListTest
     }
   }
 
-  @Test(expected = SmartExceptionDTO.class)
+  @Test
   public void testCreatePublishedVersionsFromOtherOrg()
   {
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
@@ -430,10 +455,24 @@ public class MasterListTest
 
     try
     {
-      USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
+      TestUserInfo[] users = new TestUserInfo[] { USATestData.ADMIN_USER, USATestData.USER_PPP_RA };
 
-        service.createPublishedVersions(request.getSessionId(), oid);
-      });
+      for (TestUserInfo user : users)
+      {
+        try
+        {
+          FastTestDataset.runAsUser(user, (request, adapter) -> {
+
+            service.createPublishedVersions(request.getSessionId(), oid);
+
+            Assert.fail("Able to publish a master list as a user with bad roles");
+          });
+        }
+        catch (SmartExceptionDTO e)
+        {
+          // This is expected
+        }
+      }
     }
     finally
     {

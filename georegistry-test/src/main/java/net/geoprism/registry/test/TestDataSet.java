@@ -113,6 +113,8 @@ abstract public class TestDataSet
 
   public static final String                 ADMIN_PASSWORD                  = "_nm8P4gfdWxGqNRQ#8";
 
+  public static final TestUserInfo           ADMIN_USER                      = new TestUserInfo(ADMIN_USER_NAME, ADMIN_PASSWORD, null, null);
+
   public static final String                 WKT_DEFAULT_POLYGON             = "POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))";
   
   public static final String                 WKT_DEFAULT_POINT               = "POINT (110 80)";
