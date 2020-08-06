@@ -1,5 +1,7 @@
 package net.geoprism.registry.hierarchy;
 
+import java.util.ArrayList;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
@@ -10,6 +12,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -216,6 +220,59 @@ public class GeoObjectTypeServiceTest
       GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ);
 
       Assert.assertEquals(1, response.length);
+    });
+  }
+  
+  @Test
+  public void testGetGeoObjectTypes()
+  {
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+      String[] codes = new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() };
+  
+      GeoObjectType[] gots = adapter.getGeoObjectTypes(codes, null, PermissionContext.READ);
+  
+      Assert.assertEquals(codes.length, gots.length);
+  
+      GeoObjectType state = gots[0];
+      Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), adapter).toJSON().toString());
+      FastTestDataset.COUNTRY.assertEquals(state);
+  
+      GeoObjectType district = gots[1];
+      Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), adapter).toJSON().toString());
+      FastTestDataset.PROVINCE.assertEquals(district);
+  
+      // Test to make sure we can provide none
+      GeoObjectType[] gots2 = adapter.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
+      Assert.assertTrue(gots2.length > 0);
+  
+      GeoObjectType[] gots3 = adapter.getGeoObjectTypes(null, null, PermissionContext.READ);
+      Assert.assertTrue(gots3.length > 0);
+    });
+  }
+
+  @Test
+  public void testListGeoObjectTypes()
+  {
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+      JsonArray types = adapter.listGeoObjectTypes();
+  
+      ArrayList<TestGeoObjectTypeInfo> expectedGots = testData.getManagedGeoObjectTypes();
+      for (TestGeoObjectTypeInfo got : expectedGots)
+      {
+        boolean found = false;
+  
+        for (int i = 0; i < types.size(); ++i)
+        {
+          JsonObject jo = types.get(i).getAsJsonObject();
+  
+          if (jo.get("label").getAsString().equals(got.getDisplayLabel().getValue()) && jo.get("code").getAsString().equals(got.getCode()))
+          {
+            found = true;
+          }
+        }
+  
+        Assert.assertTrue(found);
+      }
     });
   }
 
