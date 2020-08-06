@@ -22,7 +22,7 @@ public class TestUserInfo
     this.username = username;
     this.password = password;
     this.email = email;
-    this.roleNameArray = roleNameArray;
+    this.roleNameArray = roleNameArray == null ? new String[] {} : roleNameArray;
   }
   
   public void delete()
