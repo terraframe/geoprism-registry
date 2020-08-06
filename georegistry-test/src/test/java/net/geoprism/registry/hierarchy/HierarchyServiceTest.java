@@ -322,13 +322,7 @@ public class HierarchyServiceTest
   @Test
   public void testAddToHierarchyAsBadRole()
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
-
-    GeoObjectType country = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Country Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
-
-    // Create the GeoObjectTypes
-    String gtJSON = country.toJSON().toString();
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    TEST_GOT.apply();
 
     TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
 
@@ -338,7 +332,7 @@ public class HierarchyServiceTest
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
 
-          ServiceFactory.getHierarchyService().addToHierarchy(request.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
+          ServiceFactory.getHierarchyService().addToHierarchy(request.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, TEST_GOT.getCode());
         });
 
         Assert.fail("Able to update a geo object type as a user with bad roles");
