@@ -150,7 +150,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     this.controller.deleteTerm(clientRequest, parentTermCode, termCode);
   }
   
-  public GeoObjectType createGeoObjectType(String sessionId, String gtJSON)
+  public GeoObjectType createGeoObjectType(String gtJSON)
   {
     return responseToGeoObjectType(this.controller.createGeoObjectType(this.clientRequest, gtJSON));
   }

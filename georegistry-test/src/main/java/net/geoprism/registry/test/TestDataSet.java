@@ -1032,6 +1032,31 @@ abstract public class TestDataSet
 
       TestRegistryAdapterClient adapter = new TestRegistryAdapterClient();
       adapter.setClientRequest(request);
+      
+      adapter.refreshMetadataCache();
+
+      boolean isRAorRM = false;
+
+      for (String roleName : user.getRoleNameArray())
+      {
+        if (RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRA_Role(roleName))
+        {
+          isRAorRM = true;
+          break;
+        }
+      }
+
+      if (isRAorRM)
+      {
+        try
+        {
+          adapter.getIdService().populate(1000);
+        }
+        catch (Exception e)
+        {
+          throw new RuntimeException(e);
+        }
+      }
 
       try
       {

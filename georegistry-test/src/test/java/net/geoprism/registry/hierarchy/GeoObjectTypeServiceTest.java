@@ -1,8 +1,8 @@
 package net.geoprism.registry.hierarchy;
 
+import java.util.ArrayList;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -35,6 +36,7 @@ import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestRegistryAdapterClient;
 import net.geoprism.registry.test.TestUserInfo;
 
 public class GeoObjectTypeServiceTest
@@ -63,13 +65,13 @@ public class GeoObjectTypeServiceTest
 
     setUpExtras();
 
-    testData.logIn(FastTestDataset.USER_CGOV_RA);
+//    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
   public void tearDown()
   {
-    testData.logOut();
+//    testData.logOut();
 
     cleanUpExtras();
 
@@ -88,20 +90,34 @@ public class GeoObjectTypeServiceTest
   {
     cleanUpExtras();
   }
-
-  @Test
-  public void testCreateGeoObjectType()
+  
+  private void createGot(ClientRequestIF request, TestRegistryAdapterClient adapter)
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+    GeoObjectType testGot = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), TEST_GOT.getGeometryType(), TEST_GOT.getDisplayLabel(), TEST_GOT.getDescription(), true, TEST_GOT.getOrganization().getCode(), adapter);
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
+    String gtJSON = testGot.toJSON().toString();
 
-    String gtJSON = province.toJSON().toString();
-
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    GeoObjectType returned = adapter.createGeoObjectType(gtJSON);
 
     checkMdBusinessAttributes(TEST_GOT.getCode());
     checkMdGraphAttributes(TEST_GOT.getCode());
+    
+    TEST_GOT.assertEquals(returned);
+  }
+
+  @Test
+  public void testCreateGeoObjectTypeAsGoodUser()
+  {
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
+    
+    for (TestUserInfo user : users)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        createGot(request, adapter);
+      });
+      
+      TEST_GOT.delete();
+    }
   }
 
   @Test
@@ -111,17 +127,11 @@ public class GeoObjectTypeServiceTest
 
     for (TestUserInfo user : users)
     {
-      String organizationCode = FastTestDataset.ORG_CGOV.getCode();
-
-      GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
-
-      String gtJSON = province.toJSON().toString();
-
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
 
-          adapter.createGeoObjectType(request.getSessionId(), gtJSON);
+          createGot(request, adapter);
 
           Assert.fail("Able to create a geo object type as a user with bad roles");
         });
@@ -132,49 +142,43 @@ public class GeoObjectTypeServiceTest
       }
     }
   }
+  
+  private void updateGot(ClientRequestIF request, TestRegistryAdapterClient adapter)
+  {
+    GeoObjectType got = TEST_GOT.toDTO();
+    
+    final String newLabel = "Some Label 2";
+    got.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, newLabel);
+    
+    final String newDesc = "Some Description 2";
+    got.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, newDesc);
+
+    String gtJSON = got.toJSON().toString();
+    GeoObjectType returned = adapter.updateGeoObjectType(gtJSON);
+
+    Assert.assertEquals(newLabel, returned.getLabel().getValue());
+    Assert.assertEquals(newDesc, returned.getDescription().getValue());
+  }
 
   @Test
-  public void testUpdateGeoObjectType()
+  public void testUpdateGeoObjectTypeAsGoodUser()
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+    TEST_GOT.apply();
 
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
-
-    String gtJSON = province.toJSON().toString();
-
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
-
-    province = testData.adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
-
-    province.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Province Test 2");
-    province.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Some Description 2");
-
-    gtJSON = province.toJSON().toString();
-    testData.adapter.updateGeoObjectType(gtJSON);
-
-    province = testData.adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
-
-    Assert.assertEquals("Display label was not updated on a GeoObjectType", "Province Test 2", province.getLabel().getValue());
-    Assert.assertEquals("Description  was not updated on a GeoObjectType", "Some Description 2", province.getDescription().getValue());
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
+    
+    for (TestUserInfo user : users)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        updateGot(request, adapter);
+      });
+    }
   }
 
   @Test
   public void testUpdateGeoObjectTypeAsBadUser()
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
-
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
-
-    String gtJSON = province.toJSON().toString();
-
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
-
-    province = testData.adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ)[0];
-
-    province.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, "Province Test 2");
-    province.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, "Some Description 2");
-
-    final String updateJSON = province.toJSON().toString();
+    TEST_GOT.apply();
 
     TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
@@ -183,8 +187,7 @@ public class GeoObjectTypeServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
-
-          adapter.updateGeoObjectType(updateJSON);
+          updateGot(request, adapter);
 
           Assert.fail("Able to update a geo object type as a user with bad roles");
         });
@@ -230,13 +233,7 @@ public class GeoObjectTypeServiceTest
   @Test
   public void testGetGeoObjectTypeAsDifferentOrgWithWriteContext()
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
-
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
-
-    String gtJSON = province.toJSON().toString();
-
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    TEST_GOT.apply();
 
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
       GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.WRITE);
@@ -248,18 +245,65 @@ public class GeoObjectTypeServiceTest
   @Test
   public void testGetGeoObjectTypeAsDifferentOrgWithReadContext()
   {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
-
-    GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
-
-    String gtJSON = province.toJSON().toString();
-
-    testData.adapter.createGeoObjectType(testData.clientSession.getSessionId(), gtJSON);
+    TEST_GOT.apply();
 
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
       GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_GOT.getCode() }, null, PermissionContext.READ);
 
       Assert.assertEquals(1, response.length);
+    });
+  }
+  
+  @Test
+  public void testGetGeoObjectTypes()
+  {
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+      String[] codes = new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() };
+  
+      GeoObjectType[] gots = adapter.getGeoObjectTypes(codes, null, PermissionContext.READ);
+  
+      Assert.assertEquals(codes.length, gots.length);
+  
+      GeoObjectType state = gots[0];
+      Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), adapter).toJSON().toString());
+      FastTestDataset.COUNTRY.assertEquals(state);
+  
+      GeoObjectType district = gots[1];
+      Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), adapter).toJSON().toString());
+      FastTestDataset.PROVINCE.assertEquals(district);
+  
+      // Test to make sure we can provide none
+      GeoObjectType[] gots2 = adapter.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
+      Assert.assertTrue(gots2.length > 0);
+  
+      GeoObjectType[] gots3 = adapter.getGeoObjectTypes(null, null, PermissionContext.READ);
+      Assert.assertTrue(gots3.length > 0);
+    });
+  }
+
+  @Test
+  public void testListGeoObjectTypes()
+  {
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+      JsonArray types = adapter.listGeoObjectTypes();
+  
+      ArrayList<TestGeoObjectTypeInfo> expectedGots = testData.getManagedGeoObjectTypes();
+      for (TestGeoObjectTypeInfo got : expectedGots)
+      {
+        boolean found = false;
+  
+        for (int i = 0; i < types.size(); ++i)
+        {
+          JsonObject jo = types.get(i).getAsJsonObject();
+  
+          if (jo.get("label").getAsString().equals(got.getDisplayLabel().getValue()) && jo.get("code").getAsString().equals(got.getCode()))
+          {
+            found = true;
+          }
+        }
+  
+        Assert.assertTrue(found);
+      }
     });
   }
 
