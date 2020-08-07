@@ -1,5 +1,7 @@
 var ngToolsWebpack = require('@ngtools/webpack');
 
+var helpers = require('./helpers');
+
 module.exports = {
   entry : {
     'cgr-polyfills' : './src/polyfills.ts',
@@ -33,8 +35,8 @@ module.exports = {
       },
       {
         test: /\.css$/,
-//        include: helpers.root('src', 'app'),
-//        exclude:
+// include: helpers.root('src', 'app'),
+// exclude:
         loader: 'raw-loader'
       },
       {
@@ -47,10 +49,42 @@ module.exports = {
       }      
     ]
   },
+  
+  devtool: 'cheap-module-eval-source-map',
+  mode:'development',
+	optimization : {
+		namedChunks : true,
+		chunkIds : 'named',
+	    splitChunks: {
+	        cacheGroups: {
+	            // vendor chunk
+	            vendor: {
+	            	name:'vendor',
+	                // sync + async chunks
+	                chunks: 'all',
 
+	                // import file path containing node_modules
+	                test: /[\\/]node_modules[\\/]/,
+	                priority: -10
+	            },
+	            default: {
+	                minChunks: 2,
+	                priority: -20,
+	                reuseExistingChunk: true
+	            }
+	        }
+	    }
+    },
+
+  output: {
+    path: helpers.root('dist'),
+    publicPath: 'https://localhost:8080/dist/',
+    filename: '[name].js',
+    chunkFilename: '[id].chunk.js'
+  },
   plugins: [
     new ngToolsWebpack.AngularCompilerPlugin({
-      tsConfigPath: './tsconfig.app.json',
+      tsConfigPath: './tsconfig.spec.json',
       entryModule: './src/app/cgr-app.module#CgrAppModule',
       sourceMap: true
     })    
