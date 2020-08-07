@@ -1,6 +1,7 @@
 import { TestBed, ComponentFixture, async, tick, fakeAsync } from "@angular/core/testing";
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ActivatedRoute } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
@@ -8,23 +9,31 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 import { LocalizationService, EventService, ProfileService, AuthService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
-import { LOCALIZED_LABEL } from "@test/shared/mocks";
+import { LOCALIZED_LABEL, MOCK_HTTP_ERROR_RESPONSE } from "@test/shared/mocks";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RegistryService, IOService } from "@registry/service";
-import { MASTER_LIST } from "../mocks";
-import { MasterListViewComponent } from "@registry/component/master-list/master-list-view.component";
+import { MASTER_LIST, MASTER_LIST_VERSION } from "../mocks";
+import { MasterListHistoryComponent } from "@registry/component/master-list/master-list-history.component";
+import { MasterListComponent } from "@registry/component/master-list/master-list.component";
 
-describe("MasterListViewComponent", () => {
-	let component: MasterListViewComponent;
-	let fixture: ComponentFixture<MasterListViewComponent>;
+describe("MasterListHistoryComponent", () => {
+	let component: MasterListHistoryComponent;
+	let fixture: ComponentFixture<MasterListHistoryComponent>;
+	let router: Router;
 	let service: RegistryService;
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [MasterListViewComponent],
+			declarations: [MasterListHistoryComponent],
 			schemas: [NO_ERRORS_SCHEMA],
 			imports: [
 				HttpClientTestingModule,
+				RouterTestingModule.withRoutes([
+					{
+						path: 'registry/master-list/:oid/:published',
+						component: MasterListComponent,
+					},
+				]),
 				BrowserAnimationsModule,
 				ModalModule.forRoot(),
 				BsDropdownModule.forRoot(),
@@ -51,6 +60,7 @@ describe("MasterListViewComponent", () => {
 		TestBed.inject(EventService);
 		TestBed.inject(AuthService).isAdmin = jasmine.createSpy().and.returnValue(true);
 		TestBed.inject(ProfileService);
+		router = TestBed.inject(Router);
 
 		service = TestBed.inject(RegistryService);
 
@@ -61,7 +71,7 @@ describe("MasterListViewComponent", () => {
 		lService.create = jasmine.createSpy().and.returnValue(LOCALIZED_LABEL);
 
 		// initialize component
-		fixture = TestBed.createComponent(MasterListViewComponent);
+		fixture = TestBed.createComponent(MasterListHistoryComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
 	});
@@ -71,13 +81,21 @@ describe("MasterListViewComponent", () => {
 	});
 
 	it(`Init`, async(() => {
-		expect(component.bsModalRef).toBeFalsy();
 		expect(component.list).toBeFalsy();
-		expect(component.content).toEqual("PUB");
+		expect(component.bsModalRef).toBeFalsy();
+		expect(component.message).toBeFalsy();
+		expect(component.forDate).toEqual('');
 	}));
 
-	it('Test ngOnInit no oid', fakeAsync(() => {
-		service.getMasterList = jasmine.createSpy().and.returnValue(
+	it(`Error`, async(() => {
+		component.error(MOCK_HTTP_ERROR_RESPONSE);
+
+		expect(component.message).toBeTruthy();
+	}));
+
+
+	it('Test ngOnInit', fakeAsync(() => {
+		service.getMasterListHistory = jasmine.createSpy().and.returnValue(
 			Promise.resolve(MASTER_LIST)
 		);
 
@@ -85,23 +103,48 @@ describe("MasterListViewComponent", () => {
 
 		tick(500);
 
-		expect(component.content).toEqual("PUB");
 		expect(component.list).toBeTruthy();
 	}));
 
-	it(`Test renderContent`, async(() => {
-		component.renderContent('TEST');
+	it('Test onPublish', fakeAsync(() => {
+		service.createMasterListVersion = jasmine.createSpy().and.returnValue(
+			Promise.resolve(MASTER_LIST_VERSION)
+		);
 
-		expect(component.content).toEqual("TEST");
+		component.list = MASTER_LIST;
+
+		component.onPublish();
+
+		tick(500);
+
+		expect(component.list.versions.length).toEqual(2);
 	}));
 
 	it(`test onViewMetadata`, async(() => {
 		component.list = MASTER_LIST;
 
-		component.onViewMetadata({ preventDefault: () => { } });
+		component.onViewMetadata();
 
 		expect(component.bsModalRef).toBeTruthy();
 	}));
+
+	it(`test onDelete`, async(() => {
+		component.list = MASTER_LIST;
+
+		component.onDelete(MASTER_LIST_VERSION);
+
+		expect(component.bsModalRef).toBeTruthy();
+	}));
+
+	it('Test onView', fakeAsync(() => {
+		component.onView(MASTER_LIST_VERSION);
+
+		tick(500);
+
+		expect(router.url).toEqual('/registry/master-list/' + MASTER_LIST_VERSION.oid + '/false');
+	}));
+
+
 });
 
 

@@ -1,4 +1,4 @@
-import { Task, SynchronizationConfig, ExportScheduledJob, GeoObject, GeoObjectType, MasterListByOrg, MasterList } from "@registry/model/registry";
+import { Task, SynchronizationConfig, ExportScheduledJob, GeoObject, GeoObjectType, MasterListByOrg, MasterList, MasterListVersion } from "@registry/model/registry";
 import { LocationInformation } from "@registry/model/location-manager";
 import { HierarchyType } from "@registry/model/hierarchy";
 import { LOCALIZED_LABEL } from "@test/shared/mocks";
@@ -113,6 +113,23 @@ export const MASTER_LIST_BY_ORG: MasterListByOrg = {
 	]
 }
 
+export const MASTER_LIST_VERSION: MasterListVersion = {
+	displayLabel: "Test Version",
+	oid: "VERSION-OID",
+	typeCode: "TEST-TYPE",
+	leaf: false,
+	masterlist: 'LIST-ID',
+	forDate: '02/20/2020',
+	createDate: '02/20/2020',
+	publishDate: '02/20/2020',
+	attributes: [],
+	isGeometryEditable: true,
+	locales: ['en_us'],
+	shapefile: true,
+	isWritable: true,
+}
+
+
 export const MASTER_LIST: MasterList = {
 	oid: 'LIST-ID',
 	typeCode: "TEST-TYPE",
@@ -146,6 +163,6 @@ export const MASTER_LIST: MasterList = {
 	visibility: "PUBLIC",
 	admin: true,
 	read: true,
-	versions: []
+	versions: [MASTER_LIST_VERSION]
 }
 

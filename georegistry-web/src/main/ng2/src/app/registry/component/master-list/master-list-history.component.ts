@@ -2,8 +2,6 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-// import 'rxjs/add/operator/toPromise';
-import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListVersion } from '@registry/model/registry';
@@ -28,7 +26,7 @@ export class MasterListHistoryComponent implements OnInit {
     /*
      * Reference to the modal current showing
     */
-	private bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
 	isAdmin: boolean;
 	isMaintainer: boolean;
@@ -61,9 +59,7 @@ export class MasterListHistoryComponent implements OnInit {
 		});
 	}
 
-	onViewMetadata(event: any): void {
-		event.preventDefault();
-
+	onViewMetadata(): void {
 		this.bsModalRef = this.modalService.show(PublishModalComponent, {
 			animated: true,
 			backdrop: true,
@@ -76,8 +72,6 @@ export class MasterListHistoryComponent implements OnInit {
 
 
 	onView(version: MasterListVersion): void {
-		event.preventDefault();
-
 		this.router.navigate(['/registry/master-list/', version.oid, false])
 	}
 
