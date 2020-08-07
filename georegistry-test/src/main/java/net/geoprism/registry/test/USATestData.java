@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.test;
 
+import java.util.ArrayList;
+
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -149,6 +151,8 @@ public class USATestData extends TestDataSet
   @Override
   public void setUpRelationships()
   {
+    USA.setChildren(new ArrayList<TestGeoObjectInfo>());
+    
     USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
     USA.addChild(COLORADO, HIER_ADMIN);

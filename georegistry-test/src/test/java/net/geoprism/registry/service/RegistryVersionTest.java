@@ -103,7 +103,7 @@ public class RegistryVersionTest
       Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
       Assert.assertEquals(dateFormat.format(ValueOverTime.INFINITY_END_DATE), dateFormat.format(allStatus.get(2).getEndDate()));
       
-      Geometry expectedGeom = testData.PROV_CENTRAL.newGeoObject(testData.adapter).getGeometry();
+      Geometry expectedGeom = testData.PROV_CENTRAL.fetchGeoObject().getGeometry();
       Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
       Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
     }
