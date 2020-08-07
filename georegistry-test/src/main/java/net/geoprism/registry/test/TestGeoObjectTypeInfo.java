@@ -309,6 +309,7 @@ public class TestGeoObjectTypeInfo
       return exists;
     }
 
+    @Request
     public void assertApplied()
     {
       ServerGeoObjectType type = this.getServerObject(true);
