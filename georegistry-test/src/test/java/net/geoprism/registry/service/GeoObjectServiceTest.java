@@ -76,6 +76,8 @@ public class GeoObjectServiceTest
     TEST_GO.delete();
     
     testData.logIn(FastTestDataset.USER_CGOV_RA);
+    
+    TestDataSet.populateAdapterIds(null, testData.adapter);
   }
 
   @After
@@ -191,6 +193,8 @@ public class GeoObjectServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
+        TestDataSet.populateAdapterIds(user, adapter);
+        
         GeoObject returned = adapter.createGeoObject(TEST_GO.newGeoObject(adapter).toJSON().toString());
         
         TEST_GO.assertEquals(returned);
@@ -208,6 +212,8 @@ public class GeoObjectServiceTest
     for (TestUserInfo user : disallowedUsers)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
+        TestDataSet.populateAdapterIds(user, adapter);
+        
         try
         {
           adapter.createGeoObject(TEST_GO.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString());

@@ -43,10 +43,13 @@ import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.TileCache;
@@ -96,8 +99,10 @@ public class MasterListTest
   @Before
   public void setUp()
   {
+    cleanUpExtra();
+    
     testData.setUpInstanceData();
-
+    
     testData.logIn(USATestData.USER_NPS_RA);
   }
 
@@ -105,8 +110,30 @@ public class MasterListTest
   public void tearDown()
   {
     testData.logOut();
+    
+    cleanUpExtra();
 
     testData.tearDownInstanceData();
+  }
+  
+  @Request
+  public void cleanUpExtra()
+  {
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    
+    OIterator<? extends MasterList> it = query.getIterator();
+    
+    try
+    {
+      while (it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+    finally
+    {
+      it.close();
+    }
   }
 
   @Test
@@ -263,8 +290,16 @@ public class MasterListTest
     try
     {
       JsonArray orgs = service.listByOrg(testData.clientRequest.getSessionId());
-      JsonObject org = orgs.get(0).getAsJsonObject();
-
+      
+      JsonObject org = null;
+      for (int i = 0; i < orgs.size(); ++i)
+      {
+        if (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
+        {
+          org = orgs.get(i).getAsJsonObject();
+        }
+      }
+      
       Assert.assertNotNull(org.get("oid").getAsString());
       Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
       Assert.assertTrue(org.get("admin").getAsBoolean());
@@ -290,8 +325,16 @@ public class MasterListTest
       USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
 
         JsonArray orgs = service.listByOrg(request.getSessionId());
-        JsonObject org = orgs.get(0).getAsJsonObject();
 
+        JsonObject org = null;
+        for (int i = 0; i < orgs.size(); ++i)
+        {
+          if (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
+          {
+            org = orgs.get(i).getAsJsonObject();
+          }
+        }
+        
         Assert.assertNotNull(org.get("oid").getAsString());
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
         Assert.assertFalse(org.get("admin").getAsBoolean());
@@ -317,7 +360,15 @@ public class MasterListTest
     {
       USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
         JsonArray orgs = service.listByOrg(request.getSessionId());
-        JsonObject org = orgs.get(0).getAsJsonObject();
+        
+        JsonObject org = null;
+        for (int i = 0; i < orgs.size(); ++i)
+        {
+          if (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
+          {
+            org = orgs.get(i).getAsJsonObject();
+          }
+        }
 
         Assert.assertNotNull(org.get("oid").getAsString());
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());

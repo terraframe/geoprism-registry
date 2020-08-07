@@ -66,6 +66,8 @@ public class GeoObjectOverTimeServiceTest
     TEST_GO.delete();
     
     testData.logIn(FastTestDataset.USER_CGOV_RA);
+    
+    TestDataSet.populateAdapterIds(null, testData.adapter);
   }
 
   @After
@@ -178,6 +180,8 @@ public class GeoObjectOverTimeServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
+        TestDataSet.populateAdapterIds(user, adapter);
+        
         TEST_GO.assertEquals(adapter.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(adapter).toJSON().toString()));
         TEST_GO.assertApplied();
         TEST_GO.delete();
@@ -190,6 +194,8 @@ public class GeoObjectOverTimeServiceTest
     for (TestUserInfo user : disallowedUsers)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
+        TestDataSet.populateAdapterIds(user, adapter);
+        
         try
         {
           adapter.createGeoObjectOverTime(TEST_GO.newGeoObjectOverTime(ServiceFactory.getAdapter()).toJSON().toString());
