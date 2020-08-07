@@ -50,7 +50,7 @@ module.exports = {
 
   plugins: [
     new ngToolsWebpack.AngularCompilerPlugin({
-      tsConfigPath: './tsconfig.app.json',
+      tsConfigPath: './tsconfig.json',
       entryModule: './src/app/cgr-app.module#CgrAppModule',
       sourceMap: true
     })    

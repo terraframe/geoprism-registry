@@ -328,6 +328,7 @@ export class MasterListVersion {
 	displayLabel: string;
 	oid: string;
 	typeCode: string;
+	orgCode: string;
 	leaf: boolean;
 	masterlist: string;
 	forDate: string;
@@ -337,7 +338,6 @@ export class MasterListVersion {
 	isGeometryEditable: boolean;
 	locales?: string[];
 	shapefile?: boolean;
-	isWritable?: boolean;
 }
 
 export class HierarchyOverTime {
