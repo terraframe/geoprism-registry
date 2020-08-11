@@ -18,7 +18,10 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -42,6 +45,10 @@ public class SyncLevel implements Comparable<SyncLevel>
   private Integer                 level;
   
   private Map<String, DHIS2AttributeMapping> attributes;
+  
+  private String         orgUnitGroupId;
+  
+  private transient Map<String, Set<String>> orgUnitGroupIdSet = new HashMap<String, Set<String>>();
 
   public ServerGeoObjectType getGeoObjectType()
   {
@@ -120,5 +127,28 @@ public class SyncLevel implements Comparable<SyncLevel>
     
     return false;
   }
+  
+  public String getOrgUnitGroupId()
+  {
+    return orgUnitGroupId;
+  }
 
+  public void setOrgUnitGroupId(String orgUnitGroupId)
+  {
+    this.orgUnitGroupId = orgUnitGroupId;
+  }
+  
+  public Set<String> newOrgUnitGroupIdSet(String orgUnitGroupId)
+  {
+    Set<String> set = new HashSet<String>();
+    
+    this.orgUnitGroupIdSet.put(orgUnitGroupId, set);
+    
+    return set;
+  }
+
+  public Set<String> getOrgUnitGroupIdSet(String orgUnitGroupId)
+  {
+    return this.orgUnitGroupIdSet.get(orgUnitGroupId);
+  }
 }

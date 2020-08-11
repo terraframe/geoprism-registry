@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 
 import org.apache.http.NameValuePair;
@@ -53,12 +54,16 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
+import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
+import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
+import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExportJobHasErrors;
@@ -67,6 +72,7 @@ import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -90,8 +96,6 @@ public class DataExportJob extends DataExportJobBase
   private DHIS2ServiceIF           dhis2;
   
   private ExportHistory         history;
-
-  private JobExportError exportWarning;
 
   public DataExportJob()
   {
@@ -251,6 +255,8 @@ public class DataExportJob extends DataExportJobBase
 
   private void doExport()
   {
+    final ExternalSystem es = this.dhis2Config.getSystem();
+    
     long rowIndex = 0;
     long total = 0;
     long exportCount = 0;
@@ -269,13 +275,45 @@ public class DataExportJob extends DataExportJobBase
 
       while (skip < count)
       {
+        Set<String> orgUnitGroupIdSet = null;
+        OrganisationUnitGroup orgUnitGroup = null;
+        if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
+        {
+          orgUnitGroupIdSet = level.newOrgUnitGroupIdSet(level.getOrgUnitGroupId());
+          
+          try
+          {
+            MetadataGetResponse<OrganisationUnitGroup> resp = this.dhis2.metadataGet(OrganisationUnitGroup.class);
+            
+            List<OrganisationUnitGroup> groups = resp.getObjects();
+            
+            for (OrganisationUnitGroup group : groups)
+            {
+              if (group.getId().equals(level.getOrgUnitGroupId()))
+              {
+                orgUnitGroup = group;
+                orgUnitGroupIdSet.addAll(group.getOrgUnitIds());
+                break;
+              }
+            }
+          }
+          catch (InvalidLoginException e)
+          {
+            LoginException cgrlogin = new LoginException(e);
+            throw cgrlogin;
+          }
+          catch (HTTPException e)
+          {
+            HttpError cgrhttp = new HttpError(e);
+            throw cgrhttp;
+          }
+        }
+        
         List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType(), skip, pageSize);
-
+        
         for (VertexServerGeoObject go : objects) {
           try
           {
-            this.exportWarning = null;
-            
             exportGeoObject(level, rowIndex, go, includeTranslations);
             
             exportCount++;
@@ -284,19 +322,77 @@ public class DataExportJob extends DataExportJobBase
             this.history.setWorkProgress(rowIndex);
             this.history.setExportedRecords(exportCount);
             this.history.apply();
+            
+            if (orgUnitGroupIdSet != null)
+            {
+              final String externalId = go.getExternalId(es);
+              
+              orgUnitGroupIdSet.add(externalId);
+            }
           }
           catch (JobExportError ee)
           {
             recordExportError(ee);
           }
           
-          if (this.exportWarning != null)
-          {
-            recordExportError(this.exportWarning);
-          }
-          
           rowIndex++;
         };
+        
+        if (orgUnitGroupIdSet != null && orgUnitGroupIdSet.size() > 0 && orgUnitGroup != null)
+        {
+          orgUnitGroup.setOrgUnitIds(orgUnitGroupIdSet);
+          
+          GsonBuilder builder = new GsonBuilder();
+          JsonObject joOrgUnitGroup = builder.create().toJsonTree(orgUnitGroup, orgUnitGroup.getClass()).getAsJsonObject();
+          
+          joOrgUnitGroup.remove("created");
+          joOrgUnitGroup.remove("lastUpdated");
+          joOrgUnitGroup.remove("symbol");
+          joOrgUnitGroup.remove("publicAccess");
+          joOrgUnitGroup.remove("user");
+          joOrgUnitGroup.remove("userGroupAccesses");
+          joOrgUnitGroup.remove("attributeValues");
+          joOrgUnitGroup.remove("translations");
+          joOrgUnitGroup.remove("userAccesses");
+          
+          try
+          {
+            JsonObject payload = new JsonObject();
+            
+            JsonArray jaOrgUnitGroups = new JsonArray();
+            
+            jaOrgUnitGroups.add(joOrgUnitGroup);
+            
+            payload.add(DHIS2Objects.ORGANISATION_UNIT_GROUPS, jaOrgUnitGroups);
+            
+            MetadataImportResponse resp = this.dhis2.metadataPost(null, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
+            
+            if (!resp.isSuccess())
+            {
+              if (resp.hasMessage())
+              {
+                ExportRemoteException ere = new ExportRemoteException();
+                ere.setRemoteError(resp.getMessage());
+                throw ere;
+              }
+              else
+              {
+                UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
+                throw re;
+              }
+            }
+          }
+          catch (InvalidLoginException e)
+          {
+            LoginException cgrlogin = new LoginException(e);
+            throw cgrlogin;
+          }
+          catch (HTTPException e)
+          {
+            HttpError cgrhttp = new HttpError(e);
+            throw cgrhttp;
+          }
+        }
 
         skip += pageSize;
       }

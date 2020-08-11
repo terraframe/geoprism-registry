@@ -182,26 +182,26 @@ public class FastTestDataset extends TestDataSet
   {
     super.setUpMetadataInTrans();
 
-    this.AT_National_Anthem.apply();
-    CAMBODIA.setDefaultValue(this.AT_National_Anthem.getAttributeName(), "Nokor Reach");
+    AT_National_Anthem.apply();
+    CAMBODIA.setDefaultValue(AT_National_Anthem.getAttributeName(), "Nokor Reach");
 
-    this.AT_PHONE_COUNTRY_CODE.apply();
-    CAMBODIA.setDefaultValue(this.AT_PHONE_COUNTRY_CODE.getAttributeName(), 855L);
+    AT_PHONE_COUNTRY_CODE.apply();
+    CAMBODIA.setDefaultValue(AT_PHONE_COUNTRY_CODE.getAttributeName(), 855L);
 
-    this.AT_GDP.apply();
-    CAMBODIA.setDefaultValue(this.AT_GDP.getAttributeName(), 26.730D);
+    AT_GDP.apply();
+    CAMBODIA.setDefaultValue(AT_GDP.getAttributeName(), 26.730D);
 
-    this.AT_UN_MEMBER.apply();
-    CAMBODIA.setDefaultValue(this.AT_UN_MEMBER.getAttributeName(), true);
+    AT_UN_MEMBER.apply();
+    CAMBODIA.setDefaultValue(AT_UN_MEMBER.getAttributeName(), true);
 
-    this.AT_DATE_OF_FORMATION.apply();
-    CAMBODIA.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
+    AT_DATE_OF_FORMATION.apply();
+    CAMBODIA.setDefaultValue(AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
 
-    this.AT_RELIGION.apply();
+    AT_RELIGION.apply();
 
     createReligionTerms();
 
-    this.CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
+    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
   }
 
   @Override
@@ -211,14 +211,14 @@ public class FastTestDataset extends TestDataSet
 
   public void createReligionTerms()
   {
-    T_Religion = TestDataSet.createAttributeRootTerm(this.COUNTRY, this.AT_RELIGION);
+    T_Religion = TestDataSet.createAttributeRootTerm(COUNTRY, AT_RELIGION);
 
-    T_Buddhism = TestDataSet.createTerm(this.AT_RELIGION, "Buddhism", "Buddhism");
-    T_Islam = TestDataSet.createTerm(this.AT_RELIGION, "Islam", "Islam");
-    T_Christianity = TestDataSet.createTerm(this.AT_RELIGION, "Christianity", "Christianity");
-    T_Other = TestDataSet.createTerm(this.AT_RELIGION, "Other", "Other");
+    T_Buddhism = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Buddhism", "Buddhism");
+    T_Islam = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Islam", "Islam");
+    T_Christianity = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Christianity", "Christianity");
+    T_Other = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Other", "Other");
 
-    Classifier rootClassy = TestDataSet.getClassifierIfExist(this.AT_RELIGION.getRootTerm().getCode());
+    Classifier rootClassy = TestDataSet.getClassifierIfExist(AT_RELIGION.getRootTerm().getCode());
     List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
     Assert.assertEquals(4, childClassifiers.size());
   }

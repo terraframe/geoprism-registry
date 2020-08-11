@@ -50,6 +50,8 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	types: GeoObjectType[] = [];
 
 	levelRows: LevelRow[] = [];
+	
+	orgUnitGroups: any[] = [];
 
 
     /*
@@ -85,9 +87,16 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
 			if (this.cSystem != null && this.cSystem.type === 'DHIS2ExternalSystem') {
 				// Get the types	
-				this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
-					this.types = types;
-				});
+				//this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
+				//	this.types = types;
+				//});
+				
+				this.service.getConfigForES(this.config.system, this.config.hierarchy).then(esConfig => {
+          this.types = esConfig.types;
+          this.orgUnitGroups = esConfig.orgUnitGroups;
+        }).catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
 
 			}
 
@@ -118,7 +127,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
 		}
 	}
 
-	onChange(): void {
+	onChangeExternalSystem(): void {
 		let index = this.cOrg.systems.findIndex(system => system.oid === this.config.system);
 
 		if (index !== -1) {
@@ -131,9 +140,16 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
 		if (this.cSystem != null && this.cSystem.type === 'DHIS2ExternalSystem') {
 			// Get the types	
-			this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
-				this.types = types;
-			});
+			//this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
+			//	this.types = types;
+			//});
+			
+			this.service.getConfigForES(this.config.system, this.config.hierarchy).then(esConfig => {
+        this.types = esConfig.types;
+        this.orgUnitGroups = esConfig.orgUnitGroups;
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
 
 			if (this.config.configuration['levels'] == null) {
 				var lvl = {
