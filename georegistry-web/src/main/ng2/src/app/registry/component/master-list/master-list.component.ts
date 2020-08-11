@@ -39,6 +39,7 @@ export class MasterListComponent implements OnInit {
 	sort = { attribute: 'code', order: 'ASC' };
 	isPublished: boolean = true;
 	isRefreshing: boolean = false;
+	isWritable: boolean = false;
 
     /*
      * Reference to the modal current showing
@@ -49,7 +50,7 @@ export class MasterListComponent implements OnInit {
 
 
 	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router,
-		private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService) {
+		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService) {
 
 		this.searchPlaceholder = localizeService.decode("masterlist.search");
 	}
@@ -63,6 +64,8 @@ export class MasterListComponent implements OnInit {
 			this.list.attributes.forEach(attribute => {
 				attribute.isCollapsed = true;
 			});
+			
+			this.isWritable = this.authService.isGeoObjectTypeRC(this.list.orgCode, this.list.typeCode);
 
 			this.onPageChange(1);
 		});

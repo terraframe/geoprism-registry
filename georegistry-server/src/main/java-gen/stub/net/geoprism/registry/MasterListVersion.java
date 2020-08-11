@@ -140,9 +140,9 @@ public class MasterListVersion extends MasterListVersionBase
 
   public static String      TYPE_CODE        = "typeCode";
 
-  public static String      ATTRIBUTES       = "attributes";
+  public static String      ORG_CODE         = "orgCode";
 
-  public static String      IS_WRITABLE      = "isWritable";
+  public static String      ATTRIBUTES       = "attributes";
 
   public static String      NAME             = "name";
 
@@ -924,6 +924,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     object.addProperty(MasterList.DISPLAYLABEL, masterlist.getDisplayLabel().getValue());
     object.addProperty(MasterListVersion.TYPE_CODE, type.getCode());
+    object.addProperty(MasterListVersion.ORG_CODE, type.getOrganization().getCode());
     object.addProperty(MasterListVersion.MASTERLIST, masterlist.getOid());
     object.addProperty(MasterListVersion.FORDATE, format.format(this.getForDate()));
     object.addProperty(MasterListVersion.CREATEDATE, format.format(this.getCreateDate()));
@@ -939,7 +940,6 @@ public class MasterListVersion extends MasterListVersionBase
     if (includeAttribute)
     {
       object.add(MasterListVersion.ATTRIBUTES, this.getAttributesAsJson());
-      object.addProperty(MasterListVersion.IS_WRITABLE, masterlist.doesActorHaveWritePermission());
     }
 
     return object;

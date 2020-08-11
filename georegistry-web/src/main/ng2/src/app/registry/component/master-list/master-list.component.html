@@ -58,7 +58,7 @@
                     </span>
 
 
-                        <button *ngIf="list.isWritable" type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
+                        <button *ngIf="isWritable" type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
                             <localize key="masterlist.newGeoObject"></localize>
                         </button>
                         <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
@@ -74,7 +74,7 @@
                     <thead>
                         <tr>
                             <th style="width: 3%" class="label-column"><localize key="masterlist.view.column"></localize></th>
-                            <th *ngIf="list.isWritable" style="width: 3%" class="label-column"><localize key="masterlist.edit.column"></localize></th>
+                            <th *ngIf="isWritable" style="width: 3%" class="label-column"><localize key="masterlist.edit.column"></localize></th>
                             <th *ngFor="let attribute of list.attributes" class="label-column">
 
                                 <div style="display: table-cell; padding-right: 10px; vertical-align: middle;" *ngIf="isFilterable(attribute)">
@@ -107,7 +107,7 @@
                     <tbody>
                         <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
                             <td style="width: 3%; text-align: center;" class="label-column"><a class="fa fa-map-marker" (click)="onGoto(result)"></a></td>
-                            <td *ngIf="list.isWritable" style="width: 3%" class="label-column"><a class="fa fa-pencil ico-edit" (click)="onEdit(result)" [title]="'button.edit.helptext' | localize"></a></td>
+                            <td *ngIf="isWritable" style="width: 3%" class="label-column"><a class="fa fa-pencil ico-edit" (click)="onEdit(result)" [title]="'button.edit.helptext' | localize"></a></td>
                             <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
                         </tr>
                     </tbody>
