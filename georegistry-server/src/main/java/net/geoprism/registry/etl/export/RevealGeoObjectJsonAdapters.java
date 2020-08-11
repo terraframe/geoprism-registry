@@ -68,7 +68,7 @@ public class RevealGeoObjectJsonAdapters
     {
       JsonObject joGO = new JsonObject();
       {
-        joGO.addProperty("type", "feature");
+        joGO.addProperty("type", "Feature");
 
         joGO.addProperty("id", serverGo.getExternalId(this.externalSystem));
 
