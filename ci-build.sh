@@ -94,7 +94,7 @@ if [ "$deploy" == "true" ]; then
   ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini
 
   if [ "$environment" == "demo" ]; then
-    sudo ansible-playbook aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
+    ansible-playbook aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
   fi
 
 fi
