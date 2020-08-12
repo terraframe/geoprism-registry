@@ -27,7 +27,7 @@ sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/
 
 sudo rm -rf /home/ec2-user/ansible/lib/ansible.egg-info
 source /home/ec2-user/ansible/hacking/env-setup
-pip install jinja2 --upgrade
+sudo pip install jinja2 --upgrade
 
 export M2_HOME=/usr/local/apache-maven
 export M2=$M2_HOME/bin 
@@ -94,7 +94,7 @@ if [ "$deploy" == "true" ]; then
   ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini
 
   if [ "$environment" == "demo" ]; then
-    ansible-playbook aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
+    sudo ansible-playbook aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
   fi
 
 fi
