@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
@@ -57,7 +58,6 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.DHIS2TermMapping;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -222,57 +222,94 @@ public class DHIS2GeoObjectJsonAdapters
       
       for (AttributeType attr : attrs.values())
       {
-        if (!attr.getIsDefault() && this.syncLevel.isAttributeMapped(attr.getName()))
+        if (attr.getIsDefault())
+        {
+          continue;
+        }
+        
+        if (this.syncLevel.hasAttribute(attr.getName()))
         {
           DHIS2AttributeMapping attrMapping = this.syncLevel.getAttribute(attr.getName());
           
-          JsonObject av = new JsonObject();
-          
-          av.addProperty("lastUpdated", lastUpdateDate);
-          
-          av.addProperty("created", createDate);
-          
-          if (attr instanceof AttributeBooleanType)
+          if (attrMapping.isOrgUnitGroup())
           {
-            av.addProperty("value", (Boolean) serverGo.getValue(attr.getName()));
-          }
-          else if (attr instanceof AttributeIntegerType)
-          {
-            av.addProperty("value", (Long) serverGo.getValue(attr.getName()));
-          }
-          else if (attr instanceof AttributeFloatType)
-          {
-            av.addProperty("value", (Double) serverGo.getValue(attr.getName()));
-          }
-          else if (attr instanceof AttributeDateType)
-          {
-            av.addProperty("value", formatDate((Date) serverGo.getValue(attr.getName())));
-          }
-          else if (attr instanceof AttributeTermType)
-          {
-            Classifier classy = (Classifier) serverGo.getValue(attr.getName());
-            
-            String mapping = attrMapping.getTermMapping(classy.getClassifierId());
-            
-            if (mapping == null)
+            if (attr instanceof AttributeTermType)
             {
-              MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
-              ex.setTermCode(classy.getClassifierId());
-              throw ex;
+              Classifier classy = (Classifier) serverGo.getValue(attr.getName());
+              
+              String orgUnitGroupId = attrMapping.getTermMapping(classy.getClassifierId());
+              
+              if (orgUnitGroupId == null)
+              {
+                MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
+                ex.setTermCode(classy.getClassifierId());
+                throw ex;
+              }
+              
+              Set<String> orgUnitGroupIdSet = this.syncLevel.getOrgUnitGroupIdSet(orgUnitGroupId);
+              if (orgUnitGroupIdSet == null)
+              {
+                orgUnitGroupIdSet = this.syncLevel.newOrgUnitGroupIdSet(orgUnitGroupId);
+              }
+              
+              orgUnitGroupIdSet.add(serverGo.getExternalId(this.ex));
+            }
+            else
+            {
+              logger.error("Unsupported attribute type [" + attr.getClass().getName() + "] with name [" + attr.getName() + "] when matched to OrgUnitGroup.");
+              continue;
+            }
+          }
+          else if (attrMapping.isMapped())
+          {
+            JsonObject av = new JsonObject();
+            
+            av.addProperty("lastUpdated", lastUpdateDate);
+            
+            av.addProperty("created", createDate);
+            
+            if (attr instanceof AttributeBooleanType)
+            {
+              av.addProperty("value", (Boolean) serverGo.getValue(attr.getName()));
+            }
+            else if (attr instanceof AttributeIntegerType)
+            {
+              av.addProperty("value", (Long) serverGo.getValue(attr.getName()));
+            }
+            else if (attr instanceof AttributeFloatType)
+            {
+              av.addProperty("value", (Double) serverGo.getValue(attr.getName()));
+            }
+            else if (attr instanceof AttributeDateType)
+            {
+              av.addProperty("value", formatDate((Date) serverGo.getValue(attr.getName())));
+            }
+            else if (attr instanceof AttributeTermType)
+            {
+              Classifier classy = (Classifier) serverGo.getValue(attr.getName());
+              
+              String mapping = attrMapping.getTermMapping(classy.getClassifierId());
+              
+              if (mapping == null)
+              {
+                MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
+                ex.setTermCode(classy.getClassifierId());
+                throw ex;
+              }
+              
+              av.addProperty("value", mapping);
+            }
+            else
+            {
+              av.addProperty("value", String.valueOf(serverGo.getValue(attr.getName())));
             }
             
-            av.addProperty("value", mapping);
+            JsonObject joAttr = new JsonObject();
+            joAttr.addProperty("id", attrMapping.getExternalId());
+            av.add("attribute", joAttr);
+            
+            attributeValues.add(av);
           }
-          else
-          {
-            av.addProperty("value", String.valueOf(serverGo.getValue(attr.getName())));
-          }
-          
-          JsonObject joAttr = new JsonObject();
-          joAttr.addProperty("id", attrMapping.getExternalId());
-          av.add("attribute", joAttr);
-          
-          attributeValues.add(av);
         }
       }
       

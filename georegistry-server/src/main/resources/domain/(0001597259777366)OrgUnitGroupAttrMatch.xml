@@ -1,0 +1,61 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.targetTypeOrgUnitGroup">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.targetTypeOrgUnitGroup" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Org Unit Group" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.targetTypeHeader">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.targetTypeHeader" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Target Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Source Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.term.targetOrgUnitGroup">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.term.targetOrgUnitGroup" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Org Unit Group" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.level.delete">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.level.delete" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Delete" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.level.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.level.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Level" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping" message="The CGR Term with code [{termCode}] is not mapped to a DHIS2 Organisation Unit Group." publish="false" exported="false">
+        <attributes>
+          <text name="termCode"/>
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping" type="com.runwaysdk.system.metadata.MdException"></object>
+    </delete>
+  </undoIt>
+</version>

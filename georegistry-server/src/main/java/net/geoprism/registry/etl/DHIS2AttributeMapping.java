@@ -27,6 +27,8 @@ public class DHIS2AttributeMapping
   
   private String externalId;
   
+  private boolean isOrgUnitGroup = false;
+  
   private Map<String, String> terms;
 
   public String getExternalId()
@@ -67,6 +69,21 @@ public class DHIS2AttributeMapping
   public void setTerms(Map<String, String> terms)
   {
     this.terms = terms;
+  }
+
+  public boolean isOrgUnitGroup()
+  {
+    return isOrgUnitGroup;
+  }
+
+  public void setIsOrgUnitGroup(boolean isOrgUnitGroup)
+  {
+    this.isOrgUnitGroup = isOrgUnitGroup;
+  }
+  
+  public boolean isMapped()
+  {
+    return this.getExternalId() != null && this.getExternalId().length() > 0;
   }
   
 }
