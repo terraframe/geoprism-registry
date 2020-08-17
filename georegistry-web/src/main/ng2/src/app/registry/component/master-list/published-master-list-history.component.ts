@@ -8,9 +8,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { PublishModalComponent } from './publish-modal.component';
 import { MasterList, MasterListVersion } from '@registry/model/registry';
 
-import { ErrorHandler } from '@shared/component';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { RegistryService } from '@registry/service';
-import { AuthService } from '@shared/service';
+import { AuthService, LocalizationService } from '@shared/service';
 
 declare var acp: any;
 
@@ -34,14 +34,14 @@ export class PublishedMasterListHistoryComponent implements OnInit {
     /*
      * Reference to the modal current showing
     */
-	private bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
 	pollingData: Subscription;
 
 	isAdmin: boolean;
 
 
-	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService, private localizeService: LocalizationService) {
 
 		this.isAdmin = authService.isAdmin();
 	}
@@ -66,11 +66,22 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	//	return this.authService.isGeoObjectTypeRM(type);
 	//}
 
-	onDeleteMasterListVersion(oid: string): void {
-		this.service.deleteMasterListVersion(oid).then(data => {
-			this.updateList();
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
+	onDeleteMasterListVersion(version: MasterListVersion): void {
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + version.forDate + ']';
+		this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+			this.service.deleteMasterListVersion(version.oid).then(response => {
+				this.updateList();
+
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
 		});
 	}
 
@@ -112,9 +123,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		}
 	}
 
-	onViewMetadata(event: any): void {
-		event.preventDefault();
-
+	onViewMetadata(): void {
 		this.bsModalRef = this.modalService.show(PublishModalComponent, {
 			animated: true,
 			backdrop: true,
@@ -127,8 +136,6 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 
 
 	onView(version: MasterListVersion): void {
-		event.preventDefault();
-
 		this.router.navigate(['/registry/master-list/', version.oid, true])
 	}
 
