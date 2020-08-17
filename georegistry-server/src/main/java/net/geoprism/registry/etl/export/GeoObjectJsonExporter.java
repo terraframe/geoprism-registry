@@ -130,7 +130,7 @@ public class GeoObjectJsonExporter
     if (this.since != null)
     {
 
-      statement.append(" WHERE " + mdAttribute.getColumnName() + " <= :lastUpdateDate");
+      statement.append(" WHERE " + mdAttribute.getColumnName() + " >= :lastUpdateDate");
     }
 
     statement.append(" ORDER BY " + mdAttribute.getColumnName() + ", oid ASC");
@@ -172,7 +172,7 @@ public class GeoObjectJsonExporter
 
     if (this.since != null)
     {
-      statement.append(" WHERE " + mdAttribute.getColumnName() + " <= :lastUpdateDate");
+      statement.append(" WHERE " + mdAttribute.getColumnName() + " >= :lastUpdateDate");
     }
 
     statement.append(" ORDER BY " + mdAttribute.getColumnName() + ", oid ASC");

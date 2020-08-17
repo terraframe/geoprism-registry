@@ -52,7 +52,7 @@
         </div>
         <div class="holder">
           <span class="select">
-            <select type="text" [(ngModel)]="config.system" name="system" (change)='onChange()' [disabled]="config.oid != null" required>
+            <select type="text" [(ngModel)]="config.system" name="system" (change)='onChangeExternalSystem()' [disabled]="config.oid != null" required>
               <option></option>
               <option *ngFor="let system of cOrg.systems" [value]="system.oid">{{system.label}}</option>
             </select>
@@ -70,32 +70,35 @@
             <table id="manage-systems-table" class="list-table table table-bordered">
               <thead>
                 <tr>
-                  <th style="width:20%">
+                  <th style="width:3%">
                     <localize key="settings.external.synchronization.level.label"></localize>
                   </th>
-                  <th style="width:30%">
+                  <th style="width:25%">
                     <localize key="settings.external.synchronization.geoobjecttype.label"></localize>
                   </th>
-                  <th style="width:30%">
+                  <th style="width:25%">
                     <localize key="settings.external.synchronization.dhis2.synch.type.label"></localize>
                   </th>
-                  <th style="width:20%; text-align: center;">
+                  <th style="width:17%">
+                    <localize key="synchronization.config.orgUnitGroup"></localize>
+                  </th>
+                  <th style="width:25%; text-align: center;">
                     <localize key="settings.external.synchronization.actions.label"></localize>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let levelRow of levelRows; let i = index;" [style.background-color]="levelRow.isAttributeEditor === false ? '#F7F7F7' : ''">
-                  <td style="width:20%" *ngIf="levelRow.isAttributeEditor === false">
-                    <label style="padding: 10px 0; margin: 0;">Level {{levelRow.levelNum + 1}}</label>
+                  <td style="width:3%" *ngIf="levelRow.isAttributeEditor === false">
+                    <label style="padding: 10px 0; margin: 0;"><localize key="sync.level.label"></localize> {{levelRow.levelNum + 1}}</label>
                   </td>
-                  <td style="width:30%" *ngIf="levelRow.isAttributeEditor === false">
+                  <td style="width:25%" *ngIf="levelRow.isAttributeEditor === false">
                     <select type="text" [(ngModel)]="levelRow.level.geoObjectType" (change)="onSelectGeoObjectType(levelRow.level.geoObjectType, i)" [name]="'geoObjectType' + levelRow.levelNum" required>
                       <option></option>
                       <option *ngFor="let type of types" [value]="type.code">{{type.label.localizedValue}}</option>
                     </select>
                   </td>
-                  <td style="width:30%" *ngIf="levelRow.isAttributeEditor === false">
+                  <td style="width:25%" *ngIf="levelRow.isAttributeEditor === false">
                     <select type="text" [(ngModel)]="levelRow.level.type" [name]="'type' + levelRow.levelNum" required>
                       <option></option>
                       <option value="ORG_UNITS"><localize key="synchronization.config.units"></localize></option>
@@ -103,11 +106,17 @@
                       <option value="ALL"><localize key="synchronization.config.all"></localize></option>
                     </select>
                   </td>
-                  <td style="width:20%" *ngIf="levelRow.isAttributeEditor === false">
+                  <td style="width:17%" *ngIf="levelRow.isAttributeEditor === false && orgUnitGroups.length > 0">
+                    <select type="text" [(ngModel)]="levelRow.level.orgUnitGroupId" [name]="'group' + levelRow.levelNum">
+                      <option></option>
+                      <option *ngFor="let group of orgUnitGroups" [value]="group.id">{{group.name}}</option>
+                    </select>
+                  </td>
+                  <td style="width:25%" *ngIf="levelRow.isAttributeEditor === false">
 									  <div>
 									    <a style="padding: 10px;" (click)="removeLevel(levelRow.levelNum, i)" [title]="'button.delete.helptext' | localize">
 									      <icon class="fa fa-trash-o ico-remove"></icon>
-									      <label style="cursor:pointer; margin-left:9px;">Delete</label>
+									      <label style="cursor:pointer; margin-left:9px;"><localize key="sync.level.delete"></localize></label>
 									    </a> 
 									  </div>
 									  <div>
@@ -138,31 +147,43 @@
                                     <label><localize key="sync.attr.type"></localize></label>
                                   </th>
                                   <th style="width:25%">
-                                    <!-- To -->
+                                    <label *ngIf="attr.type === 'term'"><localize key="sync.attr.targetTypeHeader"></localize></label>
                                   </th>
                                   <th style="width:25%">
-                                    <label><localize key="sync.attr.targetAttribute"></localize></label>
+                                    <label>
+                                      <localize *ngIf="!levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" key="sync.attr.targetAttribute"></localize>
+                                    </label>
                                   </th>
 	                              </tr>
 	                            </thead>
 	                            <tbody>
 	                              <tr>
 	                                <td><label style="color:#999;">{{attr.label}}</label></td>
-	                                <td><label style="color:#999;">{{attr.typeLabel}}</label></td>
-	                                <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
 	                                <td>
-	                                  <select *ngIf="attr.dhis2Attrs.length > 0" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}" (change)="onChangeAttrMapping(levelRows[i-1].level.attributes[attr.name], levelRows[i-1].level.attributes[attr.name].externalId, levelRow)">
+	                                  <label style="color:#999;">{{attr.typeLabel}}</label>
+	                                </td>
+	                                <td *ngIf="attr.type === 'term'" style="margin-right:20px;">
+	                                  <select style="width:95%" *ngIf="attr.type === 'term'" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" (change)="onChangeTargetType(levelRows[i-1].level.attributes[attr.name])" [name]="'isOrgUnitGroup' + i + attr.name">
+                                      <option [ngValue]="false">{{attr.typeLabel}}</option>
+                                      <option [ngValue]="true"><localize key="sync.attr.targetTypeOrgUnitGroup"></localize></option>
+                                    </select>
+	                                </td>
+	                                <td *ngIf="attr.type !== 'term'" style="float:right; margin-right:20px;">
+	                                  <label style="color:#999;"><localize key="sync.attr.to"></localize></label>
+	                                </td>
+	                                <td>
+	                                  <select *ngIf="attr.dhis2Attrs.length > 0 && !levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].externalId" [ngModelOptions]="{standalone: true}" (change)="onChangeAttrMapping(levelRows[i-1].level.attributes[attr.name], levelRows[i-1].level.attributes[attr.name].externalId, levelRow)">
 	                                    <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
 	                                    <option [value]="dhis2Attr.dhis2Id" *ngFor="let dhis2Attr of attr.dhis2Attrs">
 	                                      {{dhis2Attr.name}}
 	                                    </option>
 	                                  </select>
-	                                  <label *ngIf="attr.dhis2Attrs.length == 0" style="color:#999;"><localize key="sync.noValid"></localize></label>
+	                                  <label *ngIf="attr.dhis2Attrs.length == 0 && !levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" style="color:#999;"><localize key="sync.noValid"></localize></label>
 	                                </td>
 	                              </tr>
 	                            </tbody>
 	                          </table>
-	                          <div *ngIf="levelRows[i-1].level.attributes[attr.name].externalId != null && levelRows[i-1].level.attributes[attr.name].externalId.length > 0">
+	                          <div *ngIf="(levelRows[i-1].level.attributes[attr.name].externalId != null && levelRows[i-1].level.attributes[attr.name].externalId.length > 0) || levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup">
 		                          <table *ngFor="let term of attr.terms" class="row" style="width:80%; margin-left:80px;">
 	                              <thead>
 	                                <tr>
@@ -175,7 +196,10 @@
 	                                    <!-- To -->
 	                                  </th>
 	                                  <th style="width:25%">
-	                                    <label><localize key="sync.attr.term.dhis2Option"></localize></label>
+	                                    <label>
+	                                      <localize *ngIf="!levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" key="sync.attr.term.dhis2Option"></localize>
+	                                      <localize *ngIf="levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" key="sync.attr.term.targetOrgUnitGroup"></localize>
+	                                    </label>
 	                                  </th>
 	                                </tr>
 	                              </thead>
@@ -185,12 +209,16 @@
 	                                  <td><label style="color:#999;">{{term.label}}</label></td>
 	                                  <td style="float:right; margin-right:20px;"><label style="color:#999;"><localize key="sync.attr.to"></localize></label></td>
 	                                  <td>
-	                                    <select [(ngModel)]="levelRows[i-1].level.attributes[attr.name].terms[term.code]" [ngModelOptions]="{standalone: true}">
+	                                    <select *ngIf="!levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].terms[term.code]" [ngModelOptions]="{standalone: true}">
 	                                      <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
 	                                      <option *ngFor="let option of getTermOptions(attr, levelRows[i-1].level.attributes[attr.name].externalId)" [value]="option.code">
 	                                        {{option.name}}
 	                                      </option>
 	                                    </select>
+	                                    <select *ngIf="levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" type="text" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].terms[term.code]" [ngModelOptions]="{standalone: true}">
+									                      <option [ngValue]="null"><localize key="sync.notMapped"></localize></option>
+									                      <option *ngFor="let group of orgUnitGroups" [value]="group.id">{{group.name}}</option>
+									                    </select>
 	                                  </td>
 	                                </tr>
 	                              </tbody>

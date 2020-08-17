@@ -22,12 +22,15 @@ import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.Option;
 import net.geoprism.dhis2.dhis2adapter.response.model.OptionSet;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
+import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 
 public class DHIS2Objects
 {
   public static final String ATTRIBUTES = "attributes";
   
   public static final String ORGANISATION_UNITS = "organisationUnits";
+  
+  public static final String ORGANISATION_UNIT_GROUPS = "organisationUnitGroups";
   
   public static final String OPTIONS = "options";
   
@@ -50,6 +53,10 @@ public class DHIS2Objects
     else if (dhis2Type.equals(OrganisationUnit.class))
     {
       return DHIS2Objects.ORGANISATION_UNITS;
+    }
+    else if (dhis2Type.equals(OrganisationUnitGroup.class))
+    {
+      return DHIS2Objects.ORGANISATION_UNIT_GROUPS;
     }
     else
     {

@@ -81,6 +81,22 @@ export class SynchronizationConfigService {
       }))
       .toPromise();
   }
+	
+	getConfigForES(externalSystemId: string, hierarchyTypeCode: string): Promise<any> {
+
+    let params: HttpParams = new HttpParams();
+    params = params.set('externalSystemId', externalSystemId);
+    params = params.set('hierarchyTypeCode', hierarchyTypeCode);
+
+    this.eventService.start();
+
+    return this.http
+      .get<CustomAttributeConfig[]>(acp + '/synchronization-config/get-config-for-es', { params: params })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
 
 	apply(config: SynchronizationConfig): Promise<SynchronizationConfig> {
 

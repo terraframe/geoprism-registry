@@ -39,11 +39,13 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 	pollingData: Subscription;
 
 	isAdmin: boolean;
+	isSRA: boolean;
 
 
 	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService, private localizeService: LocalizationService) {
 
 		this.isAdmin = authService.isAdmin();
+		this.isSRA = authService.isSRA();
 	}
 
 	ngOnInit(): void {

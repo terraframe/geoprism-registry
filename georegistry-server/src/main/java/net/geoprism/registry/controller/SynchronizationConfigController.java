@@ -43,6 +43,14 @@ public class SynchronizationConfigController
     this.service = new SynchronizationConfigService();
   }
   
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-config-for-es")
+  public ResponseIF getConfigForExternalSystem(ClientRequestIF request, @RequestParamter(name = "externalSystemId") String externalSystemId, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode)
+  {
+    JsonObject resp = this.service.getConfigForExternalSystem(request.getSessionId(), externalSystemId, hierarchyTypeCode);
+    
+    return new RestBodyResponse(resp);
+  }
+  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-custom-attr")
   public ResponseIF getCustomAttributeConfiguration(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "externalId") String externalId)
   {

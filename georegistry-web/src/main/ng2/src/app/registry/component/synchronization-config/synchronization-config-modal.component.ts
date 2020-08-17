@@ -50,6 +50,8 @@ export class SynchronizationConfigModalComponent implements OnInit {
 	types: GeoObjectType[] = [];
 
 	levelRows: LevelRow[] = [];
+	
+	orgUnitGroups: any[] = [];
 
 
     /*
@@ -85,9 +87,16 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
 			if (this.cSystem != null && this.cSystem.type === 'DHIS2ExternalSystem') {
 				// Get the types	
-				this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
-					this.types = types;
-				});
+				//this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
+				//	this.types = types;
+				//});
+				
+				this.service.getConfigForES(this.config.system, this.config.hierarchy).then(esConfig => {
+          this.types = esConfig.types;
+          this.orgUnitGroups = esConfig.orgUnitGroups;
+        }).catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
 
 			}
 
@@ -118,7 +127,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
 		}
 	}
 
-	onChange(): void {
+	onChangeExternalSystem(): void {
 		let index = this.cOrg.systems.findIndex(system => system.oid === this.config.system);
 
 		if (index !== -1) {
@@ -131,9 +140,16 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
 		if (this.cSystem != null && this.cSystem.type === 'DHIS2ExternalSystem') {
 			// Get the types	
-			this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
-				this.types = types;
-			});
+			//this.registryService.getGeoObjectTypes(null, [this.config.hierarchy]).then(types => {
+			//	this.types = types;
+			//});
+			
+			this.service.getConfigForES(this.config.system, this.config.hierarchy).then(esConfig => {
+        this.types = esConfig.types;
+        this.orgUnitGroups = esConfig.orgUnitGroups;
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
 
 			if (this.config.configuration['levels'] == null) {
 				var lvl = {
@@ -311,7 +327,8 @@ export class SynchronizationConfigModalComponent implements OnInit {
 						if (isDifferentGot || level.attributes[attr.name] == null) {
 							level.attributes[attr.name] = {
 								name: attr.name,
-								externalId: null
+								externalId: null,
+								isOrgUnitGroup: false
 							};
 
 							if (attr.terms != null && attr.terms.length > 0) {
@@ -324,6 +341,10 @@ export class SynchronizationConfigModalComponent implements OnInit {
 								}
 							}
 						}
+						//else if (level.attributes[attr.name] != null)
+						//{
+						//  level.attributes[attr.name].isOrgUnitGroup = level.attributes[attr.name].isOrgUnitGroup || attr.isOrgUnitGroup || false;
+						//}
 					}
 
 					this.levelRows.splice(levelRowIndex + 1, 0, { isAttributeEditor: true, attrCfg: { geoObjectTypeCode: geoObjectTypeCode, attrs: attrs } });
@@ -335,6 +356,16 @@ export class SynchronizationConfigModalComponent implements OnInit {
 				this.error(err);
 			});
 		}
+	}
+	
+	onChangeTargetType(attr: any): void {
+	  attr.externalId = null;
+	  
+	  for (const key in attr.terms) {
+      if (attr.terms.hasOwnProperty(key)) {
+        attr.terms[key] = null;
+      }
+    }
 	}
 
 	onSubmit(): void {

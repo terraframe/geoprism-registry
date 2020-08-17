@@ -25,7 +25,9 @@ sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" geoprism-platform/a
 sed -i -e "s/clean_orientdb=false/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
+sudo rm -rf /home/ec2-user/ansible/lib/ansible.egg-info
 source /home/ec2-user/ansible/hacking/env-setup
+sudo pip install jinja2 --upgrade
 
 export M2_HOME=/usr/local/apache-maven
 export M2=$M2_HOME/bin 

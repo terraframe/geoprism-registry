@@ -34,6 +34,8 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
@@ -55,12 +57,11 @@ import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.Option;
+import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.DataExportJobQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -124,6 +125,64 @@ public class SynchronizationConfigService
     }
 
     config.delete();
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject getConfigForExternalSystem(String sessionId, String externalSystemId, String hierarchyTypeCode)
+  {
+    JsonObject ret = new JsonObject();
+    
+    
+    // Add GeoObjectTypes
+    GeoObjectType[] gots = ServiceFactory.getRegistryService().getGeoObjectTypes(sessionId, null, new String[] {hierarchyTypeCode}, null);
+    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
+
+    JsonArray jarray = new JsonArray();
+    for (int i = 0; i < gots.length; ++i)
+    {
+      jarray.add(gots[i].toJSON(serializer));
+    }
+    
+    ret.add("types", jarray);
+    
+    
+    // Add DHIS2 OrgUnitGroups
+    DHIS2ExternalSystem system = DHIS2ExternalSystem.get(externalSystemId);
+    DHIS2ServiceIF dhis2 = DataExportJob.getDHIS2Service(system);
+    
+    try
+    {
+      JsonArray jaGroups = new JsonArray();
+      
+      MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.<OrganisationUnitGroup>metadataGet(OrganisationUnitGroup.class);
+      
+      List<OrganisationUnitGroup> groups = resp.getObjects();
+      
+      for (OrganisationUnitGroup group : groups)
+      {
+        JsonObject joGroup = new JsonObject();
+        
+        joGroup.addProperty("id", group.getId());
+        
+        joGroup.addProperty("name", group.getName());
+        
+        jaGroups.add(joGroup);
+      }
+      
+      ret.add("orgUnitGroups", jaGroups);
+    }
+    catch (InvalidLoginException e)
+    {
+      LoginException cgrlogin = new LoginException(e);
+      throw cgrlogin;
+    }
+    catch (HTTPException e)
+    {
+      HttpError cgrhttp = new HttpError(e);
+      throw cgrhttp;
+    }
+    
+    return ret;
   }
   
   @Request(RequestType.SESSION)
