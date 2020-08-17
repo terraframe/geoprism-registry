@@ -82,18 +82,23 @@ describe("PublishedMasterListHistoryComponent", () => {
 		expect(component).toBeTruthy();
 	});
 
-	//	it(`Init`, async(() => {
-	//		expect(component.list).toBeFalsy();
-	//		expect(component.bsModalRef).toBeFalsy();
-	//		expect(component.message).toBeFalsy();
-	//	}));
-	//
-	//	it(`Error`, async(() => {
-	//		component.error(MOCK_HTTP_ERROR_RESPONSE);
-	//
-	//		expect(component.message).toBeTruthy();
-	//	}));
-	//
+	it(`Init`, fakeAsync(() => {
+		
+		tick(500);
+		
+		expect(component.list).toBeFalsy();
+		expect(component.bsModalRef).toBeFalsy();
+		expect(component.message).toBeFalsy();
+	}));
+
+	it(`Error`, fakeAsync(() => {
+		component.error(MOCK_HTTP_ERROR_RESPONSE);
+
+		tick(500);
+		
+		expect(component.message).toBeTruthy();
+	}));
+
 
 	it('Test ngOnInit', fakeAsync(() => {
 		service.getMasterListHistory = jasmine.createSpy().and.returnValue(
