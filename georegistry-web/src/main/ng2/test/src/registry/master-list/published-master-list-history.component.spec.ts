@@ -82,18 +82,18 @@ describe("PublishedMasterListHistoryComponent", () => {
 		expect(component).toBeTruthy();
 	});
 
-//	it(`Init`, async(() => {
-//		expect(component.list).toBeFalsy();
-//		expect(component.bsModalRef).toBeFalsy();
-//		expect(component.message).toBeFalsy();
-//	}));
-//
-//	it(`Error`, async(() => {
-//		component.error(MOCK_HTTP_ERROR_RESPONSE);
-//
-//		expect(component.message).toBeTruthy();
-//	}));
-//
+	//	it(`Init`, async(() => {
+	//		expect(component.list).toBeFalsy();
+	//		expect(component.bsModalRef).toBeFalsy();
+	//		expect(component.message).toBeFalsy();
+	//	}));
+	//
+	//	it(`Error`, async(() => {
+	//		component.error(MOCK_HTTP_ERROR_RESPONSE);
+	//
+	//		expect(component.message).toBeTruthy();
+	//	}));
+	//
 
 	it('Test ngOnInit', fakeAsync(() => {
 		service.getMasterListHistory = jasmine.createSpy().and.returnValue(
@@ -129,18 +129,22 @@ describe("PublishedMasterListHistoryComponent", () => {
 		expect(component.page.pageNumber).toEqual(2);
 	}));
 
-	it(`test onViewMetadata`, async(() => {
+	it(`test onViewMetadata`, fakeAsync(() => {
 		component.list = MASTER_LIST;
 
 		component.onViewMetadata();
 
+		tick(500);
+
 		expect(component.bsModalRef).toBeTruthy();
 	}));
 
-	it(`test onDelete`, async(() => {
+	it(`test onDelete`, fakeAsync(() => {
 		component.list = MASTER_LIST;
 
 		component.onDeleteMasterListVersion(MASTER_LIST_VERSION);
+
+		tick(500);
 
 		expect(component.bsModalRef).toBeTruthy();
 	}));
