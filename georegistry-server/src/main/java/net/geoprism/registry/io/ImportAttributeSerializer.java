@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -46,10 +46,10 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
 
   public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, List<Locale> locales)
   {
-    this(locale, includeCoordinates, false, locales);
+    this(locale, includeCoordinates, false, false, locales);
   }
 
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, List<Locale> locales)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, boolean includeStatus, List<Locale> locales)
   {
     super(locale);
 
@@ -57,12 +57,16 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     this.locales = locales;
 
     this.filter = new TreeSet<String>();
-    this.filter.add(DefaultAttribute.STATUS.getName());
     this.filter.add(DefaultAttribute.LAST_UPDATE_DATE.getName());
     this.filter.add(DefaultAttribute.CREATE_DATE.getName());
     this.filter.add(DefaultAttribute.SEQUENCE.getName());
     this.filter.add(DefaultAttribute.TYPE.getName());
     this.filter.add(DefaultAttribute.DISPLAY_LABEL.getName());
+
+    if (!includeStatus)
+    {
+      this.filter.add(DefaultAttribute.STATUS.getName());
+    }
 
     if (!includeUid)
     {
@@ -124,5 +128,16 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     }
 
     return attributes;
+  }
+
+  @Override
+  public void configure(AttributeType attributeType, JsonObject json)
+  {
+    super.configure(attributeType, json);
+
+    if (attributeType.getName().equals(DefaultAttribute.STATUS.getName()))
+    {
+      json.addProperty(AttributeType.JSON_REQUIRED, false);
+    }
   }
 }

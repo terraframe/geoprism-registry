@@ -1,0 +1,16 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+    
+      <mdException name="net.geoprism.registry.StatusValueException" 
+                   label="Status Value Exception" 
+                   message="Status must be INACTIVE, ACTIVE, NEW, or PENDING.">
+        <attributes>
+        </attributes>
+      </mdException>
+    </create>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

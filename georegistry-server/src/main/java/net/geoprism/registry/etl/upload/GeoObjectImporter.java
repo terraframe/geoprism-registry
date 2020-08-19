@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -51,6 +51,7 @@ import com.runwaysdk.ProblemIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
@@ -61,6 +62,7 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.StatusValueException;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
@@ -332,16 +334,14 @@ public class GeoObjectImporter implements ObjectImporterIF
 
             GeoObjectOverTime go = entity.toGeoObjectOverTime();
             go.toJSON().toString();
-            
+
             if (this.configuration.isExternalImport())
             {
               ShapefileFunction function = this.configuration.getExternalIdFunction();
 
               Object value = function.getValue(row);
-              
-              if (value == null ||
-                  !(value instanceof String || value instanceof Integer || value instanceof Long) ||
-                  (value instanceof String && ((String)value).length() == 0))
+
+              if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
               {
                 throw new InvalidExternalIdException();
               }
@@ -570,7 +570,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             ShapefileFunction function = this.configuration.getExternalIdFunction();
 
             Object value = function.getValue(row);
-            
+
             serverGo.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value));
           }
 
@@ -952,6 +952,19 @@ public class GeoObjectImporter implements ObjectImporterIF
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       entity.setDisplayLabel((LocalizedValue) value, this.configuration.getStartDate(), this.configuration.getEndDate());
+    }
+    else if (attributeName.equals(DefaultAttribute.STATUS.getName()))
+    {
+      try
+      {
+        GeoObjectStatus status = GeoObjectStatus.valueOf((String) value);
+
+        entity.setStatus(status, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      catch (IllegalArgumentException e)
+      {
+        throw new StatusValueException(e);
+      }
     }
     else if (attributeType instanceof AttributeTermType)
     {

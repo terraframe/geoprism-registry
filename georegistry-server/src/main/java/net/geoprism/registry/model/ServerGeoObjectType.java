@@ -34,6 +34,7 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
@@ -85,7 +86,6 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.WMSService;
@@ -175,7 +175,7 @@ public class ServerGeoObjectType
     return this.type.getLabel();
   }
 
-  public JsonObject toJSON(ImportAttributeSerializer serializer)
+  public JsonObject toJSON(CustomSerializer serializer)
   {
     return this.type.toJSON(serializer);
   }

@@ -264,7 +264,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, SupportedLocaleDAO.getSupportedLocales())).toString());
+    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, true, SupportedLocaleDAO.getSupportedLocales())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
@@ -434,10 +434,9 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       if (attribute.has(TARGET))
       {
         String attributeName = attribute.getString(AttributeType.JSON_CODE);
-        String target = attribute.getString(TARGET); // In the case of a
-                                                     // spreadsheet, this ends
-                                                     // up being the column
-                                                     // header
+
+        // In the case of a spreadsheet, this ends up being the column header
+        String target = attribute.getString(TARGET);
 
         if (attribute.has("locale"))
         {

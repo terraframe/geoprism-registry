@@ -114,7 +114,7 @@ public class GeoObjectShapefileExporter
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, locales).attributes(this.type.getType());
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, false, locales).attributes(this.type.getType());
     this.columnNames = new HashMap<String, String>();
   }
 

@@ -163,7 +163,7 @@ public class GeoObjectAtTimeShapefileExporterTest
         Object geometry = feature.getDefaultGeometry();
         Assert.assertNotNull(geometry);
 
-        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, SupportedLocaleDAO.getSupportedLocales()).attributes(type.getType());
+        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, SupportedLocaleDAO.getSupportedLocales()).attributes(type.getType());
 
         for (AttributeType attribute : attributes)
         {
