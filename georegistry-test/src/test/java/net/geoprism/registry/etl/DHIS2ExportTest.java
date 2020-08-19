@@ -223,7 +223,7 @@ public class DHIS2ExportTest
     SynchronizationConfig config = new SynchronizationConfig();
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
-    config.setHierarchy(ht.getEntityRelationship());
+    config.setHierarchy(ht.getUniversalRelationship());
     config.setSystem(this.system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
     config.apply();

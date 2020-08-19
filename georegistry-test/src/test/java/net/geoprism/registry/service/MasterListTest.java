@@ -182,67 +182,6 @@ public class MasterListTest
     Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
   }
 
-  // @Test
-  // @Request
-  // public void testCreateEntity() throws SQLException
-  // {
-  // JsonObject json = getJson(USATestData.STATE, USATestData.COUNTRY);
-  //
-  // MasterList test = MasterList.create(json);
-  //
-  // try
-  // {
-  // MdBusinessDAOIF mdTable = MdBusinessDAO.get(test.getMdBusinessOid());
-  //
-  // Assert.assertNotNull(mdTable);
-  // }
-  // finally
-  // {
-  // test.delete();
-  // }
-  // }
-  //
-  // @Test
-  // @Request
-  // public void testCreateLeaf() throws SQLException
-  // {
-  // JsonObject json = getJson(testData.DISTRICT, USATestData.STATE,
-  // USATestData.COUNTRY);
-  //
-  // MasterList test = MasterList.create(json);
-  //
-  // try
-  // {
-  // MdBusinessDAOIF mdTable = MdBusinessDAO.get(test.getMdBusinessOid());
-  //
-  // Assert.assertNotNull(mdTable);
-  // }
-  // finally
-  // {
-  // test.delete();
-  // }
-  // }
-  //
-  //
-  // @Test
-  // @Request
-  // public void testPublishLeaf()
-  // {
-  // JsonObject json = getJson(testData.DISTRICT, USATestData.STATE,
-  // USATestData.COUNTRY);
-  //
-  // MasterList test = MasterList.create(json);
-  //
-  // try
-  // {
-  // test.publish();
-  // }
-  // finally
-  // {
-  // test.delete();
-  // }
-  // }
-
   @Test
   @Request
   public void testCreateMultiple()

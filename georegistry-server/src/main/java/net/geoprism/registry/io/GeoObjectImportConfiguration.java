@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -55,56 +55,55 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {
-  public static final String       PARENT_EXCLUSION   = "##PARENT##";
+  public static final String       PARENT_EXCLUSION       = "##PARENT##";
 
-  public static final String       START_DATE         = "startDate";
+  public static final String       START_DATE             = "startDate";
 
-  public static final String       END_DATE           = "endDate";
+  public static final String       END_DATE               = "endDate";
 
-  public static final String       TARGET             = "target";
+  public static final String       TARGET                 = "target";
 
-  public static final String       BASE_TYPE          = "baseType";
+  public static final String       BASE_TYPE              = "baseType";
 
-  public static final String       TEXT               = "text";
+  public static final String       TEXT                   = "text";
 
-  public static final String       LATITUDE           = "latitude";
+  public static final String       LATITUDE               = "latitude";
 
-  public static final String       LONGITUDE          = "longitude";
+  public static final String       LONGITUDE              = "longitude";
 
-  public static final String       NUMERIC            = "numeric";
+  public static final String       NUMERIC                = "numeric";
 
-  public static final String       HIERARCHIES        = "hierarchies";
+  public static final String       HIERARCHIES            = "hierarchies";
 
-  public static final String       HIERARCHY          = "hierarchy";
+  public static final String       HIERARCHY              = "hierarchy";
 
-  public static final String       LOCATIONS          = "locations";
+  public static final String       LOCATIONS              = "locations";
 
-  public static final String       TYPE               = "type";
+  public static final String       TYPE                   = "type";
 
-  public static final String       HAS_POSTAL_CODE    = "hasPostalCode";
+  public static final String       HAS_POSTAL_CODE        = "hasPostalCode";
 
-  public static final String       POSTAL_CODE        = "postalCode";
+  public static final String       POSTAL_CODE            = "postalCode";
 
-  public static final String       SHEET              = "sheet";
+  public static final String       SHEET                  = "sheet";
 
-  public static final String       EXCLUSIONS         = "exclusions";
+  public static final String       EXCLUSIONS             = "exclusions";
 
-  public static final String       VALUE              = "value";
+  public static final String       VALUE                  = "value";
 
-  public static final String       LONGITUDE_KEY      = "georegistry.longitude.label";
+  public static final String       LONGITUDE_KEY          = "georegistry.longitude.label";
 
-  public static final String       LATITUDE_KEY       = "georegistry.latitude.label";
+  public static final String       LATITUDE_KEY           = "georegistry.latitude.label";
 
-  public static final String       DATE_FORMAT        = "yyyy-MM-dd";
-  
-  public static final String       MATCH_STRATEGY = "matchStrategy";
-  
+  public static final String       DATE_FORMAT            = "yyyy-MM-dd";
+
+  public static final String       MATCH_STRATEGY         = "matchStrategy";
+
   public static final String       REVEAL_GEOMETRY_COLUMN = "revealGeometryColumn";
-  
+
   private String                   revealGeometryColumn;
 
   private ServerGeoObjectType      type;
@@ -243,7 +242,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   {
     this.postalCode = postalCode;
   }
-  
+
   public String getRevealGeometryColumn()
   {
     return revealGeometryColumn;
@@ -337,7 +336,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
       config.put(EXCLUSIONS, exclusions);
     }
-    
+
     if (this.getRevealGeometryColumn() != null)
     {
       config.put(REVEAL_GEOMETRY_COLUMN, revealGeometryColumn);
@@ -364,7 +363,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     this.setType(got);
     this.setIncludeCoordinates(includeCoordinates);
     this.setPostalCode(config.has(POSTAL_CODE) && config.getBoolean(POSTAL_CODE));
-    
+
     if (config.has(REVEAL_GEOMETRY_COLUMN))
     {
       this.setRevealGeometryColumn(config.getString(REVEAL_GEOMETRY_COLUMN));
@@ -392,7 +391,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       String hCode = config.getString(HIERARCHY);
 
       ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-      List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(got, hCode);
+      List<GeoObjectType> ancestors = got.getTypeAncestors(hierarchyType, true);
 
       this.setHierarchy(hierarchyType);
 
@@ -400,11 +399,11 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       {
         GeoObjectType rootType = ancestors.get(0);
         GeoObjectQuery query = new GeoObjectQuery(ServerGeoObjectType.get(rootType));
-        
+
         if (query.getCount() > 0)
         {
           GeoObject root = query.getIterator().next();
-  
+
           this.setRoot(root);
         }
         else
@@ -435,7 +434,10 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       if (attribute.has(TARGET))
       {
         String attributeName = attribute.getString(AttributeType.JSON_CODE);
-        String target = attribute.getString(TARGET); // In the case of a spreadsheet, this ends up being the column header
+        String target = attribute.getString(TARGET); // In the case of a
+                                                     // spreadsheet, this ends
+                                                     // up being the column
+                                                     // header
 
         if (attribute.has("locale"))
         {
@@ -460,22 +462,22 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     {
       JSONObject location = locations.getJSONObject(i);
 
-      if (location.has(TARGET) && location.getString(TARGET).length() > 0
-          && location.has(MATCH_STRATEGY) && location.getString(MATCH_STRATEGY).length() > 0)
+      if (location.has(TARGET) && location.getString(TARGET).length() > 0 && location.has(MATCH_STRATEGY) && location.getString(MATCH_STRATEGY).length() > 0)
       {
         String pCode = location.getString(AttributeType.JSON_CODE);
         ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
+        ServerHierarchyType pHierarchy = got.findHierarchy(this.hierarchy, pType);
 
         String target = location.getString(TARGET);
         ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
 
-        this.addParent(new Location(pType, new BasicColumnFunction(target), matchStrategy));
+        this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
       }
     }
-    
+
     return this;
   }
-  
+
   @Override
   public void validate()
   {

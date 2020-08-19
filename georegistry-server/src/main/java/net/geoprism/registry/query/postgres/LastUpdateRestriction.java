@@ -20,8 +20,6 @@ package net.geoprism.registry.query.postgres;
 
 import java.util.Date;
 
-import org.commongeoregistry.adapter.constants.DefaultAttribute;
-
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.query.SelectableMoment;

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -35,7 +35,6 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -57,7 +56,6 @@ public class HierarchyService
 
     List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
-    Universal root = Universal.getRoot();
 
     HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
     SingleActorDAOIF user = Session.getCurrentSession().getUser();
@@ -68,8 +66,7 @@ public class HierarchyService
 
       if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
       {
-        // Note: Ordered ancestors always includes self
-        Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
+        List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sType, true);
 
         if (parents.size() > 1)
         {
@@ -81,9 +78,9 @@ public class HierarchyService
           {
             JsonArray pArray = new JsonArray();
 
-            for (Object parent : parents)
+            for (GeoObjectType parent : parents)
             {
-              ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
+              ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
 
               if (!pType.getCode().equals(geoObjectType.getCode()))
               {

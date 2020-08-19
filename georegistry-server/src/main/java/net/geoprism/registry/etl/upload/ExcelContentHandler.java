@@ -24,6 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.poi.ss.util.CellReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.geoprism.ExceptionUtil;
 import net.geoprism.data.etl.ColumnType;
 import net.geoprism.data.etl.excel.ExcelDataFormatter;
@@ -34,10 +38,6 @@ import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.excel.MapFeatureRow;
-
-import org.apache.poi.ss.util.CellReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ExcelContentHandler implements SheetHandler
 {

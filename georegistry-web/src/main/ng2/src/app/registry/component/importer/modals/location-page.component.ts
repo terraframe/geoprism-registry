@@ -19,7 +19,7 @@ export class LocationPageComponent implements OnInit {
     constructor( private service: IOService ) { }
 
     ngOnInit(): void {
-        this.service.getTypeAncestors( this.configuration.type.code, this.configuration.hierarchy ).then( locations => {
+        this.service.getTypeAncestors( this.configuration.type.code, this.configuration.hierarchy, true ).then( locations => {
             this.configuration.locations = locations;
         } );
     }

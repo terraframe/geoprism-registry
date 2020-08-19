@@ -190,7 +190,7 @@ public class ValueObjectServerGeoObject extends AbstractServerGeoObject implemen
   }
 
   @Override
-  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, boolean includeInheritedTypes)
   {
     return GeoObjectUtil.getAncestorMap(this.toGeoObject(), hierarchy);
   }

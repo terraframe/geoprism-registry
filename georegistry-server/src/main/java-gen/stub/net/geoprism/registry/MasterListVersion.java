@@ -802,7 +802,7 @@ public class MasterListVersion extends MasterListVersionBase
       ServerHierarchyType hierarchy = ServerHierarchyType.get(entry.getKey());
 
       // List<GeoObjectType> parents = entry.getValue();
-      Map<String, LocationInfo> map = object.getAncestorMap(hierarchy);
+      Map<String, LocationInfo> map = object.getAncestorMap(hierarchy, true);
 
       Set<Entry<String, LocationInfo>> locations = map.entrySet();
 

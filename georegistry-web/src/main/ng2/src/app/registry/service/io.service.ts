@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-// import 'rxjs/add/operator/toPromise';
+import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 
 import { ImportConfiguration, Synonym, Location, Term } from '@registry/model/io';
@@ -68,10 +66,11 @@ export class IOService {
             .toPromise();
     }
 
-    getTypeAncestors( code: string, hierarchyCode: string ): Promise<Location[]> {
+    getTypeAncestors( code: string, hierarchyCode: string, includeInheritedTypes:boolean ): Promise<Location[]> {
         let params: HttpParams = new HttpParams();
         params = params.set( 'code', code );
         params = params.set( 'hierarchyCode', hierarchyCode );
+        params = params.set( 'includeInheritedTypes', includeInheritedTypes.toString() );
 
         return this.http
             .get<Location[]>( acp + '/cgr/geoobjecttype/get-ancestors', { params: params } )

@@ -51,7 +51,6 @@ import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
-import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileFormatException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;

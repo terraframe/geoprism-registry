@@ -68,7 +68,6 @@ import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;

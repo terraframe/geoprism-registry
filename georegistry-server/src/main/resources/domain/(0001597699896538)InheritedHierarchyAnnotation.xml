@@ -1,0 +1,52 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.InheritedHierarchyAnnotation" label="Virtual Hierarchy Annotation" generateController="false">
+        <attributes>
+          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" required="true" label="Universal" />
+          <reference name="inheritedHierarchy" type="com.runwaysdk.system.metadata.MdTermRelationship" required="true" label="Inherited Hierarchy" />
+          <reference name="forHierarchy" type="com.runwaysdk.system.metadata.MdTermRelationship" required="true" label="For Hierarchy" />
+        </attributes>
+      </mdBusiness>
+    </create>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.InheritedHierarchyAnnotation">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdBusiness" key="net.geoprism.registry.InheritedHierarchyAnnotation"/>
+    </delete>
+  </undoIt>
+</version>

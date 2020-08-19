@@ -57,6 +57,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
@@ -220,9 +221,9 @@ public class MasterList extends MasterListBase
       if (pCodes.size() > 0)
       {
         String hCode = hierarchy.get("code").getAsString();
-        HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
+        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
-        map.put(hierarchyType, ServiceFactory.getUtilities().getTypeAncestors(type, hCode));
+        map.put(hierarchyType.getType(), type.getTypeAncestors(hierarchyType, true));
       }
     }
 

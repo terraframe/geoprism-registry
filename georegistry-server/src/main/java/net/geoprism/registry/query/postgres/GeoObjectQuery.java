@@ -35,13 +35,12 @@ import com.runwaysdk.constants.EnumerationMasterInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
-import com.runwaysdk.query.AttributeLocal;
 import com.runwaysdk.query.AttributeLocalIF;
 import com.runwaysdk.query.LeftJoinEq;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
-import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.system.gis.geo.GeoEntityDisplayLabelQuery.GeoEntityDisplayLabelQueryStructIF;
 import com.runwaysdk.system.gis.geo.GeoEntityQuery;
 

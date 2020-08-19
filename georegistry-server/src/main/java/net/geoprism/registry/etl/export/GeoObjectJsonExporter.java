@@ -38,7 +38,6 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.graph.ExternalSystem;

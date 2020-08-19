@@ -28,12 +28,6 @@ import java.nio.file.Files;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import net.geoprism.data.importer.FeatureRow;
-import net.geoprism.data.importer.SimpleFeatureRow;
-import net.geoprism.registry.etl.CloseableDelegateFile;
-import net.geoprism.registry.etl.ImportFileFormatException;
-import net.geoprism.registry.etl.ImportStage;
-
 import org.geotools.data.FileDataStore;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Query;
@@ -49,6 +43,12 @@ import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
+
+import net.geoprism.data.importer.FeatureRow;
+import net.geoprism.data.importer.SimpleFeatureRow;
+import net.geoprism.registry.etl.CloseableDelegateFile;
+import net.geoprism.registry.etl.ImportFileFormatException;
+import net.geoprism.registry.etl.ImportStage;
 
 /**
  * Class responsible for reading data from a shapefile row by row and making available that data as a common interface for

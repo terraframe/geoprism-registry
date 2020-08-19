@@ -57,6 +57,7 @@ import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
+import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
@@ -211,6 +212,16 @@ public class ServerHierarchyType
     if (it.hasNext())
     {
       throw new ObjectHasDataException();
+    }
+
+    /*
+     * Delete all inherited hierarchies
+     */
+    List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByRelationship(this.getUniversalRelationship());
+
+    for (InheritedHierarchyAnnotation annotation : annotations)
+    {
+      annotation.delete();
     }
 
     Universal.getStrategy().shutdown(this.universalRelationship.definesType());

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -88,7 +88,7 @@ import net.geoprism.registry.test.USATestData;
 
 public class ShapefileServiceTest
 {
-  protected static USATestData        testData;
+  protected static USATestData         testData;
 
   private static TestAttributeTypeInfo testTerm;
 
@@ -100,11 +100,11 @@ public class ShapefileServiceTest
   {
     testData = USATestData.newTestData();
     testData.setUpMetadata();
-    
-    testTerm = new TestAttributeTypeInfo("testTerm", "testTermLocalName", testData.STATE, AttributeTermType.TYPE);
+
+    testTerm = new TestAttributeTypeInfo("testTerm", "testTermLocalName", USATestData.STATE, AttributeTermType.TYPE);
     testTerm.apply();
-    
-    testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", testData.STATE, AttributeIntegerType.TYPE);
+
+    testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
     testInteger.apply();
 
     if (!SchedulerManager.initialized())
@@ -125,15 +125,15 @@ public class ShapefileServiceTest
   public void setUp()
   {
     clearData();
-    
-    testData.logIn(testData.USER_NPS_RA);
+
+    testData.logIn(USATestData.USER_NPS_RA);
   }
 
   @After
   public void tearDown()
   {
     testData.logOut();
-    
+
     testData.tearDownInstanceData();
 
     clearData();
@@ -185,7 +185,7 @@ public class ShapefileServiceTest
   // @Before
   // public void setUp()
   // {
-  // this.testData = USATestData.newTestData(false);
+  // testData = USATestData.newTestData(false);
   //
   // this.adminCR = testData.adminClientRequest;
   //
@@ -195,7 +195,7 @@ public class ShapefileServiceTest
   // false, false);
   // this.testTerm = (AttributeTermType)
   // ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(),
-  // this.testData.STATE.getCode(), testTerm.toJSON().toString());
+  // this.USATestData.STATE.getCode(), testTerm.toJSON().toString());
   //
   // AttributeIntegerType testInteger = (AttributeIntegerType)
   // AttributeType.factory("testInteger", new
@@ -204,7 +204,7 @@ public class ShapefileServiceTest
   // false, false, false);
   // this.testInteger = (AttributeIntegerType)
   // ServiceFactory.getRegistryService().createAttributeType(this.adminCR.getSessionId(),
-  // this.testData.STATE.getCode(), testInteger.toJSON().toString());
+  // this.USATestData.STATE.getCode(), testInteger.toJSON().toString());
   //
   // reload();
   // }
@@ -222,14 +222,14 @@ public class ShapefileServiceTest
   @Request
   public void testGetAttributeInformation()
   {
-    PostalCodeFactory.remove(testData.STATE.getServerObject());
+    PostalCodeFactory.remove(USATestData.STATE.getServerObject());
 
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(this.testData.clientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -260,7 +260,7 @@ public class ShapefileServiceTest
 
     JSONArray hierarchies = result.getJSONArray(GeoObjectImportConfiguration.HIERARCHIES);
 
-    Assert.assertEquals(1, hierarchies.length());
+    Assert.assertEquals(2, hierarchies.length());
 
     JSONObject hierarchy = hierarchies.getJSONObject(0);
 
@@ -291,7 +291,7 @@ public class ShapefileServiceTest
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
-    ServerGeoObjectType type = testData.STATE.getServerObject();
+    ServerGeoObjectType type = USATestData.STATE.getServerObject();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
@@ -305,7 +305,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(this.testData.clientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
@@ -319,12 +319,12 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -334,7 +334,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "01", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -351,12 +351,12 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -372,7 +372,7 @@ public class ShapefileServiceTest
      */
     JSONObject config2 = new JSONObject(hist.getConfigJson());
     config2.remove("historyId");
-    ImportHistory hist2 = importShapefile(this.testData.clientRequest.getSessionId(), config2.toString());
+    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), config2.toString());
     Assert.assertNotSame(hist.getOid(), hist2.getOid());
 
     SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.SUCCESS);
@@ -384,7 +384,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist2.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist2.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "01", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -403,12 +403,12 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -418,19 +418,19 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "01", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
-    Assert.assertEquals(131174431216L, object.getValue(this.testInteger.getName()));
+    Assert.assertEquals(131174431216L, object.getValue(testInteger.getName()));
   }
 
   @Test
   @Request
   public void testImportShapefileWithParent() throws InterruptedException
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -446,12 +446,12 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
-    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
+    config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -461,12 +461,12 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    String sessionId = this.testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
+    String sessionId = testData.clientRequest.getSessionId();
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode());
 
     Assert.assertEquals("01", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { this.testData.COUNTRY.getCode() }, false, new Date());
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, new Date());
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -477,7 +477,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithParentCode() throws InterruptedException
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -493,12 +493,12 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
-    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD"), ParentMatchStrategy.CODE));
+    config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.CODE));
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -516,12 +516,12 @@ public class ShapefileServiceTest
     // Assert.assertEquals(config.getParentLookupType(),
     // test.getParentLookupType());
 
-    String sessionId = this.testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
+    String sessionId = testData.clientRequest.getSessionId();
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode());
 
     Assert.assertEquals("01", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { this.testData.COUNTRY.getCode() }, false, new Date());
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, new Date());
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -532,7 +532,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithBadParentCode() throws InterruptedException
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -548,12 +548,12 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
-    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("GEOID"), ParentMatchStrategy.CODE));
+    config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("GEOID"), ParentMatchStrategy.CODE));
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -575,7 +575,7 @@ public class ShapefileServiceTest
     // Assert.assertEquals(0, errors.length());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
+    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -593,14 +593,14 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 
-    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
+    config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
     config.addExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, "00");
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -611,7 +611,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
+    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -629,13 +629,13 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 
-    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
+    config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -650,7 +650,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
+    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -660,11 +660,11 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithTerm() throws InterruptedException
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(this.testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
-      TestDataSet.refreshTerms((AttributeTermType) this.testTerm.fetchDTO());
+      TestDataSet.refreshTerms((AttributeTermType) testTerm.fetchDTO());
 
       InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -674,11 +674,11 @@ public class ShapefileServiceTest
 
       GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, (AttributeTermType) testTerm.fetchDTO());
 
-      ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
       config.setHierarchy(hierarchyType);
 
-      ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+      ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
       SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
 
@@ -688,14 +688,14 @@ public class ShapefileServiceTest
       Assert.assertEquals(new Long(56), hist.getWorkProgress());
       Assert.assertEquals(new Long(56), hist.getImportedRecords());
 
-      String sessionId = this.testData.clientRequest.getSessionId();
-      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
+      String sessionId = testData.clientRequest.getSessionId();
+      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode());
 
       Assert.assertEquals("01", object.getCode());
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(this.testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
 
       TestDataSet.refreshTerms((AttributeTermType) testTerm.fetchDTO());
     }
@@ -713,11 +713,11 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, (AttributeTermType) testTerm.fetchDTO());
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -740,7 +740,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(testTerm.getLabel(), problem.getString("attributeLabel"));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
+    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
@@ -755,14 +755,14 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
-    ImportHistory hist2 = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.RUNNING);
 
@@ -781,7 +781,7 @@ public class ShapefileServiceTest
 
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "01", testData.STATE.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
@@ -804,7 +804,7 @@ public class ShapefileServiceTest
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(retConfig, true);
 
     String historyId = configuration.getHistoryId();
-    
+
     Thread.sleep(100);
 
     return ImportHistory.get(historyId);
@@ -822,13 +822,13 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     config.setHierarchy(hierarchyType);
 
-    config.addParent(new Location(this.testData.COUNTRY.getServerObject(), new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
+    config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importShapefile(this.testData.clientRequest.getSessionId(), config.toJSON().toString());
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
@@ -843,13 +843,13 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(testData.STATE.getServerObject());
+    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
     query.setRestriction(new CodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
 
     // Resolve the import problem with a synonym
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.COUNTRY.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("99");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label99");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -863,13 +863,13 @@ public class ShapefileServiceTest
     valRes.put("typeCode", serverGo.getType().getCode());
     valRes.put("label", "00");
 
-    new ETLService().submitValidationProblemResolution(this.testData.clientRequest.getSessionId(), valRes.toString());
+    new ETLService().submitValidationProblemResolution(testData.clientRequest.getSessionId(), valRes.toString());
 
     ValidationProblem vp = ValidationProblem.get(results.getJSONObject(0).getString("id"));
     Assert.assertEquals(ValidationResolution.SYNONYM.name(), vp.getResolution());
     Assert.assertEquals(ParentReferenceProblem.DEFAULT_SEVERITY, vp.getSeverity());
 
-    ImportHistory hist2 = importShapefile(this.testData.clientRequest.getSessionId(), hist.getConfigJson());
+    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), hist.getConfigJson());
     Assert.assertEquals(hist.getOid(), hist2.getOid());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
@@ -880,12 +880,12 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(56), hist.getWorkProgress());
     Assert.assertEquals(new Long(56), hist.getImportedRecords());
 
-    String sessionId = this.testData.clientRequest.getSessionId();
-    GeoObject go = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", testData.STATE.getCode());
+    String sessionId = testData.clientRequest.getSessionId();
+    GeoObject go = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "01", USATestData.STATE.getCode());
 
     Assert.assertEquals("01", go.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, go.getUid(), config.getType().getCode(), new String[] { this.testData.COUNTRY.getCode() }, false, new Date());
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, go.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, new Date());
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -899,7 +899,7 @@ public class ShapefileServiceTest
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm)
   {
-    JSONObject result = service.getShapefileConfiguration(this.testData.clientRequest.getSessionId(), testData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

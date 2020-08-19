@@ -23,10 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.Organization;
-import net.geoprism.registry.service.ServiceFactory;
-
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -45,6 +41,10 @@ import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
+
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class LocalizedValueConverter
 {

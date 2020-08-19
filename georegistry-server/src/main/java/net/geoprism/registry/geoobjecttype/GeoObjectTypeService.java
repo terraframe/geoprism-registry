@@ -51,10 +51,8 @@ public class GeoObjectTypeService
    * 
    * @param codes
    *          codes of the {@link GeoObjectType}s.
+   * @param hierarchies
    * @param context
-   *          TODO
-   * @param sessionId
-   * 
    * @return the {@link GeoObjectType}s with the given codes or all
    *         {@link GeoObjectType}s if no codes are provided.
    */

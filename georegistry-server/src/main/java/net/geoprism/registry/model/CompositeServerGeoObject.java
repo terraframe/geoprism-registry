@@ -253,9 +253,9 @@ public class CompositeServerGeoObject extends AbstractServerGeoObject implements
   }
 
   @Override
-  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy)
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, boolean includeInheritedTypes)
   {
-    return this.rSGO.getAncestorMap(hierarchy);
+    return this.rSGO.getAncestorMap(hierarchy, includeInheritedTypes);
   }
 
   @Override

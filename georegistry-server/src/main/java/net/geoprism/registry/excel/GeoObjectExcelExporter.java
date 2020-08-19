@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -61,7 +61,6 @@ import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectExcelExporter
 {
@@ -123,7 +122,7 @@ public class GeoObjectExcelExporter
     Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(this.type, this.hierarchy.getCode());
+    List<GeoObjectType> ancestors = this.type.getTypeAncestors(this.hierarchy, true);
 
     this.writeHeader(boldStyle, header, attributes, ancestors, locales);
 

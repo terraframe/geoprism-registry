@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -55,14 +55,13 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.postgres.GeoObjectIterator;
 import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.ListIterator;
 
 public class GeoObjectShapefileExporterTest
 {
-  private static FastTestDataset     testData;
+  private static FastTestDataset testData;
 
   @BeforeClass
   public static void setUpClass()
@@ -70,7 +69,7 @@ public class GeoObjectShapefileExporterTest
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
   }
-  
+
   @AfterClass
   public static void cleanUpClass()
   {
@@ -79,7 +78,7 @@ public class GeoObjectShapefileExporterTest
       testData.tearDownMetadata();
     }
   }
-  
+
   @Before
   public void setUp()
   {
@@ -96,7 +95,7 @@ public class GeoObjectShapefileExporterTest
     {
       testData.tearDownInstanceData();
     }
-    
+
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
   }
 
@@ -104,8 +103,8 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(FastTestDataset.PROVINCE.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
 
@@ -126,8 +125,8 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(FastTestDataset.PROVINCE.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
 
     GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
     SimpleFeatureType featureType = exporter.createFeatureType();
@@ -145,8 +144,8 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
 
     List<GeoObject> objects = new GeoObjectQuery(type).getIterator().getAll();
 
@@ -190,23 +189,23 @@ public class GeoObjectShapefileExporterTest
 
     // Assert the value of the parent columns
     // Add the type ancestor fields
-    List<GeoObjectType> ancestors = ServiceFactory.getUtilities().getTypeAncestors(type, hierarchyType.getCode());
+    List<GeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
 
     GeoObjectType ancestor = ancestors.get(0);
 
     String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
     String label = ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE;
 
-    Assert.assertEquals(testData.CAMBODIA.getCode(), feature.getAttribute(exporter.getColumnName(code)));
-    Assert.assertEquals(testData.CAMBODIA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName(label)));
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), feature.getAttribute(exporter.getColumnName(code)));
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName(label)));
   }
 
   @Test
   @Request
   public void testWriteToFile() throws IOException
   {
-    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
@@ -231,8 +230,8 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
 
     GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
 
@@ -243,7 +242,7 @@ public class GeoObjectShapefileExporterTest
 
       Assert.assertNotNull(export);
 
-      IOUtils.copy(export, new NullOutputStream());
+      IOUtils.copy(export, NullOutputStream.NULL_OUTPUT_STREAM);
     }
     finally
     {

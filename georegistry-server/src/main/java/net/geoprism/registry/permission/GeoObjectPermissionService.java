@@ -20,7 +20,6 @@ package net.geoprism.registry.permission;
 
 import java.util.Set;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.rbac.Operation;
