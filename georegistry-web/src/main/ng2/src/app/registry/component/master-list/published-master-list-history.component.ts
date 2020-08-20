@@ -108,7 +108,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		});
 	}
 
-	onPageChange(pageNumber: any): void {
+	onPageChange(pageNumber: number): void {
 		if (this.list != null) {
 
 			this.message = null;

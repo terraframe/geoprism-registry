@@ -503,15 +503,23 @@ public class MasterList extends MasterListBase
 
       final ServerGeoObjectType objectType = this.getGeoObjectType();
       Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-      List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
-      for (Date date : dates)
+      if (range != null)
       {
-        MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
+        List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
-        ( (Session) Session.getCurrentSession() ).reloadPermissions();
+        for (Date date : dates)
+        {
+          MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
 
-        version.publish();
+          ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+          version.publish();
+        }
+      }
+      else
+      {
+        throw new EmptyListException();
       }
     }
     finally

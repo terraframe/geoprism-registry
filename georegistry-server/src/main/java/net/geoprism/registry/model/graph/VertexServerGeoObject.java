@@ -1610,12 +1610,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     final Date endDate = new GraphQuery<Date>("SELECT MAX(status_cot.startDate) FROM " + dbClassName).getSingleResult();
     Date current = new Date();
 
-    if (endDate.before(current))
+    if (startDate != null && endDate != null)
     {
-      return new Pair<Date, Date>(startDate, current);
-    }
+      if (endDate.before(current))
+      {
+        return new Pair<Date, Date>(startDate, current);
+      }
 
-    return new Pair<Date, Date>(startDate, endDate);
+      return new Pair<Date, Date>(startDate, endDate);
+    }
+    
+    return null;
   }
 
   public static boolean hasData(ServerHierarchyType hierarchyType, ServerGeoObjectType childType)

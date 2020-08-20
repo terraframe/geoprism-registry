@@ -67,7 +67,11 @@
                                     <div class="wrapper">
                                         <i style="position: absolute; font-size: 40px;" class="fa fa-file" aria-hidden="true"></i>
                                         <p style="padding-left: 60px;">
-                                            <span style="display: block;"> {{job.createDate}} </span> <span style="display: block;"> {{job.author}} </span> <span style="display: block;"> {{job.type}} </span> <span style="display: block;"> {{job.status}} </span>
+                                            <span style="display: block;"> {{job.createDate}} </span>
+                                            <span style="display: block;"> {{job.author}} </span>
+                                            <span style="display: block;"> {{job.type}} </span>
+                                            <span style="display: block;"> {{job.status}} </span>
+                                            <span *ngIf="job.exception" style="display: block;"> {{job.exception.message}} </span>
                                         </p>
                                     </div>
                                 </td>
