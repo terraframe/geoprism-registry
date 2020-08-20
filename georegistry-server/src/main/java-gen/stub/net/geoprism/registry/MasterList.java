@@ -381,13 +381,13 @@ public class MasterList extends MasterListBase
 
       object.addProperty(MasterList.OID, this.getOid());
       object.addProperty(MasterList.ORGANIZATION, org.getOid());
-      object.addProperty("admin", this.doesActorHaveWritePermission());
+      object.addProperty("write", this.doesActorHaveWritePermission());
       object.addProperty("read", this.doesActorHaveReadPermission());
     }
     else
     {
       object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
-      object.addProperty("admin", false);
+      object.addProperty("write", false);
       object.addProperty("read", false);
     }
 
@@ -843,6 +843,8 @@ public class MasterList extends MasterListBase
             object.addProperty("createDate", format.format(list.getCreateDate()));
             object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
             object.addProperty("isMaster", list.getIsMaster());
+            object.addProperty("write", list.doesActorHaveWritePermission());
+            object.addProperty("read", list.doesActorHaveReadPermission());
 
             lists.add(object);
           }
@@ -852,7 +854,7 @@ public class MasterList extends MasterListBase
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
       object.addProperty("label", org.getDisplayLabel().getValue());
-      object.addProperty("admin", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
+      object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
       object.add("lists", lists);
 
       response.add(object);

@@ -61,8 +61,9 @@ export class MasterListManagerComponent implements OnInit {
 				oid: list.oid,
 				createDate: list.createDate,
 				lastUpdateDate: list.lastUpdateDate,
-				admin: list.admin,
-				isMaster: list.isMaster
+				isMaster: list.isMaster,
+				write: list.admin,
+				read: list.admin,
 			};
 
 			org.lists.push(obj);
@@ -82,8 +83,10 @@ export class MasterListManagerComponent implements OnInit {
 				ignoreBackdropClick: true,
 			});
 			this.bsModalRef.content.edit = true;
+			this.bsModalRef.content.readonly = !list.write;
 			this.bsModalRef.content.master = list;
 			this.bsModalRef.content.isNew = false;
+			
 			this.bsModalRef.content.onMasterListChange.subscribe(ret => {
 				pair.label = ret.displayLabel.localizedValue;
 			});

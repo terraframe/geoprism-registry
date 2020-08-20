@@ -78,7 +78,7 @@ export class GeoObjectEditorComponent implements OnInit {
      */
     @ViewChild( "parentSelector" ) parentSelector;
 
-    areParentsValid: boolean = false;
+    areParentsValid: boolean = true;
 
     hierarchies: HierarchyOverTime[];
 
