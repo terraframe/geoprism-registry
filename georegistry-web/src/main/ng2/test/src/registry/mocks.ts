@@ -94,21 +94,25 @@ export const LOCATION_INFORMATION: LocationInformation = {
 export const MASTER_LIST_BY_ORG: MasterListByOrg = {
 	oid: "ORG-ID",
 	label: "ORG-LABEL",
-	admin: true,
+	write: true,
 	lists: [
 		{
 			label: 'LIST-LABEL',
 			oid: 'LIST-ID',
 			createDate: '02/20/2020',
 			lastUpdateDate: '02/20/2020',
-			isMaster: false
+			isMaster: false,
+			write: true,
+			read: true
 		},
 		{
 			label: 'LIST-LABEL-2',
 			oid: 'LIST-ID-2',
 			createDate: '02/20/2020',
 			lastUpdateDate: '02/20/2020',
-			isMaster: true
+			isMaster: false,
+			write: true,
+			read: true
 		}
 	]
 }
@@ -161,7 +165,7 @@ export const MASTER_LIST: MasterList = {
 	frequency: "ANNUAL",
 	isMaster: false,
 	visibility: "PUBLIC",
-	admin: true,
+	write: true,
 	read: true,
 	versions: [MASTER_LIST_VERSION]
 }
