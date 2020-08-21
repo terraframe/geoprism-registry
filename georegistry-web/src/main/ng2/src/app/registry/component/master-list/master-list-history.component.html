@@ -1,7 +1,7 @@
 <div>
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div *ngIf="list && ((list.write) || isMaintainer)" style="margin-bottom: 10px;" class="row">
+    <div *ngIf="list && list.write" style="margin-bottom: 10px;" class="row">
 
         <div class="col-md-12">
             <form #myForm="ngForm" style="margin-left: 10px;">
@@ -34,7 +34,7 @@
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">
                                     <localize key="modal.button.view"></localize>
                                 </button>
-                                <button *ngIf="isMaintainer || isAdmin" type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button">
+                                <button *ngIf="list.delete" type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button">
                                     <localize key="modal.button.delete"></localize>
                                 </button>
                             </div>

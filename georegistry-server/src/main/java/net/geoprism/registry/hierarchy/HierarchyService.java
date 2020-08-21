@@ -26,6 +26,7 @@ import java.util.List;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -54,25 +55,26 @@ public class HierarchyService
   {
     ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(code);
 
-    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<ServerHierarchyType> hierarchyTypes = ServerHierarchyType.getAll();
+
     JsonArray hierarchies = new JsonArray();
 
     HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
     SingleActorDAOIF user = Session.getCurrentSession().getUser();
 
-    for (HierarchyType hierarchyType : hierarchyTypes)
+    for (ServerHierarchyType sHT : hierarchyTypes)
     {
-      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
+      HierarchyType hierarchyType = sHT.getType();
 
       if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
       {
-        List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sType, true);
+        List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sHT, true);
 
         if (parents.size() > 1)
         {
           JsonObject object = new JsonObject();
-          object.addProperty("code", hierarchyType.getCode());
-          object.addProperty("label", hierarchyType.getLabel().getValue());
+          object.addProperty("code", sHT.getCode());
+          object.addProperty("label", sHT.getDisplayLabel().getValue());
 
           if (includeTypes)
           {
@@ -102,20 +104,21 @@ public class HierarchyService
 
     if (hierarchies.size() == 0)
     {
-      /*
-       * This is a root type so include all hierarchies
-       */
-
-      for (HierarchyType hierarchyType : hierarchyTypes)
+      for (ServerHierarchyType sHT : hierarchyTypes)
       {
+        HierarchyType hierarchyType = sHT.getType();
+
         if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
         {
-          JsonObject object = new JsonObject();
-          object.addProperty("code", hierarchyType.getCode());
-          object.addProperty("label", hierarchyType.getLabel().getValue());
-          object.add("parents", new JsonArray());
+          if (geoObjectType.isRoot(sHT))
+          {
+            JsonObject object = new JsonObject();
+            object.addProperty("code", hierarchyType.getCode());
+            object.addProperty("label", hierarchyType.getLabel().getValue());
+            object.add("parents", new JsonArray());
 
-          hierarchies.add(object);
+            hierarchies.add(object);
+          }
         }
       }
     }

@@ -28,17 +28,8 @@ export class MasterListHistoryComponent implements OnInit {
     */
 	bsModalRef: BsModalRef;
 
-	isAdmin: boolean;
-	isMaintainer: boolean;
-	isContributor: boolean;
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, private localizeService: LocalizationService) {
 
-
-	constructor(public service: RegistryService, private router: Router,
-		private modalService: BsModalService, private localizeService: LocalizationService, authService: AuthService) {
-
-		this.isAdmin = authService.isAdmin();
-		this.isMaintainer = this.isAdmin || authService.isMaintainer();
-		this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
 	}
 
 	ngOnInit(): void {
@@ -98,7 +89,7 @@ export class MasterListHistoryComponent implements OnInit {
 
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

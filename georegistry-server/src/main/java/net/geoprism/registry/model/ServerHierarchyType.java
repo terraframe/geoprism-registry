@@ -667,4 +667,18 @@ public class ServerHierarchyType
     return list;
   }
 
+  public static List<ServerHierarchyType> getAll()
+  {
+    final List<ServerHierarchyType> list = new LinkedList<ServerHierarchyType>();
+
+    List<HierarchyType> lHt = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    // Filter out what they're not allowed to see
+
+    lHt.forEach(ht -> {
+      list.add(ServerHierarchyType.get(ht));
+    });
+
+    return list;
+  }
+
 }
