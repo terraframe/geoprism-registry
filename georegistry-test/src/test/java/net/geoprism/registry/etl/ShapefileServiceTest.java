@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -239,9 +240,10 @@ public class ShapefileServiceTest
 
     JSONArray tAttributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    Assert.assertEquals(4, tAttributes.length());
+    Assert.assertEquals(5, tAttributes.length());
 
     boolean hasCode = false;
+    boolean hasStatus = false;
 
     for (int i = 0; i < tAttributes.length(); i++)
     {
@@ -254,13 +256,20 @@ public class ShapefileServiceTest
         Assert.assertTrue(tAttribute.has("required"));
         Assert.assertTrue(tAttribute.getBoolean("required"));
       }
+      else if (code.equals(DefaultAttribute.STATUS.getName()))
+      {
+        hasStatus = true;
+        Assert.assertTrue(tAttribute.has("required"));
+        Assert.assertFalse(tAttribute.getBoolean("required"));
+      }
     }
 
     Assert.assertTrue(hasCode);
+    Assert.assertTrue(hasStatus);
 
     JSONArray hierarchies = result.getJSONArray(GeoObjectImportConfiguration.HIERARCHIES);
 
-    Assert.assertEquals(2, hierarchies.length());
+    Assert.assertEquals(1, hierarchies.length());
 
     JSONObject hierarchy = hierarchies.getJSONObject(0);
 

@@ -100,9 +100,9 @@ public class MasterListTest
   public void setUp()
   {
     cleanUpExtra();
-    
+
     testData.setUpInstanceData();
-    
+
     testData.logIn(USATestData.USER_NPS_RA);
   }
 
@@ -110,19 +110,19 @@ public class MasterListTest
   public void tearDown()
   {
     testData.logOut();
-    
+
     cleanUpExtra();
 
     testData.tearDownInstanceData();
   }
-  
+
   @Request
   public void cleanUpExtra()
   {
     MasterListQuery query = new MasterListQuery(new QueryFactory());
-    
+
     OIterator<? extends MasterList> it = query.getIterator();
-    
+
     try
     {
       while (it.hasNext())
@@ -229,7 +229,7 @@ public class MasterListTest
     try
     {
       JsonArray orgs = service.listByOrg(testData.clientRequest.getSessionId());
-      
+
       JsonObject org = null;
       for (int i = 0; i < orgs.size(); ++i)
       {
@@ -238,10 +238,10 @@ public class MasterListTest
           org = orgs.get(i).getAsJsonObject();
         }
       }
-      
+
       Assert.assertNotNull(org.get("oid").getAsString());
       Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
-      Assert.assertTrue(org.get("admin").getAsBoolean());
+      Assert.assertTrue(org.get("write").getAsBoolean());
       Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
     }
     finally
@@ -273,10 +273,10 @@ public class MasterListTest
             org = orgs.get(i).getAsJsonObject();
           }
         }
-        
+
         Assert.assertNotNull(org.get("oid").getAsString());
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
-        Assert.assertFalse(org.get("admin").getAsBoolean());
+        Assert.assertFalse(org.get("write").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
       });
     }
@@ -299,7 +299,7 @@ public class MasterListTest
     {
       USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
         JsonArray orgs = service.listByOrg(request.getSessionId());
-        
+
         JsonObject org = null;
         for (int i = 0; i < orgs.size(); ++i)
         {
@@ -311,7 +311,7 @@ public class MasterListTest
 
         Assert.assertNotNull(org.get("oid").getAsString());
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
-        Assert.assertFalse(org.get("admin").getAsBoolean());
+        Assert.assertFalse(org.get("write").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() == 0);
       });
     }
