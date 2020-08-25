@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobject;
 
@@ -45,6 +45,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
@@ -55,6 +56,11 @@ import net.geoprism.registry.view.GeoObjectSplitView;
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
   private GeoObjectPermissionServiceIF permissionService;
+
+  public ServerGeoObjectService()
+  {
+    this(new GeoObjectPermissionService());
+  }
 
   public ServerGeoObjectService(GeoObjectPermissionServiceIF permissionService)
   {
@@ -314,6 +320,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public boolean hasData(ServerHierarchyType serverHierarchyType, ServerGeoObjectType childType)
   {
     return VertexServerGeoObject.hasData(serverHierarchyType, childType);
+  }
+
+  public void removeAllEdges(ServerHierarchyType hierarchyType, ServerGeoObjectType childType)
+  {
+    VertexServerGeoObject.removeAllEdges(hierarchyType, childType);
   }
 
 }

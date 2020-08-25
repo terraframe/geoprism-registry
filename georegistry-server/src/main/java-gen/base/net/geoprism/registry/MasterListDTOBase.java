@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1087943009)
+@com.runwaysdk.business.ClassSignature(hash = -2029046236)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = -1087943009;
+  private static final long serialVersionUID = -2029046236;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -76,6 +58,7 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
+  public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
   public String getAccessConstraints()
   {
@@ -1111,6 +1094,43 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getUseConstraintsMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(USECONSTRAINTS).getAttributeMdDTO();
+  }
+  
+  public Boolean getValid()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(VALID));
+  }
+  
+  public void setValid(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(VALID, "");
+    }
+    else
+    {
+      setValue(VALID, java.lang.Boolean.toString(value));
+    }
+  }
+  
+  public boolean isValidWritable()
+  {
+    return isWritable(VALID);
+  }
+  
+  public boolean isValidReadable()
+  {
+    return isReadable(VALID);
+  }
+  
+  public boolean isValidModified()
+  {
+    return isModified(VALID);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeBooleanMdDTO getValidMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeBooleanMdDTO) getAttributeDTO(VALID).getAttributeMdDTO();
   }
   
   public String getVisibility()

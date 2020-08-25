@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -240,24 +240,29 @@ public class ServerGeoObjectType
   @Transaction
   private void deleteInTransaction()
   {
-    String[] hierarchies = TermUtil.getAllParentRelationships(this.universal.getOid());
+    List<ServerHierarchyType> hierarchies = this.getHierarchies(false);
 
-    for (String hierarchy : hierarchies)
+    if (hierarchies.size() > 0)
     {
-      OIterator<com.runwaysdk.business.ontology.Term> it = this.universal.getDirectDescendants(hierarchy);
-
-      try
-      {
-        if (it.hasNext())
-        {
-          throw new CannotDeleteGeoObjectTypeWithChildren("Cannot delete a GeoObjectType with children");
-        }
-      }
-      finally
-      {
-        it.close();
-      }
+      throw new CannotDeleteGeoObjectTypeWithChildren("Cannot delete a GeoObjectType with children");
     }
+
+    // for (String hierarchy : hierarchies)
+    // {
+    // OIterator<com.runwaysdk.business.ontology.Term> it =
+    // this.universal.getDirectDescendants(hierarchy);
+    //
+    // try
+    // {
+    // if (it.hasNext())
+    // {
+    // }
+    // }
+    // finally
+    // {
+    // it.close();
+    // }
+    // }
 
     /*
      * Delete all inherited hierarchies
@@ -700,6 +705,11 @@ public class ServerGeoObjectType
 
   public List<ServerHierarchyType> getHierarchies()
   {
+    return getHierarchies(true);
+  }
+
+  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone)
+  {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
     List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
@@ -709,7 +719,7 @@ public class ServerGeoObjectType
     {
       Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-      if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
+      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
@@ -732,7 +742,7 @@ public class ServerGeoObjectType
 
     }
 
-    if (hierarchies.size() == 0)
+    if (includeAllHierarchiesIfNone && hierarchies.size() == 0)
     {
       /*
        * This is a root type so include all hierarchies

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -61,6 +62,7 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
@@ -1619,7 +1621,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       return new Pair<Date, Date>(startDate, endDate);
     }
-    
+
     return null;
   }
 
@@ -1636,5 +1638,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     Long result = query.getSingleResult();
 
     return ( result != null && result > 0 );
+  }
+
+  public static void removeAllEdges(ServerHierarchyType hierarchyType, ServerGeoObjectType childType)
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("DELETE EDGE " + hierarchyType.getMdEdge().getDBClassName());
+    statement.append(" WHERE in.@class = :class");
+    statement.append(" OR out.@class = :class");
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("class", childType.getMdVertex().getDBClassName());
+
+    GraphDBService service = GraphDBService.getInstance();
+    service.command(service.getGraphDBRequest(), statement.toString(), parameters);
   }
 }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -43,8 +43,12 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.constants.IndexTypes;
+import com.runwaysdk.constants.MdAttributeCharacterInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
+import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -53,6 +57,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
+import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
@@ -478,6 +483,11 @@ public class MasterList extends MasterListBase
   @Transaction
   public MasterListVersion getOrCreateVersion(Date forDate, String versionType)
   {
+    if (!this.isValid())
+    {
+      throw new InvalidMasterListException();
+    }
+
     MasterListVersionQuery query = new MasterListVersionQuery(new QueryFactory());
     query.WHERE(query.getMasterlist().EQ(this));
     query.AND(query.getForDate().EQ(forDate));
@@ -497,6 +507,11 @@ public class MasterList extends MasterListBase
   @Transaction
   public void publishFrequencyVersions()
   {
+    if (!this.isValid())
+    {
+      throw new InvalidMasterListException();
+    }
+
     try
     {
       Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
@@ -693,6 +708,41 @@ public class MasterList extends MasterListBase
     return true;
   }
 
+  public void markAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
+  {
+    boolean isValid = true;
+
+    JsonArray hierarchies = this.getHierarchiesAsJson();
+    ServerGeoObjectType masterlistType = this.getGeoObjectType();
+
+    for (int i = 0; i < hierarchies.size(); i++)
+    {
+      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
+      String hCode = hierarchy.get("code").getAsString();
+      if (hCode.equals(hierarchyType.getCode()))
+      {
+        List<String> pCodes = this.getParentCodes(hierarchy);
+
+        if (pCodes.contains(type.getCode()) || type.getCode().equals(masterlistType.getCode()))
+        {
+          isValid = false;
+        }
+      }
+    }
+
+    if (!isValid)
+    {
+      this.appLock();
+      this.setValid(false);
+      this.apply();
+    }
+  }
+
+  public boolean isValid()
+  {
+    return ( this.getValid() == null || this.getValid() );
+  }
+
   @Transaction
   public static MasterList create(JsonObject object)
   {
@@ -863,4 +913,20 @@ public class MasterList extends MasterListBase
     return response;
   }
 
+  @Transaction
+  public static void markAllAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
+  {
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.WHERE(query.getValid().EQ((Boolean) null));
+    query.OR(query.getValid().EQ(true));
+
+    try (OIterator<? extends MasterList> iterator = query.getIterator())
+    {
+      while (iterator.hasNext())
+      {
+        MasterList masterlist = iterator.next();
+        masterlist.markAsInvalid(hierarchyType, type);
+      }
+    }
+  }
 }
