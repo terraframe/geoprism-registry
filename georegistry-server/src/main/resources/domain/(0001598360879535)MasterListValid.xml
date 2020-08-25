@@ -9,6 +9,10 @@
                    label="Type In Use Exception" 
                    message="Cannot delete the GeoObjectType because it is being used in a hierarchy">
       </mdException>
+      <mdException name="net.geoprism.registry.HierarchyRootException" 
+                   label="Non root exception" 
+                   message="Only the root node of a hierarchy can inherit another hierarchy">
+      </mdException>
     </create>
   
     <update>
@@ -23,6 +27,7 @@
   </doIt>
   <undoIt>
     <delete>
+      <object key="net.geoprism.registry.HierarchyRootException" type="com.runwaysdk.system.metadata.MdException"></object>
       <object key="net.geoprism.registry.TypeInUseException" type="com.runwaysdk.system.metadata.MdException"></object>
       <object key="net.geoprism.registry.InvalidMasterListException" type="com.runwaysdk.system.metadata.MdException"></object>
       <object key="net.geoprism.registry.MasterList.valid" type="com.runwaysdk.system.metadata.MdAttribute"></object>
