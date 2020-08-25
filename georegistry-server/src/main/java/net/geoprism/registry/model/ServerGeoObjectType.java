@@ -72,15 +72,14 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
@@ -244,7 +243,7 @@ public class ServerGeoObjectType
 
     if (hierarchies.size() > 0)
     {
-      throw new CannotDeleteGeoObjectTypeWithChildren("Cannot delete a GeoObjectType with children");
+      throw new TypeInUseException("Cannot delete a GeoObjectType with children");
     }
 
     // for (String hierarchy : hierarchies)

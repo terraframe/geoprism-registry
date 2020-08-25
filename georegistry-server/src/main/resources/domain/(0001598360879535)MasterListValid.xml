@@ -1,0 +1,31 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.InvalidMasterListException" 
+                   label="Invalid Master List Exception" 
+                   message="The master list can not be republished because the hierarchy has changed">
+      </mdException>
+      <mdException name="net.geoprism.registry.TypeInUseException" 
+                   label="Type In Use Exception" 
+                   message="Cannot delete the GeoObjectType because it is being used in a hierarchy">
+      </mdException>
+    </create>
+  
+    <update>
+      <mdBusiness name="net.geoprism.registry.MasterList">
+        <create>
+        <attributes>
+          <boolean name="valid" label="Valid" />
+        </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.TypeInUseException" type="com.runwaysdk.system.metadata.MdException"></object>
+      <object key="net.geoprism.registry.InvalidMasterListException" type="com.runwaysdk.system.metadata.MdException"></object>
+      <object key="net.geoprism.registry.MasterList.valid" type="com.runwaysdk.system.metadata.MdAttribute"></object>
+    </delete>
+  </undoIt>
+</version>
