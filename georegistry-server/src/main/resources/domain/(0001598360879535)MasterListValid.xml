@@ -1,6 +1,5 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-  <!-- 
     <create>
       <mdException name="net.geoprism.registry.InvalidMasterListException" 
                    label="Invalid Master List Exception" 
@@ -25,7 +24,6 @@
         </create>
       </mdBusiness>
     </update>
-   -->
   </doIt>
   <undoIt>
     <delete>
