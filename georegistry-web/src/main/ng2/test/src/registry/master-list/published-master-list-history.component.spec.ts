@@ -15,7 +15,7 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RegistryService, IOService } from "@registry/service";
 import { PublishedMasterListHistoryComponent } from "@registry/component/master-list/published-master-list-history.component";
 import { MasterListComponent } from "@registry/component/master-list/master-list.component";
-import { MASTER_LIST, MASTER_LIST_VERSION, PAGINATION_PAGE } from "../mocks";
+import { MASTER_LIST, MASTER_LIST_VERSION, PAGINATION_PAGE, MOCK_SOCKET } from "../mocks";
 
 describe("PublishedMasterListHistoryComponent", () => {
 	let component: PublishedMasterListHistoryComponent;
@@ -59,6 +59,8 @@ describe("PublishedMasterListHistoryComponent", () => {
 	}));
 
 	beforeEach(() => {
+		spyOn(window, 'WebSocket').and.returnValue(MOCK_SOCKET);
+		
 		TestBed.inject(EventService);
 		TestBed.inject(AuthService).isAdmin = jasmine.createSpy().and.returnValue(true);
 		TestBed.inject(ProfileService);

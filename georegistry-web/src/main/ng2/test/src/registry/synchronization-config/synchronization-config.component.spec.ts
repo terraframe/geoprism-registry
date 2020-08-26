@@ -12,7 +12,7 @@ import { MOCK_HTTP_ERROR_RESPONSE, PAGE } from "@test/shared/mocks";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { SynchronizationConfigService } from "@registry/service";
 import { ActivatedRoute } from "@angular/router";
-import { SYNCH_CONFIG, EXPORT_JOB } from "../mocks";
+import { SYNCH_CONFIG, EXPORT_JOB, MOCK_SOCKET } from "../mocks";
 
 describe("SynchronizationConfigComponent", () => {
 	let component: SynchronizationConfigComponent;
@@ -47,6 +47,8 @@ describe("SynchronizationConfigComponent", () => {
 	}));
 
 	beforeEach(() => {
+		spyOn(window, 'WebSocket').and.returnValue(MOCK_SOCKET);
+		
 		TestBed.inject(EventService);
 		TestBed.inject(AuthService).isAdmin = jasmine.createSpy().and.returnValue(true);
 		TestBed.inject(ProfileService);
@@ -75,7 +77,7 @@ describe("SynchronizationConfigComponent", () => {
 
 	it(`Error`, async(() => {
 		component.error(MOCK_HTTP_ERROR_RESPONSE);
-		
+
 		expect(component.message).toBeTruthy();
 	}));
 
@@ -116,7 +118,7 @@ describe("SynchronizationConfigComponent", () => {
 
 		expect(component.page.pageNumber).toEqual(2);
 	}));
-	
+
 	it('Test onPageChange', fakeAsync(() => {
 		component.config = SYNCH_CONFIG;
 
