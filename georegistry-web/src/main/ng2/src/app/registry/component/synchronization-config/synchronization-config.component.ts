@@ -1,7 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription, interval } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { PageResult } from '@shared/model/core'
 import { LocalizationService } from '@shared/service';
@@ -29,7 +29,7 @@ export class SynchronizationConfigComponent implements OnInit {
 		resultSet: []
 	};
 
-	pollingData: Subscription;
+	notifier: WebSocketSubject<{ type: string, content: any }>;
 
 	constructor(private service: SynchronizationConfigService, private lService: LocalizationService, private route: ActivatedRoute) { }
 
@@ -41,15 +41,20 @@ export class SynchronizationConfigComponent implements OnInit {
 			this.onPageChange(1);
 		});
 
-		this.pollingData = interval(10000).subscribe(() => {
-			this.onPageChange(this.page.pageNumber);
+		let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
+
+		this.notifier = webSocket(baseUrl + '/websocket/notify');
+		this.notifier.subscribe(message => {
+			if (message.type === 'DATA_EXPORT_JOB_CHANGE') {
+				this.onPageChange(this.page.pageNumber);
+			}
 		});
 	}
 
 	ngOnDestroy() {
 
-		if (this.pollingData != null) {
-			this.pollingData.unsubscribe();
+		if (this.notifier != null) {
+			this.notifier.complete();
 		}
 	}
 

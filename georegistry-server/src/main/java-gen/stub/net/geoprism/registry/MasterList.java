@@ -68,6 +68,11 @@ import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationEndpoint;
+import net.geoprism.registry.ws.NotificationFacade;
+import net.geoprism.registry.ws.UserNotificationMessage;
 
 public class MasterList extends MasterListBase
 {
@@ -511,6 +516,8 @@ public class MasterList extends MasterListBase
     {
       throw new InvalidMasterListException();
     }
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
 
     try
     {

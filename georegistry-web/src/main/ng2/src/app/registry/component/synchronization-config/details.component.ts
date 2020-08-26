@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { interval } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { LocalizationService, AuthService } from '@shared/service';
+import { AuthService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
-import { ModalTypes } from '@shared/model/modal';
 
 import { RegistryService, IOService } from '@registry/service';
 import { ScheduledJob } from '@registry/model/registry';
@@ -31,9 +29,7 @@ export class SyncDetailsComponent implements OnInit {
   isMaintainer: boolean;
   isContributor: boolean;
 
-  constructor(public service: RegistryService,
-    private router: Router, private route: ActivatedRoute,
-    private localizeService: LocalizationService, authService: AuthService, public ioService: IOService) {
+  constructor(public service: RegistryService, private route: ActivatedRoute, authService: AuthService, public ioService: IOService) {
     this.isAdmin = authService.isAdmin();
     this.isMaintainer = this.isAdmin || authService.isMaintainer();
     this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();

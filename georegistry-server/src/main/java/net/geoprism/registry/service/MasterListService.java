@@ -57,6 +57,9 @@ import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class MasterListService
 {
@@ -155,6 +158,8 @@ public class MasterListService
     job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
     job.setMasterList(masterList);
     job.apply();
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
 
     final JobHistory history = job.start();
     return history.getOid();

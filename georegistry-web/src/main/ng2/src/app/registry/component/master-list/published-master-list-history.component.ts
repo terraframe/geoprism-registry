@@ -2,7 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subscription, interval } from 'rxjs';
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PublishModalComponent } from './publish-modal.component';
@@ -36,7 +37,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
     */
 	bsModalRef: BsModalRef;
 
-	pollingData: Subscription;
+	notifier: WebSocketSubject<{ type: string, content: any }>;
 
 	isAdmin: boolean;
 	isSRA: boolean;
@@ -55,13 +56,18 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 			this.onPageChange(1);
 		});
 
-		this.pollingData = interval(5000).subscribe(() => {
-			this.onPageChange(this.page.pageNumber);
+		let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
+
+		this.notifier = webSocket(baseUrl + '/websocket/notify');
+		this.notifier.subscribe(message => {
+			if (message.type === 'PUBLISH_JOB_CHANGE') {
+				this.onPageChange(this.page.pageNumber);
+			}
 		});
 	}
 
 	ngOnDestroy() {
-		this.pollingData.unsubscribe();
+		this.notifier.complete();
 	}
 
 	//isGeoObjectTypeRM(type: string): boolean {
