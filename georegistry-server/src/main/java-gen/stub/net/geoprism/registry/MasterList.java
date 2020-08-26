@@ -719,7 +719,9 @@ public class MasterList extends MasterListBase
     {
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
       String hCode = hierarchy.get("code").getAsString();
-      if (hCode.equals(hierarchyType.getCode()))
+      ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ServerHierarchyType.get(hCode), type);
+
+      if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
       {
         List<String> pCodes = this.getParentCodes(hierarchy);
 
