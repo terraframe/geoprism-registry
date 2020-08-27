@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -50285354)
+@com.runwaysdk.business.ClassSignature(hash = 534374939)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -637,6 +637,23 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.MasterList.USECONSTRAINTS, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableBoolean getValid()
+  {
+    return getValid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getValid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.MasterList.VALID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.MasterList.VALID, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getVisibility()
   {
     return getVisibility(null);
@@ -848,6 +865,9 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getUseConstraints();
     public com.runwaysdk.query.SelectableChar getUseConstraints(String alias);
     public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getValid();
+    public com.runwaysdk.query.SelectableBoolean getValid(String alias);
+    public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getVisibility();
     public com.runwaysdk.query.SelectableChar getVisibility(String alias);
     public com.runwaysdk.query.SelectableChar getVisibility(String alias, String displayLabel);
@@ -1413,6 +1433,23 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.USECONSTRAINTS, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableBoolean getValid()
+  {
+    return getValid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getValid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.MasterList.VALID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.MasterList.VALID, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getVisibility()
   {
     return getVisibility(null);
@@ -1601,6 +1638,9 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getUseConstraints();
     public com.runwaysdk.query.SelectableChar getUseConstraints(String alias);
     public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getValid();
+    public com.runwaysdk.query.SelectableBoolean getValid(String alias);
+    public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getVisibility();
     public com.runwaysdk.query.SelectableChar getVisibility(String alias);
     public com.runwaysdk.query.SelectableChar getVisibility(String alias, String displayLabel);
@@ -2213,6 +2253,23 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.USECONSTRAINTS, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableBoolean getValid()
+  {
+    return getValid(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getValid(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.MasterList.VALID, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getValid(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.MasterList.VALID, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getVisibility()

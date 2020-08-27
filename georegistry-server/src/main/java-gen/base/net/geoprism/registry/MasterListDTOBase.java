@@ -18,11 +18,11 @@
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1087943009)
+@com.runwaysdk.business.ClassSignature(hash = -2029046236)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = -1087943009;
+  private static final long serialVersionUID = -2029046236;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -76,6 +76,7 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
+  public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
   public String getAccessConstraints()
   {
@@ -1111,6 +1112,43 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getUseConstraintsMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(USECONSTRAINTS).getAttributeMdDTO();
+  }
+  
+  public Boolean getValid()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(VALID));
+  }
+  
+  public void setValid(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(VALID, "");
+    }
+    else
+    {
+      setValue(VALID, java.lang.Boolean.toString(value));
+    }
+  }
+  
+  public boolean isValidWritable()
+  {
+    return isWritable(VALID);
+  }
+  
+  public boolean isValidReadable()
+  {
+    return isReadable(VALID);
+  }
+  
+  public boolean isValidModified()
+  {
+    return isModified(VALID);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeBooleanMdDTO getValidMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeBooleanMdDTO) getAttributeDTO(VALID).getAttributeMdDTO();
   }
   
   public String getVisibility()

@@ -1,0 +1,56 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.InvalidMasterListException" 
+                   label="Invalid Master List Exception" 
+                   message="The master list can not be republished because the hierarchy has changed">
+      </mdException>
+      <mdException name="net.geoprism.registry.TypeInUseException" 
+                   label="Type In Use Exception" 
+                   message="Cannot delete the GeoObjectType because it is being used in a hierarchy">
+      </mdException>
+      <mdException name="net.geoprism.registry.HierarchyRootException" 
+                   label="Non root exception" 
+                   message="Only the root node of a hierarchy can inherit another hierarchy">
+      </mdException>
+    </create>
+  
+    <update>
+      <mdBusiness name="net.geoprism.registry.MasterList">
+        <create>
+        <attributes>
+          <boolean name="valid" label="Valid" />
+        </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.HierarchyRootException" type="com.runwaysdk.system.metadata.MdException"></object>
+      <object key="net.geoprism.registry.TypeInUseException" type="com.runwaysdk.system.metadata.MdException"></object>
+      <object key="net.geoprism.registry.InvalidMasterListException" type="com.runwaysdk.system.metadata.MdException"></object>
+      <object key="net.geoprism.registry.MasterList.valid" type="com.runwaysdk.system.metadata.MdAttribute"></object>
+    </delete>
+  </undoIt>
+</version>

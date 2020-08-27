@@ -85,7 +85,6 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
@@ -100,7 +99,7 @@ public class RegistryService
 
   protected RegistryService()
   {
-    this.service = new ServerGeoObjectService(new GeoObjectPermissionService());
+    this.service = new ServerGeoObjectService();
   }
 
   public static RegistryService getInstance()

@@ -58,6 +58,7 @@ import com.runwaysdk.system.ontology.TermUtil;
 import net.geoprism.registry.AttributeHierarchy;
 import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
@@ -65,6 +66,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
@@ -418,16 +420,16 @@ public class ServerHierarchyType
 
     ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
-    ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+    ServerGeoObjectService service = new ServerGeoObjectService();
 
-    boolean hasData = service.hasData(this, childType);
-
-    if (hasData)
-    {
-      GeoObjectTypeHasDataException ex = new GeoObjectTypeHasDataException();
-      ex.setName(childType.getLabel().getValue());
-      throw ex;
-    }
+//    boolean hasData = service.hasData(this, childType);
+//
+//    if (hasData)
+//    {
+//      GeoObjectTypeHasDataException ex = new GeoObjectTypeHasDataException();
+//      ex.setName(childType.getLabel().getValue());
+//      throw ex;
+//    }
 
     // Universal child = childType.getUniversal();
     Universal parent = null;
@@ -441,31 +443,25 @@ public class ServerHierarchyType
       parent = Universal.getRoot();
     }
 
-    removeAllChildrenFromHierarchy(parent, this.universalRelationship);
+    // Migrate children to parent
+    Universal cUniversal = childType.getUniversal();
 
-    // if (hasData)
-    // {
-    // child.enforceValidRemoveLink(parent,
-    // this.universalRelationship.definesType());
-    // }
-    //
-    // if (child.getIsLeafType())
-    // {
-    // this.removeParentReferenceToLeafType(parent, child);
-    // }
-  }
+    TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(cUniversal.getOid(), new String[] { this.universalRelationship.definesType() });
 
-  private static void removeAllChildrenFromHierarchy(Universal parent, MdTermRelationship mdTermRelationship)
-  {
-    TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(parent.getOid(), new String[] { mdTermRelationship.definesType() });
+    removeLink(parent, cUniversal, this.universalRelationship.definesType());
+
     for (TermAndRel tnrChild : tnrChildren)
     {
       Universal child = (Universal) tnrChild.getTerm();
 
-      removeAllChildrenFromHierarchy(child, mdTermRelationship);
+      removeLink(cUniversal, child, this.universalRelationship.definesType());
 
-      removeLink(parent, child, mdTermRelationship.definesType());
+      child.addLink(parent, this.universalRelationship.definesType());
     }
+
+    service.removeAllEdges(this, childType);
+    
+    MasterList.markAllAsInvalid(this, childType);
   }
 
   private static void removeLink(Universal parent, Universal child, String relationshipType)

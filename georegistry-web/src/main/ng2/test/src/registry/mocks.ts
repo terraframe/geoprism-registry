@@ -179,3 +179,7 @@ export function PAGINATION_PAGE(value: any, pageNumber?: number): PaginationPage
 	};
 }
 
+export const MOCK_SOCKET: WebSocket = {
+	send: function(){},
+} as any;
+

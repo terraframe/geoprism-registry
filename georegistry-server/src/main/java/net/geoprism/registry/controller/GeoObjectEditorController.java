@@ -130,7 +130,7 @@ public class GeoObjectEditorController
     }
     else
     {
-      ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+      ServerGeoObjectService service = new ServerGeoObjectService();
 
       GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
 
@@ -167,7 +167,7 @@ public class GeoObjectEditorController
 
   private boolean hasChanged(GeoObjectOverTime timeGO, String sPtn)
   {
-    ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+    ServerGeoObjectService service = new ServerGeoObjectService();
     ServerGeoObjectIF sGO = service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
 
     ServerParentTreeNodeOverTime sPto = ServerParentTreeNodeOverTime.fromJSON(sGO.getType(), sPtn);

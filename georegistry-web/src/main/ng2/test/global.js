@@ -1,4 +1,4 @@
-window.acp = 'https://localhost:8443/dev';
+window.acp = '/dev';
 window.Globalize = {
 	numberParser : function() {
 		return 0;

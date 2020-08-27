@@ -18,14 +18,8 @@
  */
 package net.geoprism.registry.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -35,8 +29,6 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.constants.ComponentInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
@@ -45,17 +37,13 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.ChangeFrequency;
-import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.TileCache;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
-import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class MasterListInheritedHierarchyTest
@@ -156,6 +144,26 @@ public class MasterListInheritedHierarchyTest
     finally
     {
       test.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testMarkAsInvalidByInheritedParent()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, USATestData.DISTRICT, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
+
+      Assert.assertFalse(masterlist.isValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
     }
   }
 

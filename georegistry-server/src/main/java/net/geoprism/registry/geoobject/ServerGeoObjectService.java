@@ -45,6 +45,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
@@ -55,6 +56,11 @@ import net.geoprism.registry.view.GeoObjectSplitView;
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
   private GeoObjectPermissionServiceIF permissionService;
+
+  public ServerGeoObjectService()
+  {
+    this(new GeoObjectPermissionService());
+  }
 
   public ServerGeoObjectService(GeoObjectPermissionServiceIF permissionService)
   {
@@ -314,6 +320,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public boolean hasData(ServerHierarchyType serverHierarchyType, ServerGeoObjectType childType)
   {
     return VertexServerGeoObject.hasData(serverHierarchyType, childType);
+  }
+
+  public void removeAllEdges(ServerHierarchyType hierarchyType, ServerGeoObjectType childType)
+  {
+    VertexServerGeoObject.removeAllEdges(hierarchyType, childType);
   }
 
 }

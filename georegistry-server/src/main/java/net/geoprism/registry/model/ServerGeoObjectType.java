@@ -72,15 +72,14 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
@@ -240,24 +239,29 @@ public class ServerGeoObjectType
   @Transaction
   private void deleteInTransaction()
   {
-    String[] hierarchies = TermUtil.getAllParentRelationships(this.universal.getOid());
+    List<ServerHierarchyType> hierarchies = this.getHierarchies(false);
 
-    for (String hierarchy : hierarchies)
+    if (hierarchies.size() > 0)
     {
-      OIterator<com.runwaysdk.business.ontology.Term> it = this.universal.getDirectDescendants(hierarchy);
-
-      try
-      {
-        if (it.hasNext())
-        {
-          throw new CannotDeleteGeoObjectTypeWithChildren("Cannot delete a GeoObjectType with children");
-        }
-      }
-      finally
-      {
-        it.close();
-      }
+      throw new TypeInUseException("Cannot delete a GeoObjectType with children");
     }
+
+    // for (String hierarchy : hierarchies)
+    // {
+    // OIterator<com.runwaysdk.business.ontology.Term> it =
+    // this.universal.getDirectDescendants(hierarchy);
+    //
+    // try
+    // {
+    // if (it.hasNext())
+    // {
+    // }
+    // }
+    // finally
+    // {
+    // it.close();
+    // }
+    // }
 
     /*
      * Delete all inherited hierarchies
@@ -700,6 +704,11 @@ public class ServerGeoObjectType
 
   public List<ServerHierarchyType> getHierarchies()
   {
+    return getHierarchies(true);
+  }
+
+  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone)
+  {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
     List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
@@ -709,7 +718,7 @@ public class ServerGeoObjectType
     {
       Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-      if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
+      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
@@ -732,7 +741,7 @@ public class ServerGeoObjectType
 
     }
 
-    if (hierarchies.size() == 0)
+    if (includeAllHierarchiesIfNone && hierarchies.size() == 0)
     {
       /*
        * This is a root type so include all hierarchies

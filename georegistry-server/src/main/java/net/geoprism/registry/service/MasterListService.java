@@ -41,6 +41,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
@@ -56,6 +57,9 @@ import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class MasterListService
 {
@@ -105,6 +109,11 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
+    if (!masterList.isValid())
+    {
+      throw new InvalidMasterListException();
+    }
+
     this.enforceWritePermissions(masterList);
 
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
@@ -150,6 +159,8 @@ public class MasterListService
     job.setMasterList(masterList);
     job.apply();
 
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
     final JobHistory history = job.start();
     return history.getOid();
   }
@@ -189,7 +200,9 @@ public class MasterListService
   {
     MasterListVersion version = MasterListVersion.get(oid);
 
-    this.enforceWritePermissions(version.getMasterlist());
+    MasterList masterlist = version.getMasterlist();
+
+    this.enforceWritePermissions(masterlist);
 
     return version.publish();
   }

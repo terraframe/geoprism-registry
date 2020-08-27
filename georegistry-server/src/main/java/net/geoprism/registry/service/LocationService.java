@@ -60,7 +60,7 @@ import net.geoprism.registry.view.LocationInformation;
 
 public class LocationService
 {
-  private ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+  private ServerGeoObjectService service = new ServerGeoObjectService();
 
   @Request(RequestType.SESSION)
   public JSONObject addParentInfoToExistingGO(String sessionId, GeoObject child)

@@ -670,10 +670,15 @@ public class MasterListVersion extends MasterListVersionBase
 
     try
     {
+      MasterList masterlist = this.getMasterlist();
+
+      if (!masterlist.isValid())
+      {
+        throw new InvalidMasterListException();
+      }
+
       // Delete tile cache
       TileCache.deleteTiles(this);
-
-      MasterList masterlist = this.getMasterlist();
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
       mdBusiness.deleteAllRecords();

@@ -48,6 +48,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.ChangeFrequency;
+import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
@@ -353,6 +354,29 @@ public class MasterListTest
     }
   }
 
+  @Test(expected = InvalidMasterListException.class)
+  @Request
+  public void testPublishInvalidVersion()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+
+    MasterList test = MasterList.create(json);
+
+    try
+    {
+      test.appLock();
+      test.setValid(false);
+      test.apply();
+
+      MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+      version.delete();
+    }
+    finally
+    {
+      test.delete();
+    }
+  }
+
   @Test
   public void testCreatePublishedVersions()
   {
@@ -591,6 +615,108 @@ public class MasterListTest
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
     Assert.assertEquals(11, dates.size());
+  }
+
+  @Test
+  @Request
+  public void testMarkAsInvalidByParent()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
+
+      Assert.assertFalse(masterlist.getValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testMarkAsInvalidByDirectType()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.DISTRICT.getServerObject());
+
+      Assert.assertFalse(masterlist.getValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testFailMarkAsInvalidByType()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.COUNTY.getServerObject());
+
+      Assert.assertTrue(masterlist.isValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testFailMarkAsInvalidByHierarchy()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_SCHOOL.getServerObject(), USATestData.DISTRICT.getServerObject());
+
+      Assert.assertTrue(masterlist.isValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testMarkAllAsInvalid()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      MasterList.markAllAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
+
+      MasterList test = MasterList.get(masterlist.getOid());
+
+      Assert.assertFalse(test.getValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
   }
 
   @Request

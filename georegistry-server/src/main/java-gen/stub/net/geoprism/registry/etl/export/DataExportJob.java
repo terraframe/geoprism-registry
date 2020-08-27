@@ -78,6 +78,9 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 /**
  * This class is currently hardcoded to DHIS2 export, however the metadata is attempting to be generic enough
@@ -209,6 +212,14 @@ public class DataExportJob extends DataExportJobBase
 
     this.doExport();
   }
+  
+  @Override
+  public void afterJobExecute(JobHistory history)
+  {
+    super.afterJobExecute(history);
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+  }
 
   private void setStage(ExportHistory history, ExportStage stage)
   {
@@ -216,6 +227,8 @@ public class DataExportJob extends DataExportJobBase
     history.clearStage();
     history.addStage(stage);
     history.apply();
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
   }
 
   private long getCount(ServerGeoObjectType got)
@@ -402,6 +415,8 @@ public class DataExportJob extends DataExportJobBase
         }
 
         skip += pageSize;
+        
+        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
       }
     }
     
@@ -413,6 +428,8 @@ public class DataExportJob extends DataExportJobBase
     history.addStage(ExportStage.COMPLETE);
     this.history.apply();
     
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
     query.WHERE(query.getHistory().EQ(this.history));
     Boolean hasErrors = query.getCount() > 0;
@@ -622,6 +639,8 @@ public class DataExportJob extends DataExportJobBase
     history.addStatus(AllJobStatus.NEW);
     history.addStage(ExportStage.CONNECTING);
     history.apply();
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
 
     return history;
   }
