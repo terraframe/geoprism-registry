@@ -82,7 +82,7 @@ public class GeoObjectOverTimeServiceTest
   public void testGetGeoObjectOverTime()
   {
     // Allowed Users
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -93,31 +93,31 @@ public class GeoObjectOverTimeServiceTest
       });
     }
     
-    // Disallowed Users
-    TestUserInfo[] disllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA };
-
-    for (TestUserInfo user : disllowedUsers)
-    {
-      try
-      {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
-          adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
-
-          Assert.fail();
-        });
-      }
-      catch (SmartExceptionDTO e)
-      {
-        // Expected
-      }
-    }
+//    // Disallowed Users
+//    TestUserInfo[] disllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA };
+//
+//    for (TestUserInfo user : disllowedUsers)
+//    {
+//      try
+//      {
+//        FastTestDataset.runAsUser(user, (request, adapter) -> {
+//          adapter.getGeoObject(FastTestDataset.CAMBODIA.getRegistryId(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+//
+//          Assert.fail();
+//        });
+//      }
+//      catch (SmartExceptionDTO e)
+//      {
+//        // Expected
+//      }
+//    }
   }
   
   @Test
   public void testGetGeoObjectOverTimeByCode()
   {
     // Allowed Users
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -130,23 +130,23 @@ public class GeoObjectOverTimeServiceTest
     }
     
     // Disallowed Users
-    TestUserInfo[] disllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA };
-
-    for (TestUserInfo user : disllowedUsers)
-    {
-      try
-      {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
-          adapter.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
-
-          Assert.fail();
-        });
-      }
-      catch (SmartExceptionDTO e)
-      {
-        // This is expected
-      }
-    }
+//    TestUserInfo[] disllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA };
+//
+//    for (TestUserInfo user : disllowedUsers)
+//    {
+//      try
+//      {
+//        FastTestDataset.runAsUser(user, (request, adapter) -> {
+//          adapter.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+//
+//          Assert.fail();
+//        });
+//      }
+//      catch (SmartExceptionDTO e)
+//      {
+//        // This is expected
+//      }
+//    }
   }
 
   @Test
