@@ -230,16 +230,23 @@ public class DHIS2GeoObjectJsonAdapters
         {
           continue;
         }
-
+        
         if (this.syncLevel.hasAttribute(attr.getName()))
         {
+          Object value = serverGo.getValue(attr.getName());
+          
+          if (value == null || (value instanceof String && ((String)value).length() == 0))
+          {
+            continue;
+          }
+          
           DHIS2AttributeMapping attrMapping = this.syncLevel.getAttribute(attr.getName());
 
           if (attrMapping.isOrgUnitGroup())
           {
             if (attr instanceof AttributeTermType)
             {
-              Classifier classy = (Classifier) serverGo.getValue(attr.getName());
+              Classifier classy = (Classifier) value;
 
               String orgUnitGroupId = attrMapping.getTermMapping(classy.getClassifierId());
 
@@ -274,23 +281,23 @@ public class DHIS2GeoObjectJsonAdapters
 
             if (attr instanceof AttributeBooleanType)
             {
-              av.addProperty("value", (Boolean) serverGo.getValue(attr.getName()));
+              av.addProperty("value", (Boolean) value);
             }
             else if (attr instanceof AttributeIntegerType)
             {
-              av.addProperty("value", (Long) serverGo.getValue(attr.getName()));
+              av.addProperty("value", (Long) value);
             }
             else if (attr instanceof AttributeFloatType)
             {
-              av.addProperty("value", (Double) serverGo.getValue(attr.getName()));
+              av.addProperty("value", (Double) value);
             }
             else if (attr instanceof AttributeDateType)
             {
-              av.addProperty("value", formatDate((Date) serverGo.getValue(attr.getName())));
+              av.addProperty("value", formatDate((Date) value));
             }
             else if (attr instanceof AttributeTermType)
             {
-              Classifier classy = (Classifier) serverGo.getValue(attr.getName());
+              Classifier classy = (Classifier) value;
 
               String mapping = attrMapping.getTermMapping(classy.getClassifierId());
 
@@ -305,7 +312,7 @@ public class DHIS2GeoObjectJsonAdapters
             }
             else
             {
-              av.addProperty("value", String.valueOf(serverGo.getValue(attr.getName())));
+              av.addProperty("value", String.valueOf(value));
             }
 
             JsonObject joAttr = new JsonObject();
