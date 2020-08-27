@@ -6,75 +6,114 @@
   <div id="app-container" class="container-fluid">
   
   <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+  
+    <nav class="hierarchy-sidebar">
+      <div class="sidebar-section">
+			  <div class="sidebar-section-content card">
+			    <div class="card-header" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+			      <h5 class="sidebar-section-header mb-0">
+			        <i style="color:white;" class="fa fa-sitemap"></i>
+			        <a style="color:white;">
+			          GeoObject Types
+			        </a>
+			      </h5>
+			    </div>
+			
+			    <div id="collapseOne" class="sidebar-section-content collapse" aria-labelledby="headingOne" data-parent="#accordion">
+			      <div class="card-body">
+			        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+			      </div>
+			    </div>
+			  </div>
+			</div>
+			<div class="sidebar-section">
+			  <div class="sidebar-section-content card">
+			    <div class="card-header" class="collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+			      <h5 class="sidebar-section-header mb-0">
+			        <i style="color:white; margin-right:14px;" class="fa fa-circle"></i>
+			        <a style="color:white;">
+			          Hierarchies
+			        </a>
+			      </h5>
+			    </div>
+			    <div id="collapseTwo" class="sidebar-section-content collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+			      <div class="card-body">
+			        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+			      </div>
+			    </div>
+			  </div>
+			</div>
+    </nav>
     
-    <div class="row">
-      <div class="col-md-4">
-        <h3><localize key="hierarchy.types.management.panel.title"></localize></h3>
-        <hr>
-        <ul class="list-group">
-          <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
-          <li class="list-group-item" *ngFor="let type of geoObjectTypes">
-            {{type.label.localizedValue}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" style="font-size:15px;cursor:auto;margin-left:5px;" aria-hidden="true"></i> 
-            
-            <span *ngIf="isOrganizationRA(type.organizationCode)">
-              <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)" [title]="'button.delete.helptext' | localize"></i> 
-              <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type, false)" [title]="'button.edit.helptext' | localize"></i> 
-            </span>
-            
-            <span *ngIf="!isOrganizationRA(type.organizationCode)">
-              <i class="fa fa-eye clickable pull-right" (click)="manageGeoObjectType(type, true)" [title]="'button.view.helptext' | localize"> </i> 
-            </span>
-          </li>
-        </ul>
-        
-        <div>
-          <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="createGeoObjectType()"><localize key="hierarchy.management.button.create"></localize></button>
-        </div>
-        
-      </div>
-    
-    
-      <div class="col-md-4">
-        <h3><localize key="hierarchy.management.panel.title"></localize></h3>
-        <hr>
-        <ul class="list-group">
-          <li *ngFor="let hierarchy of hierarchies;" class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
-            <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
-
-            <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
-              <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)" [title]="'button.delete.helptext' | localize"></i> 
-              <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy, false)" [title]="'button.edit.helptext' | localize"> </i>            
-            </span>
-            
-            <span *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
-              <i class="fa fa-eye pull-right clickable" (click)="editHierarchyType(hierarchy, true)" [title]="'button.view.helptext' | localize"> </i>
-            </span>
-          </li>
-        </ul>
-        
-        <div>
-          <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="createHierarchy()"><localize key="hierarchy.management.button.create"></localize></button>
-        </div>
-      </div>
-      
-      <div class="col-md-4">
-        <h3> 
-            <localize key="hierarchy.current.management.panel.title"></localize> 
-            <span *ngIf="currentHierarchy"> {{currentHierarchy.label.localizedValue}}</span>
-        </h3>
-        <hr>
-        <div *ngIf="nodes.length > 0" class="tree">
-          <tree-root [nodes]="nodes" [options]="options"></tree-root>
-        </div>
-        <div *ngIf="currentHierarchy && nodes.length === 0">
-          <div>
-            <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="addChildAndRootToHierarchy()"><localize key="hierarchy.current.management.panel.button.add"></localize></button>
-          </div>
-        </div>
-      </div>
-            
+    <div class="hierarchy-content">
+	    <div class="row">
+	      <div class="col-md-4">
+	        <h3><localize key="hierarchy.types.management.panel.title"></localize></h3>
+	        <hr>
+	        <ul class="list-group">
+	          <!-- to filter out already assigned types use this pipe > geoobjecttype:nodes -->
+	          <li class="list-group-item" *ngFor="let type of geoObjectTypes">
+	            {{type.label.localizedValue}} <i *ngIf="type.isLeaf === 'true'" class="fa fa-leaf" style="font-size:15px;cursor:auto;margin-left:5px;" aria-hidden="true"></i> 
+	            
+	            <span *ngIf="isOrganizationRA(type.organizationCode)">
+	              <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)" [title]="'button.delete.helptext' | localize"></i> 
+	              <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type, false)" [title]="'button.edit.helptext' | localize"></i> 
+	            </span>
+	            
+	            <span *ngIf="!isOrganizationRA(type.organizationCode)">
+	              <i class="fa fa-eye clickable pull-right" (click)="manageGeoObjectType(type, true)" [title]="'button.view.helptext' | localize"> </i> 
+	            </span>
+	          </li>
+	        </ul>
+	        
+	        <div>
+	          <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="createGeoObjectType()"><localize key="hierarchy.management.button.create"></localize></button>
+	        </div>
+	        
+	      </div>
+	    
+	    
+	      <div class="col-md-4">
+	        <h3><localize key="hierarchy.management.panel.title"></localize></h3>
+	        <hr>
+	        <ul class="list-group">
+	          <li *ngFor="let hierarchy of hierarchies;" class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
+	            <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
+	
+	            <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
+	              <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)" [title]="'button.delete.helptext' | localize"></i> 
+	              <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy, false)" [title]="'button.edit.helptext' | localize"> </i>            
+	            </span>
+	            
+	            <span *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
+	              <i class="fa fa-eye pull-right clickable" (click)="editHierarchyType(hierarchy, true)" [title]="'button.view.helptext' | localize"> </i>
+	            </span>
+	          </li>
+	        </ul>
+	        
+	        <div>
+	          <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="createHierarchy()"><localize key="hierarchy.management.button.create"></localize></button>
+	        </div>
+	      </div>
+	      
+	      <div class="col-md-4">
+	        <h3> 
+	            <localize key="hierarchy.current.management.panel.title"></localize> 
+	            <span *ngIf="currentHierarchy"> {{currentHierarchy.label.localizedValue}}</span>
+	        </h3>
+	        <hr>
+	        <div *ngIf="nodes.length > 0" class="tree">
+	          <tree-root [nodes]="nodes" [options]="options"></tree-root>
+	        </div>
+	        <div *ngIf="currentHierarchy && nodes.length === 0">
+	          <div>
+	            <button type="submit" class="btn btn-primary" *ngIf="isRA()" (click)="addChildAndRootToHierarchy()"><localize key="hierarchy.current.management.panel.button.add"></localize></button>
+	          </div>
+	        </div>
+	      </div>
+	            
+	    </div>
     </div>
-    
   </div>
   
   <context-menu #nodeMenu>

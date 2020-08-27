@@ -47,6 +47,7 @@ export class HierarchyComponent implements OnInit {
 	hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
 	geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
 
+  _opened: boolean = false;
 
     /*
      * Reference to the modal current showing

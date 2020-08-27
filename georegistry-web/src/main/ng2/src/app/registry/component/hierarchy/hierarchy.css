@@ -1,3 +1,44 @@
 li.list-group-item.active {
     background: var(--theme-primary-color-light)
 }
+
+#app-container {
+    display: flex;
+    width: 100%;
+}
+
+.hierarchy-sidebar {
+    width: 17%;
+    position: fixed;
+    top: 144px;
+    left: 0;
+    height: 100vh;
+    z-index: 999;
+    background: #6e6775;
+    color: #fff;
+    transition: all 0.3s;
+}
+
+.hierarchy-content {
+	position:fixed;
+	width:90%;
+	top:144px;
+	left:17%;
+	margin-left:10px;
+}
+
+.sidebar-section {
+	background: #505050;
+	text-align: left;
+	padding-top:10px;
+  padding-bottom:10px;
+  color:#fff;
+}
+
+.sidebar-section-content {
+}
+
+.sidebar-section-header {
+	margin-left:20px;
+	cursor: pointer;
+}
