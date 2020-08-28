@@ -16,6 +16,10 @@
             </span>
             <localize key="hierarchy.sidebar.geoObjectTypes"></localize>
           </div>
+          <button (click)="createGeoObjectType()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
+            <i style="color:#369c00;" class="fa fa-plus"></i>
+					  <localize key="hierarchy.sidebar.newGeoObjectType"></localize>
+					</button>
           <div class="sidebar-section-content card">
             <ul class="list-group">
               <li class="list-group-item" *ngFor="let type of geoObjectTypes">
@@ -31,8 +35,25 @@
 	          </span>
 	          <localize key="hierarchy.sidebar.hierarchies"></localize>
 	        </div>
+	        <button (click)="createHierarchy()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
+	          <i style="color:#369c00;" class="fa fa-plus"></i>
+            <localize key="hierarchy.sidebar.newHierarchy"></localize>
+          </button>
 	        <div>
-            
+            <ul class="list-group">
+	            <li *ngFor="let hierarchy of hierarchies;" class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
+	              <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
+	  
+	              <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
+	                <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)" [title]="'button.delete.helptext' | localize"></i> 
+	                <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy, false)" [title]="'button.edit.helptext' | localize"> </i>            
+	              </span>
+	              
+	              <span *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
+	                <i class="fa fa-eye pull-right clickable" (click)="editHierarchyType(hierarchy, true)" [title]="'button.view.helptext' | localize"> </i>
+	              </span>
+	            </li>
+	          </ul>
           </div>
         </accordion-group>
 			</accordion>

@@ -7,8 +7,13 @@ li.list-group-item.active {
     width: 100%;
 }
 
+.hierarchy-sidebar button {
+	width:100%;
+	margin:0;
+}
+
 .hierarchy-sidebar {
-    width: 17%;
+    width:350px;
     position: fixed;
     top: 144px;
     left: 0;
@@ -20,10 +25,10 @@ li.list-group-item.active {
 }
 
 .hierarchy-content {
+	left:350px;
 	position:fixed;
 	width:90%;
 	top:144px;
-	left:17%;
 	margin-left:10px;
 }
 
