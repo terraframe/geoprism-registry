@@ -18,6 +18,7 @@ import { ModalTypes } from '@shared/model/modal'
 
 import { HierarchyType, HierarchyNode } from '@registry/model/hierarchy';
 import { GeoObjectType } from '@registry/model/registry';
+import { Organization } from '@shared/model/core';
 import { RegistryService, HierarchyService } from '@registry/service';
 
 class Instance {
@@ -40,9 +41,13 @@ export class HierarchyComponent implements OnInit {
 
 	instance: Instance = new Instance();
 	hierarchies: HierarchyType[];
+	organizations: Organization[];
 	geoObjectTypes: GeoObjectType[] = [];
 	nodes = [] as HierarchyNode[];
 	currentHierarchy: HierarchyType = null;
+	
+	hierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
+	typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
 
 	hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
 	geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
@@ -101,13 +106,49 @@ export class HierarchyComponent implements OnInit {
 	isOrganizationRA(orgCode: string): boolean {
 		return this.authService.isOrganizationRA(orgCode);
 	}
+	
+	getTypesByOrg(org: Organization): GeoObjectType[]
+  {
+    let orgTypes: HierarchyType[] = [];
+    
+    for (let i = 0; i < this.geoObjectTypes.length; ++i)
+    {
+      let geoObjectType: GeoObjectType = this.geoObjectTypes[i];
+      
+      if (geoObjectType.organizationCode === org.code)
+      {
+        orgTypes.push(geoObjectType);
+      }
+    }
+    
+    return orgTypes;
+  }
+	
+	getHierarchiesByOrg(org: Organization): HierarchyType[]
+	{
+	  let orgHierarchies: HierarchyType[] = [];
+	  
+	  for (let i = 0; i < this.hierarchies.length; ++i)
+	  {
+	    let hierarchy: HierarchyType = this.hierarchies[i];
+	    
+	    if (hierarchy.organizationCode === org.code)
+	    {
+	      orgHierarchies.push(hierarchy);
+	    }
+	  }
+	  
+	  return orgHierarchies;
+	}
 
 	public refreshAll(desiredHierarchy) {
 		this.registryService.init().then(response => {
 			this.localizeService.setLocales(response.locales);
 
 			this.geoObjectTypes = response.types;
-
+			
+			this.organizations = response.organizations;
+			
 			this.geoObjectTypes.sort((a, b) => {
 				if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
 				else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
@@ -122,6 +163,15 @@ export class HierarchyComponent implements OnInit {
 			this.setHierarchies(response.hierarchies);
 
 			this.setNodesOnInit(desiredHierarchy);
+			
+			for (let i = 0; i < this.organizations.length; ++i)
+      {
+        let org: Organization = this.organizations[i];
+      
+        this.hierarchiesByOrg.push({org: org, hierarchies: this.getHierarchiesByOrg(org)});
+        this.typesByOrg.push({org: org, types: this.getTypesByOrg(org)});
+      }
+			
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});

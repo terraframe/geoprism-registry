@@ -42,8 +42,8 @@ export class RegistryService {
 
 	constructor(private http: HttpClient, private eventService: EventService) { }
 
-	init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], locales: string[] }> {
-		return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], locales: string[] }>(acp + '/cgr/init')
+	init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: string[] }> {
+		return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: string[] }>(acp + '/cgr/init')
 			.toPromise();
 	}
 

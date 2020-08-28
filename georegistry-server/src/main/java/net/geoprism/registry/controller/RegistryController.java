@@ -899,6 +899,7 @@ public class RegistryController
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.READ);
     HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
+    OrganizationDTO[] orgDtos = RegistryService.getInstance().getOrganizations(request.getSessionId(), null);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray types = new JsonArray();
@@ -914,10 +915,18 @@ public class RegistryController
     {
       hierarchies.add(ht.toJSON(serializer));
     }
+    
+    JsonArray organizations = new JsonArray();
+
+    for (OrganizationDTO dto : orgDtos)
+    {
+      organizations.add(dto.toJSON(serializer));
+    }
 
     JsonObject response = new JsonObject();
     response.add("types", types);
     response.add("hierarchies", hierarchies);
+    response.add("organizations", organizations);
     response.add("locales", this.registryService.getLocales(request.getSessionId()));
 
     return new RestBodyResponse(response);
