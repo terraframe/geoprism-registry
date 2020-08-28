@@ -109,7 +109,7 @@ export class HierarchyComponent implements OnInit {
 	
 	getTypesByOrg(org: Organization): GeoObjectType[]
   {
-    let orgTypes: HierarchyType[] = [];
+    let orgTypes: GeoObjectType[] = [];
     
     for (let i = 0; i < this.geoObjectTypes.length; ++i)
     {
