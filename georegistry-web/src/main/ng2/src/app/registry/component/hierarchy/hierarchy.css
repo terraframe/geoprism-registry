@@ -7,6 +7,11 @@ li.list-group-item.active {
     width: 100%;
 }
 
+.sidebar-section-content {
+	overflow-y: auto;
+	height: 40em;
+}
+
 .hierarchy-sidebar button {
 	width:100%;
 	margin:0;

@@ -20,7 +20,7 @@
             <i style="color:#369c00;" class="fa fa-plus"></i>
 					  <localize key="hierarchy.sidebar.newGeoObjectType"></localize>
 					</button>
-          <div class="sidebar-section-content card">
+          <div class="sidebar-section-content">
             <ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
               <div *ngIf="typeByOrg.types.length > 0">
                 <label>{{typeByOrg.org.label.localizedValue}}</label>
@@ -52,7 +52,7 @@
 	          <i style="color:#369c00;" class="fa fa-plus"></i>
             <localize key="hierarchy.sidebar.newHierarchy"></localize>
           </button>
-	        <div>
+	        <div class="sidebar-section-content">
             <ul *ngFor="let hierarchyByOrg of hierarchiesByOrg;" class="list-group">
               <div *ngIf="hierarchyByOrg.hierarchies.length > 0">
 	              <label>{{hierarchyByOrg.org.label.localizedValue}}</label>
