@@ -46,3 +46,8 @@ li.list-group-item.active {
 accordion-group.panel {
 	background-color: #505050;
 }
+
+li.list-group-item {
+	background-color: rgba(255, 255, 255, 1.0);
+	margin-bottom:5px;
+}
