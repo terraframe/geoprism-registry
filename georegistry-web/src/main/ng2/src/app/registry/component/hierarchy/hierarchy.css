@@ -30,15 +30,19 @@ li.list-group-item.active {
 .sidebar-section {
 	background: #505050;
 	text-align: left;
-	padding-top:10px;
-  padding-bottom:10px;
   color:#fff;
 }
 
-.sidebar-section-content {
+.hierarchy-sidebar-content .panel-body {
+	color: #6e6775;
+	background-color: #6e6775;
 }
 
 .sidebar-section-header {
 	margin-left:20px;
 	cursor: pointer;
+}
+
+accordion-group.panel {
+	background-color: #505050;
 }

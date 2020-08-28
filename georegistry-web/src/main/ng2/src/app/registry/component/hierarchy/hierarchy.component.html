@@ -8,41 +8,30 @@
   <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
   
     <nav class="hierarchy-sidebar">
-      <div class="sidebar-section">
-			  <div class="sidebar-section-content card">
-			    <div class="card-header" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-			      <h5 class="sidebar-section-header mb-0">
-			        <i style="color:white;" class="fa fa-sitemap"></i>
-			        <a style="color:white;">
-			          GeoObject Types
-			        </a>
-			      </h5>
-			    </div>
-			
-			    <div id="collapseOne" class="sidebar-section-content collapse" aria-labelledby="headingOne" data-parent="#accordion">
-			      <div class="card-body">
-			        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-			      </div>
-			    </div>
-			  </div>
-			</div>
-			<div class="sidebar-section">
-			  <div class="sidebar-section-content card">
-			    <div class="card-header" class="collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-			      <h5 class="sidebar-section-header mb-0">
-			        <i style="color:white; margin-right:14px;" class="fa fa-circle"></i>
-			        <a style="color:white;">
-			          Hierarchies
-			        </a>
-			      </h5>
-			    </div>
-			    <div id="collapseTwo" class="sidebar-section-content collapse" aria-labelledby="headingTwo" data-parent="#accordion">
-			      <div class="card-body">
-			        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-			      </div>
-			    </div>
-			  </div>
-			</div>
+      <accordion [isAnimated]="true" [closeOthers]="true">
+        <accordion-group [isOpen]='true' class="sidebar-section" [panelClass]="'hierarchy-sidebar-content'">
+	        <div accordion-heading class="sidebar-section-header">
+	          <span class="" >
+	            <i style="color:white;" class="fa fa-sitemap"></i>
+	          </span>
+	          GeoObject Types
+	        </div>
+	        <div>
+            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+          </div>
+        </accordion-group>
+        <accordion-group [panelClass]="'hierarchy-sidebar-content'">
+          <div accordion-heading >
+            <span class="" style="color:white;">
+              <i style="color:white;" class="fa fa-circle"></i>
+            </span>
+            Hierarchies
+          </div>
+          <div class="sidebar-section-content card">
+            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+          </div>
+        </accordion-group>
+			</accordion>
     </nav>
     
     <div class="hierarchy-content">
