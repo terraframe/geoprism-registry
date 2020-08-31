@@ -16,7 +16,7 @@
             </span>
             <localize key="hierarchy.sidebar.geoObjectTypes"></localize>
           </div>
-          <button (click)="createGeoObjectType()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
+          <button *ngIf="isRA()" (click)="createGeoObjectType()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
             <i style="color:#369c00;" class="fa fa-plus"></i>
 					  <localize key="hierarchy.sidebar.newGeoObjectType"></localize>
 					</button>
@@ -48,7 +48,7 @@
 	          </span>
 	          <localize key="hierarchy.sidebar.hierarchies"></localize>
 	        </div>
-	        <button (click)="createHierarchy()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
+	        <button *ngIf="isRA()" (click)="createHierarchy()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
 	          <i style="color:#369c00;" class="fa fa-plus"></i>
             <localize key="hierarchy.sidebar.newHierarchy"></localize>
           </button>

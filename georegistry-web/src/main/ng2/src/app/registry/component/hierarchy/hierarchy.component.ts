@@ -164,17 +164,25 @@ export class HierarchyComponent implements OnInit {
 
 			this.setNodesOnInit(desiredHierarchy);
 			
-			for (let i = 0; i < this.organizations.length; ++i)
-      {
-        let org: Organization = this.organizations[i];
-      
-        this.hierarchiesByOrg.push({org: org, hierarchies: this.getHierarchiesByOrg(org)});
-        this.typesByOrg.push({org: org, types: this.getTypesByOrg(org)});
-      }
+			this.updateViewDatastructures();
 			
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
+	}
+	
+	public updateViewDatastructures(): void
+	{
+	  this.hierarchiesByOrg = [];
+	  this.typesByOrg = [];
+	
+	  for (let i = 0; i < this.organizations.length; ++i)
+    {
+      let org: Organization = this.organizations[i];
+    
+      this.hierarchiesByOrg.push({org: org, hierarchies: this.getHierarchiesByOrg(org)});
+      this.typesByOrg.push({org: org, types: this.getTypesByOrg(org)});
+    }
 	}
 
 	public excludeHierarchyTypeDeletes(hierarchy: HierarchyType) {
@@ -378,6 +386,24 @@ export class HierarchyComponent implements OnInit {
 		(<CreateHierarchyTypeModalComponent>this.bsModalRef.content).onHierarchytTypeCreate.subscribe(data => {
 
 			this.hierarchies.push(data);
+			
+			this.hierarchies.sort( (a: HierarchyType,b: HierarchyType) => {
+        var nameA = a.label.localizedValue.toUpperCase(); // ignore upper and lowercase
+        var nameB = b.label.localizedValue.toUpperCase(); // ignore upper and lowercase
+        
+        if (nameA < nameB) {
+          return -1; //nameA comes first
+        }
+        
+        if (nameA > nameB) {
+          return 1; // nameB comes first
+        }
+        
+        return 0;  // names must be equal
+      });
+			
+			this.updateViewDatastructures();
+			
 		});
 	}
 
@@ -420,6 +446,7 @@ export class HierarchyComponent implements OnInit {
 
 			let pos = this.getHierarchyTypePosition(code);
 			this.hierarchies.splice(pos, 1);
+			this.updateViewDatastructures();
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -436,7 +463,26 @@ export class HierarchyComponent implements OnInit {
 		this.bsModalRef.content.hierarchyType = this.currentHierarchy;
 
 		(<CreateGeoObjTypeModalComponent>this.bsModalRef.content).onGeoObjTypeCreate.subscribe(data => {
+		
 			this.geoObjectTypes.push(data);
+			
+			this.geoObjectTypes.sort( (a: GeoObjectType,b: GeoObjectType) => {
+			  var nameA = a.label.localizedValue.toUpperCase(); // ignore upper and lowercase
+        var nameB = b.label.localizedValue.toUpperCase(); // ignore upper and lowercase
+        
+        if (nameA < nameB) {
+          return -1; //nameA comes first
+        }
+        
+        if (nameA > nameB) {
+          return 1; // nameB comes first
+        }
+        
+        return 0;  // names must be equal
+			});
+			
+			this.updateViewDatastructures();
+			
 		});
 	}
 
