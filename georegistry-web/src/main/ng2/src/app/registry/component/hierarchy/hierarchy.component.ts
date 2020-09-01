@@ -152,7 +152,7 @@ export class HierarchyComponent implements OnInit {
       .clone(true).lower()
         .attr("stroke", "white");
   
-    return svg.attr("viewBox", "0 -350 " + this.svgWidth + " " + this.svgHeight).node();
+    return svg.attr("viewBox", "0 -850 " + this.svgWidth + " " + this.svgHeight).node();
 	}
   
   private myTree(data): any {
