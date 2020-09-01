@@ -127,15 +127,43 @@ export class HierarchyComponent implements OnInit {
   
   
     // node dot
+    //svg.append("g")
+    //  .selectAll("circle")
+    //  .data(root.descendants())
+    //  .join("circle")
+    //    .attr("cx", (d: any) => d.x)
+    //    .attr("cy", (d: any) => d.y)
+    //    .attr("fill", (d: any) => d.children ? "#555" : "#999")
+    //    .attr("r", 2.5);
+    
+    let rectW = 150;
+    let rectH = 25;
+    
+    // Header on square which denotes which hierarchy it's a part of
     svg.append("g")
-      .selectAll("circle")
-      .data(root.descendants())
-      .join("circle")
-        .attr("cx", (d: any) => d.x)
-        .attr("cy", (d: any) => d.y)
-        .attr("fill", (d: any) => d.children ? "#555" : "#999")
-        .attr("r", 2.5);
-  
+        .selectAll("rect")
+        .data(root.descendants())
+        .join("rect")
+          .attr("x", (d: any) => d.x - (rectW / 2))
+          .attr("y", (d: any) => d.y - rectH + 8)
+          .attr("fill", (d: any) => "#b3ad00")
+          .attr("width", rectW)
+          .attr("height", rectH/2)
+          .attr("rx", 5)
+    
+    // Square around the label
+    svg.append("g")
+        .selectAll("rect")
+        .data(root.descendants())
+        .join("rect")
+          .attr("x", (d: any) => d.x - (rectW / 2))
+          .attr("y", (d: any) => d.y - (rectH / 2))
+          .attr("fill", (d: any) => "#e0e0e0")
+          .attr("width", rectW)
+          .attr("height", rectH)
+          .attr("rx", 5)
+          
+          
     // label
     svg.append("g")
         .attr("font-family", "sans-serif")
@@ -145,15 +173,16 @@ export class HierarchyComponent implements OnInit {
       .selectAll("text")
       .data(root.descendants())
       .join("text")
-        .attr("x", (d:any) => d.x)
-        .attr("y", (d:any) => d.y)
+        .attr("x", (d:any) => d.x - 70)
+        .attr("y", (d:any) => d.y - 4)
         .attr("dx", "0.31em")
-        .attr("dy", (d:any) => d.children ? -6 : 6)
+        .attr("dy", (d:any) => 6)
         .text((d:any) => d.data.label)
-      .filter((d:any) => d.children)
-        .attr("text-anchor", "end")
-      .clone(true).lower()
-        .attr("stroke", "white");
+      //.filter((d:any) => d.children)
+      //  .attr("text-anchor", "end")
+      //.clone(true).lower()
+      //  .attr("stroke", "white");
+        
   
     let autoBox = function() {
       document.body.appendChild(this);
