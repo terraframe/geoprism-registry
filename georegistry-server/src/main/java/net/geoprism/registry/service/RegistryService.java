@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -86,9 +86,9 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class RegistryService
@@ -304,11 +304,11 @@ public class RegistryService
     return object.getParentGeoObjects(parentTypes, recursive).toNode(true);
   }
 
-  public GeoObjectQuery createQuery(String typeCode)
+  public ServerGeoObjectQuery createQuery(String typeCode)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    return new GeoObjectQuery(type);
+    return this.service.createQuery(type, null);
   }
 
   ///////////////////// Hierarchy Management /////////////////////
@@ -479,11 +479,6 @@ public class RegistryService
 
     // If this did not error out then add to the cache
     adapter.getMetadataCache().addGeoObjectType(type.getType());
-
-    /*
-     * Create the GeoServer WMS layers
-     */
-    new WMSService().createGeoServerLayer(type, true);
 
     return type.getType();
   }

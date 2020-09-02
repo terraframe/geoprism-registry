@@ -128,8 +128,6 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelGeoEntity);
     this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelGeoEntity);
 
-    GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
-
     MdEdgeDAO mdEdge = this.createMdEdge(hierarchyType);
 
     this.grantWritePermissionsOnMdTermRel(mdEdge);

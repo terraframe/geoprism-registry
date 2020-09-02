@@ -637,7 +637,7 @@ public class ETLService
         
         ServerGeoObjectIF go = new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
         
-        response = JsonParser.parseString(new GeoSynonymService().createGeoEntitySynonym(sessionId, go.getRunwayId(), label).toString()).getAsJsonObject();
+        response = JsonParser.parseString(new GeoSynonymService().createGeoEntitySynonym(sessionId, typeCode, go.getCode(), label).toString()).getAsJsonObject();
       }
       
       problem.appLock();

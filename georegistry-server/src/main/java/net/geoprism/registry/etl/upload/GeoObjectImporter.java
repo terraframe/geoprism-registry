@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -49,13 +49,13 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -86,6 +86,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
@@ -93,14 +94,36 @@ import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerSynonymRestriction;
-import net.geoprism.registry.query.postgres.CodeRestriction;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.query.postgres.NonUniqueResultException;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectImporter implements ObjectImporterIF
 {
+  private static class RowData
+  {
+    private String                      goJson;
+
+    private boolean                     isNew;
+
+    private GeoObjectParentErrorBuilder parentBuilder;
+
+    public void setGoJson(String goJson)
+    {
+      this.goJson = goJson;
+    }
+
+    public void setNew(boolean isNew)
+    {
+      this.isNew = isNew;
+    }
+
+    public void setParentBuilder(GeoObjectParentErrorBuilder parentBuilder)
+    {
+      this.parentBuilder = parentBuilder;
+    }
+
+  }
+
   private static final Logger              logger                     = LoggerFactory.getLogger(GeoObjectImporter.class);
 
   protected static final String            ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
@@ -405,9 +428,25 @@ public class GeoObjectImporter implements ObjectImporterIF
    */
   public void importRow(FeatureRow row)
   {
+    RowData data = new RowData();
+
     try
     {
-      this.importRowInTrans(row);
+      try
+      {
+        this.importRowInTrans(row, data);
+      }
+      catch (DuplicateDataException e)
+      {
+        try
+        {
+          VertexServerGeoObject.handleDuplicateDataException(this.configuration.getType(), e);
+        }
+        catch (Throwable t)
+        {
+          buildRecordException(data.goJson, data.isNew, data.parentBuilder, t);
+        }
+      }
     }
     catch (RecordedErrorException e)
     {
@@ -434,7 +473,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   }
 
   @Transaction
-  public void importRowInTrans(FeatureRow row)
+  public void importRowInTrans(FeatureRow row, RowData data)
   {
     GeoObjectOverTime go = null;
 
@@ -563,6 +602,10 @@ public class GeoObjectImporter implements ObjectImporterIF
                                                                                                           // SmartException?
           }
 
+          data.setGoJson(goJson);
+          data.setNew(isNew);
+          data.setParentBuilder(parentBuilder);
+
           serverGo.apply(true);
 
           if (this.configuration.isExternalImport())
@@ -580,10 +623,11 @@ public class GeoObjectImporter implements ObjectImporterIF
           }
           else if (isNew)
           {
-            GeoEntity child = GeoEntity.getByKey(serverGo.getCode());
-            GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
-
-            child.addLink(root, this.configuration.getHierarchy().getEntityType());
+            // GeoEntity child = GeoEntity.getByKey(serverGo.getCode());
+            // GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
+            //
+            // child.addLink(root,
+            // this.configuration.getHierarchy().getEntityType());
           }
 
           // We must ensure that any problems created during the transaction are
@@ -613,24 +657,29 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     catch (Throwable t)
     {
-      JSONObject obj = new JSONObject();
-
-      if (goJson != null)
-      {
-        obj.put("geoObject", new JSONObject(goJson));
-      }
-
-      obj.put("isNew", isNew);
-
-      RecordedErrorException re = new RecordedErrorException();
-      re.setError(t);
-      re.setObjectJson(obj.toString());
-      re.setObjectType(ERROR_OBJECT_TYPE);
-      re.setParentBuilder(parentBuilder);
-      throw re;
+      buildRecordException(goJson, isNew, parentBuilder, t);
     }
 
     this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
+  }
+
+  private void buildRecordException(String goJson, boolean isNew, GeoObjectParentErrorBuilder parentBuilder, Throwable t)
+  {
+    JSONObject obj = new JSONObject();
+
+    if (goJson != null)
+    {
+      obj.put("geoObject", new JSONObject(goJson));
+    }
+
+    obj.put("isNew", isNew);
+
+    RecordedErrorException re = new RecordedErrorException();
+    re.setError(t);
+    re.setObjectJson(obj.toString());
+    re.setObjectType(ERROR_OBJECT_TYPE);
+    re.setParentBuilder(parentBuilder);
+    throw re;
   }
 
   private boolean hasValue(LocalizedValue value)
@@ -827,7 +876,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             return null;
           }
         }
-        catch (NonUniqueResultException e)
+        catch (ProgrammingErrorException e)
         {
           AmbiguousParentException ex = new AmbiguousParentException();
           ex.setParentLabel(label.toString());
@@ -863,14 +912,16 @@ public class GeoObjectImporter implements ObjectImporterIF
     if (code != null)
     {
       // Search
-      GeoObjectQuery query = new GeoObjectQuery(location.getType());
-      query.setRestriction(new CodeRestriction(code));
+      ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(location.getType(), this.configuration.getStartDate());
+      query.setRestriction(new ServerCodeRestriction(code));
 
-      GeoObject result = query.getSingleResult();
+//      Assert.assertNull(query.getSingleResult());
+
+      ServerGeoObjectIF result = query.getSingleResult();
 
       if (result != null)
       {
-        return service.getGeoObject(result);
+        return result;
       }
       else
       {

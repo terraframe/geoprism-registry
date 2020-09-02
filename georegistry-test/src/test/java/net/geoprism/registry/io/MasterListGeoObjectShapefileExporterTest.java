@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -45,29 +46,58 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.query.postgres.GeoObjectIterator;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
-import net.geoprism.registry.shapefile.GeoObjectShapefileExporter;
+import net.geoprism.registry.service.MasterListTest;
+import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.ListIterator;
+import net.geoprism.registry.test.FastTestDataset;
 
-public class GeoObjectShapefileExporterTest
+public class MasterListGeoObjectShapefileExporterTest
 {
-  private static FastTestDataset testData;
+  private static FastTestDataset                          testData;
+
+  private static MasterList                               masterlist;
+
+  private static MasterListVersion                        version;
+
+  private static MdBusinessDAOIF                          mdBusiness;
+
+  private static List<? extends MdAttributeConcreteDAOIF> mdAttributes;
 
   @BeforeClass
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
+
+    classSetupInRequest();
+  }
+
+  @Request
+  private static void classSetupInRequest()
+  {
+    JsonObject json = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+
+    masterlist = MasterList.create(json);
+    version = masterlist.createVersion(FastTestDataset.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
+    mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
+    mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
   }
 
   @AfterClass
@@ -75,16 +105,35 @@ public class GeoObjectShapefileExporterTest
   {
     if (testData != null)
     {
+      classTearDownInRequest();
+
       testData.tearDownMetadata();
     }
   }
 
+  @Request
+  private static void classTearDownInRequest()
+  {
+    if (version != null)
+    {
+      version.delete();
+    }
+
+    if (masterlist != null)
+    {
+      masterlist.delete();
+    }
+  }
+
   @Before
+  @Request
   public void setUp()
   {
     if (testData != null)
     {
       testData.setUpInstanceData();
+
+      version.publish();
     }
   }
 
@@ -103,10 +152,7 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(FastTestDataset.PROVINCE.getCode());
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
-
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
+    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
 
     Assert.assertEquals("testestest", exporter.generateColumnName("testestestest1"));
     Assert.assertEquals("testestes1", exporter.generateColumnName("testestestest2"));
@@ -125,46 +171,41 @@ public class GeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(FastTestDataset.PROVINCE.getCode());
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
-
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new ListIterator<>(new LinkedList<>()));
+    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     Assert.assertNotNull(featureType);
 
-    Assert.assertEquals(GeoObjectShapefileExporter.GEOM, featureType.getGeometryDescriptor().getLocalName());
+    Assert.assertEquals(MasterListShapefileExporter.GEOM, featureType.getGeometryDescriptor().getLocalName());
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals(6, attributes.size());
+    Assert.assertEquals(5, attributes.size());
   }
 
   @Test
   @Request
   public void testCreateFeatures()
   {
-    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
+    ServerGeoObjectIF object = FastTestDataset.PROV_CENTRAL.getServerObject();
+    ServerGeoObjectType type = object.getType();
 
-    List<GeoObject> objects = new GeoObjectQuery(type).getIterator().getAll();
-
-    GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, new GeoObjectQuery(type).getIterator());
+    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
 
-    Assert.assertEquals(objects.size(), features.size());
+    Assert.assertEquals(1, features.size());
 
     SimpleFeature feature = features.features().next();
-    GeoObject object = objects.get(0);
 
-    Assert.assertEquals("Attributes not equal [code]", object.getValue(GeoObject.CODE), feature.getAttribute(GeoObject.CODE));
+    Assert.assertEquals("Attributes not equal [code]", object.getCode(), feature.getAttribute(GeoObject.CODE));
 
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, true, false, SupportedLocaleDAO.getSupportedLocales()).attributes(type.getType());
+    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, SupportedLocaleDAO.getSupportedLocales());
+    Collection<AttributeType> attributes = serializer.attributes(type.getType());
 
     for (AttributeType attribute : attributes)
     {
@@ -187,67 +228,35 @@ public class GeoObjectShapefileExporterTest
       }
     }
 
-    // Assert the value of the parent columns
-    // Add the type ancestor fields
-    List<GeoObjectType> ancestors = type.getTypeAncestors(hierarchyType, true);
-
-    GeoObjectType ancestor = ancestors.get(0);
-
-    String code = ancestor.getCode() + " " + ancestor.getAttribute(GeoObject.CODE).get().getName();
-    String label = ancestor.getCode() + " " + MdAttributeLocalInfo.DEFAULT_LOCALE;
-
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), feature.getAttribute(exporter.getColumnName(code)));
-    Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName(label)));
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), feature.getAttribute(exporter.getColumnName("fastadmincodefastcountry")));
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), feature.getAttribute(exporter.getColumnName("fastadmincodefastcountryDefaultLocale")));
   }
 
   @Test
   @Request
   public void testWriteToFile() throws IOException
   {
-    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
 
-    GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
+    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
+    File directory = exporter.writeToFile();
 
-    try
-    {
-      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, objects);
-      File directory = exporter.writeToFile();
+    Assert.assertTrue(directory.exists());
 
-      Assert.assertTrue(directory.exists());
+    File[] files = directory.listFiles();
 
-      File[] files = directory.listFiles();
-
-      Assert.assertEquals(5, files.length);
-    }
-    finally
-    {
-      objects.close();
-    }
+    Assert.assertEquals(5, files.length);
   }
 
   @Test
   @Request
   public void testExport() throws IOException
   {
-    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(FastTestDataset.HIER_ADMIN.getCode());
+    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
+    InputStream export = exporter.export();
 
-    GeoObjectIterator objects = new GeoObjectQuery(type).getIterator();
+    Assert.assertNotNull(export);
 
-    try
-    {
-      GeoObjectShapefileExporter exporter = new GeoObjectShapefileExporter(type, hierarchyType, objects);
-      InputStream export = exporter.export();
-
-      Assert.assertNotNull(export);
-
-      IOUtils.copy(export, NullOutputStream.NULL_OUTPUT_STREAM);
-    }
-    finally
-    {
-      objects.close();
-    }
+    IOUtils.copy(export, NullOutputStream.NULL_OUTPUT_STREAM);
   }
 
 }

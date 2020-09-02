@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -77,8 +77,8 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.query.postgres.CodeRestriction;
-import net.geoprism.registry.query.postgres.GeoObjectQuery;
+import net.geoprism.registry.query.ServerCodeRestriction;
+import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
@@ -584,8 +584,8 @@ public class ShapefileServiceTest
     // Assert.assertEquals(0, errors.length());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
-    query.setRestriction(new CodeRestriction("01"));
+    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -620,8 +620,8 @@ public class ShapefileServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
-    query.setRestriction(new CodeRestriction("01"));
+    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -659,8 +659,8 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
-    query.setRestriction(new CodeRestriction("01"));
+    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -749,8 +749,8 @@ public class ShapefileServiceTest
     Assert.assertEquals(testTerm.getLabel(), problem.getString("attributeLabel"));
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
-    query.setRestriction(new CodeRestriction("01"));
+    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
   }
@@ -852,8 +852,8 @@ public class ShapefileServiceTest
     Assert.assertEquals(1, results.length());
 
     // Ensure the geo objects were not created
-    GeoObjectQuery query = new GeoObjectQuery(USATestData.STATE.getServerObject());
-    query.setRestriction(new CodeRestriction("01"));
+    ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.STATE.getServerObject(), config.getStartDate());
+    query.setRestriction(new ServerCodeRestriction("01"));
 
     Assert.assertNull(query.getSingleResult());
 

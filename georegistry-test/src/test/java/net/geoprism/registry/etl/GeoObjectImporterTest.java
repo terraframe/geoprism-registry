@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -311,12 +311,14 @@ public class GeoObjectImporterTest
     two.setCode("0002");
     two.delete();
 
+    // USATestData.CO_D_ONE.delete();
+
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
     config.setHierarchy(hierarchyType);
@@ -331,7 +333,7 @@ public class GeoObjectImporterTest
     Assert.assertEquals(new Long(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -348,7 +350,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(expected, geometry);
 
-    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
+    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), USATestData.CO_D_ONE.getCode(), USATestData.DISTRICT.getCode());
 
     Double cd1_lat = new Double(80);
     Double cd1_lon = new Double(110);

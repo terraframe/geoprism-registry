@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Point;
 
@@ -59,20 +58,21 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class GeoObjectExcelExporter
 {
-  private static Logger        logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
+  private static Logger           logger = LoggerFactory.getLogger(GeoObjectExcelExporter.class);
 
-  private ServerGeoObjectType  type;
+  private ServerGeoObjectType     type;
 
-  private ServerHierarchyType  hierarchy;
+  private ServerHierarchyType     hierarchy;
 
-  private OIterator<GeoObject> objects;
+  private List<ServerGeoObjectIF> objects;
 
-  public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, OIterator<GeoObject> objects)
+  public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, List<ServerGeoObjectIF> objects)
   {
     this.type = type;
     this.hierarchy = hierarchy;
@@ -89,12 +89,12 @@ public class GeoObjectExcelExporter
     this.type = type;
   }
 
-  public Iterable<GeoObject> getObjects()
+  public List<ServerGeoObjectIF> getObjects()
   {
     return objects;
   }
 
-  public void setObjects(OIterator<GeoObject> objects)
+  public void setObjects(List<ServerGeoObjectIF> objects)
   {
     this.objects = objects;
   }
@@ -126,13 +126,10 @@ public class GeoObjectExcelExporter
 
     this.writeHeader(boldStyle, header, attributes, ancestors, locales);
 
-    int rownum = 1;
-
-    while (this.objects.hasNext())
+    for (int i = 0; i < this.objects.size(); i++)
     {
-      GeoObject object = this.objects.next();
-
-      Row row = sheet.createRow(rownum++);
+      ServerGeoObjectIF object = this.objects.get(i);
+      Row row = sheet.createRow(i + 1);
 
       this.writeRow(row, object, attributes, ancestors, locales, dateStyle);
     }
@@ -140,7 +137,7 @@ public class GeoObjectExcelExporter
     return workbook;
   }
 
-  public void writeRow(Row row, GeoObject object, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales, CellStyle dateStyle)
+  public void writeRow(Row row, ServerGeoObjectIF object, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales, CellStyle dateStyle)
   {
     int col = 0;
     // Write the row
@@ -218,7 +215,7 @@ public class GeoObjectExcelExporter
     }
 
     // Write the parent values
-    Map<String, LocationInfo> map = GeoObjectUtil.getAncestorMap(object, this.hierarchy);
+    Map<String, LocationInfo> map = object.getAncestorMap(this.hierarchy, true);
 
     for (GeoObjectType ancestor : ancestors)
     {

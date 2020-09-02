@@ -120,7 +120,7 @@ public class MasterListInheritedHierarchyTest
   @Request
   public void testPublishVersion()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+    JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
 
     MasterList test = MasterList.create(json);
 
@@ -151,7 +151,7 @@ public class MasterListInheritedHierarchyTest
   @Request
   public void testMarkAsInvalidByInheritedParent()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, USATestData.DISTRICT, USATestData.STATE);
+    JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, USATestData.DISTRICT, USATestData.STATE);
 
     MasterList masterlist = MasterList.create(json);
 
@@ -165,51 +165,6 @@ public class MasterListInheritedHierarchyTest
     {
       masterlist.delete();
     }
-  }
-
-  @Request
-  public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, String visibility, TestGeoObjectTypeInfo... parents)
-  {
-    JsonArray pArray = new JsonArray();
-    for (TestGeoObjectTypeInfo parent : parents)
-    {
-      JsonObject object = new JsonObject();
-      object.addProperty("code", parent.getCode());
-      object.addProperty("selected", true);
-
-      pArray.add(object);
-    }
-
-    JsonObject hierarchy = new JsonObject();
-    hierarchy.addProperty("code", ht.getCode());
-    hierarchy.add("parents", pArray);
-
-    JsonArray array = new JsonArray();
-    array.add(hierarchy);
-
-    MasterList list = new MasterList();
-    list.setUniversal(info.getUniversal());
-    list.getDisplayLabel().setValue("Test List");
-    list.setCode("TEST_CODE");
-    list.setRepresentativityDate(new Date());
-    list.setPublishDate(new Date());
-    list.setListAbstract("My Abstract");
-    list.setProcess("Process");
-    list.setProgress("Progress");
-    list.setAccessConstraints("Access Contraints");
-    list.setUseConstraints("User Constraints");
-    list.setAcknowledgements("Acknowledgements");
-    list.setDisclaimer("Disclaimer");
-    list.setContactName("Contact Name");
-    list.setOrganization(org);
-    list.setTelephoneNumber("Telephone Number");
-    list.setEmail("Email");
-    list.setHierarchies(array.toString());
-    list.addFrequency(ChangeFrequency.ANNUAL);
-    list.setIsMaster(false);
-    list.setVisibility(visibility);
-
-    return list.toJSON();
   }
 
 }
