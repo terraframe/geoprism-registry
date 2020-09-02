@@ -25,7 +25,6 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 
 public class USATestData extends TestDataSet
 {
@@ -164,7 +163,7 @@ public class USATestData extends TestDataSet
   {
     USA.setChildren(new ArrayList<TestGeoObjectInfo>());
 
-    USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
+//    USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
     USA.addChild(COLORADO, HIER_ADMIN);
     COLORADO.addChild(CO_D_ONE, HIER_ADMIN);
@@ -182,7 +181,7 @@ public class USATestData extends TestDataSet
     MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, HIER_ADMIN);
     MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, HIER_ADMIN);
     
-    CO_D_ONE.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_SCHOOL.getServerObject().getEntityType());
+//    CO_D_ONE.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_SCHOOL.getServerObject().getEntityType());
     CO_D_ONE.addChild(SCHOOL_ONE, HIER_SCHOOL);
   }
 

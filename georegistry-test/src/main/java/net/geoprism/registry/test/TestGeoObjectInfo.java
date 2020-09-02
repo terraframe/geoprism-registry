@@ -4,21 +4,20 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -52,12 +51,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.model.postgres.TreeServerGeoObject;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -71,12 +68,6 @@ public class TestGeoObjectInfo
 
   private String                  registryId = null;
 
-  private String                  oid;
-
-  private GeoEntity               geoEntity;
-
-  private Business                business;
-
   private TestGeoObjectTypeInfo   geoObjectType;
 
   private List<TestGeoObjectInfo> children;
@@ -88,9 +79,9 @@ public class TestGeoObjectInfo
   private String                  statusCode;
 
   private Boolean                 isNew;
-  
+
   private Date                    date;
-  
+
   private HashMap<String, Object> defaultValues;
 
   public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
@@ -115,11 +106,8 @@ public class TestGeoObjectInfo
     this.isNew = isNew;
     this.date = TestDataSet.DEFAULT_OVER_TIME_DATE;
     this.defaultValues = new HashMap<String, Object>();
-    
+
     this.registryId = null;
-    this.oid = null;
-    this.geoEntity = null;
-    this.business = null;
     this.serverGO = null;
 
     GeometryType geom = this.getGeoObjectType().getGeometryType();
@@ -165,12 +153,12 @@ public class TestGeoObjectInfo
   {
     return code;
   }
-  
+
   public void setDefaultValue(String attr, Object value)
   {
     this.defaultValues.put(attr, value);
   }
-  
+
   public Object getDefaultValue(String attr)
   {
     return this.defaultValues.get(attr);
@@ -201,16 +189,6 @@ public class TestGeoObjectInfo
     this.registryId = uid;
   }
 
-  public String getOid()
-  {
-    return oid;
-  }
-
-  public void setOid(String oid)
-  {
-    this.oid = oid;
-  }
-
   public Boolean getIsNew()
   {
     return isNew;
@@ -221,23 +199,9 @@ public class TestGeoObjectInfo
     this.isNew = isNew;
   }
 
-  /**
-   * Returns the GeoEntity that implements this test GeoObject. Will return null
-   * if the test object has not been applied.
-   */
-  public GeoEntity getGeoEntity()
+  public Date getDate()
   {
-    return this.geoEntity;
-  }
-
-  /**
-   * Returns the business object that implements this test GeoObject and
-   * contains the additional CGR attributes like Status. Will return null if the
-   * test object has not been applied.
-   */
-  public Business getBusiness()
-  {
-    return this.business;
+    return date;
   }
 
   private Geometry getGeometry()
@@ -252,13 +216,13 @@ public class TestGeoObjectInfo
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
   @Request
   public GeoObject fetchGeoObject()
   {
     return this.getServerObject().toGeoObject();
   }
-  
+
   @Request
   public GeoObjectOverTime fetchGeoObjectOverTime()
   {
@@ -367,7 +331,8 @@ public class TestGeoObjectInfo
         else
         {
           testChild.assertEquals(tnChild.getGeoObject());
-//          USATestData.assertEqualsHierarchyType(LocatedIn.CLASS, tnChild.getHierachyType());
+          // USATestData.assertEqualsHierarchyType(LocatedIn.CLASS,
+          // tnChild.getHierachyType());
         }
       }
     }
@@ -429,12 +394,13 @@ public class TestGeoObjectInfo
         else
         {
           testParent.assertEquals(tnParent.getGeoObject());
-//          USATestData.assertEqualsHierarchyType(LocatedIn.CLASS, tnParent.getHierachyType());
+          // USATestData.assertEqualsHierarchyType(LocatedIn.CLASS,
+          // tnParent.getHierachyType());
         }
       }
     }
   }
-  
+
   /**
    * Asserts that the given GeoObject contains all the same data which is
    * defined by this test object.
@@ -442,15 +408,15 @@ public class TestGeoObjectInfo
   public void assertEquals(GeoObjectOverTime geoObj)
   {
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
-//    Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
+    // Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
     Assert.assertEquals(this.getCode(), geoObj.getCode());
     Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry(date).toText()));
     Assert.assertEquals(this.getDisplayLabel(), geoObj.getDisplayLabel(this.date).getValue());
     this.getGeoObjectType().assertEquals(geoObj.getType());
 
-//    Assert.assertEquals(status.code, geoObj.getStatus().getCode());
+    // Assert.assertEquals(status.code, geoObj.getStatus().getCode());
   }
-  
+
   /**
    * Asserts that the given GeoObject contains all the same data which is
    * defined by this test object.
@@ -458,13 +424,13 @@ public class TestGeoObjectInfo
   public void assertEquals(GeoObject geoObj)
   {
     Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(ServiceFactory.getAdapter(), geoObj.toJSON().toString()).toJSON().toString());
-//    Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
+    // Assert.assertEquals(this.getRegistryId(), geoObj.getUid());
     Assert.assertEquals(this.getCode(), geoObj.getCode());
     Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoObj.getGeometry().toText()));
     Assert.assertEquals(this.getDisplayLabel(), geoObj.getLocalizedDisplayLabel());
     this.getGeoObjectType().assertEquals(geoObj.getType());
 
-//    Assert.assertEquals(status.code, geoObj.getStatus().getCode());
+    // Assert.assertEquals(status.code, geoObj.getStatus().getCode());
   }
 
   public void assertEquals(GeoEntity geoEnt)
@@ -505,7 +471,7 @@ public class TestGeoObjectInfo
     // return child.getGeoEntity().addLink(geoEntity, relationshipType);
     // }
 
-    this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), date, date);
+    this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), date, ValueOverTime.INFINITY_END_DATE);
   }
 
   private void addParent(TestGeoObjectInfo parent)
@@ -547,19 +513,6 @@ public class TestGeoObjectInfo
   {
     ServerGeoObjectIF localServerGO = applyInTrans(date);
 
-    if (!this.geoObjectType.getIsLeaf())
-    {
-      this.geoEntity = GeoEntity.get(localServerGO.getRunwayId());
-      this.business = TreeServerGeoObject.getBusiness(this.geoEntity);
-
-      this.oid = this.geoEntity.getOid();
-    }
-    else
-    {
-      this.business = Business.get(localServerGO.getRunwayId());
-      this.oid = this.business.getOid();
-    }
-
     this.registryId = localServerGO.getUid();
 
     this.isNew = false;
@@ -568,12 +521,14 @@ public class TestGeoObjectInfo
   @Transaction
   private ServerGeoObjectIF applyInTrans(Date date)
   {
+    ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
+
     if (date == null)
     {
-      return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.newGeoObject(ServiceFactory.getAdapter()), this.isNew, false);
+      return service.apply(this.newGeoObject(ServiceFactory.getAdapter()), this.isNew, false);
     }
 
-    return new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(this.newGeoObjectOverTime(ServiceFactory.getAdapter()), this.isNew, false);
+    return service.apply(this.newGeoObjectOverTime(ServiceFactory.getAdapter()), this.isNew, false);
   }
 
   /**
@@ -665,46 +620,21 @@ public class TestGeoObjectInfo
 
     this.children.clear();
 
-    this.business = null;
-    this.geoEntity = null;
     this.isNew = true;
   }
-  
+
   public void clean()
   {
-//    this.children.clear();
-//    this.parents.clear();
-//    this.defaultValues = new HashMap<String, Object>();
+    // this.children.clear();
+    // this.parents.clear();
+    // this.defaultValues = new HashMap<String, Object>();
 
     this.isNew = true;
-    
+
     this.registryId = null;
-    this.oid = null;
-    this.geoEntity = null;
-    this.business = null;
     this.serverGO = null;
   }
 
-  /**
-   * Fetches all children of this test object from the database and returns them
-   * as GeoEntities.
-   */
-  @Request
-  public OIterator<? extends Object> getChildrenAsGeoEntity(String relationshipType)
-  {
-    if (this.getGeoObjectType().getChildren().get(0).getIsLeaf())
-    {
-      String oid = this.business.getValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
-      GeoEntity entity = GeoEntity.get(oid);
-
-      return new ListIterator<GeoEntity>(Arrays.asList(new GeoEntity[] { entity }));
-    }
-    else
-    {
-      return this.geoEntity.getChildren(relationshipType);
-    }
-  }
-  
   /**
    * Populates the GeoObject with the values contained in this test object.
    * 
@@ -722,13 +652,13 @@ public class TestGeoObjectInfo
     {
       geoObj.setUid(registryId);
     }
-    
+
     for (String attrName : this.defaultValues.keySet())
     {
       geoObj.setValue(attrName, this.defaultValues.get(attrName));
     }
   }
-  
+
   /**
    * Populates the GeoObject with the values contained in this test object.
    * 
@@ -750,7 +680,7 @@ public class TestGeoObjectInfo
     {
       geoObj.setUid(registryId);
     }
-    
+
     for (String attrName : this.defaultValues.keySet())
     {
       geoObj.setValue(attrName, this.defaultValues.get(attrName), date, ValueOverTime.INFINITY_END_DATE);

@@ -206,8 +206,6 @@ public class ServerGeoObjectType
 
   public void delete()
   {
-    new WMSService().deleteWMSLayer(this);
-
     try
     {
       this.deleteInTransaction();
@@ -230,8 +228,6 @@ public class ServerGeoObjectType
     catch (RuntimeException e)
     {
       // An error occurred re-create the WMS layer
-      new WMSService().createWMSLayer(this, false);
-
       throw e;
     }
   }

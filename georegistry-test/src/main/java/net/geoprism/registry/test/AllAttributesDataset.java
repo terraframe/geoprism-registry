@@ -305,7 +305,7 @@ public class AllAttributesDataset extends TestDataSet
   @Override
   public void setUpRelationships()
   {
-    GO_ALL.getGeoEntity().addLink(GeoEntity.getRoot(), HIER.getServerObject().getEntityType());
+//    GO_ALL.getGeoEntity().addLink(GeoEntity.getRoot(), HIER.getServerObject().getEntityType());
 
     GO_ALL.addChild(GO_CHAR, HIER);
     GO_ALL.addChild(GO_INT, HIER);

@@ -4,21 +4,24 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -26,18 +29,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.junit.Assert;
 
 import com.runwaysdk.ClientSession;
 import com.runwaysdk.business.Business;
@@ -149,7 +150,16 @@ abstract public class TestDataSet
 
   public ClientRequestIF                     clientRequest                   = null;
 
-  public static final Date                   DEFAULT_OVER_TIME_DATE          = new Date();
+  public static Date                         DEFAULT_OVER_TIME_DATE;
+
+  static
+  {
+    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    cal.clear();
+    cal.set(2020, Calendar.APRIL, 4);
+
+    DEFAULT_OVER_TIME_DATE = cal.getTime();
+  }
 
   abstract public String getTestDataKey();
 
@@ -360,14 +370,6 @@ abstract public class TestDataSet
   @Transaction
   protected void cleanUpClassInTrans()
   {
-    for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfos)
-    {
-      if (got.isPersisted())
-      {
-        new WMSService().deleteDatabaseView(got.getServerObject());
-      }
-    }
-
     for (TestGeoObjectTypeInfo got : managedGeoObjectTypeInfosExtras)
     {
       got.delete();

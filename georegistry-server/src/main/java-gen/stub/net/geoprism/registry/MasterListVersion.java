@@ -112,6 +112,8 @@ import com.vividsolutions.jts.geom.Point;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.command.GeoserverCreateWMSCommand;
+import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
@@ -126,6 +128,7 @@ import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.WMSService;
 import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase
@@ -167,6 +170,17 @@ public class MasterListVersion extends MasterListVersionBase
   public MasterListVersion()
   {
     super();
+  }
+
+  @Override
+  public void apply()
+  {
+    super.apply();
+
+    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+    {
+      new GeoserverCreateWMSCommand(this).doIt();
+    }
   }
 
   private String getTableName()
@@ -599,6 +613,11 @@ public class MasterListVersion extends MasterListVersionBase
       mdBusiness.deleteAllRecords();
 
       mdTable.delete();
+    }
+
+    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+    {
+      new GeoserverRemoveWMSCommand(this).doIt();
     }
   }
 
@@ -1538,6 +1557,17 @@ public class MasterListVersion extends MasterListVersionBase
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
     contributor.grantPermission(Operation.READ, component.getOid());
     contributor.grantPermission(Operation.READ_ALL, component.getOid());
+  }
+
+  public static List<? extends MasterListVersion> getAll(String versionType)
+  {
+    MasterListVersionQuery query = new MasterListVersionQuery(new QueryFactory());
+    query.WHERE(query.getVersionType().EQ(versionType));
+
+    try (OIterator<? extends MasterListVersion> it = query.getIterator())
+    {
+      return it.getAll();
+    }
   }
 
 }

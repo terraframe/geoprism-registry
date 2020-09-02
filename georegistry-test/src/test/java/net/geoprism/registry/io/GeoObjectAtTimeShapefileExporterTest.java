@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -98,9 +97,9 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(FastTestDataset.PROVINCE.getCode());
 
-    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
+    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, FastTestDataset.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals("testestest", exporter.generateColumnName("testestestest1"));
     Assert.assertEquals("testestes1", exporter.generateColumnName("testestestest2"));
@@ -119,9 +118,9 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    ServerGeoObjectType type = ServerGeoObjectType.get(testData.PROVINCE.getCode());
+    ServerGeoObjectType type = ServerGeoObjectType.get(FastTestDataset.PROVINCE.getCode());
 
-    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
+    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, FastTestDataset.DEFAULT_OVER_TIME_DATE);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     Assert.assertNotNull(featureType);
@@ -137,9 +136,9 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testCreateFeatures()
   {
-    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
+    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
 
-    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
+    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, FastTestDataset.DEFAULT_OVER_TIME_DATE);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
@@ -154,11 +153,11 @@ public class GeoObjectAtTimeShapefileExporterTest
     {
       SimpleFeature feature = it.next();
 
-      if (feature.getID().equals(testData.PROV_CENTRAL.getCode()))
+      if (feature.getID().equals(FastTestDataset.PROV_CENTRAL.getCode()))
       {
         hasCentralProvince = true;
 
-        final ServerGeoObjectIF object = testData.PROV_CENTRAL.getServerObject();
+        final ServerGeoObjectIF object = FastTestDataset.PROV_CENTRAL.getServerObject();
 
         Object geometry = feature.getDefaultGeometry();
         Assert.assertNotNull(geometry);
@@ -196,9 +195,9 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testWriteToFile() throws IOException
   {
-    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
+    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
 
-    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
+    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, FastTestDataset.DEFAULT_OVER_TIME_DATE);
     File directory = exporter.writeToFile();
 
     Assert.assertTrue(directory.exists());
@@ -212,14 +211,14 @@ public class GeoObjectAtTimeShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    ServerGeoObjectType type = testData.PROVINCE.getServerObject();
+    ServerGeoObjectType type = FastTestDataset.PROVINCE.getServerObject();
 
-    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, new Date());
+    GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, FastTestDataset.DEFAULT_OVER_TIME_DATE);
     InputStream export = exporter.export();
 
     Assert.assertNotNull(export);
 
-    IOUtils.copy(export, new NullOutputStream());
+    IOUtils.copy(export, NullOutputStream.NULL_OUTPUT_STREAM);
   }
 
 }

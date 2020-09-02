@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.model.graph;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -35,6 +36,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -56,8 +58,11 @@ import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.ElementInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -68,6 +73,10 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.session.CreatePermissionException;
+import com.runwaysdk.session.ReadPermissionException;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.WritePermissionException;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Envelope;
@@ -81,6 +90,9 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.dashboard.GeometryUpdateException;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.DuplicateGeoObjectCodeException;
+import net.geoprism.registry.DuplicateGeoObjectException;
+import net.geoprism.registry.DuplicateGeoObjectMultipleException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
@@ -97,6 +109,9 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
+import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
+import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
 import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -400,12 +415,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         this.getValuesOverTime(attributeName).clear();
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
-          // GeoObjectStatus gos = this.vertex.isNew() ? GeoObjectStatus.PENDING
-          // :
-          // ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
-          GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(goTime.getStatus(votDTO.getStartDate()));
+          Iterator<String> it = (Iterator<String>) votDTO.getValue();
 
-          this.setStatus(gos, votDTO.getStartDate(), votDTO.getEndDate());
+          if (it.hasNext())
+          {
+            String code = it.next();
+            Term value = ( (AttributeTermType) attribute ).getTermByCode(code).get();
+            GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(value);
+
+            this.setStatus(gos, votDTO.getStartDate(), votDTO.getEndDate());
+          }
         }
       }
       // else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
@@ -422,7 +441,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         this.getValuesOverTime(attributeName).clear();
         for (ValueOverTimeDTO votDTO : goTime.getAllValues(attributeName))
         {
-          LocalizedValue label = goTime.getDisplayLabel(votDTO.getStartDate());
+          LocalizedValue label = (LocalizedValue) votDTO.getValue();
 
           this.setDisplayLabel(label, votDTO.getStartDate(), votDTO.getEndDate());
         }
@@ -436,7 +455,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         {
           if (attribute instanceof AttributeTermType)
           {
-            Iterator<String> it = (Iterator<String>) goTime.getValue(attributeName, votDTO.getStartDate());
+            Iterator<String> it = (Iterator<String>) votDTO.getValue();
 
             if (it.hasNext())
             {
@@ -457,7 +476,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           }
           else
           {
-            Object value = goTime.getValue(attributeName, votDTO.getStartDate());
+            Object value = votDTO.getValue();
 
             if (value != null)
             {
@@ -751,7 +770,31 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     this.vertex.setValue(GeoVertex.LASTUPDATEDATE, new Date());
 
-    this.getVertex().apply();
+    try
+    {
+      this.getVertex().apply();
+    }
+    catch (CreatePermissionException ex)
+    {
+      CreateGeoObjectPermissionException goex = new CreateGeoObjectPermissionException();
+      goex.setGeoObjectType(this.getType().getLabel().getValue());
+      goex.setOrganization(this.getType().getOrganization().getDisplayLabel().getValue());
+      throw goex;
+    }
+    catch (WritePermissionException ex)
+    {
+      WriteGeoObjectPermissionException goex = new WriteGeoObjectPermissionException();
+      goex.setGeoObjectType(this.getType().getLabel().getValue());
+      goex.setOrganization(this.getType().getOrganization().getDisplayLabel().getValue());
+      throw goex;
+    }
+    catch (ReadPermissionException ex)
+    {
+      ReadGeoObjectPermissionException goex = new ReadGeoObjectPermissionException();
+      goex.setGeoObjectType(this.getType().getLabel().getValue());
+      goex.setOrganization(this.getType().getOrganization().getDisplayLabel().getValue());
+      throw goex;
+    }
   }
 
   @Override
@@ -1354,7 +1397,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     parameters.put("rid", parent.getVertex().getRID());
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT OUT(");
+    statement.append("SELECT EXPAND(outE(");
 
     if (htIn != null)
     {
@@ -1362,7 +1405,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
     statement.append(")");
 
-    if (childrenTypes.length > 0)
+    if (childrenTypes != null && childrenTypes.length > 0)
     {
       statement.append("[");
 
@@ -1376,7 +1419,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           statement.append(" OR ");
         }
 
-        statement.append("out.@class = :" + paramName);
+        statement.append("in.@class = :" + paramName);
 
         parameters.put(paramName, type.getMdVertex().getDBClassName());
       }
@@ -1384,7 +1427,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append("]");
     }
 
-    statement.append(" FROM :rid");
+    statement.append(") FROM :rid");
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
 
@@ -1653,4 +1696,68 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     GraphDBService service = GraphDBService.getInstance();
     service.command(service.getGraphDBRequest(), statement.toString(), parameters);
   }
+
+  public static void handleDuplicateDataException(ServerGeoObjectType type, DuplicateDataException e)
+  {
+    if (e.getAttributes().size() == 0)
+    {
+      throw e;
+    }
+    else if (e.getAttributes().size() == 1)
+    {
+      MdAttributeDAOIF attr = e.getAttributes().get(0);
+
+      if (isCodeAttribute(attr))
+      {
+        DuplicateGeoObjectCodeException ex = new DuplicateGeoObjectCodeException();
+        ex.setGeoObjectType(type.getLabel().getValue());
+        ex.setValue(e.getValues().get(0));
+        throw ex;
+      }
+      else
+      {
+        DuplicateGeoObjectException ex = new DuplicateGeoObjectException();
+        ex.setGeoObjectType(type.getLabel().getValue());
+        ex.setValue(e.getValues().get(0));
+        ex.setAttributeName(getAttributeLabel(type, attr));
+        throw ex;
+      }
+    }
+    else
+    {
+      List<String> attrLabels = new ArrayList<String>();
+
+      for (MdAttributeDAOIF attr : e.getAttributes())
+      {
+        attrLabels.add(getAttributeLabel(type, attr));
+      }
+
+      DuplicateGeoObjectMultipleException ex = new DuplicateGeoObjectMultipleException();
+      ex.setAttributeLabels(StringUtils.join(attrLabels, ", "));
+      throw ex;
+    }
+  }
+
+  public static boolean isCodeAttribute(MdAttributeDAOIF attr)
+  {
+    String attributeName = attr.definesAttribute();
+
+    return attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(ElementInfo.KEY) || attributeName.equals(ElementInfo.OID) || attributeName.equals(GeoEntity.GEOID);
+  }
+
+  public static String getAttributeLabel(ServerGeoObjectType type, MdAttributeDAOIF attr)
+  {
+    if (isCodeAttribute(attr))
+    {
+      return type.getAttribute(DefaultAttribute.CODE.getName()).get().getLabel().getValue();
+    }
+
+    if (type.getAttribute(attr.definesAttribute()).isPresent())
+    {
+      return type.getAttribute(attr.definesAttribute()).get().getLabel().getValue();
+    }
+
+    return attr.getDisplayLabel(Session.getCurrentLocale());
+  }
+
 }

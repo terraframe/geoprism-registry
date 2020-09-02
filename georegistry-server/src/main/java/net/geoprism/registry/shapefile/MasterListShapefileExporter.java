@@ -89,7 +89,7 @@ import net.geoprism.registry.RegistryConstants;
 
 public class MasterListShapefileExporter
 {
-  private static Logger                            logger = LoggerFactory.getLogger(GeoObjectShapefileExporter.class);
+  private static Logger                            logger = LoggerFactory.getLogger(MasterListShapefileExporter.class);
 
   public static final String                       GEOM   = "the_geom";
 

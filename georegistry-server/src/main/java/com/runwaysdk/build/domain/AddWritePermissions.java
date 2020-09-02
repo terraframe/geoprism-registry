@@ -38,8 +38,6 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.system.gis.geo.AllowedIn;
-import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
@@ -82,18 +80,8 @@ public class AddWritePermissions
   
   private void initializeStrategies()
   {
-    OntologyStrategyFactory.set(GeoEntity.CLASS, new OntologyStrategyBuilderIF()
-    {
-      @Override
-      public OntologyStrategyIF build()
-      {
-        return DatabaseAllPathsStrategy.factory(GeoEntity.CLASS);
-      }
-    });
-    
     Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
     Universal.getStrategy().initialize(AllowedIn.CLASS);
-    GeoEntity.getStrategy().initialize(LocatedIn.CLASS);
   }
   
   private void reassignPermissions(HierarchyType hierarchyType)
@@ -158,8 +146,6 @@ public class AddWritePermissions
     this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelGeoEntity);
     this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelGeoEntity);
     this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelGeoEntity);
-
-    GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
 
     MdEdgeDAO mdEdge = (MdEdgeDAO) MdEdgeDAO.getMdEdgeDAO(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE + "." + hierarchyType.getCode());
 

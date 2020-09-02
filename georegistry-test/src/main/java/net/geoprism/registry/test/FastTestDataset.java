@@ -156,7 +156,7 @@ public class FastTestDataset extends TestDataSet
 
     try
     {
-      CAMBODIA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
+//      CAMBODIA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
       CAMBODIA.addChild(PROV_CENTRAL, HIER_ADMIN);
     }

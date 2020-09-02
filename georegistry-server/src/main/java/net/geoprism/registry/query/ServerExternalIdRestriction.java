@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.query;
 
@@ -22,10 +22,6 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.query.graph.VertexExternalIdRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectRestriction;
-import net.geoprism.registry.query.postgres.LeafGeoObjectQuery;
-import net.geoprism.registry.query.postgres.LeafGeoObjectRestriction;
-import net.geoprism.registry.query.postgres.TreeGeoObjectQuery;
-import net.geoprism.registry.query.postgres.TreeGeoObjectRestriction;
 
 public class ServerExternalIdRestriction implements ServerGeoObjectRestriction
 {
@@ -37,18 +33,6 @@ public class ServerExternalIdRestriction implements ServerGeoObjectRestriction
   {
     this.system = system;
     this.externalId = externalId;
-  }
-
-  @Override
-  public TreeGeoObjectRestriction create(TreeGeoObjectQuery query)
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public LeafGeoObjectRestriction create(LeafGeoObjectQuery query)
-  {
-    throw new UnsupportedOperationException();
   }
 
   @Override

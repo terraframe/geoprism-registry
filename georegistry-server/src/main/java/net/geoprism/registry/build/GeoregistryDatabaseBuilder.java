@@ -27,7 +27,6 @@ import com.runwaysdk.business.ontology.OntologyStrategyIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
 import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
@@ -93,14 +92,6 @@ public class GeoregistryDatabaseBuilder extends GeoprismDatabaseBuilder implemen
   @Override
   protected void configureStrategies()
   {
-    OntologyStrategyFactory.set(GeoEntity.CLASS, new OntologyStrategyBuilderIF()
-    {
-      @Override
-      public OntologyStrategyIF build()
-      {
-        return DatabaseAllPathsStrategy.factory(GeoEntity.CLASS);
-      }
-    });
   }
   
   public MdClass getMdClassIfExist(String pack, String type)

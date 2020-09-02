@@ -142,7 +142,7 @@ public class CambodiaTestDataset extends TestDataSet
   @Override
   public void setUpRelationships()
   {
-    GO_Cambodia.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
+//    GO_Cambodia.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
     
     GO_Cambodia.addChild(GO_Oddar_Meanchey, HIER_ADMIN);
   }
