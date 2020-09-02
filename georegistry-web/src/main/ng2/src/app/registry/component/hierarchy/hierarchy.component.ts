@@ -203,6 +203,25 @@ export class HierarchyComponent implements OnInit {
     root.dy = this.svgWidth / (root.height + 1);
     return d3.cluster().nodeSize([root.dx, root.dy])(root);
   }
+  
+  private registerDragHandlers(): any {
+    var dragHandler = d3.drag()
+    .on("drag", function (event) {
+        console.log("left", event.sourceEvent.pageX);
+    
+        d3.select(this)
+            .style("position", "absolute")
+            .style("left", event.sourceEvent.pageX)
+            .style("top", event.sourceEvent.pageY);
+    }).on("end", function(event) {
+        d3.select(this)
+            .style("position", "relative")
+            .style("left", null)
+            .style("top", null);
+    });
+
+    dragHandler(d3.selectAll(".sidebar-section-content ul.list-group li.list-group-item"));
+  }
 
 	ngAfterViewInit() {
 
@@ -292,6 +311,8 @@ export class HierarchyComponent implements OnInit {
       this.hierarchiesByOrg.push({org: org, hierarchies: this.getHierarchiesByOrg(org)});
       this.typesByOrg.push({org: org, types: this.getTypesByOrg(org)});
     }
+    
+    setTimeout( () => { this.registerDragHandlers(); }, 500 );
 	}
 
 	public excludeHierarchyTypeDeletes(hierarchy: HierarchyType) {
