@@ -23,6 +23,8 @@ export class GeoObjectTypeInputComponent implements OnInit {
     @Output() geoObjectTypeChange:  EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
     editGeoObjectType: GeoObjectType;
     
+    organizationLabel: string;
+    
     @Input('setGeoObjectType') 
     set in(geoObjectType: GeoObjectType){
         if(geoObjectType){
@@ -47,12 +49,25 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
         this.geoObjectTypeManagementService.setModalState(this.modalState);
+        
+        this.fetchOrganizationLabel();
     }
 
-    ngAfterViewInit() {
-    }
-
-    ngOnDestroy(){
+    fetchOrganizationLabel(): void {
+        
+      this.registryService.getOrganizations().then(orgs => {
+      
+        for (var i = 0; i < orgs.length; ++i)
+        {
+          if (orgs[i].code === this.editGeoObjectType.organizationCode)
+          {
+            this.organizationLabel = orgs[i].label.localizedValue;
+          }
+        }
+        
+      }).catch((err: HttpErrorResponse) => {
+          this.error(err);
+      });
     }
 
     manageAttributes(): void {

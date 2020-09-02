@@ -36,8 +36,8 @@
           <option></option>
           <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
         </select>
-        <span *ngIf="!edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
-        <span *ngIf="edit" class="text"><input type="text" [(ngModel)]="hierarchyType.organizationCode" name="organization" disabled required></span>
+        <span *ngIf="!edit && organizations.length == 1" class="text"><input type="text" [(ngModel)]="organizationLabel" name="organization" disabled required></span>
+        <span *ngIf="edit" class="text"><input type="text" [(ngModel)]="organizationLabel" name="organization" disabled required></span>
       </div>
 
       <div class="row">

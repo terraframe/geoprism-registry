@@ -164,7 +164,7 @@
 	                                </td>
 	                                <td *ngIf="attr.type === 'term'" style="margin-right:20px;">
 	                                  <select style="width:95%" *ngIf="attr.type === 'term'" [(ngModel)]="levelRows[i-1].level.attributes[attr.name].isOrgUnitGroup" (change)="onChangeTargetType(levelRows[i-1].level.attributes[attr.name])" [name]="'isOrgUnitGroup' + i + attr.name">
-                                      <option [ngValue]="false">{{attr.typeLabel}}</option>
+                                      <option [ngValue]="false"><localize key="sync.attr.targetTypeOptionSet"></localize></option>
                                       <option [ngValue]="true"><localize key="sync.attr.targetTypeOrgUnitGroup"></localize></option>
                                     </select>
 	                                </td>
