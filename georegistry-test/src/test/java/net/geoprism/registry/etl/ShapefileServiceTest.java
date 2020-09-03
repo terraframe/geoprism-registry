@@ -321,6 +321,62 @@ public class ShapefileServiceTest
 
   @Test
   @Request
+  public void testImportShapefileFrazer() throws InterruptedException
+  {
+    InputStream istream = Thread.currentThread().getContextClassLoader().getResourceAsStream("shapefile/ntd_zam_operational_28082020.zip.test");
+    
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+
+    /*
+     * Build Config
+     */
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "ntd_zam_operational_28082020.zip", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
+    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
+
+    for (int i = 0; i < attributes.length(); i++)
+    {
+      JSONObject attribute = attributes.getJSONObject(i);
+
+      String attributeName = attribute.getString(AttributeType.JSON_CODE);
+
+      if (attributeName.equals(GeoObject.DISPLAY_LABEL))
+      {
+        attribute.put(GeoObjectImportConfiguration.TARGET, "name");
+      }
+      else if (attributeName.equals(GeoObject.CODE))
+      {
+        attribute.put(GeoObjectImportConfiguration.TARGET, "id");
+      }
+
+    }
+
+    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.SHAPEFILE);
+    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
+
+    GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
+
+    config.setStartDate(new Date());
+    config.setEndDate(new Date());
+    config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
+    config.setHierarchy(hierarchyType);
+
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(1011), hist.getWorkTotal());
+    Assert.assertEquals(new Long(1011), hist.getWorkProgress());
+    Assert.assertEquals(new Long(1011), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+  }
+  
+  @Test
+  @Request
   public void testImportShapefile() throws InterruptedException
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
