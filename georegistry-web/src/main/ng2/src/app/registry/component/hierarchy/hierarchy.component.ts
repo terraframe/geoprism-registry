@@ -98,6 +98,17 @@ export class HierarchyComponent implements OnInit {
 	  //let data = '{"name":"test1","children":[{"name":"child1"}]}';
 	  //data = JSON.parse(data);
 	  
+	  if (this.nodes == null || this.nodes.length === 0 || this.nodes[0] == null)
+	  {
+	    d3.select("#svg").remove();
+	    d3.select("#emptyHierarchyDropzone").style("display", "block");
+	    return;
+	  }
+	  else
+	  {
+	    d3.select("#emptyHierarchyDropzone").style("display", "none");
+	  }
+	  
 	  let data = this.nodes[0];
 	  
 	  const root = this.myTree(data);
@@ -205,22 +216,39 @@ export class HierarchyComponent implements OnInit {
   }
   
   private registerDragHandlers(): any {
-    var dragHandler = d3.drag()
-    .on("drag", function (event) {
-        console.log("left", event.sourceEvent.pageX);
-    
+    let deltaX, deltaY, width: number;
+  
+    // GeoObjectTypes and Hierarchies
+    let sidebarDragHandler = d3.drag()
+    .on("start", function (event: any) {
+        let rect = this.getBoundingClientRect();
+        deltaX = rect.left - event.sourceEvent.pageX;
+        deltaY = rect.top - event.sourceEvent.pageY;
+        width = rect.width;
+    })
+    .on("drag", function (event: any) {
         d3.select(this)
-            .style("position", "absolute")
-            .style("left", event.sourceEvent.pageX)
-            .style("top", event.sourceEvent.pageY);
-    }).on("end", function(event) {
+            .classed("dragging", true)
+            .attr("pointer-events", "none")
+            .style("left", (event.sourceEvent.pageX + deltaX) + "px")
+            .style("top", (event.sourceEvent.pageY + deltaY) + "px")
+            .style("width", width + "px");
+    }).on("end", function(event: any) {
         d3.select(this)
-            .style("position", "relative")
+            .classed("dragging", false)
+            .attr("pointer-events", null)
             .style("left", null)
-            .style("top", null);
+            .style("top", null)
+            .style("width", null);
+        
+        console.log("target is ", document.elementFromPoint(event.sourceEvent.pageX, event.sourceEvent.pageY));
     });
 
-    dragHandler(d3.selectAll(".sidebar-section-content ul.list-group li.list-group-item"));
+    sidebarDragHandler(d3.selectAll(".sidebar-section-content ul.list-group li.list-group-item"));
+    
+    
+    // Empty Hierarchy Drop Zone
+    
   }
 
 	ngAfterViewInit() {

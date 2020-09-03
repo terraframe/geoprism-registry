@@ -36,6 +36,13 @@
           <attribute name="defaultLocale" value="Search All" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.dragGotToHierarchy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.dragGotToHierarchy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Drag GeoObject Type to Hierarchy" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

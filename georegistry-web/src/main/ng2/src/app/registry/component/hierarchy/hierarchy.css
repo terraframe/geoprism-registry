@@ -9,7 +9,7 @@ li.list-group-item.active {
 
 .sidebar-section-content {
 	overflow-y: auto;
-	height: 40em;
+	height: 29em;
 }
 
 .hierarchy-sidebar button {
@@ -34,13 +34,24 @@ li.list-group-item.active {
 	position:fixed;
 	width:90%;
 	top:144px;
-	margin-left:10px;
+	margin-left: 40px;
+  margin-top: 25px;
+}
+
+.upload-text {
+	position:relative;
+	top:40%;
 }
 
 .sidebar-section {
 	background: #505050;
 	text-align: left;
   color:#fff;
+}
+
+.sidebar-section-content ul.list-group li.list-group-item
+{
+	cursor: grab;
 }
 
 .hierarchy-sidebar-content .panel-body {
@@ -60,4 +71,24 @@ accordion-group.panel {
 li.list-group-item {
 	background-color: rgba(255, 255, 255, 1.0);
 	margin-bottom:5px;
+}
+
+.drop-box-container {
+    height: 200px;
+    width: 300px;
+    border: 3px grey dashed;
+    border-radius: 5px;
+    margin-top: 0px;
+}
+
+.hierarchy-drop-box {
+  position:relative;
+  height: 100%;
+  cursor: default;
+}
+
+.dragging {
+	position: fixed;
+	cursor: grabbing !important;
+	z-index: 99999999;
 }
