@@ -27,6 +27,12 @@ class Instance {
 	label: string;
 }
 
+interface DropTarget {
+  dropSelector: string;
+  onDrag(dragEl: Element, dropEl: Element): void;
+  onDrop(dragEl: Element);
+}
+
 @Component({
 
 	selector: 'hierarchies',
@@ -162,6 +168,7 @@ export class HierarchyComponent implements OnInit {
         .selectAll("rect")
         .data(root.descendants())
         .join("rect")
+          .classed("svg-got-dz", true)
           .attr("x", (d: any) => d.x - (rectW / 2))
           .attr("y", (d: any) => d.y - (rectH / 2))
           .attr("fill", (d: any) => "#e0e0e0")
@@ -202,9 +209,9 @@ export class HierarchyComponent implements OnInit {
     d3.select("#svg").remove();
     document.getElementById("svgHolder").appendChild(svg.attr("viewBox", autoBox).node());
     
-    let viewBox = svg.attr("viewBox");
-    let width = viewBox.split(" ")[2];
-    let height = viewBox.split(" ")[3];
+    let viewBox: string = svg.attr("viewBox");
+    let width: number = parseInt(viewBox.split(" ")[2]);
+    let height: number = parseInt(viewBox.split(" ")[3]);
     
     d3.select("#svgHolder").style("width", width*2 + "px");
     d3.select("#svgHolder").style("height", height*2 + "px"); 
@@ -219,9 +226,51 @@ export class HierarchyComponent implements OnInit {
   
   private registerDragHandlers(): any {
     let deltaX, deltaY, width: number;
-    let activeDropTarget = null;
+    let activeDropTarget: DropTarget = null;
     let that = this;
-  
+    
+    let dropTargets: DropTarget[] = [];
+    
+    // Empty Hierarchy Drop Zone
+    dropTargets.push({ dropSelector: ".drop-box-container", onDrag: function(dragEl: Element, dropEl: Element) {
+      if (this.dropEl != null)
+      {
+        this.dropEl.style("border-color", null);
+        this.dropEl = null;
+      }
+    
+      let emptyHierarchyDropZone = dropEl.closest(".drop-box-container");
+          
+      if (emptyHierarchyDropZone != null)
+      {
+        this.dropEl = d3.select(emptyHierarchyDropZone).style("border-color", "blue");
+      }
+    }, onDrop: function(dragEl: Element) {
+      if (this.dropEl != null)
+      {
+        this.dropEl.style("border-color", null);
+        that.addChild(that.currentHierarchy.code, "ROOT", d3.select(dragEl).attr("id"));
+      }
+    }});
+    
+    // SVG GeoObjectType Drop Zone
+    dropTargets.push({ dropSelector: ".svg-got-dz", onDrag: function(dragEl: Element, dropEl: Element) {
+      if (this.activeEl != null)
+      {
+        this.activeEl.style("border-color", null);
+        this.activeEl = null;
+      }
+    
+      let gotDZ = dropEl.closest(".svg-got-dz");
+          
+      if (gotDZ != null)
+      {
+        this.activeEl = d3.select(gotDZ).style("border-color", "blue");
+      }
+    }, onDrop: function(dragEl: Element) {
+    
+    }});
+    
     // GeoObjectTypes and Hierarchies
     let sidebarDragHandler = d3.drag()
     .on("start", function (event: any) {
@@ -241,22 +290,14 @@ export class HierarchyComponent implements OnInit {
         d3.select(this)
             .style("display", null);
         
-        // Check all parents of whatever we selected for that goodly drop class
-        let emptyHierarchyDropZone = target.closest(".drop-box-container");
-        
-        if (activeDropTarget != null && (activeDropTarget != emptyHierarchyDropZone
-            || emptyHierarchyDropZone == null))
+        for (let i = 0; i < dropTargets.length; ++i)
         {
-          activeDropTarget.style("border-color", null); 
-        }
-        if (emptyHierarchyDropZone != null)
-        {
-          activeDropTarget = d3.select(emptyHierarchyDropZone).style("border-color", "blue");
+          dropTargets[i].onDrag(this, target);
         }
     
+        // Move the GeoObjectType with the pointer when they move their mouse
         d3.select(this)
             .classed("dragging", true)
-            .attr("pointer-events", "none")
             .style("left", (event.sourceEvent.pageX + deltaX) + "px")
             .style("top", (event.sourceEvent.pageY + deltaY) + "px")
             .style("width", width + "px");
@@ -264,16 +305,13 @@ export class HierarchyComponent implements OnInit {
     }).on("end", function(event: any) {
         let selected = d3.select(this)
             .classed("dragging", false)
-            .attr("pointer-events", null)
             .style("left", null)
             .style("top", null)
             .style("width", null);
         
-        if (activeDropTarget != null)
+        for (let i = 0; i < dropTargets.length; ++i)
         {
-          activeDropTarget.style("border-color", null);
-          that.addChild(that.currentHierarchy.code, "ROOT", selected.attr("id"));
-          activeDropTarget = null;
+          dropTargets[i].onDrop(this);
         }
     });
 
