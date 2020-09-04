@@ -43,6 +43,13 @@
           <attribute name="defaultLocale" value="Drag GeoObject Type to Hierarchy" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo Object Type" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

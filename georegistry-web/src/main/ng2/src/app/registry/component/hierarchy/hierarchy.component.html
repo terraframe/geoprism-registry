@@ -25,7 +25,7 @@
               <div *ngIf="typeByOrg.types.length > 0">
                 <label>{{typeByOrg.org.label.localizedValue}}</label>
               
-	              <li class="list-group-item" *ngFor="let type of typeByOrg.types">
+	              <li class="list-group-item" *ngFor="let type of typeByOrg.types" [id]="type.code">
 		              {{type.label.localizedValue}}
 		              
 		              <span *ngIf="isOrganizationRA(type.organizationCode)">
@@ -57,7 +57,7 @@
               <div *ngIf="hierarchyByOrg.hierarchies.length > 0">
 	              <label>{{hierarchyByOrg.org.label.localizedValue}}</label>
 	            
-		            <li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
+		            <li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code" class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
 		              <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
 		  
 		              <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
@@ -79,7 +79,7 @@
     <div class="hierarchy-content">
 	    <div class="row">
 	     
-	      <div id="emptyHierarchyDropzone" class="drop-box-container" style="display:none;">
+	      <div *ngIf="currentHierarchy != null && isOrganizationRA(currentHierarchy.organizationCode, true) && (nodes == null || nodes.length === 0 || nodes[0] == null)" id="emptyHierarchyDropzone" class="drop-box-container">
           <div class="hierarchy-drop-box">
             <div class="inner-drop-box">
               <p class="upload-text"><localize key="hierarchy.content.dragGotToHierarchy"></localize></p>

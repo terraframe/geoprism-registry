@@ -101,12 +101,12 @@ export class HierarchyComponent implements OnInit {
 	  if (this.nodes == null || this.nodes.length === 0 || this.nodes[0] == null)
 	  {
 	    d3.select("#svg").remove();
-	    d3.select("#emptyHierarchyDropzone").style("display", "block");
+	    //d3.select("#emptyHierarchyDropzone").style("display", "block");
 	    return;
 	  }
 	  else
 	  {
-	    d3.select("#emptyHierarchyDropzone").style("display", "none");
+	    //d3.select("#emptyHierarchyDropzone").style("display", "none");
 	  }
 	  
 	  let data = this.nodes[0];
@@ -217,6 +217,8 @@ export class HierarchyComponent implements OnInit {
   
   private registerDragHandlers(): any {
     let deltaX, deltaY, width: number;
+    let activeDropTarget = null;
+    let that = this;
   
     // GeoObjectTypes and Hierarchies
     let sidebarDragHandler = d3.drag()
@@ -227,28 +229,90 @@ export class HierarchyComponent implements OnInit {
         width = rect.width;
     })
     .on("drag", function (event: any) {
+    
+        // Kind of a dumb hack, but if we hide our drag element for a sec, then we can check what's underneath it.
+        d3.select(this)
+            .style("display", "none");
+    
+        let target = document.elementFromPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
+        
+        d3.select(this)
+            .style("display", null);
+        
+        // Check all parents of whatever we selected for that goodly drop class
+        let emptyHierarchyDropZone = target.closest(".drop-box-container");
+        
+        if (activeDropTarget != null && (activeDropTarget != emptyHierarchyDropZone
+            || emptyHierarchyDropZone == null))
+        {
+          activeDropTarget.style("border-color", null); 
+        }
+        if (emptyHierarchyDropZone != null)
+        {
+          activeDropTarget = d3.select(emptyHierarchyDropZone).style("border-color", "blue");
+        }
+    
         d3.select(this)
             .classed("dragging", true)
             .attr("pointer-events", "none")
             .style("left", (event.sourceEvent.pageX + deltaX) + "px")
             .style("top", (event.sourceEvent.pageY + deltaY) + "px")
             .style("width", width + "px");
+        
     }).on("end", function(event: any) {
-        d3.select(this)
+        let selected = d3.select(this)
             .classed("dragging", false)
             .attr("pointer-events", null)
             .style("left", null)
             .style("top", null)
             .style("width", null);
         
-        console.log("target is ", document.elementFromPoint(event.sourceEvent.pageX, event.sourceEvent.pageY));
+        if (activeDropTarget != null)
+        {
+          activeDropTarget.style("border-color", null);
+          that.addChild(that.currentHierarchy.code, "ROOT", selected.attr("id"));
+        }
     });
 
     sidebarDragHandler(d3.selectAll(".sidebar-section-content ul.list-group li.list-group-item"));
+  }
+  
+  private findGeoObjectTypeByCode(code: string): GeoObjectType
+  {
+    for (let i = 0; i < this.geoObjectTypes.length; ++i)
+    {
+      let got: GeoObjectType = this.geoObjectTypes[i];
+      
+      if (got.code === code)
+      {
+        return got;
+      }
+    }
+  }
+  
+  private findHierarchyByCode(code: string): HierarchyType
+  {
+    for (let i = 0; i < this.hierarchies.length; ++i)
+    {
+      let ht: HierarchyType = this.hierarchies[i];
+      
+      if (ht.code === code)
+      {
+        return ht;
+      }
+    }
+  }
+  
+  private addChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void
+  {
+    this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode ).then( (ht: HierarchyType) => {
+        this.processHierarchyNodes(ht.rootGeoObjectTypes[0]);
+        this.updateHierarchy(ht.code, ht.rootGeoObjectTypes)
     
-    
-    // Empty Hierarchy Drop Zone
-    
+        this.setNodesForHierarchy(ht);
+    } ).catch(( err: HttpErrorResponse) => {
+        this.error( err );
+    } );
   }
 
 	ngAfterViewInit() {
@@ -259,7 +323,10 @@ export class HierarchyComponent implements OnInit {
 		return this.authService.isRA();
 	}
 
-	isOrganizationRA(orgCode: string): boolean {
+	isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
+	  if (dropZone)
+	    console.log("isOrgRA of " + orgCode, this.authService.isOrganizationRA(orgCode), this.currentHierarchy);
+	
 		return this.authService.isOrganizationRA(orgCode);
 	}
 	
@@ -737,7 +804,8 @@ export class HierarchyComponent implements OnInit {
 		return null;
 	}
 
-	public addChildAndRootToHierarchy(): void {
+// TODO : This code is deprecated after the d3 hierarchy redesign
+	/*public addChildAndRootToHierarchy(): void {
 		const that = this;
 
 		this.bsModalRef = this.modalService.show(AddChildToHierarchyModalComponent, {
@@ -763,7 +831,7 @@ export class HierarchyComponent implements OnInit {
 			//	this.tree.treeModel.update();
 			//}
 		});
-	}
+	}*/
 
 	public addChildToHierarchy(parent: any): void {
 		const that = this;
@@ -841,7 +909,8 @@ export class HierarchyComponent implements OnInit {
 		return this.currentHierarchy === item;
 	};
 
-	public onDrop($event: any) {
+// Older drag/drop logic. May not be relevant anymore since d3 refactor.
+/*	public onDrop($event: any) {
 		// Dropped $event.element
 		this.removeTreeNode($event.element)
 	}
@@ -849,7 +918,7 @@ export class HierarchyComponent implements OnInit {
 	public allowDrop(element: Element) {
 		// Return true/false based on element
 		return true;
-	}
+	}*/
 
 	public error(err: HttpErrorResponse): void {
 		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
