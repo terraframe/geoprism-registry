@@ -175,6 +175,7 @@ export class HierarchyComponent implements OnInit {
           .attr("width", rectW)
           .attr("height", rectH)
           .attr("rx", 5)
+          .attr("data-gotCode", (d: any) => d.data.geoObjectType)
           
           
     // label
@@ -255,20 +256,24 @@ export class HierarchyComponent implements OnInit {
     
     // SVG GeoObjectType Drop Zone
     dropTargets.push({ dropSelector: ".svg-got-dz", onDrag: function(dragEl: Element, dropEl: Element) {
-      if (this.activeEl != null)
+      if (this.dropEl != null)
       {
-        this.activeEl.style("border-color", null);
-        this.activeEl = null;
+        this.dropEl.attr("stroke", null);
+        this.dropEl = null;
       }
     
       let gotDZ = dropEl.closest(".svg-got-dz");
           
       if (gotDZ != null)
       {
-        this.activeEl = d3.select(gotDZ).style("border-color", "blue");
+        this.dropEl = d3.select(gotDZ).attr("stroke", "blue");
       }
     }, onDrop: function(dragEl: Element) {
-    
+      if (this.dropEl != null)
+      {
+        this.dropEl.attr("stroke", null);
+        that.addChild(that.currentHierarchy.code, this.dropEl.attr("data-gotCode"), d3.select(dragEl).attr("id"));
+      }
     }});
     
     // GeoObjectTypes and Hierarchies
