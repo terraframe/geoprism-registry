@@ -101,12 +101,7 @@ export class HierarchyComponent implements OnInit {
 	  if (this.nodes == null || this.nodes.length === 0 || this.nodes[0] == null)
 	  {
 	    d3.select("#svg").remove();
-	    //d3.select("#emptyHierarchyDropzone").style("display", "block");
 	    return;
-	  }
-	  else
-	  {
-	    //d3.select("#emptyHierarchyDropzone").style("display", "none");
 	  }
 	  
 	  let data = this.nodes[0];
@@ -206,13 +201,20 @@ export class HierarchyComponent implements OnInit {
     
     d3.select("#svg").remove();
     document.getElementById("svgHolder").appendChild(svg.attr("viewBox", autoBox).node());
+    
+    let viewBox = svg.attr("viewBox");
+    let width = viewBox.split(" ")[2];
+    let height = viewBox.split(" ")[3];
+    
+    d3.select("#svgHolder").style("width", width*2 + "px");
+    d3.select("#svgHolder").style("height", height*2 + "px"); 
 	}
   
   private myTree(data): any {
     const root: any = d3.hierarchy(data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
-    root.dx = 10;
-    root.dy = this.svgWidth / (root.height + 1);
-    return d3.cluster().nodeSize([root.dx, root.dy])(root);
+    //root.dx = 10;
+    //root.dy = this.svgWidth / (root.height + 1);
+    return d3.tree().nodeSize([300, 50])(root);
   }
   
   private registerDragHandlers(): any {
@@ -271,6 +273,7 @@ export class HierarchyComponent implements OnInit {
         {
           activeDropTarget.style("border-color", null);
           that.addChild(that.currentHierarchy.code, "ROOT", selected.attr("id"));
+          activeDropTarget = null;
         }
     });
 
@@ -324,9 +327,6 @@ export class HierarchyComponent implements OnInit {
 	}
 
 	isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
-	  if (dropZone)
-	    console.log("isOrgRA of " + orgCode, this.authService.isOrganizationRA(orgCode), this.currentHierarchy);
-	
 		return this.authService.isOrganizationRA(orgCode);
 	}
 	

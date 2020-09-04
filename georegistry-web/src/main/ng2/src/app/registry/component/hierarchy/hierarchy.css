@@ -34,8 +34,8 @@ li.list-group-item.active {
 	position:fixed;
 	width:90%;
 	top:144px;
-	margin-left: 40px;
-  margin-top: 25px;
+	padding-left: 40px;
+  padding-top: 25px;
 }
 
 .upload-text {
