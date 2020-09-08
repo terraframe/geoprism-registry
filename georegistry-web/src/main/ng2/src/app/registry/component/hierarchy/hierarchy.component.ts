@@ -106,12 +106,15 @@ export class HierarchyComponent implements OnInit {
 	    return;
 	  }
 	  
+	  let rectW = 150;
+    let rectH = 25;
+	  
 	  let data = this.nodes[0];
 	  
 	  const root = this.myTree(data);
 
     const svg = d3.create("svg");
-  
+    
     // Edge
     svg.append("g")
       .attr("fill", "none")
@@ -121,10 +124,13 @@ export class HierarchyComponent implements OnInit {
     .selectAll("path")
       .data(root.links())
       .join("path")
-        .attr("d", d3.linkVertical().x(function(d:any) { return d.x; }).y(function(d:any) { return d.y; }));
-    
-    let rectW = 150;
-    let rectH = 25;
+        //.attr("d", d3.linkVertical().x(function(d:any) { return d.x; }).y(function(d:any) { return d.y; })); // draws edges as curved lines
+        .attr("d", (d,i) => { // draws edges as square bracket lines
+          return "M" + d.source.x + "," + (d.source.y)
+                 + "V" + ((d.source.y + d.target.y)/2)
+                 + "H" + d.target.x
+                 + "V" + (d.target.y);
+        });
     
     // Header on square which denotes which hierarchy it's a part of
     svg.append("g")
@@ -231,6 +237,7 @@ export class HierarchyComponent implements OnInit {
       {
         this.dropEl.style("border-color", null);
         that.addChild(that.currentHierarchy.code, "ROOT", d3.select(dragEl).attr("id"));
+        this.dropEl = null;
       }
     }});
     
@@ -253,6 +260,7 @@ export class HierarchyComponent implements OnInit {
       {
         this.dropEl.attr("stroke", null);
         that.addChild(that.currentHierarchy.code, this.dropEl.attr("data-gotCode"), d3.select(dragEl).attr("id"));
+        this.dropEl = null;
       }
     }});
     
