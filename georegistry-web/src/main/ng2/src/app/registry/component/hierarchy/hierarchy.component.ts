@@ -34,15 +34,6 @@ interface DropTarget {
   [others: string]: any;
 }
 
-interface DropZoneCoord {
-  gotCode: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  element: any;
-}
-
 @Component({
 
 	selector: 'hierarchies',
@@ -52,9 +43,8 @@ interface DropZoneCoord {
 
 export class HierarchyComponent implements OnInit {
 
-	// isAdmin: boolean;
-	// isMaintainer: boolean;
-	// isContributor: boolean;
+	private treeScaleFactorX = 2;
+	private treeScaleFactorY = 2;
 	
 	private svgWidth: number = 200;
 	private svgHeight: number = 500;
@@ -71,7 +61,6 @@ export class HierarchyComponent implements OnInit {
 	geoObjectTypes: GeoObjectType[] = [];
 	nodes = [] as HierarchyNode[];
 	currentHierarchy: HierarchyType = null;
-	dropZoneCoords: DropZoneCoord[] = [];
 	
 	hierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
 	typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
@@ -100,8 +89,9 @@ export class HierarchyComponent implements OnInit {
      * Currently clicked on id for delete confirmation modal 
      */
 	current: any;
-
-
+	
+	private root: any;
+	
 	constructor(private hierarchyService: HierarchyService, private modalService: BsModalService,
 		private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
 		private localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
@@ -123,21 +113,30 @@ export class HierarchyComponent implements OnInit {
 	    return;
 	  }
 	  
+	  console.log("re-rendering entire tree");
+	  
 	  let that = this;
 	  let data = this.nodes[0];
 	  
-	  const root = this.myTree(data);
+	  this.myTree(data);
 
-    const svg = d3.create("svg");
+    //const svg = d3.create("svg");
+    let svg = d3.select("#svg");
+    
+    if (svg.node() == null)
+    {
+      svg = d3.create("svg");
+    }
     
     // Edge
-    svg.append("g")
+    d3.select(".g-got-edge").remove();
+    svg.append("g").classed("g-got-edge", true)
       .attr("fill", "none")
       .attr("stroke", "#555")
       .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5)
     .selectAll("path")
-      .data(root.links())
+      .data(this.root.links())
       .join("path")
         //.attr("d", d3.linkVertical().x(function(d:any) { return d.x; }).y(function(d:any) { return d.y; })); // draws edges as curved lines
         .attr("d", (d:any,i) => { // draws edges as square bracket lines
@@ -146,12 +145,14 @@ export class HierarchyComponent implements OnInit {
                  + "H" + d.target.x
                  + "V" + (d.target.y);
         });
-        
+        //
     // Header on square which denotes which hierarchy it's a part of
-    svg.append("g")
+    d3.select(".g-got-header").remove();
+    svg.append("g").classed("g-got-header", true)
         .selectAll("rect")
-        .data(root.descendants())
+        .data(this.root.descendants())
         .join("rect")
+        .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
           .attr("x", (d: any) => d.x - (this.gotRectW / 2))
           .attr("y", (d: any) => d.y - this.gotRectH + 8)
           .attr("fill", (d: any) => "#b3ad00")
@@ -159,56 +160,104 @@ export class HierarchyComponent implements OnInit {
           .attr("height", this.gotHeaderH)
           .attr("rx", 5)
           
-    // Square around the label
-    svg.append("g")
+    // GeoObjectType Body Square
+    d3.select(".g-got").remove();
+    svg.append("g").classed("g-got", true)
         .selectAll("rect")
-        .data(root.descendants())
+        .data(this.root.descendants())
         .join("rect")
+        .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
           .classed("svg-got-dz", true)
           .attr("x", (d: any) => d.x - (this.gotRectW / 2))
           .attr("y", (d: any) => d.y - (this.gotRectH / 2))
-          .attr("fill", (d: any) => "#e0e0e0")
+          .attr("fill", "#e0e0e0")
           .attr("width", this.gotRectW)
           .attr("height", this.gotRectH)
           .attr("rx", 5)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
           .each(function(d:any) {
-            that.dropZoneCoords.push({gotCode: d.data.geoObjectType, x: d.x - that.gotRectW/2, y: d.y - that.gotRectH*2, width: that.gotRectW, height: that.gotRectH*4, element:this});
+            if (d.data.geoObjectType != "GhostNode")
+            {
+              if (d.data.activeDropZones)
+              {
+                d.data.dropZoneBbox = {x: d.x - that.gotRectW/2, y: d.y - that.gotRectH*2, width: that.gotRectW*2 + 100, height: that.gotRectH*4};
+              }
+              else
+              {
+                d.data.dropZoneBbox = {x: d.x - that.gotRectW/2, y: d.y - that.gotRectH/2, width: that.gotRectW, height: that.gotRectH};
+              }
+              d.data.gotBodySquare = this;
+            }
           });
+          
+    // Ghost Drop Zone (Sibling) Backer
+    d3.select(".g-sibling-ghost-backer").remove();
+    svg.append("g").classed("g-sibling-ghost-backer", true)
+        .selectAll("rect")
+        .data(this.root.descendants())
+        .join("rect")
+        .filter(function(d:any){return d.data.geoObjectType === "GhostNode";})
+          .classed("svg-sibling-ghost-backer-dz", true)
+          .attr("x", (d: any) => d.x - (this.gotRectW / 2))
+          .attr("y", (d: any) => d.y - (this.gotRectH / 2))
+          .attr("width", this.gotRectW)
+          .attr("height", this.gotRectH)
+          .attr("fill", "white")
+          
+    // Ghost Drop Zone (Sibling) Body Rectangle
+    d3.select(".g-sibling-ghost-body").remove();
+    svg.append("g").classed("g-sibling-ghost-body", true)
+        .selectAll("rect")
+        .data(this.root.descendants())
+        .join("rect")
+        .filter(function(d:any){return d.data.geoObjectType === "GhostNode";})
+          .classed("svg-sibling-ghost-body-dz", true)
+          .attr("x", (d: any) => d.x - (this.gotRectW / 2))
+          .attr("y", (d: any) => d.y - (this.gotRectH / 2))
+          .attr("width", this.gotRectW)
+          .attr("height", this.gotRectH)
+          .attr("fill", "none")
+          .attr("stroke", "black")
+          .attr("stroke-width", "1")
+          .attr("stroke-dasharray", "5,5")
+          .attr("data-gotCode", (d: any) => d.data.geoObjectType)
     
-    // label
-    svg.append("g")
+    // GeoObjectType label
+    d3.select(".g-got-codelabel").remove();
+    svg.append("g").classed("g-got-codelabel", true)
         .attr("font-family", "sans-serif")
         .attr("font-size", 10)
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
       .selectAll("text")
-      .data(root.descendants())
+      .data(this.root.descendants())
       .join("text")
         .attr("x", (d:any) => d.x - 70)
         .attr("y", (d:any) => d.y - 4)
         .attr("dx", "0.31em")
         .attr("dy", (d:any) => 6)
         .text((d:any) => d.data.label)
-    
-    // Drop Zones (Created later in the drag handler)
-    svg.append("g").classed("svg-dropZone-g", true);
   
-    let autoBox = function() {
-      document.body.appendChild(this);
-      const {x, y, width, height} = this.getBBox();
-      document.body.removeChild(this);
-      return x + " " + y + " " + width + " " + height;
-    }
+    let svgNode: any = svg.node();
+  
+    // Calculate the svg viewport size
+    document.body.appendChild(svgNode);
+    let {x, y, width, height} = svgNode.getBBox();
+    document.body.removeChild(svgNode);
   
     svg.attr("id", "svg");
     
-    d3.select("#svg").remove();
-    document.getElementById("svgHolder").appendChild(svg.attr("viewBox", autoBox).node());
+    const xPadding = 30;
+    const yPadding = 40;
+    svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding*2) + " " + (height + yPadding*2));
     
-    let viewBox: string = svg.attr("viewBox");
-    let width: number = parseInt(viewBox.split(" ")[2]) * 1.6;
-    let height: number = parseInt(viewBox.split(" ")[3]) * 1.6;
+    if (svgNode.parentNode == null)
+    {
+      document.getElementById("svgHolder").appendChild(svgNode);
+    }
+    
+    width = width * this.treeScaleFactorX;
+    height = height * this.treeScaleFactorY;
     
     if (width > 1200)
     {
@@ -220,15 +269,12 @@ export class HierarchyComponent implements OnInit {
 	}
   
   private myTree(data): any {
-    const root: any = d3.hierarchy(data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
-    //root.dx = 10;
-    //root.dy = this.svgWidth / (root.height + 1);
-    return d3.tree().nodeSize([300, 85]).separation((a, b) => 0.8)(root);
+    //const root2: any = d3.hierarchy(data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
+    const root2: any = d3.hierarchy(data);
+    this.root = d3.tree().nodeSize([300, 85]).separation((a, b) => 0.8)(root2);
   }
   
   private registerDragHandlers(): any {
-    let deltaX, deltaY, width: number;
-    let activeDropTarget: DropTarget = null;
     let that = this;
     
     let dropTargets: DropTarget[] = [];
@@ -260,8 +306,10 @@ export class HierarchyComponent implements OnInit {
     }});
     
     // SVG GeoObjectType Drop Zone
-    dropTargets.push({ dropSelector: ".svg-got-dz", onDrag: function(dragEl: Element, dropEl: Element, event: any) {
+    dropTargets.push({ dropSelector: ".svg-got-dz", onDrag: function(dragEl: Element, mouseTarget: Element, event: any) {
       this.clearDropZones();
+      
+      let lastDropEl = this.dropEl;
       
       // translate page to SVG co-ordinate
       let svg: any = d3.select("#svg").node();
@@ -275,27 +323,37 @@ export class HierarchyComponent implements OnInit {
       }
       let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
       
-      console.log("mouse", svgMousePoint, event.sourceEvent.pagex, event.sourceEvent.pageY);
-    
-      that.dropZoneCoords.forEach(coord => {
-        if (svgMousePoint.y > coord.y && svgMousePoint.y < (coord.y + coord.height) && svgMousePoint.x > coord.x && svgMousePoint.x < (coord.x + coord.width))
+      that.root.descendants().forEach((node:any) => {
+        if (node.data.geoObjectType !== "GhostNode" && this.isWithin(svgMousePoint, node.data.dropZoneBbox))
         {
-          dropEl = coord.element;
+          this.dropEl = d3.select(node.data.gotBodySquare);
+          node.data.activeDropZones = true;
+          
+          if (node.parent == null)
+          {
+            node.data.dropZoneBbox = {x: node.x - that.gotRectW/2, y: node.y - that.gotRectH*2, width: that.gotRectW, height: that.gotRectH*4};
+          }
+        }
+        else
+        {
+          node.data.activeDropZones = false;
+          
+          if (node.parent == null)
+          {
+            node.data.dropZoneBbox = {x: node.x - that.gotRectW/2, y: node.y - that.gotRectH/2, width: that.gotRectW, height: that.gotRectH};
+          }
         }
       });
     
-      if (dropEl != null)
+      if ( this.dropEl == null || (lastDropEl != null && this.dropEl != null && lastDropEl.attr("data-gotCode") != this.dropEl.attr("data-gotCode")) )
       {
-        let gotDZ = dropEl.closest(".svg-got-dz");
-            
-        if (gotDZ != null)
-        {
-          this.dropEl = d3.select(gotDZ).attr("stroke", "blue");
-        }
+        this.clearGhostNodes(true);
       }
       
       if (this.dropEl != null)
       {
+        this.dropEl.attr("stroke", "blue");
+      
         const dropElX = parseInt(this.dropEl.attr("x"));
         const dropElY = parseInt(this.dropEl.attr("y"));
         
@@ -305,6 +363,7 @@ export class HierarchyComponent implements OnInit {
         
         let dzg = d3.select("#svg").append("g").classed("svg-dropZone-g", true);
         
+        // Render Child Drop Zone
         this.childDzBacker = dzg.append("rect").classed("svg-got-child-dz-backer", true)
             .attr("x", dropElX + (that.gotRectW / 2) - (childW / 2))
             .attr("y", dropElY + that.gotRectH + 10)
@@ -329,7 +388,8 @@ export class HierarchyComponent implements OnInit {
           .attr("x", dropElX + (that.gotRectW / 2) - 20)
           .attr("y", dropElY + that.gotRectH + 10 + childH/2 + 2)
           .text("Add Child"); // TODO Localize
-          
+        
+        // Render Parent Drop Zone
         this.parentDzBacker = dzg.append("rect").classed("svg-got-parent-dz-backer", true)
             .attr("x", dropElX + (that.gotRectW / 2) - (childW / 2))
             .attr("y", dropElY - that.gotHeaderH - childH)
@@ -356,21 +416,65 @@ export class HierarchyComponent implements OnInit {
           .attr("y", dropElY - that.gotHeaderH - childH/2 + 2)
           .text("Add Parent"); // TODO Localize
           
-        if (svgMousePoint.y < dropElY + (that.gotRectH / 2))
+        // Render Sibling Drop Zone
+        let gotCode = this.dropEl.attr("data-gotCode");
+        if (this.ghostCode != gotCode)
+        {
+          let dropNode = that.root.find((node)=>{return node.data.geoObjectType === gotCode;});
+        
+          if (this.ghostCode != null)
+          {
+            this.clearGhostNodes(dropNode.parent == null);
+          }
+        
+          if (dropNode.parent != null)
+          {
+            let parentIndex = null;
+            for (let i = 0; i < dropNode.parent.data.children.length; ++i)
+            {
+              let hn: any = dropNode.parent.data.children[i];
+              
+              if (hn.geoObjectType === gotCode)
+              {
+                parentIndex = i + 1;
+              }
+            };
+          
+            dropNode.parent.data.children.splice(parentIndex, 0, {ghostingCode: gotCode, geoObjectType:"GhostNode", label:"Add Child", children:[]}); // TODO : localize
+            
+            that.renderTree();
+            this.ghostCode = gotCode;
+          }
+        }
+        
+        let siblingGhostBody = d3.select(".svg-sibling-ghost-body-dz");
+        
+        if (this.isWithin(svgMousePoint, this.getBboxFromSelection(this.parentDz)))
         {
           this.parentDz.attr("stroke", "blue");
           this.parentDzText.attr("fill", "blue");
           this.childDz.attr("stroke", "black");
           this.childDzText.attr("fill", "black");
+          siblingGhostBody.attr("stroke", "black");
           this.activeDz = this.parentDz;
         }
-        else
+        else if (this.isWithin(svgMousePoint, this.getBboxFromSelection(this.childDz)))
         {
           this.parentDz.attr("stroke", "black");
           this.parentDzText.attr("fill", "black");
           this.childDz.attr("stroke", "blue");
           this.childDzText.attr("fill", "blue");
+          siblingGhostBody.attr("stroke", "black");
           this.activeDz = this.childDz;
+        }
+        else if (siblingGhostBody.node() != null && this.isWithin(svgMousePoint, this.getBboxFromSelection(siblingGhostBody)))
+        {
+          this.parentDz.attr("stroke", "black");
+          this.parentDzText.attr("fill", "black");
+          this.childDz.attr("stroke", "black");
+          this.childDzText.attr("fill", "black");
+          siblingGhostBody.attr("stroke", "blue");
+          this.activeDz = "sibling";
         }
       }
     }, onDrop: function(dragEl: Element) {
@@ -384,6 +488,7 @@ export class HierarchyComponent implements OnInit {
         }
       }
       this.clearDropZones();
+      this.clearGhostNodes(true);
     }, clearDropZones: function() {
       if (this.dropEl != null)
       {
@@ -398,9 +503,44 @@ export class HierarchyComponent implements OnInit {
       
       d3.select(".svg-dropZone-g").remove();
       
+    }, clearGhostNodes: function(renderTree: boolean) {
+      if (this.ghostCode != null)
+      {
+        let ghostNode = that.root.find((node)=>{return node.data.ghostingCode === this.ghostCode;});
+        
+        if (ghostNode != null)
+        {
+          let parentIndex = null;
+          for (let i = 0; i < ghostNode.parent.data.children.length; ++i)
+          {
+            let hn: any = ghostNode.parent.data.children[i];
+            
+            if (hn.ghostingCode === this.ghostCode)
+            {
+              parentIndex = i;
+            }
+          };
+          
+          if (parentIndex != null)
+          {
+            ghostNode.parent.data.children.splice(parentIndex, 1);
+            if (renderTree)
+            {
+              that.renderTree();
+            }
+          }
+        }
+        
+        this.ghostCode = null;
+      }
+    }, isWithin : function(point: {x: number, y: number}, bbox: {x: number, y: number, width: number, height: number}) {
+      return point.y > bbox.y && point.y < (bbox.y + bbox.height) && point.x > bbox.x && point.x < (bbox.x + bbox.width);
+    }, getBboxFromSelection : function(selection: any) {
+      return {x: parseInt(selection.attr("x")), y: parseInt(selection.attr("y")), width: parseInt(selection.attr("width")), height: parseInt(selection.attr("height"))};
     }});
     
     // GeoObjectTypes and Hierarchies
+    let deltaX, deltaY, width: number;
     let sidebarDragHandler = d3.drag()
     .on("start", function (event: any) {
         let rect = this.getBoundingClientRect();
