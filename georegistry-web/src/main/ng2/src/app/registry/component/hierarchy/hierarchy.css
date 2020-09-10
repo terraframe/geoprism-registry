@@ -9,7 +9,7 @@ li.list-group-item.active {
 
 .sidebar-section-content {
 	overflow-y: auto;
-	height: 29em;
+	height: calc(100vh - 144px - 175px);
 }
 
 .hierarchy-sidebar button {
@@ -32,10 +32,11 @@ li.list-group-item.active {
 .hierarchy-content {
 	left:350px;
 	position:fixed;
-	width:90%;
+	width:calc(100vw - 350px);
 	top:144px;
-	padding-left: 40px;
-  padding-top: 25px;
+	/*padding-left: 40px;*/
+	padding-left: 0px;
+  padding-top: 0px;
 }
 
 .upload-text {

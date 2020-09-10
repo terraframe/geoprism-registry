@@ -43,8 +43,8 @@ interface DropTarget {
 
 export class HierarchyComponent implements OnInit {
 
-	private treeScaleFactorX = 2;
-	private treeScaleFactorY = 2;
+	private treeScaleFactorX = 1.6;
+	private treeScaleFactorY = 1.6;
 	
 	private svgWidth: number = 200;
 	private svgHeight: number = 500;
@@ -256,16 +256,17 @@ export class HierarchyComponent implements OnInit {
       document.getElementById("svgHolder").appendChild(svgNode);
     }
     
-    width = width * this.treeScaleFactorX;
-    height = height * this.treeScaleFactorY;
+    width = (width + xPadding*2) * this.treeScaleFactorX;
+    height = (height + yPadding*2) * this.treeScaleFactorY;
     
-    if (width > 1200)
-    {
-      width = 1200;
-    }
+    // This sort of clipping screws up the dropzone logic we have for relationship management
+    //if (width > 1200)
+    //{
+      //width = 1200;
+    //}
     
     d3.select("#svgHolder").style("width", width + "px");
-    d3.select("#svgHolder").style("height", height + "px"); 
+    //d3.select("#svgHolder").style("height", height + "px"); 
 	}
   
   private myTree(data): any {

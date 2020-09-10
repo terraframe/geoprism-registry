@@ -77,7 +77,7 @@
     </nav>
     
     <div class="hierarchy-content">
-	    <div class="row">
+	    <div style="overflow:auto;">
 	     
 	      <div *ngIf="currentHierarchy != null && isOrganizationRA(currentHierarchy.organizationCode, true) && (nodes == null || nodes.length === 0 || nodes[0] == null)" id="emptyHierarchyDropzone" class="drop-box-container">
           <div class="hierarchy-drop-box">
@@ -87,7 +87,7 @@
           </div>
         </div>
 	     
-	      <div id="svgHolder" >
+	      <div id="svgHolder">
 	      <!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->
 	      </div>
 	    
