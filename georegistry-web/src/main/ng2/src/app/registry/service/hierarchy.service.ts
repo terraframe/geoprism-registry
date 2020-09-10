@@ -58,6 +58,22 @@ export class HierarchyService {
            .toPromise();
     }
     
+    insertBetweenTypes( hierarchyCode: string, parentGeoObjectTypeCode: string, middleGeoObjectTypeCode: string, youngestGeoObjectTypeCode: string ): Promise<HierarchyType> {
+
+     let headers = new HttpHeaders( {
+           'Content-Type': 'application/json'
+       } );
+
+       this.eventService.start();
+
+       return this.http
+           .post<HierarchyType>( acp + '/hierarchy/insertBetweenTypes', JSON.stringify( { hierarchyCode : hierarchyCode, parentGeoObjectTypeCode : parentGeoObjectTypeCode, middleGeoObjectTypeCode : middleGeoObjectTypeCode, youngestGeoObjectTypeCode : youngestGeoObjectTypeCode } ), { headers: headers } )
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+           .toPromise();
+    }
+    
     removeFromHierarchy( hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string ): Promise<HierarchyType> {
 
  	   let headers = new HttpHeaders( {

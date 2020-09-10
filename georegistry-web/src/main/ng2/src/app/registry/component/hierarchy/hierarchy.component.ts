@@ -313,6 +313,12 @@ export class HierarchyComponent implements OnInit {
       
       // translate page to SVG co-ordinate
       let svg: any = d3.select("#svg").node();
+      
+      if (svg == null)
+      {
+        return;
+      }
+      
       let svgPoint = (x, y) => {
         var pt = svg.createSVGPoint();
       
@@ -480,11 +486,47 @@ export class HierarchyComponent implements OnInit {
     }, onDrop: function(dragEl: Element) {
       if (this.dropEl != null && this.activeDz != null)
       {
+        let dropGot = this.dropEl.attr("data-gotCode");
+        let dropNode = that.root.find((node)=>{return node.data.geoObjectType === dropGot;});
+        let dragGot = d3.select(dragEl).attr("id");
+      
         if (this.activeDz === this.childDz)
         {
-          this.dropEl.attr("stroke", null);
-          that.addChild(that.currentHierarchy.code, this.dropEl.attr("data-gotCode"), d3.select(dragEl).attr("id"));
-          this.dropEl = null;
+          if (dropNode.data.children.length == 0)
+          {
+            that.addChild(that.currentHierarchy.code, dropGot, dragGot);
+          }
+          else
+          {
+            let youngest = "";
+          
+            for (let i = 0; i < dropNode.data.children.length; ++i)
+            {
+              youngest = youngest + dropNode.data.children[i].geoObjectType;
+            
+              if (i < dropNode.data.children.length - 1)
+              {
+                youngest = youngest + ",";
+              }
+            }
+          
+            that.insertBetweenTypes(that.currentHierarchy.code, dropGot, dragGot, youngest);
+          }
+        }
+        else if (this.activeDz === this.parentDz)
+        {
+          if (dropNode.parent == null)
+          {
+            that.insertBetweenTypes(that.currentHierarchy.code, "ROOT", dragGot, dropGot);
+          }
+          else
+          {
+            that.insertBetweenTypes(that.currentHierarchy.code, dropNode.parent.data.geoObjectType, dragGot, dropGot);
+          }
+        }
+        else if (this.activeDz === "sibling")
+        {
+          that.addChild(that.currentHierarchy.code, dropNode.parent.data.geoObjectType, d3.select(dragEl).attr("id"));
         }
       }
       this.clearDropZones();
@@ -616,6 +658,18 @@ export class HierarchyComponent implements OnInit {
   private addChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void
   {
     this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode ).then( (ht: HierarchyType) => {
+        this.processHierarchyNodes(ht.rootGeoObjectTypes[0]);
+        this.updateHierarchy(ht.code, ht.rootGeoObjectTypes)
+    
+        this.setNodesForHierarchy(ht);
+    } ).catch(( err: HttpErrorResponse) => {
+        this.error( err );
+    } );
+  }
+  
+  private insertBetweenTypes(hierarchyCode: string, parentGeoObjectTypeCode: string, middleGeoObjectTypeCode: string, youngestGeoObjectTypeCode: string): void
+  {
+    this.hierarchyService.insertBetweenTypes(hierarchyCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode ).then( (ht: HierarchyType) => {
         this.processHierarchyNodes(ht.rootGeoObjectTypes[0]);
         this.updateHierarchy(ht.code, ht.rootGeoObjectTypes)
     

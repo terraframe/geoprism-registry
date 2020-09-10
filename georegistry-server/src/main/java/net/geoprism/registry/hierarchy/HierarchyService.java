@@ -26,15 +26,15 @@ import java.util.List;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
@@ -283,6 +283,53 @@ public class HierarchyService
 
     return type.getType();
   }
+  
+  /**
+   * Inserts the {@link GeoObjectType} 'middleGeoObjectTypeCode' into the hierarchy
+   * as the child of 'parentGeoObjectTypeCode' and the new parent for 'youngestGeoObjectTypeCode'.
+   * If an existing parent/child relationship already exists between 'youngestGeoObjectTypeCode'
+   * and 'parentgeoObjectTypeCode', it will first be removed. youngestGeoObjectTypeCode can also
+   * be an array (comma separated list).
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType}
+   * @param parentGeoObjectTypeCode
+   *          parent {@link GeoObjectType}.
+   * @param middleGeoObjectTypeCode
+   *          middle child {@link GeoObjectType} after this method returns
+   * @param youngestGeoObjectTypeCode
+   *          youngest child {@link GeoObjectType} after this method returns
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType insertBetweenTypes(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String middleGeoObjectTypeCode, String youngestGeoObjectTypeCode)
+  {
+    return this.insertBetweenTypesInTrans(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode);
+  }
+  
+  @Transaction
+  public HierarchyType insertBetweenTypesInTrans(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String middleGeoObjectTypeCode, String youngestGeoObjectTypeCode)
+  {
+    this.addToHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode);
+    
+    if (youngestGeoObjectTypeCode.contains(","))
+    {
+      String[] array = youngestGeoObjectTypeCode.split(",");
+      
+      for (String youngest : array)
+      {
+        this.removeFromHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, youngest, false);
+        this.addToHierarchy(sessionId, hierarchyTypeCode, middleGeoObjectTypeCode, youngest);
+      }
+    }
+    else
+    {
+      this.removeFromHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, youngestGeoObjectTypeCode, false);
+      this.addToHierarchy(sessionId, hierarchyTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode);
+    }
+    
+    return ServerHierarchyType.get(hierarchyTypeCode).getType();
+  }
 
   /**
    * Removes the {@link GeoObjectType} with the given child code from the parent
@@ -298,13 +345,13 @@ public class HierarchyService
    *          child {@link GeoObjectType}.
    */
   @Request(RequestType.SESSION)
-  public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean migrateChildren)
   {
     ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
 
     ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), type, parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
-    type.removeChild(parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    type.removeChild(parentGeoObjectTypeCode, childGeoObjectTypeCode, migrateChildren);
 
     return type.getType();
   }

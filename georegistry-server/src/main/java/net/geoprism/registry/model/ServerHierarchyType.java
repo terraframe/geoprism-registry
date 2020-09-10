@@ -399,9 +399,9 @@ public class ServerHierarchyType
     mdAttributeReference.getBusinessDAO().delete();
   }
 
-  public void removeChild(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public void removeChild(String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean migrateChildren)
   {
-    this.removeFromHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    this.removeFromHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode, migrateChildren);
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
@@ -409,11 +409,11 @@ public class ServerHierarchyType
   }
 
   @Transaction
-  private void removeFromHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  private void removeFromHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean migrateChildren)
   {
     ServerGeoObjectType parentType = null;
 
-    if (parentGeoObjectTypeCode != null)
+    if (parentGeoObjectTypeCode != null && !parentGeoObjectTypeCode.equals(Term.ROOT_KEY))
     {
       parentType = ServerGeoObjectType.get(parentGeoObjectTypeCode);
     }
@@ -434,7 +434,7 @@ public class ServerHierarchyType
     // Universal child = childType.getUniversal();
     Universal parent = null;
 
-    if (parentGeoObjectTypeCode != null)
+    if (parentGeoObjectTypeCode != null && !parentGeoObjectTypeCode.equals(Term.ROOT_KEY))
     {
       parent = parentType.getUniversal();
     }
@@ -443,20 +443,22 @@ public class ServerHierarchyType
       parent = Universal.getRoot();
     }
 
-    // Migrate children to parent
     Universal cUniversal = childType.getUniversal();
-
-    TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(cUniversal.getOid(), new String[] { this.universalRelationship.definesType() });
-
+  
     removeLink(parent, cUniversal, this.universalRelationship.definesType());
-
-    for (TermAndRel tnrChild : tnrChildren)
+  
+    if (migrateChildren)
     {
-      Universal child = (Universal) tnrChild.getTerm();
-
-      removeLink(cUniversal, child, this.universalRelationship.definesType());
-
-      child.addLink(parent, this.universalRelationship.definesType());
+      TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(cUniversal.getOid(), new String[] { this.universalRelationship.definesType() });
+      
+      for (TermAndRel tnrChild : tnrChildren)
+      {
+        Universal child = (Universal) tnrChild.getTerm();
+  
+        removeLink(cUniversal, child, this.universalRelationship.definesType());
+  
+        child.addLink(parent, this.universalRelationship.definesType());
+      }
     }
 
     service.removeAllEdges(this, childType);
