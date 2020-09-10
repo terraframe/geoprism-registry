@@ -34,9 +34,14 @@ li.list-group-item.active {
 	position:fixed;
 	width:calc(100vw - 350px);
 	top:144px;
-	/*padding-left: 40px;*/
 	padding-left: 0px;
   padding-top: 0px;
+}
+
+#overflow-div {
+	overflow:auto;
+	height: calc(100vh - 144px);
+	width: calc(100vw - 350px)
 }
 
 .upload-text {
