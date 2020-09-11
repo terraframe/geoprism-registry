@@ -115,8 +115,9 @@ export class HierarchyComponent implements OnInit {
 	  
 	  console.log("re-rendering entire tree");
 	  
-	  let scrollLeft = d3.select("#overflow-div").node().scrollLeft;
-	  let scrollRight = d3.select("#overflow-div").node().scrollRight;
+	  let overflowDiv: any = d3.select("#overflow-div").node();
+	  let scrollLeft = overflowDiv.scrollLeft;
+	  let scrollRight = overflowDiv.scrollRight;
 	  
 	  let that = this;
 	  let data = this.nodes[0];
@@ -271,9 +272,9 @@ export class HierarchyComponent implements OnInit {
     d3.select("#svgHolder").style("width", width + "px");
     //d3.select("#svgHolder").style("height", height + "px"); 
     
-    
-    d3.select("#overflow-div").node().scrollLeft = scrollLeft;
-    d3.select("#overflow-div").node().scrollRight = scrollRight;
+    let overflowDiv2: any = d3.select("#overflow-div").node();
+    overflowDiv2.scrollLeft = scrollLeft;
+    overflowDiv2.scrollRight = scrollRight;
 	}
   
   private myTree(data): any {
