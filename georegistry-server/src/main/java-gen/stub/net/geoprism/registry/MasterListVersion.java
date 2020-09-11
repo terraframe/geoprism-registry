@@ -714,6 +714,7 @@ public class MasterListVersion extends MasterListVersionBase
       // ServerGeoObjectQuery query = service.createQuery(type,
       // this.getPeriod());
       VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getForDate());
+      query.setLimit(50);
 
       Long count = query.getCount();
       long current = 0;
