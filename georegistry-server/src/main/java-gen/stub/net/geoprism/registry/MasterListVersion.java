@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -713,32 +713,41 @@ public class MasterListVersion extends MasterListVersionBase
       // ServerGeoObjectService service = new ServerGeoObjectService();
       // ServerGeoObjectQuery query = service.createQuery(type,
       // this.getPeriod());
+
       VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getForDate());
-      query.setLimit(50);
-      
-      Long count = 50L;
-
-//      Long count = query.getCount();
+      Long count = query.getCount();
       long current = 0;
-
-      ProgressService.put(this.getOid(), new Progress(0L, count, ""));
 
       try
       {
-        List<ServerGeoObjectIF> results = query.getResults();
+        ProgressService.put(this.getOid(), new Progress(0L, count, ""));
+        int pageSize = 1000;
 
-        for (ServerGeoObjectIF result : results)
+        long skip = 0;
+
+        while (skip < count)
         {
-          if (result.getStatus().equals(GeoObjectStatus.ACTIVE))
+          query = new VertexGeoObjectQuery(type, this.getForDate());
+          query.setLimit(pageSize);
+          query.setSkip(skip);
+
+          List<ServerGeoObjectIF> results = query.getResults();
+
+          for (ServerGeoObjectIF result : results)
           {
-            Business business = new Business(mdBusiness.definesType());
+            if (result.getStatus().equals(GeoObjectStatus.ACTIVE))
+            {
+              Business business = new Business(mdBusiness.definesType());
 
-            publish(result, business, attributes, ancestorMap, locales);
+              publish(result, business, attributes, ancestorMap, locales);
 
-            Thread.yield();
+              Thread.yield();
+            }
+
+            ProgressService.put(this.getOid(), new Progress(current++, count, ""));
           }
 
-          ProgressService.put(this.getOid(), new Progress(current++, count, ""));
+          skip += pageSize;
         }
 
         this.setPublishDate(new Date());
