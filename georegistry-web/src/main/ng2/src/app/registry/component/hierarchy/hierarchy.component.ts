@@ -44,6 +44,19 @@ function svgPoint(x, y) {
   return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
+let isPointWithin = function(point: {x: number, y: number}, bbox: {x: number, y: number, width: number, height: number}) {
+  return point.y > bbox.y && point.y < (bbox.y + bbox.height) && point.x > bbox.x && point.x < (bbox.x + bbox.width);
+}
+let isBboxPartiallyWithin = function(bbox1: {x: number, y: number, width: number, height: number}, bbox2: {x: number, y: number, width: number, height: number}) {
+  return isPointWithin({x:bbox1.x, y:bbox1.y}, bbox2) || isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y + bbox1.height}, bbox2);
+}
+let isBboxTotallyWithin = function(bbox1: {x: number, y: number, width: number, height: number}, bbox2: {x: number, y: number, width: number, height: number}) {
+  return isPointWithin({x:bbox1.x, y:bbox1.y}, bbox2) && isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y + bbox1.height}, bbox2);
+}
+let getBboxFromSelection = function(selection: any) {
+  return {x: parseInt(selection.attr("x")), y: parseInt(selection.attr("y")), width: parseInt(selection.attr("width")), height: parseInt(selection.attr("height"))};
+}
+
 export class SvgHierarchyType {
 
   public static gotRectW: number = 150;
@@ -80,12 +93,15 @@ export class SvgHierarchyType {
         .data(descends)
         .join("rect")
         .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
+          .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 8)
           .attr("fill", (d: any) => "#b3ad00")
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
+          .attr("cursor", "grab")
           .attr("rx", 5)
+          .attr("data-gotCode", (d: any) => d.data.geoObjectType);
           
     // GeoObjectType Body Square
     d3.select(".g-got").remove();
@@ -94,13 +110,14 @@ export class SvgHierarchyType {
         .data(descends)
         .join("rect")
         .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
-          .classed("svg-got-dz", true)
+          .classed("svg-got-body-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - (SvgHierarchyType.gotRectH / 2))
           .attr("fill", "#e0e0e0")
           .attr("width", SvgHierarchyType.gotRectW)
           .attr("height", SvgHierarchyType.gotRectH)
           .attr("rx", 5)
+          .attr("cursor", "grab")
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
           .each(function(d:any) {
             if (d.data.geoObjectType != "GhostNode")
@@ -159,11 +176,14 @@ export class SvgHierarchyType {
       .selectAll("text")
       .data(descends)
       .join("text")
+        .classed("svg-got-label-text", true)
         .attr("x", (d:any) => d.x - 70)
         .attr("y", (d:any) => d.y - 4)
         .attr("dx", "0.31em")
         .attr("dy", (d:any) => 6)
+        .attr("cursor", "grab")
         .text((d:any) => d.data.label)
+        .attr("data-gotCode", (d: any) => d.data.geoObjectType);
   }
 }
 
@@ -176,14 +196,47 @@ export class SvgGeoObjectType {
     this.code = code;
   }
   
-  setX(newX: number)
+  getCode(): string
   {
-    
+    return this.code;
   }
   
-  setY(newY: number)
+  setPos(x: number, y: number, dragging: boolean)
   {
-    
+    // Move the GeoObjectType with the pointer when they move their mouse
+    d3.select('.svg-got-body-rect[data-gotCode="' + this.code + '"]')
+        .classed("dragging", dragging)
+        .attr("x", x)
+        .attr("y", y);
+        
+    d3.select('.svg-got-header-rect[data-gotCode="' + this.code + '"]')
+        .classed("dragging", dragging)
+        .attr("x", x)
+        .attr("y", y - SvgHierarchyType.gotRectH/2 + 8);
+        
+    d3.select('.svg-got-label-text[data-gotCode="' + this.code + '"]')
+        .classed("dragging", dragging)
+        .attr("x", x + 5)
+        .attr("y", y + 8);
+  }
+  
+  getPos()
+  {
+    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.code + '"]');
+  
+    return {x: parseInt(select.attr("x")), y: parseInt(select.attr("y"))};
+  }
+  
+  getBbox()
+  {
+    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.code + '"]');
+  
+    return {x: parseInt(select.attr("x")), y: parseInt(select.attr("y")) - 3, width: parseInt(select.attr("width")), height: parseInt(select.attr("height")) + 3};
+  }
+  
+  public static fromElement(el: any): SvgGeoObjectType
+  {
+    return new SvgGeoObjectType(d3.select(el).attr("data-gotCode"));
   }
   
 }
@@ -314,6 +367,8 @@ export class HierarchyComponent implements OnInit {
     let overflowDiv2: any = d3.select("#overflow-div").node();
     overflowDiv2.scrollLeft = scrollLeft;
     overflowDiv2.scrollRight = scrollRight;
+    
+    this.registerSvgHandlers();
 	}
   
   private myTree(data): any {
@@ -354,7 +409,7 @@ export class HierarchyComponent implements OnInit {
     }});
     
     // SVG GeoObjectType Drop Zone
-    dropTargets.push({ dropSelector: ".svg-got-dz", onDrag: function(dragEl: Element, mouseTarget: Element, event: any) {
+    dropTargets.push({ dropSelector: ".svg-got-body-rect", onDrag: function(dragEl: Element, mouseTarget: Element, event: any) {
       this.clearDropZones();
       
       let lastDropEl = this.dropEl;
@@ -370,7 +425,7 @@ export class HierarchyComponent implements OnInit {
       let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
       
       that.root.descendants().forEach((node:any) => {
-        if (node.data.geoObjectType !== "GhostNode" && this.isWithin(svgMousePoint, node.data.dropZoneBbox))
+        if (node.data.geoObjectType !== "GhostNode" && isPointWithin(svgMousePoint, node.data.dropZoneBbox))
         {
           this.dropEl = d3.select(node.data.gotBodySquare);
           node.data.activeDropZones = true;
@@ -495,7 +550,7 @@ export class HierarchyComponent implements OnInit {
         
         let siblingGhostBody = d3.select(".svg-sibling-ghost-body-dz");
         
-        if (this.isWithin(svgMousePoint, this.getBboxFromSelection(this.parentDz)))
+        if (isPointWithin(svgMousePoint, getBboxFromSelection(this.parentDz)))
         {
           this.parentDz.attr("stroke", "blue");
           this.parentDzText.attr("fill", "blue");
@@ -504,7 +559,7 @@ export class HierarchyComponent implements OnInit {
           siblingGhostBody.attr("stroke", "black");
           this.activeDz = this.parentDz;
         }
-        else if (this.isWithin(svgMousePoint, this.getBboxFromSelection(this.childDz)))
+        else if (isPointWithin(svgMousePoint, getBboxFromSelection(this.childDz)))
         {
           this.parentDz.attr("stroke", "black");
           this.parentDzText.attr("fill", "black");
@@ -513,7 +568,7 @@ export class HierarchyComponent implements OnInit {
           siblingGhostBody.attr("stroke", "black");
           this.activeDz = this.childDz;
         }
-        else if (siblingGhostBody.node() != null && this.isWithin(svgMousePoint, this.getBboxFromSelection(siblingGhostBody)))
+        else if (siblingGhostBody.node() != null && isPointWithin(svgMousePoint, getBboxFromSelection(siblingGhostBody)))
         {
           this.parentDz.attr("stroke", "black");
           this.parentDzText.attr("fill", "black");
@@ -615,14 +670,10 @@ export class HierarchyComponent implements OnInit {
         
         this.ghostCode = null;
       }
-    }, isWithin : function(point: {x: number, y: number}, bbox: {x: number, y: number, width: number, height: number}) {
-      return point.y > bbox.y && point.y < (bbox.y + bbox.height) && point.x > bbox.x && point.x < (bbox.x + bbox.width);
-    }, getBboxFromSelection : function(selection: any) {
-      return {x: parseInt(selection.attr("x")), y: parseInt(selection.attr("y")), width: parseInt(selection.attr("width")), height: parseInt(selection.attr("height"))};
     }});
     
     // GeoObjectTypes and Hierarchies
-    let deltaX, deltaY, width: number;
+    let deltaX: number, deltaY: number, width: number;
     let sidebarDragHandler = d3.drag()
     .on("start", function (event: any) {
         let rect = this.getBoundingClientRect();
@@ -667,32 +718,71 @@ export class HierarchyComponent implements OnInit {
     });
 
     sidebarDragHandler(d3.selectAll(".sidebar-section-content ul.list-group li.got-li-item"));
-    
+  }
+  
+  private registerSvgHandlers(): void
+  {
+    let that = this;
+  
     // SVG Drag Handler
-    let startX: number, startY: number;
+    let deltaX: number, deltaY: number, width: number;
+    let startPoint: any;
+    let svgGot: SvgGeoObjectType;
     let svgDragHandler = d3.drag()
     .on("start", function (event: any) {
-      startX = parseInt(d3.select(this).attr("x"));
-      startY = parseInt(d3.select(this).attr("y"));
+      let svgMousePoint: any = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
+      let select = d3.select(this);
+      
+      svgGot = SvgGeoObjectType.fromElement(this);
+      startPoint = svgGot.getPos();
+    
+      deltaX = startPoint.x - svgMousePoint.x;
+      deltaY = startPoint.y - svgMousePoint.y;
     })
     .on("drag", function (event: any) {
     
-        let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
-    
-        // Move the GeoObjectType with the pointer when they move their mouse
-        d3.select(this)
-            .classed("dragging", true)
-            .style("x", svgMousePoint.x + "px")
-            .style("y", svgMousePoint.y + "px");
+      let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
+  
+      svgGot = SvgGeoObjectType.fromElement(this);
+      
+      svgGot.setPos(svgMousePoint.x + deltaX, svgMousePoint.y + deltaY, true);
         
     }).on("end", function(event: any) {
-        let selected = d3.select(this)
-            .classed("dragging", false)
-            .style("x", startX)
-            .style("y", startY);
+    
+      let bbox: string[] = d3.select("#svg").attr("viewBox").split(" ");
+    
+      if (!isBboxPartiallyWithin(svgGot.getBbox(), {x: parseInt(bbox[0]), y: parseInt(bbox[1]), width: parseInt(bbox[2]), height: parseInt(bbox[3])}))
+      {
+        //that.deleteGeoObjectType(that.findGeoObjectTypeByCode(svgGot.getCode()));
+        
+        let obj = that.findGeoObjectTypeByCode(svgGot.getCode());
+        
+        that.bsModalRef = that.modalService.show(ConfirmModalComponent, {
+          animated: true,
+          backdrop: true,
+          ignoreBackdropClick: true,
+        });
+        that.bsModalRef.content.message = that.localizeService.decode("confirm.modal.verify.delete") + ' [' + obj.label.localizedValue + ']';
+        that.bsModalRef.content.data = obj.code;
+        that.bsModalRef.content.submitText = that.localizeService.decode("modal.button.delete");
+        that.bsModalRef.content.type = ModalTypes.danger;
+    
+        (<ConfirmModalComponent>that.bsModalRef.content).onConfirm.subscribe(data => {
+          that.removeGeoObjectType(data, (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
+        });
+        
+        (<ConfirmModalComponent>that.bsModalRef.content).onCancel.subscribe(data => {
+          svgGot.setPos(startPoint.x, startPoint.y, false);
+        });
+      }
+      else
+      {
+        svgGot.setPos(startPoint.x, startPoint.y, false);
+      }
+      
     });
 
-    svgDragHandler(d3.selectAll(".svg-got-dz"));
+    svgDragHandler(d3.selectAll(".svg-got-body-rect,.svg-got-label-text,.svg-got-header-rect"));
   }
   
   private findGeoObjectTypeByCode(code: string): GeoObjectType
@@ -1160,7 +1250,7 @@ export class HierarchyComponent implements OnInit {
 		});
 	}
 
-	public removeGeoObjectType(code: string): void {
+	public removeGeoObjectType(code: string, errCallback: (err: HttpErrorResponse) => void = null): void {
 		this.registryService.deleteGeoObjectType(code).then(response => {
 
 			let pos = this.getGeoObjectTypePosition(code);
@@ -1181,6 +1271,10 @@ export class HierarchyComponent implements OnInit {
 			this.refreshAll(this.currentHierarchy);
 
 		}).catch((err: HttpErrorResponse) => {
+		  if (errCallback != null)
+		  {
+		    errCallback(err);
+		  }
 			this.error(err);
 		});
 	}
