@@ -76,7 +76,7 @@ public class HierarchyChangeTest
 
     Assert.assertEquals(1, parents.getParents().size());
 
-    ServiceFactory.getHierarchyService().removeFromHierarchy(sessionId, hierarchyCode, countryTypeCode, stateTypeCode);
+    ServiceFactory.getHierarchyService().removeFromHierarchy(sessionId, hierarchyCode, countryTypeCode, stateTypeCode, true);
 
     ServerGeoObjectIF test = new VertexGeoObjectStrategy(USATestData.DISTRICT.getServerObject()).getGeoObjectByCode(cd1TypeCode);
     ServerParentTreeNode tParents = test.getParentGeoObjects(null, false);

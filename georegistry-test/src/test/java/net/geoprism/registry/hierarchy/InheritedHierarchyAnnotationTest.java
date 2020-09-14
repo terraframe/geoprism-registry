@@ -62,7 +62,7 @@ public class InheritedHierarchyAnnotationTest
   @Request
   public static void cleanUpClass()
   {
-    TEST_HT.getServerObject().removeChild(FastTestDataset.PROVINCE.getCode(), TEST_CHILD.getCode());
+    TEST_HT.getServerObject().removeChild(FastTestDataset.PROVINCE.getCode(), TEST_CHILD.getCode(), true);
     TEST_HT.removeRoot(FastTestDataset.PROVINCE);
 
     TEST_HT.delete();
