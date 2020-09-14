@@ -40,6 +40,7 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.etl.export.RevealGeoObjectJsonAdapters.RevealSerializer;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -68,6 +69,8 @@ public class GeoObjectJsonExporter
   private GeoObjectExportFormat     format;
 
   private ExternalSystem            externalSystem;
+
+  private RevealSerializer revealJsonAdapter;
 
   // private DHIS2Facade dhis2;
   //
@@ -111,7 +114,12 @@ public class GeoObjectJsonExporter
     {
       this.pageNumber = 1;
     }
-
+    
+    if (this.format.equals(GeoObjectExportFormat.JSON_REVEAL))
+    {
+      this.revealJsonAdapter = new RevealGeoObjectJsonAdapters.RevealSerializer(this.got, this.hierarchyType, this.includeLevel, this.externalSystem);
+    }
+    
     if (Session.getCurrentSession() != null)
     {
       ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), this.got.getOrganization().getCode(), this.got.getCode());
@@ -192,7 +200,7 @@ public class GeoObjectJsonExporter
 
     if (this.format.equals(GeoObjectExportFormat.JSON_REVEAL))
     {
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new RevealGeoObjectJsonAdapters.RevealSerializer(this.got, this.hierarchyType, this.includeLevel, this.externalSystem));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, this.revealJsonAdapter);
     }
     else if (this.format.equals(GeoObjectExportFormat.JSON_CGR))
     {
