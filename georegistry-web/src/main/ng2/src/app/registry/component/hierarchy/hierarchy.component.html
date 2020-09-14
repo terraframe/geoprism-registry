@@ -25,7 +25,7 @@
               <div *ngIf="typeByOrg.types.length > 0">
                 <label>{{typeByOrg.org.label.localizedValue}}</label>
               
-	              <li class="list-group-item" *ngFor="let type of typeByOrg.types" [id]="type.code">
+	              <li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types" [id]="type.code">
 		              {{type.label.localizedValue}}
 		              
 		              <span *ngIf="isOrganizationRA(type.organizationCode)">
@@ -57,7 +57,7 @@
               <div *ngIf="hierarchyByOrg.hierarchies.length > 0">
 	              <label>{{hierarchyByOrg.org.label.localizedValue}}</label>
 	            
-		            <li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code" class="list-group-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
+		            <li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code" class="list-group-item hier-li-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
 		              <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
 		  
 		              <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
