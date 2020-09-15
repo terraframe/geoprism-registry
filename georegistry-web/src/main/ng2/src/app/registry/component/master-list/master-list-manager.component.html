@@ -44,6 +44,12 @@
                                   <a [routerLink]="'/registry/master-list-view/' + list.oid" routerLinkActive="active">
                                     {{list.label}}
                                     <span *ngIf="list.isMaster"><localize key="masterlist.master"></localize></span>
+                                    <span>
+                                      (
+                                      <localize *ngIf="list.visibility === 'PUBLIC'" key="masterlist.public"></localize>
+                                      <localize *ngIf="list.visibility === 'PRIVATE'" key="masterlist.private"></localize>
+                                      )
+                                    </span>                                    
                                   </a>
                                 </td>
                                 <td style="width: 30%; text-align: right;">

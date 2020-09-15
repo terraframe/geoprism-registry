@@ -902,6 +902,7 @@ public class MasterList extends MasterListBase
             object.addProperty("createDate", format.format(list.getCreateDate()));
             object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
             object.addProperty("isMaster", list.getIsMaster());
+            object.addProperty("visibility", list.getVisibility());
             object.addProperty("write", list.doesActorHaveWritePermission());
             object.addProperty("read", list.doesActorHaveReadPermission());
 

@@ -730,14 +730,11 @@ public class MasterListVersion extends MasterListVersionBase
 
           for (ServerGeoObjectIF result : results)
           {
-            if (result.getStatus().equals(GeoObjectStatus.ACTIVE))
-            {
-              Business business = new Business(mdBusiness.definesType());
+            Business business = new Business(mdBusiness.definesType());
 
-              publish(result, business, attributes, ancestorMap, locales);
+            publish(result, business, attributes, ancestorMap, locales);
 
-              Thread.yield();
-            }
+            Thread.yield();
 
             ProgressService.put(this.getOid(), new Progress(current++, count, ""));
           }
@@ -902,22 +899,15 @@ public class MasterListVersion extends MasterListVersionBase
 
     for (Business record : records)
     {
-      if (object.getStatus().equals(GeoObjectStatus.ACTIVE))
+      try
       {
-        try
-        {
-          record.appLock();
+        record.appLock();
 
-          this.publish(object, record, attributes, ancestorMap, locales);
-        }
-        finally
-        {
-          record.unlock();
-        }
+        this.publish(object, record, attributes, ancestorMap, locales);
       }
-      else
+      finally
       {
-        record.delete();
+        record.unlock();
       }
     }
   }
@@ -941,10 +931,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     Business business = new Business(mdBusiness.definesType());
 
-    if (object.getStatus().equals(GeoObjectStatus.ACTIVE))
-    {
-      this.publish(object, business, attributes, ancestorMap, locales);
-    }
+    this.publish(object, business, attributes, ancestorMap, locales);
   }
 
   public JsonObject toJSON(boolean includeAttribute)

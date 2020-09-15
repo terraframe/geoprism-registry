@@ -62,7 +62,6 @@ public class MasterListController
   {
     JsonObject response = new JsonObject();
     response.add("lists", this.service.listAll(request.getSessionId()));
-    response.add("locales", this.registryService.getLocales(request.getSessionId()));
 
     return new RestBodyResponse(response);
   }
@@ -72,7 +71,6 @@ public class MasterListController
   {
     JsonObject response = new JsonObject();
     response.add("orgs", this.service.listByOrg(request.getSessionId()));
-    response.add("locales", this.registryService.getLocales(request.getSessionId()));
 
     return new RestBodyResponse(response);
   }

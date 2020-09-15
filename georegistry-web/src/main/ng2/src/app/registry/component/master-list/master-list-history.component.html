@@ -34,13 +34,13 @@
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">
                                     <localize key="modal.button.view"></localize>
                                 </button>
-                                <button *ngIf="list.delete" type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button">
+                                <button *ngIf="list.write" type="submit" (click)="onDelete(version)" class="btn btn-danger" role="button">
                                     <localize key="modal.button.delete"></localize>
                                 </button>
                             </div>
                         </td>
                         <td style="width: 15%" class="label-column">{{ version.forDate }}</td>
-                        <td style="width: 15%" class="label-column">{{ version.createDate }}</td>
+                        <td style="width: 15%" class="label-column">{{ version.publishDate }}</td>
                     </tr>
                 </tbody>
             </table>
