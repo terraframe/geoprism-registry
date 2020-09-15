@@ -56,7 +56,6 @@ import com.runwaysdk.system.ontology.ImmutableRootException;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.GeoObjectTypeHasDataException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
@@ -66,8 +65,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.graph.MultipleHierarchyRootsException;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
@@ -450,6 +448,12 @@ public class ServerHierarchyType
     if (migrateChildren)
     {
       TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(cUniversal.getOid(), new String[] { this.universalRelationship.definesType() });
+      
+      if (parent.getKey().equals(Universal.ROOT) && tnrChildren.length > 1)
+      {
+        MultipleHierarchyRootsException ex = new MultipleHierarchyRootsException();
+        throw ex;
+      }
       
       for (TermAndRel tnrChild : tnrChildren)
       {

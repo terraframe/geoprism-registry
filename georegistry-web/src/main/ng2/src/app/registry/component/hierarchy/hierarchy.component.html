@@ -111,26 +111,5 @@
 	    </div>
     </div>
   </div>
-  
-  <context-menu #nodeMenu>
-<!--     <ng-template contextMenuItem let-item (execute)="handleEdit($event.item)"> -->
-<!--       Edit {{item?.data.name}} -->
-<!--     </ng-template> -->
-    <ng-template contextMenuItem let-item (execute)="addChildToHierarchy($event.item)">
-        <localize key="hierarchy.management.button.addRelationship"></localize>
-    </ng-template>
-    <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>
-    </ng-template>
-  </context-menu>
-  
-  <context-menu #leafMenu>
-<!--     <ng-template contextMenuItem let-item (execute)="handleEdit($event.item)"> -->
-<!--       Edit {{item?.data.name}} -->
-<!--     </ng-template> -->
-    <ng-template contextMenuItem let-item (execute)="deleteTreeNode($event.item)">
-      <localize key="hierarchy.management.button.removeTreeNodeFromHierarchy"></localize>  {{item?.data.label.localizedValue}}
-    </ng-template>
-  </context-menu>
 
 </div>

@@ -103,7 +103,7 @@ public class GeoObjectJsonExporter
 
   public void init()
   {
-    if (this.pageSize == null || this.pageSize == 0)
+    if (this.pageSize == null || this.pageSize == 0 || this.pageSize > 1000)
     {
       this.pageSize = 1000;
     }

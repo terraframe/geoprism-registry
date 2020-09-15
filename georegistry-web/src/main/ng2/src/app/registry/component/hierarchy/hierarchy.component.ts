@@ -44,14 +44,18 @@ function svgPoint(x, y) {
   return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
+let treeRoot: any;
+
 let isPointWithin = function(point: {x: number, y: number}, bbox: {x: number, y: number, width: number, height: number}) {
   return point.y > bbox.y && point.y < (bbox.y + bbox.height) && point.x > bbox.x && point.x < (bbox.x + bbox.width);
 }
 let isBboxPartiallyWithin = function(bbox1: {x: number, y: number, width: number, height: number}, bbox2: {x: number, y: number, width: number, height: number}) {
-  return isPointWithin({x:bbox1.x, y:bbox1.y}, bbox2) || isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y + bbox1.height}, bbox2);
+  return isPointWithin({x:bbox1.x, y:bbox1.y}, bbox2) || isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y + bbox1.height}, bbox2)
+      || isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y}, bbox2) || isPointWithin({x:bbox1.x, y:bbox1.y + bbox1.height}, bbox2);
 }
 let isBboxTotallyWithin = function(bbox1: {x: number, y: number, width: number, height: number}, bbox2: {x: number, y: number, width: number, height: number}) {
-  return isPointWithin({x:bbox1.x, y:bbox1.y}, bbox2) && isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y + bbox1.height}, bbox2);
+  return isPointWithin({x:bbox1.x, y:bbox1.y}, bbox2) && isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y + bbox1.height}, bbox2)
+      && isPointWithin({x:bbox1.x + bbox1.width, y:bbox1.y}, bbox2) && isPointWithin({x:bbox1.x, y:bbox1.y + bbox1.height}, bbox2);
 }
 let getBboxFromSelection = function(selection: any) {
   return {x: parseInt(selection.attr("x")), y: parseInt(selection.attr("y")), width: parseInt(selection.attr("width")), height: parseInt(selection.attr("height"))};
@@ -234,6 +238,11 @@ export class SvgGeoObjectType {
     return {x: parseInt(select.attr("x")), y: parseInt(select.attr("y")) - 3, width: parseInt(select.attr("width")), height: parseInt(select.attr("height")) + 3};
   }
   
+  getTreeNode()
+  {
+    return treeRoot.find((node)=>{return node.data.geoObjectType === this.code;});
+  }
+  
   public static fromElement(el: any): SvgGeoObjectType
   {
     return new SvgGeoObjectType(d3.select(el).attr("data-gotCode"));
@@ -331,6 +340,8 @@ export class HierarchyComponent implements OnInit {
     {
       svg = d3.create("svg");
     }
+    
+    treeRoot = this.root;
     
     new SvgHierarchyType().render(svg, this.root);
     
@@ -757,6 +768,24 @@ export class HierarchyComponent implements OnInit {
         
         let obj = that.findGeoObjectTypeByCode(svgGot.getCode());
         
+        //that.bsModalRef = that.modalService.show(ConfirmModalComponent, {
+        //  animated: true,
+        //  backdrop: true,
+        //  ignoreBackdropClick: true,
+        //});
+        //that.bsModalRef.content.message = that.localizeService.decode("confirm.modal.verify.delete") + ' [' + obj.label.localizedValue + ']';
+        //that.bsModalRef.content.data = obj.code;
+        //that.bsModalRef.content.submitText = that.localizeService.decode("modal.button.delete");
+        //that.bsModalRef.content.type = ModalTypes.danger;
+    
+        //(<ConfirmModalComponent>that.bsModalRef.content).onConfirm.subscribe(data => {
+        //  that.removeGeoObjectType(data, (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
+        //});
+        
+        //(<ConfirmModalComponent>that.bsModalRef.content).onCancel.subscribe(data => {
+        //  svgGot.setPos(startPoint.x, startPoint.y, false);
+        //});
+        
         that.bsModalRef = that.modalService.show(ConfirmModalComponent, {
           animated: true,
           backdrop: true,
@@ -764,11 +793,12 @@ export class HierarchyComponent implements OnInit {
         });
         that.bsModalRef.content.message = that.localizeService.decode("confirm.modal.verify.delete") + ' [' + obj.label.localizedValue + ']';
         that.bsModalRef.content.data = obj.code;
-        that.bsModalRef.content.submitText = that.localizeService.decode("modal.button.delete");
-        that.bsModalRef.content.type = ModalTypes.danger;
     
         (<ConfirmModalComponent>that.bsModalRef.content).onConfirm.subscribe(data => {
-          that.removeGeoObjectType(data, (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
+          let treeNode = svgGot.getTreeNode();
+          let parent = treeNode.parent == null ? "ROOT" : treeNode.parent.data.geoObjectType;
+        
+          that.removeTreeNode(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
         });
         
         (<ConfirmModalComponent>that.bsModalRef.content).onCancel.subscribe(data => {
@@ -1026,11 +1056,14 @@ export class HierarchyComponent implements OnInit {
      * Set properties required by angular-tree-component using recursion.
      */
 	private processHierarchyNodes(node: HierarchyNode) {
-		node.label = this.getHierarchyLabel(node.geoObjectType);
-
-		node.children.forEach(child => {
-			this.processHierarchyNodes(child);
-		})
+	  if (node != null)
+	  {
+  		node.label = this.getHierarchyLabel(node.geoObjectType);
+  
+  		node.children.forEach(child => {
+  			this.processHierarchyNodes(child);
+  		})
+		}
 	}
 
 	private getHierarchyLabel(geoObjectTypeCode: string): string {
@@ -1385,43 +1418,22 @@ export class HierarchyComponent implements OnInit {
 		});
 	}
 
-	public deleteTreeNode(node: any): void {
-		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
-		});
-		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + node.data.label + ']';
-		this.bsModalRef.content.data = node;
+	public removeTreeNode(parentGotCode, gotCode, errCallback: (err: HttpErrorResponse) => void = null): void {
+	  const that = this;
+	
+		this.hierarchyService.removeFromHierarchy(this.currentHierarchy.code, parentGotCode, gotCode).then(hierarchyType => {
 
-		(<ConfirmModalComponent>this.bsModalRef.content).onConfirm.subscribe(data => {
-			this.removeTreeNode(data);
-		});
-	}
+      that.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
+      that.updateHierarchy(hierarchyType.code, hierarchyType.rootGeoObjectTypes)
 
-	public removeTreeNode(node: any): void {
-		this.hierarchyService.removeFromHierarchy(this.currentHierarchy.code, node.parent.data.geoObjectType, node.data.geoObjectType).then(data => {
-
-			if (node.parent.data.geoObjectType == null) {
-				this.nodes = [];
-				// this.refreshAll(null);
-				//return;
-			}
-
-			const parent = node.parent;
-			let children = parent.data.children;
-
-			// Update the tree
-			parent.data.children = children.filter((n: any) => n.id !== node.data.id);
-			if (parent.data.children.length === 0) {
-				parent.data.hasChildren = false;
-			}
-			//this.tree.treeModel.update();
-
-			// Update the available GeoObjectTypes
-			this.changeDetectorRef.detectChanges()
+      that.setNodesForHierarchy(hierarchyType);
 
 		}).catch((err: HttpErrorResponse) => {
+		  if (errCallback != null)
+		  {
+		    errCallback(err);
+		  }
+		
 			this.error(err);
 		});
 	}
