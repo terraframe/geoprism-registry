@@ -112,4 +112,45 @@ public class HierarchyController
 
     return new RestBodyResponse(ht.toJSON(serializer));
   }
+  
+  /**
+   * Modifies a hierarchy to inherit from another hierarchy at the given
+   * GeoObjectType
+   * 
+   * @param request
+   *          Session Request
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param inheritedHierarchyTypeCode
+   *          code of the {@link HierarchyType} being inherited.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "setInherited")
+  public ResponseIF setInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "inheritedHierarchyTypeCode") String inheritedHierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  {
+    HierarchyType ht = ServiceFactory.getHierarchyService().setInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, inheritedHierarchyTypeCode, geoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(ht.toJSON(serializer));
+  }
+
+  /**
+   * Modifies a hierarchy to remove inheritance from another hierarchy for the
+   * given root
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "removeInherited")
+  public ResponseIF removeInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  {
+    HierarchyType ht = ServiceFactory.getHierarchyService().removeInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, geoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(ht.toJSON(serializer));
+  }
 }
