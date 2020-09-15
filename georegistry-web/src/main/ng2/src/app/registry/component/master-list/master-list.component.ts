@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
@@ -50,7 +50,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	notifier: WebSocketSubject<{ type: string, content: any }>;
 
 
-	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router,
+	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute,
 		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService) {
 
 		this.searchPlaceholder = localizeService.decode("masterlist.search");

@@ -218,11 +218,6 @@ public class MasterListVersion extends MasterListVersionBase
       return false;
     }
 
-    if (attributeType.getName().equals(DefaultAttribute.STATUS.getName()))
-    {
-      return false;
-    }
-
     if (attributeType.getName().equals(DefaultAttribute.LAST_UPDATE_DATE.getName()))
     {
       return false;
@@ -782,8 +777,21 @@ public class MasterListVersion extends MasterListVersionBase
 
         if (value != null)
         {
+          if (name.equals(DefaultAttribute.STATUS.getName()))
+          {
+            GeoObjectStatus status = (GeoObjectStatus) value;
+            Term term = ServiceFactory.getConversionService().geoObjectStatusToTerm(status);
+            LocalizedValue label = term.getLabel();
 
-          if (attribute instanceof AttributeTermType)
+            this.setValue(business, name, term.getCode());
+            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+            for (Locale locale : locales)
+            {
+              this.setValue(business, name + locale.toString(), label.getValue(locale));
+            }
+          }
+          else if (attribute instanceof AttributeTermType)
           {
             Classifier classifier = (Classifier) value;
 

@@ -911,7 +911,7 @@ export class HierarchyComponent implements OnInit {
 	  return orgHierarchies;
 	}
 
-	public refreshAll(desiredHierarchy) {
+	public refreshAll(desiredHierarchy: HierarchyType) {
 		this.registryService.init().then(response => {
 			this.localizeService.setLocales(response.locales);
 
@@ -965,7 +965,7 @@ export class HierarchyComponent implements OnInit {
 		return (this.geoObjectTypeDeleteExclusions.indexOf(geoObjectType.code) !== -1);
 	}
 
-	private setNodesOnInit(desiredHierarchy): void {
+	private setNodesOnInit(desiredHierarchy: HierarchyType): void {
 
 		let index = -1;
 

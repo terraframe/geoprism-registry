@@ -72,6 +72,7 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
@@ -757,15 +758,19 @@ public class ServerGeoObjectType
     return hierarchies;
   }
 
+  /**
+   * @param sType
+   *          Hierarchy Type
+   * 
+   * @return If this geo object type is the direct (non-inherited) root of the
+   *         given hierarchy
+   */
   public boolean isRoot(ServerHierarchyType sType)
   {
-    HierarchyType ht = sType.getType();
-    List<HierarchyNode> nodes = ht.getRootGeoObjectTypes();
+    List<ServerGeoObjectType> roots = sType.getDirectRootNodes();
 
-    for (HierarchyNode node : nodes)
+    for (ServerGeoObjectType root : roots)
     {
-      GeoObjectType root = node.getGeoObjectType();
-
       if (root.getCode().equals(this.type.getCode()))
       {
         return true;
@@ -807,7 +812,12 @@ public class ServerGeoObjectType
 
   public ServerHierarchyType getInheritedHierarchy(ServerHierarchyType hierarchy)
   {
-    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, hierarchy.getUniversalRelationship());
+    return this.getInheritedHierarchy(hierarchy.getUniversalRelationship());
+  }
+
+  public ServerHierarchyType getInheritedHierarchy(MdTermRelationship universalRelationship)
+  {
+    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, universalRelationship);
 
     if (annotation != null)
     {
