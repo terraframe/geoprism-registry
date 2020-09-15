@@ -63,13 +63,21 @@ let getBboxFromSelection = function(selection: any) {
 
 export class SvgHierarchyType {
 
+  private hierarchyComponent: HierarchyComponent;
+
   public static gotRectW: number = 150;
   public static gotRectH: number = 25;
   
   public static gotHeaderW: number = 150;
   public static gotHeaderH: number = 12;
+  
+  public constructor(hierarchyComponent: HierarchyComponent)
+  {
+    this.hierarchyComponent = hierarchyComponent;
+  }
 
   public render(svg: any, root: any) {
+    let that = this;
     let descends:any = root.descendants();
     
     // Edge
@@ -188,15 +196,33 @@ export class SvgHierarchyType {
         .attr("cursor", "grab")
         .text((d:any) => d.data.label)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType);
+        
+    d3.select(".g-got-relatedhiers-button").remove();
+    svg.append("g").classed("g-got-relatedhiers-button", true)
+        .selectAll("text")
+        .data(descends)
+        .join("text")
+        .filter(function(d:any){return d.data.geoObjectType === "GhostNode" ? false : that.hierarchyComponent.findGeoObjectTypeByCode(d.data.geoObjectType).relatedHierarchies.length > 0;})
+          .classed("svg-got-relatedhiers-button", true)
+          .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+          .attr("x", (d:any) => d.x + (SvgHierarchyType.gotRectW / 2) - 20)
+          .attr("y", (d:any) => d.y + 5)
+          .style("font-family", "FontAwesome")
+          .style("cursor", "pointer")
+          .text('\uf0c1')
+          .on('click', function(event,node){ new SvgGeoObjectType(that.hierarchyComponent, node.data.geoObjectType).onClickShowRelatedHierarchies(event, this, node); });
   }
 }
 
 export class SvgGeoObjectType {
   
+  private hierarchyComponent: HierarchyComponent;
+  
   private code: string;
   
-  constructor(code: string)
+  constructor(hierarchyComponent: HierarchyComponent, code: string)
   {
+    this.hierarchyComponent = hierarchyComponent;
     this.code = code;
   }
   
@@ -207,6 +233,8 @@ export class SvgGeoObjectType {
   
   setPos(x: number, y: number, dragging: boolean)
   {
+    let bbox = this.getBbox();
+  
     // Move the GeoObjectType with the pointer when they move their mouse
     d3.select('.svg-got-body-rect[data-gotCode="' + this.code + '"]')
         .classed("dragging", dragging)
@@ -222,6 +250,11 @@ export class SvgGeoObjectType {
         .classed("dragging", dragging)
         .attr("x", x + 5)
         .attr("y", y + 8);
+        
+    d3.select('.svg-got-relatedhiers-button[data-gotCode="' + this.code + '"]')
+        .classed("dragging", dragging)
+        .attr("x", x + bbox.width - 20)
+        .attr("y", y + 17);
   }
   
   getPos()
@@ -243,9 +276,111 @@ export class SvgGeoObjectType {
     return treeRoot.find((node)=>{return node.data.geoObjectType === this.code;});
   }
   
-  public static fromElement(el: any): SvgGeoObjectType
+  onClickShowRelatedHierarchies(event: MouseEvent, svgEl: any, node: any)
   {
-    return new SvgGeoObjectType(d3.select(el).attr("data-gotCode"));
+    let existingMenu = d3.select(".g-context-menu");
+    
+    if (existingMenu.node() == null)
+    {
+      let svg = d3.select("#svg");
+      
+      let contextMenuGroup = svg.append("g").classed("g-context-menu", true);
+      
+      let relatedHierarchies = this.hierarchyComponent.findGeoObjectTypeByCode(node.data.geoObjectType).relatedHierarchies;
+      
+      let bbox = this.getBbox();
+      let x = bbox.x + bbox.width - 5;
+      let y = bbox.y + bbox.height - 5;
+      const height = 20;
+      const fontSize = 9;
+      const widthPadding = 10;
+      const borderColor = "blue";
+      
+      let width = 100;
+      
+      relatedHierarchies.forEach((relatedHierarchyCode: string) => {
+        let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
+            
+        let text = contextMenuGroup.append("text")
+            .classed("contextmenu-relatedhiers-text", true)
+            .attr("data-hierCode", relatedHierarchyCode)
+            .attr("x", x)
+            .attr("y", y + (height/2) + (fontSize/2))
+            .style("font-size", fontSize)
+            .text(relatedHierarchy.label.localizedValue);
+        
+        let bbox = text.node().getBBox();
+        
+        if (bbox.width > width)
+        {
+          width = bbox.width;
+        }
+        
+        text.remove();
+      });
+      
+      width = width + widthPadding;
+      
+      contextMenuGroup.append("rect")
+        .classed("contextmenu-relatedhiers-background", true)
+        .attr("x", x)
+        .attr("y", y)
+        .attr("rx", 10)
+        .attr("width", width)
+        .attr("height", height * relatedHierarchies.length)
+        .attr("fill", "#e0e0e0")
+        .attr("stroke-width", 1)
+        .attr("stroke", borderColor)
+        .on('click', this.onClickShowRelatedHierarchy);
+      
+      //relatedHierarchies.forEach((relatedHierarchyCode: string) => {
+      for (let i = 0; i < relatedHierarchies.length; ++i)
+      {
+        let relatedHierarchyCode = relatedHierarchies[i];
+        let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
+      
+        contextMenuGroup.append("text")
+            .classed("contextmenu-relatedhiers-text", true)
+            .attr("data-hierCode", relatedHierarchyCode)
+            .attr("x", x + widthPadding / 2)
+            .attr("y", y + (height/2) + (fontSize/2))
+            .style("font-size", fontSize)
+            .text(relatedHierarchy.label.localizedValue)
+            .on('click', this.onClickShowRelatedHierarchy);
+        
+        y = y + height;
+        
+        if (i < relatedHierarchies.length - 1)
+        {
+          contextMenuGroup.append("line")
+              .classed("contextmenu-relatedhiers-divider", true)
+              .attr("data-hierCode", relatedHierarchyCode)
+              .attr("x1", x)
+              .attr("y1", y)
+              .attr("x2", x + width)
+              .attr("y2", y)
+              .attr("stroke", borderColor)
+              .attr("stroke-width", 1)
+              .on('click', this.onClickShowRelatedHierarchy);
+        }
+      };
+      
+      this.hierarchyComponent.calculateSvgViewBox();
+    }
+    else
+    {
+      existingMenu.remove();
+    }
+  }
+  
+  onClickShowRelatedHierarchy(event, node)
+  {
+    console.log("Clicky show related hierarchy", event, node);
+  }
+  
+  public static fromElement(hierarchyComponent: HierarchyComponent, el: any): SvgGeoObjectType
+  {
+    return new SvgGeoObjectType(hierarchyComponent, d3.select(el).attr("data-gotCode"));
   }
   
 }
@@ -333,35 +468,37 @@ export class HierarchyComponent implements OnInit {
 	  
 	  this.myTree(data);
 
-    //const svg = d3.create("svg");
     let svg = d3.select("#svg");
     
     if (svg.node() == null)
     {
-      svg = d3.create("svg");
+      svg = d3.select("#svgHolder").append("svg");
+      svg.attr("id", "svg");
     }
     
     treeRoot = this.root;
     
-    new SvgHierarchyType().render(svg, this.root);
+    new SvgHierarchyType(this).render(svg, this.root);
     
-    let svgNode: any = svg.node();
+    this.calculateSvgViewBox();
+    
+    let overflowDiv2: any = d3.select("#overflow-div").node();
+    overflowDiv2.scrollLeft = scrollLeft;
+    overflowDiv2.scrollRight = scrollRight;
+    
+    this.registerSvgHandlers();
+	}
+	
+	public calculateSvgViewBox()
+	{
+	  let svg: any = d3.select("#svg");
+	  let svgNode: any = svg.node();
   
-    // Calculate the svg viewport size
-    document.body.appendChild(svgNode);
     let {x, y, width, height} = svgNode.getBBox();
-    document.body.removeChild(svgNode);
   
-    svg.attr("id", "svg");
-    
     const xPadding = 30;
     const yPadding = 40;
     svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding*2) + " " + (height + yPadding*2));
-    
-    if (svgNode.parentNode == null)
-    {
-      document.getElementById("svgHolder").appendChild(svgNode);
-    }
     
     width = (width + xPadding*2) * this.treeScaleFactorX;
     height = (height + yPadding*2) * this.treeScaleFactorY;
@@ -374,12 +511,6 @@ export class HierarchyComponent implements OnInit {
     
     d3.select("#svgHolder").style("width", width + "px");
     //d3.select("#svgHolder").style("height", height + "px"); 
-    
-    let overflowDiv2: any = d3.select("#overflow-div").node();
-    overflowDiv2.scrollLeft = scrollLeft;
-    overflowDiv2.scrollRight = scrollRight;
-    
-    this.registerSvgHandlers();
 	}
   
   private myTree(data): any {
@@ -744,7 +875,7 @@ export class HierarchyComponent implements OnInit {
       let svgMousePoint: any = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
       let select = d3.select(this);
       
-      svgGot = SvgGeoObjectType.fromElement(this);
+      svgGot = SvgGeoObjectType.fromElement(that, this);
       startPoint = svgGot.getPos();
     
       deltaX = startPoint.x - svgMousePoint.x;
@@ -754,7 +885,7 @@ export class HierarchyComponent implements OnInit {
     
       let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
   
-      svgGot = SvgGeoObjectType.fromElement(this);
+      svgGot = SvgGeoObjectType.fromElement(that, this);
       
       svgGot.setPos(svgMousePoint.x + deltaX, svgMousePoint.y + deltaY, true);
         
@@ -815,7 +946,7 @@ export class HierarchyComponent implements OnInit {
     svgDragHandler(d3.selectAll(".svg-got-body-rect,.svg-got-label-text,.svg-got-header-rect"));
   }
   
-  private findGeoObjectTypeByCode(code: string): GeoObjectType
+  public findGeoObjectTypeByCode(code: string): GeoObjectType
   {
     for (let i = 0; i < this.geoObjectTypes.length; ++i)
     {
@@ -828,7 +959,7 @@ export class HierarchyComponent implements OnInit {
     }
   }
   
-  private findHierarchyByCode(code: string): HierarchyType
+  public findHierarchyByCode(code: string): HierarchyType
   {
     for (let i = 0; i < this.hierarchies.length; ++i)
     {
