@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -282,6 +282,59 @@ public class HierarchyService
     type.addToHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
     return type.getType();
+  }
+
+  /**
+   * Modifies a hierarchy to inherit from another hierarchy at the given
+   * GeoObjectType
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param inheritedHierarchyTypeCode
+   *          code of the {@link HierarchyType} being inherited.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType setInheritedHierarchy(String sessionId, String hierarchyTypeCode, String inheritedHierarchyTypeCode, String geoObjectTypeCode)
+  {
+    ServerHierarchyType forHierarchy = ServerHierarchyType.get(hierarchyTypeCode);
+    ServerHierarchyType inheritedHierarchy = ServerHierarchyType.get(inheritedHierarchyTypeCode);
+
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), forHierarchy, null, geoObjectTypeCode);
+
+    ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
+
+    type.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    forHierarchy.refresh();
+
+    return forHierarchy.getType();
+  }
+
+  /**
+   * Modifies a hierarchy to remove inheritance from another hierarchy for the
+   * given root
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType removeInheritedHierarchy(String sessionId, String hierarchyTypeCode, String geoObjectTypeCode)
+  {
+    ServerHierarchyType forHierarchy = ServerHierarchyType.get(hierarchyTypeCode);
+
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), forHierarchy, null, geoObjectTypeCode);
+
+    ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
+
+    type.removeInheritedHierarchy(forHierarchy);
+    forHierarchy.refresh();
+
+    return forHierarchy.getType();
   }
 
   /**

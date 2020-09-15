@@ -4,31 +4,33 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
 import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.HierarchyRootException;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -213,7 +215,7 @@ public class InheritedHierarchyAnnotationTest
   }
 
   @Request
-  @Test(expected = ProgrammingErrorException.class)
+  @Test(expected = HierarchyRootException.class)
   public void testCreateOnNonRoot()
   {
     ServerGeoObjectType sGOT = TEST_CHILD.getServerObject();
@@ -290,6 +292,38 @@ public class InheritedHierarchyAnnotationTest
     {
       annotation.delete();
     }
+  }
+
+  @Test
+  public void testSetInheritedHierarchy()
+  {
+    FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
+
+      HierarchyService service = new HierarchyService();
+
+      try
+      {
+        HierarchyType ht = service.setInheritedHierarchy(request.getSessionId(), TEST_HT.getCode(), FastTestDataset.HIER_ADMIN.getCode(), FastTestDataset.PROVINCE.getCode());
+
+        List<HierarchyNode> nodes = ht.getRootGeoObjectTypes();
+        HierarchyNode node = nodes.get(0);
+        GeoObjectType root = node.getGeoObjectType();
+
+        Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), root.getCode());
+        Assert.assertTrue(node.getInherited());
+      }
+      finally
+      {
+        HierarchyType ht = service.removeInheritedHierarchy(request.getSessionId(), TEST_HT.getCode(), FastTestDataset.PROVINCE.getCode());
+
+        List<HierarchyNode> nodes = ht.getRootGeoObjectTypes();
+        HierarchyNode node = nodes.get(0);
+        GeoObjectType root = node.getGeoObjectType();
+
+        Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), root.getCode());
+        Assert.assertFalse(node.getInherited());
+      }
+    });
   }
 
 }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -804,6 +804,47 @@ public class RegistryController
   public ResponseIF removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
   {
     HierarchyType ht = ServiceFactory.getHierarchyService().removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(ht.toJSON(serializer));
+  }
+
+  /**
+   * Modifies a hierarchy to inherit from another hierarchy at the given
+   * GeoObjectType
+   * 
+   * @param request
+   *          Session Request
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param inheritedHierarchyTypeCode
+   *          code of the {@link HierarchyType} being inherited.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "hierarchytype/set-inherited")
+  public ResponseIF setInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "inheritedHierarchyTypeCode") String inheritedHierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  {
+    HierarchyType ht = ServiceFactory.getHierarchyService().setInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, inheritedHierarchyTypeCode, geoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(ht.toJSON(serializer));
+  }
+
+  /**
+   * Modifies a hierarchy to remove inheritance from another hierarchy for the
+   * given root
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "hierarchytype/remove-inherited")
+  public ResponseIF removeInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  {
+    HierarchyType ht = ServiceFactory.getHierarchyService().removeInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, geoObjectTypeCode);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(ht.toJSON(serializer));
