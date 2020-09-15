@@ -30,10 +30,10 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientConstants;
 import com.runwaysdk.web.WebClientSession;
 
@@ -92,7 +92,7 @@ public class NotificationEndpoint
     // Do error handling here
   }
 
-  public static void broadcast(String userId, JSONObject message)
+  public static void broadcast(String userId, JsonObject message)
   {
     logger.debug("Broadcasting to [" + userId + "]: " + message.toString());
 
@@ -114,7 +114,7 @@ public class NotificationEndpoint
     });
   }
 
-  public static void broadcast(JSONObject message)
+  public static void broadcast(JsonObject message)
   {
     logger.debug("Broadcasting to [all]: " + message.toString());
 

@@ -18,20 +18,19 @@
  */
 package net.geoprism.registry.ws;
 
-import org.json.JSONObject;
-
+import com.google.gson.JsonObject;
 import com.runwaysdk.session.SessionIF;
 
 public class UserNotificationMessage extends NotificationMessage
 {
   private String userId;
 
-  public UserNotificationMessage(SessionIF session, MessageType type, JSONObject content)
+  public UserNotificationMessage(SessionIF session, MessageType type, JsonObject content)
   {
     this(session.getUser().getOid(), type, content);
   }
 
-  public UserNotificationMessage(String userId, MessageType type, JSONObject content)
+  public UserNotificationMessage(String userId, MessageType type, JsonObject content)
   {
     super(type, content);
 

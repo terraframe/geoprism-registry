@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -20,7 +20,7 @@ declare var acp: any;
 	templateUrl: './published-master-list-history.component.html',
 	styleUrls: []
 })
-export class PublishedMasterListHistoryComponent implements OnInit {
+export class PublishedMasterListHistoryComponent implements OnInit, OnDestroy {
 	message: string = null;
 	list: MasterList = null;
 	page: any = {

@@ -23,7 +23,6 @@ export class MasterListViewComponent implements OnInit {
      */
 	bsModalRef: BsModalRef;
 
-
 	constructor(private service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute) {
 	}
 
