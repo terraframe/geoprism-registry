@@ -61,6 +61,25 @@ let getBboxFromSelection = function(selection: any) {
   return {x: parseInt(selection.attr("x")), y: parseInt(selection.attr("y")), width: parseInt(selection.attr("width")), height: parseInt(selection.attr("height"))};
 }
 
+let calculateTextWidth = function(text: string, fontSize: number): number
+{
+  let svg = d3.select("#svg");
+
+  let textCalcGroup = svg.append("g").classed("g-text-calc", true);
+
+  let textEl = textCalcGroup.append("text")
+      .attr("x", -5000)
+      .attr("y", -5000)
+      .style("font-size", fontSize)
+      .text(text);
+  
+  let bbox = textEl.node().getBBox();
+  
+  d3.select(".g-text-calc").remove();
+  
+  return bbox.width;
+}
+
 export class SvgHierarchyType {
 
   private hierarchyComponent: HierarchyComponent;
@@ -278,6 +297,7 @@ export class SvgGeoObjectType {
   
   onClickShowRelatedHierarchies(event: MouseEvent, svgEl: any, node: any)
   {
+    let that = this;
     let existingMenu = d3.select(".g-context-menu");
     
     if (existingMenu.node() == null)
@@ -289,67 +309,88 @@ export class SvgGeoObjectType {
       let relatedHierarchies = this.hierarchyComponent.findGeoObjectTypeByCode(node.data.geoObjectType).relatedHierarchies;
       
       let bbox = this.getBbox();
-      let x = bbox.x + bbox.width - 5;
-      let y = bbox.y + bbox.height - 5;
+      let x = bbox.x + bbox.width - 4;
+      let y = bbox.y + bbox.height/2 - 8;
       const height = 20;
       const fontSize = 9;
       const widthPadding = 10;
-      const borderColor = "blue";
+      const borderColor = "#006DBB";
+      const fontFamily = "sans-serif";
+      const titleFontSize = 12;
+      const titleLabel = "Related Hierarchies"; // TODO : Localize
       
-      let width = 100;
+      // Calculate the width of our title
+      let width = calculateTextWidth(titleLabel, titleFontSize);
       
+      // Calculate the width of our context menu, which is based on how long the text inside it will be.
+      // We don't know how long text is until we render it. So we'll need to loop over all the text and
+      // render and destroy all of it.
       relatedHierarchies.forEach((relatedHierarchyCode: string) => {
         let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
-            
-        let text = contextMenuGroup.append("text")
-            .classed("contextmenu-relatedhiers-text", true)
-            .attr("data-hierCode", relatedHierarchyCode)
-            .attr("x", x)
-            .attr("y", y + (height/2) + (fontSize/2))
-            .style("font-size", fontSize)
-            .text(relatedHierarchy.label.localizedValue);
         
-        let bbox = text.node().getBBox();
+        let textWidth = calculateTextWidth(relatedHierarchy.label.localizedValue, fontSize);
         
-        if (bbox.width > width)
+        if (textWidth > width)
         {
           width = bbox.width;
         }
-        
-        text.remove();
       });
       
       width = width + widthPadding;
       
+      // Background rectangle with border
       contextMenuGroup.append("rect")
         .classed("contextmenu-relatedhiers-background", true)
         .attr("x", x)
         .attr("y", y)
         .attr("rx", 10)
         .attr("width", width)
-        .attr("height", height * relatedHierarchies.length)
+        .attr("height", height * (relatedHierarchies.length + 1))
         .attr("fill", "#e0e0e0")
         .attr("stroke-width", 1)
-        .attr("stroke", borderColor)
-        .on('click', this.onClickShowRelatedHierarchy);
+        .attr("stroke", borderColor);
       
-      //relatedHierarchies.forEach((relatedHierarchyCode: string) => {
+      // Related Hierarchies Title
+      contextMenuGroup.append("text")
+            .classed("contextmenu-relatedhiers-title", true)
+            .attr("x", x + widthPadding / 2)
+            .attr("y", y + (height/2) + (titleFontSize/2))
+            .style("font-size", titleFontSize)
+            .attr("font-family", fontFamily)
+            .text(titleLabel);
+        
+      y = y + height;
+      
+      contextMenuGroup.append("line")
+          .classed("contextmenu-relatedhiers-divider", true)
+          .attr("x1", x)
+          .attr("y1", y)
+          .attr("x2", x + width)
+          .attr("y2", y)
+          .attr("stroke", borderColor)
+          .attr("stroke-width", 1);
+      
+      // Loop over all related hierarchies and draw them as list items
       for (let i = 0; i < relatedHierarchies.length; ++i)
       {
         let relatedHierarchyCode = relatedHierarchies[i];
         let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
       
+        // Text that says the hierarchy's display label
         contextMenuGroup.append("text")
             .classed("contextmenu-relatedhiers-text", true)
             .attr("data-hierCode", relatedHierarchyCode)
             .attr("x", x + widthPadding / 2)
             .attr("y", y + (height/2) + (fontSize/2))
             .style("font-size", fontSize)
+            .attr("font-family", fontFamily)
             .text(relatedHierarchy.label.localizedValue)
-            .on('click', this.onClickShowRelatedHierarchy);
+            .style("cursor", "pointer")
+            .on('click', function(event, node) {that.onClickShowRelatedHierarchy(event, node, relatedHierarchy);});
         
         y = y + height;
         
+        // Dividing line at the bottom
         if (i < relatedHierarchies.length - 1)
         {
           contextMenuGroup.append("line")
@@ -360,8 +401,7 @@ export class SvgGeoObjectType {
               .attr("x2", x + width)
               .attr("y2", y)
               .attr("stroke", borderColor)
-              .attr("stroke-width", 1)
-              .on('click', this.onClickShowRelatedHierarchy);
+              .attr("stroke-width", 1);
         }
       };
       
@@ -373,9 +413,13 @@ export class SvgGeoObjectType {
     }
   }
   
-  onClickShowRelatedHierarchy(event, node)
+  onClickShowRelatedHierarchy(event, node, relatedHierarchy: HierarchyType)
   {
-    console.log("Clicky show related hierarchy", event, node);
+    console.log("Clicky show related hierarchy", event, node, relatedHierarchy);
+    
+    //svgHt: SvgHierarchyType = new SvgHierarchyType(this.hierarchyComponent);
+    
+    //svgHt.render(d3.select("#svg"), );
   }
   
   public static fromElement(hierarchyComponent: HierarchyComponent, el: any): SvgGeoObjectType
@@ -456,6 +500,8 @@ export class HierarchyComponent implements OnInit {
 	    d3.select("#svg").remove();
 	    return;
 	  }
+	  
+	  d3.select(".g-context-menu").remove();
 	  
 	  console.log("re-rendering entire tree");
 	  
@@ -825,6 +871,8 @@ export class HierarchyComponent implements OnInit {
     })
     .on("drag", function (event: any) {
     
+        d3.select(".g-context-menu").remove();
+    
         // Kind of a dumb hack, but if we hide our drag element for a sec, then we can check what's underneath it.
         d3.select(this)
             .style("display", "none");
@@ -882,6 +930,8 @@ export class HierarchyComponent implements OnInit {
       deltaY = startPoint.y - svgMousePoint.y;
     })
     .on("drag", function (event: any) {
+    
+      d3.select(".g-context-menu").remove();
     
       let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
   
