@@ -43,12 +43,8 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.constants.IndexTypes;
-import com.runwaysdk.constants.MdAttributeCharacterInfo;
-import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
-import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -57,7 +53,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
@@ -70,9 +65,7 @@ import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
-import net.geoprism.registry.ws.NotificationEndpoint;
 import net.geoprism.registry.ws.NotificationFacade;
-import net.geoprism.registry.ws.UserNotificationMessage;
 
 public class MasterList extends MasterListBase
 {
@@ -188,6 +181,8 @@ public class MasterList extends MasterListBase
     {
       query.AND(query.getVersionType().EQ(versionType));
     }
+    
+    query.ORDER_BY_DESC(query.getForDate());
 
     try (OIterator<? extends MasterListVersion> it = query.getIterator())
     {
