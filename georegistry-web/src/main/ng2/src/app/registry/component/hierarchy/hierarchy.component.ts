@@ -44,8 +44,6 @@ function svgPoint(x, y) {
   return pt.matrixTransform(svg.getScreenCTM().inverse());
 }
 
-let treeRoot: any;
-
 let isPointWithin = function(point: {x: number, y: number}, bbox: {x: number, y: number, width: number, height: number}) {
   return point.y > bbox.y && point.y < (bbox.y + bbox.height) && point.x > bbox.x && point.x < (bbox.x + bbox.width);
 }
@@ -82,32 +80,69 @@ let calculateTextWidth = function(text: string, fontSize: number): number
 
 export class SvgHierarchyType {
 
-  private hierarchyComponent: HierarchyComponent;
-
   public static gotRectW: number = 150;
   public static gotRectH: number = 25;
   
   public static gotHeaderW: number = 150;
   public static gotHeaderH: number = 12;
+
+  private hierarchyComponent: HierarchyComponent;
   
-  public constructor(hierarchyComponent: HierarchyComponent)
+  private hierarchyType: HierarchyType;
+  
+  private svgEl: any;
+  
+  private d3Hierarchy: any;
+  
+  private d3Tree: any;
+  
+  private isPrimary: boolean;
+  
+  public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, hierarchyType: HierarchyType, isPrimary: boolean)
   {
     this.hierarchyComponent = hierarchyComponent;
+    this.hierarchyType = hierarchyType;
+    this.svgEl = svgEl;
+    
+    this.d3Hierarchy = d3.hierarchy(hierarchyType.rootGeoObjectTypes[0]);
+    this.isPrimary = isPrimary;
+    
+    this.d3Tree = d3.tree().nodeSize([300, 85]).separation((a, b) => 0.8)(this.d3Hierarchy);
   }
-
-  public render(svg: any, root: any) {
+  
+  public getD3Tree() {
+    return this.d3Tree;
+  }
+  
+  public nodeFromElement(hierarchyComponent: HierarchyComponent, el: any): SvgHierarchyNode
+  {
+    return new SvgHierarchyNode(hierarchyComponent, this, d3.select(el).attr("data-gotCode"));
+  }
+  
+  private copyNode(node: any): any
+  {
+    return {x: node.x, y: node.y, children: node.children, data: node.data, parent: node.parent, height: node.height, depth: node.depth};
+  }
+  
+  public render() {
     let that = this;
-    let descends:any = root.descendants();
+    let descends:any = this.d3Tree.descendants();
+    
+    d3.select('.g-hierarchy[data-primary="false"]').remove();
+    if (this.isPrimary)
+    {
+      d3.select('.g-hierarchy[data-primary="true"]').remove();
+    }
+    let hg = this.svgEl.append("g").classed("g-hierarchy", true).attr("data-code", this.hierarchyType.code).attr("data-primary", this.isPrimary);
     
     // Edge
-    d3.select(".g-got-edge").remove();
-    svg.append("g").classed("g-got-edge", true)
+    hg.append("g").classed("g-got-edge", true)
       .attr("fill", "none")
       .attr("stroke", "#555")
       .attr("stroke-opacity", 0.4)
       .attr("stroke-width", 1.5)
     .selectAll("path")
-      .data(root.links())
+      .data(this.d3Tree.links())
       .join("path")
         //.attr("d", d3.linkVertical().x(function(d:any) { return d.x; }).y(function(d:any) { return d.y; })); // draws edges as curved lines
         .attr("d", (d:any,i) => { // draws edges as square bracket lines
@@ -118,8 +153,7 @@ export class SvgHierarchyType {
         });
   
     // Header on square which denotes which hierarchy it's a part of
-    d3.select(".g-got-header").remove();
-    svg.append("g").classed("g-got-header", true)
+    hg.append("g").classed("g-got-header", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -127,7 +161,7 @@ export class SvgHierarchyType {
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 8)
-          .attr("fill", (d: any) => "#b3ad00")
+          .attr("fill", "#b3ad00")
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
           .attr("cursor", "grab")
@@ -135,8 +169,7 @@ export class SvgHierarchyType {
           .attr("data-gotCode", (d: any) => d.data.geoObjectType);
           
     // GeoObjectType Body Square
-    d3.select(".g-got").remove();
-    svg.append("g").classed("g-got", true)
+    hg.append("g").classed("g-got", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -166,8 +199,7 @@ export class SvgHierarchyType {
           });
           
     // Ghost Drop Zone (Sibling) Backer
-    d3.select(".g-sibling-ghost-backer").remove();
-    svg.append("g").classed("g-sibling-ghost-backer", true)
+    hg.append("g").classed("g-sibling-ghost-backer", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -180,8 +212,7 @@ export class SvgHierarchyType {
           .attr("fill", "white")
           
     // Ghost Drop Zone (Sibling) Body Rectangle
-    d3.select(".g-sibling-ghost-body").remove();
-    svg.append("g").classed("g-sibling-ghost-body", true)
+    hg.append("g").classed("g-sibling-ghost-body", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -198,8 +229,7 @@ export class SvgHierarchyType {
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
     
     // GeoObjectType label
-    d3.select(".g-got-codelabel").remove();
-    svg.append("g").classed("g-got-codelabel", true)
+    hg.append("g").classed("g-got-codelabel", true)
         .attr("font-family", "sans-serif")
         .attr("font-size", 10)
         .attr("stroke-linejoin", "round")
@@ -211,13 +241,12 @@ export class SvgHierarchyType {
         .attr("x", (d:any) => d.x - 70)
         .attr("y", (d:any) => d.y - 4)
         .attr("dx", "0.31em")
-        .attr("dy", (d:any) => 6)
+        .attr("dy", 6)
         .attr("cursor", "grab")
         .text((d:any) => d.data.label)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType);
         
-    d3.select(".g-got-relatedhiers-button").remove();
-    svg.append("g").classed("g-got-relatedhiers-button", true)
+    hg.append("g").classed("g-got-relatedhiers-button", true)
         .selectAll("text")
         .data(descends)
         .join("text")
@@ -229,19 +258,22 @@ export class SvgHierarchyType {
           .style("font-family", "FontAwesome")
           .style("cursor", "pointer")
           .text('\uf0c1')
-          .on('click', function(event,node){ new SvgGeoObjectType(that.hierarchyComponent, node.data.geoObjectType).onClickShowRelatedHierarchies(event, this, node); });
+          .on('click', function(event,node){ new SvgHierarchyNode(that.hierarchyComponent, that, node.data.geoObjectType).onClickShowRelatedHierarchies(event, this, node); });
   }
 }
 
-export class SvgGeoObjectType {
+export class SvgHierarchyNode {
   
   private hierarchyComponent: HierarchyComponent;
   
+  private svgHierarchyType: SvgHierarchyType;
+  
   private code: string;
   
-  constructor(hierarchyComponent: HierarchyComponent, code: string)
+  constructor(hierarchyComponent: HierarchyComponent, svgHierarchyType: SvgHierarchyType, code: string)
   {
     this.hierarchyComponent = hierarchyComponent;
+    this.svgHierarchyType = svgHierarchyType;
     this.code = code;
   }
   
@@ -292,7 +324,7 @@ export class SvgGeoObjectType {
   
   getTreeNode()
   {
-    return treeRoot.find((node)=>{return node.data.geoObjectType === this.code;});
+    return this.svgHierarchyType.getD3Tree().find((node)=>{return node.data.geoObjectType === this.code;});
   }
   
   onClickShowRelatedHierarchies(event: MouseEvent, svgEl: any, node: any)
@@ -306,7 +338,20 @@ export class SvgGeoObjectType {
       
       let contextMenuGroup = svg.append("g").classed("g-context-menu", true);
       
-      let relatedHierarchies = this.hierarchyComponent.findGeoObjectTypeByCode(node.data.geoObjectType).relatedHierarchies;
+      let relatedHierarchies = JSON.parse(JSON.stringify(this.hierarchyComponent.findGeoObjectTypeByCode(node.data.geoObjectType).relatedHierarchies));
+      
+      let thisHierarchyIndex = null;
+      for (let i = 0; i < relatedHierarchies.length; ++i)
+      {
+        if (relatedHierarchies[i] === this.svgHierarchyType.hierarchyType.code)
+        {
+          thisHierarchyIndex = i;
+        }
+      };
+      if (thisHierarchyIndex != null)
+      {
+        relatedHierarchies.splice(thisHierarchyIndex, 1);
+      }
       
       let bbox = this.getBbox();
       let x = bbox.x + bbox.width - 4;
@@ -386,7 +431,7 @@ export class SvgGeoObjectType {
             .attr("font-family", fontFamily)
             .text(relatedHierarchy.label.localizedValue)
             .style("cursor", "pointer")
-            .on('click', function(event, node) {that.onClickShowRelatedHierarchy(event, node, relatedHierarchy);});
+            .on('click', function(event, node) {that.renderSecondaryHierarchy(relatedHierarchy);});
         
         y = y + height;
         
@@ -413,18 +458,34 @@ export class SvgGeoObjectType {
     }
   }
   
-  onClickShowRelatedHierarchy(event, node, relatedHierarchy: HierarchyType)
+  renderSecondaryHierarchy(relatedHierarchy: HierarchyType)
   {
-    console.log("Clicky show related hierarchy", event, node, relatedHierarchy);
+    d3.select(".g-context-menu").remove();
     
-    //svgHt: SvgHierarchyType = new SvgHierarchyType(this.hierarchyComponent);
+    // Remove any secondary hierarchy that may already be rendered
+    let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
+    if (existingSecondary.node() != null)
+    {
+      existingSecondary.remove();
+      this.hierarchyComponent.calculateSvgViewBox();
+    }
     
-    //svgHt.render(d3.select("#svg"), );
-  }
-  
-  public static fromElement(hierarchyComponent: HierarchyComponent, el: any): SvgGeoObjectType
-  {
-    return new SvgGeoObjectType(hierarchyComponent, d3.select(el).attr("data-gotCode"));
+    // Get the bounding box for our primary hierarchy
+    let svg = d3.select("#svg");
+    let strings: string[] = svg.attr("viewBox").split(" ");
+    let primaryHierBbox = {x: parseInt(strings[0]), y: parseInt(strings[1]), width: parseInt(strings[2]), height: parseInt(strings[3])}
+    
+    // Render the secondary hierarchy
+    let svgHt: SvgHierarchyType = new SvgHierarchyType(this.hierarchyComponent, svg, relatedHierarchy, false);
+    svgHt.render();
+    
+    // Translate the secondary hierarchy to the right of the primary hierarchy
+    let bbox = d3.select('.g-hierarchy[data-primary="false"]').node().getBBox();
+    let paddingLeft: number = primaryHierBbox.width + (primaryHierBbox.x - bbox.x);
+    d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
+    
+    // Recalculate the viewbox
+    this.hierarchyComponent.calculateSvgViewBox();
   }
   
 }
@@ -443,12 +504,13 @@ export class HierarchyComponent implements OnInit {
 	private svgWidth: number = 200;
 	private svgHeight: number = 500;
 	
+	primarySvgHierarchy: SvgHierarchyType;
+	currentHierarchy: HierarchyType = null;
+	
 	instance: Instance = new Instance();
 	hierarchies: HierarchyType[];
 	organizations: Organization[];
 	geoObjectTypes: GeoObjectType[] = [];
-	nodes = [] as HierarchyNode[];
-	currentHierarchy: HierarchyType = null;
 	
 	hierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
 	typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
@@ -495,7 +557,7 @@ export class HierarchyComponent implements OnInit {
 	}
 	
 	private renderTree() {
-	  if (this.nodes == null || this.nodes.length === 0 || this.nodes[0] == null)
+	  if (this.currentHierarchy == null || this.currentHierarchy.rootGeoObjectTypes == null || this.currentHierarchy.rootGeoObjectTypes.length == 0)
 	  {
 	    d3.select("#svg").remove();
 	    return;
@@ -503,17 +565,12 @@ export class HierarchyComponent implements OnInit {
 	  
 	  d3.select(".g-context-menu").remove();
 	  
-	  console.log("re-rendering entire tree");
-	  
 	  let overflowDiv: any = d3.select("#overflow-div").node();
 	  let scrollLeft = overflowDiv.scrollLeft;
 	  let scrollRight = overflowDiv.scrollRight;
 	  
 	  let that = this;
-	  let data = this.nodes[0];
 	  
-	  this.myTree(data);
-
     let svg = d3.select("#svg");
     
     if (svg.node() == null)
@@ -522,9 +579,8 @@ export class HierarchyComponent implements OnInit {
       svg.attr("id", "svg");
     }
     
-    treeRoot = this.root;
-    
-    new SvgHierarchyType(this).render(svg, this.root);
+    this.primarySvgHierarchy = new SvgHierarchyType(this, svg, this.currentHierarchy, true);
+    this.primarySvgHierarchy.render();
     
     this.calculateSvgViewBox();
     
@@ -558,12 +614,6 @@ export class HierarchyComponent implements OnInit {
     d3.select("#svgHolder").style("width", width + "px");
     //d3.select("#svgHolder").style("height", height + "px"); 
 	}
-  
-  private myTree(data): any {
-    //const root2: any = d3.hierarchy(data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
-    const root2: any = d3.hierarchy(data);
-    this.root = d3.tree().nodeSize([300, 85]).separation((a, b) => 0.8)(root2);
-  }
   
   private registerDragHandlers(): any {
     let that = this;
@@ -912,18 +962,18 @@ export class HierarchyComponent implements OnInit {
   
   private registerSvgHandlers(): void
   {
-    let that = this;
+    let hierarchyComponent = this;
   
     // SVG Drag Handler
     let deltaX: number, deltaY: number, width: number;
     let startPoint: any;
-    let svgGot: SvgGeoObjectType;
+    let svgGot: SvgHierarchyNode;
     let svgDragHandler = d3.drag()
     .on("start", function (event: any) {
       let svgMousePoint: any = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
       let select = d3.select(this);
       
-      svgGot = SvgGeoObjectType.fromElement(that, this);
+      svgGot = hierarchyComponent.primarySvgHierarchy.nodeFromElement(hierarchyComponent, this);
       startPoint = svgGot.getPos();
     
       deltaX = startPoint.x - svgMousePoint.x;
@@ -935,7 +985,7 @@ export class HierarchyComponent implements OnInit {
     
       let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
   
-      svgGot = SvgGeoObjectType.fromElement(that, this);
+      svgGot = hierarchyComponent.primarySvgHierarchy.nodeFromElement(hierarchyComponent, this);
       
       svgGot.setPos(svgMousePoint.x + deltaX, svgMousePoint.y + deltaY, true);
         
@@ -945,44 +995,24 @@ export class HierarchyComponent implements OnInit {
     
       if (!isBboxPartiallyWithin(svgGot.getBbox(), {x: parseInt(bbox[0]), y: parseInt(bbox[1]), width: parseInt(bbox[2]), height: parseInt(bbox[3])}))
       {
-        //that.deleteGeoObjectType(that.findGeoObjectTypeByCode(svgGot.getCode()));
-        
-        let obj = that.findGeoObjectTypeByCode(svgGot.getCode());
-        
-        //that.bsModalRef = that.modalService.show(ConfirmModalComponent, {
-        //  animated: true,
-        //  backdrop: true,
-        //  ignoreBackdropClick: true,
-        //});
-        //that.bsModalRef.content.message = that.localizeService.decode("confirm.modal.verify.delete") + ' [' + obj.label.localizedValue + ']';
-        //that.bsModalRef.content.data = obj.code;
-        //that.bsModalRef.content.submitText = that.localizeService.decode("modal.button.delete");
-        //that.bsModalRef.content.type = ModalTypes.danger;
-    
-        //(<ConfirmModalComponent>that.bsModalRef.content).onConfirm.subscribe(data => {
-        //  that.removeGeoObjectType(data, (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
-        //});
-        
-        //(<ConfirmModalComponent>that.bsModalRef.content).onCancel.subscribe(data => {
-        //  svgGot.setPos(startPoint.x, startPoint.y, false);
-        //});
-        
-        that.bsModalRef = that.modalService.show(ConfirmModalComponent, {
+        let obj = hierarchyComponent.findGeoObjectTypeByCode(svgGot.getCode());
+
+        hierarchyComponent.bsModalRef = hierarchyComponent.modalService.show(ConfirmModalComponent, {
           animated: true,
           backdrop: true,
           ignoreBackdropClick: true,
         });
-        that.bsModalRef.content.message = that.localizeService.decode("confirm.modal.verify.delete") + ' [' + obj.label.localizedValue + ']';
-        that.bsModalRef.content.data = obj.code;
+        hierarchyComponent.bsModalRef.content.message = hierarchyComponent.localizeService.decode("confirm.modal.verify.delete") + ' [' + obj.label.localizedValue + ']';
+        hierarchyComponent.bsModalRef.content.data = obj.code;
     
-        (<ConfirmModalComponent>that.bsModalRef.content).onConfirm.subscribe(data => {
+        (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onConfirm.subscribe(data => {
           let treeNode = svgGot.getTreeNode();
           let parent = treeNode.parent == null ? "ROOT" : treeNode.parent.data.geoObjectType;
         
-          that.removeTreeNode(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
+          hierarchyComponent.removeTreeNode(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
         });
         
-        (<ConfirmModalComponent>that.bsModalRef.content).onCancel.subscribe(data => {
+        (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onCancel.subscribe(data => {
           svgGot.setPos(startPoint.x, startPoint.y, false);
         });
       }
@@ -1025,10 +1055,7 @@ export class HierarchyComponent implements OnInit {
   private addChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void
   {
     this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode ).then( (ht: HierarchyType) => {
-        this.processHierarchyNodes(ht.rootGeoObjectTypes[0]);
-        this.updateHierarchy(ht.code, ht.rootGeoObjectTypes)
-    
-        this.setNodesForHierarchy(ht);
+        this.refreshPrimaryHierarchy(ht);
     } ).catch(( err: HttpErrorResponse) => {
         this.error( err );
     } );
@@ -1037,10 +1064,7 @@ export class HierarchyComponent implements OnInit {
   private insertBetweenTypes(hierarchyCode: string, parentGeoObjectTypeCode: string, middleGeoObjectTypeCode: string, youngestGeoObjectTypeCode: string): void
   {
     this.hierarchyService.insertBetweenTypes(hierarchyCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode ).then( (ht: HierarchyType) => {
-        this.processHierarchyNodes(ht.rootGeoObjectTypes[0]);
-        this.updateHierarchy(ht.code, ht.rootGeoObjectTypes)
-    
-        this.setNodesForHierarchy(ht);
+        this.refreshPrimaryHierarchy(ht);
     } ).catch(( err: HttpErrorResponse) => {
         this.error( err );
     } );
@@ -1160,35 +1184,10 @@ export class HierarchyComponent implements OnInit {
 		if (index > -1) {
 			let hierarchy = this.hierarchies[index];
 
-			this.nodes = hierarchy.rootGeoObjectTypes;
-
 			this.currentHierarchy = hierarchy;
-
-			//setTimeout(() => {
-			//	if (this.tree) {
-			//		this.tree.treeModel.expandAll();
-			//	}
-			//}, 1)
 			
 			this.renderTree();
 		}
-	}
-
-	private setNodesForHierarchy(hierarchyType: HierarchyType): void {
-		for (let i = 0; i < this.hierarchies.length; i++) {
-			let hierarchy = this.hierarchies[i];
-			if (hierarchy.code === hierarchyType.code) {
-				this.nodes = hierarchyType.rootGeoObjectTypes;
-				this.currentHierarchy = hierarchy;
-				break;
-			}
-		}
-
-		//setTimeout(() => {
-		//	this.tree.treeModel.expandAll();
-		//}, 1)
-		
-		this.renderTree();
 	}
 
 	private getHierarchy(hierarchyId: string): HierarchyType {
@@ -1225,17 +1224,6 @@ export class HierarchyComponent implements OnInit {
 		});
 	}
 
-	private updateHierarchy(code: string, rootGeoObjectTypes: HierarchyNode[]): void {
-		this.hierarchies.forEach(hierarchy => {
-			if (hierarchy.code === code) {
-				hierarchy.rootGeoObjectTypes = rootGeoObjectTypes;
-			}
-		})
-	}
-
-    /**
-     * Set properties required by angular-tree-component using recursion.
-     */
 	private processHierarchyNodes(node: HierarchyNode) {
 	  if (node != null)
 	  {
@@ -1316,23 +1304,6 @@ export class HierarchyComponent implements OnInit {
 		let hierarchyId = item.code;
 
 		this.currentHierarchy = item;
-
-		this.nodes = [];
-
-		if (this.getHierarchy(hierarchyId).rootGeoObjectTypes.length > 0) {
-			// TODO: should rootGeoObjectTypes be hardcoded to only one entry in the array?
-			this.nodes.push(this.getHierarchy(hierarchyId).rootGeoObjectTypes[0]);
-
-			//setTimeout(() => {
-			//	if (this && this.tree) {
-			//		this.tree.treeModel.expandAll();
-			//	}
-			//}, 1)
-		}
-
-		//if (this.tree) {
-		//	this.tree.treeModel.update();
-		//}
 		
 		this.renderTree();
 	}
@@ -1470,18 +1441,6 @@ export class HierarchyComponent implements OnInit {
 			let pos = this.getGeoObjectTypePosition(code);
 			this.geoObjectTypes.splice(pos, 1);
 
-			//          const parent = node.parent;
-			//          let children = parent.data.children;
-			//
-			//          parent.data.children = children.filter(( n: any ) => n.id !== node.data.id );
-			//
-			//          if ( parent.data.children.length === 0 ) {
-			//              parent.data.hasChildren = false;
-			//          }
-			//
-			//        this.tree.treeModel.update();
-			//this.setNodesOnInit();
-
 			this.refreshAll(this.currentHierarchy);
 
 		}).catch((err: HttpErrorResponse) => {
@@ -1538,65 +1497,22 @@ export class HierarchyComponent implements OnInit {
 
 		return null;
 	}
-
-// TODO : This code is deprecated after the d3 hierarchy redesign
-	/*public addChildAndRootToHierarchy(): void {
-		const that = this;
-
-		this.bsModalRef = this.modalService.show(AddChildToHierarchyModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
-			'class': 'upload-modal'
-		});
-		this.bsModalRef.content.allGeoObjectTypes = this.geoObjectTypes;
-		this.bsModalRef.content.parent = "ROOT";
-		this.bsModalRef.content.toRoot = true;
-		this.bsModalRef.content.hierarchyType = this.currentHierarchy;
-		this.bsModalRef.content.nodes = this.nodes;
-
-		(<AddChildToHierarchyModalComponent>this.bsModalRef.content).onNodeChange.subscribe(hierarchyType => {
-
-			that.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
-			that.updateHierarchy(hierarchyType.code, hierarchyType.rootGeoObjectTypes)
-
-			that.setNodesForHierarchy(hierarchyType);
-
-			//if (this.tree) {
-			//	this.tree.treeModel.update();
-			//}
-		});
-	}*/
-
-	public addChildToHierarchy(parent: any): void {
-		const that = this;
-		that.current = parent;
-
-		this.bsModalRef = this.modalService.show(AddChildToHierarchyModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
-			'class': 'upload-modal'
-		});
-		this.bsModalRef.content.allGeoObjectTypes = this.geoObjectTypes;
-		this.bsModalRef.content.parent = parent;
-		this.bsModalRef.content.toRoot = false;
-		this.bsModalRef.content.hierarchyType = this.currentHierarchy;
-		this.bsModalRef.content.nodes = this.nodes;
-
-		(<AddChildToHierarchyModalComponent>this.bsModalRef.content).onNodeChange.subscribe(hierarchyType => {
-			const d = that.current.data;
-
-
-			that.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
-			that.updateHierarchy(hierarchyType.code, hierarchyType.rootGeoObjectTypes)
-
-			that.setNodesForHierarchy(hierarchyType);
-
-			//if (this.tree) {
-			//	this.tree.treeModel.update();
-			//}
-		});
+	
+	public refreshPrimaryHierarchy(hierarchyType: HierarchyType)
+	{
+	  this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
+	  
+    for (let i = 0; i < this.hierarchies.length; ++i)
+    {
+      let hierarchy = this.hierarchies[i];
+      
+      if (hierarchy.code === hierarchyType.code) {
+        this.hierarchies[i] = hierarchyType;
+        this.currentHierarchy = hierarchyType;
+      }
+    }
+    
+    this.renderTree();
 	}
 
 	public removeTreeNode(parentGotCode, gotCode, errCallback: (err: HttpErrorResponse) => void = null): void {
@@ -1604,10 +1520,7 @@ export class HierarchyComponent implements OnInit {
 	
 		this.hierarchyService.removeFromHierarchy(this.currentHierarchy.code, parentGotCode, gotCode).then(hierarchyType => {
 
-      that.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
-      that.updateHierarchy(hierarchyType.code, hierarchyType.rootGeoObjectTypes)
-
-      that.setNodesForHierarchy(hierarchyType);
+      that.refreshPrimaryHierarchy(hierarchyType);
 
 		}).catch((err: HttpErrorResponse) => {
 		  if (errCallback != null)

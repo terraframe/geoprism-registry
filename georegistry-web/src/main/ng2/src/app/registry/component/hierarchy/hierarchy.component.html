@@ -79,7 +79,7 @@
     <div class="hierarchy-content">
 	    <div id="overflow-div">
 	     
-	      <div *ngIf="currentHierarchy != null && isOrganizationRA(currentHierarchy.organizationCode, true) && (nodes == null || nodes.length === 0 || nodes[0] == null)" id="emptyHierarchyDropzone" class="drop-box-container">
+	      <div *ngIf="currentHierarchy != null && isOrganizationRA(currentHierarchy.organizationCode, true) && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)" id="emptyHierarchyDropzone" class="drop-box-container">
           <div class="hierarchy-drop-box">
             <div class="inner-drop-box">
               <p class="upload-text"><localize key="hierarchy.content.dragGotToHierarchy"></localize></p>
