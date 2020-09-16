@@ -86,17 +86,17 @@ export class SvgHierarchyType {
   public static gotHeaderW: number = 150;
   public static gotHeaderH: number = 12;
 
-  private hierarchyComponent: HierarchyComponent;
+  hierarchyComponent: HierarchyComponent;
   
-  private hierarchyType: HierarchyType;
+  hierarchyType: HierarchyType;
   
-  private svgEl: any;
+  svgEl: any;
   
-  private d3Hierarchy: any;
+  d3Hierarchy: any;
   
-  private d3Tree: any;
+  d3Tree: any;
   
-  private isPrimary: boolean;
+  isPrimary: boolean;
   
   public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, hierarchyType: HierarchyType, isPrimary: boolean)
   {
@@ -124,6 +124,50 @@ export class SvgHierarchyType {
     return {x: node.x, y: node.y, children: node.children, data: node.data, parent: node.parent, height: node.height, depth: node.depth};
   }
   
+  public renderHierarchyHeader(hg: any) {
+    let bbox = hg.node().getBBox();
+  
+    let headerg = hg.append("g").classed("g-hierarchy-header", true);
+  
+    const fontSize = 14;
+    const iconWidth = 20;
+    
+    let lineWidth = bbox.width;
+    let textWidth = calculateTextWidth(this.hierarchyType.label.localizedValue, fontSize) + iconWidth;
+    
+    if (textWidth > lineWidth)
+    {
+      lineWidth = textWidth;
+    }
+    
+    // Hierarchy icon (font awesome)
+    headerg.append("text").classed("hierarchy-header-icon", true)
+          .attr("x", bbox.x)
+          .attr("y", bbox.y)
+          .style("font-family", "FontAwesome")
+          .text('\uf0e8');
+  
+    // Hierarchy display label
+    headerg.append("text").classed("hierarchy-header-label", true)
+        .attr("font-size", fontSize)
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-width", 3)
+        .attr("x", bbox.x + iconWidth)
+        .attr("y", bbox.y)
+        .text(this.hierarchyType.label.localizedValue);
+    
+    // Line underneath the header
+    headerg.append("line").classed("hierarchy-header-line", true)
+        .attr("x1", bbox.x)
+        .attr("y1", bbox.y + fontSize)
+        .attr("x2", bbox.x + lineWidth)
+        .attr("y2", bbox.y + fontSize)
+        .attr("stroke", "black")
+        .attr("stroke-width", 1);
+        
+    return headerg;
+  }
+  
   public render() {
     let that = this;
     let descends:any = this.d3Tree.descendants();
@@ -133,10 +177,14 @@ export class SvgHierarchyType {
     {
       d3.select('.g-hierarchy[data-primary="true"]').remove();
     }
+    
     let hg = this.svgEl.append("g").classed("g-hierarchy", true).attr("data-code", this.hierarchyType.code).attr("data-primary", this.isPrimary);
+    hg.attr("font-family", "sans-serif")
+    
+    let gtree = hg.append("g").classed("g-hierarchy-tree", true).attr("data-code", this.hierarchyType.code);
     
     // Edge
-    hg.append("g").classed("g-got-edge", true)
+    gtree.append("g").classed("g-got-edge", true)
       .attr("fill", "none")
       .attr("stroke", "#555")
       .attr("stroke-opacity", 0.4)
@@ -153,7 +201,7 @@ export class SvgHierarchyType {
         });
   
     // Header on square which denotes which hierarchy it's a part of
-    hg.append("g").classed("g-got-header", true)
+    gtree.append("g").classed("g-got-header", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -169,7 +217,7 @@ export class SvgHierarchyType {
           .attr("data-gotCode", (d: any) => d.data.geoObjectType);
           
     // GeoObjectType Body Square
-    hg.append("g").classed("g-got", true)
+    gtree.append("g").classed("g-got", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -199,7 +247,7 @@ export class SvgHierarchyType {
           });
           
     // Ghost Drop Zone (Sibling) Backer
-    hg.append("g").classed("g-sibling-ghost-backer", true)
+    gtree.append("g").classed("g-sibling-ghost-backer", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -212,7 +260,7 @@ export class SvgHierarchyType {
           .attr("fill", "white")
           
     // Ghost Drop Zone (Sibling) Body Rectangle
-    hg.append("g").classed("g-sibling-ghost-body", true)
+    gtree.append("g").classed("g-sibling-ghost-body", true)
         .selectAll("rect")
         .data(descends)
         .join("rect")
@@ -229,7 +277,7 @@ export class SvgHierarchyType {
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
     
     // GeoObjectType label
-    hg.append("g").classed("g-got-codelabel", true)
+    gtree.append("g").classed("g-got-codelabel", true)
         .attr("font-family", "sans-serif")
         .attr("font-size", 10)
         .attr("stroke-linejoin", "round")
@@ -246,7 +294,7 @@ export class SvgHierarchyType {
         .text((d:any) => d.data.label)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType);
         
-    hg.append("g").classed("g-got-relatedhiers-button", true)
+    gtree.append("g").classed("g-got-relatedhiers-button", true)
         .selectAll("text")
         .data(descends)
         .join("text")
@@ -259,6 +307,9 @@ export class SvgHierarchyType {
           .style("cursor", "pointer")
           .text('\uf0c1')
           .on('click', function(event,node){ new SvgHierarchyNode(that.hierarchyComponent, that, node.data.geoObjectType).onClickShowRelatedHierarchies(event, this, node); });
+          
+    let headerg = this.renderHierarchyHeader(hg);
+    gtree.attr("transform", "translate(0 " + (headerg.node().getBBox().height + 20) + ")");
   }
 }
 
@@ -480,7 +531,8 @@ export class SvgHierarchyNode {
     svgHt.render();
     
     // Translate the secondary hierarchy to the right of the primary hierarchy
-    let bbox = d3.select('.g-hierarchy[data-primary="false"]').node().getBBox();
+    let gHierarchy: any = d3.select('.g-hierarchy[data-primary="false"]').node();
+    let bbox = gHierarchy.getBBox();
     let paddingLeft: number = primaryHierBbox.width + (primaryHierBbox.x - bbox.x);
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
     
