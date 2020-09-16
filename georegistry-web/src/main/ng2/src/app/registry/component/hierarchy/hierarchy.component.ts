@@ -385,9 +385,9 @@ export class SvgHierarchyNode {
     
     if (existingMenu.node() == null)
     {
-      let svg = d3.select("#svg");
+      let parent = d3.select('g.g-hierarchy-tree[data-code="' + this.svgHierarchyType.hierarchyType.code + '"]');
       
-      let contextMenuGroup = svg.append("g").classed("g-context-menu", true);
+      let contextMenuGroup = parent.append("g").classed("g-context-menu", true);
       
       let relatedHierarchies = JSON.parse(JSON.stringify(this.hierarchyComponent.findGeoObjectTypeByCode(node.data.geoObjectType).relatedHierarchies));
       
