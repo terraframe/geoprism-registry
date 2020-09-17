@@ -114,6 +114,10 @@ export class SvgHierarchyType {
     return this.d3Tree;
   }
   
+  public getCode(): string {
+    return this.hierarchyType.code
+  }
+  
   public getNodeByCode(gotCode: string): SvgHierarchyNode
   {
     let treeNode = this.getD3Tree().find((node)=>{return node.data.geoObjectType === gotCode;});
@@ -212,7 +216,7 @@ export class SvgHierarchyType {
           .attr("fill", this.isPrimary ? "#cc0000" : "#b3ad00")
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
-          .attr("cursor", "grab")
+          .attr("cursor", this.isPrimary ? "grab" : null)
           .attr("rx", 5)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType);
           
@@ -229,7 +233,7 @@ export class SvgHierarchyType {
           .attr("width", SvgHierarchyType.gotRectW)
           .attr("height", SvgHierarchyType.gotRectH)
           .attr("rx", 5)
-          .attr("cursor", "grab")
+          .attr("cursor", this.isPrimary ? "grab" : null)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
           .each(function(d:any) {
             if (d.data.geoObjectType != "GhostNode")
@@ -290,7 +294,7 @@ export class SvgHierarchyType {
         .attr("y", (d:any) => d.y - 4)
         .attr("dx", "0.31em")
         .attr("dy", 6)
-        .attr("cursor", "grab")
+        .attr("cursor", this.isPrimary ? "grab" : null)
         .text((d:any) => d.data.label)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType);
         
@@ -346,22 +350,22 @@ export class SvgHierarchyNode {
     let bbox = this.getBbox();
   
     // Move the GeoObjectType with the pointer when they move their mouse
-    d3.select('.svg-got-body-rect[data-gotCode="' + this.getCode() + '"]')
+    d3.select('.g-hierarchy[data-primary=true] .svg-got-body-rect[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x)
         .attr("y", y);
         
-    d3.select('.svg-got-header-rect[data-gotCode="' + this.getCode() + '"]')
+    d3.select('.g-hierarchy[data-primary=true] .svg-got-header-rect[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x)
         .attr("y", y - SvgHierarchyType.gotRectH/2 + 8);
         
-    d3.select('.svg-got-label-text[data-gotCode="' + this.getCode() + '"]')
+    d3.select('.g-hierarchy[data-primary=true] .svg-got-label-text[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x + 5)
         .attr("y", y + 8);
         
-    d3.select('.svg-got-relatedhiers-button[data-gotCode="' + this.getCode() + '"]')
+    d3.select('.g-hierarchy[data-primary=true] .svg-got-relatedhiers-button[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x + bbox.width - 20)
         .attr("y", y + 17);
@@ -369,14 +373,14 @@ export class SvgHierarchyNode {
   
   getPos()
   {
-    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
+    let select = d3.select('.g-hierarchy[data-primary=true] .svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
   
     return {x: parseInt(select.attr("x")), y: parseInt(select.attr("y"))};
   }
   
   getBbox()
   {
-    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
+    let select = d3.select('.g-hierarchy[data-primary=true] .svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
   
     return {x: parseInt(select.attr("x")), y: parseInt(select.attr("y")) - 3, width: parseInt(select.attr("width")), height: parseInt(select.attr("height")) + 3};
   }
@@ -546,9 +550,41 @@ export class SvgHierarchyNode {
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
     
     // Add an inherit button
+    d3.select(".hierarchy-inherit-button").remove();
     if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode)
     {
       let myBbox = this.getBbox();
+      
+      const height = 15;
+      const fontSize = 10;
+      
+      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-inherit-button", true);
+      
+      let inheritLabel = "Inherit"; // TODO : Localize
+      const width = calculateTextWidth(inheritLabel) + 6;
+      
+      group.append("rect")
+        .classed("hierarchy-inherit-bg-rect", true)
+        .attr("x", myBbox.x + myBbox.width - 25 - width)
+        .attr("y", myBbox.y + myBbox.height / 2 - height/2)
+        .attr("rx", 5)
+        .attr("ry", 5)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "none")
+        .attr("cursor", "pointer")
+        .attr("stroke", "#6BA542")
+        .attr("stroke-width", 1);
+        
+      group.append("text")
+        .classed("hierarchy-inherit-bg-text", true)
+        .attr("x", myBbox.x + myBbox.width - 25 - width + 9)
+        .attr("y", myBbox.y + myBbox.height / 2 + fontSize/2 - 2)
+        .attr("fill", "#6BA542")
+        .attr("cursor", "pointer")
+        .attr("font-size",  fontSize + "px")
+        .attr("line-height", fontSize + "px")
+        .text(inheritLabel);
     }
     
     // Recalculate the viewbox
@@ -631,6 +667,7 @@ export class HierarchyComponent implements OnInit {
 	  }
 	  
 	  d3.select(".g-context-menu").remove();
+	  d3.select(".hierarchy-inherit-button").remove();
 	  
 	  let overflowDiv: any = d3.select("#overflow-div").node();
 	  let scrollLeft = overflowDiv.scrollLeft;
@@ -671,12 +708,6 @@ export class HierarchyComponent implements OnInit {
     
     width = (width + xPadding*2) * this.treeScaleFactorX;
     height = (height + yPadding*2) * this.treeScaleFactorY;
-    
-    // This sort of clipping screws up the dropzone logic we have for relationship management
-    //if (width > 1200)
-    //{
-      //width = 1200;
-    //}
     
     d3.select("#svgHolder").style("width", width + "px");
     //d3.select("#svgHolder").style("height", height + "px"); 
