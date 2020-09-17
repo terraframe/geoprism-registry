@@ -900,7 +900,7 @@ export class HierarchyComponent implements OnInit {
           .attr("fill", "black")
           .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - 20)
           .attr("y", dropElY + SvgHierarchyType.gotRectH + 10 + childH/2 + 2)
-          .text(this.localizeService.decode("hierarchy.content.addChild"));
+          .text(that.localizeService.decode("hierarchy.content.addChild"));
         
         // Render Parent Drop Zone
         this.parentDzBacker = dzg.append("rect").classed("svg-got-parent-dz-backer", true)
@@ -927,7 +927,7 @@ export class HierarchyComponent implements OnInit {
           .attr("fill", "black")
           .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - 20)
           .attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH/2 + 2)
-          .text(this.localizeService.decode("hierarchy.content.addParent"));
+          .text(that.localizeService.decode("hierarchy.content.addParent"));
           
         // Render Sibling Drop Zone
         let gotCode = this.dropEl.attr("data-gotCode");
@@ -953,7 +953,7 @@ export class HierarchyComponent implements OnInit {
               }
             };
           
-            let addChildLabel = this.localizeService.decode("hierarchy.content.addChild");
+            let addChildLabel = that.localizeService.decode("hierarchy.content.addChild");
             dropNode.parent.data.children.splice(parentIndex, 0, {ghostingCode: gotCode, geoObjectType:"GhostNode", label:addChildLabel, children:[]});
             
             that.renderTree();
