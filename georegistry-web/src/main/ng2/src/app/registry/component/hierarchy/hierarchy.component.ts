@@ -213,10 +213,10 @@ export class SvgHierarchyType {
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 8)
-          .attr("fill", this.isPrimary ? "#cc0000" : "#b3ad00")
+          .attr("fill", (d: any) => this.isPrimary ? (d.data.inherited ? "#848000" : "#cc0000") : "#b3ad00")
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
-          .attr("cursor", this.isPrimary ? "grab" : null)
+          .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
           .attr("rx", 5)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType);
           
@@ -229,11 +229,11 @@ export class SvgHierarchyType {
           .classed("svg-got-body-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - (SvgHierarchyType.gotRectH / 2))
-          .attr("fill", "#e0e0e0")
+          .attr("fill", (d: any) => d.data.inherited ? "#565656" : "#e0e0e0")
           .attr("width", SvgHierarchyType.gotRectW)
           .attr("height", SvgHierarchyType.gotRectH)
           .attr("rx", 5)
-          .attr("cursor", this.isPrimary ? "grab" : null)
+          .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
           .each(function(d:any) {
             if (d.data.geoObjectType != "GhostNode")
@@ -294,7 +294,7 @@ export class SvgHierarchyType {
         .attr("y", (d:any) => d.y - 4)
         .attr("dx", "0.31em")
         .attr("dy", 6)
-        .attr("cursor", this.isPrimary ? "grab" : null)
+        .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
         .text((d:any) => d.data.label)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType);
         
@@ -304,7 +304,7 @@ export class SvgHierarchyType {
           .selectAll("text")
           .data(descends)
           .join("text")
-          .filter(function(d:any){return d.data.geoObjectType === "GhostNode" ? false : that.hierarchyComponent.findGeoObjectTypeByCode(d.data.geoObjectType).relatedHierarchies.length > 0;})
+          .filter(function(d:any){return d.data.geoObjectType === "GhostNode" ? false : that.hierarchyComponent.findGeoObjectTypeByCode(d.data.geoObjectType).relatedHierarchies.length > 0 && !d.data.inherited;})
             .classed("svg-got-relatedhiers-button", true)
             .attr("data-gotCode", (d: any) => d.data.geoObjectType)
             .attr("x", (d:any) => d.x + (SvgHierarchyType.gotRectW / 2) - 20)
@@ -525,6 +525,7 @@ export class SvgHierarchyNode {
   renderSecondaryHierarchy(relatedHierarchy: HierarchyType)
   {
     d3.select(".g-context-menu").remove();
+    let that = this;
     
     // Remove any secondary hierarchy that may already be rendered
     let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
@@ -549,19 +550,20 @@ export class SvgHierarchyNode {
     let paddingLeft: number = primaryHierBbox.width + (primaryHierBbox.x - bbox.x);
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
     
-    // Add an inherit button
     d3.select(".hierarchy-inherit-button").remove();
-    if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode)
+    if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && !(this.treeNode.parent != null && this.treeNode.parent.data.inherited))
     {
+      // Add an inherit button
       let myBbox = this.getBbox();
       
       const height = 15;
       const fontSize = 10;
+      const buttonLabelPadding = 3;
       
       let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-inherit-button", true);
       
       let inheritLabel = "Inherit"; // TODO : Localize
-      const width = calculateTextWidth(inheritLabel) + 6;
+      const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
       
       group.append("rect")
         .classed("hierarchy-inherit-bg-rect", true)
@@ -578,17 +580,74 @@ export class SvgHierarchyNode {
         
       group.append("text")
         .classed("hierarchy-inherit-bg-text", true)
-        .attr("x", myBbox.x + myBbox.width - 25 - width + 9)
+        .attr("x", myBbox.x + myBbox.width - 25 - width + buttonLabelPadding)
         .attr("y", myBbox.y + myBbox.height / 2 + fontSize/2 - 2)
         .attr("fill", "#6BA542")
         .attr("cursor", "pointer")
         .attr("font-size",  fontSize + "px")
         .attr("line-height", fontSize + "px")
-        .text(inheritLabel);
+        .text(inheritLabel)
+        .on('click', function(event, node) {that.onClickInheritHierarchy(relatedHierarchy);});
+    }
+    else if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && (this.treeNode.parent != null && this.treeNode.parent.data.inherited))
+    {
+      // Add an uninherit button
+      let myBbox = this.getBbox();
+      
+      const height = 15;
+      const fontSize = 10;
+      const buttonLabelPadding = 3;
+      
+      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-uninherit-button", true);
+      
+      let inheritLabel = "Uninherit"; // TODO : Localize
+      const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
+      
+      group.append("rect")
+        .classed("hierarchy-uninherit-bg-rect", true)
+        .attr("x", myBbox.x + myBbox.width - 25 - width)
+        .attr("y", myBbox.y + myBbox.height / 2 - height/2)
+        .attr("rx", 5)
+        .attr("ry", 5)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "none")
+        .attr("cursor", "pointer")
+        .attr("stroke", "#6BA542")
+        .attr("stroke-width", 1);
+        
+      group.append("text")
+        .classed("hierarchy-uninherit-bg-text", true)
+        .attr("x", myBbox.x + myBbox.width - 25 - width + buttonLabelPadding)
+        .attr("y", myBbox.y + myBbox.height / 2 + fontSize/2 - 2)
+        .attr("fill", "#6BA542")
+        .attr("cursor", "pointer")
+        .attr("font-size",  fontSize + "px")
+        .attr("line-height", fontSize + "px")
+        .text(inheritLabel)
+        .on('click', function(event, node) {that.onClickUninheritHierarchy(relatedHierarchy);});
     }
     
     // Recalculate the viewbox
     this.hierarchyComponent.calculateSvgViewBox();
+  }
+  
+  onClickInheritHierarchy(hierarchy: HierarchyType)
+  {
+    this.hierarchyComponent.hierarchyService.setInheritedHierarchy(this.svgHierarchyType.getCode(), hierarchy.code, this.getCode()).then( (ht: HierarchyType) => {
+        this.hierarchyComponent.refreshPrimaryHierarchy(ht);
+    } ).catch(( err: HttpErrorResponse) => {
+        this.hierarchyComponent.error( err );
+    } );
+  }
+  
+  onClickUninheritHierarchy(hierarchy: HierarchyType)
+  {
+    this.hierarchyComponent.hierarchyService.removeInheritedHierarchy(this.svgHierarchyType.getCode(), this.getCode()).then( (ht: HierarchyType) => {
+        this.hierarchyComponent.refreshPrimaryHierarchy(ht);
+    } ).catch(( err: HttpErrorResponse) => {
+        this.hierarchyComponent.error( err );
+    } );
   }
   
 }
@@ -645,14 +704,16 @@ export class HierarchyComponent implements OnInit {
 	
 	private root: any;
 	
-	constructor(private hierarchyService: HierarchyService, private modalService: BsModalService,
+	hierarchyService: HierarchyService;
+	
+	constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
 		private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
 		private localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
 
 		// this.admin = authService.isAdmin();
 		// this.isMaintainer = this.isAdmin || service.isMaintainer();
 		// this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
-
+    this.hierarchyService = hierarchyService;
 	}
 
 	ngOnInit(): void {
@@ -1611,6 +1672,8 @@ export class HierarchyComponent implements OnInit {
         this.currentHierarchy = hierarchyType;
       }
     }
+    
+    this.updateViewDatastructures();
     
     this.renderTree();
 	}

@@ -137,5 +137,37 @@ export class HierarchyService {
 			}))
             .toPromise()
     }
+    
+    setInheritedHierarchy( hierarchyTypeCode: string, inheritedHierarchyTypeCode: string, geoObjectTypeCode: string): Promise<HierarchyType> {
+
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        });
+        
+        this.eventService.start();
+
+        return this.http
+            .post<HierarchyType>( acp + '/hierarchy/setInherited', JSON.stringify({ 'hierarchyTypeCode': hierarchyTypeCode, 'inheritedHierarchyTypeCode': inheritedHierarchyTypeCode, 'geoObjectTypeCode': geoObjectTypeCode }), { headers: headers } )
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+            .toPromise();
+    }
+    
+    removeInheritedHierarchy( hierarchyTypeCode: string, geoObjectTypeCode: string): Promise<HierarchyType> {
+
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        });
+        
+        this.eventService.start();
+
+        return this.http
+            .post<HierarchyType>( acp + '/hierarchy/removeInherited', JSON.stringify({ 'hierarchyTypeCode': hierarchyTypeCode, 'geoObjectTypeCode': geoObjectTypeCode }), { headers: headers } )
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+            .toPromise();
+    }
 
 }
