@@ -551,7 +551,8 @@ export class SvgHierarchyNode {
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
     
     d3.select(".hierarchy-inherit-button").remove();
-    if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && !(this.treeNode.parent != null && this.treeNode.parent.data.inherited))
+    let relatedGotHasParents = svgHt.getNodeByCode(this.getCode()).getTreeNode().parent != null;
+    if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && !(this.treeNode.parent != null && this.treeNode.parent.data.inherited) && relatedGotHasParents)
     {
       // Add an inherit button
       let myBbox = this.getBbox();
