@@ -50,6 +50,41 @@
           <attribute name="defaultLocale" value="Geo Object Type" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.relatedHierarchies">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.relatedHierarchies" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Related Hierarchies" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.inherit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.inherit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Inherit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.uninherit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.uninherit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Uninherit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.addChild">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.addChild" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Child" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.addParent">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.addParent" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Parent" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create>
       <mdException name="net.geoprism.registry.graph.MultipleHierarchyRootsException" 

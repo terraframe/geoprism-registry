@@ -426,7 +426,7 @@ export class SvgHierarchyNode {
       const borderColor = "#006DBB";
       const fontFamily = "sans-serif";
       const titleFontSize = 12;
-      const titleLabel = "Related Hierarchies"; // TODO : Localize
+      const titleLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.relatedHierarchies");
       
       // Calculate the width of our title
       let width = calculateTextWidth(titleLabel, titleFontSize);
@@ -537,8 +537,7 @@ export class SvgHierarchyNode {
     
     // Get the bounding box for our primary hierarchy
     let svg = d3.select("#svg");
-    let strings: string[] = svg.attr("viewBox").split(" ");
-    let primaryHierBbox = {x: parseInt(strings[0]), y: parseInt(strings[1]), width: parseInt(strings[2]), height: parseInt(strings[3])}
+    let primaryHierBbox = (d3.select(".g-hierarchy[data-primary=true]").node() as any).getBBox();
     
     // Render the secondary hierarchy
     let svgHt: SvgHierarchyType = new SvgHierarchyType(this.hierarchyComponent, svg, relatedHierarchy, false);
@@ -547,7 +546,7 @@ export class SvgHierarchyNode {
     // Translate the secondary hierarchy to the right of the primary hierarchy
     let gHierarchy: any = d3.select('.g-hierarchy[data-primary="false"]').node();
     let bbox = gHierarchy.getBBox();
-    let paddingLeft: number = primaryHierBbox.width + (primaryHierBbox.x - bbox.x);
+    let paddingLeft: number = primaryHierBbox.width + 40 + (primaryHierBbox.x - bbox.x);
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
     
     d3.select(".hierarchy-inherit-button").remove();
@@ -563,7 +562,7 @@ export class SvgHierarchyNode {
       
       let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-inherit-button", true);
       
-      let inheritLabel = "Inherit"; // TODO : Localize
+      let inheritLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.inherit");
       const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
       
       group.append("rect")
@@ -601,7 +600,7 @@ export class SvgHierarchyNode {
       
       let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-uninherit-button", true);
       
-      let inheritLabel = "Uninherit"; // TODO : Localize
+      let inheritLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.uninherit");
       const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
       
       group.append("rect")
@@ -707,14 +706,17 @@ export class HierarchyComponent implements OnInit {
 	
 	hierarchyService: HierarchyService;
 	
+	localizeService: LocalizationService;
+	
 	constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
 		private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
-		private localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
+		localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
 
 		// this.admin = authService.isAdmin();
 		// this.isMaintainer = this.isAdmin || service.isMaintainer();
 		// this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
     this.hierarchyService = hierarchyService;
+    this.localizeService = localizeService;
 	}
 
 	ngOnInit(): void {
@@ -888,7 +890,7 @@ export class HierarchyComponent implements OnInit {
           .attr("fill", "black")
           .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - 20)
           .attr("y", dropElY + SvgHierarchyType.gotRectH + 10 + childH/2 + 2)
-          .text("Add Child"); // TODO Localize
+          .text(this.localizeService.decode("hierarchy.content.addChild"));
         
         // Render Parent Drop Zone
         this.parentDzBacker = dzg.append("rect").classed("svg-got-parent-dz-backer", true)
@@ -915,7 +917,7 @@ export class HierarchyComponent implements OnInit {
           .attr("fill", "black")
           .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - 20)
           .attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH/2 + 2)
-          .text("Add Parent"); // TODO Localize
+          .text(this.localizeService.decode("hierarchy.content.addParent"));
           
         // Render Sibling Drop Zone
         let gotCode = this.dropEl.attr("data-gotCode");
@@ -941,7 +943,8 @@ export class HierarchyComponent implements OnInit {
               }
             };
           
-            dropNode.parent.data.children.splice(parentIndex, 0, {ghostingCode: gotCode, geoObjectType:"GhostNode", label:"Add Child", children:[]}); // TODO : localize
+            let addChildLabel = this.localizeService.decode("hierarchy.content.addChild");
+            dropNode.parent.data.children.splice(parentIndex, 0, {ghostingCode: gotCode, geoObjectType:"GhostNode", label:addChildLabel, children:[]});
             
             that.renderTree();
             this.ghostCode = gotCode;
