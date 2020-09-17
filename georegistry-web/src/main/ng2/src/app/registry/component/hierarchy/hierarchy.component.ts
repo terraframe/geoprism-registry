@@ -114,14 +114,11 @@ export class SvgHierarchyType {
     return this.d3Tree;
   }
   
-  public nodeFromElement(hierarchyComponent: HierarchyComponent, el: any): SvgHierarchyNode
+  public getNodeByCode(gotCode: string): SvgHierarchyNode
   {
-    return new SvgHierarchyNode(hierarchyComponent, this, d3.select(el).attr("data-gotCode"));
-  }
+    let treeNode = this.getD3Tree().find((node)=>{return node.data.geoObjectType === gotCode;});
   
-  private copyNode(node: any): any
-  {
-    return {x: node.x, y: node.y, children: node.children, data: node.data, parent: node.parent, height: node.height, depth: node.depth};
+    return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode);
   }
   
   public renderHierarchyHeader(hg: any) {
@@ -165,6 +162,9 @@ export class SvgHierarchyType {
         .attr("stroke", "black")
         .attr("stroke-width", 1);
         
+    let headerGBbox = headerg.node().getBBox();
+    headerg.attr("transform", "translate(0 -" + headerGBbox.height + ")");
+        
     return headerg;
   }
   
@@ -178,7 +178,7 @@ export class SvgHierarchyType {
       d3.select('.g-hierarchy[data-primary="true"]').remove();
     }
     
-    let hg = this.svgEl.append("g").classed("g-hierarchy", true).attr("data-code", this.hierarchyType.code).attr("data-primary", this.isPrimary);
+    let hg = this.svgEl.insert("g",".g-hierarchy").classed("g-hierarchy", true).attr("data-code", this.hierarchyType.code).attr("data-primary", this.isPrimary);
     hg.attr("font-family", "sans-serif")
     
     let gtree = hg.append("g").classed("g-hierarchy-tree", true).attr("data-code", this.hierarchyType.code);
@@ -209,7 +209,7 @@ export class SvgHierarchyType {
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 8)
-          .attr("fill", "#b3ad00")
+          .attr("fill", this.isPrimary ? "#cc0000" : "#b3ad00")
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
           .attr("cursor", "grab")
@@ -294,22 +294,27 @@ export class SvgHierarchyType {
         .text((d:any) => d.data.label)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType);
         
-    gtree.append("g").classed("g-got-relatedhiers-button", true)
-        .selectAll("text")
-        .data(descends)
-        .join("text")
-        .filter(function(d:any){return d.data.geoObjectType === "GhostNode" ? false : that.hierarchyComponent.findGeoObjectTypeByCode(d.data.geoObjectType).relatedHierarchies.length > 0;})
-          .classed("svg-got-relatedhiers-button", true)
-          .attr("data-gotCode", (d: any) => d.data.geoObjectType)
-          .attr("x", (d:any) => d.x + (SvgHierarchyType.gotRectW / 2) - 20)
-          .attr("y", (d:any) => d.y + 5)
-          .style("font-family", "FontAwesome")
-          .style("cursor", "pointer")
-          .text('\uf0c1')
-          .on('click', function(event,node){ new SvgHierarchyNode(that.hierarchyComponent, that, node.data.geoObjectType).onClickShowRelatedHierarchies(event, this, node); });
+    if (this.isPrimary)
+    {
+      gtree.append("g").classed("g-got-relatedhiers-button", true)
+          .selectAll("text")
+          .data(descends)
+          .join("text")
+          .filter(function(d:any){return d.data.geoObjectType === "GhostNode" ? false : that.hierarchyComponent.findGeoObjectTypeByCode(d.data.geoObjectType).relatedHierarchies.length > 0;})
+            .classed("svg-got-relatedhiers-button", true)
+            .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+            .attr("x", (d:any) => d.x + (SvgHierarchyType.gotRectW / 2) - 20)
+            .attr("y", (d:any) => d.y + 5)
+            .style("font-family", "FontAwesome")
+            .style("cursor", "pointer")
+            .text('\uf0c1')
+            .on('click', function(event,node){ that.getNodeByCode(node.data.geoObjectType).onClickShowRelatedHierarchies(event); });
+    }
           
     let headerg = this.renderHierarchyHeader(hg);
-    gtree.attr("transform", "translate(0 " + (headerg.node().getBBox().height + 20) + ")");
+    
+    let paddingTop = (headerg.node().getBBox().height + 20);
+    //gtree.attr("transform", "translate(0 " + paddingTop + ")");
   }
 }
 
@@ -319,18 +324,21 @@ export class SvgHierarchyNode {
   
   private svgHierarchyType: SvgHierarchyType;
   
-  private code: string;
+  private geoObjectType: GeoObjectType;
   
-  constructor(hierarchyComponent: HierarchyComponent, svgHierarchyType: SvgHierarchyType, code: string)
+  private treeNode: any;
+  
+  constructor(hierarchyComponent: HierarchyComponent, svgHierarchyType: SvgHierarchyType, geoObjectType: GeoObjectType, treeNode: any)
   {
     this.hierarchyComponent = hierarchyComponent;
     this.svgHierarchyType = svgHierarchyType;
-    this.code = code;
+    this.geoObjectType = geoObjectType;
+    this.treeNode = treeNode;
   }
   
   getCode(): string
   {
-    return this.code;
+    return this.geoObjectType.code;
   }
   
   setPos(x: number, y: number, dragging: boolean)
@@ -338,22 +346,22 @@ export class SvgHierarchyNode {
     let bbox = this.getBbox();
   
     // Move the GeoObjectType with the pointer when they move their mouse
-    d3.select('.svg-got-body-rect[data-gotCode="' + this.code + '"]')
+    d3.select('.svg-got-body-rect[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x)
         .attr("y", y);
         
-    d3.select('.svg-got-header-rect[data-gotCode="' + this.code + '"]')
+    d3.select('.svg-got-header-rect[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x)
         .attr("y", y - SvgHierarchyType.gotRectH/2 + 8);
         
-    d3.select('.svg-got-label-text[data-gotCode="' + this.code + '"]')
+    d3.select('.svg-got-label-text[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x + 5)
         .attr("y", y + 8);
         
-    d3.select('.svg-got-relatedhiers-button[data-gotCode="' + this.code + '"]')
+    d3.select('.svg-got-relatedhiers-button[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x + bbox.width - 20)
         .attr("y", y + 17);
@@ -361,24 +369,25 @@ export class SvgHierarchyNode {
   
   getPos()
   {
-    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.code + '"]');
+    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
   
     return {x: parseInt(select.attr("x")), y: parseInt(select.attr("y"))};
   }
   
   getBbox()
   {
-    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.code + '"]');
+    let select = d3.select('.svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
   
     return {x: parseInt(select.attr("x")), y: parseInt(select.attr("y")) - 3, width: parseInt(select.attr("width")), height: parseInt(select.attr("height")) + 3};
   }
   
   getTreeNode()
   {
-    return this.svgHierarchyType.getD3Tree().find((node)=>{return node.data.geoObjectType === this.code;});
+    return this.treeNode;
   }
   
-  onClickShowRelatedHierarchies(event: MouseEvent, svgEl: any, node: any)
+  // Renders a context menu
+  onClickShowRelatedHierarchies(event: MouseEvent)
   {
     let that = this;
     let existingMenu = d3.select(".g-context-menu");
@@ -389,7 +398,7 @@ export class SvgHierarchyNode {
       
       let contextMenuGroup = parent.append("g").classed("g-context-menu", true);
       
-      let relatedHierarchies = JSON.parse(JSON.stringify(this.hierarchyComponent.findGeoObjectTypeByCode(node.data.geoObjectType).relatedHierarchies));
+      let relatedHierarchies = JSON.parse(JSON.stringify(this.geoObjectType.relatedHierarchies));
       
       let thisHierarchyIndex = null;
       for (let i = 0; i < relatedHierarchies.length; ++i)
@@ -535,6 +544,12 @@ export class SvgHierarchyNode {
     let bbox = gHierarchy.getBBox();
     let paddingLeft: number = primaryHierBbox.width + (primaryHierBbox.x - bbox.x);
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
+    
+    // Add an inherit button
+    if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode)
+    {
+      let myBbox = this.getBbox();
+    }
     
     // Recalculate the viewbox
     this.hierarchyComponent.calculateSvgViewBox();
@@ -714,7 +729,9 @@ export class HierarchyComponent implements OnInit {
       
       let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
       
-      that.root.descendants().forEach((node:any) => {
+      // Find out if we've dragged the GeoObjectType inside of a HierarchyNode. If we have, then
+      // we need to expand the HierarchyNode's BoundingBox to accomodate our new drop zones. 
+      that.primarySvgHierarchy.getD3Tree().descendants().forEach((node:any) => {
         if (node.data.geoObjectType !== "GhostNode" && isPointWithin(svgMousePoint, node.data.dropZoneBbox))
         {
           this.dropEl = d3.select(node.data.gotBodySquare);
@@ -811,7 +828,7 @@ export class HierarchyComponent implements OnInit {
         let gotCode = this.dropEl.attr("data-gotCode");
         if (this.ghostCode != gotCode)
         {
-          let dropNode = that.root.find((node)=>{return node.data.geoObjectType === gotCode;});
+          let dropNode = that.primarySvgHierarchy.getD3Tree().find((node)=>{return node.data.geoObjectType === gotCode;});
         
           if (this.ghostCode != null)
           {
@@ -872,7 +889,7 @@ export class HierarchyComponent implements OnInit {
       if (this.dropEl != null && this.activeDz != null)
       {
         let dropGot = this.dropEl.attr("data-gotCode");
-        let dropNode = that.root.find((node)=>{return node.data.geoObjectType === dropGot;});
+        let dropNode = that.primarySvgHierarchy.getD3Tree().find((node)=>{return node.data.geoObjectType === dropGot;});
         let dragGot = d3.select(dragEl).attr("id");
       
         if (this.activeDz === this.childDz)
@@ -933,7 +950,7 @@ export class HierarchyComponent implements OnInit {
     }, clearGhostNodes: function(renderTree: boolean) {
       if (this.ghostCode != null)
       {
-        let ghostNode = that.root.find((node)=>{return node.data.ghostingCode === this.ghostCode;});
+        let ghostNode = that.primarySvgHierarchy.getD3Tree().find((node)=>{return node.data.ghostingCode === this.ghostCode;});
         
         if (ghostNode != null)
         {
@@ -1025,7 +1042,7 @@ export class HierarchyComponent implements OnInit {
       let svgMousePoint: any = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
       let select = d3.select(this);
       
-      svgGot = hierarchyComponent.primarySvgHierarchy.nodeFromElement(hierarchyComponent, this);
+      svgGot = hierarchyComponent.primarySvgHierarchy.getNodeByCode(d3.select(this).attr("data-gotCode"));
       startPoint = svgGot.getPos();
     
       deltaX = startPoint.x - svgMousePoint.x;
@@ -1037,7 +1054,7 @@ export class HierarchyComponent implements OnInit {
     
       let svgMousePoint = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
   
-      svgGot = hierarchyComponent.primarySvgHierarchy.nodeFromElement(hierarchyComponent, this);
+      svgGot = hierarchyComponent.primarySvgHierarchy.getNodeByCode(d3.select(this).attr("data-gotCode"));
       
       svgGot.setPos(svgMousePoint.x + deltaX, svgMousePoint.y + deltaY, true);
         
