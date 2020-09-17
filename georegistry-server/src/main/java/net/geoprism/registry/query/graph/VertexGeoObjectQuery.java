@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.query.graph;
 
@@ -41,6 +41,8 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
   private ServerGeoObjectRestriction restriction;
 
   private Integer                    limit;
+
+  private Long                       skip;
 
   public VertexGeoObjectQuery(ServerGeoObjectType type, Date date)
   {
@@ -78,6 +80,16 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
     this.limit = limit;
   }
 
+  public Long getSkip()
+  {
+    return skip;
+  }
+
+  public void setSkip(Long skip)
+  {
+    this.skip = skip;
+  }
+
   public GraphQuery<VertexObject> getQuery()
   {
     HashMap<String, Object> parameters = new HashMap<String, Object>();
@@ -99,6 +111,11 @@ public class VertexGeoObjectQuery implements ServerGeoObjectQuery
 
     statement.append("} RETURN $elements");
     statement.append(" ORDER BY location.code ASC");
+
+    if (this.skip != null)
+    {
+      statement.append(" SKIP " + this.skip);
+    }
 
     if (this.limit != null)
     {

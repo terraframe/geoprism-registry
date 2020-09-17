@@ -32,7 +32,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -123,7 +122,7 @@ public class RevealGeoObjectJsonAdapters
       }
       return joGO;
     }
-    
+
     private Long formatDate(Date date)
     {
       if (date != null)
@@ -165,7 +164,7 @@ public class RevealGeoObjectJsonAdapters
         throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported when 'includeLevel' is specified.");
       }
 
-      List<GeoObjectType> ancestors = AdapterUtilities.getInstance().getTypeAncestors(this.got, this.hierarchyType.getCode());
+      List<GeoObjectType> ancestors = this.got.getTypeAncestors(this.hierarchyType, true);
 
       this.depth = ancestors.size();
     }

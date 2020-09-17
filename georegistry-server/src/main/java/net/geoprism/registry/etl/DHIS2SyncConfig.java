@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.etl;
 
-import java.util.Set;
 import java.util.SortedSet;
 
 import com.google.gson.GsonBuilder;

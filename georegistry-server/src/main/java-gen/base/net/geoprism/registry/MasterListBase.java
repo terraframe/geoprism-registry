@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1565568287)
+@com.runwaysdk.business.ClassSignature(hash = -567266140)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -62,8 +62,9 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
+  public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
-  private static final long serialVersionUID = 1565568287;
+  private static final long serialVersionUID = -567266140;
   
   public MasterListBase()
   {
@@ -958,6 +959,34 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     else
     {
       setValue(USECONSTRAINTS, value);
+    }
+  }
+  
+  public Boolean getValid()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(VALID));
+  }
+  
+  public void validateValid()
+  {
+    this.validateAttribute(VALID);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getValidMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(VALID);
+  }
+  
+  public void setValid(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(VALID, "");
+    }
+    else
+    {
+      setValue(VALID, java.lang.Boolean.toString(value));
     }
   }
   

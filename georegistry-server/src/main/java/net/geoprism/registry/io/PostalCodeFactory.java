@@ -54,7 +54,7 @@ public class PostalCodeFactory
     {
       ServerGeoObjectType type = getType();
 
-      return new Location(type, function, null);
+      return new Location(type, null, function, null);
     }
 
     protected void formatException(String value)

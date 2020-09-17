@@ -49,7 +49,7 @@ public class SetParentAction extends SetParentActionBase
     {
       try
       {
-        ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+        ServerGeoObjectService service = new ServerGeoObjectService();
         ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
         ServerGeoObjectType type = child.getType();
 
@@ -67,7 +67,7 @@ public class SetParentAction extends SetParentActionBase
   @Override
   public void execute()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+    ServerGeoObjectService service = new ServerGeoObjectService();
     ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
@@ -78,7 +78,7 @@ public class SetParentAction extends SetParentActionBase
   @Override
   public void apply()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+    ServerGeoObjectService service = new ServerGeoObjectService();
     ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
 
     ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());

@@ -15,7 +15,7 @@
                 {{parent.label}}
 
                 <input style="width:150px;" type="text" class="form-control" disabled
-                  [(ngModel)]="parent.geoObject.properties.displayLabel.localizedValue" name="{{hierarchy.code}}-{{parent.code}}-input">
+                  [value]="parent.geoObject.properties.displayLabel.localizedValue + ' : ' + parent.geoObject.properties.code" [name]="hierarchy.code + '-' + parent.code + '-input'">
                   
               </div>
               

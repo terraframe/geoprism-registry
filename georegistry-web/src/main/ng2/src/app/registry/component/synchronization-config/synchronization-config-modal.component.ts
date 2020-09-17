@@ -327,7 +327,8 @@ export class SynchronizationConfigModalComponent implements OnInit {
 						if (isDifferentGot || level.attributes[attr.name] == null) {
 							level.attributes[attr.name] = {
 								name: attr.name,
-								externalId: null
+								externalId: null,
+								isOrgUnitGroup: false
 							};
 
 							if (attr.terms != null && attr.terms.length > 0) {
@@ -340,6 +341,10 @@ export class SynchronizationConfigModalComponent implements OnInit {
 								}
 							}
 						}
+						//else if (level.attributes[attr.name] != null)
+						//{
+						//  level.attributes[attr.name].isOrgUnitGroup = level.attributes[attr.name].isOrgUnitGroup || attr.isOrgUnitGroup || false;
+						//}
 					}
 
 					this.levelRows.splice(levelRowIndex + 1, 0, { isAttributeEditor: true, attrCfg: { geoObjectTypeCode: geoObjectTypeCode, attrs: attrs } });
@@ -351,6 +356,16 @@ export class SynchronizationConfigModalComponent implements OnInit {
 				this.error(err);
 			});
 		}
+	}
+	
+	onChangeTargetType(attr: any): void {
+	  attr.externalId = null;
+	  
+	  for (const key in attr.terms) {
+      if (attr.terms.hasOwnProperty(key)) {
+        attr.terms[key] = null;
+      }
+    }
 	}
 
 	onSubmit(): void {

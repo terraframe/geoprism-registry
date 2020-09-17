@@ -319,7 +319,7 @@ export class MasterList {
 	frequency: string;
 	isMaster: boolean;
 	visibility: string;
-	admin?: boolean;
+	write?: boolean;
 	read?: boolean;
 	versions?: MasterListVersion[]
 }
@@ -363,8 +363,17 @@ export enum ImportStrategy {
 export class MasterListByOrg {
 	oid: string;
 	label: string;
-	admin: boolean;
-	lists: { label: string, oid: string, createDate: string, lastUpdateDate: string, isMaster: boolean }[];
+	write: boolean;
+	lists: {
+		label: string,
+		oid: string,
+		createDate: string,
+		lastUpdateDate: string,
+		isMaster: boolean,
+		write: boolean,
+		read: boolean,
+		visibility: string
+	}[];
 }
 
 export class SynchronizationConfig {

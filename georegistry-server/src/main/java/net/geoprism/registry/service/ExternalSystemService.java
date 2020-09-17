@@ -31,7 +31,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.Page;
 

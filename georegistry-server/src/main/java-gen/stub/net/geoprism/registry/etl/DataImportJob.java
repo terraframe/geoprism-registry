@@ -42,6 +42,9 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class DataImportJob extends DataImportJobBase
 {
@@ -73,7 +76,7 @@ public class DataImportJob extends DataImportJobBase
 
     return (ImportHistory) record.getChild();
   }
-  
+
   @Transaction
   private JobHistoryRecord startInTrans(ImportConfiguration configuration)
   {
@@ -81,7 +84,7 @@ public class DataImportJob extends DataImportJobBase
 
     configuration.setHistoryId(history.getOid());
     configuration.setJobId(this.getOid());
-    
+
     history.appLock();
     history.setConfigJson(configuration.toJSON().toString());
     history.setImportFileId(configuration.getVaultFileId());
@@ -89,7 +92,7 @@ public class DataImportJob extends DataImportJobBase
 
     JobHistoryRecord record = new JobHistoryRecord(this, history);
     record.apply();
-    
+
     return record;
   }
 
@@ -146,7 +149,7 @@ public class DataImportJob extends DataImportJobBase
     // resumable) or it isn't (no in-between)
     config.setHistoryId(history.getOid());
     config.setJobId(this.getOid());
-    
+
     if (stage.equals(ImportStage.VALIDATE))
     {
       deleteValidationProblems(history);
@@ -169,6 +172,8 @@ public class DataImportJob extends DataImportJobBase
         history.addStage(ImportStage.VALIDATION_RESOLVE);
         history.setConfigJson(config.toJSON().toString());
         history.apply();
+        
+        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
       }
       else
       {
@@ -177,6 +182,8 @@ public class DataImportJob extends DataImportJobBase
         history.addStage(ImportStage.IMPORT);
         history.setConfigJson(config.toJSON().toString());
         history.apply();
+        
+        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
 
         this.process(executionContext, history, ImportStage.IMPORT, config);
       }
@@ -210,6 +217,8 @@ public class DataImportJob extends DataImportJobBase
         history.setConfigJson(config.toJSON().toString());
         history.apply();
       }
+      
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
     }
     else if (stage.equals(ImportStage.RESUME_IMPORT))
     {
@@ -233,6 +242,8 @@ public class DataImportJob extends DataImportJobBase
         history.setConfigJson(config.toJSON().toString());
         history.apply();
       }
+      
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
     }
     else
     {
@@ -267,6 +278,8 @@ public class DataImportJob extends DataImportJobBase
   @Override
   public void afterJobExecute(JobHistory history)
   {
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
+
     // TODO : Deleting the ExecutableJob here will also delete the history.
     // AllJobStatus finalStatus = history.getStatus().get(0);
     // ImportStage stage = ((ImportHistory) history).getStage().get(0);
@@ -296,10 +309,10 @@ public class DataImportJob extends DataImportJobBase
   public synchronized void resume(JobHistoryRecord jhr)
   {
     this.resumeInTrans(jhr);
-    
+
     super.resume(jhr);
   }
-  
+
   @Transaction
   private void resumeInTrans(JobHistoryRecord jhr)
   {
@@ -310,7 +323,7 @@ public class DataImportJob extends DataImportJobBase
     if (stage.equals(ImportStage.VALIDATION_RESOLVE))
     {
       DataImportJob.deleteValidationProblems(hist);
-      
+
       hist.appLock();
       hist.clearStage();
       hist.addStage(ImportStage.VALIDATE);
@@ -335,6 +348,8 @@ public class DataImportJob extends DataImportJobBase
       hist.addStage(ImportStage.VALIDATE);
       hist.apply();
     }
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
   }
 
   @Override
@@ -345,6 +360,8 @@ public class DataImportJob extends DataImportJobBase
     history.addStatus(AllJobStatus.NEW);
     history.addStage(ImportStage.VALIDATE);
     history.apply();
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
 
     return history;
   }

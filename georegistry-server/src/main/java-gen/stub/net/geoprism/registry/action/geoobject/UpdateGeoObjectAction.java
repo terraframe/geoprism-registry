@@ -74,7 +74,7 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
 
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
-    ServerGeoObjectService builder = new ServerGeoObjectService(new GeoObjectPermissionService());
+    ServerGeoObjectService builder = new ServerGeoObjectService();
     builder.apply(goTime, false, false);
   }
 

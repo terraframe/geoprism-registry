@@ -23,6 +23,8 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
     edit: boolean = false; // if true, we are updating an existing. If false, we are creating new
     
     readOnly: boolean = false;
+    
+    organizationLabel: string;
 
     /*
      * Observable subject for TreeNode changes.  Called when create is successful 
@@ -65,11 +67,30 @@ export class CreateHierarchyTypeModalComponent implements OnInit {
           if (!this.edit && this.organizations.length === 1)
           {
             this.hierarchyType.organizationCode = this.organizations[0].code;
+            this.organizationLabel = this.organizations[0].label.localizedValue;
+          }
+          else if (this.edit || this.readOnly)
+          {
+            this.organizationLabel = this.getOrganizationLabelFromCode(this.hierarchyType.organizationCode);
           }
           
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+    
+    getOrganizationLabelFromCode(orgCode: string)
+    {
+      for (var i = 0; i < this.organizations.length; ++i)
+      {
+        if (this.organizations[i].code === orgCode)
+        {
+          return this.organizations[i].label.localizedValue;
+        }
+      }
+      
+      console.log("Did not find org with code [" + orgCode + "]");
+      return orgCode;
     }
 
     handleOnSubmit(): void {

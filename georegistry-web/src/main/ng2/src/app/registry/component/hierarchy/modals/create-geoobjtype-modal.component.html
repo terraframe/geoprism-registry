@@ -130,7 +130,7 @@
             <option></option>
             <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
           </select>
-          <span *ngIf="organizations.length == 1" class="text"><input type="text" [(ngModel)]="geoObjectType.organizationCode" name="organization" disabled required></span>
+          <span *ngIf="organizations.length == 1" class="text"><input type="text" name="organization" [(ngModel)]="organizationLabel" disabled required></span>
         </div>
       </div>
     </div>

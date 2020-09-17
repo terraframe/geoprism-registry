@@ -22,8 +22,8 @@
                 </div>
                 
                 <div>
-                    <a style="margin-right: 10px; font-size: 20px;" [ngClass]="{'active': content === 'PUB'}" (click)="renderContent('PUB')"><localize key="lists.published.link.label"></localize></a>
                     <a *ngIf="list && list.read" style="margin-right: 10px; font-size: 20px;" [ngClass]="{'active': content === 'EXP'}" (click)="renderContent('EXP')"><localize key="lists.exploratory.link.label"></localize></a>
+                    <a style="margin-right: 10px; font-size: 20px;" [ngClass]="{'active': content === 'PUB'}" (click)="renderContent('PUB')"><localize key="lists.published.link.label"></localize></a>
                 </div>
 
                 <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">

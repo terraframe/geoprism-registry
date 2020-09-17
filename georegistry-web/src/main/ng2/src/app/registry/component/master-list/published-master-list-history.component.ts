@@ -1,16 +1,17 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subscription, interval } from 'rxjs';
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
+
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { PublishModalComponent } from './publish-modal.component';
 import { MasterList, MasterListVersion } from '@registry/model/registry';
 
-import { ErrorHandler } from '@shared/component';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { RegistryService } from '@registry/service';
-import { AuthService } from '@shared/service';
+import { AuthService, LocalizationService } from '@shared/service';
 
 declare var acp: any;
 
@@ -19,7 +20,7 @@ declare var acp: any;
 	templateUrl: './published-master-list-history.component.html',
 	styleUrls: []
 })
-export class PublishedMasterListHistoryComponent implements OnInit {
+export class PublishedMasterListHistoryComponent implements OnInit, OnDestroy {
 	message: string = null;
 	list: MasterList = null;
 	page: any = {
@@ -34,15 +35,15 @@ export class PublishedMasterListHistoryComponent implements OnInit {
     /*
      * Reference to the modal current showing
     */
-	private bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
-	pollingData: Subscription;
+	notifier: WebSocketSubject<{ type: string, content: any }>;
 
 	isAdmin: boolean;
 	isSRA: boolean;
 
 
-	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService, private localizeService: LocalizationService) {
 
 		this.isAdmin = authService.isAdmin();
 		this.isSRA = authService.isSRA();
@@ -55,24 +56,40 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 			this.onPageChange(1);
 		});
 
-		this.pollingData = interval(5000).subscribe(() => {
-			this.onPageChange(this.page.pageNumber);
+		let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
+
+		this.notifier = webSocket(baseUrl + '/websocket/notify');
+		this.notifier.subscribe(message => {
+			if (message.type === 'PUBLISH_JOB_CHANGE') {
+				this.onPageChange(this.page.pageNumber);
+			}
 		});
 	}
 
 	ngOnDestroy() {
-		this.pollingData.unsubscribe();
+		this.notifier.complete();
 	}
 
 	//isGeoObjectTypeRM(type: string): boolean {
 	//	return this.authService.isGeoObjectTypeRM(type);
 	//}
 
-	onDeleteMasterListVersion(oid: string): void {
-		this.service.deleteMasterListVersion(oid).then(data => {
-			this.updateList();
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
+	onDeleteMasterListVersion(version: MasterListVersion): void {
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + version.forDate + ']';
+		this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+
+		this.bsModalRef.content.onConfirm.subscribe(data => {
+			this.service.deleteMasterListVersion(version.oid).then(response => {
+				this.updateList();
+
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
 		});
 	}
 
@@ -97,7 +114,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		});
 	}
 
-	onPageChange(pageNumber: any): void {
+	onPageChange(pageNumber: number): void {
 		if (this.list != null) {
 
 			this.message = null;
@@ -114,9 +131,7 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 		}
 	}
 
-	onViewMetadata(event: any): void {
-		event.preventDefault();
-
+	onViewMetadata(): void {
 		this.bsModalRef = this.modalService.show(PublishModalComponent, {
 			animated: true,
 			backdrop: true,
@@ -129,8 +144,6 @@ export class PublishedMasterListHistoryComponent implements OnInit {
 
 
 	onView(version: MasterListVersion): void {
-		event.preventDefault();
-
 		this.router.navigate(['/registry/master-list/', version.oid, true])
 	}
 

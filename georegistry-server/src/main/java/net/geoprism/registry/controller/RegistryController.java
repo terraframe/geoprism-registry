@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -809,12 +809,58 @@ public class RegistryController
     return new RestBodyResponse(ht.toJSON(serializer));
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-ancestors")
-  public ResponseIF getTypeAncestors(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "hierarchyCode") String hierarchyCode)
+  /**
+   * Modifies a hierarchy to inherit from another hierarchy at the given
+   * GeoObjectType
+   * 
+   * @param request
+   *          Session Request
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param inheritedHierarchyTypeCode
+   *          code of the {@link HierarchyType} being inherited.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "hierarchytype/set-inherited")
+  public ResponseIF setInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "inheritedHierarchyTypeCode") String inheritedHierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
   {
+    HierarchyType ht = ServiceFactory.getHierarchyService().setInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, inheritedHierarchyTypeCode, geoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(ht.toJSON(serializer));
+  }
+
+  /**
+   * Modifies a hierarchy to remove inheritance from another hierarchy for the
+   * given root
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "hierarchytype/remove-inherited")
+  public ResponseIF removeInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
+  {
+    HierarchyType ht = ServiceFactory.getHierarchyService().removeInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, geoObjectTypeCode);
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    return new RestBodyResponse(ht.toJSON(serializer));
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-ancestors")
+  public ResponseIF getTypeAncestors(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "includeInheritedTypes") Boolean includeInheritedTypes)
+  {
+    if (includeInheritedTypes == null)
+    {
+      includeInheritedTypes = false;
+    }
+
     JsonArray response = new JsonArray();
 
-    List<GeoObjectType> ancestors = this.registryService.getAncestors(request.getSessionId(), code, hierarchyCode);
+    List<GeoObjectType> ancestors = this.registryService.getAncestors(request.getSessionId(), code, hierarchyCode, includeInheritedTypes);
 
     for (GeoObjectType ancestor : ancestors)
     {

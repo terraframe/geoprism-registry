@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { interval, Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { MasterListVersion } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
@@ -15,7 +15,6 @@ import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.c
 import { ErrorHandler } from '@shared/component';
 import { LocalizationService, AuthService, ProgressService } from '@shared/service';
 
-
 declare var acp: string;
 
 @Component({
@@ -23,7 +22,7 @@ declare var acp: string;
 	templateUrl: './master-list.component.html',
 	styleUrls: []
 })
-export class MasterListComponent implements OnInit {
+export class MasterListComponent implements OnInit, OnDestroy {
 	message: string = null;
 	list: MasterListVersion = null;
 	p: number = 1;
@@ -48,8 +47,10 @@ export class MasterListComponent implements OnInit {
 
 	public searchPlaceholder = "";
 
+	notifier: WebSocketSubject<{ type: string, content: any }>;
 
-	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private router: Router,
+
+	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute,
 		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService) {
 
 		this.searchPlaceholder = localizeService.decode("masterlist.search");
@@ -64,12 +65,24 @@ export class MasterListComponent implements OnInit {
 			this.list.attributes.forEach(attribute => {
 				attribute.isCollapsed = true;
 			});
-			
+
 			this.isWritable = this.authService.isGeoObjectTypeRC(this.list.orgCode, this.list.typeCode);
 
 			this.onPageChange(1);
 		});
+
+		let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
+
+		this.notifier = webSocket(baseUrl + '/websocket/progress/' + oid);
+		this.notifier.subscribe(message => {
+			this.handleProgressChange(message.content)
+		});
 	}
+
+	ngOnDestroy() {
+		this.notifier.complete();
+	}
+
 
 	onPageChange(pageNumber: number): void {
 
@@ -129,6 +142,12 @@ export class MasterListComponent implements OnInit {
 		});
 	}
 
+	handleProgressChange(progress: any): void {
+
+		this.isRefreshing = (progress.current < progress.total);
+
+		this.pService.progress(progress);
+	}
 
 	handleDateChange(attribute: any): void {
 		attribute.isCollapsed = true;
@@ -233,22 +252,8 @@ export class MasterListComponent implements OnInit {
 	onPublish(): void {
 		this.message = null;
 
-		this.isRefreshing = true;
-
-		let subscription = interval(1000).subscribe(() => {
-			this.service.progress(this.list.oid).then(progress => {
-				this.pService.progress(progress);
-			});
-		});
-
-		this.service.publishMasterList(this.list.oid)
-			.pipe(finalize(() => {
-				subscription.unsubscribe();
-
-				this.pService.complete();
-			})).toPromise()
+		this.service.publishMasterList(this.list.oid).toPromise()
 			.then(list => {
-				this.isRefreshing = false;
 				this.list = list;
 				this.list.attributes.forEach(attribute => {
 					attribute.isCollapsed = true;
@@ -259,8 +264,6 @@ export class MasterListComponent implements OnInit {
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});
-
-		this.pService.start();
 	}
 
 	onNewGeoObject(): void {

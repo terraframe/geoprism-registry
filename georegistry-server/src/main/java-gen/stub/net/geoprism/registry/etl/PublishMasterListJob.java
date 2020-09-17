@@ -23,13 +23,20 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class PublishMasterListJob extends PublishMasterListJobBase
 {
@@ -46,11 +53,19 @@ public class PublishMasterListJob extends PublishMasterListJobBase
     this.getMasterList().publishFrequencyVersions();
   }
 
+  @Override
+  public void afterJobExecute(JobHistory history)
+  {
+    super.afterJobExecute(history);
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+  }
+
   public JSONObject toJSON()
   {
     final MasterList masterlist = this.getMasterList();
     final ServerGeoObjectType type = masterlist.getGeoObjectType();
-    
+
     List<? extends JobHistory> allHist = this.getAllJobHistory().getAll();
     final GeoprismUser user = GeoprismUser.get(this.getRunAsUser().getOid());
 
@@ -60,7 +75,7 @@ public class PublishMasterListJob extends PublishMasterListJobBase
       object.put(PublishMasterListJob.OID, this.getOid());
       object.put(PublishMasterListJob.MASTERLIST, this.getMasterListOid());
       object.put(PublishMasterListJob.TYPE, type.getLabel().getValue());
-      
+
       if (allHist.size() > 0)
       {
         final JobHistory history = allHist.get(0);
@@ -71,6 +86,18 @@ public class PublishMasterListJob extends PublishMasterListJobBase
         object.put("workProgress", history.getWorkProgress());
         object.put("workTotal", history.getWorkTotal());
         object.put("historyoryId", history.getOid());
+
+        if (history.getStatus().get(0).equals(AllJobStatus.FAILURE) && history.getErrorJson().length() > 0)
+        {
+          String errorJson = history.getErrorJson();
+          JsonObject error = JsonParser.parseString(errorJson).getAsJsonObject();
+
+          JSONObject exception = new JSONObject();
+          exception.put("type", error.get("type").getAsString());
+          exception.put("message", history.getLocalizedError(Session.getCurrentLocale()));
+
+          object.put("exception", exception);
+        }
       }
 
       return object;

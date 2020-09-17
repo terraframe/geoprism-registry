@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -26,6 +26,7 @@ import java.util.List;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -35,7 +36,6 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -55,35 +55,34 @@ public class HierarchyService
   {
     ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(code);
 
-    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<ServerHierarchyType> hierarchyTypes = ServerHierarchyType.getAll();
+
     JsonArray hierarchies = new JsonArray();
-    Universal root = Universal.getRoot();
 
     HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
     SingleActorDAOIF user = Session.getCurrentSession().getUser();
 
-    for (HierarchyType hierarchyType : hierarchyTypes)
+    for (ServerHierarchyType sHT : hierarchyTypes)
     {
-      ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
+      HierarchyType hierarchyType = sHT.getType();
 
       if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
       {
-        // Note: Ordered ancestors always includes self
-        Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
+        List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sHT, true);
 
-        if (parents.size() > 1)
+        if (parents.size() > 0)
         {
           JsonObject object = new JsonObject();
-          object.addProperty("code", hierarchyType.getCode());
-          object.addProperty("label", hierarchyType.getLabel().getValue());
+          object.addProperty("code", sHT.getCode());
+          object.addProperty("label", sHT.getDisplayLabel().getValue());
 
           if (includeTypes)
           {
             JsonArray pArray = new JsonArray();
 
-            for (Object parent : parents)
+            for (GeoObjectType parent : parents)
             {
-              ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
+              ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
 
               if (!pType.getCode().equals(geoObjectType.getCode()))
               {
@@ -105,20 +104,21 @@ public class HierarchyService
 
     if (hierarchies.size() == 0)
     {
-      /*
-       * This is a root type so include all hierarchies
-       */
-
-      for (HierarchyType hierarchyType : hierarchyTypes)
+      for (ServerHierarchyType sHT : hierarchyTypes)
       {
+        HierarchyType hierarchyType = sHT.getType();
+
         if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
         {
-          JsonObject object = new JsonObject();
-          object.addProperty("code", hierarchyType.getCode());
-          object.addProperty("label", hierarchyType.getLabel().getValue());
-          object.add("parents", new JsonArray());
+          if (geoObjectType.isRoot(sHT))
+          {
+            JsonObject object = new JsonObject();
+            object.addProperty("code", hierarchyType.getCode());
+            object.addProperty("label", hierarchyType.getLabel().getValue());
+            object.add("parents", new JsonArray());
 
-          hierarchies.add(object);
+            hierarchies.add(object);
+          }
         }
       }
     }
@@ -282,6 +282,59 @@ public class HierarchyService
     type.addToHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode);
 
     return type.getType();
+  }
+
+  /**
+   * Modifies a hierarchy to inherit from another hierarchy at the given
+   * GeoObjectType
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param inheritedHierarchyTypeCode
+   *          code of the {@link HierarchyType} being inherited.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType setInheritedHierarchy(String sessionId, String hierarchyTypeCode, String inheritedHierarchyTypeCode, String geoObjectTypeCode)
+  {
+    ServerHierarchyType forHierarchy = ServerHierarchyType.get(hierarchyTypeCode);
+    ServerHierarchyType inheritedHierarchy = ServerHierarchyType.get(inheritedHierarchyTypeCode);
+
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), forHierarchy, null, geoObjectTypeCode);
+
+    ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
+
+    type.setInheritedHierarchy(forHierarchy, inheritedHierarchy);
+    forHierarchy.refresh();
+
+    return forHierarchy.getType();
+  }
+
+  /**
+   * Modifies a hierarchy to remove inheritance from another hierarchy for the
+   * given root
+   * 
+   * @param sessionId
+   * @param hierarchyTypeCode
+   *          code of the {@link HierarchyType} being modified.
+   * @param geoObjectTypeCode
+   *          code of the root {@link GeoObjectType}.
+   */
+  @Request(RequestType.SESSION)
+  public HierarchyType removeInheritedHierarchy(String sessionId, String hierarchyTypeCode, String geoObjectTypeCode)
+  {
+    ServerHierarchyType forHierarchy = ServerHierarchyType.get(hierarchyTypeCode);
+
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), forHierarchy, null, geoObjectTypeCode);
+
+    ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
+
+    type.removeInheritedHierarchy(forHierarchy);
+    forHierarchy.refresh();
+
+    return forHierarchy.getType();
   }
 
   /**

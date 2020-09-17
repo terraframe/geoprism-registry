@@ -20,7 +20,6 @@ package net.geoprism.registry.permission;
 
 import java.util.Set;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.business.rbac.Operation;
@@ -103,7 +102,7 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
           
-          if (RegistryRole.Type.isRA_Role(roleName) && roleOrgCode.equals(orgCode))
+          if (RegistryRole.Type.isRA_Role(roleName) && (roleOrgCode.equals(orgCode) || op.equals(Operation.READ)))
           {
             return true;
           }

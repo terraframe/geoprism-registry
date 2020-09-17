@@ -18,18 +18,13 @@
  */
 package net.geoprism.registry.conversion;
 
-import java.util.Set;
-
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 
-import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.SRAException;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class OrganizationConverter extends LocalizedValueConverter

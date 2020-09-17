@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.view;
 
@@ -123,6 +123,11 @@ public class ServerParentTreeNodeOverTime
     return list;
   }
 
+  public boolean hasEntries(ServerHierarchyType type)
+  {
+    return this.hierarchies.containsKey(type.getCode());
+  }
+
   public List<ServerParentTreeNode> getEntries(ServerHierarchyType type)
   {
     return this.hierarchies.get(type.getCode()).getNodes();
@@ -148,6 +153,37 @@ public class ServerParentTreeNodeOverTime
         }
       }
     }
+  }
+
+  public boolean isSame(ServerParentTreeNodeOverTime other, ServerGeoObjectIF exclude)
+  {
+    Set<Entry<String, Hierarchy>> entries = this.hierarchies.entrySet();
+
+    for (Entry<String, Hierarchy> entry : entries)
+    {
+      Hierarchy hierarchy = entry.getValue();
+      ServerHierarchyType ht = hierarchy.getType();
+
+      if (other.hasEntries(ht) && hierarchy.nodes.size() == other.getEntries(ht).size())
+      {
+        for (int i = 0; i < hierarchy.nodes.size(); i++)
+        {
+          ServerParentTreeNode node = hierarchy.nodes.get(i);
+          ServerParentTreeNode oNode = other.getEntries(ht).get(i);
+
+          if (!node.isSame(oNode, exclude))
+          {
+            return false;
+          }
+        }
+      }
+      else
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   public JsonArray toJSON()
@@ -208,7 +244,7 @@ public class ServerParentTreeNodeOverTime
 
               JsonObject pObject = new JsonObject();
               pObject.add("geoObject", geoObject.toJSON());
-              pObject.addProperty("text", sGeoObject.getDisplayLabel().getValue());
+              pObject.addProperty("text", sGeoObject.getDisplayLabel().getValue() + " : " + sGeoObject.getCode());
 
               pArray.add(pType.getCode(), pObject);
             }

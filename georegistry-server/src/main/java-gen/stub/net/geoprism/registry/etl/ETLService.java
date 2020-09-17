@@ -635,9 +635,9 @@ public class ETLService
         String typeCode = config.get("typeCode").getAsString();
         String label = config.get("label").getAsString();
         
-        ServerGeoObjectIF go = new ServerGeoObjectService(new GeoObjectPermissionService()).getGeoObjectByCode(code, typeCode);
+        ServerGeoObjectIF go = new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
         
-        response = JsonParser.parseString(new GeoSynonymService().createGeoEntitySynonym(sessionId, go.getRunwayId(), label).toString()).getAsJsonObject();
+        response = JsonParser.parseString(new GeoSynonymService().createGeoEntitySynonym(sessionId, typeCode, go.getCode(), label).toString()).getAsJsonObject();
       }
       
       problem.appLock();

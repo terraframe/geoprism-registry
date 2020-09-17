@@ -132,7 +132,7 @@ public class GeoObjectEditorControllerNoOverTime
       // Update the master list record
       if (masterListId != null)
       {
-        ServerGeoObjectService service = new ServerGeoObjectService(new GeoObjectPermissionService());
+        ServerGeoObjectService service = new ServerGeoObjectService();
         ServerGeoObjectIF geoObject = service.getGeoObject(go);
 
         if (!isNew)

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -41,6 +41,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
@@ -56,6 +57,9 @@ import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class MasterListService
 {
@@ -105,6 +109,11 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
+    if (!masterList.isValid())
+    {
+      throw new InvalidMasterListException();
+    }
+
     this.enforceWritePermissions(masterList);
 
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
@@ -150,6 +159,8 @@ public class MasterListService
     job.setMasterList(masterList);
     job.apply();
 
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
     final JobHistory history = job.start();
     return history.getOid();
   }
@@ -189,7 +200,9 @@ public class MasterListService
   {
     MasterListVersion version = MasterListVersion.get(oid);
 
-    this.enforceWritePermissions(version.getMasterlist());
+    MasterList masterlist = version.getMasterlist();
+
+    this.enforceWritePermissions(masterlist);
 
     return version.publish();
   }

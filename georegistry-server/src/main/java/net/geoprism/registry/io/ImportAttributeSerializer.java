@@ -46,10 +46,10 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
 
   public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, List<Locale> locales)
   {
-    this(locale, includeCoordinates, false, locales);
+    this(locale, includeCoordinates, false, false, locales);
   }
 
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, List<Locale> locales)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, boolean includeStatus, List<Locale> locales)
   {
     super(locale);
 
@@ -57,12 +57,16 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     this.locales = locales;
 
     this.filter = new TreeSet<String>();
-    this.filter.add(DefaultAttribute.STATUS.getName());
     this.filter.add(DefaultAttribute.LAST_UPDATE_DATE.getName());
     this.filter.add(DefaultAttribute.CREATE_DATE.getName());
     this.filter.add(DefaultAttribute.SEQUENCE.getName());
     this.filter.add(DefaultAttribute.TYPE.getName());
     this.filter.add(DefaultAttribute.DISPLAY_LABEL.getName());
+
+    if (!includeStatus)
+    {
+      this.filter.add(DefaultAttribute.STATUS.getName());
+    }
 
     if (!includeUid)
     {
@@ -124,5 +128,16 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     }
 
     return attributes;
+  }
+
+  @Override
+  public void configure(AttributeType attributeType, JsonObject json)
+  {
+    super.configure(attributeType, json);
+
+    if (attributeType.getName().equals(DefaultAttribute.STATUS.getName()))
+    {
+      json.addProperty(AttributeType.JSON_REQUIRED, false);
+    }
   }
 }

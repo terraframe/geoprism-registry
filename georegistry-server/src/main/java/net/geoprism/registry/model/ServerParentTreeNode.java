@@ -108,27 +108,70 @@ public class ServerParentTreeNode extends ServerTreeNode
   {
     GeoObject geoObject = this.getGeoObject().toGeoObject();
     HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
-    
+
     ParentTreeNode node = new ParentTreeNode(geoObject, ht);
-    
+
     SingleActorDAOIF actor = null;
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
       actor = Session.getCurrentSession().getUser();
     }
-    
+
     String orgCode = geoObject.getType().getOrganizationCode();
     String typeCode = geoObject.getType().getCode();
 
     for (ServerParentTreeNode parent : this.parents)
     {
-      if (!enforcePermissions
-          || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, orgCode, parent.getGeoObject().getType().getCode(), typeCode))
+      if (!enforcePermissions || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, orgCode, parent.getGeoObject().getType().getCode(), typeCode))
       {
         node.addParent(parent.toNode(enforcePermissions));
       }
     }
 
     return node;
+  }
+
+  public boolean isSame(ServerParentTreeNode oNode, ServerGeoObjectIF exclude)
+  {
+    if (!this.getDate().equals(oNode.getDate()))
+    {
+      return false;
+    }
+
+    ServerParentTreeNode root = this.getRoot(exclude);
+    ServerParentTreeNode oRoot = oNode.getRoot(exclude);
+
+    if (root != null && oRoot != null)
+    {
+      String code = root.getGeoObject().getCode();
+      String oCode = oRoot.getGeoObject().getCode();
+
+      if (!code.equals(oCode))
+      {
+        return false;
+      }
+    }
+    else if (root == null && oRoot != null)
+    {
+      return false;
+    }
+    else if (root != null && oRoot == null)
+    {
+      return false;
+    }
+
+    return true;
+  }
+
+  private ServerParentTreeNode getRoot(ServerGeoObjectIF exclude)
+  {
+    ServerGeoObjectIF root = this.getGeoObject();
+
+    if (root.getCode().equals(exclude.getCode()) && this.parents.size() > 0)
+    {
+      return this.parents.get(0).getRoot(exclude);
+    }
+
+    return this;
   }
 }

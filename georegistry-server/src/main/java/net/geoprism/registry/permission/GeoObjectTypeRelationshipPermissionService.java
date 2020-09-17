@@ -22,7 +22,6 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.system.gis.geo.AllowedIn;
@@ -31,9 +30,6 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.roles.GeoObjectAddChildPermissionException;
-import net.geoprism.registry.roles.GeoObjectRemoveChildPermissionException;
-import net.geoprism.registry.roles.GeoObjectViewRelationshipPermissionException;
 import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 
 public class GeoObjectTypeRelationshipPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF

@@ -21,8 +21,10 @@ package net.geoprism.registry.etl.export;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -76,6 +78,9 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 /**
  * This class is currently hardcoded to DHIS2 export, however the metadata is attempting to be generic enough
@@ -207,6 +212,14 @@ public class DataExportJob extends DataExportJobBase
 
     this.doExport();
   }
+  
+  @Override
+  public void afterJobExecute(JobHistory history)
+  {
+    super.afterJobExecute(history);
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+  }
 
   private void setStage(ExportHistory history, ExportStage stage)
   {
@@ -214,6 +227,8 @@ public class DataExportJob extends DataExportJobBase
     history.clearStage();
     history.addStage(stage);
     history.apply();
+    
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
   }
 
   private long getCount(ServerGeoObjectType got)
@@ -275,40 +290,6 @@ public class DataExportJob extends DataExportJobBase
 
       while (skip < count)
       {
-        Set<String> orgUnitGroupIdSet = null;
-        OrganisationUnitGroup orgUnitGroup = null;
-        if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
-        {
-          orgUnitGroupIdSet = level.newOrgUnitGroupIdSet(level.getOrgUnitGroupId());
-          
-          try
-          {
-            MetadataGetResponse<OrganisationUnitGroup> resp = this.dhis2.metadataGet(OrganisationUnitGroup.class);
-            
-            List<OrganisationUnitGroup> groups = resp.getObjects();
-            
-            for (OrganisationUnitGroup group : groups)
-            {
-              if (group.getId().equals(level.getOrgUnitGroupId()))
-              {
-                orgUnitGroup = group;
-                orgUnitGroupIdSet.addAll(group.getOrgUnitIds());
-                break;
-              }
-            }
-          }
-          catch (InvalidLoginException e)
-          {
-            LoginException cgrlogin = new LoginException(e);
-            throw cgrlogin;
-          }
-          catch (HTTPException e)
-          {
-            HttpError cgrhttp = new HttpError(e);
-            throw cgrhttp;
-          }
-        }
-        
         List<VertexServerGeoObject> objects = this.query(level.getGeoObjectType(), skip, pageSize);
         
         for (VertexServerGeoObject go : objects) {
@@ -323,11 +304,11 @@ public class DataExportJob extends DataExportJobBase
             this.history.setExportedRecords(exportCount);
             this.history.apply();
             
-            if (orgUnitGroupIdSet != null)
+            if (level.getOrgUnitGroupId() != null && level.getOrgUnitGroupId().length() > 0)
             {
               final String externalId = go.getExternalId(es);
               
-              orgUnitGroupIdSet.add(externalId);
+              level.getOrCreateOrgUnitGroupIdSet(level.getOrgUnitGroupId()).add(externalId);
             }
           }
           catch (JobExportError ee)
@@ -338,47 +319,86 @@ public class DataExportJob extends DataExportJobBase
           rowIndex++;
         };
         
-        if (orgUnitGroupIdSet != null && orgUnitGroupIdSet.size() > 0 && orgUnitGroup != null)
+        // Export OrgUnitGroup changes
+        if (level.getOrgUnitGroupIdSet().size() > 0)
         {
-          orgUnitGroup.setOrgUnitIds(orgUnitGroupIdSet);
-          
-          GsonBuilder builder = new GsonBuilder();
-          JsonObject joOrgUnitGroup = builder.create().toJsonTree(orgUnitGroup, orgUnitGroup.getClass()).getAsJsonObject();
-          
-          joOrgUnitGroup.remove("created");
-          joOrgUnitGroup.remove("lastUpdated");
-          joOrgUnitGroup.remove("symbol");
-          joOrgUnitGroup.remove("publicAccess");
-          joOrgUnitGroup.remove("user");
-          joOrgUnitGroup.remove("userGroupAccesses");
-          joOrgUnitGroup.remove("attributeValues");
-          joOrgUnitGroup.remove("translations");
-          joOrgUnitGroup.remove("userAccesses");
-          
           try
           {
-            JsonObject payload = new JsonObject();
+            Map<String, Set<String>> orgUnitGroupIdSet = level.getOrgUnitGroupIdSet();
             
-            JsonArray jaOrgUnitGroups = new JsonArray();
             
-            jaOrgUnitGroups.add(joOrgUnitGroup);
-            
-            payload.add(DHIS2Objects.ORGANISATION_UNIT_GROUPS, jaOrgUnitGroups);
-            
-            MetadataImportResponse resp = this.dhis2.metadataPost(null, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
+            // Fetch and populate all the org unit groups with the ids of org units that we will be exporting
+            MetadataGetResponse<OrganisationUnitGroup> resp = this.dhis2.metadataGet(OrganisationUnitGroup.class);
             
             if (!resp.isSuccess())
             {
-              if (resp.hasMessage())
+              UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
+              throw re;
+            }
+            
+            List<OrganisationUnitGroup> orgUnitGroups = resp.getObjects();
+            
+            if (orgUnitGroups != null)
+            {
+              Iterator<? extends OrganisationUnitGroup> it = orgUnitGroups.iterator();
+              while (it.hasNext())
               {
-                ExportRemoteException ere = new ExportRemoteException();
-                ere.setRemoteError(resp.getMessage());
-                throw ere;
+                OrganisationUnitGroup group = it.next();
+                
+                if (orgUnitGroupIdSet.containsKey(group.getId()))
+                {
+                  orgUnitGroupIdSet.get(group.getId()).addAll(group.getOrgUnitIds());
+                  group.setOrgUnitIds(orgUnitGroupIdSet.get(group.getId()));
+                  orgUnitGroupIdSet.remove(group.getId());
+                }
+                else
+                {
+                  it.remove();
+                }
               }
-              else
+              
+              if (orgUnitGroups.size() > 0)
               {
-                UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
-                throw re;
+                JsonObject payload = new JsonObject();
+                
+                JsonArray jaOrgUnitGroups = new JsonArray();
+                
+                for (OrganisationUnitGroup group : orgUnitGroups)
+                {
+                  GsonBuilder builder = new GsonBuilder();
+                  JsonObject joOrgUnitGroup = builder.create().toJsonTree(group, group.getClass()).getAsJsonObject();
+                  
+                  joOrgUnitGroup.remove("created");
+                  joOrgUnitGroup.remove("lastUpdated");
+                  joOrgUnitGroup.remove("symbol");
+                  joOrgUnitGroup.remove("publicAccess");
+                  joOrgUnitGroup.remove("user");
+                  joOrgUnitGroup.remove("userGroupAccesses");
+                  joOrgUnitGroup.remove("attributeValues");
+                  joOrgUnitGroup.remove("translations");
+                  joOrgUnitGroup.remove("userAccesses");
+                  
+                  jaOrgUnitGroups.add(joOrgUnitGroup);
+                }
+                
+                payload.add(DHIS2Objects.ORGANISATION_UNIT_GROUPS, jaOrgUnitGroups);
+                
+                MetadataImportResponse resp2 = this.dhis2.metadataPost(null, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
+                
+                if (!resp2.isSuccess())
+                {
+                  if (resp2.hasMessage())
+                  {
+                    ExportRemoteException ere = new ExportRemoteException();
+                    ere.setRemoteError(resp2.getMessage());
+                    throw ere;
+                  }
+                  else
+                  {
+                    UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
+                    throw re;
+                  }
+                }
               }
             }
           }
@@ -395,6 +415,8 @@ public class DataExportJob extends DataExportJobBase
         }
 
         skip += pageSize;
+        
+        NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
       }
     }
     
@@ -406,6 +428,8 @@ public class DataExportJob extends DataExportJobBase
     history.addStage(ExportStage.COMPLETE);
     this.history.apply();
     
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
     query.WHERE(query.getHistory().EQ(this.history));
     Boolean hasErrors = query.getCount() > 0;
@@ -615,6 +639,8 @@ public class DataExportJob extends DataExportJobBase
     history.addStatus(AllJobStatus.NEW);
     history.addStage(ExportStage.CONNECTING);
     history.apply();
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
 
     return history;
   }

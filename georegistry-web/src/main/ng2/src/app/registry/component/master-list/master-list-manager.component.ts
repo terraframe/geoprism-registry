@@ -25,16 +25,7 @@ export class MasterListManagerComponent implements OnInit {
     */
 	bsModalRef: BsModalRef;
 
-	isAdmin: boolean;
-	isMaintainer: boolean;
-	isContributor: boolean;
-
-	constructor(public service: RegistryService, private modalService: BsModalService, private router: Router,
-		private localizeService: LocalizationService, authService: AuthService) {
-		this.isAdmin = authService.isAdmin();
-		this.isMaintainer = this.isAdmin || authService.isMaintainer();
-		this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
-	}
+	constructor(public service: RegistryService, private modalService: BsModalService, private router: Router, private localizeService: LocalizationService) { }
 
 	ngOnInit(): void {
 
@@ -61,8 +52,10 @@ export class MasterListManagerComponent implements OnInit {
 				oid: list.oid,
 				createDate: list.createDate,
 				lastUpdateDate: list.lastUpdateDate,
-				admin: list.admin,
-				isMaster: list.isMaster
+				isMaster: list.isMaster,
+				write: list.admin,
+				read: list.admin,
+				visibility: list.visibility
 			};
 
 			org.lists.push(obj);
@@ -82,8 +75,10 @@ export class MasterListManagerComponent implements OnInit {
 				ignoreBackdropClick: true,
 			});
 			this.bsModalRef.content.edit = true;
+			this.bsModalRef.content.readonly = !list.write;
 			this.bsModalRef.content.master = list;
 			this.bsModalRef.content.isNew = false;
+
 			this.bsModalRef.content.onMasterListChange.subscribe(ret => {
 				pair.label = ret.displayLabel.localizedValue;
 			});

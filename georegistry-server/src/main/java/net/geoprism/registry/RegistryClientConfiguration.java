@@ -22,19 +22,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.json.JSONArray;
-
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.ClientRequestIF;
 
 import net.geoprism.ClientConfigurationIF;
 import net.geoprism.DefaultClientConfiguration;
 import net.geoprism.GeoprismApplication;
-import net.geoprism.GeoprismVersionProperties;
 import net.geoprism.RoleConstants;
-import net.geoprism.RoleViewDTO;
 import net.geoprism.localization.LocalizationFacadeDTO;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class RegistryClientConfiguration extends DefaultClientConfiguration implements ClientConfigurationIF
 {

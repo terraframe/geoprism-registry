@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -48,6 +48,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.ChangeFrequency;
+import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
@@ -100,9 +101,9 @@ public class MasterListTest
   public void setUp()
   {
     cleanUpExtra();
-    
+
     testData.setUpInstanceData();
-    
+
     testData.logIn(USATestData.USER_NPS_RA);
   }
 
@@ -110,19 +111,19 @@ public class MasterListTest
   public void tearDown()
   {
     testData.logOut();
-    
+
     cleanUpExtra();
 
     testData.tearDownInstanceData();
   }
-  
+
   @Request
   public void cleanUpExtra()
   {
     MasterListQuery query = new MasterListQuery(new QueryFactory());
-    
+
     OIterator<? extends MasterList> it = query.getIterator();
-    
+
     try
     {
       while (it.hasNext())
@@ -182,67 +183,6 @@ public class MasterListTest
     Assert.assertEquals(list.getHierarchiesAsJson().toString(), test.getHierarchiesAsJson().toString());
   }
 
-  // @Test
-  // @Request
-  // public void testCreateEntity() throws SQLException
-  // {
-  // JsonObject json = getJson(USATestData.STATE, USATestData.COUNTRY);
-  //
-  // MasterList test = MasterList.create(json);
-  //
-  // try
-  // {
-  // MdBusinessDAOIF mdTable = MdBusinessDAO.get(test.getMdBusinessOid());
-  //
-  // Assert.assertNotNull(mdTable);
-  // }
-  // finally
-  // {
-  // test.delete();
-  // }
-  // }
-  //
-  // @Test
-  // @Request
-  // public void testCreateLeaf() throws SQLException
-  // {
-  // JsonObject json = getJson(testData.DISTRICT, USATestData.STATE,
-  // USATestData.COUNTRY);
-  //
-  // MasterList test = MasterList.create(json);
-  //
-  // try
-  // {
-  // MdBusinessDAOIF mdTable = MdBusinessDAO.get(test.getMdBusinessOid());
-  //
-  // Assert.assertNotNull(mdTable);
-  // }
-  // finally
-  // {
-  // test.delete();
-  // }
-  // }
-  //
-  //
-  // @Test
-  // @Request
-  // public void testPublishLeaf()
-  // {
-  // JsonObject json = getJson(testData.DISTRICT, USATestData.STATE,
-  // USATestData.COUNTRY);
-  //
-  // MasterList test = MasterList.create(json);
-  //
-  // try
-  // {
-  // test.publish();
-  // }
-  // finally
-  // {
-  // test.delete();
-  // }
-  // }
-
   @Test
   @Request
   public void testCreateMultiple()
@@ -290,7 +230,7 @@ public class MasterListTest
     try
     {
       JsonArray orgs = service.listByOrg(testData.clientRequest.getSessionId());
-      
+
       JsonObject org = null;
       for (int i = 0; i < orgs.size(); ++i)
       {
@@ -299,10 +239,10 @@ public class MasterListTest
           org = orgs.get(i).getAsJsonObject();
         }
       }
-      
+
       Assert.assertNotNull(org.get("oid").getAsString());
       Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
-      Assert.assertTrue(org.get("admin").getAsBoolean());
+      Assert.assertTrue(org.get("write").getAsBoolean());
       Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
     }
     finally
@@ -334,10 +274,10 @@ public class MasterListTest
             org = orgs.get(i).getAsJsonObject();
           }
         }
-        
+
         Assert.assertNotNull(org.get("oid").getAsString());
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
-        Assert.assertFalse(org.get("admin").getAsBoolean());
+        Assert.assertFalse(org.get("write").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
       });
     }
@@ -360,7 +300,7 @@ public class MasterListTest
     {
       USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
         JsonArray orgs = service.listByOrg(request.getSessionId());
-        
+
         JsonObject org = null;
         for (int i = 0; i < orgs.size(); ++i)
         {
@@ -372,7 +312,7 @@ public class MasterListTest
 
         Assert.assertNotNull(org.get("oid").getAsString());
         Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
-        Assert.assertFalse(org.get("admin").getAsBoolean());
+        Assert.assertFalse(org.get("write").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() == 0);
       });
     }
@@ -407,6 +347,29 @@ public class MasterListTest
       {
         version.delete();
       }
+    }
+    finally
+    {
+      test.delete();
+    }
+  }
+
+  @Test(expected = InvalidMasterListException.class)
+  @Request
+  public void testPublishInvalidVersion()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+
+    MasterList test = MasterList.create(json);
+
+    try
+    {
+      test.appLock();
+      test.setValid(false);
+      test.apply();
+
+      MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+      version.delete();
     }
     finally
     {
@@ -652,6 +615,108 @@ public class MasterListTest
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
 
     Assert.assertEquals(11, dates.size());
+  }
+
+  @Test
+  @Request
+  public void testMarkAsInvalidByParent()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
+
+      Assert.assertFalse(masterlist.getValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testMarkAsInvalidByDirectType()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.DISTRICT.getServerObject());
+
+      Assert.assertFalse(masterlist.getValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testFailMarkAsInvalidByType()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.COUNTY.getServerObject());
+
+      Assert.assertTrue(masterlist.isValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testFailMarkAsInvalidByHierarchy()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      masterlist.markAsInvalid(USATestData.HIER_SCHOOL.getServerObject(), USATestData.DISTRICT.getServerObject());
+
+      Assert.assertTrue(masterlist.isValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testMarkAllAsInvalid()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC);
+
+    MasterList masterlist = MasterList.create(json);
+
+    try
+    {
+      MasterList.markAllAsInvalid(USATestData.HIER_ADMIN.getServerObject(), USATestData.STATE.getServerObject());
+
+      MasterList test = MasterList.get(masterlist.getOid());
+
+      Assert.assertFalse(test.getValid());
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      masterlist.delete();
+    }
   }
 
   @Request

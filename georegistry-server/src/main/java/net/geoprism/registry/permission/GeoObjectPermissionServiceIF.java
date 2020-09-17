@@ -20,8 +20,6 @@ package net.geoprism.registry.permission;
 
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
-import net.geoprism.registry.model.ServerGeoObjectType;
-
 public interface GeoObjectPermissionServiceIF
 {
   

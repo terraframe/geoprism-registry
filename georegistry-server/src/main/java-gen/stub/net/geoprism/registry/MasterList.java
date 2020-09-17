@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -57,11 +57,15 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.LocaleSerializer;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.ws.GlobalNotificationMessage;
+import net.geoprism.registry.ws.MessageType;
+import net.geoprism.registry.ws.NotificationFacade;
 
 public class MasterList extends MasterListBase
 {
@@ -177,6 +181,8 @@ public class MasterList extends MasterListBase
     {
       query.AND(query.getVersionType().EQ(versionType));
     }
+    
+    query.ORDER_BY_DESC(query.getForDate());
 
     try (OIterator<? extends MasterListVersion> it = query.getIterator())
     {
@@ -220,9 +226,9 @@ public class MasterList extends MasterListBase
       if (pCodes.size() > 0)
       {
         String hCode = hierarchy.get("code").getAsString();
-        HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
+        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
 
-        map.put(hierarchyType, ServiceFactory.getUtilities().getTypeAncestors(type, hCode));
+        map.put(hierarchyType.getType(), type.getTypeAncestors(hierarchyType, true));
       }
     }
 
@@ -380,13 +386,13 @@ public class MasterList extends MasterListBase
 
       object.addProperty(MasterList.OID, this.getOid());
       object.addProperty(MasterList.ORGANIZATION, org.getOid());
-      object.addProperty("admin", this.doesActorHaveWritePermission());
+      object.addProperty("write", this.doesActorHaveWritePermission());
       object.addProperty("read", this.doesActorHaveReadPermission());
     }
     else
     {
       object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
-      object.addProperty("admin", false);
+      object.addProperty("write", false);
       object.addProperty("read", false);
     }
 
@@ -477,6 +483,11 @@ public class MasterList extends MasterListBase
   @Transaction
   public MasterListVersion getOrCreateVersion(Date forDate, String versionType)
   {
+    if (!this.isValid())
+    {
+      throw new InvalidMasterListException();
+    }
+
     MasterListVersionQuery query = new MasterListVersionQuery(new QueryFactory());
     query.WHERE(query.getMasterlist().EQ(this));
     query.AND(query.getForDate().EQ(forDate));
@@ -496,21 +507,36 @@ public class MasterList extends MasterListBase
   @Transaction
   public void publishFrequencyVersions()
   {
+    if (!this.isValid())
+    {
+      throw new InvalidMasterListException();
+    }
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
     try
     {
       Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
       final ServerGeoObjectType objectType = this.getGeoObjectType();
       Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-      List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
-      for (Date date : dates)
+      if (range != null)
       {
-        MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
+        List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
-        ( (Session) Session.getCurrentSession() ).reloadPermissions();
+        for (Date date : dates)
+        {
+          MasterListVersion version = this.getOrCreateVersion(date, MasterListVersion.PUBLISHED);
 
-        version.publish();
+          ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+          version.publish();
+        }
+      }
+      else
+      {
+        throw new EmptyListException();
       }
     }
     finally
@@ -684,6 +710,43 @@ public class MasterList extends MasterListBase
     return true;
   }
 
+  public void markAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
+  {
+    boolean isValid = true;
+
+    JsonArray hierarchies = this.getHierarchiesAsJson();
+    ServerGeoObjectType masterlistType = this.getGeoObjectType();
+
+    for (int i = 0; i < hierarchies.size(); i++)
+    {
+      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
+      String hCode = hierarchy.get("code").getAsString();
+      ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ServerHierarchyType.get(hCode), type);
+
+      if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
+      {
+        List<String> pCodes = this.getParentCodes(hierarchy);
+
+        if (pCodes.contains(type.getCode()) || type.getCode().equals(masterlistType.getCode()))
+        {
+          isValid = false;
+        }
+      }
+    }
+
+    if (!isValid)
+    {
+      this.appLock();
+      this.setValid(false);
+      this.apply();
+    }
+  }
+
+  public boolean isValid()
+  {
+    return ( this.getValid() == null || this.getValid() );
+  }
+
   @Transaction
   public static MasterList create(JsonObject object)
   {
@@ -834,6 +897,9 @@ public class MasterList extends MasterListBase
             object.addProperty("createDate", format.format(list.getCreateDate()));
             object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
             object.addProperty("isMaster", list.getIsMaster());
+            object.addProperty("visibility", list.getVisibility());
+            object.addProperty("write", list.doesActorHaveWritePermission());
+            object.addProperty("read", list.doesActorHaveReadPermission());
 
             lists.add(object);
           }
@@ -843,7 +909,7 @@ public class MasterList extends MasterListBase
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
       object.addProperty("label", org.getDisplayLabel().getValue());
-      object.addProperty("admin", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
+      object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
       object.add("lists", lists);
 
       response.add(object);
@@ -852,4 +918,20 @@ public class MasterList extends MasterListBase
     return response;
   }
 
+  @Transaction
+  public static void markAllAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
+  {
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    query.WHERE(query.getValid().EQ((Boolean) null));
+    query.OR(query.getValid().EQ(true));
+
+    try (OIterator<? extends MasterList> iterator = query.getIterator())
+    {
+      while (iterator.hasNext())
+      {
+        MasterList masterlist = iterator.next();
+        masterlist.markAsInvalid(hierarchyType, type);
+      }
+    }
+  }
 }

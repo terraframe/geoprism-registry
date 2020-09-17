@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.ComponentIF;
@@ -70,7 +71,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       // TODO : A better exception
       throw new AttributeValueException("Organization code cannot be null.", hierarchyType.getOrganizationCode());
     }
-    
+
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
@@ -128,8 +129,6 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     this.grantReadPermissionsOnMdTermRel(consumer, mdTermRelGeoEntity);
     this.grantReadPermissionsOnMdTermRel(contributor, mdTermRelGeoEntity);
 
-    GeoEntity.getStrategy().initialize(mdTermRelGeoEntity.definesType(), strategy);
-
     MdEdgeDAO mdEdge = this.createMdEdge(hierarchyType);
 
     this.grantWritePermissionsOnMdTermRel(mdEdge);
@@ -176,10 +175,11 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     mdTermRelationship.setChildCardinality("*");
     mdTermRelationship.setParentMethod("Parent");
     mdTermRelationship.setChildMethod("Children");
-    
-    // Set the owner of the universal to the id of the corresponding role of the responsible organization.
+
+    // Set the owner of the universal to the id of the corresponding role of the
+    // responsible organization.
     String organizationCode = hierarchyType.getOrganizationCode();
-    setOwner(mdTermRelationship, organizationCode); 
+    setOwner(mdTermRelationship, organizationCode);
 
     return mdTermRelationship;
   }
@@ -216,10 +216,11 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     mdTermRelationship.setParentMethod("Parent");
     mdTermRelationship.setChildMethod("Children");
 
-    // Set the owner of the universal to the id of the corresponding role of the responsible organization.
+    // Set the owner of the universal to the id of the corresponding role of the
+    // responsible organization.
     String organizationCode = hierarchyType.getOrganizationCode();
-    setOwner(mdTermRelationship, organizationCode); 
-    
+    setOwner(mdTermRelationship, organizationCode);
+
     return mdTermRelationship;
   }
 
@@ -311,7 +312,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
     String ownerActerOid = universalRelationship.getOwnerId();
     String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
-    
+
     HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description, organizationCode);
 
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
@@ -333,12 +334,33 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     for (Universal childUniversal : childUniversals)
     {
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
+      ServerHierarchyType inheritedHierarchy = geoObjectType.getInheritedHierarchy(universalRelationship);
 
-      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
+      if (inheritedHierarchy != null)
+      {
+        HierarchyType.HierarchyNode child = new HierarchyType.HierarchyNode(geoObjectType.getType(), false);
+        HierarchyType.HierarchyNode root = child;
 
-      node = buildHierarchy(node, childUniversal, universalRelationship);
+        List<GeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
 
-      ht.addRootGeoObjects(node);
+        for (GeoObjectType ancestor : ancestors)
+        {
+          HierarchyType.HierarchyNode cNode = new HierarchyType.HierarchyNode(ancestor, true);
+          cNode.addChild(root);
+
+          root = cNode;
+        }
+
+        buildHierarchy(child, childUniversal, universalRelationship);
+        ht.addRootGeoObjects(root);
+      }
+      else
+      {
+        HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
+        node = buildHierarchy(node, childUniversal, universalRelationship);
+        ht.addRootGeoObjects(node);
+      }
+
     }
 
     return new ServerHierarchyType(ht, universalRelationship, entityRelationship, mdEdge);

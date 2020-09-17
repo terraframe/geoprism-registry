@@ -1,0 +1,46 @@
+{
+	"compilerOptions": {
+		"target": "es5",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"lib": [
+			"es2015",
+			"dom"
+		],
+		"noImplicitAny": false,
+		"suppressImplicitAnyIndexErrors": true,
+		"types": [
+			"node",
+			"jasmine"
+		],
+		"typeRoots": [
+			"./node_modules/@types"
+		],
+		"baseUrl": "./",
+		"paths": {
+			"@shared/*": [
+				"src/app/shared/*"
+			],
+			"@registry/*": [
+				"src/app/registry/*"
+			],
+			"@core/*": [
+				"src/app/core/*"
+			],
+			"@admin/*": [
+				"src/app/admin/*"
+			],
+			"@test/*": [
+				"test/src/*"
+			]
+		}
+	},
+	"exclude": [
+		"node_modules/*",
+		"aot/*",
+		"test/*"
+	]
+}

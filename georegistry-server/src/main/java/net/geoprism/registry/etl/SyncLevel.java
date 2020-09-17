@@ -116,18 +116,6 @@ public class SyncLevel implements Comparable<SyncLevel>
     return this.getLevel().compareTo(o.getLevel());
   }
 
-  public boolean isAttributeMapped(String name)
-  {
-    if (this.hasAttribute(name))
-    {
-      DHIS2AttributeMapping mapping = this.attributes.get(name);
-      
-      return mapping.getExternalId() != null && mapping.getExternalId().length() > 0;
-    }
-    
-    return false;
-  }
-  
   public String getOrgUnitGroupId()
   {
     return orgUnitGroupId;
@@ -146,9 +134,24 @@ public class SyncLevel implements Comparable<SyncLevel>
     
     return set;
   }
+  
+  public Set<String> getOrCreateOrgUnitGroupIdSet(String orgUnitGroupId)
+  {
+    if (!this.orgUnitGroupIdSet.containsKey(orgUnitGroupId))
+    {
+      this.newOrgUnitGroupIdSet(orgUnitGroupId);
+    }
+    
+    return this.orgUnitGroupIdSet.get(orgUnitGroupId);
+  }
 
   public Set<String> getOrgUnitGroupIdSet(String orgUnitGroupId)
   {
     return this.orgUnitGroupIdSet.get(orgUnitGroupId);
+  }
+  
+  public Map<String, Set<String>> getOrgUnitGroupIdSet()
+  {
+    return this.orgUnitGroupIdSet;
   }
 }

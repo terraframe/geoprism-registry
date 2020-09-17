@@ -1,4 +1,8 @@
 <div class="modal-body">
+    <ng-template #customItemTemplate let-model="item" let-index="index">
+      <h5>{{model.name }} : {{ model.code }}</h5>
+    </ng-template>
+
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
     <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert"><localize key="changeovertime.manageVersions.duplicateDate"></localize></div>
 
@@ -40,7 +44,7 @@
                                                       [typeahead]="getTypeAheadObservable(entry.startDate, type, entry, j)"
                                                       (typeaheadOnSelect)="typeaheadOnSelect($event, type, entry, entry.startDate)" 
                                                       [typeaheadOptionsLimit]="7"
-                                                      typeaheadOptionField="name" 
+                                                      [typeaheadItemTemplate]="customItemTemplate" 
                                                       [typeaheadMinLength]="0"
                                                       [typeaheadWaitMs]="300"
                                                       required>

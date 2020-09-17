@@ -62,13 +62,11 @@ import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeEnumeration;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
-import com.runwaysdk.system.metadata.MdAttributeReference;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
@@ -95,18 +93,18 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
   @Transaction
   public void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
   {
-    MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
+//    MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
 
     if (!universal.getIsLeafType())
     {
-      MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
-      geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
-      geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
-      geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
-      geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
-      geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
-      geoEntRefMdAttrRef.setRequired(false);
-      geoEntRefMdAttrRef.apply();
+//      MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
+//      geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
+//      geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
+//      geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
+//      geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
+//      geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
+//      geoEntRefMdAttrRef.setRequired(false);
+//      geoEntRefMdAttrRef.apply();
     }
 
     // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
@@ -281,8 +279,6 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
 
     ServerGeoObjectType serverGeoObjectType = this.build(universal);
-
-    new WMSService().createDatabaseView(serverGeoObjectType, true);
 
     return serverGeoObjectType;
   }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
@@ -25,8 +25,6 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.gis.geo.Universal;
 
 public class USATestData extends TestDataSet
 {
@@ -38,15 +36,19 @@ public class USATestData extends TestDataSet
 
   public static final TestUserInfo          USER_NPS_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "npsra", "npsra", ORG_NPS.getCode() + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_NPS.getCode()) });
 
-  public static final TestUserInfo          USER_PPP_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "pppra", "pppra", ORG_PPP.getCode()+ "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_PPP.getCode()) });
+  public static final TestUserInfo          USER_PPP_RA      = new TestUserInfo(TEST_DATA_KEY + "_" + "pppra", "pppra", ORG_PPP.getCode() + "@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_PPP.getCode()) });
 
   public static final TestHierarchyTypeInfo HIER_ADMIN       = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_NPS);
+
+  public static final TestHierarchyTypeInfo HIER_SCHOOL      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "School", ORG_NPS);
 
   public static final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
 
   public static final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "State", GeometryType.MULTIPOLYGON, ORG_NPS);
 
   public static final TestGeoObjectTypeInfo COUNTY           = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "County", GeometryType.MULTIPOLYGON, ORG_NPS);
+
+  public static final TestGeoObjectTypeInfo SCHOOL_ZONE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "SchoolZone", GeometryType.MULTIPOLYGON, ORG_NPS);
 
   public static final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Area", GeometryType.POLYGON, ORG_NPS);
 
@@ -65,6 +67,8 @@ public class USATestData extends TestDataSet
   public static final TestGeoObjectInfo     CO_C_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoCountyOne", COUNTY);
 
   public static final TestGeoObjectInfo     CO_A_ONE         = new TestGeoObjectInfo(TEST_DATA_KEY + "ColoradoAreaOne", AREA);
+
+  public static final TestGeoObjectInfo     SCHOOL_ONE       = new TestGeoObjectInfo(TEST_DATA_KEY + "SchoolZoneOne", SCHOOL_ZONE);
 
   public static final TestGeoObjectInfo     WASHINGTON       = new TestGeoObjectInfo(TEST_DATA_KEY + "Washington", STATE, TestDataSet.WKT_POLYGON_2, DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
 
@@ -97,12 +101,14 @@ public class USATestData extends TestDataSet
     managedOrganizationInfos.add(ORG_PPP);
 
     managedHierarchyTypeInfos.add(HIER_ADMIN);
+    managedHierarchyTypeInfos.add(HIER_SCHOOL);
 
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(STATE);
     managedGeoObjectTypeInfos.add(DISTRICT);
     managedGeoObjectTypeInfos.add(COUNTY);
     managedGeoObjectTypeInfos.add(AREA);
+    managedGeoObjectTypeInfos.add(SCHOOL_ZONE);
 
     managedGeoObjectInfos.add(USA);
     managedGeoObjectInfos.add(CANADA);
@@ -115,6 +121,7 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(WASHINGTON);
     managedGeoObjectInfos.add(WA_D_ONE);
     managedGeoObjectInfos.add(WA_D_TWO);
+    managedGeoObjectInfos.add(SCHOOL_ONE);
 
     managedGeoObjectTypeInfos.add(MEXICO_STATE);
     managedGeoObjectTypeInfos.add(MEXICO_CITY_GOT);
@@ -137,7 +144,7 @@ public class USATestData extends TestDataSet
   @Override
   public void setUpClassRelationships()
   {
-    COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_ADMIN.getServerObject().getUniversalType());
+    HIER_ADMIN.setRoot(COUNTRY);
     COUNTRY.addChild(STATE, HIER_ADMIN);
     STATE.addChild(DISTRICT, HIER_ADMIN);
     STATE.addChild(COUNTY, HIER_ADMIN);
@@ -145,6 +152,9 @@ public class USATestData extends TestDataSet
 
     COUNTRY.addChild(MEXICO_STATE, HIER_ADMIN);
     MEXICO_STATE.addChild(MEXICO_CITY_GOT, HIER_ADMIN);
+
+    HIER_SCHOOL.setRoot(DISTRICT);
+    DISTRICT.addChild(SCHOOL_ZONE, HIER_SCHOOL);
   }
 
   @Transaction
@@ -152,8 +162,8 @@ public class USATestData extends TestDataSet
   public void setUpRelationships()
   {
     USA.setChildren(new ArrayList<TestGeoObjectInfo>());
-    
-    USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
+
+//    USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
     USA.addChild(COLORADO, HIER_ADMIN);
     COLORADO.addChild(CO_D_ONE, HIER_ADMIN);
@@ -170,6 +180,9 @@ public class USATestData extends TestDataSet
     MEXICO.addChild(MEXICO_STATE_TWO, HIER_ADMIN);
     MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, HIER_ADMIN);
     MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, HIER_ADMIN);
+    
+//    CO_D_ONE.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_SCHOOL.getServerObject().getEntityType());
+    CO_D_ONE.addChild(SCHOOL_ONE, HIER_SCHOOL);
   }
 
   @Override

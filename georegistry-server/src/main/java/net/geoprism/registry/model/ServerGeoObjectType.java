@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -34,6 +34,7 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
@@ -71,23 +72,23 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.ontology.TermUtil;
+import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.AttributeHierarchy;
-import net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren;
+import net.geoprism.registry.HierarchyRootException;
+import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
-import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
 
 public class ServerGeoObjectType
 {
@@ -174,7 +175,7 @@ public class ServerGeoObjectType
     return this.type.getLabel();
   }
 
-  public JsonObject toJSON(ImportAttributeSerializer serializer)
+  public JsonObject toJSON(CustomSerializer serializer)
   {
     return this.type.toJSON(serializer);
   }
@@ -206,8 +207,6 @@ public class ServerGeoObjectType
 
   public void delete()
   {
-    new WMSService().deleteWMSLayer(this);
-
     try
     {
       this.deleteInTransaction();
@@ -230,8 +229,6 @@ public class ServerGeoObjectType
     catch (RuntimeException e)
     {
       // An error occurred re-create the WMS layer
-      new WMSService().createWMSLayer(this, false);
-
       throw e;
     }
   }
@@ -239,23 +236,38 @@ public class ServerGeoObjectType
   @Transaction
   private void deleteInTransaction()
   {
-    String[] hierarchies = TermUtil.getAllParentRelationships(this.universal.getOid());
+    List<ServerHierarchyType> hierarchies = this.getHierarchies(false);
 
-    for (String hierarchy : hierarchies)
+    if (hierarchies.size() > 0)
     {
-      OIterator<com.runwaysdk.business.ontology.Term> it = this.universal.getDirectDescendants(hierarchy);
+      throw new TypeInUseException("Cannot delete a GeoObjectType with children");
+    }
 
-      try
-      {
-        if (it.hasNext())
-        {
-          throw new CannotDeleteGeoObjectTypeWithChildren("Cannot delete a GeoObjectType with children");
-        }
-      }
-      finally
-      {
-        it.close();
-      }
+    // for (String hierarchy : hierarchies)
+    // {
+    // OIterator<com.runwaysdk.business.ontology.Term> it =
+    // this.universal.getDirectDescendants(hierarchy);
+    //
+    // try
+    // {
+    // if (it.hasNext())
+    // {
+    // }
+    // }
+    // finally
+    // {
+    // it.close();
+    // }
+    // }
+
+    /*
+     * Delete all inherited hierarchies
+     */
+    List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByUniversal(getUniversal());
+
+    for (InheritedHierarchyAnnotation annotation : annotations)
+    {
+      annotation.delete();
     }
 
     GeoVertexType.remove(this.universal.getUniversalId());
@@ -477,7 +489,7 @@ public class ServerGeoObjectType
 
       AttributeTermType attributeTermType = (AttributeTermType) attributeType;
 
-      LocalizedValue label = new ServerGeoObjectTypeConverter().convert(attributeTermRoot.getDisplayLabel());
+      LocalizedValue label = LocalizedValueConverter.convert(attributeTermRoot.getDisplayLabel());
 
       org.commongeoregistry.adapter.Term term = new org.commongeoregistry.adapter.Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
       attributeTermType.setRootTerm(term);
@@ -689,6 +701,11 @@ public class ServerGeoObjectType
 
   public List<ServerHierarchyType> getHierarchies()
   {
+    return getHierarchies(true);
+  }
+
+  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone)
+  {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
     List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
@@ -698,7 +715,7 @@ public class ServerGeoObjectType
     {
       Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-      if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
+      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
@@ -721,7 +738,7 @@ public class ServerGeoObjectType
 
     }
 
-    if (hierarchies.size() == 0)
+    if (includeAllHierarchiesIfNone && hierarchies.size() == 0)
     {
       /*
        * This is a root type so include all hierarchies
@@ -741,23 +758,152 @@ public class ServerGeoObjectType
     return hierarchies;
   }
 
+  /**
+   * @param sType
+   *          Hierarchy Type
+   * 
+   * @return If this geo object type is the direct (non-inherited) root of the
+   *         given hierarchy
+   */
   public boolean isRoot(ServerHierarchyType sType)
   {
-    HierarchyType ht = sType.getType();
-    List<HierarchyNode> nodes = ht.getRootGeoObjectTypes();
+    List<ServerGeoObjectType> roots = sType.getDirectRootNodes();
 
-    for (HierarchyNode node : nodes)
+    for (ServerGeoObjectType root : roots)
     {
-      GeoObjectType root = node.getGeoObjectType();
-
       if (root.getCode().equals(this.type.getCode()))
       {
         return true;
       }
     }
 
-    // TODO Auto-generated method stub
     return false;
+  }
+
+  @Transaction
+  public InheritedHierarchyAnnotation setInheritedHierarchy(ServerHierarchyType forHierarchy, ServerHierarchyType inheritedHierarchy)
+  {
+    // Ensure that this geo object type is the root geo object type for the "For
+    // Hierarchy"
+    if (!this.isRoot(forHierarchy))
+    {
+      throw new HierarchyRootException();
+    }
+
+    InheritedHierarchyAnnotation annotation = new InheritedHierarchyAnnotation();
+    annotation.setUniversal(this.universal);
+    annotation.setInheritedHierarchy(inheritedHierarchy.getUniversalRelationship());
+    annotation.setForHierarchy(forHierarchy.getUniversalRelationship());
+    annotation.apply();
+
+    return annotation;
+  }
+
+  @Transaction
+  public void removeInheritedHierarchy(ServerHierarchyType forHierarchy)
+  {
+    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, forHierarchy.getUniversalRelationship());
+
+    if (annotation != null)
+    {
+      annotation.delete();
+    }
+  }
+
+  public ServerHierarchyType getInheritedHierarchy(ServerHierarchyType hierarchy)
+  {
+    return this.getInheritedHierarchy(hierarchy.getUniversalRelationship());
+  }
+
+  public ServerHierarchyType getInheritedHierarchy(MdTermRelationship universalRelationship)
+  {
+    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(this.universal, universalRelationship);
+
+    if (annotation != null)
+    {
+      return ServerHierarchyType.get(annotation.getInheritedHierarchy());
+    }
+
+    return null;
+  }
+
+  /**
+   * Returns all ancestors of a GeoObjectType
+   * 
+   * @param hierarchyType
+   *          The Hierarchy code
+   * @param includeInheritedTypes
+   *          TODO
+   * @param GeoObjectType
+   *          child
+   * 
+   * @return
+   */
+  public List<GeoObjectType> getTypeAncestors(ServerHierarchyType hierarchyType, Boolean includeInheritedTypes)
+  {
+    List<GeoObjectType> ancestors = new LinkedList<GeoObjectType>();
+
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), this.getUniversal(), hierarchyType.getUniversalType());
+
+    list.forEach(term -> {
+      Universal parent = (Universal) term;
+
+      if (!parent.getKeyName().equals(Universal.ROOT) && !parent.getOid().equals(this.getUniversal().getOid()))
+      {
+        ServerGeoObjectType sParent = ServerGeoObjectType.get(parent);
+
+        ancestors.add(sParent.getType());
+
+        if (includeInheritedTypes && sParent.isRoot(hierarchyType))
+        {
+          ServerHierarchyType inheritedHierarchy = sParent.getInheritedHierarchy(hierarchyType);
+
+          if (inheritedHierarchy != null)
+          {
+            ancestors.addAll(sParent.getTypeAncestors(inheritedHierarchy, includeInheritedTypes));
+          }
+        }
+      }
+    });
+
+    return ancestors;
+  }
+
+  /**
+   * Finds the actual hierarchy used for the parent type if the parent type is
+   * inherited from a different hierarchy
+   * 
+   * @param hierarchyType
+   * @param parent
+   * @return
+   */
+  public ServerHierarchyType findHierarchy(ServerHierarchyType hierarchyType, ServerGeoObjectType parent)
+  {
+    Collection<com.runwaysdk.business.ontology.Term> list = GeoEntityUtil.getOrderedAncestors(Universal.getRoot(), this.getUniversal(), hierarchyType.getUniversalType());
+
+    for (Object term : list)
+    {
+      Universal universal = (Universal) term;
+
+      if (parent.getUniversal().getOid().equals(universal.getOid()))
+      {
+        return hierarchyType;
+      }
+
+      ServerGeoObjectType sParent = ServerGeoObjectType.get(universal);
+
+      if (sParent.isRoot(hierarchyType))
+      {
+        ServerHierarchyType inheritedHierarchy = sParent.getInheritedHierarchy(hierarchyType);
+
+        if (inheritedHierarchy != null)
+        {
+          return sParent.findHierarchy(inheritedHierarchy, parent);
+        }
+      }
+    }
+
+    return hierarchyType;
   }
 
   /**

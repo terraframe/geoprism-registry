@@ -1,0 +1,81 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.targetTypeOrgUnitGroup">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.targetTypeOrgUnitGroup" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Org Unit Group" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.targetTypeHeader">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.targetTypeHeader" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Target Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.type">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.type" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Source Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.term.targetOrgUnitGroup">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.term.targetOrgUnitGroup" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Org Unit Group" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.level.delete">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.level.delete" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Delete" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.level.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.level.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Level" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping" message="The CGR Term with code [{termCode}] is not mapped to a DHIS2 Organisation Unit Group." publish="false" exported="false">
+        <attributes>
+          <text name="termCode"/>
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping" type="com.runwaysdk.system.metadata.MdException"></object>
+    </delete>
+  </undoIt>
+</version>

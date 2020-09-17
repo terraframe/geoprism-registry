@@ -25,6 +25,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
@@ -33,28 +34,28 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class TestHierarchyTypeInfo
 {
-  private String                  code;
-  
-  private String                  displayLabel;
-  
-  private String                  oid;
-  
-  private TestOrganizationInfo    org;
-  
-  private ServerHierarchyType     serverObj;
-  
+  private String               code;
+
+  private String               displayLabel;
+
+  private String               oid;
+
+  private TestOrganizationInfo org;
+
+  private ServerHierarchyType  serverObj;
+
   public TestHierarchyTypeInfo(String genKey, TestOrganizationInfo org)
   {
     initialize(genKey, org);
   }
-  
+
   public TestHierarchyTypeInfo(String code, String displayLabel, TestOrganizationInfo org)
   {
     this.code = code;
     this.displayLabel = displayLabel;
     this.org = org;
   }
-  
+
   private void initialize(String genKey, TestOrganizationInfo org)
   {
     this.code = genKey + "Code";
@@ -91,21 +92,21 @@ public class TestHierarchyTypeInfo
   {
     this.oid = oid;
   }
-  
+
   public ServerHierarchyType getServerObject()
   {
     return this.getServerObject(false);
   }
-  
+
   public ServerHierarchyType getServerObject(boolean forceFetch)
   {
     if (this.serverObj != null && !forceFetch)
     {
       return this.serverObj;
     }
-    
+
     Optional<HierarchyType> hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code);
-    
+
     if (hierarchyType.isPresent())
     {
       if (this.doesMdTermRelationshipExist())
@@ -114,41 +115,40 @@ public class TestHierarchyTypeInfo
         return this.serverObj;
       }
     }
-    
+
     return null;
   }
-  
+
   public Boolean doesMdTermRelationshipExist()
   {
     String universalKey = ServerHierarchyType.buildMdTermRelUniversalKey(this.getCode());
-    
+
     MdTermRelationshipQuery uniQuery = new MdTermRelationshipQuery(new QueryFactory());
     uniQuery.WHERE(uniQuery.getKeyName().EQ(universalKey));
-    
-    
+
     String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(this.getCode());
-    
+
     MdTermRelationshipQuery geoQuery = new MdTermRelationshipQuery(new QueryFactory());
     geoQuery.WHERE(geoQuery.getKeyName().EQ(geoEntityKey));
-    
+
     return uniQuery.getCount() > 0 && geoQuery.getCount() > 0;
   }
-  
+
   public TestOrganizationInfo getOrganization()
   {
     return this.org;
   }
-  
+
   public HierarchyType toDTO()
   {
     LocalizedValue displayLabel = new LocalizedValue(this.displayLabel);
     LocalizedValue description = new LocalizedValue(this.displayLabel);
-    
+
     HierarchyType ht = new HierarchyType(this.code, displayLabel, description, this.getOrganization().getCode());
-    
+
     return ht;
   }
-  
+
   @Request
   public void apply()
   {
@@ -156,28 +156,40 @@ public class TestHierarchyTypeInfo
     {
       return;
     }
-    
+
     HierarchyType dto = this.toDTO();
-    
+
     this.serverObj = new ServerHierarchyTypeBuilder().createHierarchyType(dto);
   }
-  
+
+  @Request
+  public void setRoot(TestGeoObjectTypeInfo type)
+  {
+    this.serverObj.addToHierarchy(Universal.ROOT, type.getCode());
+  }
+
+  @Request
+  public void removeRoot(TestGeoObjectTypeInfo type)
+  {
+    this.serverObj.removeChild(null, type.getCode());
+  }
+
   @Request
   public void delete()
   {
     deleteInTrans();
   }
-  
+
   @Transaction
   private void deleteInTrans()
   {
     ServerHierarchyType serverHOT = getServerObject(true);
-    
+
     if (serverHOT != null)
     {
       serverHOT.delete();
     }
-    
+
     this.serverObj = null;
   }
 }

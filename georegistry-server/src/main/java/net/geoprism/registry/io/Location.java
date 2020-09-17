@@ -22,20 +22,23 @@ import org.json.JSONObject;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 
 public class Location
 {
   private ServerGeoObjectType type;
 
-  private ShapefileFunction   function;
-  
-  private ParentMatchStrategy          matchStrategy;
+  private ServerHierarchyType hierarchy;
 
-  public Location(ServerGeoObjectType type, ShapefileFunction function, ParentMatchStrategy matchStrategy)
+  private ShapefileFunction   function;
+
+  private ParentMatchStrategy matchStrategy;
+
+  public Location(ServerGeoObjectType type, ServerHierarchyType hierarchy, ShapefileFunction function, ParentMatchStrategy matchStrategy)
   {
     this.type = type;
+    this.hierarchy = hierarchy;
     this.function = function;
     this.matchStrategy = matchStrategy;
   }
@@ -59,7 +62,7 @@ public class Location
   {
     this.function = function;
   }
-  
+
   public ParentMatchStrategy getMatchStrategy()
   {
     return matchStrategy;

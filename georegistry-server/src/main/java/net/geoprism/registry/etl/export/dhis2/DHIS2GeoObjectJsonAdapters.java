@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
@@ -54,10 +55,8 @@ import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.AdapterUtilities;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.DHIS2TermMapping;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -73,7 +72,7 @@ public class DHIS2GeoObjectJsonAdapters
   public static class DHIS2Serializer implements JsonSerializer<VertexServerGeoObject>
   {
     private static final Logger logger = LoggerFactory.getLogger(DHIS2Serializer.class);
-    
+
     private ServerHierarchyType hierarchyType;
 
     private ServerGeoObjectType got;
@@ -85,9 +84,9 @@ public class DHIS2GeoObjectJsonAdapters
     private DHIS2ServiceIF      dhis2;
 
     private SyncLevel           syncLevel;
-    
+
     private DHIS2SyncConfig     dhis2Config;
-    
+
     public DHIS2Serializer(DHIS2ServiceIF dhis2, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
     {
       this.got = got;
@@ -121,7 +120,7 @@ public class DHIS2GeoObjectJsonAdapters
 
         serverGo.createExternalId(this.ex, externalId);
       }
-      
+
       return externalId;
     }
 
@@ -152,7 +151,7 @@ public class DHIS2GeoObjectJsonAdapters
           joLocaleName.addProperty("locale", locale.toString());
           joLocaleName.addProperty("value", lv.getValue(locale));
           translations.add(joLocaleName);
-          
+
           JsonObject joLocaleShort = new JsonObject();
           joLocaleShort.addProperty("property", "SHORT_NAME");
           joLocaleShort.addProperty("locale", locale.toString());
@@ -160,141 +159,190 @@ public class DHIS2GeoObjectJsonAdapters
           translations.add(joLocaleShort);
         }
       }
-      
+
       return translations;
     }
 
     private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
     {
-//      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
-//      {
-        ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
-        if (goParent != null)
-        {
-          JsonObject parent = new JsonObject();
-          parent.addProperty("id", this.getExternalId(goParent)); // TODO : Is
-                                                                  // this the
-                                                                  // correct id?
-          jo.add("parent", parent);
-        }
+      // if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL ||
+      // this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
+      // {
+      ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
+      if (goParent != null)
+      {
+        JsonObject parent = new JsonObject();
+        parent.addProperty("id", this.getExternalId(goParent)); // TODO : Is
+                                                                // this the
+                                                                // correct id?
+        jo.add("parent", parent);
+      }
 
-        jo.addProperty("path", calculatePath(serverGo));
+      jo.addProperty("path", calculatePath(serverGo));
 
-        jo.addProperty("level", this.depth);
-//      }
+      jo.addProperty("level", this.depth);
+      // }
     }
 
     private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
-//      if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL || this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
-//      {
-        jo.addProperty("code", serverGo.getCode());
+      // if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL ||
+      // this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
+      // {
+      jo.addProperty("code", serverGo.getCode());
 
-        jo.addProperty("id", this.getExternalId(serverGo));
+      jo.addProperty("id", this.getExternalId(serverGo));
 
-        jo.addProperty("created", formatDate(serverGo.getCreateDate()));
+      jo.addProperty("created", formatDate(serverGo.getCreateDate()));
 
-        jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
-        
-        jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+      jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
 
-        jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+      jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate())); // TODO : Correct value?
-        
-        writeGeometry(jo, serverGo);
+      jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-        jo.add("translations", writeTranslations(serverGo));
-        
-        this.writeCustomAttributes(serverGo, jo);
-//      }
+      jo.addProperty("openingDate", formatDate(serverGo.getCreateDate())); // TODO
+                                                                           // :
+                                                                           // Correct
+                                                                           // value?
+
+      writeGeometry(jo, serverGo);
+
+      jo.add("translations", writeTranslations(serverGo));
+
+      this.writeCustomAttributes(serverGo, jo);
+      // }
     }
-    
+
     private void writeCustomAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
       final String lastUpdateDate = formatDate(serverGo.getLastUpdateDate());
-      
+
       final String createDate = formatDate(serverGo.getCreateDate());
-      
+
       JsonArray attributeValues = new JsonArray();
-      
+
       Map<String, AttributeType> attrs = this.got.getAttributeMap();
-      
+
       for (AttributeType attr : attrs.values())
       {
-        if (!attr.getIsDefault() && this.syncLevel.isAttributeMapped(attr.getName()))
+        if (attr.getIsDefault())
         {
+          continue;
+        }
+        
+        if (this.syncLevel.hasAttribute(attr.getName()))
+        {
+          Object value = serverGo.getValue(attr.getName());
+          
+          if (value == null || (value instanceof String && ((String)value).length() == 0))
+          {
+            continue;
+          }
+          
           DHIS2AttributeMapping attrMapping = this.syncLevel.getAttribute(attr.getName());
-          
-          JsonObject av = new JsonObject();
-          
-          av.addProperty("lastUpdated", lastUpdateDate);
-          
-          av.addProperty("created", createDate);
-          
-          if (attr instanceof AttributeBooleanType)
+
+          if (attrMapping.isOrgUnitGroup())
           {
-            av.addProperty("value", (Boolean) serverGo.getValue(attr.getName()));
-          }
-          else if (attr instanceof AttributeIntegerType)
-          {
-            av.addProperty("value", (Long) serverGo.getValue(attr.getName()));
-          }
-          else if (attr instanceof AttributeFloatType)
-          {
-            av.addProperty("value", (Double) serverGo.getValue(attr.getName()));
-          }
-          else if (attr instanceof AttributeDateType)
-          {
-            av.addProperty("value", formatDate((Date) serverGo.getValue(attr.getName())));
-          }
-          else if (attr instanceof AttributeTermType)
-          {
-            Classifier classy = (Classifier) serverGo.getValue(attr.getName());
-            
-            String mapping = attrMapping.getTermMapping(classy.getClassifierId());
-            
-            if (mapping == null)
+            if (attr instanceof AttributeTermType)
             {
-              MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
-              ex.setTermCode(classy.getClassifierId());
-              throw ex;
+              Classifier classy = (Classifier) value;
+
+              String orgUnitGroupId = attrMapping.getTermMapping(classy.getClassifierId());
+
+              if (orgUnitGroupId == null)
+              {
+                MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
+                ex.setTermCode(classy.getClassifierId());
+                throw ex;
+              }
+
+              Set<String> orgUnitGroupIdSet = this.syncLevel.getOrgUnitGroupIdSet(orgUnitGroupId);
+              if (orgUnitGroupIdSet == null)
+              {
+                orgUnitGroupIdSet = this.syncLevel.newOrgUnitGroupIdSet(orgUnitGroupId);
+              }
+
+              orgUnitGroupIdSet.add(serverGo.getExternalId(this.ex));
             }
-            
-            av.addProperty("value", mapping);
+            else
+            {
+              logger.error("Unsupported attribute type [" + attr.getClass().getName() + "] with name [" + attr.getName() + "] when matched to OrgUnitGroup.");
+              continue;
+            }
           }
-          else
+          else if (attrMapping.isMapped())
           {
-            av.addProperty("value", String.valueOf(serverGo.getValue(attr.getName())));
+            JsonObject av = new JsonObject();
+
+            av.addProperty("lastUpdated", lastUpdateDate);
+
+            av.addProperty("created", createDate);
+
+            if (attr instanceof AttributeBooleanType)
+            {
+              av.addProperty("value", (Boolean) value);
+            }
+            else if (attr instanceof AttributeIntegerType)
+            {
+              av.addProperty("value", (Long) value);
+            }
+            else if (attr instanceof AttributeFloatType)
+            {
+              av.addProperty("value", (Double) value);
+            }
+            else if (attr instanceof AttributeDateType)
+            {
+              av.addProperty("value", formatDate((Date) value));
+            }
+            else if (attr instanceof AttributeTermType)
+            {
+              Classifier classy = (Classifier) value;
+
+              String mapping = attrMapping.getTermMapping(classy.getClassifierId());
+
+              if (mapping == null)
+              {
+                MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
+                ex.setTermCode(classy.getClassifierId());
+                throw ex;
+              }
+
+              av.addProperty("value", mapping);
+            }
+            else
+            {
+              av.addProperty("value", String.valueOf(value));
+            }
+
+            JsonObject joAttr = new JsonObject();
+            joAttr.addProperty("id", attrMapping.getExternalId());
+            av.add("attribute", joAttr);
+
+            attributeValues.add(av);
           }
-          
-          JsonObject joAttr = new JsonObject();
-          joAttr.addProperty("id", attrMapping.getExternalId());
-          av.add("attribute", joAttr);
-          
-          attributeValues.add(av);
         }
       }
-      
+
       jo.add("attributeValues", attributeValues);
     }
-    
+
     private void writeGeometry(JsonObject jo, VertexServerGeoObject serverGo)
     {
       Geometry geom = serverGo.getGeometry();
-      
+
       if (geom != null)
       {
         try
         {
           GeoJSONWriter gw = new GeoJSONWriter();
           org.wololo.geojson.Geometry gJSON = gw.write(geom);
-  
+
           JsonObject joGeom = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
-          
+
           jo.addProperty("featureType", convertGeometryType(joGeom.get("type").getAsString()));
-          
-//          jo.add("coordinates", joGeom.get("coordinates").getAsJsonArray());
+
+          // jo.add("coordinates", joGeom.get("coordinates").getAsJsonArray());
           jo.addProperty("coordinates", joGeom.get("coordinates").toString());
         }
         catch (Throwable t)
@@ -304,18 +352,24 @@ public class DHIS2GeoObjectJsonAdapters
         }
       }
     }
-    
+
     private String convertGeometryType(String geometryType)
     {
-      // Cannot deserialize value of type `org.hisp.dhis.organisationunit.FeatureType` from String "MultiPolygon": value not one of declared Enum instance names: [SYMBOL, POLYGON, MULTI_POLYGON, NONE, POINT] at [Source: (org.apache.catalina.connector.CoyoteInputStream); line: 1, column: 204] (through reference chain: org.hisp.dhis.organisationunit.OrganisationUnit["featureType"])
-      
+      // Cannot deserialize value of type
+      // `org.hisp.dhis.organisationunit.FeatureType` from String
+      // "MultiPolygon": value not one of declared Enum instance names: [SYMBOL,
+      // POLYGON, MULTI_POLYGON, NONE, POINT] at [Source:
+      // (org.apache.catalina.connector.CoyoteInputStream); line: 1, column:
+      // 204] (through reference chain:
+      // org.hisp.dhis.organisationunit.OrganisationUnit["featureType"])
+
       String out = geometryType.toUpperCase();
-      
+
       if (out.equals("MULTIPOLYGON"))
       {
         return "MULTI_POLYGON";
       }
-      
+
       return out;
     }
 
@@ -340,7 +394,7 @@ public class DHIS2GeoObjectJsonAdapters
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
       format.setTimeZone(TimeZone.getTimeZone("UTC"));
-      
+
       if (date != null)
       {
         return format.format(date);
@@ -374,7 +428,7 @@ public class DHIS2GeoObjectJsonAdapters
         throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported.");
       }
 
-      List<GeoObjectType> ancestors = AdapterUtilities.getInstance().getTypeAncestors(this.got, this.hierarchyType.getCode());
+      List<GeoObjectType> ancestors = this.got.getTypeAncestors(this.hierarchyType, true);
 
       this.depth = ancestors.size() + 1;
     }

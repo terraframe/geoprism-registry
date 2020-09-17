@@ -23,7 +23,6 @@ export class MasterListViewComponent implements OnInit {
      */
 	bsModalRef: BsModalRef;
 
-
 	constructor(private service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute) {
 	}
 
@@ -36,6 +35,10 @@ export class MasterListViewComponent implements OnInit {
 
 		this.service.getMasterList(oid).then(list => {
 			this.list = list;
+
+			if (list.read) {
+				this.content = "EXP";
+			}
 		});
 	}
 

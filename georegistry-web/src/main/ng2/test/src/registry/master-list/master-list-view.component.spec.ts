@@ -85,7 +85,7 @@ describe("MasterListViewComponent", () => {
 
 		tick(500);
 
-		expect(component.content).toEqual("PUB");
+		expect(component.content).toEqual("EXP");
 		expect(component.list).toBeTruthy();
 	}));
 

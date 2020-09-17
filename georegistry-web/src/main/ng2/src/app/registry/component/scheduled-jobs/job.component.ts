@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from '@angular/common/http';
-import { interval } from 'rxjs';
+import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { JobConflictModalComponent } from './conflict-widgets/job-conflict-modal.component';
 import { ReuploadModalComponent } from './conflict-widgets/reupload-modal.component';
@@ -13,6 +13,8 @@ import { ScheduledJob } from '@registry/model/registry';
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { LocalizationService, AuthService } from '@shared/service';
 import { ModalTypes } from '@shared/model/modal';
+
+declare var acp: any;
 
 @Component({
 	selector: 'job',
@@ -43,9 +45,10 @@ export class JobComponent implements OnInit {
 	isMaintainer: boolean;
 	isContributor: boolean;
 
-	pollingData: any;
 	isPolling: boolean = false;
 	hasRowValidationProblem: boolean = false;
+
+	notifier: WebSocketSubject<{ type: string, message: string }>;
 
 	constructor(public service: RegistryService, private modalService: BsModalService,
 		private router: Router, private route: ActivatedRoute,
@@ -61,10 +64,17 @@ export class JobComponent implements OnInit {
 
 		this.onPageChange(1);
 
+		let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
+
+		this.notifier = webSocket(baseUrl + '/websocket/notify');
+		this.notifier.subscribe(message => {
+			if (message.type === 'IMPORT_JOB_CHANGE') {
+				this.onPageChange(this.page.pageNumber);
+			}
+		});
 	}
 
 	ngOnDestroy() {
-		this.stopPolling();
 	}
 
 	formatAffectedRows(rows: string) {
@@ -171,40 +181,10 @@ export class JobComponent implements OnInit {
 					}
 				}
 			}
-
-			if (!this.isPolling && this.job.status === 'RUNNING') {
-				this.startPolling();
-			}
-			else if (this.isPolling && this.job.status != 'RUNNING') {
-				this.stopPolling();
-			}
-
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
 
-	}
-
-	stopPolling(): void {
-		if (this.isPolling && this.pollingData != null) {
-			this.pollingData.unsubscribe();
-		}
-	}
-
-	startPolling(): void {
-		this.timeCounter = 0;
-
-		this.pollingData = interval(1000).subscribe(() => {
-			this.timeCounter++
-
-			if (this.timeCounter >= 2) {
-				this.onPageChange(this.page.pageNumber);
-
-				this.timeCounter = 0;
-			}
-		});
-
-		this.isPolling = true;
 	}
 
 	onViewAllActiveJobs(): void {
@@ -302,7 +282,7 @@ export class JobComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

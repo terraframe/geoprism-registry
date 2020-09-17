@@ -112,6 +112,8 @@ import com.vividsolutions.jts.geom.Point;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.command.GeoserverCreateWMSCommand;
+import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
@@ -126,6 +128,7 @@ import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.service.WMSService;
 import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase
@@ -169,6 +172,17 @@ public class MasterListVersion extends MasterListVersionBase
     super();
   }
 
+  @Override
+  public void apply()
+  {
+    super.apply();
+
+    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+    {
+      new GeoserverCreateWMSCommand(this).doIt();
+    }
+  }
+
   private String getTableName()
   {
     int count = 0;
@@ -200,11 +214,6 @@ public class MasterListVersion extends MasterListVersionBase
     }
 
     if (attributeType.getName().equals(DefaultAttribute.SEQUENCE.getName()))
-    {
-      return false;
-    }
-
-    if (attributeType.getName().equals(DefaultAttribute.STATUS.getName()))
     {
       return false;
     }
@@ -600,6 +609,11 @@ public class MasterListVersion extends MasterListVersionBase
 
       mdTable.delete();
     }
+
+    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+    {
+      new GeoserverRemoveWMSCommand(this).doIt();
+    }
   }
 
   public List<PublishShapefileJob> getJobs()
@@ -670,10 +684,15 @@ public class MasterListVersion extends MasterListVersionBase
 
     try
     {
+      MasterList masterlist = this.getMasterlist();
+
+      if (!masterlist.isValid())
+      {
+        throw new InvalidMasterListException();
+      }
+
       // Delete tile cache
       TileCache.deleteTiles(this);
-
-      MasterList masterlist = this.getMasterlist();
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
       mdBusiness.deleteAllRecords();
@@ -689,29 +708,38 @@ public class MasterListVersion extends MasterListVersionBase
       // ServerGeoObjectService service = new ServerGeoObjectService();
       // ServerGeoObjectQuery query = service.createQuery(type,
       // this.getPeriod());
-      VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getForDate());
 
+      VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getForDate());
       Long count = query.getCount();
       long current = 0;
 
-      ProgressService.put(this.getOid(), new Progress(0L, count, ""));
-
       try
       {
-        List<ServerGeoObjectIF> results = query.getResults();
+        ProgressService.put(this.getOid(), new Progress(0L, count, ""));
+        int pageSize = 1000;
 
-        for (ServerGeoObjectIF result : results)
+        long skip = 0;
+
+        while (skip < count)
         {
-          if (result.getStatus().equals(GeoObjectStatus.ACTIVE))
+          query = new VertexGeoObjectQuery(type, this.getForDate());
+          query.setLimit(pageSize);
+          query.setSkip(skip);
+
+          List<ServerGeoObjectIF> results = query.getResults();
+
+          for (ServerGeoObjectIF result : results)
           {
             Business business = new Business(mdBusiness.definesType());
 
             publish(result, business, attributes, ancestorMap, locales);
 
             Thread.yield();
+
+            ProgressService.put(this.getOid(), new Progress(current++, count, ""));
           }
 
-          ProgressService.put(this.getOid(), new Progress(current++, count, ""));
+          skip += pageSize;
         }
 
         this.setPublishDate(new Date());
@@ -746,8 +774,21 @@ public class MasterListVersion extends MasterListVersionBase
 
         if (value != null)
         {
+          if (name.equals(DefaultAttribute.STATUS.getName()))
+          {
+            GeoObjectStatus status = (GeoObjectStatus) value;
+            Term term = ServiceFactory.getConversionService().geoObjectStatusToTerm(status);
+            LocalizedValue label = term.getLabel();
 
-          if (attribute instanceof AttributeTermType)
+            this.setValue(business, name, term.getCode());
+            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+            for (Locale locale : locales)
+            {
+              this.setValue(business, name + locale.toString(), label.getValue(locale));
+            }
+          }
+          else if (attribute instanceof AttributeTermType)
           {
             Classifier classifier = (Classifier) value;
 
@@ -802,7 +843,7 @@ public class MasterListVersion extends MasterListVersionBase
       ServerHierarchyType hierarchy = ServerHierarchyType.get(entry.getKey());
 
       // List<GeoObjectType> parents = entry.getValue();
-      Map<String, LocationInfo> map = object.getAncestorMap(hierarchy);
+      Map<String, LocationInfo> map = object.getAncestorMap(hierarchy, true);
 
       Set<Entry<String, LocationInfo>> locations = map.entrySet();
 
@@ -858,22 +899,15 @@ public class MasterListVersion extends MasterListVersionBase
 
     for (Business record : records)
     {
-      if (object.getStatus().equals(GeoObjectStatus.ACTIVE))
+      try
       {
-        try
-        {
-          record.appLock();
+        record.appLock();
 
-          this.publish(object, record, attributes, ancestorMap, locales);
-        }
-        finally
-        {
-          record.unlock();
-        }
+        this.publish(object, record, attributes, ancestorMap, locales);
       }
-      else
+      finally
       {
-        record.delete();
+        record.unlock();
       }
     }
   }
@@ -897,10 +931,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     Business business = new Business(mdBusiness.definesType());
 
-    if (object.getStatus().equals(GeoObjectStatus.ACTIVE))
-    {
-      this.publish(object, business, attributes, ancestorMap, locales);
-    }
+    this.publish(object, business, attributes, ancestorMap, locales);
   }
 
   public JsonObject toJSON(boolean includeAttribute)
@@ -1533,6 +1564,17 @@ public class MasterListVersion extends MasterListVersionBase
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
     contributor.grantPermission(Operation.READ, component.getOid());
     contributor.grantPermission(Operation.READ_ALL, component.getOid());
+  }
+
+  public static List<? extends MasterListVersion> getAll(String versionType)
+  {
+    MasterListVersionQuery query = new MasterListVersionQuery(new QueryFactory());
+    query.WHERE(query.getVersionType().EQ(versionType));
+
+    try (OIterator<? extends MasterListVersion> it = query.getIterator())
+    {
+      return it.getAll();
+    }
   }
 
 }

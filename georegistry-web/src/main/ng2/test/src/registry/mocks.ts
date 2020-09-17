@@ -1,4 +1,4 @@
-import { Task, SynchronizationConfig, ExportScheduledJob, GeoObject, GeoObjectType, MasterListByOrg, MasterList, MasterListVersion } from "@registry/model/registry";
+import { Task, SynchronizationConfig, ExportScheduledJob, GeoObject, GeoObjectType, MasterListByOrg, MasterList, MasterListVersion, PaginationPage } from "@registry/model/registry";
 import { LocationInformation } from "@registry/model/location-manager";
 import { HierarchyType } from "@registry/model/hierarchy";
 import { LOCALIZED_LABEL } from "@test/shared/mocks";
@@ -94,21 +94,25 @@ export const LOCATION_INFORMATION: LocationInformation = {
 export const MASTER_LIST_BY_ORG: MasterListByOrg = {
 	oid: "ORG-ID",
 	label: "ORG-LABEL",
-	admin: true,
+	write: true,
 	lists: [
 		{
 			label: 'LIST-LABEL',
 			oid: 'LIST-ID',
 			createDate: '02/20/2020',
 			lastUpdateDate: '02/20/2020',
-			isMaster: false
+			isMaster: false,
+			write: true,
+			read: true
 		},
 		{
 			label: 'LIST-LABEL-2',
 			oid: 'LIST-ID-2',
 			createDate: '02/20/2020',
 			lastUpdateDate: '02/20/2020',
-			isMaster: true
+			isMaster: false,
+			write: true,
+			read: true
 		}
 	]
 }
@@ -117,6 +121,7 @@ export const MASTER_LIST_VERSION: MasterListVersion = {
 	displayLabel: "Test Version",
 	oid: "VERSION-OID",
 	typeCode: "TEST-TYPE",
+	orgCode: "ORG-ID",
 	leaf: false,
 	masterlist: 'LIST-ID',
 	forDate: '02/20/2020',
@@ -126,7 +131,6 @@ export const MASTER_LIST_VERSION: MasterListVersion = {
 	isGeometryEditable: true,
 	locales: ['en_us'],
 	shapefile: true,
-	isWritable: true,
 }
 
 
@@ -161,8 +165,21 @@ export const MASTER_LIST: MasterList = {
 	frequency: "ANNUAL",
 	isMaster: false,
 	visibility: "PUBLIC",
-	admin: true,
+	write: true,
 	read: true,
 	versions: [MASTER_LIST_VERSION]
 }
+
+export function PAGINATION_PAGE(value: any, pageNumber?: number): PaginationPage {
+	return {
+		count: 1,
+		pageNumber: pageNumber ? pageNumber : 1,
+		pageSize: 10,
+		results: [value]
+	};
+}
+
+export const MOCK_SOCKET: WebSocket = {
+	send: function(){},
+} as any;
 

@@ -51,7 +51,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
     GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
-    ServerGeoObjectService builder = new ServerGeoObjectService(new GeoObjectPermissionService());
+    ServerGeoObjectService builder = new ServerGeoObjectService();
     builder.apply(geoObject, true, false);
   }
 

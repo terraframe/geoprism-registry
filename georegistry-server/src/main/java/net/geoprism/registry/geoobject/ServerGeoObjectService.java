@@ -28,16 +28,17 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 
-import net.geoprism.registry.conversion.CompositeGeoObjectStrategy;
+import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
-import net.geoprism.registry.conversion.TreeGeoObjectStrategy;
+import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -45,6 +46,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
@@ -55,6 +57,11 @@ import net.geoprism.registry.view.GeoObjectSplitView;
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
   private GeoObjectPermissionServiceIF permissionService;
+
+  public ServerGeoObjectService()
+  {
+    this(new GeoObjectPermissionService());
+  }
 
   public ServerGeoObjectService(GeoObjectPermissionServiceIF permissionService)
   {
@@ -132,10 +139,20 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     }
 
     geoObject.populate(object);
-    geoObject.apply(isImport);
 
-    // Return the refreshed copy of the geoObject
-    return this.build(type, geoObject.getRunwayId());
+    try
+    {
+      geoObject.apply(isImport);
+
+      // Return the refreshed copy of the geoObject
+      return this.build(type, geoObject.getRunwayId());
+    }
+    catch (DuplicateDataException e)
+    {
+      VertexServerGeoObject.handleDuplicateDataException(type, e);
+
+      throw e;
+    }
   }
 
   @Transaction
@@ -164,10 +181,20 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     }
 
     goServer.populate(goTime);
-    goServer.apply(isImport);
 
-    // Return the refreshed copy of the geoObject
-    return this.build(type, goServer.getRunwayId());
+    try
+    {
+      goServer.apply(isImport);
+
+      // Return the refreshed copy of the geoObject
+      return this.build(type, goServer.getRunwayId());
+    }
+    catch (DuplicateDataException e)
+    {
+      VertexServerGeoObject.handleDuplicateDataException(type, e);
+
+      throw e;
+    }
   }
 
   @Transaction
@@ -256,46 +283,30 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    String runwayId = RegistryIdService.getInstance().registryIdToRunwayId(uid, type);
-    Business business = Business.get(runwayId);
-
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-    return strategy.constructFromDB(business);
-  }
+    ServerGeoObjectIF object = strategy.getGeoObjectByUid(uid);
 
-  public ServerGeoObjectIF getGeoObjectByEntityId(String entityId)
-  {
-    GeoEntity entity = GeoEntity.get(entityId);
+    if (object == null)
+    {
+      InvalidRegistryIdException ex = new InvalidRegistryIdException();
+      ex.setRegistryId(uid);
+      throw ex;
+    }
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(entity.getUniversal());
-
-    return this.build(type, entity);
+    return object;
   }
 
   public ServerGeoObjectStrategyIF getStrategy(ServerGeoObjectType type)
   {
-    // Heads up: clean up
-    // if (type.isLeaf())
-    // {
-    // return new CompositeGeoObjectStrategy(new LeafGeoObjectStrategy(type));
-    // }
-
-    return new CompositeGeoObjectStrategy(new TreeGeoObjectStrategy(type));
-  }
-
-  public ServerGeoObjectIF build(GeoEntity entity)
-  {
-    ServerGeoObjectType type = ServerGeoObjectType.get(entity.getUniversal());
-
-    return this.build(type, entity);
+    return new VertexGeoObjectStrategy(type);
   }
 
   public ServerGeoObjectIF build(ServerGeoObjectType type, String runwayId)
   {
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-    Business business = Business.get(runwayId);
+    VertexObject vertex = VertexObject.get(type.getMdVertex(), runwayId);
 
-    return strategy.constructFromDB(business);
+    return strategy.constructFromDB(vertex);
   }
 
   public ServerGeoObjectIF build(ServerGeoObjectType type, Object dbObject)
@@ -307,8 +318,6 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public ServerGeoObjectQuery createQuery(ServerGeoObjectType type, Date date)
   {
     return new VertexGeoObjectQuery(type, date);
-    // ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
-    // return strategy.createQuery(date);
   }
 
   public boolean hasData(ServerHierarchyType serverHierarchyType, ServerGeoObjectType childType)
@@ -316,4 +325,8 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     return VertexServerGeoObject.hasData(serverHierarchyType, childType);
   }
 
+  public void removeAllEdges(ServerHierarchyType hierarchyType, ServerGeoObjectType childType)
+  {
+    VertexServerGeoObject.removeAllEdges(hierarchyType, childType);
+  }
 }
