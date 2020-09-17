@@ -7,9 +7,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
 import { HierarchyOverTime, PRESENT } from '@registry/model/registry';
 
-import { IOService, RegistryService } from '@registry/service';
-
-import { LocalizationService } from '@shared/service';
+import { RegistryService } from '@registry/service';
 
 import { ErrorHandler } from '@shared/component';
 
@@ -31,7 +29,7 @@ export class ManageParentVersionsModalComponent implements OnInit {
     hasDuplicateDate: boolean = false;
 
 
-    constructor( private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef ) { }
+    constructor( private service: RegistryService, public bsModalRef: BsModalRef ) { }
 
     ngOnInit(): void {
 
@@ -117,7 +115,7 @@ export class ManageParentVersionsModalComponent implements OnInit {
         this.service.getParentGeoObjects( e.item.uid, type.code, parentTypes, true, date ).then( ancestors => {
 
             entry.parents[type.code].geoObject = ancestors.geoObject;
-            entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue;
+            entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue + ' : ' + ancestors.geoObject.properties.code;
 
             for ( let i = 0; i < this.hierarchy.types.length; i++ ) {
                 let current = this.hierarchy.types[i];
@@ -134,7 +132,7 @@ export class ManageParentVersionsModalComponent implements OnInit {
 
                 if ( ancestor != null ) {
                     entry.parents[current.code].geoObject = ancestor.geoObject;
-                    entry.parents[current.code].text = ancestor.geoObject.properties.displayLabel.localizedValue;
+                    entry.parents[current.code].text = ancestor.geoObject.properties.displayLabel.localizedValue  + ' : ' + ancestor.geoObject.properties.code;
                 }
             }
 

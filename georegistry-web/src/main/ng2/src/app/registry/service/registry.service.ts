@@ -764,7 +764,7 @@ export class RegistryService {
 			.toPromise();
 	}
 
-	getMasterListsByOrg(): Promise<{ locales: string[], orgs: MasterListByOrg[] }> {
+	getMasterListsByOrg(): Promise<{ orgs: MasterListByOrg[] }> {
 		let params: HttpParams = new HttpParams();
 
 		return this.http

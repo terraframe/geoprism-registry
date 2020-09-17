@@ -1,199 +1,188 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, Input } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { mergeMap } from 'rxjs/operators';
 
 import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
 import { LocalizationService, AuthService } from '@shared/service';
 
-import { AttributeInputComponent } from '../hierarchy/geoobjecttype-management/attribute-input.component';
-import { IOService, RegistryService, HierarchyService, ChangeRequestService } from '@registry/service';
-import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, AttributeDecimal, Term } from '@registry/model/registry';
+import { RegistryService, ChangeRequestService } from '@registry/service';
+import { GeoObjectType, GeoObjectOverTime } from '@registry/model/registry';
 
-
-
-declare var acp: string;
-
-@Component( {
-    selector: 'submit-change-request',
-    templateUrl: './submit-change-request.component.html',
-    styleUrls: []
-} )
+@Component({
+	selector: 'submit-change-request',
+	templateUrl: './submit-change-request.component.html',
+	styleUrls: []
+})
 export class SubmitChangeRequestComponent implements OnInit {
 
     /*
      * Reference to the modal current showing
      */
-    bsModalRef: BsModalRef;
+	bsModalRef: BsModalRef;
 
-    geoObjectType: GeoObjectType;
+	geoObjectType: GeoObjectType;
 
-    geoObjectTypes: GeoObjectType[] = [];
+	geoObjectTypes: GeoObjectType[] = [];
 
-    typeaheadLoading: boolean;
+	typeaheadLoading: boolean;
 
-    typeaheadNoResults: boolean;
+	typeaheadNoResults: boolean;
 
-    geoObjectId: string = "";
+	geoObjectId: string = "";
 
-    reason: string = "";
+	reason: string = "";
 
-    dataSource: Observable<any>;
+	dataSource: Observable<any>;
 
-    @ViewChild( "attributeEditor" ) attributeEditor;
+	@ViewChild("attributeEditor") attributeEditor;
 
-    @ViewChild( "geometryEditor" ) geometryEditor;
+	@ViewChild("geometryEditor") geometryEditor;
 
 	/*
 	 * The current state of the GeoObject in the GeoRegistry
 	 */
-    preGeoObject: GeoObjectOverTime = null;
+	preGeoObject: GeoObjectOverTime = null;
 
 	/*
 	 * The state of the GeoObject after our Change Request has been approved 
 	 */
-    postGeoObject: GeoObjectOverTime = null;
+	postGeoObject: GeoObjectOverTime = null;
 
-    isValid: boolean = false;
+	isValid: boolean = false;
 
-    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
+	geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
 
-    constructor( private service: IOService, private modalService: BsModalService, private changeDetectorRef: ChangeDetectorRef,
-        private registryService: RegistryService, private elRef: ElementRef, private changeRequestService: ChangeRequestService,
-        private date: DatePipe, private localizeService: LocalizationService,
-        private authService: AuthService ) {
+	constructor(private modalService: BsModalService, private registryService: RegistryService,
+		private changeRequestService: ChangeRequestService, private localizeService: LocalizationService, private authService: AuthService) {
 
-        this.dataSource = Observable.create(( observer: any ) => {
-            this.registryService.getGeoObjectSuggestionsTypeAhead( this.geoObjectId, this.geoObjectType.code ).then( results => {
-                observer.next( results );
-            } );
-        } );
-    }
+		this.dataSource = Observable.create((observer: any) => {
+			this.registryService.getGeoObjectSuggestionsTypeAhead(this.geoObjectId, this.geoObjectType.code).then(results => {
+				observer.next(results);
+			});
+		});
+	}
 
-    ngOnInit(): void {
-        this.registryService.getGeoObjectTypes( [], null ).then( types => {
-            
-            var myOrgTypes = [];
-            for (var i = 0; i < types.length; ++i)
-            {
-              if (this.authService.isGeoObjectTypeRC(types[i].organizationCode, types[i].code))
-              {
-                myOrgTypes.push(types[i]);
-              }
-            }
-            this.geoObjectTypes = myOrgTypes;
+	ngOnInit(): void {
+		this.registryService.getGeoObjectTypes([], null).then(types => {
 
-            this.geoObjectTypes.sort(( a, b ) => {
-                if ( a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase() ) return -1;
-                else if ( a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase() ) return 1;
-                else return 0;
-            } );
+			var myOrgTypes = [];
+			for (var i = 0; i < types.length; ++i) {
+				if (this.authService.isGeoObjectTypeRC(types[i].organizationCode, types[i].code)) {
+					myOrgTypes.push(types[i]);
+				}
+			}
+			this.geoObjectTypes = myOrgTypes;
 
-            let pos = this.getGeoObjectTypePosition( "ROOT" );
-            if ( pos ) {
-                this.geoObjectTypes.splice( pos, 1 );
-            }
+			this.geoObjectTypes.sort((a, b) => {
+				if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
+				else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
+				else return 0;
+			});
 
-            // this.currentGeoObjectType = this.geoObjectTypes[1];
+			let pos = this.getGeoObjectTypePosition("ROOT");
+			if (pos) {
+				this.geoObjectTypes.splice(pos, 1);
+			}
 
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+			// this.currentGeoObjectType = this.geoObjectTypes[1];
 
-    }
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+
+	}
 
 
 
-    private onValidChange( newValid: boolean ) {
-        if ( this.preGeoObject == null ) {
-            this.isValid = false;
-            return;
-        }
+	private onValidChange(newValid: boolean) {
+		if (this.preGeoObject == null) {
+			this.isValid = false;
+			return;
+		}
 
-        if ( this.geometryEditor != null && !this.geometryEditor.getIsValid() ) {
-            this.isValid = false;
-            return;
-        }
+		if (this.geometryEditor != null && !this.geometryEditor.getIsValid()) {
+			this.isValid = false;
+			return;
+		}
 
-        if ( this.attributeEditor != null && !this.attributeEditor.getIsValid() ) {
-            this.isValid = false;
-            return;
-        }
+		if (this.attributeEditor != null && !this.attributeEditor.getIsValid()) {
+			this.isValid = false;
+			return;
+		}
 
-        this.isValid = true;
-    }
+		this.isValid = true;
+	}
 
-    private getGeoObjectTypePosition( code: string ): number {
-        for ( let i = 0; i < this.geoObjectTypes.length; i++ ) {
-            let obj = this.geoObjectTypes[i];
-            if ( obj.code === code ) {
-                return i;
-            }
-        }
+	private getGeoObjectTypePosition(code: string): number {
+		for (let i = 0; i < this.geoObjectTypes.length; i++) {
+			let obj = this.geoObjectTypes[i];
+			if (obj.code === code) {
+				return i;
+			}
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    changeTypeaheadLoading( e: boolean ): void {
-        this.typeaheadLoading = e;
-    }
+	changeTypeaheadLoading(e: boolean): void {
+		this.typeaheadLoading = e;
+	}
 
-    typeaheadOnSelect( e: TypeaheadMatch ): void {
-        this.registryService.getGeoObjectOverTime( e.item.code, this.geoObjectType.code ).then( geoObject => {
-                this.preGeoObject = geoObject;
-                this.postGeoObject = JSON.parse( JSON.stringify( this.preGeoObject ) ); // Object.assign is a shallow copy. We want a deep copy.
+	typeaheadOnSelect(e: TypeaheadMatch): void {
+		this.registryService.getGeoObjectOverTime(e.item.code, this.geoObjectType.code).then(geoObject => {
+			this.preGeoObject = geoObject;
+			this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
 
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
-    }
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
 
-    submit(): void {
+	submit(): void {
 
-        let goSubmit: GeoObjectOverTime = this.attributeEditor.getGeoObject();
+		let goSubmit: GeoObjectOverTime = this.attributeEditor.getGeoObject();
 
-        if ( this.geometryEditor != null ) {
-            let goGeometries: GeoObjectOverTime = this.geometryEditor.saveDraw();
-//            goSubmit.geometry = goGeometries.geometry;
-        }
+		if (this.geometryEditor != null) {
+			//			let goGeometries: GeoObjectOverTime = this.geometryEditor.saveDraw();
+			//            goSubmit.geometry = goGeometries.geometry;
+		}
 
-        let actions = [{
-            "actionType": "geoobject/update", // TODO: account for create
-            "apiVersion": "1.0-SNAPSHOT", // TODO: make dynamic
-            "createActionDate": new Date().getTime(),
-            "geoObject": goSubmit,
-            "contributorNotes": this.reason
-        }]
+		let actions = [{
+			"actionType": "geoobject/update", // TODO: account for create
+			"apiVersion": "1.0-SNAPSHOT", // TODO: make dynamic
+			"createActionDate": new Date().getTime(),
+			"geoObject": goSubmit,
+			"contributorNotes": this.reason
+		}]
 
-        this.changeRequestService.submitChangeRequest( JSON.stringify( actions ) )
-            .then( geoObject => {
-                this.cancel();
+		this.changeRequestService.submitChangeRequest(JSON.stringify(actions))
+			.then(geoObject => {
+				this.cancel();
 
-                this.bsModalRef = this.modalService.show( SuccessModalComponent, { backdrop: true } );
-                this.bsModalRef.content.message = this.localizeService.decode( "change.request.success.message" );
+				this.bsModalRef = this.modalService.show(SuccessModalComponent, { backdrop: true });
+				this.bsModalRef.content.message = this.localizeService.decode("change.request.success.message");
 
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
 
-        this.isValid = false;
-    }
+		this.isValid = false;
+	}
 
-    cancel(): void {
-        this.isValid = false;
-        this.preGeoObject = null;
-        this.postGeoObject = null;
-        this.geoObjectId = null;
-        this.geoObjectType = null;
-        this.reason = null;
-    }
+	cancel(): void {
+		this.isValid = false;
+		this.preGeoObject = null;
+		this.postGeoObject = null;
+		this.geoObjectId = null;
+		this.geoObjectType = null;
+		this.reason = null;
+	}
 
-    public error( err: any ): void {
-            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
-    }
+	public error(err: any): void {
+		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+		this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+	}
 }
