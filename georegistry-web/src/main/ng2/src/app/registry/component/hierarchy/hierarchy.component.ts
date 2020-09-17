@@ -172,6 +172,27 @@ export class SvgHierarchyType {
     return headerg;
   }
   
+  getRelatedHierarchies(gotCode: string): string[]
+  {
+    let relatedHiers: string[] = JSON.parse(JSON.stringify(this.hierarchyComponent.findGeoObjectTypeByCode(gotCode).relatedHierarchies));
+    
+    let index = null;
+    for (let i = 0; i < relatedHiers.length; ++i)
+    {
+      if (relatedHiers[i] === this.getCode())
+      {
+        index = i;
+      }
+    }
+    
+    if (index != null)
+    {
+      relatedHiers.splice(index, 1);
+    }
+    
+    return relatedHiers;
+  }
+  
   public render() {
     let that = this;
     let descends:any = this.d3Tree.descendants();
@@ -304,7 +325,9 @@ export class SvgHierarchyType {
           .selectAll("text")
           .data(descends)
           .join("text")
-          .filter(function(d:any){return d.data.geoObjectType === "GhostNode" ? false : that.hierarchyComponent.findGeoObjectTypeByCode(d.data.geoObjectType).relatedHierarchies.length > 0 && !d.data.inherited;})
+          .filter(function(d:any){
+              return (d.data.geoObjectType === "GhostNode" ? false : that.getRelatedHierarchies(d.data.geoObjectType).length > 0) && !d.data.inherited;
+            })
             .classed("svg-got-relatedhiers-button", true)
             .attr("data-gotCode", (d: any) => d.data.geoObjectType)
             .attr("x", (d:any) => d.x + (SvgHierarchyType.gotRectW / 2) - 20)
@@ -402,20 +425,7 @@ export class SvgHierarchyNode {
       
       let contextMenuGroup = parent.append("g").classed("g-context-menu", true);
       
-      let relatedHierarchies = JSON.parse(JSON.stringify(this.geoObjectType.relatedHierarchies));
-      
-      let thisHierarchyIndex = null;
-      for (let i = 0; i < relatedHierarchies.length; ++i)
-      {
-        if (relatedHierarchies[i] === this.svgHierarchyType.hierarchyType.code)
-        {
-          thisHierarchyIndex = i;
-        }
-      };
-      if (thisHierarchyIndex != null)
-      {
-        relatedHierarchies.splice(thisHierarchyIndex, 1);
-      }
+      let relatedHierarchies = this.svgHierarchyType.getRelatedHierarchies(this.getCode());
       
       let bbox = this.getBbox();
       let x = bbox.x + bbox.width - 4;
