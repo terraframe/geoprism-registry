@@ -915,7 +915,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(location.getType(), this.configuration.getStartDate());
       query.setRestriction(new ServerCodeRestriction(code));
 
-//      Assert.assertNull(query.getSingleResult());
+      // Assert.assertNull(query.getSingleResult());
 
       ServerGeoObjectIF result = query.getSingleResult();
 

@@ -21,6 +21,7 @@ package net.geoprism.registry.query;
 import java.util.Date;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectRestriction;
@@ -85,6 +86,6 @@ public class ServerSynonymRestriction implements ServerGeoObjectRestriction
   @Override
   public VertexGeoObjectRestriction create(VertexGeoObjectQuery query)
   {
-    return new VertexSynonymRestriction(this.label, this.startDate, this.parent, this.hierarchyType);
+    return new VertexSynonymRestriction(query.getType(), this.label, this.startDate, this.parent, this.hierarchyType);
   }
 }
