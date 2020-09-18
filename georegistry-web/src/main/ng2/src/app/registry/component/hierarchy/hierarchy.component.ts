@@ -1215,7 +1215,7 @@ export class HierarchyComponent implements OnInit {
           let treeNode = svgGot.getTreeNode();
           let parent = treeNode.parent == null ? "ROOT" : treeNode.parent.data.geoObjectType;
         
-          hierarchyComponent.removeTreeNode(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
+          hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
         });
         
         (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onCancel.subscribe(data => {
@@ -1261,6 +1261,23 @@ export class HierarchyComponent implements OnInit {
   private addChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void
   {
     this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode ).then( (ht: HierarchyType) => {
+        let got = this.findGeoObjectTypeByCode(childGeoObjectTypeCode);
+      
+        let index = null;
+        for (let i = 0; i < got.relatedHierarchies.length; ++i)
+        {
+          if (got.relatedHierarchies[i] === hierarchyCode)
+          {
+            index = i;
+            break;
+          }
+        }
+        
+        if (index == null)
+        {
+          got.relatedHierarchies.push(hierarchyCode);
+        }
+    
         this.refreshPrimaryHierarchy(ht);
     } ).catch(( err: HttpErrorResponse) => {
         this.error( err );
@@ -1723,10 +1740,27 @@ export class HierarchyComponent implements OnInit {
     this.renderTree();
 	}
 
-	public removeTreeNode(parentGotCode, gotCode, errCallback: (err: HttpErrorResponse) => void = null): void {
+	public removeFromHierarchy(parentGotCode, gotCode, errCallback: (err: HttpErrorResponse) => void = null): void {
 	  const that = this;
 	
 		this.hierarchyService.removeFromHierarchy(this.currentHierarchy.code, parentGotCode, gotCode).then(hierarchyType => {
+
+      let got = that.findGeoObjectTypeByCode(gotCode);
+      
+      let index = null;
+      for (let i = 0; i < got.relatedHierarchies.length; ++i)
+      {
+        if (got.relatedHierarchies[i] === hierarchyType.code)
+        {
+          index = i;
+          break;
+        }
+      }
+      
+      if (index != null)
+      {
+        got.relatedHierarchies.splice(index, 1);
+      }
 
       that.refreshPrimaryHierarchy(hierarchyType);
 
@@ -1743,17 +1777,6 @@ export class HierarchyComponent implements OnInit {
 	public isActive(item: any) {
 		return this.currentHierarchy === item;
 	};
-
-// Older drag/drop logic. May not be relevant anymore since d3 refactor.
-/*	public onDrop($event: any) {
-		// Dropped $event.element
-		this.removeTreeNode($event.element)
-	}
-
-	public allowDrop(element: Element) {
-		// Return true/false based on element
-		return true;
-	}*/
 
 	public error(err: HttpErrorResponse): void {
 		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
