@@ -413,6 +413,31 @@ export class SvgHierarchyNode {
         .classed("dragging", dragging)
         .attr("x", x + bbox.width - 20)
         .attr("y", y + 17);
+        
+    
+    // Move inherit and uninherit buttons with the node they're moving
+    
+    let inheritNode = d3.select('.g-hierarchy[data-primary=true] .hierarchy-inherit-button[data-gotCode="' + this.getCode() + '"]').node();
+    if (inheritNode != null)
+    {
+      const heritX = (x + bbox.width - 60);
+      const heritY = (y + bbox.height - 24);
+      let inheritBbox = inheritNode.getBBox();
+      d3.select('.g-hierarchy[data-primary=true] .hierarchy-inherit-button[data-gotCode="' + this.getCode() + '"]')
+          .classed("dragging", dragging)
+          .attr("transform", "translate(" + (heritX - inheritBbox.x) + " " + (heritY - inheritBbox.y) + ")");
+    }
+    
+    let uninheritNode = d3.select('.g-hierarchy[data-primary=true] .hierarchy-uninherit-button[data-gotCode="' + this.getCode() + '"]').node();
+    if (uninheritNode != null)
+    {
+      const heritX = (x + bbox.width - 71);
+      const heritY = (y + bbox.height - 24);
+      let uninheritBbox = uninheritNode.getBBox();
+      d3.select('.g-hierarchy[data-primary=true] .hierarchy-uninherit-button[data-gotCode="' + this.getCode() + '"]')
+          .classed("dragging", dragging)
+          .attr("transform", "translate(" + (heritX - uninheritBbox.x) + " " + (heritY - uninheritBbox.y) + ")");
+    }
   }
   
   getPos()
@@ -581,6 +606,7 @@ export class SvgHierarchyNode {
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
     
     d3.select(".hierarchy-inherit-button").remove();
+    d3.select(".hierarchy-uninherit-button").remove();
     let relatedGotHasParents = svgHt.getNodeByCode(this.getCode()).getTreeNode().parent != null;
     if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents)
     {
@@ -591,7 +617,10 @@ export class SvgHierarchyNode {
       const fontSize = 10;
       const buttonLabelPadding = 3;
       
-      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-inherit-button", true);
+      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]')
+        .append("g")
+          .classed("hierarchy-inherit-button", true)
+          .attr("data-gotCode", this.getCode());
       
       let inheritLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.inherit");
       const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
@@ -629,7 +658,10 @@ export class SvgHierarchyNode {
       const fontSize = 10;
       const buttonLabelPadding = 3;
       
-      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-uninherit-button", true);
+      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]')
+        .append("g")
+          .classed("hierarchy-uninherit-button", true)
+          .attr("data-gotCode", this.getCode());
       
       let inheritLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.uninherit");
       const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
