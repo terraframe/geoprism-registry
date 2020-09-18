@@ -90,6 +90,7 @@ if [ "$deploy" == "true" ]; then
   sudo chmod 400 ../permissions/georegistry-singapore.pem
   sudo chmod 400 ../permissions/RichardsMacbook.pem
   sudo chmod 400 ../permissions/reveal-georegistry.pem
+  sudo chmod 400 ../permissions/laos-georegistry.pem
   pip install boto
 
   ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini

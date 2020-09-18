@@ -1,0 +1,104 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.geoObjectTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.geoObjectTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="GeoObject Types" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.hierarchies">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.hierarchies" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hierarchies" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.newGeoObjectType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.newGeoObjectType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add New Geo Object Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.newHierarchy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.newHierarchy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add New Hierarchy" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.searchAll">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.searchAll" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search All" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.dragGotToHierarchy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.dragGotToHierarchy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Drag GeoObject Type to Hierarchy" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo Object Type" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.relatedHierarchies">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.relatedHierarchies" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Related Hierarchies" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.inherit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.inherit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Inherit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.uninherit">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.uninherit" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Uninherit" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.addChild">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.addChild" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Child" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.addParent">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.addParent" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Parent" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.rootNode">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.rootNode" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Root of Hierarchy" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+    </delete>
+  </undoIt>
+</version>

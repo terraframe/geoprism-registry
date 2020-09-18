@@ -28,15 +28,26 @@ export class ConfirmModalComponent {
      * Called on confirm
      */
     public onConfirm: Subject<any>;
+    
+    /*
+     * Called on cancel
+     */
+    public onCancel: Subject<any>;
 
     constructor( public bsModalRef: BsModalRef, private localizeService: LocalizationService ) { }
 
     ngOnInit(): void {
         this.onConfirm = new Subject();
+        this.onCancel = new Subject();
     }
 
     confirm(): void {
         this.bsModalRef.hide();
         this.onConfirm.next( this.data );
+    }
+    
+    cancel(): void {
+        this.bsModalRef.hide();
+        this.onCancel.next( this.data );
     }
 }

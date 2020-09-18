@@ -22,6 +22,8 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.system.gis.geo.AllowedIn;
@@ -108,7 +110,15 @@ public class GeoObjectTypeRelationshipPermissionService implements GeoObjectType
   {
     if (!this.doesActorHaveRelationshipPermission(actor, ht, parentGeoObjectTypeCode, childGeoObjectTypeCode, allowRC))
     {
-      String parentLabel = ServerGeoObjectType.get(parentGeoObjectTypeCode).getLabel().getValue();
+      String parentLabel;
+      if (parentGeoObjectTypeCode == null || parentGeoObjectTypeCode.equals(Term.ROOT_KEY))
+      {
+        parentLabel = LocalizationFacade.localize("hierarchy.rootNode");
+      }
+      else
+      {
+        parentLabel = ServerGeoObjectType.get(parentGeoObjectTypeCode).getLabel().getValue();
+      }
       String childLabel = ServerGeoObjectType.get(childGeoObjectTypeCode).getLabel().getValue();
       
       HierarchyRelationshipPermissionException ex = new HierarchyRelationshipPermissionException();

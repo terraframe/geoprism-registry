@@ -1,3 +1,100 @@
 li.list-group-item.active {
-    background: var(--theme-primary-color-light)
+    background-color: #83c0ff;
+}
+
+#app-container {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar-section-content {
+	overflow-y: auto;
+	height: calc(100vh - 144px - 175px);
+}
+
+.hierarchy-sidebar button {
+	width:100%;
+	margin:0;
+}
+
+.hierarchy-sidebar {
+    width:350px;
+    position: fixed;
+    top: 144px;
+    left: 0;
+    height: 100vh;
+    z-index: 999;
+    background: #6e6775;
+    color: #fff;
+    transition: all 0.3s;
+}
+
+.hierarchy-content {
+	left:350px;
+	position:fixed;
+	width:calc(100vw - 350px);
+	top:144px;
+	padding-left: 0px;
+  padding-top: 0px;
+}
+
+#overflow-div {
+	overflow:auto;
+	height: calc(100vh - 144px);
+	width: calc(100vw - 350px)
+}
+
+.upload-text {
+	position:relative;
+	top:40%;
+}
+
+.sidebar-section {
+	background: #505050;
+	text-align: left;
+  color:#fff;
+}
+
+.sidebar-section-content ul.list-group li.got-li-item
+{
+	cursor: grab;
+}
+
+.hierarchy-sidebar-content .panel-body {
+	color: #6e6775;
+	background-color: #6e6775;
+}
+
+.sidebar-section-header {
+	margin-left:20px;
+	cursor: pointer;
+}
+
+accordion-group.panel {
+	background-color: #505050;
+}
+
+li.list-group-item {
+	background-color: rgba(255, 255, 255, 1.0);
+	margin-bottom:5px;
+}
+
+.drop-box-container {
+    height: 200px;
+    width: 300px;
+    border: 3px grey dashed;
+    border-radius: 5px;
+    margin-top: 0px;
+}
+
+.hierarchy-drop-box {
+  position:relative;
+  height: 100%;
+  cursor: default;
+}
+
+.dragging {
+	position: fixed;
+	cursor: grabbing !important;
+	z-index: 99999999;
 }
