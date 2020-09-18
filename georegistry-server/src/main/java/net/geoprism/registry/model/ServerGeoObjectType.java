@@ -860,7 +860,7 @@ public class ServerGeoObjectType
 
           if (inheritedHierarchy != null)
           {
-            ancestors.addAll(sParent.getTypeAncestors(inheritedHierarchy, includeInheritedTypes));
+            ancestors.addAll(0, sParent.getTypeAncestors(inheritedHierarchy, includeInheritedTypes));
           }
         }
       }
