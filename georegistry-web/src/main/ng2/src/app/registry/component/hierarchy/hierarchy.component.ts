@@ -22,6 +22,14 @@ import { RegistryService, HierarchyService } from '@registry/service';
 
 import * as d3 from 'd3';
 
+let defaultNodeFill = '#e6e6e6';
+let defaultNodeBannerColor = '#A29BAB';
+let inheritedNodeFill = '#d4d4d4';
+let inheritedNodeBannerColor = '#a0a0a0';
+let relatedNodeBannerColor = '#808080';
+let relatedNodeFill = defaultNodeFill;
+
+
 class Instance {
 	active: boolean;
 	label: string;
@@ -234,12 +242,13 @@ export class SvgHierarchyType {
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 8)
-          .attr("fill", (d: any) => this.isPrimary ? (d.data.inherited ? "#848000" : "#cc0000") : "#b3ad00")
+          .attr("fill", (d: any) => this.isPrimary ? (d.data.inherited ? inheritedNodeBannerColor : defaultNodeBannerColor) : relatedNodeBannerColor)
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
-          .attr("rx", 5)
+          .attr("rx", 3)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType);
+          
           
     // GeoObjectType Body Square
     gtree.append("g").classed("g-got", true)
@@ -250,10 +259,10 @@ export class SvgHierarchyType {
           .classed("svg-got-body-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - (SvgHierarchyType.gotRectH / 2))
-          .attr("fill", (d: any) => d.data.inherited ? "#565656" : "#e0e0e0")
+          .attr("fill", (d: any) => d.data.inherited ? inheritedNodeFill : defaultNodeFill)
           .attr("width", SvgHierarchyType.gotRectW)
           .attr("height", SvgHierarchyType.gotRectH)
-          .attr("rx", 5)
+          .attr("rx", 3)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
           .each(function(d:any) {
@@ -270,7 +279,8 @@ export class SvgHierarchyType {
               d.data.gotBodySquare = this;
             }
           });
-          
+
+     
     // Ghost Drop Zone (Sibling) Backer
     gtree.append("g").classed("g-sibling-ghost-backer", true)
         .selectAll("rect")
@@ -428,12 +438,12 @@ export class SvgHierarchyNode {
       let relatedHierarchies = this.svgHierarchyType.getRelatedHierarchies(this.getCode());
       
       let bbox = this.getBbox();
-      let x = bbox.x + bbox.width - 4;
+      let x = bbox.x + bbox.width - 20;
       let y = bbox.y + bbox.height/2 - 8;
       const height = 20;
       const fontSize = 9;
       const widthPadding = 10;
-      const borderColor = "#006DBB";
+      const borderColor = "grey";
       const fontFamily = "sans-serif";
       const titleFontSize = 12;
       const titleLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.relatedHierarchies");
@@ -462,7 +472,7 @@ export class SvgHierarchyNode {
         .classed("contextmenu-relatedhiers-background", true)
         .attr("x", x)
         .attr("y", y)
-        .attr("rx", 10)
+        .attr("rx", 5)
         .attr("width", width)
         .attr("height", height * (relatedHierarchies.length + 1))
         .attr("fill", "#e0e0e0")
@@ -487,7 +497,7 @@ export class SvgHierarchyNode {
           .attr("x2", x + width)
           .attr("y2", y)
           .attr("stroke", borderColor)
-          .attr("stroke-width", 1);
+          .attr("stroke-width", .5);
       
       // Loop over all related hierarchies and draw them as list items
       for (let i = 0; i < relatedHierarchies.length; ++i)
@@ -520,7 +530,7 @@ export class SvgHierarchyNode {
               .attr("x2", x + width)
               .attr("y2", y)
               .attr("stroke", borderColor)
-              .attr("stroke-width", 1);
+              .attr("stroke-width", .5);
         }
       };
       
