@@ -98,6 +98,8 @@ import { GeoObjectTypeManagementService } from './service/geoobjecttype-manageme
 import { RegistryRoutingModule } from './registry-routing.module';
 import { SharedModule } from '../shared/shared.module';
 
+import { AccordionModule } from 'ngx-bootstrap/accordion';
+
 import '../rxjs-extensions';
 
 
@@ -119,7 +121,8 @@ import '../rxjs-extensions';
 		CollapseModule,
 		NgxPaginationModule,
 		SharedModule,
-		RegistryRoutingModule
+		RegistryRoutingModule,
+    AccordionModule.forRoot()
 	],
 	declarations: [
 		HierarchyComponent,

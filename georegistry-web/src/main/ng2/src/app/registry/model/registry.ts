@@ -51,6 +51,7 @@ export class GeoObjectType {
 	isGeometryEditable: boolean;
 	organizationCode: string;
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
+	relatedHierarchies?: string[];
 }
 
 export class Task {

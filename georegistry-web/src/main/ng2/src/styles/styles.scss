@@ -5,14 +5,14 @@
 @import 'modal.scss';
 @import 'form.scss';
 
-/* 
+/*
  * International Development:
- * 
+ *
  * #6BA542  - green
  * #7C868D  - grey
  * #3E2A5A  - dark purple
  * #A29BAB  - light purple
- * #DBD7A5  - yellow  
+ * #DBD7A5  - yellow
  */
 
 html, body{height:100%;}
@@ -63,9 +63,9 @@ div.pageContent {
     height: 100% !important;
 }
 
-/* 
+/*
 *
-* Main container styles 
+* Main container styles
 *
 */
 #wrapper{
@@ -79,7 +79,7 @@ div.pageContent {
 
 /*
 *
-* Default page links 
+* Default page links
 *
 */
 a:focus,
@@ -119,7 +119,7 @@ form legend{
 * Icons
 *
 */
-.fa, 
+.fa,
 .button-column .fa {
     color: #767676; /* IE fallback */
     color: var(--theme-button-black);
@@ -127,7 +127,7 @@ form legend{
 	padding: 0 2px;
 }
 
-.fa.disabled, 
+.fa.disabled,
 .button-column .fa.disabled {
 	color: #bdbdbd;
 	font-weight: normal;
@@ -146,9 +146,9 @@ i {
 	font-style: normal;
 }
 
-a.fa:hover, 
-a.fa:focus, 
-i.clickable.fa:hover, 
+a.fa:hover,
+a.fa:focus,
+i.clickable.fa:hover,
 i.clickable.fa:focus,
 .clickable:hover,
 .clickable:focus {
@@ -243,14 +243,14 @@ input[type=button]:focus,
 input[type=button]:active,
 input[type=submit]:focus,
 input[type=submit]:active,
-button.btn:focus, 
+button.btn:focus,
 button.btn:active {
     outline: 0 !important;
     box-shadow: none;
 }
-input[type=button].btn.btn-primary, 
+input[type=button].btn.btn-primary,
 input[type=submit].btn.btn-primary,
-button.btn-primary, 
+button.btn-primary,
 button.btn.btn-primary {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
@@ -261,13 +261,13 @@ button.btn.btn-primary {
     border-color: #6BA542; /* IE fallback */
     border-color: var(--theme-button-color-border);
 }
-input[type=button].btn.btn-primary:hover, 
+input[type=button].btn.btn-primary:hover,
 input[type=submit].btn.btn-primary:hover,
-input[type=button].btn.btn-primary:active, 
+input[type=button].btn.btn-primary:active,
 input[type=submit].btn.btn-primary:active,
-button.btn-primary:hover, 
+button.btn-primary:hover,
 button.btn.btn-primary:hover,
-button.btn-primary:active, 
+button.btn-primary:active,
 button.btn.btn-primary:active  {
     color: #6BA542; /* IE fallback */
     color: var(--theme-submit-button-color);
@@ -278,16 +278,16 @@ button.btn.btn-primary:active  {
     background: #f4fcef; /* IE fallback */
     background: var(--theme-submit-button-color-light-hover);
 }
-input[type=button].btn.btn-primary:disabled, 
+input[type=button].btn.btn-primary:disabled,
 input[type=submit].btn.btn-primary:disabled,
-button.btn-primary:disabled, 
+button.btn-primary:disabled,
 button.btn.btn-primary:disabled  {
     background: #EDF4E8; /* IE fallback */
 	background: var(--theme-submit-button-color-light);
 	cursor: not-allowed;
 }
 
-input[type=button].btn.btn-default, 
+input[type=button].btn.btn-default,
 input[type=submit].btn.btn-default,
 button.btn.btn-default {
     background: white;
@@ -298,11 +298,11 @@ button.btn.btn-default {
     border-color: #6BA542; /* IE fallback */
     border-color: var(--theme-default-button-color-border);
 }
-input[type=button].btn.btn-default:hover, 
+input[type=button].btn.btn-default:hover,
 input[type=submit].btn.btn-default:hover,
-input[type=button].btn.btn-default:active, 
+input[type=button].btn.btn-default:active,
 input[type=submit].btn.btn-default:active,
-button.btn-default:hover, 
+button.btn-default:hover,
 button.btn.btn-default:hover {
     color: #6BA542; /* IE fallback */
     color: var(--theme-cancel-button-color-hover);
@@ -364,15 +364,15 @@ li.list-group-item:last-child {
     border-bottom-left-radius: 0;
 }
 li.list-group-item.clickable:hover {
-  background: #f2f2f2; 
+  background: #f2f2f2;
   cursor: pointer;
 }
 
 li.list-group-item.active {
-  background: #f2f2f2; 
+  background: #f2f2f2;
 }
-.list-group-item.active, 
-.list-group-item.active:hover, 
+.list-group-item.active,
+.list-group-item.active:hover,
 .list-group-item.active:focus {
     border-color: #6BA542; /* IE fallback */
     border-color: var(--theme-submit-button-color);
@@ -405,7 +405,7 @@ li.list-group-item.active {
 */
 .list-table input[readonly]:hover,
 .list-table input[readonly]:focus {
-	cursor: pointer;	
+	cursor: pointer;
 	border: 1px solid #00bfff;
 }
 .list-table input[readonly] + .fa.fa-pencil.ico-edit {
@@ -423,11 +423,11 @@ li.list-group-item.active {
 /*
 * List tables are generic tables with the intent presenting a list of options
 *
-* DEFAULT REQUIREMENTS: 
+* DEFAULT REQUIREMENTS:
 ** 4 columns wide
 ** must be wrapped in a fixed width container
 ** page specific overrides must be added to other css files to maintain this as a generic element
-*/    
+*/
 .list-table-wrapper{
 	max-height: 400px;
     overflow-y: auto;
@@ -474,7 +474,7 @@ li.list-group-item.active {
 }
 
 .list-table .fa:hover{
-	color: #6BA542; 
+	color: #6BA542;
     color: var(--theme-submit-button-color);
 }
 
@@ -492,9 +492,9 @@ li.list-group-item.active {
 } */
 
 
-/* 
+/*
 *
-* custom radio styles 
+* custom radio styles
 *
 */
 // .rad-area{
@@ -621,9 +621,9 @@ div.row-holder .rad-area {
 
 
 
-/* 
+/*
 *
-* Custom checkbox styles 
+* Custom checkbox styles
 *
 */
 .checkbox-container {
@@ -693,11 +693,11 @@ div.row-holder .rad-area {
    	right: 0;
    	margin: 0 auto;
 }
-   
+
 .drop-box:hover i,
-.drop-box:hover::before, 
-.drop-box:hover::after, 
-.drop-box:hover>:first-child::before, 
+.drop-box:hover::before,
+.drop-box:hover::after,
+.drop-box:hover>:first-child::before,
 .drop-box:hover>:first-child::after,
 .drop-box:hover p{
 	  color: #6BA542;
@@ -705,30 +705,30 @@ div.row-holder .rad-area {
 	  opacity: 1;
 	  cursor: pointer;
 }
-   
+
 .drop-box-container{
 	height: 200px;
 	margin-top: 25px;
    	border: 3px grey dashed;
    	border-radius: 5px;
 }
-   
+
 .inner-drop-box{
    	height: 100%;
 }
-   
+
 .drop-box {
      position:relative;
      height: 100%;
 }
-   
+
 .drop-active{
    	border: 3px #6BA542 dashed;
 }
 
-	
-/* 
-* skip styles 
+
+/*
+* skip styles
 */
 .skip a{
 	position:absolute;
@@ -746,7 +746,7 @@ div.row-holder .rad-area {
 
 /*
 *
-* Angular Tree 
+* Angular Tree
 *
 */
 .node-content-wrapper, .tree-children {
@@ -813,7 +813,7 @@ tree-loading-component {
   display:none; // hack to remove loading html
   }
 
-  
+
 /*
 *
 * Angular pagination
@@ -840,15 +840,15 @@ tree-loading-component {
  * Navigator styling
  */
 .map-view-port {
-  height: calc(100vh - 145px); 
+  height: calc(100vh - 145px);
 //   width: calc(75vw - 10px);
 //   margin: 0;
 }
 
-.base-layer-panel{ 
-  position:absolute; 
-  top: 10px; 
-  left: 10px; 
+.base-layer-panel{
+  position:absolute;
+  top: 10px;
+  left: 10px;
   z-index:2;
   padding:5px;
 }
@@ -861,3 +861,30 @@ tree-loading-component {
   overflow-x: hidden;
 }
 
+/*
+ * Hierarchy Styling (which can't be put in the compnent because it touches other components)
+ */
+.hierarchy-sidebar .hierarchy-sidebar-content .panel-body {
+	background-color: #6e6775;
+}
+
+.hierarchy-sidebar .hierarchy-sidebar-content {
+  background-color: #505050;
+}
+
+.hierarchy-sidebar .panel-group .panel-heading+.panel-collapse>.list-group, .panel-group .hierarchy-sidebar-content .panel-heading+.panel-collapse>.panel-body {
+    border-top: none;
+}
+
+.hierarchy-sidebar .panel.card.hierarchy-sidebar-content {
+  border: none;
+}
+
+.hierarchy-sidebar .panel.sidebar-section.panel-open {
+  border: none;
+}
+
+.hierarchy-sidebar .panel {
+  border: none;
+  box-shadow: none;
+}

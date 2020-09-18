@@ -36,6 +36,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -803,48 +804,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = RegistryUrls.HIERARCHY_TYPE_REMOVE)
   public ResponseIF removeFromHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "parentGeoObjectTypeCode") String parentGeoObjectTypeCode, @RequestParamter(name = "childGeoObjectTypeCode") String childGeoObjectTypeCode)
   {
-    HierarchyType ht = ServiceFactory.getHierarchyService().removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(ht.toJSON(serializer));
-  }
-
-  /**
-   * Modifies a hierarchy to inherit from another hierarchy at the given
-   * GeoObjectType
-   * 
-   * @param request
-   *          Session Request
-   * @param hierarchyTypeCode
-   *          code of the {@link HierarchyType} being modified.
-   * @param inheritedHierarchyTypeCode
-   *          code of the {@link HierarchyType} being inherited.
-   * @param geoObjectTypeCode
-   *          code of the root {@link GeoObjectType}.
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "hierarchytype/set-inherited")
-  public ResponseIF setInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "inheritedHierarchyTypeCode") String inheritedHierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
-  {
-    HierarchyType ht = ServiceFactory.getHierarchyService().setInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, inheritedHierarchyTypeCode, geoObjectTypeCode);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    return new RestBodyResponse(ht.toJSON(serializer));
-  }
-
-  /**
-   * Modifies a hierarchy to remove inheritance from another hierarchy for the
-   * given root
-   * 
-   * @param sessionId
-   * @param hierarchyTypeCode
-   *          code of the {@link HierarchyType} being modified.
-   * @param geoObjectTypeCode
-   *          code of the root {@link GeoObjectType}.
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "hierarchytype/remove-inherited")
-  public ResponseIF removeInheritedHierarchy(ClientRequestIF request, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode)
-  {
-    HierarchyType ht = ServiceFactory.getHierarchyService().removeInheritedHierarchy(request.getSessionId(), hierarchyTypeCode, geoObjectTypeCode);
+    HierarchyType ht = ServiceFactory.getHierarchyService().removeFromHierarchy(request.getSessionId(), hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, true);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(ht.toJSON(serializer));
@@ -940,13 +900,33 @@ public class RegistryController
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.READ);
     HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
+    OrganizationDTO[] orgDtos = RegistryService.getInstance().getOrganizations(request.getSessionId(), null);
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray types = new JsonArray();
 
     for (GeoObjectType got : gots)
     {
-      types.add(got.toJSON(serializer));
+      JsonObject joGot = got.toJSON(serializer);
+      
+      JsonArray relatedHiers = new JsonArray();
+      
+      for (HierarchyType ht : hts)
+      {
+        List<HierarchyNode> hns = ht.getRootGeoObjectTypes();
+        
+        for (HierarchyNode hn : hns)
+        {
+          if (hn.hierarchyHasGeoObjectType(got.getCode()))
+          {
+            relatedHiers.add(ht.getCode());
+          }
+        }
+      }
+      
+      joGot.add("relatedHierarchies", relatedHiers);
+      
+      types.add(joGot);
     }
 
     JsonArray hierarchies = new JsonArray();
@@ -955,10 +935,18 @@ public class RegistryController
     {
       hierarchies.add(ht.toJSON(serializer));
     }
+    
+    JsonArray organizations = new JsonArray();
+
+    for (OrganizationDTO dto : orgDtos)
+    {
+      organizations.add(dto.toJSON(serializer));
+    }
 
     JsonObject response = new JsonObject();
     response.add("types", types);
     response.add("hierarchies", hierarchies);
+    response.add("organizations", organizations);
     response.add("locales", this.registryService.getLocales(request.getSessionId()));
 
     return new RestBodyResponse(response);

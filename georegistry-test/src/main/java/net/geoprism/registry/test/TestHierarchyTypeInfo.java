@@ -171,7 +171,7 @@ public class TestHierarchyTypeInfo
   @Request
   public void removeRoot(TestGeoObjectTypeInfo type)
   {
-    this.serverObj.removeChild(null, type.getCode());
+    this.serverObj.removeChild(null, type.getCode(), true);
   }
 
   @Request
