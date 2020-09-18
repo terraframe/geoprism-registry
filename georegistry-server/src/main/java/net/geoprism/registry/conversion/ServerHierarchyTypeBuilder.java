@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.conversion;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -342,6 +343,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
         HierarchyType.HierarchyNode root = child;
 
         List<GeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
+        Collections.reverse(ancestors);
 
         for (GeoObjectType ancestor : ancestors)
         {
