@@ -246,7 +246,8 @@ export class SvgHierarchyType {
           .attr("height", SvgHierarchyType.gotHeaderH)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
           .attr("rx", 5)
-          .attr("data-gotCode", (d: any) => d.data.geoObjectType);
+          .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+          .attr("data-inherited", (d: any) => d.data.inherited);
           
     // GeoObjectType Body Square
     gtree.append("g").classed("g-got", true)
@@ -263,6 +264,7 @@ export class SvgHierarchyType {
           .attr("rx", 5)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+          .attr("data-inherited", (d: any) => d.data.inherited)
           .each(function(d:any) {
             if (d.data.geoObjectType != "GhostNode")
             {
@@ -324,7 +326,8 @@ export class SvgHierarchyType {
         .attr("dy", 6)
         .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
         .text((d:any) => d.data.label)
-        .attr("data-gotCode", (d: any) => d.data.geoObjectType);
+        .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+        .attr("data-inherited", (d: any) => d.data.inherited);
         
     if (this.isPrimary)
     {
@@ -1229,7 +1232,7 @@ export class HierarchyComponent implements OnInit {
       
     });
 
-    svgDragHandler(d3.selectAll(".svg-got-body-rect,.svg-got-label-text,.svg-got-header-rect"));
+    svgDragHandler(d3.selectAll(".svg-got-body-rect[data-inherited=false],.svg-got-label-text[data-inherited=false],.svg-got-header-rect[data-inherited=false]"));
   }
   
   public findGeoObjectTypeByCode(code: string): GeoObjectType
