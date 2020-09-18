@@ -174,7 +174,14 @@ export class SvgHierarchyType {
   
   getRelatedHierarchies(gotCode: string): string[]
   {
-    let relatedHiers: string[] = JSON.parse(JSON.stringify(this.hierarchyComponent.findGeoObjectTypeByCode(gotCode).relatedHierarchies));
+    let got: GeoObjectType = this.hierarchyComponent.findGeoObjectTypeByCode(gotCode);
+    
+    if (got.relatedHierarchies == null)
+    {
+      got.relatedHierarchies = this.hierarchyComponent.calculateRelatedHierarchies(got);
+    }
+  
+    let relatedHiers: string[] = JSON.parse(JSON.stringify(got.relatedHierarchies));
     
     let index = null;
     for (let i = 0; i < relatedHiers.length; ++i)
@@ -239,7 +246,8 @@ export class SvgHierarchyType {
           .attr("height", SvgHierarchyType.gotHeaderH)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
           .attr("rx", 5)
-          .attr("data-gotCode", (d: any) => d.data.geoObjectType);
+          .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+          .attr("data-inherited", (d: any) => d.data.inherited);
           
     // GeoObjectType Body Square
     gtree.append("g").classed("g-got", true)
@@ -256,6 +264,7 @@ export class SvgHierarchyType {
           .attr("rx", 5)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+          .attr("data-inherited", (d: any) => d.data.inherited)
           .each(function(d:any) {
             if (d.data.geoObjectType != "GhostNode")
             {
@@ -317,7 +326,8 @@ export class SvgHierarchyType {
         .attr("dy", 6)
         .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
         .text((d:any) => d.data.label)
-        .attr("data-gotCode", (d: any) => d.data.geoObjectType);
+        .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+        .attr("data-inherited", (d: any) => d.data.inherited);
         
     if (this.isPrimary)
     {
@@ -786,6 +796,30 @@ export class HierarchyComponent implements OnInit {
     d3.select("#svgHolder").style("width", width + "px");
     //d3.select("#svgHolder").style("height", height + "px"); 
 	}
+	
+	calculateRelatedHierarchies(got: GeoObjectType): string[]
+  {
+    let relatedHiers = [];
+  
+    for (let i = 0; i < this.hierarchies.length; ++i)
+    {
+      let hierarchyType = this.hierarchies[i];
+      
+      if (hierarchyType.rootGeoObjectTypes != null && hierarchyType.rootGeoObjectTypes.length > 0)
+      {
+        let d3Hierarchy = d3.hierarchy(hierarchyType.rootGeoObjectTypes[0]).descendants();
+        
+        let found = d3Hierarchy.find((node)=>{return node.data.geoObjectType === got.code;});
+        
+        if (found)
+        {
+          relatedHiers.push(hierarchyType.code);
+        }
+      }
+    }
+    
+    return relatedHiers;
+  }
   
   private registerDragHandlers(): any {
     let that = this;
@@ -1184,7 +1218,7 @@ export class HierarchyComponent implements OnInit {
           let treeNode = svgGot.getTreeNode();
           let parent = treeNode.parent == null ? "ROOT" : treeNode.parent.data.geoObjectType;
         
-          hierarchyComponent.removeTreeNode(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
+          hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
         });
         
         (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onCancel.subscribe(data => {
@@ -1198,7 +1232,7 @@ export class HierarchyComponent implements OnInit {
       
     });
 
-    svgDragHandler(d3.selectAll(".svg-got-body-rect,.svg-got-label-text,.svg-got-header-rect"));
+    svgDragHandler(d3.selectAll(".svg-got-body-rect[data-inherited=false],.svg-got-label-text[data-inherited=false],.svg-got-header-rect[data-inherited=false]"));
   }
   
   public findGeoObjectTypeByCode(code: string): GeoObjectType
@@ -1230,6 +1264,23 @@ export class HierarchyComponent implements OnInit {
   private addChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void
   {
     this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode ).then( (ht: HierarchyType) => {
+        let got = this.findGeoObjectTypeByCode(childGeoObjectTypeCode);
+      
+        let index = null;
+        for (let i = 0; i < got.relatedHierarchies.length; ++i)
+        {
+          if (got.relatedHierarchies[i] === hierarchyCode)
+          {
+            index = i;
+            break;
+          }
+        }
+        
+        if (index == null)
+        {
+          got.relatedHierarchies.push(hierarchyCode);
+        }
+    
         this.refreshPrimaryHierarchy(ht);
     } ).catch(( err: HttpErrorResponse) => {
         this.error( err );
@@ -1692,10 +1743,27 @@ export class HierarchyComponent implements OnInit {
     this.renderTree();
 	}
 
-	public removeTreeNode(parentGotCode, gotCode, errCallback: (err: HttpErrorResponse) => void = null): void {
+	public removeFromHierarchy(parentGotCode, gotCode, errCallback: (err: HttpErrorResponse) => void = null): void {
 	  const that = this;
 	
 		this.hierarchyService.removeFromHierarchy(this.currentHierarchy.code, parentGotCode, gotCode).then(hierarchyType => {
+
+      let got = that.findGeoObjectTypeByCode(gotCode);
+      
+      let index = null;
+      for (let i = 0; i < got.relatedHierarchies.length; ++i)
+      {
+        if (got.relatedHierarchies[i] === hierarchyType.code)
+        {
+          index = i;
+          break;
+        }
+      }
+      
+      if (index != null)
+      {
+        got.relatedHierarchies.splice(index, 1);
+      }
 
       that.refreshPrimaryHierarchy(hierarchyType);
 
@@ -1712,17 +1780,6 @@ export class HierarchyComponent implements OnInit {
 	public isActive(item: any) {
 		return this.currentHierarchy === item;
 	};
-
-// Older drag/drop logic. May not be relevant anymore since d3 refactor.
-/*	public onDrop($event: any) {
-		// Dropped $event.element
-		this.removeTreeNode($event.element)
-	}
-
-	public allowDrop(element: Element) {
-		// Return true/false based on element
-		return true;
-	}*/
 
 	public error(err: HttpErrorResponse): void {
 		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
