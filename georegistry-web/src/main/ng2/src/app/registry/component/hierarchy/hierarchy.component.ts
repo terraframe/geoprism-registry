@@ -174,7 +174,14 @@ export class SvgHierarchyType {
   
   getRelatedHierarchies(gotCode: string): string[]
   {
-    let relatedHiers: string[] = JSON.parse(JSON.stringify(this.hierarchyComponent.findGeoObjectTypeByCode(gotCode).relatedHierarchies));
+    let got: GeoObjectType = this.hierarchyComponent.findGeoObjectTypeByCode(gotCode);
+    
+    if (got.relatedHierarchies == null)
+    {
+      got.relatedHierarchies = this.hierarchyComponent.calculateRelatedHierarchies(got);
+    }
+  
+    let relatedHiers: string[] = JSON.parse(JSON.stringify(got.relatedHierarchies));
     
     let index = null;
     for (let i = 0; i < relatedHiers.length; ++i)
@@ -786,6 +793,30 @@ export class HierarchyComponent implements OnInit {
     d3.select("#svgHolder").style("width", width + "px");
     //d3.select("#svgHolder").style("height", height + "px"); 
 	}
+	
+	calculateRelatedHierarchies(got: GeoObjectType): string[]
+  {
+    let relatedHiers = [];
+  
+    for (let i = 0; i < this.hierarchies.length; ++i)
+    {
+      let hierarchyType = this.hierarchies[i];
+      
+      if (hierarchyType.rootGeoObjectTypes != null && hierarchyType.rootGeoObjectTypes.length > 0)
+      {
+        let d3Hierarchy = d3.hierarchy(hierarchyType.rootGeoObjectTypes[0]).descendants();
+        
+        let found = d3Hierarchy.find((node)=>{return node.data.geoObjectType === got.code;});
+        
+        if (found)
+        {
+          relatedHiers.push(hierarchyType.code);
+        }
+      }
+    }
+    
+    return relatedHiers;
+  }
   
   private registerDragHandlers(): any {
     let that = this;
