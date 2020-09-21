@@ -231,7 +231,7 @@ export class SvgHierarchyType {
                  + "H" + d.target.x
                  + "V" + (d.target.y);
         });
-  
+        
     // Header on square which denotes which hierarchy it's a part of
     gtree.append("g").classed("g-got-header", true)
         .selectAll("rect")
@@ -279,6 +279,27 @@ export class SvgHierarchyType {
               d.data.gotBodySquare = this;
             }
           });
+          
+    // Arrows on Edges
+    const arrowRectD = {height: 7, width: 10};
+    let gArrow = gtree.append("g").classed("g-got-connector-arrow", true);
+    gArrow.selectAll("rect").data(this.d3Tree.links()).join("rect") // .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
+      .classed("got-connector-arrow-rect", true)
+      .attr("x", (d: any) => d.source.x - arrowRectD.width/2)
+      .attr("y", (d: any) => d.source.y + SvgHierarchyType.gotRectH/2 - arrowRectD.height/2)
+      .attr("width", arrowRectD.width)
+      .attr("height", arrowRectD.height)
+      .attr("fill", (d: any) =>
+        this.isPrimary ? (d.source.data.inherited ? "#848000" : "#cc0000") : "#b3ad00");
+    gArrow.selectAll("path").data(this.d3Tree.links()).join("path") // .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
+      .classed("got-connector-arrow-path", true)
+      .attr("fill", "none")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5)
+      .attr("d", (d: any) => "M" + (d.source.x - arrowRectD.width/2 + ((arrowRectD.width*2)/3)) + "," + (d.source.y + SvgHierarchyType.gotRectH/2 - arrowRectD.height/2 + ((arrowRectD.height*2)/3))
+                 + "L" + (d.source.x) + "," + (d.source.y + SvgHierarchyType.gotRectH/2 - arrowRectD.height/2 + (arrowRectD.height/3))
+                 + "L" + (d.source.x - arrowRectD.width/2 + (arrowRectD.width/3)) + "," + (d.source.y + SvgHierarchyType.gotRectH/2 + arrowRectD.height/2 - arrowRectD.height/3)
+      );
           
     // Ghost Drop Zone (Sibling) Backer
     gtree.append("g").classed("g-sibling-ghost-backer", true)
@@ -697,18 +718,39 @@ export class SvgHierarchyNode {
     let secondaryGotBbox = {x: parseInt(secondaryGot.attr("x")), y: parseInt(secondaryGot.attr("y")) - 3, width: parseInt(secondaryGot.attr("width")), height: parseInt(secondaryGot.attr("height")) + 3};
     secondaryGotBbox.x = secondaryGotBbox.x + paddingLeft; // Apply transformation
     d3.select(".g-hierarchy-got-connector").remove();
-    d3.select("#svg").append("g").classed("g-hierarchy-got-connector", true).append("path")
+    let gConnector = d3.select("#svg").append("g").classed("g-hierarchy-got-connector", true);
+    gConnector.append("path")
       .classed("hierarchy-got-connector", true)
       .attr("fill", "none")
       .attr("stroke", "#555")
       .attr("stroke-opacity", 0.4)
       .attr("stroke-dasharray", "5,5")
       .attr("stroke-width", 1.5)
-        .attr("d", "M" + (myBbox.x + myBbox.width) + "," + (myBbox.y + myBbox.height/2)
-                 + "H" + (((secondaryGotBbox.x) - (myBbox.x + myBbox.width))/2 + myBbox.x + myBbox.width)
-                 + "V" + (secondaryGotBbox.y + secondaryGotBbox.height/2)
-                 + "H" + secondaryGotBbox.x
-        );
+      .attr("d", "M" + (myBbox.x + myBbox.width) + "," + (myBbox.y + myBbox.height/2)
+               + "H" + (((secondaryGotBbox.x) - (myBbox.x + myBbox.width))/2 + myBbox.x + myBbox.width)
+               + "V" + (secondaryGotBbox.y + secondaryGotBbox.height/2)
+               + "H" + secondaryGotBbox.x
+      );
+    
+    // Draw arrow for dotted line
+    const arrowRectD = {height: 10, width: 7};
+    let gArrow = gConnector.append("g").classed("g-hierarchy-got-connector-arrow", true);
+    gArrow.append("rect")
+      .classed("hierarchy-got-connector-arrow-rect", true)
+      .attr("x", myBbox.x + myBbox.width - arrowRectD.width/2)
+      .attr("y", myBbox.y + myBbox.height/2 - arrowRectD.height/2)
+      .attr("width", arrowRectD.width)
+      .attr("height", arrowRectD.height)
+      .attr("fill", "#b3ad00");
+    gArrow.append("path")
+      .classed("hierarchy-got-connector-arrow-path", true)
+      .attr("fill", "none")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5)
+      .attr("d", "M" + (myBbox.x + myBbox.width - arrowRectD.width/2 + ((arrowRectD.width*2)/3)) + "," + (myBbox.y + myBbox.height/2 - arrowRectD.height/2 + ((arrowRectD.height*2)/3))
+                 + "L" + (myBbox.x + myBbox.width + arrowRectD.width/2 - ((arrowRectD.width*2)/3)) + "," + (myBbox.y + myBbox.height/2)
+                 + "L" + (myBbox.x + myBbox.width - arrowRectD.width/2 + ((arrowRectD.width*2)/3)) + "," + (myBbox.y + myBbox.height/2 - arrowRectD.height/2 + arrowRectD.height/3)
+      );
     
     // Recalculate the viewbox (should probably be the last thing that happens)
     this.hierarchyComponent.calculateSvgViewBox();
