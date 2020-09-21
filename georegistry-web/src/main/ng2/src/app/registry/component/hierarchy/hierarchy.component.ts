@@ -133,9 +133,11 @@ export class SvgHierarchyType {
     return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode);
   }
   
-  public renderHierarchyHeader(hg: any) {
+  public renderHierarchyHeader(hg: any, colHeaderLabel: string) {
     let bbox = hg.node().getBBox();
   
+    let colHeader = hg.append("g").classed("g-hierarchy-header", true);
+
     let headerg = hg.append("g").classed("g-hierarchy-header", true);
   
     const fontSize = 14;
@@ -154,6 +156,7 @@ export class SvgHierarchyType {
           .attr("x", bbox.x)
           .attr("y", bbox.y)
           .style("font-family", "FontAwesome")
+          .attr("fill", "grey")
           .text('\uf0e8');
   
     // Hierarchy display label
@@ -161,6 +164,7 @@ export class SvgHierarchyType {
         .attr("font-size", fontSize)
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
+        .attr("fill", "grey")
         .attr("x", bbox.x + iconWidth)
         .attr("y", bbox.y)
         .text(this.hierarchyType.label.localizedValue);
@@ -171,11 +175,24 @@ export class SvgHierarchyType {
         .attr("y1", bbox.y + fontSize)
         .attr("x2", bbox.x + lineWidth)
         .attr("y2", bbox.y + fontSize)
-        .attr("stroke", "black")
+        .attr("stroke", "grey")
         .attr("stroke-width", 1);
         
     let headerGBbox = headerg.node().getBBox();
     headerg.attr("transform", "translate(0 -" + headerGBbox.height + ")");
+
+    // Col header label
+    colHeader.append("text").classed("hierarchy-header-label", true)
+        .attr("font-size", fontSize + 4)
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-width", 3)
+        .attr("x", bbox.x)
+        .attr("y", bbox.y)
+        .text(colHeaderLabel);
+    
+
+    let colHeaderBbox = colHeader.node().getBBox();
+    colHeader.attr("transform", "translate(0 -" + headerGBbox.height*2.5 + ")");
         
     return headerg;
   }
@@ -219,7 +236,7 @@ export class SvgHierarchyType {
     }
     
     let hg = this.svgEl.insert("g",".g-hierarchy").classed("g-hierarchy", true).attr("data-code", this.hierarchyType.code).attr("data-primary", this.isPrimary);
-    hg.attr("font-family", "sans-serif")
+    hg.attr("font-family", "sans-serif");
     
     let gtree = hg.append("g").classed("g-hierarchy-tree", true).attr("data-code", this.hierarchyType.code);
     
@@ -350,6 +367,7 @@ export class SvgHierarchyType {
       })
         .style("font-size", "8px");
         
+    let headerg;
     if (this.isPrimary)
     {
       gtree.append("g").classed("g-got-relatedhiers-button", true)
@@ -367,9 +385,13 @@ export class SvgHierarchyType {
             .style("cursor", "pointer")
             .text('\uf0c1')
             .on('click', function(event,node){ that.getNodeByCode(node.data.geoObjectType).onClickShowRelatedHierarchies(event); });
+
+      headerg = this.renderHierarchyHeader(hg, "Selected Hierarchy");
+    }
+    else{
+      headerg = this.renderHierarchyHeader(hg, "Inherited Hierarchy");
     }
           
-    let headerg = this.renderHierarchyHeader(hg);
     
     let paddingTop = (headerg.node().getBBox().height + 20);
     //gtree.attr("transform", "translate(0 " + paddingTop + ")");
