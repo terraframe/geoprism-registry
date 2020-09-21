@@ -326,18 +326,29 @@ export class SvgHierarchyType {
         .attr("font-size", 10)
         .attr("stroke-linejoin", "round")
         .attr("stroke-width", 3)
-      .selectAll("text")
+      .selectAll("foreignObject")
       .data(descends)
-      .join("text")
+      .join("foreignObject")
         .classed("svg-got-label-text", true)
-        .attr("x", (d:any) => d.x - 70)
-        .attr("y", (d:any) => d.y - 4)
-        .attr("dx", "0.31em")
-        .attr("dy", 6)
+        .attr("x", (d:any) => d.x - (SvgHierarchyType.gotRectW / 2) + 5)
+        .attr("y", (d:any) => d.y - (SvgHierarchyType.gotRectH / 2) + 2)
+        .attr("width", SvgHierarchyType.gotRectW - 32 + 5)
+        .attr("height", SvgHierarchyType.gotRectH - 4)
         .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
-        .text((d:any) => d.data.label)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType)
-        .attr("data-inherited", (d: any) => d.data.inherited);
+        .attr("data-inherited", (d: any) => d.data.inherited)
+      .append("xhtml:p")
+        .attr("xmlns", "http://www.w3.org/1999/xhtml")
+        .style("text-align", "center")
+        .style("vertical-align", "middle")
+        .style("display", "table-cell")
+        .style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
+        .style("height", SvgHierarchyType.gotRectH - 4 + "px")
+        .html((d:any) => d.data.label)
+      .filter(function(d:any){
+        return calculateTextWidth(d.data.label, 10) > SvgHierarchyType.gotRectW - 32 + 5;
+      })
+        .style("font-size", "8px");
         
     if (this.isPrimary)
     {
@@ -406,12 +417,37 @@ export class SvgHierarchyNode {
     d3.select('.g-hierarchy[data-primary=true] .svg-got-label-text[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x + 5)
-        .attr("y", y + 8);
+        .attr("y", y + 1);
         
     d3.select('.g-hierarchy[data-primary=true] .svg-got-relatedhiers-button[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x + bbox.width - 20)
         .attr("y", y + 17);
+        
+    
+    // Move inherit and uninherit buttons with the node they're moving
+    
+    let inheritNode: any = d3.select('.g-hierarchy[data-primary=true] .hierarchy-inherit-button[data-gotCode="' + this.getCode() + '"]').node();
+    if (inheritNode != null)
+    {
+      const heritX = (x + bbox.width - 60);
+      const heritY = (y + bbox.height - 24);
+      let inheritBbox = inheritNode.getBBox();
+      d3.select('.g-hierarchy[data-primary=true] .hierarchy-inherit-button[data-gotCode="' + this.getCode() + '"]')
+          .classed("dragging", dragging)
+          .attr("transform", "translate(" + (heritX - inheritBbox.x) + " " + (heritY - inheritBbox.y) + ")");
+    }
+    
+    let uninheritNode: any = d3.select('.g-hierarchy[data-primary=true] .hierarchy-uninherit-button[data-gotCode="' + this.getCode() + '"]').node();
+    if (uninheritNode != null)
+    {
+      const heritX = (x + bbox.width - 71);
+      const heritY = (y + bbox.height - 24);
+      let uninheritBbox = uninheritNode.getBBox();
+      d3.select('.g-hierarchy[data-primary=true] .hierarchy-uninherit-button[data-gotCode="' + this.getCode() + '"]')
+          .classed("dragging", dragging)
+          .attr("transform", "translate(" + (heritX - uninheritBbox.x) + " " + (heritY - uninheritBbox.y) + ")");
+    }
   }
   
   getPos()
@@ -580,6 +616,7 @@ export class SvgHierarchyNode {
     d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
     
     d3.select(".hierarchy-inherit-button").remove();
+    d3.select(".hierarchy-uninherit-button").remove();
     let relatedGotHasParents = svgHt.getNodeByCode(this.getCode()).getTreeNode().parent != null;
     if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents)
     {
@@ -590,7 +627,10 @@ export class SvgHierarchyNode {
       const fontSize = 10;
       const buttonLabelPadding = 3;
       
-      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-inherit-button", true);
+      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]')
+        .append("g")
+          .classed("hierarchy-inherit-button", true)
+          .attr("data-gotCode", this.getCode());
       
       let inheritLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.inherit");
       const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
@@ -603,7 +643,7 @@ export class SvgHierarchyNode {
         .attr("ry", 5)
         .attr("width", width)
         .attr("height", height)
-        .attr("fill", "none")
+        .attr("fill", "#e0e0e0")
         .attr("cursor", "pointer")
         .attr("stroke", "#6BA542")
         .attr("stroke-width", 1);
@@ -628,7 +668,10 @@ export class SvgHierarchyNode {
       const fontSize = 10;
       const buttonLabelPadding = 3;
       
-      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]').append("g").classed("hierarchy-uninherit-button", true);
+      let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]')
+        .append("g")
+          .classed("hierarchy-uninherit-button", true)
+          .attr("data-gotCode", this.getCode());
       
       let inheritLabel = this.hierarchyComponent.localizeService.decode("hierarchy.content.uninherit");
       const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding*2;
@@ -641,7 +684,7 @@ export class SvgHierarchyNode {
         .attr("ry", 5)
         .attr("width", width)
         .attr("height", height)
-        .attr("fill", "none")
+        .attr("fill", "#e0e0e0")
         .attr("cursor", "pointer")
         .attr("stroke", "#6BA542")
         .attr("stroke-width", 1);

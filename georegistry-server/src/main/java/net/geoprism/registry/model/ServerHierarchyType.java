@@ -63,6 +63,7 @@ import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
@@ -431,14 +432,12 @@ public class ServerHierarchyType
 
     ServerGeoObjectService service = new ServerGeoObjectService();
 
-    // boolean hasData = service.hasData(this, childType);
-    //
-    // if (hasData)
-    // {
-    // GeoObjectTypeHasDataException ex = new GeoObjectTypeHasDataException();
-    // ex.setName(childType.getLabel().getValue());
-    // throw ex;
-    // }
+    List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByInheritedHierarchy(childType.getUniversal(), this.universalRelationship);
+
+    if (annotations.size() > 0)
+    {
+      throw new TypeInUseException("Cannot remove the child from the hierarchy because it is inherited by a different hierarchy");
+    }
 
     // Universal child = childType.getUniversal();
     Universal parent = null;
@@ -453,25 +452,25 @@ public class ServerHierarchyType
     }
 
     Universal cUniversal = childType.getUniversal();
-  
+
     removeLink(parent, cUniversal, this.universalRelationship.definesType());
-  
+
     if (migrateChildren)
     {
       TermAndRel[] tnrChildren = TermUtil.getDirectDescendants(cUniversal.getOid(), new String[] { this.universalRelationship.definesType() });
-      
+
       if (parent.getKey().equals(Universal.ROOT) && tnrChildren.length > 1)
       {
         MultipleHierarchyRootsException ex = new MultipleHierarchyRootsException();
         throw ex;
       }
-      
+
       for (TermAndRel tnrChild : tnrChildren)
       {
         Universal child = (Universal) tnrChild.getTerm();
-  
+
         removeLink(cUniversal, child, this.universalRelationship.definesType());
-  
+
         child.addLink(parent, this.universalRelationship.definesType());
       }
     }
