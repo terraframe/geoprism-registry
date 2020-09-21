@@ -917,7 +917,7 @@ public class RegistryController
         
         for (HierarchyNode hn : hns)
         {
-          if (hn.hierarchyHasGeoObjectType(got.getCode()))
+          if (hn.hierarchyHasGeoObjectType(got.getCode(), true))
           {
             relatedHiers.add(ht.getCode());
           }

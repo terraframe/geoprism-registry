@@ -944,7 +944,9 @@ export class HierarchyComponent implements OnInit {
       {
         let d3Hierarchy = d3.hierarchy(hierarchyType.rootGeoObjectTypes[0]).descendants();
         
-        let found = d3Hierarchy.find((node)=>{return node.data.geoObjectType === got.code;});
+        let found = d3Hierarchy.find((node)=>{
+          return node.data.geoObjectType === got.code && !node.data.inherited;
+        });
         
         if (found)
         {
@@ -1757,6 +1759,8 @@ export class HierarchyComponent implements OnInit {
 		this.bsModalRef.content.hierarchyType = this.currentHierarchy;
 
 		(<CreateGeoObjTypeModalComponent>this.bsModalRef.content).onGeoObjTypeCreate.subscribe(data => {
+		
+		  data.relatedHierarchies = this.calculateRelatedHierarchies(data);
 		
 			this.geoObjectTypes.push(data);
 			
