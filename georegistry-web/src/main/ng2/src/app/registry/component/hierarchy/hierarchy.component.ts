@@ -417,7 +417,7 @@ export class SvgHierarchyNode {
     
     // Move inherit and uninherit buttons with the node they're moving
     
-    let inheritNode = d3.select('.g-hierarchy[data-primary=true] .hierarchy-inherit-button[data-gotCode="' + this.getCode() + '"]').node();
+    let inheritNode: any = d3.select('.g-hierarchy[data-primary=true] .hierarchy-inherit-button[data-gotCode="' + this.getCode() + '"]').node();
     if (inheritNode != null)
     {
       const heritX = (x + bbox.width - 60);
@@ -428,7 +428,7 @@ export class SvgHierarchyNode {
           .attr("transform", "translate(" + (heritX - inheritBbox.x) + " " + (heritY - inheritBbox.y) + ")");
     }
     
-    let uninheritNode = d3.select('.g-hierarchy[data-primary=true] .hierarchy-uninherit-button[data-gotCode="' + this.getCode() + '"]').node();
+    let uninheritNode: any = d3.select('.g-hierarchy[data-primary=true] .hierarchy-uninherit-button[data-gotCode="' + this.getCode() + '"]').node();
     if (uninheritNode != null)
     {
       const heritX = (x + bbox.width - 71);
