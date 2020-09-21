@@ -1,0 +1,19 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException" 
+                   label="Multiple Root Exception" 
+                   message="You cannot add the GeoObjectType with code [{gotCode}] to this hierarchy because it is already part of the hierarchy.">
+        <attributes>
+          <text name="gotCode"></text>
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException" type="com.runwaysdk.system.metadata.MdException"></object>
+    </delete>
+  </undoIt>
+</version>

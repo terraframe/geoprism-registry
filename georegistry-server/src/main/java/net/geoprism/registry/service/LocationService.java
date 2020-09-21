@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -64,7 +63,7 @@ public class LocationService
       hierarchy = ServerHierarchyType.get(hierarchyCode);
     }
 
-    List<HierarchyNode> nodes = hierarchy.getType().getRootGeoObjectTypes();
+    List<ServerGeoObjectType> nodes = hierarchy.getDirectRootNodes();
 
     if (nodes.size() > 0)
     {
@@ -72,16 +71,13 @@ public class LocationService
        * If a typeCode is given and it is an option based on the hierarchy than
        * use that type otherwise use the first type code
        */
-
-      HierarchyNode first = nodes.get(0);
-
-      ServerGeoObjectType type = ServerGeoObjectType.get(first.getGeoObjectType());
+      ServerGeoObjectType type = nodes.get(0);
 
       if (typeCode != null && typeCode.length() > 0)
       {
-        for (HierarchyNode node : nodes)
+        for (ServerGeoObjectType node : nodes)
         {
-          if (node.getGeoObjectType().getCode().equals(typeCode))
+          if (node.getCode().equals(typeCode))
           {
             type = ServerGeoObjectType.get(typeCode);
           }
@@ -104,7 +100,7 @@ public class LocationService
 
     information.setHierarchies(hierarchies);
     information.setHierarchy(hierarchy.getCode());
-    information.setChildTypesFromNodes(nodes);
+    information.setChildTypes(nodes);
 
     return information;
   }

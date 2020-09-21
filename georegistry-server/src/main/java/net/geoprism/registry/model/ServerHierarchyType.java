@@ -35,6 +35,7 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
+import com.runwaysdk.dataaccess.RelationshipCardinalityException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -65,6 +66,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.graph.MultipleHierarchyRootsException;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
@@ -296,7 +298,16 @@ public class ServerHierarchyType
     Universal parent = Universal.getByKey(parentGeoObjectTypeCode);
     Universal child = Universal.getByKey(childGeoObjectTypeCode);
 
-    child.addLink(parent, this.universalRelationship.definesType());
+    try
+    {
+      child.addLink(parent, this.universalRelationship.definesType());
+    }
+    catch (RelationshipCardinalityException e)
+    {
+      GeoObjectTypeAlreadyInHierarchyException ex = new GeoObjectTypeAlreadyInHierarchyException();
+      ex.setGotCode(childGeoObjectTypeCode);
+      throw ex;
+    }
 
     if (child.getIsLeafType())
     {
