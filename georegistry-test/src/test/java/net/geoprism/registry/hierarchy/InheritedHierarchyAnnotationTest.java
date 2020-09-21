@@ -310,7 +310,7 @@ public class InheritedHierarchyAnnotationTest
         GeoObjectType root = node.getGeoObjectType();
 
         Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), root.getCode());
-        Assert.assertTrue(node.getInherited());
+        Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), node.getInheritedHierarchyCode());
       }
       finally
       {
@@ -321,7 +321,7 @@ public class InheritedHierarchyAnnotationTest
         GeoObjectType root = node.getGeoObjectType();
 
         Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), root.getCode());
-        Assert.assertFalse(node.getInherited());
+        Assert.assertNull(node.getInheritedHierarchyCode());
       }
     });
   }

@@ -258,22 +258,37 @@ export class SvgHierarchyType {
         });
         
     // Header on square which denotes which hierarchy it's a part of
-    gtree.append("g").classed("g-got-header", true)
-        .selectAll("rect")
+    let gHeader = gtree.append("g").classed("g-got-header", true);
+    gHeader.selectAll("rect")
         .data(descends)
         .join("rect")
         .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
-          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 8)
-          .attr("fill", (d: any) => this.isPrimary ? (d.data.inherited ? inheritedNodeBannerColor : defaultNodeBannerColor) : relatedNodeBannerColor)
+          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 4)
+          .attr("fill", (d: any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? inheritedNodeBannerColor : defaultNodeBannerColor) : relatedNodeBannerColor)
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
-          .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
+          .attr("cursor", (d:any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
           .attr("rx", 3)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
-          .attr("data-inherited", (d: any) => d.data.inherited);
-          
+          .attr("data-inherited", (d: any) => 
+          d.data.inheritedHierarchyCode != null
+          );
+    
+    // Write the name of the hierarchy on the header if its inherited
+    gHeader.selectAll("text")
+        .data(descends)
+        .join("text")
+        .filter(function(d:any){return d.data.geoObjectType !== "GhostNode" && d.data.inheritedHierarchyCode != null;})
+          .classed("svg-got-header-rect", true)
+          .attr("x", (d: any) => d.x - calculateTextWidth(that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue, 7)/2)
+          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 4 + 7)
+          .attr("font-size", "7px")
+          .text((d: any) => that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue)
+          .attr("cursor", (d:any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
+          .attr("data-gotCode", (d: any) => d.data.geoObjectType)
+          .attr("data-inherited", (d: any) => d.data.inheritedHierarchyCode != null);
           
     // GeoObjectType Body Square
     gtree.append("g").classed("g-got", true)
@@ -284,13 +299,13 @@ export class SvgHierarchyType {
           .classed("svg-got-body-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
           .attr("y", (d: any) => d.y - (SvgHierarchyType.gotRectH / 2))
-          .attr("fill", (d: any) => d.data.inherited ? inheritedNodeFill : defaultNodeFill)
+          .attr("fill", (d: any) => d.data.inheritedHierarchyCode != null ? inheritedNodeFill : defaultNodeFill)
           .attr("width", SvgHierarchyType.gotRectW)
           .attr("height", SvgHierarchyType.gotRectH)
           .attr("rx", 3)
-          .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
+          .attr("cursor", (d:any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
-          .attr("data-inherited", (d: any) => d.data.inherited)
+          .attr("data-inherited", (d: any) => d.data.inheritedHierarchyCode != null)
           .each(function(d:any) {
             if (d.data.geoObjectType != "GhostNode")
             {
@@ -315,7 +330,7 @@ export class SvgHierarchyType {
       .attr("y", (d: any) => d.source.y + SvgHierarchyType.gotRectH/2 - arrowRectD.height/2)
       .attr("width", arrowRectD.width)
       .attr("height", arrowRectD.height)
-      .attr("fill", (d: any) => this.isPrimary ? (d.source.data.inherited ? inheritedNodeBannerColor : defaultNodeBannerColor) : relatedNodeBannerColor);
+      .attr("fill", (d: any) => this.isPrimary ? (d.source.data.inheritedHierarchyCode != null ? inheritedNodeBannerColor : defaultNodeBannerColor) : relatedNodeBannerColor);
     gArrow.selectAll("path").data(this.d3Tree.links()).join("path") // .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
       .classed("got-connector-arrow-path", true)
       .attr("fill", "none")
@@ -370,9 +385,9 @@ export class SvgHierarchyType {
         .attr("y", (d:any) => d.y - (SvgHierarchyType.gotRectH / 2) + 2)
         .attr("width", SvgHierarchyType.gotRectW - 32 + 5)
         .attr("height", SvgHierarchyType.gotRectH - 4)
-        .attr("cursor", (d:any) => this.isPrimary ? (d.data.inherited ? null : "grab") : null)
+        .attr("cursor", (d:any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
         .attr("data-gotCode", (d: any) => d.data.geoObjectType)
-        .attr("data-inherited", (d: any) => d.data.inherited)
+        .attr("data-inherited", (d: any) => d.data.inheritedHierarchyCode != null)
       .append("xhtml:p")
         .attr("xmlns", "http://www.w3.org/1999/xhtml")
         .style("text-align", "center")
@@ -394,7 +409,7 @@ export class SvgHierarchyType {
           .data(descends)
           .join("text")
           .filter(function(d:any){
-              return (d.data.geoObjectType === "GhostNode" ? false : that.getRelatedHierarchies(d.data.geoObjectType).length > 0) && !d.data.inherited;
+              return (d.data.geoObjectType === "GhostNode" ? false : that.getRelatedHierarchies(d.data.geoObjectType).length > 0) && d.data.inheritedHierarchyCode == null;
             })
             .classed("svg-got-relatedhiers-button", true)
             .attr("data-gotCode", (d: any) => d.data.geoObjectType)
@@ -703,7 +718,7 @@ export class SvgHierarchyNode {
         .text(inheritLabel)
         .on('click', function(event, node) {that.onClickInheritHierarchy(relatedHierarchy);});
     }
-    else if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && (this.treeNode.parent != null && this.treeNode.parent.data.inherited))
+    else if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode != null))
     {
       // Add an uninherit button
       const height = 15;
@@ -945,7 +960,7 @@ export class HierarchyComponent implements OnInit {
         let d3Hierarchy = d3.hierarchy(hierarchyType.rootGeoObjectTypes[0]).descendants();
         
         let found = d3Hierarchy.find((node)=>{
-          return node.data.geoObjectType === got.code && !node.data.inherited;
+          return node.data.geoObjectType === got.code && node.data.inheritedHierarchyCode == null;
         });
         
         if (found)

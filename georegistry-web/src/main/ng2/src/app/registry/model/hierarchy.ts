@@ -17,5 +17,5 @@ export class HierarchyNode {
 	geoObjectType: string;
 	children: HierarchyNode[];
 	label: string;
-	inherited: boolean;
+	inheritedHierarchyCode: string;
 }

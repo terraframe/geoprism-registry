@@ -339,7 +339,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
       if (inheritedHierarchy != null)
       {
-        HierarchyType.HierarchyNode child = new HierarchyType.HierarchyNode(geoObjectType.getType(), false);
+        HierarchyType.HierarchyNode child = new HierarchyType.HierarchyNode(geoObjectType.getType(), null);
         HierarchyType.HierarchyNode root = child;
 
         List<GeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
@@ -347,7 +347,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
         for (GeoObjectType ancestor : ancestors)
         {
-          HierarchyType.HierarchyNode cNode = new HierarchyType.HierarchyNode(ancestor, true);
+          HierarchyType.HierarchyNode cNode = new HierarchyType.HierarchyNode(ancestor, inheritedHierarchy.getCode());
           cNode.addChild(root);
 
           root = cNode;
