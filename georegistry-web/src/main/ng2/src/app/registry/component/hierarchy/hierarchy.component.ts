@@ -467,7 +467,8 @@ export class SvgHierarchyNode {
     
     if (existingMenu.node() == null)
     {
-      let parent = d3.select('g.g-hierarchy-tree[data-code="' + this.svgHierarchyType.hierarchyType.code + '"]');
+      //let parent = d3.select('g.g-hierarchy-tree[data-code="' + this.svgHierarchyType.hierarchyType.code + '"]');
+      let parent = d3.select('#svg');
       
       let contextMenuGroup = parent.append("g").classed("g-context-menu", true);
       
@@ -581,7 +582,11 @@ export class SvgHierarchyNode {
   renderSecondaryHierarchy(relatedHierarchy: HierarchyType)
   {
     d3.select(".g-context-menu").remove();
+    d3.select(".g-hierarchy-got-connector").remove();
+    
     let that = this;
+    let myBbox = this.getBbox();
+    let svg = d3.select("#svg");
     
     // Remove any secondary hierarchy that may already be rendered
     let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
@@ -592,18 +597,18 @@ export class SvgHierarchyNode {
     }
     
     // Get the bounding box for our primary hierarchy
-    let svg = d3.select("#svg");
     let primaryHierBbox = (d3.select(".g-hierarchy[data-primary=true]").node() as any).getBBox();
     
     // Render the secondary hierarchy
     let svgHt: SvgHierarchyType = new SvgHierarchyType(this.hierarchyComponent, svg, relatedHierarchy, false);
     svgHt.render();
+    let gSecondary = d3.select('.g-hierarchy[data-primary="false"]')
     
     // Translate the secondary hierarchy to the right of the primary hierarchy
     let gHierarchy: any = d3.select('.g-hierarchy[data-primary="false"]').node();
     let bbox = gHierarchy.getBBox();
     let paddingLeft: number = primaryHierBbox.width + 40 + (primaryHierBbox.x - bbox.x);
-    d3.select('.g-hierarchy[data-primary="false"]').attr("transform", "translate(" + paddingLeft + " 0)");
+    gSecondary.attr("transform", "translate(" + paddingLeft + " 0)");
     
     d3.select(".hierarchy-inherit-button").remove();
     d3.select(".hierarchy-uninherit-button").remove();
@@ -611,8 +616,6 @@ export class SvgHierarchyNode {
     if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents)
     {
       // Add an inherit button
-      let myBbox = this.getBbox();
-      
       const height = 15;
       const fontSize = 10;
       const buttonLabelPadding = 3;
@@ -652,8 +655,6 @@ export class SvgHierarchyNode {
     else if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && (this.treeNode.parent != null && this.treeNode.parent.data.inherited))
     {
       // Add an uninherit button
-      let myBbox = this.getBbox();
-      
       const height = 15;
       const fontSize = 10;
       const buttonLabelPadding = 3;
@@ -691,7 +692,25 @@ export class SvgHierarchyNode {
         .on('click', function(event, node) {that.onClickUninheritHierarchy(relatedHierarchy);});
     }
     
-    // Recalculate the viewbox
+    // Draw dotted line between the shared node in the hierarchies
+    let secondaryGot = d3.select('.g-hierarchy[data-primary=false] .svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
+    let secondaryGotBbox = {x: parseInt(secondaryGot.attr("x")), y: parseInt(secondaryGot.attr("y")) - 3, width: parseInt(secondaryGot.attr("width")), height: parseInt(secondaryGot.attr("height")) + 3};
+    secondaryGotBbox.x = secondaryGotBbox.x + paddingLeft; // Apply transformation
+    d3.select(".g-hierarchy-got-connector").remove();
+    d3.select("#svg").append("g").classed("g-hierarchy-got-connector", true).append("path")
+      .classed("hierarchy-got-connector", true)
+      .attr("fill", "none")
+      .attr("stroke", "#555")
+      .attr("stroke-opacity", 0.4)
+      .attr("stroke-dasharray", "5,5")
+      .attr("stroke-width", 1.5)
+        .attr("d", "M" + (myBbox.x + myBbox.width) + "," + (myBbox.y + myBbox.height/2)
+                 + "H" + (((secondaryGotBbox.x) - (myBbox.x + myBbox.width))/2 + myBbox.x + myBbox.width)
+                 + "V" + (secondaryGotBbox.y + secondaryGotBbox.height/2)
+                 + "H" + secondaryGotBbox.x
+        );
+    
+    // Recalculate the viewbox (should probably be the last thing that happens)
     this.hierarchyComponent.calculateSvgViewBox();
   }
   
@@ -795,6 +814,7 @@ export class HierarchyComponent implements OnInit {
 	  
 	  d3.select(".g-context-menu").remove();
 	  d3.select(".hierarchy-inherit-button").remove();
+	  d3.select(".g-hierarchy-got-connector").remove();
 	  
 	  let overflowDiv: any = d3.select("#overflow-div").node();
 	  let scrollLeft = overflowDiv.scrollLeft;
