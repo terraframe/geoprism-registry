@@ -9,7 +9,17 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
-    <create></create>
+    <create>
+      <mdException name="net.geoprism.registry.graph.CantRemoveInheritedGOT" 
+                   label="Cannot Remove Inherited GeoObjectType" 
+                   message="You cannot remove the GeoObjectType with code [{gotCode}] from the hierarchy with code [{hierCode}] because it is inherited by the hierarchies [{inheritedHierarchyList}].">
+        <attributes>
+          <text name="gotCode"></text>
+          <text name="hierCode"></text>
+          <text name="inheritedHierarchyList"></text>
+        </attributes>
+      </mdException>
+    </create>
     <update></update>
   </doIt>
   <undoIt>

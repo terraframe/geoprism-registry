@@ -18,9 +18,11 @@
  */
 package net.geoprism.registry.model;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -63,10 +65,10 @@ import net.geoprism.registry.NoChildForLeafGeoObjectType;
 import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.TypeInUseException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.graph.CantRemoveInheritedGOT;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.graph.MultipleHierarchyRootsException;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
@@ -436,7 +438,19 @@ public class ServerHierarchyType
 
     if (annotations.size() > 0)
     {
-      throw new TypeInUseException("Cannot remove the child from the hierarchy because it is inherited by a different hierarchy");
+      List<String> codes = new ArrayList<String>();
+      
+      for (InheritedHierarchyAnnotation annot : annotations)
+      {
+        String code = buildHierarchyKeyFromMdTermRelUniversal(annot.getForHierarchy().getKey());
+        codes.add(code);
+      }
+      
+      CantRemoveInheritedGOT ex = new CantRemoveInheritedGOT();
+      ex.setGotCode(childGeoObjectTypeCode);
+      ex.setHierCode(this.getCode());
+      ex.setInheritedHierarchyList(StringUtils.join(codes, ", "));
+      throw ex;
     }
 
     // Universal child = childType.getUniversal();
