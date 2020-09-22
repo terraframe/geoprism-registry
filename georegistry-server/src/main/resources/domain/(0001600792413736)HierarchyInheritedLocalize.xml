@@ -8,6 +8,20 @@
           <attribute name="defaultLocale" value="Inherited" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.intersectChild">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.intersectChild" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Intersect Child" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.intersectParent">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.intersectParent" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Intersect Parent" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create>
       <mdException name="net.geoprism.registry.graph.CantRemoveInheritedGOT" 
@@ -23,6 +37,8 @@
     <update></update>
   </doIt>
   <undoIt>
-    <delete></delete>
+    <delete>
+      <object key="net.geoprism.registry.graph.CantRemoveInheritedGOT" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
   </undoIt>
 </version>

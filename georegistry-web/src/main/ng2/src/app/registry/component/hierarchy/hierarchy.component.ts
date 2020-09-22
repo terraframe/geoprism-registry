@@ -1063,6 +1063,9 @@ export class HierarchyComponent implements OnInit {
       
       if (this.dropEl != null)
       {
+        const gotCode = this.dropEl.attr("data-gotCode");
+        let dropNode = that.primarySvgHierarchy.getD3Tree().find((node)=>{return node.data.geoObjectType === gotCode;});
+        
         this.dropEl.attr("stroke", "blue");
       
         const dropElX = parseInt(this.dropEl.attr("x"));
@@ -1092,13 +1095,14 @@ export class HierarchyComponent implements OnInit {
             .attr("stroke-width", "1")
             .attr("stroke-dasharray", "5,5");
         
+        let addChildLabel = dropNode.children == null || dropNode.children.length == 0 ? that.localizeService.decode("hierarchy.content.addChild") : that.localizeService.decode("hierarchy.content.intersectChild");
         this.childDzText = dzg.append("text").classed("svg-got-child-dz-text", true)
           .attr("font-family", "sans-serif")
           .attr("font-size", 10)
           .attr("fill", "black")
-          .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - 20)
+          .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - calculateTextWidth(addChildLabel, 10)/2)
           .attr("y", dropElY + SvgHierarchyType.gotRectH + 10 + childH/2 + 2)
-          .text(that.localizeService.decode("hierarchy.content.addChild"));
+          .text(addChildLabel);
         
         // Render Parent Drop Zone
         this.parentDzBacker = dzg.append("rect").classed("svg-got-parent-dz-backer", true)
@@ -1119,20 +1123,18 @@ export class HierarchyComponent implements OnInit {
             .attr("stroke-dasharray", "5,5");
             
         d3.select(".svg-got-parent-dz-text").remove();
+        let addParentLabel = dropNode.parent == null ? that.localizeService.decode("hierarchy.content.addParent") : that.localizeService.decode("hierarchy.content.intersectParent");
         this.parentDzText = dzg.append("text").classed("svg-got-parent-dz-text", true)
           .attr("font-family", "sans-serif")
           .attr("font-size", 10)
           .attr("fill", "black")
-          .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - 20)
+          .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - calculateTextWidth(addParentLabel, 10)/2)
           .attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH/2 + 2)
-          .text(that.localizeService.decode("hierarchy.content.addParent"));
+          .text(addParentLabel);
           
         // Render Sibling Drop Zone
-        let gotCode = this.dropEl.attr("data-gotCode");
         if (this.ghostCode != gotCode)
         {
-          let dropNode = that.primarySvgHierarchy.getD3Tree().find((node)=>{return node.data.geoObjectType === gotCode;});
-        
           if (this.ghostCode != null)
           {
             this.clearGhostNodes(dropNode.parent == null);
@@ -1151,8 +1153,8 @@ export class HierarchyComponent implements OnInit {
               }
             };
           
-            let addChildLabel = that.localizeService.decode("hierarchy.content.addChild");
-            dropNode.parent.data.children.splice(parentIndex, 0, {ghostingCode: gotCode, geoObjectType:"GhostNode", label:addChildLabel, children:[]});
+            let addSiblingLabel = that.localizeService.decode("hierarchy.content.addChild");
+            dropNode.parent.data.children.splice(parentIndex, 0, {ghostingCode: gotCode, geoObjectType:"GhostNode", label:addSiblingLabel, children:[]});
             
             that.renderTree();
             this.ghostCode = gotCode;
