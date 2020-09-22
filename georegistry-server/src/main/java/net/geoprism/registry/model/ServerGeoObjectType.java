@@ -310,6 +310,8 @@ public class ServerGeoObjectType
         role.delete();
       }
     }
+
+    MasterList.markAllAsInvalid(null, this);
   }
 
   public void update(GeoObjectType geoObjectTypeNew)

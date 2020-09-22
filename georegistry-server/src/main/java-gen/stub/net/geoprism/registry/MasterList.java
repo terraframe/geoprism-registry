@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -181,7 +182,7 @@ public class MasterList extends MasterListBase
     {
       query.AND(query.getVersionType().EQ(versionType));
     }
-    
+
     query.ORDER_BY_DESC(query.getForDate());
 
     try (OIterator<? extends MasterListVersion> it = query.getIterator())
@@ -721,9 +722,50 @@ public class MasterList extends MasterListBase
     {
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
       String hCode = hierarchy.get("code").getAsString();
-      ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ServerHierarchyType.get(hCode), type);
+      Optional<HierarchyType> ht = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode);
 
-      if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
+      if (ht.isPresent())
+      {
+        ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ServerHierarchyType.get(ht.get()), type);
+
+        if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
+        {
+          List<String> pCodes = this.getParentCodes(hierarchy);
+
+          if (pCodes.contains(type.getCode()) || type.getCode().equals(masterlistType.getCode()))
+          {
+            isValid = false;
+          }
+        }
+      }
+      else
+      {
+        isValid = false;
+      }
+    }
+
+    if (!isValid)
+    {
+      this.appLock();
+      this.setValid(false);
+      this.apply();
+    }
+  }
+
+  public void markAsInvalid(ServerGeoObjectType type)
+  {
+    boolean isValid = true;
+
+    JsonArray hierarchies = this.getHierarchiesAsJson();
+    ServerGeoObjectType masterlistType = this.getGeoObjectType();
+
+    for (int i = 0; i < hierarchies.size(); i++)
+    {
+      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
+      String hCode = hierarchy.get("code").getAsString();
+      Optional<HierarchyType> ht = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode);
+
+      if (ht.isPresent())
       {
         List<String> pCodes = this.getParentCodes(hierarchy);
 
@@ -731,6 +773,35 @@ public class MasterList extends MasterListBase
         {
           isValid = false;
         }
+      }
+      else
+      {
+        isValid = false;
+      }
+    }
+
+    if (!isValid)
+    {
+      this.appLock();
+      this.setValid(false);
+      this.apply();
+    }
+  }
+
+  public void markAsInvalid(ServerHierarchyType hierarchyType)
+  {
+    boolean isValid = true;
+
+    JsonArray hierarchies = this.getHierarchiesAsJson();
+
+    for (int i = 0; i < hierarchies.size(); i++)
+    {
+      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
+      String hCode = hierarchy.get("code").getAsString();
+
+      if (hierarchyType.getCode().equals(hCode))
+      {
+        isValid = false;
       }
     }
 
@@ -930,7 +1001,19 @@ public class MasterList extends MasterListBase
       while (iterator.hasNext())
       {
         MasterList masterlist = iterator.next();
-        masterlist.markAsInvalid(hierarchyType, type);
+
+        if (hierarchyType != null && type != null)
+        {
+          masterlist.markAsInvalid(hierarchyType, type);
+        }
+        else if (hierarchyType != null)
+        {
+          masterlist.markAsInvalid(hierarchyType);
+        }
+        else if (type != null)
+        {
+          masterlist.markAsInvalid(type);
+        }
       }
     }
   }

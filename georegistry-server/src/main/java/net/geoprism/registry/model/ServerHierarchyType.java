@@ -240,6 +240,8 @@ public class ServerHierarchyType
     this.entityRelationship.delete();
 
     ( (MdEdgeDAO) this.getMdEdge() ).delete();
+
+    MasterList.markAllAsInvalid(this, null);
   }
 
   public void addToHierarchy(String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
@@ -439,13 +441,13 @@ public class ServerHierarchyType
     if (annotations.size() > 0)
     {
       List<String> codes = new ArrayList<String>();
-      
+
       for (InheritedHierarchyAnnotation annot : annotations)
       {
         String code = buildHierarchyKeyFromMdTermRelUniversal(annot.getForHierarchy().getKey());
         codes.add(code);
       }
-      
+
       CantRemoveInheritedGOT ex = new CantRemoveInheritedGOT();
       ex.setGotCode(childGeoObjectTypeCode);
       ex.setHierCode(this.getCode());
@@ -492,6 +494,13 @@ public class ServerHierarchyType
     service.removeAllEdges(this, childType);
 
     MasterList.markAllAsInvalid(this, childType);
+
+    InheritedHierarchyAnnotation annotation = InheritedHierarchyAnnotation.get(childType.getUniversal(), this.universalRelationship);
+
+    if (annotation != null)
+    {
+      annotation.delete();
+    }
   }
 
   public List<ServerGeoObjectType> getDirectRootNodes()
