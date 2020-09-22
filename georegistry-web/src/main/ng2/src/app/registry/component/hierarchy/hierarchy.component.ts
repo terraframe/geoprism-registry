@@ -1382,7 +1382,22 @@ export class HierarchyComponent implements OnInit {
     
         (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onConfirm.subscribe(data => {
           let treeNode = svgGot.getTreeNode();
-          let parent = treeNode.parent == null ? "ROOT" : treeNode.parent.data.geoObjectType;
+          let parent = null;
+          if (treeNode.parent == null)
+          {
+            parent = "ROOT";
+          }
+          else
+          {
+            if (treeNode.parent.data.inheritedHierarchyCode != null)
+            {
+              parent = "ROOT";
+            }
+            else
+            {
+              parent = treeNode.parent.data.geoObjectType;
+            }
+          }
         
           hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => {svgGot.setPos(startPoint.x, startPoint.y, false);});
         });
