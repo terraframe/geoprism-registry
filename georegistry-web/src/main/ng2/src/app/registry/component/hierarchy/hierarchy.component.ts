@@ -560,7 +560,7 @@ export class SvgHierarchyNode {
         let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
         
         let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
-        if (this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
+        if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
         {
           relatedHierarchyLabel = relatedHierarchyLabel + " (" + this.hierarchyComponent.localizeService.decode("hierarchy.content.inherited") + ")";
         }
@@ -615,7 +615,7 @@ export class SvgHierarchyNode {
         let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
       
         let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
-        if (this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
+        if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
         {
           relatedHierarchyLabel = relatedHierarchyLabel + " (" + this.hierarchyComponent.localizeService.decode("hierarchy.content.inherited") + ")";
         }
