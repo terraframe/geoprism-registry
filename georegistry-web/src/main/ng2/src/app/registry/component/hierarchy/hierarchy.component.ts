@@ -562,7 +562,7 @@ export class SvgHierarchyNode {
         let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
         if (this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
         {
-          relatedHierarchyLabel = relatedHierarchyLabel + " (" + "Inherited" + ")"; // TODO : Localize
+          relatedHierarchyLabel = relatedHierarchyLabel + " (" + this.hierarchyComponent.localizeService.decode("hierarchy.content.inherited") + ")";
         }
         
         let textWidth = calculateTextWidth(relatedHierarchyLabel, fontSize);
@@ -617,7 +617,7 @@ export class SvgHierarchyNode {
         let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
         if (this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
         {
-          relatedHierarchyLabel = relatedHierarchyLabel + " (" + "Inherited" + ")"; // TODO : Localize
+          relatedHierarchyLabel = relatedHierarchyLabel + " (" + this.hierarchyComponent.localizeService.decode("hierarchy.content.inherited") + ")";
         }
       
         // Text that says the hierarchy's display label
