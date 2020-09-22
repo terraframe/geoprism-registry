@@ -265,7 +265,7 @@ export class SvgHierarchyType {
         .filter(function(d:any){return d.data.geoObjectType !== "GhostNode";})
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
-          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 4)
+          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 2)
           .attr("fill", (d: any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? inheritedNodeBannerColor : defaultNodeBannerColor) : relatedNodeBannerColor)
           .attr("width", SvgHierarchyType.gotHeaderW)
           .attr("height", SvgHierarchyType.gotHeaderH)
@@ -283,8 +283,8 @@ export class SvgHierarchyType {
         .filter(function(d:any){return d.data.geoObjectType !== "GhostNode" && d.data.inheritedHierarchyCode != null;})
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - calculateTextWidth(that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue, 7)/2)
-          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 4 + 7)
-          .attr("font-size", "7px")
+          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 4 + 5)
+          .attr("font-size", "8px")
           .text((d: any) => that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
           .attr("data-gotCode", (d: any) => d.data.geoObjectType)
@@ -841,8 +841,8 @@ export class SvgHierarchyNode {
 })
 export class HierarchyComponent implements OnInit {
 
-	private treeScaleFactorX = 1.6;
-	private treeScaleFactorY = 1.6;
+	private treeScaleFactorX = 1.8;
+	private treeScaleFactorY = 1.8;
 	
 	private svgWidth: number = 200;
 	private svgHeight: number = 500;
