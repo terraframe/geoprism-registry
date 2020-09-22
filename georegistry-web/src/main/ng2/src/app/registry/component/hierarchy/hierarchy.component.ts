@@ -283,7 +283,7 @@ export class SvgHierarchyType {
         .filter(function(d:any){return d.data.geoObjectType !== "GhostNode" && d.data.inheritedHierarchyCode != null;})
           .classed("svg-got-header-rect", true)
           .attr("x", (d: any) => d.x - calculateTextWidth(that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue, 7)/2)
-          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 4 + 5)
+          .attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 4 + 6)
           .attr("font-size", "8px")
           .text((d: any) => that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue)
           .attr("cursor", (d:any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
