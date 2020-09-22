@@ -418,7 +418,7 @@ export class SvgHierarchyType {
             .style("font-family", "FontAwesome")
             .style("cursor", "pointer")
             .text('\uf0c1')
-            .on('click', function(event,node){ that.getNodeByCode(node.data.geoObjectType).onClickShowRelatedHierarchies(event); });
+            .on('click', function(event,node){ that.getNodeByCode(node.data.geoObjectType).renderRelatedHierarchiesMenu(); });
 
       headerg = this.renderHierarchyHeader(hg, "Selected Hierarchy");
     }
@@ -468,7 +468,7 @@ export class SvgHierarchyNode {
     d3.select('.g-hierarchy[data-primary=true] .svg-got-header-rect[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
         .attr("x", x)
-        .attr("y", y - SvgHierarchyType.gotRectH/2 + 8);
+        .attr("y", y - SvgHierarchyType.gotRectH/2 + 4);
         
     d3.select('.g-hierarchy[data-primary=true] .svg-got-label-text[data-gotCode="' + this.getCode() + '"]')
         .classed("dragging", dragging)
@@ -525,8 +525,7 @@ export class SvgHierarchyNode {
     return this.treeNode;
   }
   
-  // Renders a context menu
-  onClickShowRelatedHierarchies(event: MouseEvent)
+  renderRelatedHierarchiesMenu()
   {
     let that = this;
     let existingMenu = d3.select(".g-context-menu");
@@ -560,11 +559,17 @@ export class SvgHierarchyNode {
       relatedHierarchies.forEach((relatedHierarchyCode: string) => {
         let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
         
-        let textWidth = calculateTextWidth(relatedHierarchy.label.localizedValue, fontSize);
+        let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
+        if (this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
+        {
+          relatedHierarchyLabel = relatedHierarchyLabel + " (" + "Inherited" + ")"; // TODO : Localize
+        }
+        
+        let textWidth = calculateTextWidth(relatedHierarchyLabel, fontSize);
         
         if (textWidth > width)
         {
-          width = bbox.width;
+          width = textWidth;
         }
       });
       
@@ -593,6 +598,7 @@ export class SvgHierarchyNode {
         
       y = y + height;
       
+      // Dividing line at the bottom
       contextMenuGroup.append("line")
           .classed("contextmenu-relatedhiers-divider", true)
           .attr("x1", x)
@@ -608,6 +614,12 @@ export class SvgHierarchyNode {
         let relatedHierarchyCode = relatedHierarchies[i];
         let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
       
+        let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
+        if (this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)
+        {
+          relatedHierarchyLabel = relatedHierarchyLabel + " (" + "Inherited" + ")"; // TODO : Localize
+        }
+      
         // Text that says the hierarchy's display label
         contextMenuGroup.append("text")
             .classed("contextmenu-relatedhiers-text", true)
@@ -616,7 +628,7 @@ export class SvgHierarchyNode {
             .attr("y", y + (height/2) + (fontSize/2))
             .style("font-size", fontSize)
             .attr("font-family", fontFamily)
-            .text(relatedHierarchy.label.localizedValue)
+            .text(relatedHierarchyLabel)
             .style("cursor", "pointer")
             .on('click', function(event, node) {that.renderSecondaryHierarchy(relatedHierarchy);});
         
@@ -718,7 +730,7 @@ export class SvgHierarchyNode {
         .text(inheritLabel)
         .on('click', function(event, node) {that.onClickInheritHierarchy(relatedHierarchy);});
     }
-    else if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode != null))
+    else if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code))
     {
       // Add an uninherit button
       const height = 15;
