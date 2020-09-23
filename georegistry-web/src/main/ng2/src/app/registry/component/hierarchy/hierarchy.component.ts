@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { debounceTime, map, distinctUntilChanged, filter, tap } from "rxjs/operators";
+import { fromEvent } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
@@ -826,6 +827,7 @@ export class HierarchyComponent implements OnInit {
 	filter: string = '';
 	filteredHierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
 	filteredTypesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
+	@ViewChild('searchInput', { static: true }) searchInput: ElementRef;
 
 	hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
 	geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
@@ -871,6 +873,18 @@ export class HierarchyComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.refreshAll(null);
+
+		fromEvent(this.searchInput.nativeElement, 'keyup').pipe(
+
+			// get value
+			filter(Boolean),
+			debounceTime(500),
+			distinctUntilChanged(),
+			tap(() => {
+				this.onFilterChange();
+			})
+			// subscription for response
+		).subscribe();
 	}
 
 	private renderTree() {
@@ -1467,7 +1481,7 @@ export class HierarchyComponent implements OnInit {
 			this.hierarchiesByOrg.push({ org: org, hierarchies: this.getHierarchiesByOrg(org) });
 			this.typesByOrg.push({ org: org, types: this.getTypesByOrg(org) });
 		}
-		
+
 		this.onFilterChange();
 
 		setTimeout(() => { this.registerDragHandlers(); }, 500);
@@ -1860,7 +1874,7 @@ export class HierarchyComponent implements OnInit {
 		return this.currentHierarchy === item;
 	};
 
-	onFilterChange(): void {		
+	onFilterChange(): void {
 		const label = this.filter.toLowerCase();
 
 		this.filteredHierarchiesByOrg = [];
@@ -1878,7 +1892,7 @@ export class HierarchyComponent implements OnInit {
 				this.filteredHierarchiesByOrg.push({ org: item.org, hierarchies: filtered });
 			}
 		});
-		
+
 		this.typesByOrg.forEach((item: { org: Organization, types: GeoObjectType[] }) => {
 
 			const filtered = item.types.filter((type: GeoObjectType) => {
@@ -1892,7 +1906,7 @@ export class HierarchyComponent implements OnInit {
 			}
 		});
 
-		
+
 		console.log('Filter: ' + this.filter);
 		console.log(this.filteredHierarchiesByOrg);
 		console.log(this.filteredTypesByOrg);

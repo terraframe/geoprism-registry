@@ -10,7 +10,7 @@
     <nav class="hierarchy-sidebar">
       <div class="row">
         <div class="col-md-12">
-          <input type="text" class="form-control" [placeholder]="'hierarchy.sidebar.searchAll' | localize" [(ngModel)]="filter" (change)="onFilterChange()">
+          <input type="text" class="form-control" #searchInput [placeholder]="'hierarchy.sidebar.searchAll' | localize" [(ngModel)]="filter">
         </div>
       </div>
       <accordion [isAnimated]="true" [closeOthers]="true">
