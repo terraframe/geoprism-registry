@@ -38,6 +38,7 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.RelationshipCardinalityException;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -59,6 +60,7 @@ import com.runwaysdk.system.ontology.ImmutableRootException;
 import com.runwaysdk.system.ontology.TermUtil;
 
 import net.geoprism.registry.AttributeHierarchy;
+import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
@@ -190,6 +192,25 @@ public class ServerHierarchyType
     LocalizedValueConverter.populate(this.entityRelationship.getDisplayLabel(), hierarchyType.getLabel());
     LocalizedValueConverter.populate(this.entityRelationship.getDescription(), hierarchyType.getDescription());
 
+    HierarchyMetadata metadata = null;
+
+    try
+    {
+      metadata = HierarchyMetadata.getByKey(universalRelationship.getOid());
+      metadata.appLock();
+    }
+    catch (DataNotFoundException e)
+    {
+      metadata = new HierarchyMetadata();
+      metadata.setMdTermRelationship(this.universalRelationship);
+    }
+
+    metadata.setAbstractDescription(hierarchyType.getAbstractDescription());
+    metadata.setProgress(hierarchyType.getProgress());
+    metadata.setAcknowledgement(hierarchyType.getAcknowledgement());
+    metadata.setContact(hierarchyType.getContact());
+    metadata.apply();
+
     this.entityRelationship.apply();
 
     this.entityRelationship.unlock();
@@ -211,13 +232,13 @@ public class ServerHierarchyType
   @Transaction
   private void deleteInTrans()
   {
-    // They can't delete it if there's existing data
-    Universal root = Universal.getRoot();
-    OIterator<? extends Business> it = root.getChildren(this.getUniversalRelationship().definesType());
-    if (it.hasNext())
-    {
-      throw new ObjectHasDataException();
-    }
+//    // They can't delete it if there's existing data
+//    Universal root = Universal.getRoot();
+//    OIterator<? extends Business> it = root.getChildren(this.getUniversalRelationship().definesType());
+//    if (it.hasNext())
+//    {
+//      throw new ObjectHasDataException();
+//    }
 
     /*
      * Delete all inherited hierarchies
@@ -231,6 +252,7 @@ public class ServerHierarchyType
 
     Universal.getStrategy().shutdown(this.universalRelationship.definesType());
 
+    HierarchyMetadata.deleteByRelationship(this.universalRelationship);
     AttributeHierarchy.deleteByRelationship(this.universalRelationship);
 
     this.universalRelationship.delete();
