@@ -1,14 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
-import { debounceTime, map, distinctUntilChanged, filter, tap } from "rxjs/operators";
+import { debounceTime, distinctUntilChanged, filter, tap } from "rxjs/operators";
 import { fromEvent } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
 import { CreateHierarchyTypeModalComponent } from './modals/create-hierarchy-type-modal.component';
-import { AddChildToHierarchyModalComponent } from './modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
 import { ManageGeoObjectTypeModalComponent } from './modals/manage-geoobjecttype-modal.component';
 
