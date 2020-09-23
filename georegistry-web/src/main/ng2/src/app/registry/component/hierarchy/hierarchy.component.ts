@@ -1903,19 +1903,6 @@ export class HierarchyComponent implements OnInit {
 				this.filteredTypesByOrg.push({ org: item.org, types: filtered });
 			}
 		});
-
-
-		console.log('Filter: ' + this.filter);
-		console.log(this.filteredHierarchiesByOrg);
-		console.log(this.filteredTypesByOrg);
-
-		//	hierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
-		//	typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
-		//	
-		//	filter: string = '';
-		//	filteredHierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
-		//	filteredTypesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];	
-
 	}
 
 	public error(err: HttpErrorResponse): void {
