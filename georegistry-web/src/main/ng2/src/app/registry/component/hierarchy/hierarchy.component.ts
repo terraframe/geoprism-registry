@@ -21,6 +21,7 @@ import { Organization } from '@shared/model/core';
 import { RegistryService, HierarchyService } from '@registry/service';
 
 import * as d3 from 'd3';
+import { hierarchy } from 'd3';
 
 let defaultNodeFill = '#e6e6e6';
 let defaultNodeBannerColor = '#A29BAB';
@@ -822,6 +823,10 @@ export class HierarchyComponent implements OnInit {
 	hierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
 	typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
 
+	filter: string = '';
+	filteredHierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
+	filteredTypesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
+
 	hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
 	geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
 
@@ -1462,6 +1467,8 @@ export class HierarchyComponent implements OnInit {
 			this.hierarchiesByOrg.push({ org: org, hierarchies: this.getHierarchiesByOrg(org) });
 			this.typesByOrg.push({ org: org, types: this.getTypesByOrg(org) });
 		}
+		
+		this.onFilterChange();
 
 		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
@@ -1852,6 +1859,52 @@ export class HierarchyComponent implements OnInit {
 	public isActive(item: any) {
 		return this.currentHierarchy === item;
 	};
+
+	onFilterChange(): void {		
+		const label = this.filter.toLowerCase();
+
+		this.filteredHierarchiesByOrg = [];
+		this.filteredTypesByOrg = [];
+
+		this.hierarchiesByOrg.forEach((item: { org: Organization, hierarchies: HierarchyType[] }) => {
+
+			const filtered = item.hierarchies.filter((hierarchy: HierarchyType) => {
+				const index = hierarchy.label.localizedValue.toLowerCase().indexOf(label);
+
+				return (index !== -1);
+			});
+
+			if (filtered.length > 0) {
+				this.filteredHierarchiesByOrg.push({ org: item.org, hierarchies: filtered });
+			}
+		});
+		
+		this.typesByOrg.forEach((item: { org: Organization, types: GeoObjectType[] }) => {
+
+			const filtered = item.types.filter((type: GeoObjectType) => {
+				const index = type.label.localizedValue.toLowerCase().indexOf(label);
+
+				return (index !== -1);
+			});
+
+			if (filtered.length > 0) {
+				this.filteredTypesByOrg.push({ org: item.org, types: filtered });
+			}
+		});
+
+		
+		console.log('Filter: ' + this.filter);
+		console.log(this.filteredHierarchiesByOrg);
+		console.log(this.filteredTypesByOrg);
+
+		//	hierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
+		//	typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
+		//	
+		//	filter: string = '';
+		//	filteredHierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
+		//	filteredTypesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];	
+
+	}
 
 	public error(err: HttpErrorResponse): void {
 		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
