@@ -772,6 +772,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         // Search
         ServerGeoObjectQuery query = this.service.createQuery(location.getType(), this.configuration.getStartDate());
+        query.setLimit(20);
 
         if (ms.equals(ParentMatchStrategy.CODE))
         {
