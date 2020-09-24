@@ -1481,8 +1481,6 @@ export class HierarchyComponent implements OnInit {
 		}
 
 		this.onFilterChange();
-
-		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
 	public excludeHierarchyTypeDeletes(hierarchy: HierarchyType) {
@@ -1903,6 +1901,8 @@ export class HierarchyComponent implements OnInit {
 				this.filteredTypesByOrg.push({ org: item.org, types: filtered });
 			}
 		});
+		
+		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
 	public error(err: HttpErrorResponse): void {
