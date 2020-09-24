@@ -1,13 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
-
+import { debounceTime, distinctUntilChanged, filter, tap } from "rxjs/operators";
+import { fromEvent } from 'rxjs';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ContextMenuService, ContextMenuComponent } from 'ngx-contextmenu';
 
 import { CreateHierarchyTypeModalComponent } from './modals/create-hierarchy-type-modal.component';
-import { AddChildToHierarchyModalComponent } from './modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './modals/create-geoobjtype-modal.component';
 import { ManageGeoObjectTypeModalComponent } from './modals/manage-geoobjecttype-modal.component';
 
@@ -21,6 +20,7 @@ import { Organization } from '@shared/model/core';
 import { RegistryService, HierarchyService } from '@registry/service';
 
 import * as d3 from 'd3';
+import { hierarchy } from 'd3';
 
 let defaultNodeFill = '#e6e6e6';
 let defaultNodeBannerColor = '#A29BAB';
@@ -822,6 +822,11 @@ export class HierarchyComponent implements OnInit {
 	hierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
 	typesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
 
+	filter: string = '';
+	filteredHierarchiesByOrg: { org: Organization, hierarchies: HierarchyType[] }[] = [];
+	filteredTypesByOrg: { org: Organization, types: GeoObjectType[] }[] = [];
+	@ViewChild('searchInput', { static: true }) searchInput: ElementRef;
+
 	hierarchyTypeDeleteExclusions: string[] = ['AllowedIn', 'IsARelationship'];
 	geoObjectTypeDeleteExclusions: string[] = ['ROOT'];
 
@@ -866,6 +871,18 @@ export class HierarchyComponent implements OnInit {
 
 	ngOnInit(): void {
 		this.refreshAll(null);
+
+		fromEvent(this.searchInput.nativeElement, 'keyup').pipe(
+
+			// get value
+			filter(Boolean),
+			debounceTime(500),
+			distinctUntilChanged(),
+			tap(() => {
+				this.onFilterChange();
+			})
+			// subscription for response
+		).subscribe();
 	}
 
 	private renderTree() {
@@ -1463,6 +1480,8 @@ export class HierarchyComponent implements OnInit {
 			this.typesByOrg.push({ org: org, types: this.getTypesByOrg(org) });
 		}
 
+		this.onFilterChange();
+
 		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
@@ -1852,6 +1871,39 @@ export class HierarchyComponent implements OnInit {
 	public isActive(item: any) {
 		return this.currentHierarchy === item;
 	};
+
+	onFilterChange(): void {
+		const label = this.filter.toLowerCase();
+
+		this.filteredHierarchiesByOrg = [];
+		this.filteredTypesByOrg = [];
+
+		this.hierarchiesByOrg.forEach((item: { org: Organization, hierarchies: HierarchyType[] }) => {
+
+			const filtered = item.hierarchies.filter((hierarchy: HierarchyType) => {
+				const index = hierarchy.label.localizedValue.toLowerCase().indexOf(label);
+
+				return (index !== -1);
+			});
+
+			if (filtered.length > 0) {
+				this.filteredHierarchiesByOrg.push({ org: item.org, hierarchies: filtered });
+			}
+		});
+
+		this.typesByOrg.forEach((item: { org: Organization, types: GeoObjectType[] }) => {
+
+			const filtered = item.types.filter((type: GeoObjectType) => {
+				const index = type.label.localizedValue.toLowerCase().indexOf(label);
+
+				return (index !== -1);
+			});
+
+			if (filtered.length > 0) {
+				this.filteredTypesByOrg.push({ org: item.org, types: filtered });
+			}
+		});
+	}
 
 	public error(err: HttpErrorResponse): void {
 		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });

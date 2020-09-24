@@ -39,6 +39,7 @@ import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDateTimeDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
@@ -54,6 +55,7 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
@@ -136,6 +138,14 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     this.grantWritePermissionsOnMdTermRel(maintainer, mdEdge);
     this.grantReadPermissionsOnMdTermRel(consumer, mdEdge);
     this.grantReadPermissionsOnMdTermRel(contributor, mdEdge);
+
+    HierarchyMetadata metadata = new HierarchyMetadata();
+    metadata.setMdTermRelationship(mdTermRelUniversal);
+    metadata.setAbstractDescription(hierarchyType.getAbstractDescription());
+    metadata.setAcknowledgement(hierarchyType.getAcknowledgement());
+    metadata.setContact(hierarchyType.getContact());
+    metadata.setProgress(hierarchyType.getProgress());
+    metadata.apply();
 
     return this.get(mdTermRelUniversal);
   }
@@ -315,6 +325,19 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
 
     HierarchyType ht = new HierarchyType(hierarchyKey, displayLabel, description, organizationCode);
+
+    try
+    {
+      HierarchyMetadata metadata = HierarchyMetadata.getByKey(universalRelationship.getOid());
+      ht.setAbstractDescription(metadata.getAbstractDescription());
+      ht.setProgress(metadata.getProgress());
+      ht.setAcknowledgement(metadata.getAcknowledgement());
+      ht.setContact(metadata.getContact());
+    }
+    catch (DataNotFoundException e)
+    {
+      // Do nothing, no extra metadata exists for the hierarchy
+    }
 
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
 
