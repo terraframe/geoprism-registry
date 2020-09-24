@@ -614,7 +614,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
             Object value = function.getValue(row);
 
-            serverGo.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value));
+            serverGo.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
           }
 
           if (parent != null)
