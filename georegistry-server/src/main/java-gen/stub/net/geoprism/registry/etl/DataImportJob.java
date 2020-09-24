@@ -152,12 +152,11 @@ public class DataImportJob extends DataImportJobBase
 
     if (stage.equals(ImportStage.VALIDATE))
     {
-      deleteValidationProblems(history);
-
-      history.appLock();
-      history.setWorkProgress(0L);
-      history.setImportedRecords(0L);
-      history.apply();
+      // We can't do this because it prevents people from resuming the job where it left off
+//      history.appLock();
+//      history.setWorkProgress(0L);
+//      history.setImportedRecords(0L);
+//      history.apply();
 
       ImportProgressListenerIF progressListener = runImport(history, stage, config);
 
@@ -181,6 +180,8 @@ public class DataImportJob extends DataImportJobBase
         history.clearStage();
         history.addStage(ImportStage.IMPORT);
         history.setConfigJson(config.toJSON().toString());
+        history.setWorkProgress(0L);
+        history.setImportedRecords(0L);
         history.apply();
         
         NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
@@ -192,10 +193,11 @@ public class DataImportJob extends DataImportJobBase
     {
       deleteValidationProblems(history);
 
-      history.appLock();
-      history.setWorkProgress(0L);
-      history.setImportedRecords(0L);
-      history.apply();
+      // We can't do this because it prevents people from resuming the job where it left off
+//      history.appLock();
+//      history.setWorkProgress(0L);
+//      history.setImportedRecords(0L);
+//      history.apply();
 
       runImport(history, stage, config);
 
@@ -220,7 +222,7 @@ public class DataImportJob extends DataImportJobBase
       
       NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
     }
-    else if (stage.equals(ImportStage.RESUME_IMPORT))
+    else if (stage.equals(ImportStage.RESUME_IMPORT)) // TODO : I'm not sure this code block is ever used
     {
       runImport(history, stage, config);
 
@@ -266,7 +268,7 @@ public class DataImportJob extends DataImportJobBase
 
     if (history.getWorkProgress() > 0)
     {
-      formatImporter.setStartIndex(history.getWorkProgress());
+      formatImporter.setStartIndex(history.getWorkProgress() + 1); // We add one because the previous import failed at one row after where we were.
     }
 
     formatImporter.run(stage);
@@ -322,6 +324,7 @@ public class DataImportJob extends DataImportJobBase
     
     if (hist.getStatus().get(0).equals(AllJobStatus.RUNNING))
     {
+      // This code block happens when the server restarts after a job was running when it died.
       // Do nothing. Allow the job to resume as normal.
     }
     else
@@ -366,6 +369,8 @@ public class DataImportJob extends DataImportJobBase
     history.setStartTime(new Date());
     history.addStatus(AllJobStatus.NEW);
     history.addStage(ImportStage.VALIDATE);
+    history.setWorkProgress(0L);
+    history.setImportedRecords(0L);
     history.apply();
     
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
