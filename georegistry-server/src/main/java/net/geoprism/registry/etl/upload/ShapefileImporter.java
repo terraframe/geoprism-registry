@@ -91,7 +91,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   @Override
   public void setStartIndex(Long startIndex)
   {
-    this.startIndex = startIndex;
+    this.startIndex = startIndex - 1; // Subtract 1 because we're zero indexed
   }
   
   public Long getStartIndex()
