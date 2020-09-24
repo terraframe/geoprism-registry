@@ -319,34 +319,41 @@ public class DataImportJob extends DataImportJobBase
     ImportHistory hist = (ImportHistory) jhr.getChild();
 
     ImportStage stage = hist.getStage().get(0);
-
-    if (stage.equals(ImportStage.VALIDATION_RESOLVE))
+    
+    if (hist.getStatus().get(0).equals(AllJobStatus.RUNNING))
     {
-      DataImportJob.deleteValidationProblems(hist);
-
-      hist.appLock();
-      hist.clearStage();
-      hist.addStage(ImportStage.VALIDATE);
-      hist.setWorkProgress(0L);
-      hist.setImportedRecords(0L);
-      hist.apply();
+      // Do nothing. Allow the job to resume as normal.
     }
-    // else if (stage.equals(ImportStage.IMPORT_RESOLVE))
-    // {
-    // hist.appLock();
-    // hist.clearStage();
-    // hist.setWorkProgress(0);
-    // hist.addStage(ImportStage.RESUME_IMPORT);
-    // hist.apply();
-    // }
     else
     {
-      logger.error("Resuming job with unexpected initial stage [" + stage + "].");
-
-      hist.appLock();
-      hist.clearStage();
-      hist.addStage(ImportStage.VALIDATE);
-      hist.apply();
+      if (stage.equals(ImportStage.VALIDATION_RESOLVE))
+      {
+        DataImportJob.deleteValidationProblems(hist);
+  
+        hist.appLock();
+        hist.clearStage();
+        hist.addStage(ImportStage.VALIDATE);
+        hist.setWorkProgress(0L);
+        hist.setImportedRecords(0L);
+        hist.apply();
+      }
+      // else if (stage.equals(ImportStage.IMPORT_RESOLVE))
+      // {
+      // hist.appLock();
+      // hist.clearStage();
+      // hist.setWorkProgress(0);
+      // hist.addStage(ImportStage.RESUME_IMPORT);
+      // hist.apply();
+      // }
+      else
+      {
+        logger.error("Resuming job with unexpected initial stage [" + stage + "].");
+  
+        hist.appLock();
+        hist.clearStage();
+        hist.addStage(ImportStage.VALIDATE);
+        hist.apply();
+      }
     }
     
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
