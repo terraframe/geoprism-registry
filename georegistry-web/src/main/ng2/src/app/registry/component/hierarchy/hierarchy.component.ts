@@ -1700,6 +1700,17 @@ export class HierarchyComponent implements OnInit {
 			let pos = this.getHierarchyTypePosition(code);
 			this.hierarchies.splice(pos, 1);
 			this.updateViewDatastructures();
+			
+			if (this.hierarchies.length > 0)
+			{
+			  this.currentHierarchy = this.hierarchies[0];
+			}
+			else
+			{
+			  this.currentHierarchy = null;
+			}
+			
+			this.renderTree();
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
