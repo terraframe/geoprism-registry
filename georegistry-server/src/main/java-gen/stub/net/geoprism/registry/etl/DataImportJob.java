@@ -42,6 +42,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -259,7 +260,7 @@ public class DataImportJob extends DataImportJobBase
   {
     ImportHistoryProgressScribe progressListener = new ImportHistoryProgressScribe(history);
 
-    FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), config, progressListener);
+    FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), (GeoObjectImportConfiguration) config, progressListener);
 
     ObjectImporterIF objectImporter = ObjectImporterFactory.getImporter(config.getObjectType(), config, progressListener);
 

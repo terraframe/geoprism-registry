@@ -147,7 +147,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   
   private long lastImportSessionRefresh = 0;
   
-  private static final long refreshSessionRecordCount = 50; // Refresh the user's session every X amount of records
+  private static final long refreshSessionRecordCount = 10000; // Refresh the user's session every X amount of records
   
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
