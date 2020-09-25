@@ -51,7 +51,6 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -76,6 +75,7 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
@@ -858,7 +858,7 @@ public class RegistryService
     LocalizedValue label = new LocalizedValue("");
     label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "");
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {
@@ -926,7 +926,7 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getLocales(String sessionId)
   {
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     JsonArray array = new JsonArray();
     array.add(MdAttributeLocalInfo.DEFAULT_LOCALE);

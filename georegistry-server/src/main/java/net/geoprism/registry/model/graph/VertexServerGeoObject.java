@@ -1031,6 +1031,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public GeoObjectOverTime toGeoObjectOverTime()
   {
+    return this.toGeoObjectOverTime(true);
+  }
+
+  public GeoObjectOverTime toGeoObjectOverTime(boolean generateUid)
+  {
     Map<String, ValueOverTimeCollectionDTO> votAttributeMap = GeoObjectOverTime.buildVotAttributeMap(type.getType());
     Map<String, Attribute> attributeMap = GeoObjectOverTime.buildAttributeMap(type.getType());
 
@@ -1139,7 +1144,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
     });
 
-    if (vertex.isNew())// && !vertex.isAppliedToDB())
+    if (generateUid && vertex.isNew())// && !vertex.isAppliedToDB())
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
 
@@ -1265,8 +1270,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new EdgeComparator());
 
-    String statement = "SELECT FROM " + hierarchyType.getMdEdge().getDBClassName();
-    statement += " WHERE in = :child";
+    String statement = "SELECT expand(inE('" + hierarchyType.getMdEdge().getDBClassName() + "'))";
+    statement += " FROM :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
     query.setParameter("child", this.getVertex().getRID());
@@ -1323,9 +1328,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
 
-    String statement = "SELECT FROM " + mdEdge.getDBClassName();
-    statement += " WHERE out = :parent";
-    statement += " AND in = :child";
+    String statement = "SELECT expand(inE('" + mdEdge.getDBClassName() + "')[out = :parent])";
+    statement += " FROM :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
     query.setParameter("parent", system.getRID());

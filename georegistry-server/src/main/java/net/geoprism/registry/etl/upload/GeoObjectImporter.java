@@ -55,7 +55,6 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
-import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -83,13 +82,10 @@ import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
@@ -124,9 +120,9 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   }
 
-  private static final Logger              logger                     = LoggerFactory.getLogger(GeoObjectImporter.class);
+  private static final Logger              logger            = LoggerFactory.getLogger(GeoObjectImporter.class);
 
-  protected static final String            ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
+  protected static final String            ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
 
   protected GeoObjectImportConfiguration   configuration;
 
@@ -134,13 +130,11 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected Map<String, ServerGeoObjectIF> parentCache;
 
-  protected static final String            parentConcatToken          = "&";
+  protected static final String            parentConcatToken = "&";
 
   protected ImportProgressListenerIF       progressListener;
 
   protected FormatSpecificImporterIF       formatImporter;
-
-  private GeoObjectPermissionServiceIF     geoObjectPermissionService = new GeoObjectPermissionService();
 
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
@@ -259,25 +253,6 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     try
     {
-      // int beforeProbCount =
-      // this.progressListener.getValidationProblems().size();
-
-      /*
-       * Check permissions
-       */
-      ServerGeoObjectType type = this.configuration.getType();
-      if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-      {
-        if (this.configuration.getImportStrategy() == ImportStrategy.NEW_ONLY)
-        {
-          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-        }
-        else
-        {
-          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-        }
-      }
-
       /*
        * 1. Check for location problems
        */
@@ -355,7 +330,7 @@ public class GeoObjectImporter implements ObjectImporterIF
               }
             }
 
-            GeoObjectOverTime go = entity.toGeoObjectOverTime();
+            GeoObjectOverTime go = entity.toGeoObjectOverTime(false);
             go.toJSON().toString();
 
             if (this.configuration.isExternalImport())
@@ -467,8 +442,8 @@ public class GeoObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getWorkProgress() + 1);
-    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
+    this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
     this.configuration.addException(e);
   }
 
@@ -577,7 +552,7 @@ public class GeoObjectImporter implements ObjectImporterIF
             }
           }
 
-          go = serverGo.toGeoObjectOverTime();
+          go = serverGo.toGeoObjectOverTime(false);
           goJson = go.toJSON().toString();
 
           /*

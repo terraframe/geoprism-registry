@@ -38,7 +38,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.gis.dataaccess.AttributeGeometryIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.ValueQuery;
@@ -62,6 +61,7 @@ import net.geoprism.ontology.UserDataConverter;
 import net.geoprism.ontology.VectorLayerPublisherIF;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 
 public class VectorTileBuilder implements VectorLayerPublisherIF
 {
@@ -72,7 +72,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
   public VectorTileBuilder(MasterListVersion version)
   {
     this.version = version;
-    this.locales = SupportedLocaleDAO.getSupportedLocales();
+    this.locales = SupportedLocaleCache.getLocales();
   }
 
   private ResultSet getResultSet()
