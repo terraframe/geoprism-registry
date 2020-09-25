@@ -1481,8 +1481,6 @@ export class HierarchyComponent implements OnInit {
 		}
 
 		this.onFilterChange();
-
-		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
 	public excludeHierarchyTypeDeletes(hierarchy: HierarchyType) {
@@ -1702,6 +1700,17 @@ export class HierarchyComponent implements OnInit {
 			let pos = this.getHierarchyTypePosition(code);
 			this.hierarchies.splice(pos, 1);
 			this.updateViewDatastructures();
+			
+			if (this.hierarchies.length > 0)
+			{
+			  this.currentHierarchy = this.hierarchies[0];
+			}
+			else
+			{
+			  this.currentHierarchy = null;
+			}
+			
+			this.renderTree();
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -1903,6 +1912,8 @@ export class HierarchyComponent implements OnInit {
 				this.filteredTypesByOrg.push({ org: item.org, types: filtered });
 			}
 		});
+		
+		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
 	public error(err: HttpErrorResponse): void {

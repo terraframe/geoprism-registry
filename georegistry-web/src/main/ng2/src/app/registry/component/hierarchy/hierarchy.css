@@ -9,7 +9,7 @@ li.list-group-item.active {
 
 .sidebar-section-content {
 	overflow-y: auto;
-	height: calc(100vh - 144px - 175px);
+	height: calc(100vh - 144px - 175px - 40px);
 }
 
 .hierarchy-sidebar button {
