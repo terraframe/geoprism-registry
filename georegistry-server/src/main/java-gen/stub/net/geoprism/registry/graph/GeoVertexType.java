@@ -19,13 +19,14 @@
 package net.geoprism.registry.graph;
 
 
-import net.geoprism.registry.RegistryConstants;
-
+import com.runwaysdk.business.rbac.ActorDAOIF;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
 import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.system.gis.geo.Universal;
+
+import net.geoprism.registry.RegistryConstants;
 
 public class GeoVertexType extends GeoVertexTypeBase
 {

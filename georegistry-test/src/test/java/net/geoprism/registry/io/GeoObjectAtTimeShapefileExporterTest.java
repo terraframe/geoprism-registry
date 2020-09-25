@@ -44,10 +44,10 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 
 import com.runwaysdk.constants.VaultProperties;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
@@ -162,7 +162,7 @@ public class GeoObjectAtTimeShapefileExporterTest
         Object geometry = feature.getDefaultGeometry();
         Assert.assertNotNull(geometry);
 
-        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, SupportedLocaleDAO.getSupportedLocales()).attributes(type.getType());
+        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, SupportedLocaleCache.getLocales()).attributes(type.getType());
 
         for (AttributeType attribute : attributes)
         {

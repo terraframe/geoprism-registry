@@ -36,7 +36,6 @@ import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
@@ -48,6 +47,7 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class LocalizedValueConverter
 {
+  
   public Term getTerm(String code)
   {
     return ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
@@ -87,7 +87,7 @@ public class LocalizedValueConverter
     LocalizedValue label = new LocalizedValue(localStruct.getValue());
     label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, localStruct.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {
@@ -102,7 +102,7 @@ public class LocalizedValueConverter
     LocalizedValue localizedValue = new LocalizedValue(value);
     localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, map.get(MdAttributeLocalInfo.DEFAULT_LOCALE));
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {
@@ -125,7 +125,7 @@ public class LocalizedValueConverter
     struct.setValue(label.getValue());
     struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {
@@ -141,7 +141,7 @@ public class LocalizedValueConverter
     struct.setValue(label.getValue());
     struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE) + suffix);
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {
@@ -160,7 +160,7 @@ public class LocalizedValueConverter
     LocalizedValue localizedValue = new LocalizedValue(value);
     localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, value);
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {
@@ -174,7 +174,7 @@ public class LocalizedValueConverter
   {
     graphObject.setEmbeddedValue(attributeName, MdAttributeLocalInfo.DEFAULT_LOCALE, value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {
@@ -189,7 +189,7 @@ public class LocalizedValueConverter
   {
     graphObject.setEmbeddedValue(attributeName, MdAttributeLocalInfo.DEFAULT_LOCALE, value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), startDate, endDate);
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     for (Locale locale : locales)
     {

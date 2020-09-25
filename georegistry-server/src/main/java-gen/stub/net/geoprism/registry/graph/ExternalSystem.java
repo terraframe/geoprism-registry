@@ -20,12 +20,10 @@ package net.geoprism.registry.graph;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;

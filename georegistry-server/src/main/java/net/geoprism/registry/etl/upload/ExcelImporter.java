@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -38,6 +38,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -52,9 +53,13 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.RevealExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.LatLonException;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 
 /**
  * Class responsible for reading data from a spreadsheet row by row and making
@@ -65,23 +70,25 @@ import net.geoprism.registry.io.LatLonException;
  */
 public class ExcelImporter implements FormatSpecificImporterIF
 {
-  protected ApplicationResource      resource;
+  protected ApplicationResource        resource;
 
-  protected File                     excelImportFile = null;
+  protected File                       excelImportFile            = null;
 
-  protected ObjectImporterIF         objectImporter;
+  protected ObjectImporterIF           objectImporter;
 
-  protected ImportConfiguration      config;
+  protected ImportConfiguration        config;
 
-  protected ImportProgressListenerIF progressListener;
+  protected ImportProgressListenerIF   progressListener;
 
-  protected Long                     startIndex      = 0L;
+  protected Long                       startIndex                 = 0L;
 
-  protected GeometryFactory          factory;
+  protected GeometryFactory            factory;
 
-  protected ExcelContentHandler      excelHandler;
+  protected ExcelContentHandler        excelHandler;
 
-  protected static final Logger      logger          = LoggerFactory.getLogger(ExcelImporter.class);
+  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
+
+  protected static final Logger        logger                     = LoggerFactory.getLogger(ExcelImporter.class);
 
   public ExcelImporter(ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progressListener)
   {
@@ -212,6 +219,24 @@ public class ExcelImporter implements FormatSpecificImporterIF
   {
     try
     {
+      /*
+       * Check permissions
+       */
+      GeoObjectImportConfiguration config = this.getObjectImporter().getConfiguration();
+      ServerGeoObjectType type = config.getType();
+
+      if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+      {
+        if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
+        {
+          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        }
+        else
+        {
+          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        }
+      }
+      
       this.progressListener.setWorkTotal(this.getWorkTotal(file));
 
       if (this.config.isExternalImport() && this.config.getExternalSystem() instanceof RevealExternalSystem && this.config instanceof GeoObjectImportConfiguration)

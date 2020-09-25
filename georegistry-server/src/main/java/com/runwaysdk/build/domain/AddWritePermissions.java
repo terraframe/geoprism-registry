@@ -26,9 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
-import com.runwaysdk.business.ontology.OntologyStrategyBuilderIF;
-import com.runwaysdk.business.ontology.OntologyStrategyFactory;
-import com.runwaysdk.business.ontology.OntologyStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
@@ -40,7 +37,6 @@ import com.runwaysdk.gis.constants.GISConstants;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
-import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.ontology.Classifier;
