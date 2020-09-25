@@ -1327,14 +1327,13 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   private EdgeObject getExternalIdEdge(ExternalSystem system)
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
-    
-//    select expand(inE('external_id')) from geoobject where oid = 'dc5db23b-66f3-40ac-9c3d-f8151a86f5f3'
 
-    String statement = "SELECT expand(inE('"+ mdEdge.getDBClassName() + "'))";
-    statement += " FROM :rid";
+    String statement = "SELECT expand(inE('" + mdEdge.getDBClassName() + "')[out = :parent])";
+    statement += " FROM :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
-    query.setParameter("rid", this.getVertex().getRID());
+    query.setParameter("parent", system.getRID());
+    query.setParameter("child", this.getVertex().getRID());
 
     return query.getSingleResult();
   }
