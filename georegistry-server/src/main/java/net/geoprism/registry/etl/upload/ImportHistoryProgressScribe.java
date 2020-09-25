@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -33,28 +33,34 @@ import net.geoprism.registry.etl.ValidationProblem;
 
 public class ImportHistoryProgressScribe implements ImportProgressListenerIF
 {
-  private static Logger logger = LoggerFactory.getLogger(ImportHistoryProgressScribe.class);
-  
-  private ImportHistory history;
-  
-  private int recordedErrors = 0;
-  
-  private Set<ValidationProblem> referenceProblems = new TreeSet<ValidationProblem>();
-  
+  private static Logger          logger                = LoggerFactory.getLogger(ImportHistoryProgressScribe.class);
+
+  private ImportHistory          history;
+
+  private int                    recordedErrors        = 0;
+
+  private Long                   workProgress          = new Long(0);
+
+  private Long                   importedRecords       = new Long(0);
+
+  private Set<ValidationProblem> referenceProblems     = new TreeSet<ValidationProblem>();
+
   private Set<ValidationProblem> rowValidationProblems = new TreeSet<ValidationProblem>();
-  
+
   public ImportHistoryProgressScribe(ImportHistory history)
   {
     this.history = history;
+    this.workProgress = history.getWorkProgress();
+    this.importedRecords = history.getImportedRecords();
   }
-  
+
   @Override
   public void setWorkTotal(Long workTotal)
   {
     this.history.appLock();
     this.history.setWorkTotal(workTotal);
     this.history.apply();
-    
+
     logger.info("Starting import with total work size [" + this.history.getWorkTotal() + "] and import stage [" + this.history.getStage().get(0) + "].");
   }
 
@@ -64,14 +70,18 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     this.history.appLock();
     this.history.setWorkProgress(newWorkProgress);
     this.history.apply();
+
+    this.workProgress = newWorkProgress;
   }
-  
+
   @Override
   public void setImportedRecords(Long newImportedRecords)
   {
     this.history.appLock();
     this.history.setImportedRecords(newImportedRecords);
     this.history.apply();
+
+    this.importedRecords = newImportedRecords;
   }
 
   @Override
@@ -83,13 +93,16 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   @Override
   public Long getWorkProgress()
   {
-    return this.history.getWorkProgress();
+    return this.workProgress;
+    // return this.history.getWorkProgress();
   }
 
   @Override
   public Long getImportedRecords()
   {
-    return this.history.getImportedRecords();
+    return this.importedRecords;
+
+    // return this.history.getImportedRecords();
   }
 
   @Override
@@ -102,14 +115,14 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
     error.setObjectType(objectType);
     error.setRowIndex(rowNum);
     error.apply();
-    
+
     this.history.appLock();
     this.history.setErrorCount(this.history.getErrorCount() + 1);
     this.history.apply();
-    
+
     this.recordedErrors++;
   }
-  
+
   public int getRecordedErrorCount()
   {
     return this.recordedErrors;
@@ -120,23 +133,23 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   {
     return this.rowValidationProblems.size() > 0 || this.referenceProblems.size() > 0;
   }
-  
+
   @Override
   public void addReferenceProblem(ValidationProblem problem)
   {
     Iterator<ValidationProblem> it = this.referenceProblems.iterator();
-    
+
     while (it.hasNext())
     {
       ValidationProblem vp = it.next();
-      
+
       if (vp.getKey().equals(problem.getKey()))
       {
         vp.addAffectedRowNumber(Long.valueOf(problem.getAffectedRows()));
         return;
       }
     }
-    
+
     this.referenceProblems.add(problem);
   }
 
@@ -144,18 +157,18 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   public void addRowValidationProblem(ValidationProblem problem)
   {
     Iterator<ValidationProblem> it = this.rowValidationProblems.iterator();
-    
+
     while (it.hasNext())
     {
       ValidationProblem vp = it.next();
-      
+
       if (vp.getKey().equals(problem.getKey()))
       {
         vp.addAffectedRowNumber(Long.valueOf(problem.getAffectedRows()));
         return;
       }
     }
-    
+
     this.rowValidationProblems.add(problem);
   }
 

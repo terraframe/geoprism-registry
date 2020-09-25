@@ -143,7 +143,7 @@ public class DataImportJob extends DataImportJobBase
   private void process(ExecutionContext executionContext, ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
     validate(config);
-
+    
     // TODO : We should have a single transaction where we do all the history
     // configuration upfront, that way the job is either fully configured (and
     // resumable) or it isn't (no in-between)

@@ -27,7 +27,6 @@ import java.util.Map;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.controller.MultipartFileParameter;
@@ -60,7 +59,6 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.service.GeoSynonymService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;

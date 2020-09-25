@@ -34,7 +34,6 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class AddChildAction extends AddChildActionBase

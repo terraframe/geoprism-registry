@@ -26,7 +26,6 @@ import java.util.List;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -34,7 +33,6 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;

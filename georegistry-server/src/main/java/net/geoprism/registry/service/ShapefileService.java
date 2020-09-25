@@ -42,7 +42,6 @@ import org.opengis.feature.type.GeometryDescriptor;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -50,6 +49,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileFormatException;
@@ -116,7 +116,7 @@ public class ShapefileService
 
   private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
-    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, true, SupportedLocaleDAO.getSupportedLocales())).toString());
+    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, true, SupportedLocaleCache.getLocales())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)

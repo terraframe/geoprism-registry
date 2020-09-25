@@ -59,6 +59,7 @@ import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.ExportRemoteException;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -118,7 +119,7 @@ public class DHIS2GeoObjectJsonAdapters
           throw remoteEx;
         }
 
-        serverGo.createExternalId(this.ex, externalId);
+        serverGo.createExternalId(this.ex, externalId, ImportStrategy.NEW_ONLY);
       }
 
       return externalId;

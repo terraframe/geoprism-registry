@@ -20,13 +20,9 @@ package net.geoprism.registry.etl.export;
 
 import org.json.JSONObject;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
-
-import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 
 public class ExportError extends ExportErrorBase
 {

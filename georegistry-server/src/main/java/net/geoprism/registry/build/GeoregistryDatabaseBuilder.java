@@ -21,15 +21,11 @@ package net.geoprism.registry.build;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.runwaysdk.business.ontology.OntologyStrategyBuilderIF;
-import com.runwaysdk.business.ontology.OntologyStrategyFactory;
-import com.runwaysdk.business.ontology.OntologyStrategyIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
-import com.runwaysdk.system.metadata.ontology.DatabaseAllPathsStrategy;
 
 import net.geoprism.build.GeoprismDatabaseBuilder;
 import net.geoprism.build.GeoprismDatabaseBuilderIF;

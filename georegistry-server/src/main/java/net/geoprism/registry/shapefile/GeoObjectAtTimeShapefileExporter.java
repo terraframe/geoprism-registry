@@ -70,7 +70,6 @@ import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -81,6 +80,7 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -249,7 +249,7 @@ public class GeoObjectAtTimeShapefileExporter
 
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     VertexServerGeoObject prev = null;
 
@@ -314,7 +314,7 @@ public class GeoObjectAtTimeShapefileExporter
 
   public SimpleFeatureType createFeatureType()
   {
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
     builder.setName(this.type.getLabel().getValue());

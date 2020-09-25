@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -42,6 +42,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -49,26 +50,34 @@ import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 
 /**
- * Class responsible for reading data from a shapefile row by row and making available that data as a common interface for
- * consumption by the object importer.
+ * Class responsible for reading data from a shapefile row by row and making
+ * available that data as a common interface for consumption by the object
+ * importer.
  * 
  * @author Richard Rowlands
  */
 public class ShapefileImporter implements FormatSpecificImporterIF
 {
-  protected ApplicationResource resource;
-  
-  protected ObjectImporterIF objectImporter;
-  
-  protected ImportProgressListenerIF progressListener;
-  
-  protected Long startIndex = 0L;
-  
-  protected ImportConfiguration config;
-  
-  protected static final Logger logger = LoggerFactory.getLogger(ShapefileImporter.class);
+  protected static final Logger        logger                     = LoggerFactory.getLogger(ShapefileImporter.class);
+
+  protected ApplicationResource        resource;
+
+  protected ObjectImporterIF           objectImporter;
+
+  protected ImportProgressListenerIF   progressListener;
+
+  protected Long                       startIndex                 = 0L;
+
+  protected ImportConfiguration        config;
+
+  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
 
   public ShapefileImporter(ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progressListener)
   {
@@ -76,7 +85,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     this.progressListener = progressListener;
     this.config = config;
   }
-  
+
   public ObjectImporterIF getObjectImporter()
   {
     return objectImporter;
@@ -93,12 +102,12 @@ public class ShapefileImporter implements FormatSpecificImporterIF
   {
     this.startIndex = startIndex - 1; // Subtract 1 because we're zero indexed
   }
-  
+
   public Long getStartIndex()
   {
     return this.startIndex;
   }
-  
+
   @Override
   public void run(ImportStage stage)
   {
@@ -114,7 +123,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
   public static CloseableFile getShapefileFromResource(ApplicationResource res, String extension)
   {
     try
@@ -124,9 +133,9 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         try (InputStream is = res.openNewStream())
         {
           File dir = Files.createTempDirectory(res.getBaseName()).toFile();
-          
+
           extract(is, dir);
-          
+
           File[] dbfs = dir.listFiles(new FilenameFilter()
           {
             @Override
@@ -151,10 +160,10 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     {
       throw new ProgrammingErrorException(e);
     }
-    
+
     throw new ImportFileFormatException();
   }
-  
+
   private static void extract(InputStream iStream, File directory)
   {
     // create a buffer to improve copy performance later.
@@ -193,36 +202,58 @@ public class ShapefileImporter implements FormatSpecificImporterIF
    * @param writer
    *          Log file writer
    * @throws InvocationTargetException
-   * @throws IOException 
+   * @throws IOException
    */
   @Request
   private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException
   {
+    /*
+     * Check permissions
+     */
+    GeoObjectImportConfiguration config = this.getObjectImporter().getConfiguration();
+    ServerGeoObjectType type = config.getType();
+
+    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    {
+      if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
+      {
+        this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+      }
+      else
+      {
+        this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+      }
+    }
+
     FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
-    
+
     try
     {
       SimpleFeatureSource source = myData.getFeatureSource();
-  
+
       Query query = new Query();
-      
-      query.setSortBy(new SortBy[] {SortBy.NATURAL_ORDER}); // Enforce predictable ordering based on alphabetical Feature Ids
-      
+
+      query.setSortBy(new SortBy[] { SortBy.NATURAL_ORDER }); // Enforce
+                                                              // predictable
+                                                              // ordering based
+                                                              // on alphabetical
+                                                              // Feature Ids
+
       if (this.getStartIndex() > 0)
       {
         query.setStartIndex(Math.toIntExact(this.getStartIndex()));
       }
-      
+
       this.progressListener.setWorkTotal((long) source.getFeatures(query).size());
-      
+
       SimpleFeatureIterator iterator = source.getFeatures(query).features();
-      
+
       try
       {
         while (iterator.hasNext())
         {
           SimpleFeature feature = iterator.next();
-          
+
           if (stage.equals(ImportStage.VALIDATE))
           {
             this.objectImporter.validateRow(new SimpleFeatureRow(feature));
