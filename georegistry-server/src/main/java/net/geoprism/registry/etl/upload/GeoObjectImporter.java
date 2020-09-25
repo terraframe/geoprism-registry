@@ -56,6 +56,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -141,7 +142,13 @@ public class GeoObjectImporter implements ObjectImporterIF
   protected FormatSpecificImporterIF       formatImporter;
 
   private GeoObjectPermissionServiceIF     geoObjectPermissionService = new GeoObjectPermissionService();
-
+  
+  private long lastValidateSessionRefresh = 0;
+  
+  private long lastImportSessionRefresh = 0;
+  
+  private static final long refreshSessionRecordCount = 50; // Refresh the user's session every X amount of records
+  
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
@@ -257,6 +264,14 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   public void validateRow(FeatureRow row)
   {
+    // Refresh the session because it might expire on long imports
+    final long curWorkProgress = this.progressListener.getWorkProgress();
+    if ( (this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount) <  curWorkProgress)
+    {
+      SessionFacade.renewSession(Session.getCurrentSession().getOid());
+      this.lastValidateSessionRefresh = curWorkProgress;
+    }
+    
     try
     {
       // int beforeProbCount =
@@ -411,13 +426,13 @@ public class GeoObjectImporter implements ObjectImporterIF
     catch (Throwable t)
     {
       RowValidationProblem problem = new RowValidationProblem(t);
-      problem.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+      problem.addAffectedRowNumber(curWorkProgress + 1);
       problem.setHistoryId(this.configuration.historyId);
 
       this.progressListener.addRowValidationProblem(problem);
     }
 
-    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
+    this.progressListener.setWorkProgress(curWorkProgress + 1);
   }
 
   /**
@@ -475,6 +490,14 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   public void importRowInTrans(FeatureRow row, RowData data)
   {
+    // Refresh the session because it might expire on long imports
+    final long curWorkProgress = this.progressListener.getWorkProgress();
+    if ( (this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount) <  curWorkProgress)
+    {
+      SessionFacade.renewSession(Session.getCurrentSession().getOid());
+      this.lastImportSessionRefresh = curWorkProgress;
+    }
+    
     GeoObjectOverTime go = null;
 
     String goJson = null;
@@ -660,7 +683,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       buildRecordException(goJson, isNew, parentBuilder, t);
     }
 
-    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
+    this.progressListener.setWorkProgress(curWorkProgress + 1);
   }
 
   private void buildRecordException(String goJson, boolean isNew, GeoObjectParentErrorBuilder parentBuilder, Throwable t)
