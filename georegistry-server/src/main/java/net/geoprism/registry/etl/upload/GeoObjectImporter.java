@@ -442,8 +442,8 @@ public class GeoObjectImporter implements ObjectImporterIF
       obj.put("parents", parentBuilder.build());
     }
 
-    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getWorkProgress() + 1);
-    this.progressListener.setWorkProgress(this.progressListener.getWorkProgress() + 1);
+    this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
+    this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
     this.configuration.addException(e);
   }
 
