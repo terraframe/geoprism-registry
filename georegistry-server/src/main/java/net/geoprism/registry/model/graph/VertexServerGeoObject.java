@@ -1270,8 +1270,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new EdgeComparator());
 
-    String statement = "SELECT FROM " + hierarchyType.getMdEdge().getDBClassName();
-    statement += " WHERE in = :child";
+    String statement = "SELECT expand(inE('" + hierarchyType.getMdEdge().getDBClassName() + "'))";
+    statement += " FROM :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
     query.setParameter("child", this.getVertex().getRID());
