@@ -46,7 +46,6 @@ import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -55,6 +54,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -828,20 +828,24 @@ public class MasterList extends MasterListBase
       list.enforceActorHasPermission(Operation.CREATE);
     }
 
-    MasterListQuery query = new MasterListQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(list.getUniversal()));
-    query.AND(query.getOrganization().EQ(list.getOrganization()));
-
-    if (!list.isNew())
+    if (list.getIsMaster() != null && list.getIsMaster())
     {
-      query.AND(query.getOid().NE(list.getOid()));
-    }
+      MasterListQuery query = new MasterListQuery(new QueryFactory());
+      query.WHERE(query.getUniversal().EQ(list.getUniversal()));
+      query.AND(query.getOrganization().EQ(list.getOrganization()));
+      query.AND(query.getIsMaster().EQ(true));
 
-    if (query.getCount() > 0)
-    {
-      ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+      if (!list.isNew())
+      {
+        query.AND(query.getOid().NE(list.getOid()));
+      }
 
-      throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+      if (query.getCount() > 0)
+      {
+        ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+
+        throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+      }
     }
 
     list.apply();
@@ -865,7 +869,7 @@ public class MasterList extends MasterListBase
 
   public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)
   {
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     MasterListQuery query = new MasterListQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(type.getUniversal()));

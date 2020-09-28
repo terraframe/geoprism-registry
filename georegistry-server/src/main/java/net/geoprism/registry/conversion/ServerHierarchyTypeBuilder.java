@@ -336,7 +336,10 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     }
     catch (DataNotFoundException e)
     {
-      // Do nothing, no extra metadata exists for the hierarchy
+      ht.setAbstractDescription("");
+      ht.setProgress("");
+      ht.setAcknowledgement("");
+      ht.setContact("");
     }
 
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);

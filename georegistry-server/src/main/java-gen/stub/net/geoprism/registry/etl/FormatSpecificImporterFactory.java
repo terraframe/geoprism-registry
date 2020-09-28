@@ -22,9 +22,9 @@ import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.etl.upload.ExcelImporter;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
-import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class FormatSpecificImporterFactory
 {
@@ -34,7 +34,7 @@ public class FormatSpecificImporterFactory
     DHIS2
   }
   
-  public static FormatSpecificImporterIF getImporter(String type, ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progress)
+  public static FormatSpecificImporterIF getImporter(String type, ApplicationResource resource, GeoObjectImportConfiguration config, ImportProgressListenerIF progress)
   {
     if (type.equals(FormatImporterType.SHAPEFILE.name()))
     {

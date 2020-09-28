@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model.graph;
 
@@ -98,6 +98,7 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
@@ -1030,6 +1031,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public GeoObjectOverTime toGeoObjectOverTime()
   {
+    return this.toGeoObjectOverTime(true);
+  }
+
+  public GeoObjectOverTime toGeoObjectOverTime(boolean generateUid)
+  {
     Map<String, ValueOverTimeCollectionDTO> votAttributeMap = GeoObjectOverTime.buildVotAttributeMap(type.getType());
     Map<String, Attribute> attributeMap = GeoObjectOverTime.buildAttributeMap(type.getType());
 
@@ -1138,7 +1144,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
     });
 
-    if (vertex.isNew())// && !vertex.isAppliedToDB())
+    if (generateUid && vertex.isNew())// && !vertex.isAppliedToDB())
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
 
@@ -1264,8 +1270,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new EdgeComparator());
 
-    String statement = "SELECT FROM " + hierarchyType.getMdEdge().getDBClassName();
-    statement += " WHERE in = :child";
+    String statement = "SELECT expand(inE('" + hierarchyType.getMdEdge().getDBClassName() + "'))";
+    statement += " FROM :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
     query.setParameter("child", this.getVertex().getRID());
@@ -1322,9 +1328,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
 
-    String statement = "SELECT FROM " + mdEdge.getDBClassName();
-    statement += " WHERE out = :parent";
-    statement += " AND in = :child";
+    String statement = "SELECT expand(inE('" + mdEdge.getDBClassName() + "')[out = :parent])";
+    statement += " FROM :child";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
     query.setParameter("parent", system.getRID());
@@ -1334,17 +1339,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
-  public void createExternalId(ExternalSystem system, String id)
+  public void createExternalId(ExternalSystem system, String id, ImportStrategy importStrategy)
   {
-    EdgeObject edge = this.getExternalIdEdge(system);
-
-    if (edge == null)
+    if (importStrategy.equals(ImportStrategy.NEW_ONLY))
     {
-      edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
+      EdgeObject edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
+      edge.setValue("id", id);
+      edge.apply();
     }
+    else
+    {
+      EdgeObject edge = this.getExternalIdEdge(system);
 
-    edge.setValue("id", id);
-    edge.apply();
+      if (edge == null)
+      {
+        edge = this.getVertex().addParent(system, GeoVertex.EXTERNAL_ID);
+      }
+
+      edge.setValue("id", id);
+      edge.apply();
+    }
   }
 
   @Override

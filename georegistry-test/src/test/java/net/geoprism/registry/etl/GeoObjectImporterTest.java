@@ -46,6 +46,7 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -156,6 +157,13 @@ public class GeoObjectImporterTest
     {
       it.next().delete();
     }
+    
+    for (int i = 1; i < 11; ++i)
+    {
+        TestGeoObjectInfo one = testData.newTestGeoObjectInfo("000" + i, testData.DISTRICT);
+        one.setCode("000" + i);
+        one.delete();
+    }
   }
 
   private ImportHistory importExcelFile(String sessionId, String config) throws InterruptedException
@@ -175,14 +183,6 @@ public class GeoObjectImporterTest
   @Request
   public void testNewAndUpdate() throws InterruptedException
   {
-    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
-    one.setCode("0001");
-    one.delete();
-
-    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", testData.DISTRICT);
-    two.setCode("0002");
-    two.delete();
-
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
     Assert.assertNotNull(istream);
@@ -240,14 +240,6 @@ public class GeoObjectImporterTest
   @Request
   public void testUpdateOnly() throws InterruptedException
   {
-    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
-    one.setCode("0001");
-    one.delete();
-
-    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", testData.DISTRICT);
-    two.setCode("0002");
-    two.delete();
-
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
 
     Assert.assertNotNull(istream);
@@ -257,7 +249,7 @@ public class GeoObjectImporterTest
 
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.UPDATE_ONLY);
     config.setHierarchy(hierarchyType);
-
+    
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
@@ -303,14 +295,6 @@ public class GeoObjectImporterTest
   @Request
   public void testCreateOnly() throws InterruptedException
   {
-    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
-    one.setCode("0001");
-    one.delete();
-
-    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", testData.DISTRICT);
-    two.setCode("0002");
-    two.delete();
-
     // USATestData.CO_D_ONE.delete();
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet2.xlsx");
@@ -365,7 +349,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(1, json.getJSONArray("results").length());
   }
-
+  
   @Test
   @Request
   public void testErrorSerializeParents() throws InterruptedException
@@ -376,14 +360,6 @@ public class GeoObjectImporterTest
     state00.setRegistryId(ServiceFactory.getIdService().getUids(1)[0]);
     state00.apply();
     testData.USA.addChild(state00, testData.HIER_ADMIN);
-
-    TestGeoObjectInfo one = testData.newTestGeoObjectInfo("0001", testData.DISTRICT);
-    one.setCode("0001");
-    one.delete();
-
-    TestGeoObjectInfo two = testData.newTestGeoObjectInfo("0002", testData.DISTRICT);
-    two.setCode("0002");
-    two.delete();
 
     InputStream istream = this.getClass().getResourceAsStream("/parent-test.xlsx");
 

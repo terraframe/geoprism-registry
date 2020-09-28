@@ -105,7 +105,9 @@ export class SvgHierarchyType {
 
 	isPrimary: boolean;
 
-	public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, hierarchyType: HierarchyType, isPrimary: boolean) {
+	public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, ht: HierarchyType, isPrimary: boolean) {
+		const hierarchyType = JSON.parse(JSON.stringify(ht));
+
 		this.hierarchyComponent = hierarchyComponent;
 		this.hierarchyType = hierarchyType;
 		this.svgEl = svgEl;
@@ -858,6 +860,34 @@ export class HierarchyComponent implements OnInit {
 
 	localizeService: LocalizationService;
 
+	options = {
+		//		  allowDrag: (any) => node.isLeaf,
+		//		  allowDrop: (element:Element, { parent, index }: {parent:TreeNode,index:number}) => {
+		// return true / false based on element, to.parent, to.index. e.g.
+		//			    return parent.hasChildren;
+		//			  },
+		displayField: "label",
+		actionMapping: {
+			mouse: {
+				click: (tree: any, node: any, $event: any) => {
+					this.treeNodeOnClick(node, $event);
+				},
+				contextMenu: (tree: any, node: any, $event: any) => {
+					this.handleOnMenu(node, $event);
+				}
+			}
+		},
+		mouse: {
+			//	            drop: (tree: any, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
+			//	              console.log('drag', from, to); // from === {name: 'first'}
+			//	              // Add a node to `to.parent` at `to.index` based on the data in `from`
+			//	              // Then call tree.update()
+			//	            }
+		}
+	};
+
+
+
 	constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
 		private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
 		localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
@@ -1481,8 +1511,6 @@ export class HierarchyComponent implements OnInit {
 		}
 
 		this.onFilterChange();
-
-		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
 	public excludeHierarchyTypeDeletes(hierarchy: HierarchyType) {
@@ -1596,32 +1624,6 @@ export class HierarchyComponent implements OnInit {
 		}
 	}
 
-	options = {
-		//		  allowDrag: (any) => node.isLeaf,
-		//		  allowDrop: (element:Element, { parent, index }: {parent:TreeNode,index:number}) => {
-		// return true / false based on element, to.parent, to.index. e.g.
-		//			    return parent.hasChildren;
-		//			  },
-		displayField: "label",
-		actionMapping: {
-			mouse: {
-				click: (tree: any, node: any, $event: any) => {
-					this.treeNodeOnClick(node, $event);
-				},
-				contextMenu: (tree: any, node: any, $event: any) => {
-					this.handleOnMenu(node, $event);
-				}
-			}
-		},
-		mouse: {
-			//	            drop: (tree: any, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
-			//	              console.log('drag', from, to); // from === {name: 'first'}
-			//	              // Add a node to `to.parent` at `to.index` based on the data in `from`
-			//	              // Then call tree.update()
-			//	            }
-		}
-	};
-
 	public hierarchyOnClick(event: any, item: any) {
 		let hierarchyId = item.code;
 
@@ -1658,7 +1660,6 @@ export class HierarchyComponent implements OnInit {
 			});
 
 			this.updateViewDatastructures();
-
 		});
 	}
 
@@ -1679,6 +1680,7 @@ export class HierarchyComponent implements OnInit {
 	}
 
 	public editHierarchyType(obj: HierarchyType, readOnly: boolean): void {
+
 		this.bsModalRef = this.modalService.show(CreateHierarchyTypeModalComponent, {
 			animated: true,
 			backdrop: true,
@@ -1687,12 +1689,18 @@ export class HierarchyComponent implements OnInit {
 		});
 		this.bsModalRef.content.edit = true;
 		this.bsModalRef.content.readOnly = readOnly;
-		this.bsModalRef.content.hierarchyType = obj;
+		this.bsModalRef.content.hierarchyType = JSON.parse(JSON.stringify(obj));
 		this.bsModalRef.content.onHierarchytTypeCreate.subscribe(data => {
 			let pos = this.getHierarchyTypePosition(data.code);
 
 			this.hierarchies[pos].label = data.label;
 			this.hierarchies[pos].description = data.description;
+			this.hierarchies[pos].abstractDescription = data.abstractDescription;
+			this.hierarchies[pos].progress = data.progress;
+			this.hierarchies[pos].acknowledgement = data.acknowledgement;
+			this.hierarchies[pos].contact = data.contact;
+
+			this.updateViewDatastructures();
 		});
 	}
 
@@ -1702,6 +1710,15 @@ export class HierarchyComponent implements OnInit {
 			let pos = this.getHierarchyTypePosition(code);
 			this.hierarchies.splice(pos, 1);
 			this.updateViewDatastructures();
+
+			if (this.hierarchies.length > 0) {
+				this.currentHierarchy = this.hierarchies[0];
+			}
+			else {
+				this.currentHierarchy = null;
+			}
+
+			this.renderTree();
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -1793,11 +1810,13 @@ export class HierarchyComponent implements OnInit {
 		this.bsModalRef.content.readOnly = readOnly;
 
 		(<ManageGeoObjectTypeModalComponent>this.bsModalRef.content).onGeoObjectTypeSubmitted.subscribe(data => {
+			const position = this.getGeoObjectTypePosition(data.code);
 
-			let position = this.getGeoObjectTypePosition(data.code);
-			if (position) {
+			if (position !== -1) {
 				this.geoObjectTypes[position] = data;
 			}
+
+			this.updateViewDatastructures();
 		});
 	}
 
@@ -1903,6 +1922,8 @@ export class HierarchyComponent implements OnInit {
 				this.filteredTypesByOrg.push({ org: item.org, types: filtered });
 			}
 		});
+
+		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
 	public error(err: HttpErrorResponse): void {

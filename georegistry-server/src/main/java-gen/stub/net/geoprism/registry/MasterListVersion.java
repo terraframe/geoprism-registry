@@ -84,7 +84,6 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
-import com.runwaysdk.dataaccess.metadata.SupportedLocaleDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.query.OIterator;
@@ -115,6 +114,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -128,7 +128,6 @@ import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.service.WMSService;
 import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase
@@ -501,7 +500,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     metadata.setMdBusiness(mdBusiness);
 
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
 
@@ -699,7 +698,7 @@ public class MasterListVersion extends MasterListVersionBase
 
       ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
 
-      List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+      List<Locale> locales = SupportedLocaleCache.getLocales();
 
       // Add the type ancestor fields
       Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
@@ -711,6 +710,12 @@ public class MasterListVersion extends MasterListVersionBase
 
       VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getForDate());
       Long count = query.getCount();
+
+      if (count == null)
+      {
+        count = 0L;
+      }
+
       long current = 0;
 
       try
@@ -885,7 +890,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
@@ -922,7 +927,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
@@ -1017,7 +1022,7 @@ public class MasterListVersion extends MasterListVersionBase
 
   private JsonArray getAttributesAsJson()
   {
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
     MasterList list = this.getMasterlist();
 
     Map<String, JsonArray> dependencies = new HashMap<String, JsonArray>();
@@ -1191,7 +1196,7 @@ public class MasterListVersion extends MasterListVersionBase
 
   public void removeAttributeType(TableMetadata metadata, AttributeType attributeType)
   {
-    List<Locale> locales = SupportedLocaleDAO.getSupportedLocales();
+    List<Locale> locales = SupportedLocaleCache.getLocales();
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(metadata.getMdBusiness().getOid());
 

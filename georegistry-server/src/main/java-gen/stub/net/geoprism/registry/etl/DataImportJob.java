@@ -42,6 +42,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -143,7 +144,7 @@ public class DataImportJob extends DataImportJobBase
   private void process(ExecutionContext executionContext, ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
     validate(config);
-
+    
     // TODO : We should have a single transaction where we do all the history
     // configuration upfront, that way the job is either fully configured (and
     // resumable) or it isn't (no in-between)
@@ -259,7 +260,7 @@ public class DataImportJob extends DataImportJobBase
   {
     ImportHistoryProgressScribe progressListener = new ImportHistoryProgressScribe(history);
 
-    FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), config, progressListener);
+    FormatSpecificImporterIF formatImporter = FormatSpecificImporterFactory.getImporter(config.getFormatType(), history.getImportFile(), (GeoObjectImportConfiguration) config, progressListener);
 
     ObjectImporterIF objectImporter = ObjectImporterFactory.getImporter(config.getObjectType(), config, progressListener);
 

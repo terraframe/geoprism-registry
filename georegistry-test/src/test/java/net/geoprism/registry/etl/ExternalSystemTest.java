@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -29,6 +29,7 @@ import org.junit.Test;
 import com.runwaysdk.session.Request;
 
 import junit.framework.Assert;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.RevealExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -36,14 +37,13 @@ import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
-import net.geoprism.registry.test.USATestData;
 
 public class ExternalSystemTest
 {
   protected static FastTestDataset testData;
-  
-  public static final String EXTERNAL_SYSTEM_ID = "ExternalSystemTest";
-  
+
+  public static final String       EXTERNAL_SYSTEM_ID = "ExternalSystemTest";
+
   @BeforeClass
   public static void setUpClass()
   {
@@ -56,14 +56,14 @@ public class ExternalSystemTest
   {
     testData.tearDownMetadata();
   }
-  
+
   @Before
   public void setUp()
   {
     testData.setUpInstanceData();
-    
+
     TestDataSet.deleteExternalSystems(EXTERNAL_SYSTEM_ID);
-    
+
     testData.logIn(testData.USER_CGOV_RA);
   }
 
@@ -71,7 +71,7 @@ public class ExternalSystemTest
   public void tearDown()
   {
     testData.logOut();
-    
+
     testData.tearDownInstanceData();
   }
 
@@ -103,10 +103,10 @@ public class ExternalSystemTest
     system.apply();
 
     String expected = "EXTERNAL ID";
-    
+
     ServerGeoObjectIF serverGO = testData.PROV_CENTRAL.getServerObject();
 
-    serverGO.createExternalId(system, expected);
+    serverGO.createExternalId(system, expected, ImportStrategy.NEW_ONLY);
 
     String actual = serverGO.getExternalId(system);
 
@@ -128,7 +128,7 @@ public class ExternalSystemTest
 
     ServerGeoObjectIF serverGO = testData.PROV_CENTRAL.getServerObject();
 
-    serverGO.createExternalId(system, externalId);
+    serverGO.createExternalId(system, externalId, ImportStrategy.NEW_ONLY);
 
     VertexGeoObjectQuery query = new VertexGeoObjectQuery(testData.PROVINCE.getServerObject(), new Date());
     query.setRestriction(new ServerExternalIdRestriction(system, externalId));
