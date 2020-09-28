@@ -26,7 +26,7 @@ let defaultNodeFill = '#e6e6e6';
 let defaultNodeBannerColor = '#A29BAB';
 let inheritedNodeFill = '#d4d4d4';
 let inheritedNodeBannerColor = '#a0a0a0';
-let relatedNodeBannerColor = '#808080';
+let relatedNodeBannerColor = inheritedNodeBannerColor;
 let relatedNodeFill = defaultNodeFill;
 
 
@@ -91,7 +91,7 @@ export class SvgHierarchyType {
 	public static gotRectH: number = 25;
 
 	public static gotHeaderW: number = 150;
-	public static gotHeaderH: number = 12;
+	public static gotHeaderH: number = 14;
 
 	hierarchyComponent: HierarchyComponent;
 
