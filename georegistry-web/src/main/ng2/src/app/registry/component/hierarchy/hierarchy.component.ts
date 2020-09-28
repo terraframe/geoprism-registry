@@ -1625,8 +1625,6 @@ export class HierarchyComponent implements OnInit {
 	}
 
 	public hierarchyOnClick(event: any, item: any) {
-		let hierarchyId = item.code;
-
 		this.currentHierarchy = item;
 
 		this.renderTree();
@@ -1701,6 +1699,11 @@ export class HierarchyComponent implements OnInit {
 			this.hierarchies[pos].contact = data.contact;
 
 			this.updateViewDatastructures();
+
+			if (this.currentHierarchy.code === data.code) {
+				this.currentHierarchy = this.hierarchies[pos];
+				this.renderTree();
+			}
 		});
 	}
 
@@ -1816,7 +1819,14 @@ export class HierarchyComponent implements OnInit {
 				this.geoObjectTypes[position] = data;
 			}
 
+			// Update all of the hierarchies for the new geo object type
 			this.updateViewDatastructures();
+
+			this.hierarchies.forEach((hierarchyType: HierarchyType) => {
+				this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
+			});
+
+			this.renderTree();
 		});
 	}
 
