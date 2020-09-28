@@ -860,6 +860,34 @@ export class HierarchyComponent implements OnInit {
 
 	localizeService: LocalizationService;
 
+	options = {
+		//		  allowDrag: (any) => node.isLeaf,
+		//		  allowDrop: (element:Element, { parent, index }: {parent:TreeNode,index:number}) => {
+		// return true / false based on element, to.parent, to.index. e.g.
+		//			    return parent.hasChildren;
+		//			  },
+		displayField: "label",
+		actionMapping: {
+			mouse: {
+				click: (tree: any, node: any, $event: any) => {
+					this.treeNodeOnClick(node, $event);
+				},
+				contextMenu: (tree: any, node: any, $event: any) => {
+					this.handleOnMenu(node, $event);
+				}
+			}
+		},
+		mouse: {
+			//	            drop: (tree: any, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
+			//	              console.log('drag', from, to); // from === {name: 'first'}
+			//	              // Add a node to `to.parent` at `to.index` based on the data in `from`
+			//	              // Then call tree.update()
+			//	            }
+		}
+	};
+
+
+
 	constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
 		private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
 		localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
@@ -1596,32 +1624,6 @@ export class HierarchyComponent implements OnInit {
 		}
 	}
 
-	options = {
-		//		  allowDrag: (any) => node.isLeaf,
-		//		  allowDrop: (element:Element, { parent, index }: {parent:TreeNode,index:number}) => {
-		// return true / false based on element, to.parent, to.index. e.g.
-		//			    return parent.hasChildren;
-		//			  },
-		displayField: "label",
-		actionMapping: {
-			mouse: {
-				click: (tree: any, node: any, $event: any) => {
-					this.treeNodeOnClick(node, $event);
-				},
-				contextMenu: (tree: any, node: any, $event: any) => {
-					this.handleOnMenu(node, $event);
-				}
-			}
-		},
-		mouse: {
-			//	            drop: (tree: any, node: TreeNode, $event: any, {from, to}: {from:TreeNode, to:TreeNode}) => {
-			//	              console.log('drag', from, to); // from === {name: 'first'}
-			//	              // Add a node to `to.parent` at `to.index` based on the data in `from`
-			//	              // Then call tree.update()
-			//	            }
-		}
-	};
-
 	public hierarchyOnClick(event: any, item: any) {
 		let hierarchyId = item.code;
 
@@ -1658,7 +1660,6 @@ export class HierarchyComponent implements OnInit {
 			});
 
 			this.updateViewDatastructures();
-
 		});
 	}
 
@@ -1679,8 +1680,6 @@ export class HierarchyComponent implements OnInit {
 	}
 
 	public editHierarchyType(obj: HierarchyType, readOnly: boolean): void {
-
-		console.log(obj);
 
 		this.bsModalRef = this.modalService.show(CreateHierarchyTypeModalComponent, {
 			animated: true,
@@ -1811,11 +1810,13 @@ export class HierarchyComponent implements OnInit {
 		this.bsModalRef.content.readOnly = readOnly;
 
 		(<ManageGeoObjectTypeModalComponent>this.bsModalRef.content).onGeoObjectTypeSubmitted.subscribe(data => {
+			const position = this.getGeoObjectTypePosition(data.code);
 
-			let position = this.getGeoObjectTypePosition(data.code);
-			if (position) {
+			if (position !== -1) {
 				this.geoObjectTypes[position] = data;
 			}
+
+			this.updateViewDatastructures();
 		});
 	}
 
