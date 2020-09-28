@@ -710,6 +710,12 @@ public class MasterListVersion extends MasterListVersionBase
 
       VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, this.getForDate());
       Long count = query.getCount();
+
+      if (count == null)
+      {
+        count = 0L;
+      }
+
       long current = 0;
 
       try

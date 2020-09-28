@@ -105,7 +105,9 @@ export class SvgHierarchyType {
 
 	isPrimary: boolean;
 
-	public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, hierarchyType: HierarchyType, isPrimary: boolean) {
+	public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, ht: HierarchyType, isPrimary: boolean) {
+		const hierarchyType = JSON.parse(JSON.stringify(ht));
+
 		this.hierarchyComponent = hierarchyComponent;
 		this.hierarchyType = hierarchyType;
 		this.svgEl = svgEl;
@@ -1677,6 +1679,9 @@ export class HierarchyComponent implements OnInit {
 	}
 
 	public editHierarchyType(obj: HierarchyType, readOnly: boolean): void {
+
+		console.log(obj);
+
 		this.bsModalRef = this.modalService.show(CreateHierarchyTypeModalComponent, {
 			animated: true,
 			backdrop: true,

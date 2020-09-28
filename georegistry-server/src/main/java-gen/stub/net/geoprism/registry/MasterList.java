@@ -828,20 +828,24 @@ public class MasterList extends MasterListBase
       list.enforceActorHasPermission(Operation.CREATE);
     }
 
-    MasterListQuery query = new MasterListQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(list.getUniversal()));
-    query.AND(query.getOrganization().EQ(list.getOrganization()));
-
-    if (!list.isNew())
+    if (list.getIsMaster() != null && list.getIsMaster())
     {
-      query.AND(query.getOid().NE(list.getOid()));
-    }
+      MasterListQuery query = new MasterListQuery(new QueryFactory());
+      query.WHERE(query.getUniversal().EQ(list.getUniversal()));
+      query.AND(query.getOrganization().EQ(list.getOrganization()));
+      query.AND(query.getIsMaster().EQ(true));
 
-    if (query.getCount() > 0)
-    {
-      ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+      if (!list.isNew())
+      {
+        query.AND(query.getOid().NE(list.getOid()));
+      }
 
-      throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+      if (query.getCount() > 0)
+      {
+        ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+
+        throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+      }
     }
 
     list.apply();
