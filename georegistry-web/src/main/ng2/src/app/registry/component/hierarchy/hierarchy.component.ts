@@ -1685,12 +1685,16 @@ export class HierarchyComponent implements OnInit {
 		});
 		this.bsModalRef.content.edit = true;
 		this.bsModalRef.content.readOnly = readOnly;
-		this.bsModalRef.content.hierarchyType = obj;
+		this.bsModalRef.content.hierarchyType = JSON.parse(JSON.stringify(obj));
 		this.bsModalRef.content.onHierarchytTypeCreate.subscribe(data => {
 			let pos = this.getHierarchyTypePosition(data.code);
 
-			this.hierarchies[pos].label = data.label;
-			this.hierarchies[pos].description = data.description;
+			console.log(this.hierarchies[pos]);
+
+//			this.hierarchies[pos].label = data.label;
+//			this.hierarchies[pos].description = data.description;
+            this.hierarchies[pos] = data;
+			this.updateViewDatastructures();
 		});
 	}
 
@@ -1700,16 +1704,14 @@ export class HierarchyComponent implements OnInit {
 			let pos = this.getHierarchyTypePosition(code);
 			this.hierarchies.splice(pos, 1);
 			this.updateViewDatastructures();
-			
-			if (this.hierarchies.length > 0)
-			{
-			  this.currentHierarchy = this.hierarchies[0];
+
+			if (this.hierarchies.length > 0) {
+				this.currentHierarchy = this.hierarchies[0];
 			}
-			else
-			{
-			  this.currentHierarchy = null;
+			else {
+				this.currentHierarchy = null;
 			}
-			
+
 			this.renderTree();
 
 		}).catch((err: HttpErrorResponse) => {
@@ -1912,7 +1914,7 @@ export class HierarchyComponent implements OnInit {
 				this.filteredTypesByOrg.push({ org: item.org, types: filtered });
 			}
 		});
-		
+
 		setTimeout(() => { this.registerDragHandlers(); }, 500);
 	}
 
