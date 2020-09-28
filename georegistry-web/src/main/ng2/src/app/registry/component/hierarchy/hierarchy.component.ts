@@ -1689,11 +1689,13 @@ export class HierarchyComponent implements OnInit {
 		this.bsModalRef.content.onHierarchytTypeCreate.subscribe(data => {
 			let pos = this.getHierarchyTypePosition(data.code);
 
-			console.log(this.hierarchies[pos]);
+			this.hierarchies[pos].label = data.label;
+			this.hierarchies[pos].description = data.description;
+			this.hierarchies[pos].abstractDescription = data.abstractDescription;
+			this.hierarchies[pos].progress = data.progress;
+			this.hierarchies[pos].acknowledgement = data.acknowledgement;
+			this.hierarchies[pos].contact = data.contact;
 
-//			this.hierarchies[pos].label = data.label;
-//			this.hierarchies[pos].description = data.description;
-            this.hierarchies[pos] = data;
 			this.updateViewDatastructures();
 		});
 	}
