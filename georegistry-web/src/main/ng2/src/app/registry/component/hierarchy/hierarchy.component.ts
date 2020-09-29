@@ -762,9 +762,9 @@ export class HierarchyComponent implements OnInit, SvgController {
 		}
 
 		if (index > -1) {
-			let hierarchy = this.hierarchies[index];
+			const hierarchy = this.hierarchies[index];
 
-			this.currentHierarchy = hierarchy;
+			this.setCurrentHierarchy(hierarchy);
 
 			this.renderTree();
 		}
@@ -853,9 +853,8 @@ export class HierarchyComponent implements OnInit, SvgController {
 		}
 	}
 
-	public hierarchyOnClick(event: any, item: any) {
-		this.currentHierarchy = item;
-
+	public hierarchyOnClick(event: any, item: HierarchyType) {
+		this.setCurrentHierarchy(item);
 		this.renderTree();
 	}
 
@@ -930,10 +929,15 @@ export class HierarchyComponent implements OnInit, SvgController {
 			this.updateViewDatastructures();
 
 			if (this.currentHierarchy.code === data.code) {
-				this.currentHierarchy = this.hierarchies[pos];
+				this.setCurrentHierarchy(this.hierarchies[pos]);
+
 				this.renderTree();
 			}
 		});
+	}
+
+	setCurrentHierarchy(hierarchyType: HierarchyType): void {
+		this.currentHierarchy = JSON.parse(JSON.stringify(hierarchyType));
 	}
 
 	public removeHierarchyType(code: string): void {
@@ -944,7 +948,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 			this.updateViewDatastructures();
 
 			if (this.hierarchies.length > 0) {
-				this.currentHierarchy = this.hierarchies[0];
+				this.setCurrentHierarchy(this.hierarchies[0]);
 			}
 			else {
 				this.currentHierarchy = null;
@@ -1055,6 +1059,11 @@ export class HierarchyComponent implements OnInit, SvgController {
 				this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
 			});
 
+			// Update the current hierarchy view
+			if (this.currentHierarchy != null) {
+				this.processHierarchyNodes(this.currentHierarchy.rootGeoObjectTypes[0]);
+			}
+
 			this.renderTree();
 		});
 	}
@@ -1087,7 +1096,8 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 			if (hierarchy.code === hierarchyType.code) {
 				this.hierarchies[i] = hierarchyType;
-				this.currentHierarchy = hierarchyType;
+
+				this.setCurrentHierarchy(hierarchyType);
 			}
 		}
 

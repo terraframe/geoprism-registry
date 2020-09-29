@@ -28,8 +28,8 @@ export class SvgHierarchyType {
 	isPrimary: boolean;
 
 	public constructor(hierarchyComponent: SvgController, svgEl: any, ht: HierarchyType, isPrimary: boolean) {
-		const hierarchyType = JSON.parse(JSON.stringify(ht));
-//		const hierarchyType = ht;
+//		const hierarchyType = JSON.parse(JSON.stringify(ht));
+		const hierarchyType = ht;
 
 		this.hierarchyComponent = hierarchyComponent;
 		this.hierarchyType = hierarchyType;
