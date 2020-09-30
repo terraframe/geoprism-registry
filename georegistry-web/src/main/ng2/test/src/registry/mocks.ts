@@ -74,7 +74,8 @@ export const HIERARCHY_TYPE: HierarchyType = {
 	rootGeoObjectTypes: [{
 		geoObjectType: "TEST-CHILD-TYPE",
 		children: [],
-		label: "Test-Root"
+		label: "Test-Root",
+		inheritedHierarchyCode: null
 	}],
 	organizationCode: "TEST-ORG"
 }
@@ -103,7 +104,8 @@ export const MASTER_LIST_BY_ORG: MasterListByOrg = {
 			lastUpdateDate: '02/20/2020',
 			isMaster: false,
 			write: true,
-			read: true
+			read: true,
+			visibility: 'PUBLIC'
 		},
 		{
 			label: 'LIST-LABEL-2',
@@ -112,7 +114,8 @@ export const MASTER_LIST_BY_ORG: MasterListByOrg = {
 			lastUpdateDate: '02/20/2020',
 			isMaster: false,
 			write: true,
-			read: true
+			read: true,
+			visibility: 'PUBLIC'
 		}
 	]
 }
@@ -180,6 +183,6 @@ export function PAGINATION_PAGE(value: any, pageNumber?: number): PaginationPage
 }
 
 export const MOCK_SOCKET: WebSocket = {
-	send: function(){},
+	send: function() { },
 } as any;
 
