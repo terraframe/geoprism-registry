@@ -574,7 +574,11 @@ export class HierarchyComponent implements OnInit, SvgController {
 						backdrop: true,
 						ignoreBackdropClick: true,
 					});
-					hierarchyComponent.bsModalRef.content.message = hierarchyComponent.localizeService.decode("confirm.modal.verify.delete") + ' [' + obj.label.localizedValue + ']';
+					
+					let message = hierarchyComponent.localizeService.decode("confirm.modal.verify.remove.hierarchy");
+					message = message.replace("{label}", obj.label.localizedValue);
+					
+					hierarchyComponent.bsModalRef.content.message = message;
 					hierarchyComponent.bsModalRef.content.data = obj.code;
 
 					(<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onConfirm.subscribe(data => {
