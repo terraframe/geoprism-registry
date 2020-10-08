@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.commongeoregistry.adapter.Term;
@@ -128,7 +129,7 @@ import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.shapefile.GeoObjectAtTimeShapefileExporter;
+import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 
 public class MasterListVersion extends MasterListVersionBase
 {
@@ -264,7 +265,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
     {
-      return false;
+      return true;
     }
 
     if (mdAttribute.definesAttribute().equals(ORIGINAL_OID))
@@ -631,20 +632,26 @@ public class MasterListVersion extends MasterListVersionBase
     String filename = this.getOid() + ".zip";
 
     final MasterList list = this.getMasterlist();
-    final ServerGeoObjectType type = list.getGeoObjectType();
 
     final File directory = list.getShapefileDirectory();
     directory.mkdirs();
 
     final File file = new File(directory, filename);
 
-    final GeoObjectAtTimeShapefileExporter exporter = new GeoObjectAtTimeShapefileExporter(type, this.getPublishDate());
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
 
-    try (final InputStream istream = exporter.export())
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> this.isValid(mdAttribute)).collect(Collectors.toList());
+
+    try
     {
-      try (final FileOutputStream fos = new FileOutputStream(file))
+      MasterListShapefileExporter exporter = new MasterListShapefileExporter(this, mdBusiness, mdAttributes, null);
+
+      try (final InputStream istream = exporter.export())
       {
-        IOUtils.copy(istream, fos);
+        try (final FileOutputStream fos = new FileOutputStream(file))
+        {
+          IOUtils.copy(istream, fos);
+        }
       }
     }
     catch (IOException e)
