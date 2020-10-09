@@ -567,41 +567,44 @@ export class HierarchyComponent implements OnInit, SvgController {
 				let bbox: string[] = d3.select("#svg").attr("viewBox").split(" ");
 
 				if (!isBboxPartiallyWithin(svgGot.getBbox(), { x: parseInt(bbox[0]), y: parseInt(bbox[1]), width: parseInt(bbox[2]), height: parseInt(bbox[3]) })) {
-					let obj = hierarchyComponent.findGeoObjectTypeByCode(svgGot.getCode());
 
-					hierarchyComponent.bsModalRef = hierarchyComponent.modalService.show(ConfirmModalComponent, {
-						animated: true,
-						backdrop: true,
-						ignoreBackdropClick: true,
-					});
-					
-					let message = hierarchyComponent.localizeService.decode("confirm.modal.verify.remove.hierarchy");
-					message = message.replace("{label}", obj.label.localizedValue);
-					
-					hierarchyComponent.bsModalRef.content.message = message;
-					hierarchyComponent.bsModalRef.content.data = obj.code;
+					if (hierarchyComponent.isOrganizationRA(hierarchyComponent.currentHierarchy.organizationCode)) {
+						let obj = hierarchyComponent.findGeoObjectTypeByCode(svgGot.getCode());
 
-					(<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onConfirm.subscribe(data => {
-						let treeNode = svgGot.getTreeNode();
-						let parent = null;
-						if (treeNode.parent == null) {
-							parent = "ROOT";
-						}
-						else {
-							if (treeNode.parent.data.inheritedHierarchyCode != null) {
+						hierarchyComponent.bsModalRef = hierarchyComponent.modalService.show(ConfirmModalComponent, {
+							animated: true,
+							backdrop: true,
+							ignoreBackdropClick: true,
+						});
+
+						let message = hierarchyComponent.localizeService.decode("confirm.modal.verify.remove.hierarchy");
+						message = message.replace("{label}", obj.label.localizedValue);
+
+						hierarchyComponent.bsModalRef.content.message = message;
+						hierarchyComponent.bsModalRef.content.data = obj.code;
+
+						(<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onConfirm.subscribe(data => {
+							let treeNode = svgGot.getTreeNode();
+							let parent = null;
+							if (treeNode.parent == null) {
 								parent = "ROOT";
 							}
 							else {
-								parent = treeNode.parent.data.geoObjectType;
+								if (treeNode.parent.data.inheritedHierarchyCode != null) {
+									parent = "ROOT";
+								}
+								else {
+									parent = treeNode.parent.data.geoObjectType;
+								}
 							}
-						}
 
-						hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => { svgGot.setPos(startPoint.x, startPoint.y, false); });
-					});
+							hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => { svgGot.setPos(startPoint.x, startPoint.y, false); });
+						});
 
-					(<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onCancel.subscribe(data => {
-						svgGot.setPos(startPoint.x, startPoint.y, false);
-					});
+						(<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onCancel.subscribe(data => {
+							svgGot.setPos(startPoint.x, startPoint.y, false);
+						});
+					}
 				}
 				else {
 					svgGot.setPos(startPoint.x, startPoint.y, false);
