@@ -605,6 +605,10 @@ export class HierarchyComponent implements OnInit, SvgController {
 							svgGot.setPos(startPoint.x, startPoint.y, false);
 						});
 					}
+					else {
+						svgGot.setPos(startPoint.x, startPoint.y, false);
+					}
+
 				}
 				else {
 					svgGot.setPos(startPoint.x, startPoint.y, false);
