@@ -68,6 +68,7 @@ export class PublishModalComponent implements OnInit {
 				displayLabel: this.lService.create(),
 				code: '',
 				representativityDate: null,
+				publishingStartDate: null,
 				publishDate: null,
 				listAbstract: '',
 				process: '',

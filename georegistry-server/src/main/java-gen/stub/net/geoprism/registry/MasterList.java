@@ -415,6 +415,11 @@ public class MasterList extends MasterListBase
     object.addProperty(MasterList.VISIBILITY, this.getVisibility());
     object.add(MasterList.HIERARCHIES, this.getHierarchiesAsJson());
 
+    if (this.getPublishingStartDate() != null)
+    {
+      object.addProperty(MasterList.PUBLISHINGSTARTDATE, format.format(this.getPublishingStartDate()));
+    }
+    
     if (this.getRepresentativityDate() != null)
     {
       object.addProperty(MasterList.REPRESENTATIVITYDATE, format.format(this.getRepresentativityDate()));
@@ -520,7 +525,7 @@ public class MasterList extends MasterListBase
       Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
       final ServerGeoObjectType objectType = this.getGeoObjectType();
-      Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
+      Pair<Date, Date> range = this.getDateRange(objectType);
 
       if (range != null)
       {
@@ -544,6 +549,18 @@ public class MasterList extends MasterListBase
     {
       Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
     }
+  }
+
+  private Pair<Date, Date> getDateRange(final ServerGeoObjectType objectType)
+  {
+    Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
+
+    if (this.getPublishingStartDate() != null)
+    {
+      return new Pair<Date, Date>(this.getPublishDate(), range.getSecond());
+    }
+
+    return range;
   }
 
   public ServerGeoObjectType getGeoObjectType()
@@ -613,6 +630,27 @@ public class MasterList extends MasterListBase
         {
           list.clearFrequency();
           list.addFrequency(ChangeFrequency.valueOf(frequency));
+        }
+      }
+
+      if (object.has(MasterList.PUBLISHINGSTARTDATE))
+      {
+        if (!object.get(MasterList.PUBLISHINGSTARTDATE).isJsonNull())
+        {
+          String date = object.get(MasterList.PUBLISHINGSTARTDATE).getAsString();
+
+          if (date.length() > 0)
+          {
+            list.setPublishingStartDate(format.parse(date));
+          }
+          else
+          {
+            list.setPublishingStartDate(null);
+          }
+        }
+        else
+        {
+          list.setPublishingStartDate(null);
         }
       }
 

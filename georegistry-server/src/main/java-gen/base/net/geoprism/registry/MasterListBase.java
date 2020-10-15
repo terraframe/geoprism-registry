@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -567266140)
+@com.runwaysdk.business.ClassSignature(hash = -1881996216)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -55,6 +37,7 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String PROCESS = "process";
   public static java.lang.String PROGRESS = "progress";
   public static java.lang.String PUBLISHDATE = "publishDate";
+  public static java.lang.String PUBLISHINGSTARTDATE = "publishingStartDate";
   public static java.lang.String REPRESENTATIVITYDATE = "representativityDate";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
@@ -64,7 +47,7 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String USECONSTRAINTS = "useConstraints";
   public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
-  private static final long serialVersionUID = -567266140;
+  private static final long serialVersionUID = -1881996216;
   
   public MasterListBase()
   {
@@ -775,6 +758,34 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     else
     {
       setValue(PUBLISHDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+    }
+  }
+  
+  public java.util.Date getPublishingStartDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(PUBLISHINGSTARTDATE));
+  }
+  
+  public void validatePublishingStartDate()
+  {
+    this.validateAttribute(PUBLISHINGSTARTDATE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getPublishingStartDateMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(PUBLISHINGSTARTDATE);
+  }
+  
+  public void setPublishingStartDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(PUBLISHINGSTARTDATE, "");
+    }
+    else
+    {
+      setValue(PUBLISHINGSTARTDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
     }
   }
   

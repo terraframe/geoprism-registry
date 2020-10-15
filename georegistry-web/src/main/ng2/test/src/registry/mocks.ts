@@ -143,6 +143,7 @@ export const MASTER_LIST: MasterList = {
 	displayLabel: LOCALIZED_LABEL,
 	code: 'LIST-CODE',
 	representativityDate: new Date(),
+	publishingStartDate: new Date(),
 	publishDate: new Date(),
 	listAbstract: "Test Abstract",
 	process: "Test Process",

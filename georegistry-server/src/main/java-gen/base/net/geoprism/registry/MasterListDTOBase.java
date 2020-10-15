@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -2029046236)
+@com.runwaysdk.business.ClassSignature(hash = -923815224)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = -2029046236;
+  private static final long serialVersionUID = -923815224;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -69,6 +51,7 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String PROCESS = "process";
   public static java.lang.String PROGRESS = "progress";
   public static java.lang.String PUBLISHDATE = "publishDate";
+  public static java.lang.String PUBLISHINGSTARTDATE = "publishingStartDate";
   public static java.lang.String REPRESENTATIVITYDATE = "representativityDate";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
@@ -902,6 +885,43 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public final com.runwaysdk.transport.metadata.AttributeDateMdDTO getPublishDateMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeDateMdDTO) getAttributeDTO(PUBLISHDATE).getAttributeMdDTO();
+  }
+  
+  public java.util.Date getPublishingStartDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(PUBLISHINGSTARTDATE));
+  }
+  
+  public void setPublishingStartDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(PUBLISHINGSTARTDATE, "");
+    }
+    else
+    {
+      setValue(PUBLISHINGSTARTDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
+    }
+  }
+  
+  public boolean isPublishingStartDateWritable()
+  {
+    return isWritable(PUBLISHINGSTARTDATE);
+  }
+  
+  public boolean isPublishingStartDateReadable()
+  {
+    return isReadable(PUBLISHINGSTARTDATE);
+  }
+  
+  public boolean isPublishingStartDateModified()
+  {
+    return isModified(PUBLISHINGSTARTDATE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeDateMdDTO getPublishingStartDateMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeDateMdDTO) getAttributeDTO(PUBLISHINGSTARTDATE).getAttributeMdDTO();
   }
   
   public java.util.Date getRepresentativityDate()

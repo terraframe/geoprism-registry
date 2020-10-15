@@ -303,6 +303,7 @@ export class MasterList {
 	displayLabel: LocalizedValue;
 	code: string;
 	representativityDate: Date;
+	publishingStartDate?: Date;
 	publishDate: Date;
 	listAbstract: string;
 	process: string;
