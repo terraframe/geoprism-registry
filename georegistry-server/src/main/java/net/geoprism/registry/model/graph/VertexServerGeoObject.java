@@ -145,7 +145,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public VertexServerGeoObject(ServerGeoObjectType type, VertexObject vertex, Date date)
   {
-    this.type = type;
+    MdVertexDAOIF actualVertexType = (MdVertexDAOIF) vertex.getMdClass();
+    ServerGeoObjectType actualType = ServerGeoObjectType.get(actualVertexType);
+
+    this.type = actualType;
     this.vertex = vertex;
     this.date = date;
   }
@@ -860,6 +863,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   }
 
   @Override
+  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive)
+  {
+    return internalGetParentGeoObjects(this, null, recursive, hierarchy, this.date);
+  }
+
+  @Override
   public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive)
   {
     return internalGetParentOverTime(this, parentTypes, recursive);
@@ -905,7 +914,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     if (!hierarchyType.getUniversalType().equals(AllowedIn.CLASS))
     {
-      GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
+      hierarchyType.validateUniversalRelationship(this.getType(), parent.getType());
     }
 
     if (this.getVertex().isNew() || !this.exists(parent, hierarchyType, null, null))
@@ -925,7 +934,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     if (!hierarchyType.getUniversalType().equals(AllowedIn.CLASS))
     {
-      GeoEntity.validateUniversalRelationship(this.getType().getUniversal(), parent.getType().getUniversal(), hierarchyType.getUniversalType());
+      hierarchyType.validateUniversalRelationship(this.getType(), parent.getType());
     }
 
     SortedSet<EdgeObject> edges;

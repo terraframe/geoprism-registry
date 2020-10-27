@@ -49,6 +49,7 @@ import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.gis.geo.InvalidGeoEntityUniversalException;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
@@ -64,7 +65,6 @@ import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InheritedHierarchyAnnotation;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.NoChildForLeafGeoObjectType;
-import net.geoprism.registry.ObjectHasDataException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -232,13 +232,14 @@ public class ServerHierarchyType
   @Transaction
   private void deleteInTrans()
   {
-//    // They can't delete it if there's existing data
-//    Universal root = Universal.getRoot();
-//    OIterator<? extends Business> it = root.getChildren(this.getUniversalRelationship().definesType());
-//    if (it.hasNext())
-//    {
-//      throw new ObjectHasDataException();
-//    }
+    // // They can't delete it if there's existing data
+    // Universal root = Universal.getRoot();
+    // OIterator<? extends Business> it =
+    // root.getChildren(this.getUniversalRelationship().definesType());
+    // if (it.hasNext())
+    // {
+    // throw new ObjectHasDataException();
+    // }
 
     /*
      * Delete all inherited hierarchies
@@ -539,6 +540,36 @@ public class ServerHierarchyType
     return roots;
   }
 
+  public void validateUniversalRelationship(ServerGeoObjectType childType, ServerGeoObjectType parentType)
+  {
+    // Total hack for super types
+    Universal childUniversal = childType.getUniversal();
+    Universal parentUniversal = parentType.getUniversal();
+
+    List<Term> ancestors = childUniversal.getAllAncestors(this.getUniversalType()).getAll();
+
+    if (!ancestors.contains(parentUniversal))
+    {
+      ServerGeoObjectType superType = childType.getSuperType();
+
+      if (superType != null)
+      {
+        ancestors = superType.getUniversal().getAllAncestors(this.getUniversalType()).getAll();
+      }
+    }
+
+    if (!ancestors.contains(parentUniversal))
+    {
+      InvalidGeoEntityUniversalException exception = new InvalidGeoEntityUniversalException();
+      exception.setChildUniversal(childUniversal.getDisplayLabel().getValue());
+      exception.setParentUniversal(parentUniversal.getDisplayLabel().getValue());
+      exception.apply();
+
+      throw exception;
+    }
+
+  }
+
   private static void removeLink(Universal parent, Universal child, String relationshipType)
   {
     if (child.getKey().equals(Term.ROOT_KEY))
@@ -751,5 +782,4 @@ public class ServerHierarchyType
 
     return list;
   }
-
 }

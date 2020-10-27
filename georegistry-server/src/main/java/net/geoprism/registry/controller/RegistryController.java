@@ -599,7 +599,7 @@ public class RegistryController
    **/
   @Endpoint(url = "geoobjecttype/list-types", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   // Heads up: Cleanup includeLeafTypes parameter
-  public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeLeafTypes") Boolean includeLeafTypes)
+  public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeAbstractTypes") Boolean includeAbstractTypes)
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.WRITE);
 
@@ -617,10 +617,8 @@ public class RegistryController
     for (int i = 0; i < gots.length; ++i)
     {
       GeoObjectType geoObjectType = gots[i];
-      // Heads up: Cleanup
-      // if (!geoObjectType.getCode().equals("ROOT") && ( includeLeafTypes ==
-      // null || includeLeafTypes || !geoObjectType.isLeaf() ))
-      if (!geoObjectType.getCode().equals("ROOT"))
+
+      if (!geoObjectType.getCode().equals("ROOT") && ( includeAbstractTypes || !geoObjectType.getIsAbstract() ))
       {
         JsonObject type = new JsonObject();
         type.addProperty("label", geoObjectType.getLabel().getValue());
@@ -842,6 +840,14 @@ public class RegistryController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-subtype-hierarchies")
+  public ResponseIF getHierarchiesForSubtypes(ClientRequestIF request, @RequestParamter(name = "code") String code)
+  {
+    JsonArray response = ServiceFactory.getHierarchyService().getHierarchiesForSubtypes(request.getSessionId(), code);
+
+    return new RestBodyResponse(response);
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-hierarchies")
   public ResponseIF getHierarchiesForGeoObject(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode)
   {
@@ -908,13 +914,13 @@ public class RegistryController
     for (GeoObjectType got : gots)
     {
       JsonObject joGot = got.toJSON(serializer);
-      
+
       JsonArray relatedHiers = new JsonArray();
-      
+
       for (HierarchyType ht : hts)
       {
         List<HierarchyNode> hns = ht.getRootGeoObjectTypes();
-        
+
         for (HierarchyNode hn : hns)
         {
           if (hn.hierarchyHasGeoObjectType(got.getCode(), true))
@@ -923,9 +929,9 @@ public class RegistryController
           }
         }
       }
-      
+
       joGot.add("relatedHierarchies", relatedHiers);
-      
+
       types.add(joGot);
     }
 
@@ -935,7 +941,7 @@ public class RegistryController
     {
       hierarchies.add(ht.toJSON(serializer));
     }
-    
+
     JsonArray organizations = new JsonArray();
 
     for (OrganizationDTO dto : orgDtos)

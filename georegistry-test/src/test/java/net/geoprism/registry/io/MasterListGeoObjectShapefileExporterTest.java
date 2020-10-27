@@ -85,7 +85,7 @@ public class MasterListGeoObjectShapefileExporterTest
   @Request
   private static void classSetupInRequest()
   {
-    JsonObject json = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+    JsonObject json = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
     masterlist = MasterList.create(json);
     version = masterlist.createVersion(FastTestDataset.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);

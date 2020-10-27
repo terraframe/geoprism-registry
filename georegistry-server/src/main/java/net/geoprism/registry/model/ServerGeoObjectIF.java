@@ -98,6 +98,8 @@ public interface ServerGeoObjectIF
 
   public ServerParentTreeNode getParentGeoObjects(String[] parentTypes, Boolean recursive);
 
+  public ServerParentTreeNode getParentsForHierarchy(ServerHierarchyType hierarchy, Boolean recursive);
+
   public ServerParentTreeNodeOverTime getParentsOverTime(String[] parentTypes, Boolean recursive);
 
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime);

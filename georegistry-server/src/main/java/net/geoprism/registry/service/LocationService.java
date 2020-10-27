@@ -216,12 +216,32 @@ public class LocationService
     MdVertexDAOIF mdVertex = type.getMdVertex();
     MdEdgeDAOIF mdEdge = hierachy.getMdEdge();
 
+    // SELECT expand(outE('hierarchy10')[DATE('2021-01-01 00:00:00') BETWEEN
+    // startDate AND endDate].inV('district0')
+    // from #309:0
+    // order by code
+    // StringBuilder statement = new StringBuilder();
+    // statement.append("SELECT EXPAND(in) FROM " + mdEdge.getDBClassName());
+    // statement.append(" WHERE in.@class = '" + mdVertex.getDBClassName() +
+    // "'");
+    // statement.append(" AND out.code = :parent");
+    // statement.append(" AND :date BETWEEN startDate AND endDate");
+    // statement.append(" ORDER BY in.code");
+
+    // SELECT
+    // FROM health_facility0
+    // WHERE in('around0')[0].code = '2202'
+    // AND DATE('2021-01-01 00:00:00') BETWEEN inE('around0')[0].startDate AND
+    // inE('around0')[0].endDate
+    // ORDER BY code
+    //
+
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT EXPAND(in) FROM " + mdEdge.getDBClassName());
-    statement.append(" WHERE in.@class = '" + mdVertex.getDBClassName() + "'");
-    statement.append(" AND out.code = :parent");
-    statement.append(" AND :date BETWEEN startDate AND endDate");
-    statement.append(" ORDER BY in.code");
+    statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE in('" + mdEdge.getDBClassName() + "')[0].code = :parent");
+    statement.append(" AND :date BETWEEN inE('" + mdEdge.getDBClassName() + "')[0].startDate");
+    statement.append(" AND inE('" + mdEdge.getDBClassName() + "')[0].endDate");
+    statement.append(" ORDER BY code");
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("parent", parentCode);

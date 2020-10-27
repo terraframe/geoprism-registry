@@ -979,9 +979,9 @@ export class HierarchyComponent implements OnInit, SvgController {
 			ignoreBackdropClick: true,
 			'class': 'upload-modal'
 		});
-		this.bsModalRef.content.hierarchyType = this.currentHierarchy;
+		this.bsModalRef.content.init(this.organizations, this.geoObjectTypes);
 
-		(<CreateGeoObjTypeModalComponent>this.bsModalRef.content).onGeoObjTypeCreate.subscribe(data => {
+		this.bsModalRef.content.onGeoObjTypeCreate.subscribe(data => {
 
 			data.relatedHierarchies = this.calculateRelatedHierarchies(data);
 

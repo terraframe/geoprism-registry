@@ -57,9 +57,9 @@ export class IOService {
             .toPromise()
     }
 
-    listGeoObjectTypes( includeLeafTypes: boolean ): Promise<{ label: string, code: string, orgCode: string }[]> {
+    listGeoObjectTypes( includeAbstractTypes: boolean ): Promise<{ label: string, code: string, orgCode: string }[]> {
         let params: HttpParams = new HttpParams();
-        params = params.set( 'includeLeafTypes', includeLeafTypes.toString() );
+        params = params.set( 'includeAbstractTypes', includeAbstractTypes.toString() );
 
         return this.http
             .get<{ label: string, code: string, orgCode: string }[]>( acp + '/cgr/geoobjecttype/list-types', { params: params } )
@@ -86,6 +86,21 @@ export class IOService {
 
         return this.http
             .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>( acp + '/cgr/geoobjecttype/get-hierarchies', { params: params } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+            .toPromise();
+    }
+
+    getHierarchiesForSubtypes( code: string, includeTypes: boolean ): Promise<{ label: string, code: string, parents: { label: string, code: string }[] }[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'code', code );
+        params = params.set( 'includeTypes', includeTypes.toString() );
+
+        this.eventService.start();
+
+        return this.http
+            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>( acp + '/cgr/geoobjecttype/get-subtype-hierarchies', { params: params } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

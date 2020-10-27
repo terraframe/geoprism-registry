@@ -212,6 +212,16 @@ public class MasterList extends MasterListBase
     return new JsonArray();
   }
 
+  public JsonArray getSubtypeHierarchiesAsJson()
+  {
+    if (this.getSubtypeHierarchies() != null && this.getSubtypeHierarchies().length() > 0)
+    {
+      return JsonParser.parseString(this.getSubtypeHierarchies()).getAsJsonArray();
+    }
+    
+    return new JsonArray();
+  }
+  
   public Map<HierarchyType, List<GeoObjectType>> getAncestorMap(ServerGeoObjectType type)
   {
     Map<HierarchyType, List<GeoObjectType>> map = new HashMap<>();
@@ -414,12 +424,13 @@ public class MasterList extends MasterListBase
     object.addProperty(MasterList.ISMASTER, this.getIsMaster());
     object.addProperty(MasterList.VISIBILITY, this.getVisibility());
     object.add(MasterList.HIERARCHIES, this.getHierarchiesAsJson());
+    object.add(MasterList.SUBTYPEHIERARCHIES, this.getSubtypeHierarchiesAsJson());
 
     if (this.getPublishingStartDate() != null)
     {
       object.addProperty(MasterList.PUBLISHINGSTARTDATE, format.format(this.getPublishingStartDate()));
     }
-    
+
     if (this.getRepresentativityDate() != null)
     {
       object.addProperty(MasterList.REPRESENTATIVITYDATE, format.format(this.getRepresentativityDate()));
@@ -607,6 +618,11 @@ public class MasterList extends MasterListBase
       list.setEmail(object.get(MasterList.EMAIL).getAsString());
       list.setHierarchies(object.get(MasterList.HIERARCHIES).getAsJsonArray().toString());
       list.setOrganizationId(object.get(MasterList.ORGANIZATION).getAsString());
+
+      if (object.has(MasterList.SUBTYPEHIERARCHIES) && !object.get(MasterList.SUBTYPEHIERARCHIES).isJsonNull())
+      {
+        list.setSubtypeHierarchies(object.get(MasterList.SUBTYPEHIERARCHIES).getAsJsonArray().toString());
+      }
 
       if (object.has(MasterList.ISMASTER) && !object.get(MasterList.ISMASTER).isJsonNull())
       {

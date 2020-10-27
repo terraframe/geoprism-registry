@@ -82,6 +82,7 @@ export class PublishModalComponent implements OnInit {
 				telephoneNumber: '',
 				email: '',
 				hierarchies: [],
+				subtypeHierarchies: [],				
 				leaf: false,
 				frequency: 'ANNUAL',
 				isMaster: null,
@@ -111,6 +112,12 @@ export class PublishModalComponent implements OnInit {
 		if (this.master.typeCode != null && this.master.typeCode.length > 0) {
 			this.iService.getHierarchiesForType(this.master.typeCode, true).then(hierarchies => {
 				this.master.hierarchies = hierarchies;
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+			
+			this.iService.getHierarchiesForSubtypes(this.master.typeCode, false).then(hierarchies => {
+				this.master.subtypeHierarchies = hierarchies;
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});

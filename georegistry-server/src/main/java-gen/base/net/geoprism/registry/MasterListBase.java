@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1881996216)
+@com.runwaysdk.business.ClassSignature(hash = 869676147)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -41,13 +41,14 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String REPRESENTATIVITYDATE = "representativityDate";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
+  public static java.lang.String SUBTYPEHIERARCHIES = "subtypeHierarchies";
   public static java.lang.String TELEPHONENUMBER = "telephoneNumber";
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
   public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
-  private static final long serialVersionUID = -1881996216;
+  private static final long serialVersionUID = 869676147;
   
   public MasterListBase()
   {
@@ -847,6 +848,34 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(SITEMASTER);
+  }
+  
+  public String getSubtypeHierarchies()
+  {
+    return getValue(SUBTYPEHIERARCHIES);
+  }
+  
+  public void validateSubtypeHierarchies()
+  {
+    this.validateAttribute(SUBTYPEHIERARCHIES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getSubtypeHierarchiesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(SUBTYPEHIERARCHIES);
+  }
+  
+  public void setSubtypeHierarchies(String value)
+  {
+    if(value == null)
+    {
+      setValue(SUBTYPEHIERARCHIES, "");
+    }
+    else
+    {
+      setValue(SUBTYPEHIERARCHIES, value);
+    }
   }
   
   public String getTelephoneNumber()

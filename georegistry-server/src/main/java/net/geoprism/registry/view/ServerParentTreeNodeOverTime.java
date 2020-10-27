@@ -31,6 +31,7 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -38,9 +39,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -188,8 +187,6 @@ public class ServerParentTreeNodeOverTime
 
   public JsonArray toJSON()
   {
-    Universal root = Universal.getRoot();
-
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -203,14 +200,14 @@ public class ServerParentTreeNodeOverTime
       final ServerHierarchyType ht = hierarchy.getType();
 
       final JsonArray entries = new JsonArray();
-
-      Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, this.type.getUniversal(), ht.getUniversalType());
+      
+      List<GeoObjectType> parentTypes = this.type.getTypeAncestors(ht, false);
 
       JsonArray types = new JsonArray();
 
-      for (Object parent : uniParents)
+      for (GeoObjectType parent : parentTypes)
       {
-        ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
+        ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
 
         if (!pType.getCode().equals(this.type.getCode()))
         {
@@ -228,9 +225,9 @@ public class ServerParentTreeNodeOverTime
       {
         JsonObject pArray = new JsonObject();
 
-        for (Object parent : uniParents)
+        for (GeoObjectType parent : parentTypes)
         {
-          ServerGeoObjectType pType = ServerGeoObjectType.get((Universal) parent);
+          ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
 
           if (!pType.getCode().equals(this.type.getCode()))
           {

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -187,7 +187,7 @@ public class MasterListTest
   @Request
   public void testCreateMultiple()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, true);
 
     MasterList test1 = MasterList.create(json);
 
@@ -207,9 +207,30 @@ public class MasterListTest
   }
 
   @Test
+  @Request
+  public void testCreateMultipleNonMaster()
+  {
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false);
+
+    MasterList test1 = MasterList.create(json);
+
+    try
+    {
+      json.addProperty(MasterList.CODE, "CODE_2");
+
+      MasterList test2 = MasterList.create(json);
+      test2.delete();
+    }
+    catch (DuplicateDataDatabaseException e)
+    {
+      test1.delete();
+    }
+  }
+
+  @Test
   public void testServiceCreateAndRemove()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -222,7 +243,7 @@ public class MasterListTest
   @Test
   public void testListByOrg()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -255,7 +276,7 @@ public class MasterListTest
   @Test
   public void testListPublicByOrgFromOtherOrg()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -291,7 +312,7 @@ public class MasterListTest
   @Test
   public void testPrivateListByOrgFromOtherOrg()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PRIVATE);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PRIVATE, false);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -327,7 +348,7 @@ public class MasterListTest
   @Request
   public void testPublishVersion()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -358,7 +379,7 @@ public class MasterListTest
   @Request
   public void testPublishInvalidVersion()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
     MasterList test = MasterList.create(json);
 
@@ -380,7 +401,7 @@ public class MasterListTest
   @Test
   public void testCreatePublishedVersions()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -404,7 +425,7 @@ public class MasterListTest
   @Test
   public void testCreateFromBadRole()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
     TestUserInfo[] users = new TestUserInfo[] { USATestData.ADMIN_USER, USATestData.USER_PPP_RA };
 
@@ -427,7 +448,7 @@ public class MasterListTest
   @Test
   public void testRemoveFromBadRole()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -461,7 +482,7 @@ public class MasterListTest
   @Test
   public void testCreatePublishedVersionsFromOtherOrg()
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -498,7 +519,7 @@ public class MasterListTest
   @Test
   public void testGetTile() throws IOException
   {
-    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, USATestData.COUNTRY);
+    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -621,7 +642,7 @@ public class MasterListTest
   @Request
   public void testMarkAsInvalidByParent()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, false, USATestData.COUNTRY, USATestData.STATE);
 
     MasterList masterlist = MasterList.create(json);
 
@@ -641,7 +662,7 @@ public class MasterListTest
   @Request
   public void testMarkAsInvalidByDirectType()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, false, USATestData.COUNTRY, USATestData.STATE);
 
     MasterList masterlist = MasterList.create(json);
 
@@ -661,7 +682,7 @@ public class MasterListTest
   @Request
   public void testFailMarkAsInvalidByType()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, false, USATestData.COUNTRY, USATestData.STATE);
 
     MasterList masterlist = MasterList.create(json);
 
@@ -681,7 +702,7 @@ public class MasterListTest
   @Request
   public void testFailMarkAsInvalidByHierarchy()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, MasterList.PUBLIC, false, USATestData.COUNTRY, USATestData.STATE);
 
     MasterList masterlist = MasterList.create(json);
 
@@ -701,7 +722,7 @@ public class MasterListTest
   @Request
   public void testMarkAllAsInvalid()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC);
+    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false);
 
     MasterList masterlist = MasterList.create(json);
 
@@ -720,7 +741,7 @@ public class MasterListTest
   }
 
   @Request
-  public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, String visibility, TestGeoObjectTypeInfo... parents)
+  public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, String visibility, boolean isMaster, TestGeoObjectTypeInfo... parents)
   {
     JsonArray pArray = new JsonArray();
     for (TestGeoObjectTypeInfo parent : parents)
@@ -758,7 +779,7 @@ public class MasterListTest
     list.setEmail("Email");
     list.setHierarchies(array.toString());
     list.addFrequency(ChangeFrequency.ANNUAL);
-    list.setIsMaster(false);
+    list.setIsMaster(isMaster);
     list.setVisibility(visibility);
 
     return list.toJSON();

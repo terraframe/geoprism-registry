@@ -125,6 +125,7 @@ import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
@@ -578,6 +579,59 @@ public class MasterListVersion extends MasterListVersionBase
       }
     }
 
+    JsonArray subtypeHierarchies = masterlist.getSubtypeHierarchiesAsJson();
+
+    for (int i = 0; i < subtypeHierarchies.size(); i++)
+    {
+      JsonObject hierarchy = subtypeHierarchies.get(i).getAsJsonObject();
+
+      if (hierarchy.has("selected") && hierarchy.get("selected").getAsBoolean())
+      {
+        String hCode = hierarchy.get("code").getAsString();
+
+        HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
+        String hierarchyLabel = hierarchyType.getLabel().getValue(currentLocale);
+
+        String attributeName = hCode.toLowerCase();
+
+        String codeDescription = LocalizationFacade.getFromBundles("masterlist.code.description");
+        codeDescription = codeDescription.replaceAll("\\{typeLabel\\}", "");
+        codeDescription = codeDescription.replaceAll("\\{hierarchyLabel\\}", hierarchyLabel);
+
+        String labelDescription = LocalizationFacade.getFromBundles("masterlist.label.description");
+        labelDescription = labelDescription.replaceAll("\\{typeLabel\\}", "");
+        labelDescription = labelDescription.replaceAll("\\{hierarchyLabel\\}", hierarchyLabel);
+
+        MdAttributeCharacterDAO mdAttributeCode = MdAttributeCharacterDAO.newInstance();
+        mdAttributeCode.setValue(MdAttributeCharacterInfo.NAME, attributeName);
+        mdAttributeCode.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
+        mdAttributeCode.setValue(MdAttributeCharacterInfo.SIZE, "255");
+        mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel);
+        mdAttributeCode.addItem(MdAttributeCharacterInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+        mdAttributeCode.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, codeDescription);
+        mdAttributeCode.apply();
+
+        MdAttributeCharacterDAO mdAttributeDefaultLocale = MdAttributeCharacterDAO.newInstance();
+        mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + DEFAULT_LOCALE);
+        mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
+        mdAttributeDefaultLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
+        mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (defaultLocale)");
+        mdAttributeDefaultLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", "default"));
+        mdAttributeDefaultLocale.apply();
+
+        for (Locale locale : locales)
+        {
+          MdAttributeCharacterDAO mdAttributeLocale = MdAttributeCharacterDAO.newInstance();
+          mdAttributeLocale.setValue(MdAttributeCharacterInfo.NAME, attributeName + locale.toString());
+          mdAttributeLocale.setValue(MdAttributeCharacterInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
+          mdAttributeLocale.setValue(MdAttributeCharacterInfo.SIZE, "255");
+          mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, hierarchyLabel + " (" + locale + ")");
+          mdAttributeLocale.setStructValue(MdAttributeCharacterInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, labelDescription.replaceAll("\\{locale\\}", locale.toString()));
+          mdAttributeLocale.apply();
+        }
+      }
+    }
+
     return metadata;
   }
 
@@ -710,6 +764,7 @@ public class MasterListVersion extends MasterListVersionBase
       // Add the type ancestor fields
       Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
       Collection<AttributeType> attributes = type.getAttributeMap().values();
+      Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
 
       // ServerGeoObjectService service = new ServerGeoObjectService();
       // ServerGeoObjectQuery query = service.createQuery(type,
@@ -744,7 +799,7 @@ public class MasterListVersion extends MasterListVersionBase
           {
             Business business = new Business(mdBusiness.definesType());
 
-            publish(result, business, attributes, ancestorMap, locales);
+            publish(result, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
 
             Thread.yield();
 
@@ -770,7 +825,7 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
 
-  private void publish(ServerGeoObjectIF object, Business business, Collection<AttributeType> attributes, Map<HierarchyType, List<GeoObjectType>> ancestorMap, List<Locale> locales)
+  private void publish(ServerGeoObjectIF object, Business business, Collection<AttributeType> attributes, Map<HierarchyType, List<GeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, List<Locale> locales)
   {
     business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, object.getGeometry());
 
@@ -879,6 +934,29 @@ public class MasterListVersion extends MasterListVersionBase
       }
     }
 
+    for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
+    {
+      ServerParentTreeNode node = object.getParentsForHierarchy(hierarchy, false);
+      List<ServerParentTreeNode> parents = node.getParents();
+
+      if (parents.size() > 0)
+      {
+        ServerParentTreeNode parent = parents.get(0);
+
+        String attributeName = hierarchy.getCode().toLowerCase();
+        ServerGeoObjectIF geoObject = parent.getGeoObject();
+        LocalizedValue label = geoObject.getDisplayLabel();
+
+        this.setValue(business, attributeName, geoObject.getCode());
+        this.setValue(business, attributeName + DEFAULT_LOCALE, label.getValue(DEFAULT_LOCALE));
+
+        for (Locale locale : locales)
+        {
+          this.setValue(business, attributeName + locale.toString(), label.getValue(locale));
+        }
+      }
+    }
+
     business.apply();
   }
 
@@ -901,6 +979,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
+    Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
     Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
     Collection<AttributeType> attributes = type.getAttributeMap().values();
 
@@ -915,7 +994,7 @@ public class MasterListVersion extends MasterListVersionBase
       {
         record.appLock();
 
-        this.publish(object, record, attributes, ancestorMap, locales);
+        this.publish(object, record, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
       }
       finally
       {
@@ -939,11 +1018,12 @@ public class MasterListVersion extends MasterListVersionBase
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
     Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
+    Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
     Collection<AttributeType> attributes = type.getAttributeMap().values();
 
     Business business = new Business(mdBusiness.definesType());
 
-    this.publish(object, business, attributes, ancestorMap, locales);
+    this.publish(object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
   }
 
   public JsonObject toJSON(boolean includeAttribute)

@@ -46,12 +46,14 @@ export class GeoObjectType {
 	code: string;
 	label: LocalizedValue;
 	description: LocalizedValue;
-	geometryType: string;
+	geometryType?: string;
 	isLeaf: boolean;
 	isGeometryEditable: boolean;
 	organizationCode: string;
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 	relatedHierarchies?: string[];
+	parentTypeCode?: string;
+	isAbstract?: boolean;	
 }
 
 export class Task {

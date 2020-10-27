@@ -117,7 +117,7 @@ public class PublishShapefileJobTest
   @Test
   public void testCreate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, false, testData.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);

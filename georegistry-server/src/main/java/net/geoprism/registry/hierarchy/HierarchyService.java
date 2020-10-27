@@ -19,9 +19,12 @@
 package net.geoprism.registry.hierarchy;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -29,7 +32,6 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
@@ -120,6 +122,34 @@ public class HierarchyService
             hierarchies.add(object);
           }
         }
+      }
+    }
+
+    return hierarchies;
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonArray getHierarchiesForSubtypes(String sessionId, String code)
+  {
+    ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(code);
+    Set<ServerHierarchyType> hierarchyTypes = geoObjectType.getHierarchiesOfSubTypes();
+
+    JsonArray hierarchies = new JsonArray();
+
+    HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
+    SingleActorDAOIF user = Session.getCurrentSession().getUser();
+
+    for (ServerHierarchyType sHT : hierarchyTypes)
+    {
+      HierarchyType hierarchyType = sHT.getType();
+
+      if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", sHT.getCode());
+        object.addProperty("label", sHT.getDisplayLabel().getValue());
+
+        hierarchies.add(object);
       }
     }
 
@@ -283,13 +313,14 @@ public class HierarchyService
 
     return type.getType();
   }
-  
+
   /**
-   * Inserts the {@link GeoObjectType} 'middleGeoObjectTypeCode' into the hierarchy
-   * as the child of 'parentGeoObjectTypeCode' and the new parent for 'youngestGeoObjectTypeCode'.
-   * If an existing parent/child relationship already exists between 'youngestGeoObjectTypeCode'
-   * and 'parentgeoObjectTypeCode', it will first be removed. youngestGeoObjectTypeCode can also
-   * be an array (comma separated list).
+   * Inserts the {@link GeoObjectType} 'middleGeoObjectTypeCode' into the
+   * hierarchy as the child of 'parentGeoObjectTypeCode' and the new parent for
+   * 'youngestGeoObjectTypeCode'. If an existing parent/child relationship
+   * already exists between 'youngestGeoObjectTypeCode' and
+   * 'parentgeoObjectTypeCode', it will first be removed.
+   * youngestGeoObjectTypeCode can also be an array (comma separated list).
    * 
    * @param sessionId
    * @param hierarchyTypeCode
@@ -306,16 +337,16 @@ public class HierarchyService
   {
     return this.insertBetweenTypesInTrans(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode);
   }
-  
+
   @Transaction
   public HierarchyType insertBetweenTypesInTrans(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String middleGeoObjectTypeCode, String youngestGeoObjectTypeCode)
   {
     this.addToHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode);
-    
+
     if (youngestGeoObjectTypeCode.contains(","))
     {
       String[] array = youngestGeoObjectTypeCode.split(",");
-      
+
       for (String youngest : array)
       {
         this.removeFromHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, youngest, false);
@@ -327,7 +358,7 @@ public class HierarchyService
       this.removeFromHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, youngestGeoObjectTypeCode, false);
       this.addToHierarchy(sessionId, hierarchyTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode);
     }
-    
+
     return ServerHierarchyType.get(hierarchyTypeCode).getType();
   }
 

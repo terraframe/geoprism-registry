@@ -251,7 +251,30 @@
                     </div>
                 </div>
             </div>
+            
+            <div *ngIf="master.subtypeHierarchies.length > 0">
+                <div class="row-holder">
+                    <div class="label-holder">
+                        <label> <localize key="masterlist.subtypeHierarchies"></localize> </label>
+                    </div>
+                    <div class="holder">
+                        <div class="row" *ngFor="let hierarchy of master.subtypeHierarchies">
+                            <!-- <div class="holder"> -->
 
+                            <div class="check-block" style="margin: 10px;">
+
+                                <!-- To enable add: (click)="parent.selected = !parent.selected" -->
+                                <div (click)="getIsDisabled($event) ? null : hierarchy.selected = !hierarchy.selected" [ngClass]="{'chk-checked' : hierarchy.selected, 'disabled' : readonly || edit}" style="margin: 0;" class="jcf-unselectable chk-area" name="unique">
+                                    <span></span>
+                                </div>
+
+                                <label style="margin: 3px 10px;">{{hierarchy.label}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="row-holder">
                 <div class="label-holder"></div>
                 <div class="holder">

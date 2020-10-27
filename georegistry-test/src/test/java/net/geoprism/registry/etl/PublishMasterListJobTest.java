@@ -122,7 +122,7 @@ public class PublishMasterListJobTest
   @Test
   public void testNewAndUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -153,7 +153,7 @@ public class PublishMasterListJobTest
 
     for (TestUserInfo user : users)
     {
-      JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+      JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
       MasterListService service = new MasterListService();
       JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -196,7 +196,7 @@ public class PublishMasterListJobTest
   @Test
   public void testCreateMultiple() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -234,7 +234,7 @@ public class PublishMasterListJobTest
   @Test
   public void testChangeFrequency() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -269,7 +269,7 @@ public class PublishMasterListJobTest
   @Test
   public void testUpdate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -307,7 +307,7 @@ public class PublishMasterListJobTest
     for (TestUserInfo user : users)
     {
 
-      JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, FastTestDataset.COUNTRY);
+      JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
       MasterListService service = new MasterListService();
       JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
