@@ -218,7 +218,7 @@ public class RegistryService
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType().getCode());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType());
 
     return object.toGeoObject();
   }
@@ -241,7 +241,7 @@ public class RegistryService
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType().getCode());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType());
 
     return object.toGeoObject();
   }
@@ -784,7 +784,7 @@ public class RegistryService
 
     for (ServerGeoObjectIF object : results)
     {
-      if (ServiceFactory.getGeoObjectPermissionService().canRead(actor, object.getType().getOrganization().getCode(), object.getType().getCode()))
+      if (ServiceFactory.getGeoObjectPermissionService().canRead(actor, object.getType().getOrganization().getCode(), object.getType()))
       {
         JsonObject result = new JsonObject();
         result.addProperty("id", object.getRunwayId());
@@ -971,8 +971,9 @@ public class RegistryService
   public GeoObjectOverTime updateGeoObjectOverTime(String sessionId, String jGeoObj)
   {
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
+    ServerGeoObjectType type = ServerGeoObjectType.get(goTime.getType().getCode());
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), goTime.getType().getCode());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), type);
 
     ServerGeoObjectIF object = service.apply(goTime, false, false);
 
@@ -983,8 +984,9 @@ public class RegistryService
   public GeoObjectOverTime createGeoObjectOverTime(String sessionId, String jGeoObj)
   {
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
+    ServerGeoObjectType type = ServerGeoObjectType.get(goTime.getType().getCode());
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), goTime.getType().getCode());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), type);
 
     ServerGeoObjectIF object = service.apply(goTime, true, false);
 
@@ -1005,7 +1007,7 @@ public class RegistryService
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType().getCode());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType());
 
     return object.toGeoObjectOverTime();
   }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -26,7 +26,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
@@ -48,6 +47,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class Organization extends OrganizationBase
@@ -101,7 +101,7 @@ public class Organization extends OrganizationBase
   {
     // Can't delete if there's existing data
     List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-    
+
     for (HierarchyType ht : hierarchyTypes)
     {
       if (ht.getOrganizationCode().equals(this.getCode()))
@@ -109,7 +109,7 @@ public class Organization extends OrganizationBase
         throw new ObjectHasDataException();
       }
     }
-    
+
     try
     {
       Roles raOrgRole = this.getRegistryAdminiRole();
@@ -211,12 +211,12 @@ public class Organization extends OrganizationBase
    * @return a map of {@link GeoObjectType} codes and labels for this
    *         {@link Organization}.
    */
-  public Map<String, LocalizedValue> getGeoObjectTypes()
+  public Map<String, ServerGeoObjectType> getGeoObjectTypes()
   {
     // For performance, get all of the universals defined
     List<? extends EntityDAOIF> universalList = ObjectCache.getCachedEntityDAOs(Universal.CLASS);
 
-    Map<String, LocalizedValue> typeCodeMap = new HashMap<String, LocalizedValue>();
+    Map<String, ServerGeoObjectType> typeCodeMap = new HashMap<String, ServerGeoObjectType>();
 
     for (EntityDAOIF entityDAOIF : universalList)
     {
@@ -227,9 +227,9 @@ public class Organization extends OrganizationBase
       Roles organizationRole = this.getRole();
       if (ownerId.equals(organizationRole.getOid()))
       {
+        ServerGeoObjectType type = ServerGeoObjectType.get(universal);
 
-        String geoObjectTypeCode = universal.getUniversalId();
-        typeCodeMap.put(geoObjectTypeCode, LocalizedValueConverter.convert(universal.getDisplayLabel()));
+        typeCodeMap.put(type.getCode(), type);
       }
     }
 
@@ -452,11 +452,11 @@ public class Organization extends OrganizationBase
 
     if (session != null)
     {
-      Map<String, LocalizedValue> types = org.getGeoObjectTypes();
+      Map<String, ServerGeoObjectType> types = org.getGeoObjectTypes();
 
-      Set<Entry<String, LocalizedValue>> entries = types.entrySet();
+      Set<Entry<String, ServerGeoObjectType>> entries = types.entrySet();
 
-      for (Entry<String, LocalizedValue> entry : entries)
+      for (Entry<String, ServerGeoObjectType> entry : entries)
       {
         String roleName = RegistryRole.Type.getRM_RoleName(org.getCode(), entry.getKey());
 

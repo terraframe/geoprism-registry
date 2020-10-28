@@ -66,6 +66,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertexQuery;
@@ -247,7 +248,7 @@ public class ServerGeoObjectType
   @Transaction
   private void deleteInTransaction()
   {
-    List<ServerHierarchyType> hierarchies = this.getHierarchies(false);
+    List<ServerHierarchyType> hierarchies = this.getHierarchies(false, true);
 
     if (hierarchies.size() > 0)
     {
@@ -760,7 +761,7 @@ public class ServerGeoObjectType
 
     for (ServerGeoObjectType type : subtypes)
     {
-      hierarchyTypes.addAll(type.getHierarchies());
+      hierarchyTypes.addAll(type.getHierarchies(false, false));
     }
 
     return hierarchyTypes;
@@ -768,10 +769,10 @@ public class ServerGeoObjectType
 
   public List<ServerHierarchyType> getHierarchies()
   {
-    return getHierarchies(true);
+    return getHierarchies(true, true);
   }
 
-  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone)
+  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone, boolean includeFromSuperType)
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
@@ -804,11 +805,14 @@ public class ServerGeoObjectType
       }
     }
 
-    ServerGeoObjectType superType = this.getSuperType();
-
-    if (superType != null)
+    if (includeFromSuperType)
     {
-      hierarchies.addAll(superType.getHierarchies(includeAllHierarchiesIfNone));
+      ServerGeoObjectType superType = this.getSuperType();
+
+      if (superType != null)
+      {
+        hierarchies.addAll(superType.getHierarchies(includeAllHierarchiesIfNone, includeFromSuperType));
+      }
     }
 
     if (includeAllHierarchiesIfNone && hierarchies.size() == 0)
@@ -858,7 +862,7 @@ public class ServerGeoObjectType
   {
     // Ensure that this geo object type is the root geo object type for the "For
     // Hierarchy"
-    if (!this.isRoot(forHierarchy))
+    if (!this.isRoot(forHierarchy) || this.getIsAbstract())
     {
       throw new HierarchyRootException();
     }
@@ -1004,6 +1008,11 @@ public class ServerGeoObjectType
 
   public static ServerGeoObjectType get(String code)
   {
+    if (code.equals(GeoEntity.ROOT))
+    {
+      return RootGeoObjectType.INSTANCE;
+    }
+
     Optional<GeoObjectType> geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code);
 
     if (geoObjectType.isPresent())

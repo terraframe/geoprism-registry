@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -47,6 +47,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class AccountService
 {
@@ -231,35 +232,41 @@ public class AccountService
     adminRegistryRole.setOrganizationLabel(orgDisplayLabel);
     registryRoleList.add(adminRegistryRole);
 
-    Map<String, LocalizedValue> geoObjectTypeInfo = organization.getGeoObjectTypes();
+    Map<String, ServerGeoObjectType> geoObjectTypeInfo = organization.getGeoObjectTypes();
 
     for (String typeCode : geoObjectTypeInfo.keySet())
     {
-      LocalizedValue geoObjectTypeDisplayLabel = geoObjectTypeInfo.get(typeCode);
+      ServerGeoObjectType type = geoObjectTypeInfo.get(typeCode);
 
-      // Add the RM role
-      String rmRoleName = RegistryRole.Type.getRM_RoleName(organization.getCode(), typeCode);
-      Roles rmRole = Roles.findRoleByName(rmRoleName);
-      RegistryRole rmRegistryRole = new RegistryRoleConverter().build(rmRole);
-      rmRegistryRole.setOrganizationLabel(orgDisplayLabel);
-      rmRegistryRole.setGeoObjectTypeLabel(geoObjectTypeDisplayLabel);
-      registryRoleList.add(rmRegistryRole);
+      // Permissions are assigned and validated against the super type
+      // The cannot be assigned directly to the child type.
+      if (type.getSuperType() == null)
+      {
+        // Add the RM role
+        String rmRoleName = RegistryRole.Type.getRM_RoleName(organization.getCode(), typeCode);
+        Roles rmRole = Roles.findRoleByName(rmRoleName);
+        RegistryRole rmRegistryRole = new RegistryRoleConverter().build(rmRole);
+        rmRegistryRole.setOrganizationLabel(orgDisplayLabel);
+        LocalizedValue label = type.getLabel();
+        rmRegistryRole.setGeoObjectTypeLabel(label);
+        registryRoleList.add(rmRegistryRole);
 
-      // Add the RC role
-      String rcRoleName = RegistryRole.Type.getRC_RoleName(organization.getCode(), typeCode);
-      Roles rcRole = Roles.findRoleByName(rcRoleName);
-      RegistryRole rcRegistryRole = new RegistryRoleConverter().build(rcRole);
-      rcRegistryRole.setOrganizationLabel(orgDisplayLabel);
-      rcRegistryRole.setGeoObjectTypeLabel(geoObjectTypeDisplayLabel);
-      registryRoleList.add(rcRegistryRole);
+        // Add the RC role
+        String rcRoleName = RegistryRole.Type.getRC_RoleName(organization.getCode(), typeCode);
+        Roles rcRole = Roles.findRoleByName(rcRoleName);
+        RegistryRole rcRegistryRole = new RegistryRoleConverter().build(rcRole);
+        rcRegistryRole.setOrganizationLabel(orgDisplayLabel);
+        rcRegistryRole.setGeoObjectTypeLabel(label);
+        registryRoleList.add(rcRegistryRole);
 
-      // Add the AC role
-      String acRoleName = RegistryRole.Type.getAC_RoleName(organization.getCode(), typeCode);
-      Roles acRole = Roles.findRoleByName(acRoleName);
-      RegistryRole acRegistryRole = new RegistryRoleConverter().build(acRole);
-      acRegistryRole.setOrganizationLabel(orgDisplayLabel);
-      acRegistryRole.setGeoObjectTypeLabel(geoObjectTypeDisplayLabel);
-      registryRoleList.add(acRegistryRole);
+        // Add the AC role
+        String acRoleName = RegistryRole.Type.getAC_RoleName(organization.getCode(), typeCode);
+        Roles acRole = Roles.findRoleByName(acRoleName);
+        RegistryRole acRegistryRole = new RegistryRoleConverter().build(acRole);
+        acRegistryRole.setOrganizationLabel(orgDisplayLabel);
+        acRegistryRole.setGeoObjectTypeLabel(label);
+        registryRoleList.add(acRegistryRole);
+      }
     }
   }
 }

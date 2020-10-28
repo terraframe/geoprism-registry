@@ -57,14 +57,14 @@ public class InheritedHierarchyAnnotationTest
     TEST_HT.apply();
 
     TEST_HT.setRoot(FastTestDataset.PROVINCE);
-    TEST_HT.getServerObject().addToHierarchy(FastTestDataset.PROVINCE.getCode(), TEST_CHILD.getCode());
+    TEST_HT.getServerObject().addToHierarchy(FastTestDataset.PROVINCE.getServerObject(), TEST_CHILD.getServerObject());
   }
 
   @AfterClass
   @Request
   public static void cleanUpClass()
   {
-    TEST_HT.getServerObject().removeChild(FastTestDataset.PROVINCE.getCode(), TEST_CHILD.getCode(), true);
+    TEST_HT.getServerObject().removeChild(FastTestDataset.PROVINCE.getServerObject(), TEST_CHILD.getServerObject(), true);
     TEST_HT.removeRoot(FastTestDataset.PROVINCE);
 
     TEST_HT.delete();

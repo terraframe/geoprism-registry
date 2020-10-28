@@ -4,32 +4,33 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.permission;
 
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public interface GeoObjectTypeRelationshipPermissionServiceIF
 {
-  public boolean canAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, String parentGeoObjectTypeCode, String childGeoObjectTypeCode);
+  public boolean canAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
-  public void enforceCanAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, String parentGeoObjectTypeCode, String childGeoObjectTypeCode);
+  public void enforceCanAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
-  public boolean canRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, String parentGeoObjectTypeCode, String childGeoObjectTypeCode);
+  public boolean canRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
-  public void enforceCanRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, String parentGeoObjectTypeCode, String childGeoObjectTypeCode);
+  public void enforceCanRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
 }

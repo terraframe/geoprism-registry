@@ -77,19 +77,19 @@ import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
  */
 public class ShapefileImporter implements FormatSpecificImporterIF
 {
-  protected static final Logger        logger                     = LoggerFactory.getLogger(ShapefileImporter.class);
+  protected static final Logger          logger                     = LoggerFactory.getLogger(ShapefileImporter.class);
 
-  protected ApplicationResource        resource;
+  protected ApplicationResource          resource;
 
-  protected ObjectImporterIF           objectImporter;
+  protected ObjectImporterIF             objectImporter;
 
-  protected ImportProgressListenerIF   progressListener;
+  protected ImportProgressListenerIF     progressListener;
 
-  protected Long                       startIndex                 = 0L;
+  protected Long                         startIndex                 = 0L;
 
-  protected GeoObjectImportConfiguration        config;
+  protected GeoObjectImportConfiguration config;
 
-  private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
+  private GeoObjectPermissionServiceIF   geoObjectPermissionService = new GeoObjectPermissionService();
 
   public ShapefileImporter(ApplicationResource resource, GeoObjectImportConfiguration config, ImportProgressListenerIF progressListener)
   {
@@ -229,56 +229,68 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     {
       if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
       {
-        this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
       }
       else
       {
-        this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
       }
     }
 
     FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
-    
+
     SimpleFeatureSource source = myData.getFeatureSource();
-    
+
     SimpleFeatureCollection featCol = source.getFeatures();
     this.progressListener.setWorkTotal((long) featCol.size());
-    
+
     if (this.getStartIndex() > 0)
     {
 
       Query query = new Query();
       query.setStartIndex(Math.toIntExact(this.getStartIndex()));
-      
+
       featCol = source.getFeatures(query);
     }
-    
+
     SimpleFeatureIterator featIt = featCol.features();
-    
+
     SimpleFeatureReader fr = new DelegateSimpleFeatureReader(source.getSchema(), featIt);
-    
+
     FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-    
-    // We want to sort the features by the parentId column for better lookup performance (more cache hits) and
-    // also so that we have predictable ordering if we want to resume the import later.
+
+    // We want to sort the features by the parentId column for better lookup
+    // performance (more cache hits) and
+    // also so that we have predictable ordering if we want to resume the import
+    // later.
     List<SortBy> sortBy = new ArrayList<SortBy>();
-    sortBy.add(SortBy.NATURAL_ORDER); // We also sort by featureId because it's guaranteed to be unique.
+    sortBy.add(SortBy.NATURAL_ORDER); // We also sort by featureId because it's
+                                      // guaranteed to be unique.
     if (this.config.getLocations().size() > 0)
     {
       ShapefileFunction loc = this.config.getLocations().get(0).getFunction();
-      
+
       if (loc instanceof BasicColumnFunction)
       {
-        sortBy.add(ff.sort(loc.toJson().toString(), SortOrder.ASCENDING)); // TODO : This assumes loc.tojson() returns only the attribute name.
+        sortBy.add(ff.sort(loc.toJson().toString(), SortOrder.ASCENDING)); // TODO
+                                                                           // :
+                                                                           // This
+                                                                           // assumes
+                                                                           // loc.tojson()
+                                                                           // returns
+                                                                           // only
+                                                                           // the
+                                                                           // attribute
+                                                                           // name.
       }
     }
-    
+
     try (SimpleFeatureReader sr = new SortedFeatureReader(fr, sortBy.toArray(new SortBy[sortBy.size()]), 5000))
     {
       while (sr.hasNext())
       {
         SimpleFeature feature = sr.next();
-        
+
         if (stage.equals(ImportStage.VALIDATE))
         {
           this.objectImporter.validateRow(new SimpleFeatureRow(feature));

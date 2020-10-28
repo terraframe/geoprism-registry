@@ -230,12 +230,6 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
           data.put(GeoEntity.DISPLAYLABEL + "_" + locale.toString().toLowerCase(), resultSet.getString(locale.toString()));
         }
 
-        // data.put(GeoEntity.GEOID, resultSet.getString("geo_id"));
-        // data.put("height", "15"); // TODO: This should be set on the
-        // GeoEntity
-        // data.put("base", "0"); // TODO: This should be set on the GeoEntity
-        // data.put("isClickable", "true");
-
         JtsGeometry geom = (JtsGeometry) resultSet.getObject(GeoserverFacade.GEOM_COLUMN);
 
         if (geom != null)

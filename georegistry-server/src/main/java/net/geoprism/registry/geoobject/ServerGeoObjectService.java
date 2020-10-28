@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobject;
 
@@ -121,11 +121,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     {
       if (isNew)
       {
-        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
       }
       else
       {
-        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
       }
     }
 
@@ -163,11 +163,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     {
       if (isNew)
       {
-        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
       }
       else
       {
-        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
       }
     }
 
@@ -257,7 +257,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
     }
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
@@ -269,7 +269,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
     }
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);

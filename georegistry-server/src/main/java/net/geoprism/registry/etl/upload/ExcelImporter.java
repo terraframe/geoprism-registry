@@ -229,14 +229,14 @@ public class ExcelImporter implements FormatSpecificImporterIF
       {
         if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
         {
-          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
         }
         else
         {
-          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
+          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
         }
       }
-      
+
       this.progressListener.setWorkTotal(this.getWorkTotal(file));
 
       if (this.config.isExternalImport() && this.config.getExternalSystem() instanceof RevealExternalSystem && this.config instanceof GeoObjectImportConfiguration)

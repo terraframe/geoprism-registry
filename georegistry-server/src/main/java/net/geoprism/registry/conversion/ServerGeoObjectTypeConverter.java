@@ -51,7 +51,6 @@ import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeEnumerationDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
@@ -73,7 +72,9 @@ import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 
+import net.geoprism.registry.ChainInheritanceException;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeoObjectTypeAssignmentException;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
@@ -223,24 +224,22 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     String parentTypeCode = geoObjectType.getParentTypeCode();
     Boolean isAbstract = geoObjectType.getIsAbstract();
 
-    ServerGeoObjectType parentType = null;
+    ServerGeoObjectType superType = null;
 
     if (parentTypeCode != null && parentTypeCode.length() > 0)
     {
-      parentType = ServerGeoObjectType.get(parentTypeCode);
-      geoObjectType.setGeometryType(parentType.getGeometryType());
+      superType = ServerGeoObjectType.get(parentTypeCode);
+      geoObjectType.setGeometryType(superType.getGeometryType());
     }
 
-    if (isAbstract && parentType != null)
+    if (isAbstract && superType != null)
     {
-      // TODO Change type
-      throw new ProgrammingErrorException("Only single level inheritance supported");
+      throw new ChainInheritanceException();
     }
 
-    if (parentType != null && !parentType.getIsAbstract())
+    if (superType != null && !superType.getIsAbstract())
     {
-      // TODO Change type
-      throw new ProgrammingErrorException("Can only inherit abstract geo object types");
+      throw new GeoObjectTypeAssignmentException();
     }
 
     Universal universal = new Universal();
@@ -271,9 +270,9 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     mdBusiness.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, universal.getDisplayLabel().getValue());
     mdBusiness.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, universal.getDescription().getValue());
 
-    if (parentType != null)
+    if (superType != null)
     {
-      mdBusiness.setSuperMdBusiness(parentType.getMdBusiness());
+      mdBusiness.setSuperMdBusiness(superType.getMdBusiness());
     }
     else
     {
@@ -283,7 +282,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     mdBusiness.apply();
 
     // Add the default attributes.
-    if (parentType == null)
+    if (superType == null)
     {
       this.createDefaultAttributes(universal, mdBusiness);
     }
@@ -293,29 +292,24 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     universal.apply();
 
     // Create the MdGeoVertexClass
-    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid(), isAbstract, parentType);
+    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid(), isAbstract, superType);
 
-    if (parentType == null)
+    if (superType == null)
     {
       this.createDefaultAttributes(universal, mdVertex);
+
+      assignSRAPermissions(mdVertex, mdBusiness);
+
+      assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
+      create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+      assign_RM_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+
+      create_RC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+      assign_RC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+
+      create_AC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+      assign_AC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
     }
-
-    // Organization organization =
-    // Organization.getByKey(geoObjectType.getCode());
-    // mdVertex.setValue(DefaultAttribute.ORGANIZATION.getName(),
-    // organization.getOid());
-
-    assignSRAPermissions(mdVertex, mdBusiness);
-
-    assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
-    create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
-    assign_RM_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
-
-    create_RC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
-    assign_RC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
-
-    create_AC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
-    assign_AC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
 
     // Build the parent class term root if it does not exist.
     TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);

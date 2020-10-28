@@ -218,10 +218,10 @@ public class MasterList extends MasterListBase
     {
       return JsonParser.parseString(this.getSubtypeHierarchies()).getAsJsonArray();
     }
-    
+
     return new JsonArray();
   }
-  
+
   public Map<HierarchyType, List<GeoObjectType>> getAncestorMap(ServerGeoObjectType type)
   {
     Map<HierarchyType, List<GeoObjectType>> map = new HashMap<>();
@@ -746,7 +746,7 @@ public class MasterList extends MasterListBase
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       ServerGeoObjectType type = this.getGeoObjectType();
 
-      return ServiceFactory.getGeoObjectPermissionService().canWrite(actor, type.getOrganization().getCode(), type.getCode());
+      return ServiceFactory.getGeoObjectPermissionService().canWrite(actor, type.getOrganization().getCode(), type);
     }
 
     return true;
@@ -759,7 +759,7 @@ public class MasterList extends MasterListBase
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       ServerGeoObjectType type = this.getGeoObjectType();
 
-      return ServiceFactory.getGeoObjectPermissionService().canRead(actor, type.getOrganization().getCode(), type.getCode());
+      return ServiceFactory.getGeoObjectPermissionService().canRead(actor, type.getOrganization().getCode(), type);
     }
 
     return true;

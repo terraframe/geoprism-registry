@@ -361,7 +361,7 @@ public class MasterListService
       SingleActorDAOIF user = Session.getCurrentSession().getUser();
       Organization organization = geoObjectType.getOrganization();
 
-      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, organization.getCode(), geoObjectType.getCode()))
+      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, organization.getCode(), geoObjectType))
       {
         CreateListPermissionException ex = new CreateListPermissionException();
         ex.setOrganization(organization.getDisplayLabel().getValue());

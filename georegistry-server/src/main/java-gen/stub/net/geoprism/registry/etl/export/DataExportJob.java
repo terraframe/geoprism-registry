@@ -448,7 +448,7 @@ public class DataExportJob extends DataExportJobBase
     Throwable ex = ee.error;
     String geoObjectCode = ee.geoObjectCode;
     
-    logger.error("Export Error", ee.error); // TODO This is here for development only
+    logger.error("Export Error", ee.error); // This is here for development only
     
     ExportError exportError = new ExportError();
 
