@@ -18,69 +18,67 @@
  */
 package net.geoprism.registry.permission;
 
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
-
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class AllowAllGeoObjectPermissionService implements GeoObjectPermissionServiceIF
 {
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public boolean canRead(String orgCode, ServerGeoObjectType type)
   {
     return true;
   }
 
   @Override
-  public void enforceCanRead(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public void enforceCanRead(String orgCode, ServerGeoObjectType type)
   {
     
   }
 
   @Override
-  public boolean canWrite(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public boolean canWrite(String orgCode, ServerGeoObjectType type)
   {
     return true;
   }
 
   @Override
-  public void enforceCanWrite(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public void enforceCanWrite(String orgCode, ServerGeoObjectType type)
   {
     
   }
 
   @Override
-  public boolean canCreate(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public boolean canCreate(String orgCode, ServerGeoObjectType type)
   {
     return true;
   }
 
   @Override
-  public void enforceCanCreate(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public void enforceCanCreate(String orgCode, ServerGeoObjectType type)
   {
     
   }
 
   @Override
-  public boolean canWriteCR(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public boolean canWriteCR(String orgCode, ServerGeoObjectType type)
   {
     return true;
   }
 
   @Override
-  public void enforceCanWriteCR(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public void enforceCanWriteCR(String orgCode, ServerGeoObjectType type)
   {
     
   }
 
   @Override
-  public boolean canCreateCR(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType type)
+  public boolean canCreateCR(String orgCode, ServerGeoObjectType type)
   {
     return true;
   }
 
   @Override
-  public void enforceCanCreateCR(SingleActorDAOIF actor, String orgCode, ServerGeoObjectType gotCode)
+  public void enforceCanCreateCR(String orgCode, ServerGeoObjectType gotCode)
   {
     
   }

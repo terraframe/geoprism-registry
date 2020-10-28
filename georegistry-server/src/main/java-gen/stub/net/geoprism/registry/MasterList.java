@@ -746,7 +746,7 @@ public class MasterList extends MasterListBase
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       ServerGeoObjectType type = this.getGeoObjectType();
 
-      return ServiceFactory.getGeoObjectPermissionService().canWrite(actor, type.getOrganization().getCode(), type);
+      return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
     }
 
     return true;
@@ -759,7 +759,7 @@ public class MasterList extends MasterListBase
       SingleActorDAOIF actor = Session.getCurrentSession().getUser();
       ServerGeoObjectType type = this.getGeoObjectType();
 
-      return ServiceFactory.getGeoObjectPermissionService().canRead(actor, type.getOrganization().getCode(), type);
+      return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
     }
 
     return true;

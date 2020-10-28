@@ -225,16 +225,13 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     GeoObjectImportConfiguration config = this.getObjectImporter().getConfiguration();
     ServerGeoObjectType type = config.getType();
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
     {
-      if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
-      {
-        this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-      }
-      else
-      {
-        this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-      }
+      this.geoObjectPermissionService.enforceCanCreate(type.getOrganization().getCode(), type);
+    }
+    else
+    {
+      this.geoObjectPermissionService.enforceCanWrite(type.getOrganization().getCode(), type);
     }
 
     FileDataStore myData = FileDataStoreFinder.getDataStore(shp);

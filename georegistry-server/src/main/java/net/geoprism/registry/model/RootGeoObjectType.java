@@ -1,5 +1,6 @@
 package net.geoprism.registry.model;
 
+import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.system.gis.geo.Universal;
 
 public class RootGeoObjectType extends ServerGeoObjectType
@@ -15,5 +16,11 @@ public class RootGeoObjectType extends ServerGeoObjectType
   public boolean getIsAbstract()
   {
     return false;
+  }
+
+  @Override
+  public String getCode()
+  {
+    return Term.ROOT_KEY;
   }
 }

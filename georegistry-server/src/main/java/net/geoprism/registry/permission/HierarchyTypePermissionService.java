@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.permission;
 
@@ -32,17 +32,16 @@ import net.geoprism.registry.roles.DeleteHierarchyPermissionException;
 import net.geoprism.registry.roles.ReadHierarchyPermissionException;
 import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
 
-public class HierarchyTypePermissionService implements HierarchyTypePermissionServiceIF
+public class HierarchyTypePermissionService extends UserPermissionService implements HierarchyTypePermissionServiceIF
 {
   /**
    * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
    * 
-   * @param actor
    * @param op
    */
-  public void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, Operation op)
+  public void enforceActorHasPermission(String orgCode, Operation op)
   {
-    if (!doesActorHavePermission(actor, orgCode, op, null))
+    if (!doesActorHavePermission(orgCode, op, null))
     {
       Organization org = Organization.getByCode(orgCode);
 
@@ -73,15 +72,16 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
     }
   }
 
-  public boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op, PermissionContext context)
+  public boolean doesActorHavePermission(String orgCode, Operation op, PermissionContext context)
   {
-    if (actor == null) // null actor is assumed to be SYSTEM
+    if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
       return true;
     }
 
     if (orgCode != null)
     {
+      SingleActorDAOIF actor = this.getSessionUser();
       Set<RoleDAOIF> roles = actor.authorizedRoles();
 
       for (RoleDAOIF role : roles)
@@ -124,51 +124,51 @@ public class HierarchyTypePermissionService implements HierarchyTypePermissionSe
   }
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, String orgCode, PermissionContext context)
+  public boolean canRead(String orgCode, PermissionContext context)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.READ, context);
+    return this.doesActorHavePermission(orgCode, Operation.READ, context);
   }
 
   @Override
-  public void enforceCanRead(SingleActorDAOIF actor, String orgCode)
+  public void enforceCanRead(String orgCode)
   {
-    this.enforceActorHasPermission(actor, orgCode, Operation.READ);
+    this.enforceActorHasPermission(orgCode, Operation.READ);
   }
 
   @Override
-  public boolean canWrite(SingleActorDAOIF actor, String orgCode)
+  public boolean canWrite(String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.WRITE, null);
+    return this.doesActorHavePermission(orgCode, Operation.WRITE, null);
   }
 
   @Override
-  public void enforceCanWrite(SingleActorDAOIF actor, String orgCode)
+  public void enforceCanWrite(String orgCode)
   {
-    this.enforceActorHasPermission(actor, orgCode, Operation.WRITE);
+    this.enforceActorHasPermission(orgCode, Operation.WRITE);
   }
 
   @Override
-  public boolean canCreate(SingleActorDAOIF actor, String orgCode)
+  public boolean canCreate(String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.CREATE, null);
+    return this.doesActorHavePermission(orgCode, Operation.CREATE, null);
   }
 
   @Override
-  public void enforceCanCreate(SingleActorDAOIF actor, String orgCode)
+  public void enforceCanCreate(String orgCode)
   {
-    this.enforceActorHasPermission(actor, orgCode, Operation.CREATE);
+    this.enforceActorHasPermission(orgCode, Operation.CREATE);
   }
 
   @Override
-  public boolean canDelete(SingleActorDAOIF actor, String orgCode)
+  public boolean canDelete(String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.DELETE, null);
+    return this.doesActorHavePermission(orgCode, Operation.DELETE, null);
   }
 
   @Override
-  public void enforceCanDelete(SingleActorDAOIF actor, String orgCode)
+  public void enforceCanDelete(String orgCode)
   {
-    this.enforceActorHasPermission(actor, orgCode, Operation.DELETE);
+    this.enforceActorHasPermission(orgCode, Operation.DELETE);
   }
 
 }

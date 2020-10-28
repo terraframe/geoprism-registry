@@ -34,11 +34,11 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 
-public class GeoObjectTypeRelationshipPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF
+public class GeoObjectTypeRelationshipPermissionService extends UserPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF
 {
-  public boolean doesActorHaveRelationshipPermission(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
+  public boolean doesActorHaveRelationshipPermission(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
   {
-    boolean permission = this.directRelationshipPermission(actor, ht, parentType, childType, allowRC);
+    boolean permission = this.directRelationshipPermission(ht, parentType, childType, allowRC);
 
     if (!permission)
     {
@@ -46,16 +46,16 @@ public class GeoObjectTypeRelationshipPermissionService implements GeoObjectType
 
       if (superType != null)
       {
-        permission = this.directRelationshipPermission(actor, ht, parentType, superType, allowRC);
+        permission = this.directRelationshipPermission(ht, parentType, superType, allowRC);
       }
     }
 
     return permission;
   }
 
-  private boolean directRelationshipPermission(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
+  private boolean directRelationshipPermission(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
   {
-    if (actor == null) // null actor is assumed to be SYSTEM
+    if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
       return true;
     }
@@ -70,6 +70,8 @@ public class GeoObjectTypeRelationshipPermissionService implements GeoObjectType
 
     if (thisOrg != null)
     {
+      SingleActorDAOIF actor = this.getSessionUser();
+
       String thisOrgCode = thisOrg.getCode();
 
       Set<RoleDAOIF> roles = actor.authorizedRoles();
@@ -124,12 +126,10 @@ public class GeoObjectTypeRelationshipPermissionService implements GeoObjectType
   /**
    * Throws an exception if the provided actor does not have permissions to this
    * HierarchyType.
-   * 
-   * @param actor
    */
-  public void enforceActorHasRelationshipPermission(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
+  public void enforceActorHasRelationshipPermission(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
   {
-    if (!this.doesActorHaveRelationshipPermission(actor, ht, parentType, childType, allowRC))
+    if (!this.doesActorHaveRelationshipPermission(ht, parentType, childType, allowRC))
     {
       String parentLabel;
       if (parentType == null || parentType.getCode().equals(Term.ROOT_KEY))
@@ -151,26 +151,26 @@ public class GeoObjectTypeRelationshipPermissionService implements GeoObjectType
   }
 
   @Override
-  public boolean canAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
+  public boolean canAddChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    return this.doesActorHaveRelationshipPermission(actor, ht, parentType, childType, false);
+    return this.doesActorHaveRelationshipPermission(ht, parentType, childType, false);
   }
 
   @Override
-  public void enforceCanAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
+  public void enforceCanAddChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    this.enforceActorHasRelationshipPermission(actor, ht, parentType, childType, false);
+    this.enforceActorHasRelationshipPermission(ht, parentType, childType, false);
   }
 
   @Override
-  public boolean canRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
+  public boolean canRemoveChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    return this.doesActorHaveRelationshipPermission(actor, ht, parentType, childType, false);
+    return this.doesActorHaveRelationshipPermission(ht, parentType, childType, false);
   }
 
   @Override
-  public void enforceCanRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
+  public void enforceCanRemoveChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    this.enforceActorHasRelationshipPermission(actor, ht, parentType, childType, false);
+    this.enforceActorHasRelationshipPermission(ht, parentType, childType, false);
   }
 }

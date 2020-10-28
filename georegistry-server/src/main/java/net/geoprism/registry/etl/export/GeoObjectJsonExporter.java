@@ -120,10 +120,7 @@ public class GeoObjectJsonExporter
       this.revealJsonAdapter = new RevealGeoObjectJsonAdapters.RevealSerializer(this.got, this.hierarchyType, this.includeLevel, this.externalSystem);
     }
 
-    if (Session.getCurrentSession() != null)
-    {
-      ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), this.got.getOrganization().getCode(), this.got);
-    }
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(this.got.getOrganization().getCode(), this.got);
   }
 
   public List<VertexServerGeoObject> query()

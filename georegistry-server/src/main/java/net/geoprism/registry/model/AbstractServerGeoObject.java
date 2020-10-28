@@ -45,15 +45,9 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
 
-    SingleActorDAOIF actor = null;
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      actor = Session.getCurrentSession().getUser();
-    }
-
     for (HierarchyType hierarchyType : hierarchyTypes)
     {
-      if (ServiceFactory.getHierarchyPermissionService().canRead(actor, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+      if (ServiceFactory.getHierarchyPermissionService().canRead(hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
@@ -109,7 +103,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 
       for (HierarchyType hierarchyType : hierarchyTypes)
       {
-        if (ServiceFactory.getHierarchyPermissionService().canRead(actor, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+        if (ServiceFactory.getHierarchyPermissionService().canRead(hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
         {
           JsonObject object = new JsonObject();
           object.addProperty("code", hierarchyType.getCode());

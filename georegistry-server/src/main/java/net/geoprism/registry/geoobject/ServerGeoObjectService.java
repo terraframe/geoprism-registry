@@ -94,7 +94,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
-    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     return parent.addChild(child, ht).toNode(false);
   }
@@ -106,7 +106,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
-    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     parent.removeChild(child, hierarchyCode);
   }
@@ -117,16 +117,13 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    if (isNew)
     {
-      if (isNew)
-      {
-        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-      }
-      else
-      {
-        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-      }
+      permissionService.enforceCanCreate(type.getOrganization().getCode(), type);
+    }
+    else
+    {
+      permissionService.enforceCanWrite(type.getOrganization().getCode(), type);
     }
 
     ServerGeoObjectIF geoObject = strategy.constructFromGeoObject(object, isNew);
@@ -159,16 +156,13 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectType type = ServerGeoObjectType.get(goTime.getType());
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    if (isNew)
     {
-      if (isNew)
-      {
-        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-      }
-      else
-      {
-        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-      }
+      permissionService.enforceCanCreate(type.getOrganization().getCode(), type);
+    }
+    else
+    {
+      permissionService.enforceCanWrite(type.getOrganization().getCode(), type);
     }
 
     ServerGeoObjectIF goServer = strategy.constructFromGeoObjectOverTime(goTime, isNew);
@@ -255,10 +249,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-    }
+    this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
@@ -267,10 +258,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type)
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
-    }
+    this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 

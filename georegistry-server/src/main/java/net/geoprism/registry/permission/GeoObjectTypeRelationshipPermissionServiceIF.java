@@ -18,19 +18,17 @@
  */
 package net.geoprism.registry.permission;
 
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
-
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public interface GeoObjectTypeRelationshipPermissionServiceIF
 {
-  public boolean canAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
+  public boolean canAddChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
-  public void enforceCanAddChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
+  public void enforceCanAddChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
-  public boolean canRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
+  public boolean canRemoveChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
-  public void enforceCanRemoveChild(SingleActorDAOIF actor, ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
+  public void enforceCanRemoveChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
 }

@@ -783,7 +783,7 @@ public class ServerGeoObjectType
     {
       Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
+      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
@@ -825,7 +825,7 @@ public class ServerGeoObjectType
       {
         Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-        if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
+        if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
         {
           hierarchies.add(ServerHierarchyType.get(hierarchyType));
         }
@@ -1008,7 +1008,7 @@ public class ServerGeoObjectType
 
   public static ServerGeoObjectType get(String code)
   {
-    if (code.equals(GeoEntity.ROOT))
+    if (code == null || code.equals(Universal.ROOT))
     {
       return RootGeoObjectType.INSTANCE;
     }

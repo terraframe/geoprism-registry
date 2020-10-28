@@ -67,7 +67,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
         ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
-        return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
+        return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
       }
       catch (Exception e)
       {
@@ -87,7 +87,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
 
-    geoObjectPermissionService.enforceCanCreateCR(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
+    geoObjectPermissionService.enforceCanCreateCR(type.getOrganization().getCode(), type);
 
     super.apply();
   }

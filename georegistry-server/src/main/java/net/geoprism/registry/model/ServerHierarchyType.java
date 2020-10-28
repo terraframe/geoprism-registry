@@ -746,7 +746,7 @@ public class ServerHierarchyType
     // Filter out what they're not allowed to see
 
     lHt.forEach(ht -> {
-      if (service.canRead(Session.getCurrentSession().getUser(), organization.getCode(), PermissionContext.WRITE))
+      if (service.canRead(organization.getCode(), PermissionContext.WRITE))
       {
         list.add(ServerHierarchyType.get(ht));
       }

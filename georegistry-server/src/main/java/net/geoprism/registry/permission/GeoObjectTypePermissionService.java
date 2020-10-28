@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.permission;
 
@@ -32,17 +32,16 @@ import net.geoprism.registry.roles.DeleteGeoObjectTypePermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectTypePermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
 
-public class GeoObjectTypePermissionService implements GeoObjectTypePermissionServiceIF
+public class GeoObjectTypePermissionService extends UserPermissionService implements GeoObjectTypePermissionServiceIF
 {
   /**
    * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
    * 
-   * @param actor
    * @param op
    */
-  public void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String gotLabel, Operation op)
+  public void enforceActorHasPermission(String orgCode, String gotLabel, Operation op)
   {
-    if (!this.doesActorHavePermission(actor, orgCode, op, null))
+    if (!this.doesActorHavePermission(orgCode, op, null))
     {
       Organization org = Organization.getByCode(orgCode);
 
@@ -76,15 +75,17 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
     }
   }
 
-  protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, Operation op, PermissionContext context)
+  protected boolean doesActorHavePermission(String orgCode, Operation op, PermissionContext context)
   {
-    if (actor == null) // null actor is assumed to be SYSTEM
+    if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
       return true;
     }
 
     if (orgCode != null)
     {
+      SingleActorDAOIF actor = this.getSessionUser();
+
       Set<RoleDAOIF> roles = actor.authorizedRoles();
 
       for (RoleDAOIF role : roles)
@@ -130,51 +131,51 @@ public class GeoObjectTypePermissionService implements GeoObjectTypePermissionSe
   }
 
   @Override
-  public boolean canRead(SingleActorDAOIF actor, String orgCode, PermissionContext context)
+  public boolean canRead(String orgCode, PermissionContext context)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.READ, context);
+    return this.doesActorHavePermission(orgCode, Operation.READ, context);
   }
 
   @Override
-  public void enforceCanRead(SingleActorDAOIF actor, String orgCode, String gotLabel)
+  public void enforceCanRead(String orgCode, String gotLabel)
   {
-    this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.READ);
+    this.enforceActorHasPermission(orgCode, gotLabel, Operation.READ);
   }
 
   @Override
-  public boolean canWrite(SingleActorDAOIF actor, String orgCode)
+  public boolean canWrite(String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.WRITE, null);
+    return this.doesActorHavePermission(orgCode, Operation.WRITE, null);
   }
 
   @Override
-  public void enforceCanWrite(SingleActorDAOIF actor, String orgCode, String gotLabel)
+  public void enforceCanWrite(String orgCode, String gotLabel)
   {
-    this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.WRITE);
+    this.enforceActorHasPermission(orgCode, gotLabel, Operation.WRITE);
   }
 
   @Override
-  public boolean canCreate(SingleActorDAOIF actor, String orgCode)
+  public boolean canCreate(String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.CREATE, null);
+    return this.doesActorHavePermission(orgCode, Operation.CREATE, null);
   }
 
   @Override
-  public void enforceCanCreate(SingleActorDAOIF actor, String orgCode)
+  public void enforceCanCreate(String orgCode)
   {
-    this.enforceActorHasPermission(actor, orgCode, null, Operation.CREATE);
+    this.enforceActorHasPermission(orgCode, null, Operation.CREATE);
   }
 
   @Override
-  public boolean canDelete(SingleActorDAOIF actor, String orgCode)
+  public boolean canDelete(String orgCode)
   {
-    return this.doesActorHavePermission(actor, orgCode, Operation.DELETE, null);
+    return this.doesActorHavePermission(orgCode, Operation.DELETE, null);
   }
 
   @Override
-  public void enforceCanDelete(SingleActorDAOIF actor, String orgCode, String gotLabel)
+  public void enforceCanDelete(String orgCode, String gotLabel)
   {
-    this.enforceActorHasPermission(actor, orgCode, gotLabel, Operation.DELETE);
+    this.enforceActorHasPermission(orgCode, gotLabel, Operation.DELETE);
   }
 
 }

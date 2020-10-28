@@ -32,7 +32,6 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.excel.MasterListExcelExporter;
@@ -56,7 +55,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, adapter);
 
-    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), hierarchyType.getOrganizationCode());
+    ServiceFactory.getHierarchyPermissionService().enforceCanCreate(hierarchyType.getOrganizationCode());
 
     ServerHierarchyType sType = new ServerHierarchyTypeBuilder().createHierarchyType(hierarchyType);
 

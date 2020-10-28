@@ -218,7 +218,7 @@ public class RegistryService
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 
     return object.toGeoObject();
   }
@@ -241,7 +241,7 @@ public class RegistryService
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 
     return object.toGeoObject();
   }
@@ -359,13 +359,12 @@ public class RegistryService
     }
 
     // Filter out orgs based on permissions
-    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
     Iterator<OrganizationDTO> it = orgs.iterator();
     while (it.hasNext())
     {
       OrganizationDTO orgDTO = it.next();
 
-      if (!ServiceFactory.getOrganizationPermissionService().canActorRead(actor, orgDTO.getCode()))
+      if (!ServiceFactory.getOrganizationPermissionService().canActorRead(orgDTO.getCode()))
       {
         it.remove();
       }
@@ -432,7 +431,7 @@ public class RegistryService
   {
     Organization organization = Organization.getByKey(code);
 
-    ServiceFactory.getOrganizationPermissionService().enforceActorCanDelete(Session.getCurrentSession().getUser());
+    ServiceFactory.getOrganizationPermissionService().enforceActorCanDelete();
 
     organization.delete();
 
@@ -498,7 +497,7 @@ public class RegistryService
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), geoObjectType.getOrganizationCode(), geoObjectType.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getLabel().getValue());
 
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
 
@@ -525,10 +524,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    if (Session.getCurrentSession() != null)
-    {
-      ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
-    }
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
 
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
@@ -552,7 +548,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
 
     AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
@@ -577,7 +573,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
 
     got.removeAttribute(attributeName);
   }
@@ -750,7 +746,7 @@ public class RegistryService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getLabel().getValue());
 
     if (type != null)
     {
@@ -780,11 +776,9 @@ public class RegistryService
 
     JsonArray array = new JsonArray();
 
-    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-
     for (ServerGeoObjectIF object : results)
     {
-      if (ServiceFactory.getGeoObjectPermissionService().canRead(actor, object.getType().getOrganization().getCode(), object.getType()))
+      if (ServiceFactory.getGeoObjectPermissionService().canRead(object.getType().getOrganization().getCode(), object.getType()))
       {
         JsonObject result = new JsonObject();
         result.addProperty("id", object.getRunwayId());
@@ -973,7 +967,7 @@ public class RegistryService
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
     ServerGeoObjectType type = ServerGeoObjectType.get(goTime.getType().getCode());
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), type);
+    ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(goTime.getType().getOrganizationCode(), type);
 
     ServerGeoObjectIF object = service.apply(goTime, false, false);
 
@@ -986,7 +980,7 @@ public class RegistryService
     GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), jGeoObj);
     ServerGeoObjectType type = ServerGeoObjectType.get(goTime.getType().getCode());
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), goTime.getType().getOrganizationCode(), type);
+    ServiceFactory.getGeoObjectPermissionService().enforceCanCreate(goTime.getType().getOrganizationCode(), type);
 
     ServerGeoObjectIF object = service.apply(goTime, true, false);
 
@@ -1007,7 +1001,7 @@ public class RegistryService
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), object.getType().getOrganization().getCode(), object.getType());
+    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 
     return object.toGeoObjectOverTime();
   }

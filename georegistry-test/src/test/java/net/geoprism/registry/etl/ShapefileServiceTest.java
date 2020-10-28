@@ -67,6 +67,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.resource.FileResource;
+import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Synonym;
@@ -202,7 +203,7 @@ public class ShapefileServiceTest
     {
       it.next().delete();
     }
-    
+
     TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
     parent.delete();
   }
@@ -348,7 +349,7 @@ public class ShapefileServiceTest
   public void testImportShapefileFrazer() throws InterruptedException
   {
     InputStream istream = Thread.currentThread().getContextClassLoader().getResourceAsStream("shapefile/ntd_zam_operational_28082020.zip.test");
-    
+
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
@@ -398,7 +399,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(new Long(1011), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
   }
-  
+
   @Test
   @Request
   public void testImportShapefile() throws InterruptedException
@@ -985,35 +986,35 @@ public class ShapefileServiceTest
     Assert.assertEquals(0, results2.length());
     Assert.assertEquals(0, page2.getInt("count"));
   }
-  
+
   public List<String> shapefileSort() throws IOException
   {
-    try (CloseableFile shp = ShapefileImporter.getShapefileFromResource(new FileResource(new File("/home/rich/dev/projects/georegistry/git/georegistry/georegistry-test/src/test/resources/cb_2017_us_state_500k.zip")), "shp"))
+    try (CloseableFile shp = ShapefileImporter.getShapefileFromResource(new StreamResource(this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test"), "cb_2017_us_state_500k.zip"), "shp"))
     {
       FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
-      
+
       SimpleFeatureSource source = myData.getFeatureSource();
-      
+
       SimpleFeatureCollection featCol = source.getFeatures();
-      
+
       SimpleFeatureIterator featIt = featCol.features();
-      
+
       SimpleFeatureReader fr = new DelegateSimpleFeatureReader(source.getSchema(), featIt);
-      
+
       FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-      
+
       List<SortBy> sortBy = new ArrayList<SortBy>();
       sortBy.add(SortBy.NATURAL_ORDER);
       sortBy.add(ff.sort("LSAD", SortOrder.ASCENDING));
-      
+
       List<String> names = new ArrayList<String>();
-      
+
       try (SimpleFeatureReader sr = new SortedFeatureReader(fr, sortBy.toArray(new SortBy[sortBy.size()]), 5000))
       {
         while (sr.hasNext())
         {
           SimpleFeature feature = sr.next();
-          
+
           names.add(String.valueOf(feature.getAttribute("GEOID")));
         }
       }
@@ -1021,17 +1022,19 @@ public class ShapefileServiceTest
       {
         myData.dispose();
       }
-      
-//      System.out.println(StringUtils.join(names, "\n"));
-      
+
+      // System.out.println(StringUtils.join(names, "\n"));
+
       return names;
     }
   }
-  
+
   /**
-   * In the case when the server fails mid import, when the server reboots it's supposed to restart any jobs that were running.
-   * When we restart the job, we want to make sure that it picks up from where it left off.
-   * @throws IOException 
+   * In the case when the server fails mid import, when the server reboots it's
+   * supposed to restart any jobs that were running. When we restart the job, we
+   * want to make sure that it picks up from where it left off.
+   * 
+   * @throws IOException
    */
   @Test
   @Request
@@ -1039,13 +1042,13 @@ public class ShapefileServiceTest
   {
     TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
     parent.apply();
-    
+
     List<String> sortedGeoIds = shapefileSort();
-    
+
     DataImportJob job = new DataImportJob();
     job.setRunAsUserId(testData.clientRequest.getSessionUser().getOid());
     job.apply();
-    
+
     ImportHistory fakeImportHistory = new ImportHistory();
     fakeImportHistory.setStartTime(new Date());
     fakeImportHistory.addStatus(AllJobStatus.RUNNING);
@@ -1069,7 +1072,7 @@ public class ShapefileServiceTest
     config.setHistoryId(fakeImportHistory.getOid());
     config.setJobId(job.getOid());
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
-    
+
     fakeImportHistory.appLock();
     fakeImportHistory.setConfigJson(config.toJSON().toString());
     fakeImportHistory.setImportFileId(config.getVaultFileId());
@@ -1088,11 +1091,11 @@ public class ShapefileServiceTest
     for (int i = 0; i < 6; ++i)
     {
       String geoId = sortedGeoIds.get(i);
-      
+
       try
       {
         ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), geoId, USATestData.STATE.getCode());
-        
+
         Assert.fail("Was able to fectch GeoObject with code [" + geoId + "], which should not have been imported.");
       }
       catch (SmartExceptionDTO ex)
@@ -1100,18 +1103,18 @@ public class ShapefileServiceTest
         // Expected
       }
     }
-    
+
     for (int i = 6; i < sortedGeoIds.size(); ++i)
     {
       String geoId = sortedGeoIds.get(i);
-      
+
       GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), geoId, USATestData.STATE.getCode());
-  
+
       Assert.assertNotNull(object);
       Assert.assertEquals(geoId, object.getCode());
-  
+
       Geometry geometry = object.getGeometry();
-  
+
       Assert.assertNotNull(geometry);
     }
 

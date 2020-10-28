@@ -36,9 +36,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -134,22 +132,19 @@ public class ServerParentTreeNodeOverTime
 
   public void enforceUserHasPermissionSetParents(String childCode)
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    final Collection<ServerHierarchyType> hierarchyTypes = this.getHierarchies();
+
+    ServerGeoObjectType childType = ServerGeoObjectType.get(childCode);
+
+    for (ServerHierarchyType hierarchyType : hierarchyTypes)
     {
-      final Collection<ServerHierarchyType> hierarchyTypes = this.getHierarchies();
+      final List<ServerParentTreeNode> entries = this.getEntries(hierarchyType);
 
-      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-
-      for (ServerHierarchyType hierarchyType : hierarchyTypes)
+      for (ServerParentTreeNode entry : entries)
       {
-        final List<ServerParentTreeNode> entries = this.getEntries(hierarchyType);
+        final ServerGeoObjectIF parent = entry.getGeoObject();
 
-        for (ServerParentTreeNode entry : entries)
-        {
-          final ServerGeoObjectIF parent = entry.getGeoObject();
-
-          ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(actor, hierarchyType.getOrganization().getCode(), parent.getType().getCode(), childCode);
-        }
+        ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(hierarchyType.getOrganization().getCode(), parent.getType(), childType);
       }
     }
   }
@@ -200,7 +195,7 @@ public class ServerParentTreeNodeOverTime
       final ServerHierarchyType ht = hierarchy.getType();
 
       final JsonArray entries = new JsonArray();
-      
+
       List<GeoObjectType> parentTypes = this.type.getTypeAncestors(ht, false);
 
       JsonArray types = new JsonArray();

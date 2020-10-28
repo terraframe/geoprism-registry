@@ -73,7 +73,7 @@ public class UserInfo extends UserInfoBase
   public static JSONObject page(Integer pageSize, Integer pageNumber)
   {
     List<Organization> organizations = Organization.getUserAdminOrganizations();
-    boolean isSRA = ServiceFactory.getRolePermissionService().isSRA(Session.getCurrentSession().getUser());
+    boolean isSRA = ServiceFactory.getRolePermissionService().isSRA();
 
     if (organizations.size() > 0 || isSRA)
     {

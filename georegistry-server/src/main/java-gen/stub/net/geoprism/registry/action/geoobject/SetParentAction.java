@@ -53,7 +53,7 @@ public class SetParentAction extends SetParentActionBase
         ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
         ServerGeoObjectType type = child.getType();
 
-        return geoObjectPermissionService.canWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type);
+        return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
       }
       catch (Exception e)
       {
