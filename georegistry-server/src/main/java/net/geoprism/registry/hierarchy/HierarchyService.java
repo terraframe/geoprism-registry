@@ -30,7 +30,6 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;

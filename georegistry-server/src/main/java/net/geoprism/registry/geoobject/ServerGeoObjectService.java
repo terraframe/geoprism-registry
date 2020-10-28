@@ -32,7 +32,6 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;

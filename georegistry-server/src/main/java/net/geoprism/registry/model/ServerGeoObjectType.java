@@ -66,7 +66,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
-import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertexQuery;
@@ -715,9 +714,9 @@ public class ServerGeoObjectType
 
   public ServerGeoObjectType getSuperType()
   {
-    if (this.type.getParentTypeCode() != null && this.type.getParentTypeCode().length() > 0)
+    if (this.type.getSuperTypeCode() != null && this.type.getSuperTypeCode().length() > 0)
     {
-      return ServerGeoObjectType.get(this.type.getParentTypeCode());
+      return ServerGeoObjectType.get(this.type.getSuperTypeCode());
     }
 
     return null;

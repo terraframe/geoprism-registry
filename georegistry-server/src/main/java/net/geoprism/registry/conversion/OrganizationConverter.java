@@ -22,7 +22,6 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.ServiceFactory;

@@ -19,12 +19,9 @@
 package net.geoprism.registry.query.graph;
 
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;

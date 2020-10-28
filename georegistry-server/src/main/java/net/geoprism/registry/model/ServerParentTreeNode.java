@@ -28,9 +28,6 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.session.Session;
-
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerParentTreeNode extends ServerTreeNode

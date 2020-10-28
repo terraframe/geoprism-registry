@@ -46,7 +46,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;

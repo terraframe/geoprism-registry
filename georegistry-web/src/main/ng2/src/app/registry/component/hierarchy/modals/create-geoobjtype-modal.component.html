@@ -72,7 +72,7 @@
           <label for="parentType">
             <localize key="attribute.parentType.label"></localize>
           </label>
-          <select class="select-area" name="parentType" [(ngModel)]="geoObjectType.parentTypeCode">
+          <select class="select-area" [(ngModel)]="geoObjectType.superTypeCode" name="superTypeCode">
             <option></option>
             <option *ngFor="let parent of parents" [value]="parent.code">{{parent.label.localizedValue}}</option>
           </select>
@@ -80,7 +80,7 @@
       </div>
     </div>    
 
-    <div class="row" *ngIf="geoObjectType.parentTypeCode == null">
+    <div class="row" *ngIf="geoObjectType.superTypeCode == null">
       <div class="col-md-12">
         <div class="form-group">
           <label for="geometryType">

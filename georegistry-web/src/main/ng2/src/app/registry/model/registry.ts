@@ -52,7 +52,7 @@ export class GeoObjectType {
 	organizationCode: string;
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 	relatedHierarchies?: string[];
-	parentTypeCode?: string;
+	superTypeCode?: string;
 	isAbstract?: boolean;	
 }
 

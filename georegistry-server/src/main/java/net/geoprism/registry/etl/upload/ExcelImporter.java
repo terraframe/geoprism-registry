@@ -38,7 +38,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;

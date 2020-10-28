@@ -218,14 +218,14 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode());
 
-    String parentTypeCode = geoObjectType.getParentTypeCode();
+    String superTypeCode = geoObjectType.getSuperTypeCode();
     Boolean isAbstract = geoObjectType.getIsAbstract();
 
     ServerGeoObjectType superType = null;
 
-    if (parentTypeCode != null && parentTypeCode.length() > 0)
+    if (superTypeCode != null && superTypeCode.length() > 0)
     {
-      superType = ServerGeoObjectType.get(parentTypeCode);
+      superType = ServerGeoObjectType.get(superTypeCode);
       geoObjectType.setGeometryType(superType.getGeometryType());
     }
 
@@ -511,7 +511,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     {
       ServerGeoObjectType parentType = ServerGeoObjectType.get(superType);
 
-      geoObjType.setParentTypeCode(parentType.getCode());
+      geoObjType.setSuperTypeCode(parentType.getCode());
     }
 
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);

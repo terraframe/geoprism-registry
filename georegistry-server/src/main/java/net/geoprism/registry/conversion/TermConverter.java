@@ -23,14 +23,12 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
 import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.MdEntityDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdEntityDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;

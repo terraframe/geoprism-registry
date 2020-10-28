@@ -27,9 +27,6 @@ import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.session.Session;
-
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;

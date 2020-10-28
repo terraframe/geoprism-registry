@@ -51,7 +51,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.BasicColumnFunction;
@@ -61,7 +60,6 @@ import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
