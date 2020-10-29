@@ -1,102 +1,134 @@
 <div class="new-admin-design-main">
-  <cgr-header></cgr-header>
+	<cgr-header></cgr-header>
 
-  <loading-bar></loading-bar>
-  
-  <div id="app-container" class="container-fluid">
-  
-  <!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
-  
-    <nav class="hierarchy-sidebar">
-      <div class="row">
-        <div class="col-md-12">
-          <input type="text" class="form-control" #searchInput [placeholder]="'hierarchy.sidebar.searchAll' | localize" [(ngModel)]="filter">
-        </div>
-      </div>
-      <accordion [isAnimated]="true" [closeOthers]="true">
-        <accordion-group [panelClass]="'hierarchy-sidebar-content'">
-          <div accordion-heading >
-            <span class="" style="color:white;">
-              <i style="color:white;margin-right:10px;" class="fa fa-circle"></i>
-            </span>
-            <localize key="hierarchy.sidebar.geoObjectTypes"></localize>
-          </div>
-          <button *ngIf="isRA()" (click)="createGeoObjectType()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
-            <!-- <i style="color:#6BA542;" class="fa fa-plus"></i> -->
-					  <localize key="hierarchy.sidebar.newGeoObjectType"></localize>
-					</button>
-          <div class="sidebar-section-content">
-            <ul *ngFor="let typeByOrg of filteredTypesByOrg;" class="list-group">
-              <div *ngIf="typeByOrg.types.length > 0">
-                <label>{{typeByOrg.org.label.localizedValue}}</label>
-              
-	              <li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types" [id]="type.code">
-		              {{type.label.localizedValue}}
-		              
-		              <span *ngIf="isOrganizationRA(type.organizationCode)">
-		                <i class="fa fa-times delete-btn clickable pull-right" *ngIf="!excludeGeoObjectTypeDeletes(type)" (click)="deleteGeoObjectType(type)" [title]="'button.delete.helptext' | localize"></i> 
-		                <i class="fa fa-pencil clickable pull-right" (click)="manageGeoObjectType(type, false)" [title]="'button.edit.helptext' | localize"></i> 
-		              </span>
-		              
-		              <span *ngIf="!isOrganizationRA(type.organizationCode)">
-		                <i class="fa fa-eye clickable pull-right" (click)="manageGeoObjectType(type, true)" [title]="'button.view.helptext' | localize"> </i> 
-		              </span>
-		            </li>
-	            </div>
-            </ul>
-          </div>
-        </accordion-group>
-        <accordion-group [isOpen]='true' class="sidebar-section" [panelClass]="'hierarchy-sidebar-content'">
-	        <div accordion-heading >
-	          <span class="" >
-	            <i style="color:white;" class="fa fa-sitemap"></i>
-	          </span>
-	          <localize key="hierarchy.sidebar.hierarchies"></localize>
-	        </div>
-	        <button *ngIf="isRA()" (click)="createHierarchy()" type="button" class="btn btn-primary" style="margin-bottom:20px;">
-	          <i style="color:#369c00;" class="fa fa-plus"></i>
-            <localize key="hierarchy.sidebar.newHierarchy"></localize>
-          </button>
-	        <div class="sidebar-section-content">
-            <ul *ngFor="let hierarchyByOrg of filteredHierarchiesByOrg" class="list-group">
-              <div *ngIf="hierarchyByOrg.hierarchies.length > 0">
-	              <label>{{hierarchyByOrg.org.label.localizedValue}}</label>
-	            
-		            <li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code" class="list-group-item hier-li-item clickable" [ngClass]="{active: isActive(hierarchy)}" (click)="hierarchyOnClick($event,hierarchy)">
-		              <i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}} 
-		  
-		              <span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
-		                <i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)" class="fa fa-times delete-btn clickable pull-right" (click)="deleteHierarchyType(hierarchy)" [title]="'button.delete.helptext' | localize"></i> 
-		                <i class="fa fa-pencil pull-right clickable" (click)="editHierarchyType(hierarchy, false)" [title]="'button.edit.helptext' | localize"> </i>            
-		              </span>
-		              
-		              <span *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
-		                <i class="fa fa-eye pull-right clickable" (click)="editHierarchyType(hierarchy, true)" [title]="'button.view.helptext' | localize"> </i>
-		              </span>
-		            </li>
-	            </div>
-	          </ul>
-          </div>
-        </accordion-group>
-			</accordion>
-    </nav>
-    
-    <div class="hierarchy-content">
-	    <div id="overflow-div">
-	     
-	      <div *ngIf="currentHierarchy != null && isOrganizationRA(currentHierarchy.organizationCode, true) && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)" id="emptyHierarchyDropzone" class="drop-box-container">
-          <div class="hierarchy-drop-box">
-            <div class="inner-drop-box">
-              <p class="upload-text"><localize key="hierarchy.content.dragGotToHierarchy"></localize></p>
-            </div>
-          </div>
-        </div>
-	     
-	      <div id="svgHolder">
-	      <!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->
-	      </div>
-	    
-	    <!-- 
+	<loading-bar></loading-bar>
+
+	<div id="app-container" class="container-fluid" style="display:table;width: 100%;margin-top: -50px;padding: 50px 0 0 0;box-sizing: border-box; min-height: calc(100vh - 94px);">
+
+		<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
+		<div class="row" style="height: 100%; display: table-row;">
+
+			<nav class="col-md-3 hierarchy-sidebar">
+
+				<div class="row" style="padding: 5px 5px;">
+					<div class="col-md-12">
+						<input type="text" class="form-control" #searchInput
+							[placeholder]="'hierarchy.sidebar.searchAll' | localize" [(ngModel)]="filter">
+					</div>
+				</div>
+				<accordion [isAnimated]="true" [closeOthers]="false">
+					<accordion-group [panelClass]="'hierarchy-sidebar-content'" style="border-radius: 0;">
+						<div accordion-heading style="padding: 10px 15px;">
+							<span class="" style="color:white;">
+								<i style="color:white;margin-right:10px;" class="fa fa-circle"></i>
+							</span>
+							<localize key="hierarchy.sidebar.geoObjectTypes"></localize>
+						</div>
+						<button *ngIf="isRA()" (click)="createGeoObjectType()" type="button" class="btn btn-primary"
+							style="margin-bottom:20px;">
+							<!-- <i style="color:#6BA542;" class="fa fa-plus"></i> -->
+							<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
+						</button>
+						<div class="sidebar-section-content">
+							<ul *ngFor="let typeByOrg of filteredTypesByOrg;" class="list-group">
+								<div *ngIf="typeByOrg.types.length > 0">
+									
+									<div class="got-org-label-wrapper">
+										<label>{{typeByOrg.org.label.localizedValue}}</label>
+									</div>
+
+									<li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
+										[id]="type.code">
+										{{type.label.localizedValue}}
+
+										<span *ngIf="isOrganizationRA(type.organizationCode)">
+											<i class="fa fa-times delete-btn clickable pull-right"
+												*ngIf="!excludeGeoObjectTypeDeletes(type)"
+												(click)="deleteGeoObjectType(type)"
+												[title]="'button.delete.helptext' | localize"></i>
+											<i class="fa fa-pencil clickable pull-right"
+												(click)="manageGeoObjectType(type, false)"
+												[title]="'button.edit.helptext' | localize"></i>
+										</span>
+
+										<span *ngIf="!isOrganizationRA(type.organizationCode)">
+											<i class="fa fa-eye clickable pull-right"
+												(click)="manageGeoObjectType(type, true)"
+												[title]="'button.view.helptext' | localize"> </i>
+										</span>
+									</li>
+								</div>
+							</ul>
+						</div>
+					</accordion-group>
+					<accordion-group [isOpen]='true' class="sidebar-section" style="border-radius: 0;" [panelClass]="'hierarchy-sidebar-content'">
+						<div accordion-heading style="padding: 10px 15px;">
+							<span class="">
+								<i style="color:white;" class="fa fa-sitemap"></i>
+							</span>
+							<localize key="hierarchy.sidebar.hierarchies"></localize>
+						</div>
+						<button *ngIf="isRA()" (click)="createHierarchy()" type="button" class="btn btn-primary"
+							style="margin-bottom:20px;">
+							<i style="color:#369c00;" class="fa fa-plus"></i>
+							<localize key="hierarchy.sidebar.newHierarchy"></localize>
+						</button>
+						<div class="sidebar-section-content">
+							<ul *ngFor="let hierarchyByOrg of filteredHierarchiesByOrg" class="list-group">
+								<div *ngIf="hierarchyByOrg.hierarchies.length > 0">
+
+									<div class="got-org-label-wrapper">
+										<label>{{hierarchyByOrg.org.label.localizedValue}}</label>
+									</div>
+
+									<li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code"
+										class="list-group-item hier-li-item clickable"
+										[ngClass]="{'primary': hierarchy.code === currentHierarchy.code, 'active': isActive(hierarchy)}"
+										(click)="hierarchyOnClick($event,hierarchy)">
+										<i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}}
+
+										<span *ngIf="isOrganizationRA(hierarchy.organizationCode)">
+											<i *ngIf="!excludeHierarchyTypeDeletes(hierarchy)"
+												class="fa fa-times delete-btn clickable pull-right"
+												(click)="deleteHierarchyType(hierarchy)"
+												[title]="'button.delete.helptext' | localize"></i>
+											<i class="fa fa-pencil pull-right clickable"
+												(click)="editHierarchyType(hierarchy, false)"
+												[title]="'button.edit.helptext' | localize"> </i>
+										</span>
+
+										<span *ngIf="!isOrganizationRA(hierarchy.organizationCode)">
+											<i class="fa fa-eye pull-right clickable"
+												(click)="editHierarchyType(hierarchy, true)"
+												[title]="'button.view.helptext' | localize"> </i>
+										</span>
+									</li>
+								</div>
+							</ul>
+						</div>
+					</accordion-group>
+				</accordion>
+			</nav>
+
+			<div class="col-md-9 hierarchy-content">
+				<div id="overflow-div">
+
+					<div *ngIf="currentHierarchy != null && isOrganizationRA(currentHierarchy.organizationCode, true) && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)"
+						id="emptyHierarchyDropzone" class="drop-box-container">
+						<div class="hierarchy-drop-box">
+							<div class="inner-drop-box">
+								<p class="upload-text">
+									<localize key="hierarchy.content.dragGotToHierarchy"></localize>
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div id="svgHolder">
+						<!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->
+					</div>
+
+					<!-- 
 	      <div class="col-md-4">
 	        <h3> 
 	            <localize key="hierarchy.current.management.panel.title"></localize> 
@@ -113,8 +145,9 @@
 	        </div>
 	      </div>
 	      -->
-	    </div>
-    </div>
-  </div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 </div>

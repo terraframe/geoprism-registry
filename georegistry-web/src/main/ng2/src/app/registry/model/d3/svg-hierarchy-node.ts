@@ -7,6 +7,9 @@ import { SvgHierarchyType } from './svg-hierarchy-type';
 import { calculateTextWidth } from './svg-util';
 import { SvgController, RELATED_NODE_BANNER_COLOR } from './svg-controller';
 
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal';
+
 export class SvgHierarchyNode {
 
 	private hierarchyComponent: SvgController;
@@ -17,7 +20,12 @@ export class SvgHierarchyNode {
 
 	private treeNode: any;
 
-	constructor(hierarchyComponent: SvgController, svgHierarchyType: SvgHierarchyType, geoObjectType: GeoObjectType, treeNode: any) {
+	/*
+     * Reference to the modal current showing
+    */
+	private bsModalRef: BsModalRef;
+
+	constructor(hierarchyComponent: SvgController, svgHierarchyType: SvgHierarchyType, geoObjectType: GeoObjectType, treeNode: any, private modalService: BsModalService) {
 		this.hierarchyComponent = hierarchyComponent;
 		this.svgHierarchyType = svgHierarchyType;
 		this.geoObjectType = geoObjectType;
@@ -40,7 +48,7 @@ export class SvgHierarchyNode {
 		d3.select('.g-hierarchy[data-primary=true] .svg-got-header-rect[data-gotCode="' + this.getCode() + '"]')
 			.classed("dragging", dragging)
 			.attr("x", x)
-			.attr("y", y - SvgHierarchyType.gotRectH / 2 + 4);
+			.attr("y", y - SvgHierarchyType.gotRectH / 2 + 2);
 
 		d3.select('.g-hierarchy[data-primary=true] .svg-got-label-text[data-gotCode="' + this.getCode() + '"]')
 			.classed("dragging", dragging)
@@ -105,14 +113,14 @@ export class SvgHierarchyNode {
 			let relatedHierarchies = this.svgHierarchyType.getRelatedHierarchies(this.getCode());
 
 			let bbox = this.getBbox();
-			let x = bbox.x + bbox.width - 20;
+			let x = bbox.x + bbox.width - 5;
 			let y = bbox.y + bbox.height / 2 - 8;
 			const height = 20;
-			const fontSize = 9;
+			const fontSize = 8;
 			const widthPadding = 10;
 			const borderColor = "grey";
 			const fontFamily = "sans-serif";
-			const titleFontSize = 12;
+			const titleFontSize = 10;
 			const titleLabel = this.hierarchyComponent.localize("hierarchy.content.relatedHierarchies");
 
 			// Calculate the width of our title
@@ -145,7 +153,7 @@ export class SvgHierarchyNode {
 				.attr("y", y)
 				.attr("rx", 5)
 				.attr("width", width)
-				.attr("height", height * (relatedHierarchies.length + 1))
+				.attr("height", height * (relatedHierarchies.length + 2))
 				.attr("fill", "#e0e0e0")
 				.attr("stroke-width", 1)
 				.attr("stroke", borderColor);
@@ -157,6 +165,7 @@ export class SvgHierarchyNode {
 				.attr("y", y + (height / 2) + (titleFontSize / 2))
 				.style("font-size", titleFontSize)
 				.attr("font-family", fontFamily)
+				.attr("font-weight", "bold")
 				.text(titleLabel);
 
 			y = y + height;
@@ -207,6 +216,29 @@ export class SvgHierarchyNode {
 						.attr("stroke", borderColor)
 						.attr("stroke-width", .5);
 				}
+
+
+
+				// Dividing line at the bottom
+				contextMenuGroup.append("line")
+					.classed("contextmenu-removehiers-divider", true)
+					.attr("x1", x)
+					.attr("y1", y)
+					.attr("x2", x + width)
+					.attr("y2", y)
+					.attr("stroke", borderColor)
+					.attr("stroke-width", .5);
+
+				contextMenuGroup.append("text")
+					.classed("contextmenu-relatedhiers-text", true)
+					.attr("data-remove", "REPLACE---gotCode")
+					.attr("x", x + widthPadding / 2)
+					.attr("y", y + (height / 2) + (fontSize / 2))
+					.style("font-size", fontSize)
+					.attr("font-family", fontFamily)
+					.text("Remove")
+					.style("cursor", "pointer")
+					.on('click', function(event, node) { that.removeGotFromHierarchy(); });
 			};
 
 			this.hierarchyComponent.calculateSvgViewBox();
@@ -214,6 +246,46 @@ export class SvgHierarchyNode {
 		else {
 			existingMenu.remove();
 		}
+	}
+
+	removeGotFromHierarchy(){
+		// let svgGot = this.hierarchyComponent.primarySvgHierarchy.getNodeByCode(d3.select(this).attr("data-gotCode"));
+
+		// let obj = this.hierarchyComponent.findGeoObjectTypeByCode(svgGot.getCode());
+
+		// this.hierarchyComponent.bsModalRef = this.hierarchyComponent.modalService.show(ConfirmModalComponent, {
+		// 	animated: true,
+		// 	backdrop: true,
+		// 	ignoreBackdropClick: true,
+		// });
+
+		// let message = hierarchyComponent.localizeService.decode("confirm.modal.verify.remove.hierarchy");
+		// message = message.replace("{label}", obj.label.localizedValue);
+
+		// hierarchyComponent.bsModalRef.content.message = message;
+		// hierarchyComponent.bsModalRef.content.data = obj.code;
+
+		// (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onConfirm.subscribe(data => {
+		// 	let treeNode = svgGot.getTreeNode();
+		// 	let parent = null;
+		// 	if (treeNode.parent == null) {
+		// 		parent = "ROOT";
+		// 	}
+		// 	else {
+		// 		if (treeNode.parent.data.inheritedHierarchyCode != null) {
+		// 			parent = "ROOT";
+		// 		}
+		// 		else {
+		// 			parent = treeNode.parent.data.geoObjectType;
+		// 		}
+		// 	}
+
+		// 	hierarchyComponent.removeFromHierarchy(parent, svgGot.getCode(), (err: any) => { svgGot.setPos(startPoint.x, startPoint.y, false); });
+		// });
+
+		// (<ConfirmModalComponent>hierarchyComponent.bsModalRef.content).onCancel.subscribe(data => {
+		// 	svgGot.setPos(startPoint.x, startPoint.y, false);
+		// });
 	}
 
 	renderSecondaryHierarchy(relatedHierarchy: HierarchyType) {
@@ -338,7 +410,9 @@ export class SvgHierarchyNode {
 			.attr("stroke-opacity", 0.4)
 			.attr("stroke-dasharray", "5,5")
 			.attr("stroke-width", 1.5)
-			.attr("d", "M" + (myBbox.x + myBbox.width) + "," + (myBbox.y + myBbox.height / 2)
+			.attr(
+				  "d",
+				  "M" + (myBbox.x + myBbox.width) + "," + (myBbox.y + myBbox.height / 2)
 				+ "H" + (((secondaryGotBbox.x) - (myBbox.x + myBbox.width)) / 2 + myBbox.x + myBbox.width)
 				+ "V" + (secondaryGotBbox.y + secondaryGotBbox.height / 2)
 				+ "H" + secondaryGotBbox.x
@@ -359,7 +433,8 @@ export class SvgHierarchyNode {
 			.attr("fill", "none")
 			.attr("stroke", "white")
 			.attr("stroke-width", 1.5)
-			.attr("d", "M" + (myBbox.x + myBbox.width - arrowRectD.width / 2 + ((arrowRectD.width * 2) / 3)) + "," + (myBbox.y + myBbox.height / 2 - arrowRectD.height / 2 + ((arrowRectD.height * 2) / 3))
+			.attr("d", 
+				"M" + (myBbox.x + myBbox.width - arrowRectD.width / 2 + ((arrowRectD.width * 2) / 3)) + "," + (myBbox.y + myBbox.height / 2 - arrowRectD.height / 2 + ((arrowRectD.height * 2) / 3))
 				+ "L" + (myBbox.x + myBbox.width + arrowRectD.width / 2 - ((arrowRectD.width * 2) / 3)) + "," + (myBbox.y + myBbox.height / 2)
 				+ "L" + (myBbox.x + myBbox.width - arrowRectD.width / 2 + ((arrowRectD.width * 2) / 3)) + "," + (myBbox.y + myBbox.height / 2 - arrowRectD.height / 2 + arrowRectD.height / 3)
 			);
