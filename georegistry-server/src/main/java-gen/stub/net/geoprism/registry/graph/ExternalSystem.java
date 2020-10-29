@@ -67,7 +67,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
       if (session != null)
       {
-        ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), organization.getCode());
+        ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
       }
     }
 

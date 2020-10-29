@@ -19,9 +19,12 @@
 package net.geoprism.registry.model;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -37,7 +40,6 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
@@ -58,11 +60,15 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
+import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
+import com.runwaysdk.system.gis.metadata.graph.MdGeoVertexQuery;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
@@ -175,6 +181,11 @@ public class ServerGeoObjectType
     return this.type.getLabel();
   }
 
+  public boolean getIsAbstract()
+  {
+    return this.type.getIsAbstract();
+  }
+
   public JsonObject toJSON(CustomSerializer serializer)
   {
     return this.type.toJSON(serializer);
@@ -236,7 +247,7 @@ public class ServerGeoObjectType
   @Transaction
   private void deleteInTransaction()
   {
-    List<ServerHierarchyType> hierarchies = this.getHierarchies(false);
+    List<ServerHierarchyType> hierarchies = this.getHierarchies(false, true);
 
     if (hierarchies.size() > 0)
     {
@@ -701,12 +712,66 @@ public class ServerGeoObjectType
     return children;
   }
 
-  public List<ServerHierarchyType> getHierarchies()
+  public ServerGeoObjectType getSuperType()
   {
-    return getHierarchies(true);
+    if (this.type.getSuperTypeCode() != null && this.type.getSuperTypeCode().length() > 0)
+    {
+      return ServerGeoObjectType.get(this.type.getSuperTypeCode());
+    }
+
+    return null;
   }
 
-  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone)
+  public List<ServerGeoObjectType> getSubtypes()
+  {
+    List<ServerGeoObjectType> children = new LinkedList<>();
+
+    if (this.getIsAbstract())
+    {
+      MdGeoVertexQuery query = new MdGeoVertexQuery(new QueryFactory());
+      query.WHERE(query.getSuperMdVertex().EQ(this.getMdVertex().getOid()));
+
+      try (OIterator<? extends MdGeoVertex> iterator = query.getIterator())
+      {
+        while (iterator.hasNext())
+        {
+          MdGeoVertex cUniversal = (MdGeoVertex) iterator.next();
+
+          children.add(ServerGeoObjectType.get(MdGeoVertexDAO.get(cUniversal.getOid())));
+        }
+
+      }
+    }
+
+    return children;
+  }
+
+  public Set<ServerHierarchyType> getHierarchiesOfSubTypes()
+  {
+    List<ServerGeoObjectType> subtypes = this.getSubtypes();
+    Set<ServerHierarchyType> hierarchyTypes = new TreeSet<ServerHierarchyType>(new Comparator<ServerHierarchyType>()
+    {
+      @Override
+      public int compare(ServerHierarchyType o1, ServerHierarchyType o2)
+      {
+        return o1.getCode().compareTo(o2.getCode());
+      }
+    });
+
+    for (ServerGeoObjectType type : subtypes)
+    {
+      hierarchyTypes.addAll(type.getHierarchies(false, false));
+    }
+
+    return hierarchyTypes;
+  }
+
+  public List<ServerHierarchyType> getHierarchies()
+  {
+    return getHierarchies(true, true);
+  }
+
+  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone, boolean includeFromSuperType)
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
@@ -717,7 +782,7 @@ public class ServerGeoObjectType
     {
       Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
+      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
@@ -737,7 +802,16 @@ public class ServerGeoObjectType
         }
 
       }
+    }
 
+    if (includeFromSuperType)
+    {
+      ServerGeoObjectType superType = this.getSuperType();
+
+      if (superType != null)
+      {
+        hierarchies.addAll(superType.getHierarchies(includeAllHierarchiesIfNone, includeFromSuperType));
+      }
     }
 
     if (includeAllHierarchiesIfNone && hierarchies.size() == 0)
@@ -750,7 +824,7 @@ public class ServerGeoObjectType
       {
         Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-        if (ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), PermissionContext.READ))
+        if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
         {
           hierarchies.add(ServerHierarchyType.get(hierarchyType));
         }
@@ -787,7 +861,7 @@ public class ServerGeoObjectType
   {
     // Ensure that this geo object type is the root geo object type for the "For
     // Hierarchy"
-    if (!this.isRoot(forHierarchy))
+    if (!this.isRoot(forHierarchy) || this.getIsAbstract())
     {
       throw new HierarchyRootException();
     }
@@ -868,6 +942,16 @@ public class ServerGeoObjectType
       }
     });
 
+    if (ancestors.size() == 0)
+    {
+      ServerGeoObjectType superType = this.getSuperType();
+
+      if (superType != null)
+      {
+        return superType.getTypeAncestors(hierarchyType, includeInheritedTypes);
+      }
+    }
+
     return ancestors;
   }
 
@@ -923,6 +1007,11 @@ public class ServerGeoObjectType
 
   public static ServerGeoObjectType get(String code)
   {
+    if (code == null || code.equals(Universal.ROOT))
+    {
+      return RootGeoObjectType.INSTANCE;
+    }
+
     Optional<GeoObjectType> geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code);
 
     if (geoObjectType.isPresent())

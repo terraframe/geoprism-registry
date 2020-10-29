@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action.tree;
 
@@ -47,10 +47,7 @@ public class AddChildAction extends AddChildActionBase
     ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
-    }
+    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     parent.addChild(child, ht);
   }
@@ -66,7 +63,7 @@ public class AddChildAction extends AddChildActionBase
         ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
         ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
-        return ServiceFactory.getGeoObjectRelationshipPermissionService().canAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+        return ServiceFactory.getGeoObjectRelationshipPermissionService().canAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
       }
       catch (Exception e)
       {
@@ -144,12 +141,7 @@ public class AddChildAction extends AddChildActionBase
     ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
     ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-
-      ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChildCR(actor, ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
-    }
+    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChildCR(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     super.apply();
   }

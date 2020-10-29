@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 126671025)
+@com.runwaysdk.business.ClassSignature(hash = 1009640412)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -562,6 +562,23 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.MasterList.SITEMASTER, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies()
+  {
+    return getSubtypeHierarchies(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.MasterList.SUBTYPEHIERARCHIES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.MasterList.SUBTYPEHIERARCHIES, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getTelephoneNumber()
   {
     return getTelephoneNumber(null);
@@ -855,6 +872,9 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies();
+    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias);
+    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getTelephoneNumber();
     public com.runwaysdk.query.SelectableChar getTelephoneNumber(String alias);
     public com.runwaysdk.query.SelectableChar getTelephoneNumber(String alias, String displayLabel);
@@ -1384,6 +1404,23 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.SITEMASTER, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies()
+  {
+    return getSubtypeHierarchies(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.SUBTYPEHIERARCHIES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.SUBTYPEHIERARCHIES, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getTelephoneNumber()
   {
     return getTelephoneNumber(null);
@@ -1648,6 +1685,9 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getSiteMaster();
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias);
     public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies();
+    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias);
+    public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getTelephoneNumber();
     public com.runwaysdk.query.SelectableChar getTelephoneNumber(String alias);
     public com.runwaysdk.query.SelectableChar getTelephoneNumber(String alias, String displayLabel);
@@ -2224,6 +2264,23 @@ public  class MasterListQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getSiteMaster(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.SITEMASTER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies()
+  {
+    return getSubtypeHierarchies(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.SUBTYPEHIERARCHIES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getSubtypeHierarchies(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.MasterList.SUBTYPEHIERARCHIES, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getTelephoneNumber()

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -59,6 +59,7 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
 import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
+import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
@@ -71,11 +72,14 @@ import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 
+import net.geoprism.registry.ChainInheritanceException;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeoObjectTypeAssignmentException;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
@@ -92,18 +96,19 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
   @Transaction
   public void createDefaultAttributes(Universal universal, MdBusiness definingMdBusiness)
   {
-//    MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
+    // MdBusiness mdBusGeoEntity = MdBusiness.getMdBusiness(GeoEntity.CLASS);
 
     if (!universal.getIsLeafType())
     {
-//      MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
-//      geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
-//      geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
-//      geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity for non-leaf Universal Types");
-//      geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
-//      geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
-//      geoEntRefMdAttrRef.setRequired(false);
-//      geoEntRefMdAttrRef.apply();
+      // MdAttributeReference geoEntRefMdAttrRef = new MdAttributeReference();
+      // geoEntRefMdAttrRef.setAttributeName(RegistryConstants.GEO_ENTITY_ATTRIBUTE_NAME);
+      // geoEntRefMdAttrRef.getDisplayLabel().setValue(RegistryConstants.GEO_ENTITY_ATTRIBUTE_LABEL);
+      // geoEntRefMdAttrRef.getDescription().setValue("References a GeoEntity
+      // for non-leaf Universal Types");
+      // geoEntRefMdAttrRef.setMdBusiness(mdBusGeoEntity);
+      // geoEntRefMdAttrRef.setDefiningMdClass(definingMdBusiness);
+      // geoEntRefMdAttrRef.setRequired(false);
+      // geoEntRefMdAttrRef.apply();
     }
 
     // DefaultAttribute.UID - Defined on the MdBusiness and the values are from
@@ -211,9 +216,27 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode());
+
+    String superTypeCode = geoObjectType.getSuperTypeCode();
+    Boolean isAbstract = geoObjectType.getIsAbstract();
+
+    ServerGeoObjectType superType = null;
+
+    if (superTypeCode != null && superTypeCode.length() > 0)
     {
-      ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(Session.getCurrentSession().getUser(), geoObjectType.getOrganizationCode());
+      superType = ServerGeoObjectType.get(superTypeCode);
+      geoObjectType.setGeometryType(superType.getGeometryType());
+    }
+
+    if (isAbstract && superType != null)
+    {
+      throw new ChainInheritanceException();
+    }
+
+    if (superType != null && !superType.getIsAbstract())
+    {
+      throw new GeoObjectTypeAssignmentException();
     }
 
     Universal universal = new Universal();
@@ -240,39 +263,50 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     // The CODE name becomes the class name
     mdBusiness.setTypeName(universal.getUniversalId());
     mdBusiness.setGenerateSource(false);
-    mdBusiness.setPublish(false);
-    mdBusiness.setIsAbstract(false);
+    mdBusiness.setIsAbstract(isAbstract);
     mdBusiness.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, universal.getDisplayLabel().getValue());
     mdBusiness.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, universal.getDescription().getValue());
+
+    if (superType != null)
+    {
+      mdBusiness.setSuperMdBusiness(superType.getMdBusiness());
+    }
+    else
+    {
+      mdBusiness.setPublish(false);
+    }
+
     mdBusiness.apply();
 
     // Add the default attributes.
-    this.createDefaultAttributes(universal, mdBusiness);
+    if (superType == null)
+    {
+      this.createDefaultAttributes(universal, mdBusiness);
+    }
 
     universal.setMdBusiness(mdBusiness);
 
     universal.apply();
 
     // Create the MdGeoVertexClass
-    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid());
-    this.createDefaultAttributes(universal, mdVertex);
+    MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid(), isAbstract, superType);
 
-    // Organization organization =
-    // Organization.getByKey(geoObjectType.getCode());
-    // mdVertex.setValue(DefaultAttribute.ORGANIZATION.getName(),
-    // organization.getOid());
+    if (superType == null)
+    {
+      this.createDefaultAttributes(universal, mdVertex);
 
-    assignSRAPermissions(mdVertex, mdBusiness);
+      assignSRAPermissions(mdVertex, mdBusiness);
 
-    assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
-    create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
-    assign_RM_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+      assignAll_RA_Permissions(mdVertex, mdBusiness, organizationCode);
+      create_RM_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+      assign_RM_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
 
-    create_RC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
-    assign_RC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+      create_RC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+      assign_RC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
 
-    create_AC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
-    assign_AC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+      create_AC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
+      assign_AC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+    }
 
     // Build the parent class term root if it does not exist.
     TermConverter.buildIfNotExistdMdBusinessClassifier(mdBusiness);
@@ -468,7 +502,17 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     String organizationCode = Organization.getRootOrganizationCode(ownerActerOid);
 
+    MdGeoVertexDAOIF superType = mdVertex.getSuperClass();
+
     GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
+    geoObjType.setIsAbstract(mdBusiness.getIsAbstract());
+
+    if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
+    {
+      ServerGeoObjectType parentType = ServerGeoObjectType.get(superType);
+
+      geoObjType.setSuperTypeCode(parentType.getCode());
+    }
 
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);
 

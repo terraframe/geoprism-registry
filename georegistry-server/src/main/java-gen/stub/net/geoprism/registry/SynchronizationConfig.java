@@ -61,7 +61,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
 
     if (session != null && organization != null)
     {
-      ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), organization.getCode());
+      ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
     }
 
     super.apply();

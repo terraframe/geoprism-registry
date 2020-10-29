@@ -40,10 +40,6 @@ public class MasterListAttributeComparator implements Comparator<MdAttributeConc
     }
   }
 
-  {
-    // TODO Auto-generated constructor stub
-  }
-
   @Override
   public int compare(MdAttributeConcreteDAOIF o1, MdAttributeConcreteDAOIF o2)
   {

@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -29,8 +30,6 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.ontology.Term;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -60,13 +59,12 @@ public class HierarchyService
     JsonArray hierarchies = new JsonArray();
 
     HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
-    SingleActorDAOIF user = Session.getCurrentSession().getUser();
 
     for (ServerHierarchyType sHT : hierarchyTypes)
     {
       HierarchyType hierarchyType = sHT.getType();
 
-      if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+      if (pService.canRead(hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
       {
         List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sHT, true);
 
@@ -108,7 +106,7 @@ public class HierarchyService
       {
         HierarchyType hierarchyType = sHT.getType();
 
-        if (pService.canRead(user, hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+        if (pService.canRead(hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
         {
           if (geoObjectType.isRoot(sHT))
           {
@@ -127,13 +125,38 @@ public class HierarchyService
   }
 
   @Request(RequestType.SESSION)
+  public JsonArray getHierarchiesForSubtypes(String sessionId, String code)
+  {
+    ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(code);
+    Set<ServerHierarchyType> hierarchyTypes = geoObjectType.getHierarchiesOfSubTypes();
+
+    JsonArray hierarchies = new JsonArray();
+
+    HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
+
+    for (ServerHierarchyType sHT : hierarchyTypes)
+    {
+      HierarchyType hierarchyType = sHT.getType();
+
+      if (pService.canRead(hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", sHT.getCode());
+        object.addProperty("label", sHT.getDisplayLabel().getValue());
+
+        hierarchies.add(object);
+      }
+    }
+
+    return hierarchies;
+  }
+
+  @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
   {
     GeoObjectRelationshipPermissionServiceIF service = ServiceFactory.getGeoObjectRelationshipPermissionService();
     ServerGeoObjectIF geoObject = ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, typeCode);
     ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
-
-    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
 
     // Filter out hierarchies that they're not allowed to see
     Collection<ServerHierarchyType> hierarchies = pot.getHierarchies();
@@ -142,7 +165,7 @@ public class HierarchyService
     {
       Organization organization = hierarchy.getOrganization();
 
-      if (!service.canViewChild(actor, organization.getCode(), null, geoObject.getType().getCode()))
+      if (!service.canViewChild(organization.getCode(), null, geoObject.getType()))
       {
         pot.remove(hierarchy);
       }
@@ -194,7 +217,7 @@ public class HierarchyService
 
       Organization org = Organization.getByCode(ht.getOrganizationCode());
 
-      if (!ServiceFactory.getHierarchyPermissionService().canRead(Session.getCurrentSession().getUser(), org.getCode(), context))
+      if (!ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), context))
       {
         it.remove();
       }
@@ -235,7 +258,7 @@ public class HierarchyService
     HierarchyType hierarchyType = HierarchyType.fromJSON(htJSON, ServiceFactory.getAdapter());
     ServerHierarchyType type = ServerHierarchyType.get(hierarchyType);
 
-    ServiceFactory.getHierarchyPermissionService().enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode());
+    ServiceFactory.getHierarchyPermissionService().enforceCanWrite(type.getOrganization().getCode());
 
     type.update(hierarchyType);
 
@@ -254,7 +277,7 @@ public class HierarchyService
   {
     ServerHierarchyType type = ServerHierarchyType.get(code);
 
-    ServiceFactory.getHierarchyPermissionService().enforceCanDelete(Session.getCurrentSession().getUser(), type.getOrganization().getCode());
+    ServiceFactory.getHierarchyPermissionService().enforceCanDelete(type.getOrganization().getCode());
 
     type.delete();
   }
@@ -276,20 +299,23 @@ public class HierarchyService
   public HierarchyType addToHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
+    ServerGeoObjectType parentType = ServerGeoObjectType.get(parentGeoObjectTypeCode);
+    ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), type, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(type, parentType, childType);
 
-    type.addToHierarchy(parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    type.addToHierarchy(parentType, childType);
 
     return type.getType();
   }
-  
+
   /**
-   * Inserts the {@link GeoObjectType} 'middleGeoObjectTypeCode' into the hierarchy
-   * as the child of 'parentGeoObjectTypeCode' and the new parent for 'youngestGeoObjectTypeCode'.
-   * If an existing parent/child relationship already exists between 'youngestGeoObjectTypeCode'
-   * and 'parentgeoObjectTypeCode', it will first be removed. youngestGeoObjectTypeCode can also
-   * be an array (comma separated list).
+   * Inserts the {@link GeoObjectType} 'middleGeoObjectTypeCode' into the
+   * hierarchy as the child of 'parentGeoObjectTypeCode' and the new parent for
+   * 'youngestGeoObjectTypeCode'. If an existing parent/child relationship
+   * already exists between 'youngestGeoObjectTypeCode' and
+   * 'parentgeoObjectTypeCode', it will first be removed.
+   * youngestGeoObjectTypeCode can also be an array (comma separated list).
    * 
    * @param sessionId
    * @param hierarchyTypeCode
@@ -306,16 +332,16 @@ public class HierarchyService
   {
     return this.insertBetweenTypesInTrans(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode);
   }
-  
+
   @Transaction
   public HierarchyType insertBetweenTypesInTrans(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String middleGeoObjectTypeCode, String youngestGeoObjectTypeCode)
   {
     this.addToHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, middleGeoObjectTypeCode);
-    
+
     if (youngestGeoObjectTypeCode.contains(","))
     {
       String[] array = youngestGeoObjectTypeCode.split(",");
-      
+
       for (String youngest : array)
       {
         this.removeFromHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, youngest, false);
@@ -327,7 +353,7 @@ public class HierarchyService
       this.removeFromHierarchy(sessionId, hierarchyTypeCode, parentGeoObjectTypeCode, youngestGeoObjectTypeCode, false);
       this.addToHierarchy(sessionId, hierarchyTypeCode, middleGeoObjectTypeCode, youngestGeoObjectTypeCode);
     }
-    
+
     return ServerHierarchyType.get(hierarchyTypeCode).getType();
   }
 
@@ -348,8 +374,9 @@ public class HierarchyService
   {
     ServerHierarchyType forHierarchy = ServerHierarchyType.get(hierarchyTypeCode);
     ServerHierarchyType inheritedHierarchy = ServerHierarchyType.get(inheritedHierarchyTypeCode);
+    ServerGeoObjectType childType = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), forHierarchy, null, geoObjectTypeCode);
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(forHierarchy, null, childType);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
 
@@ -373,8 +400,9 @@ public class HierarchyService
   public HierarchyType removeInheritedHierarchy(String sessionId, String hierarchyTypeCode, String geoObjectTypeCode)
   {
     ServerHierarchyType forHierarchy = ServerHierarchyType.get(hierarchyTypeCode);
+    ServerGeoObjectType childType = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), forHierarchy, null, geoObjectTypeCode);
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(forHierarchy, null, childType);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
 
@@ -401,10 +429,12 @@ public class HierarchyService
   public HierarchyType removeFromHierarchy(String sessionId, String hierarchyTypeCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode, boolean migrateChildren)
   {
     ServerHierarchyType type = ServerHierarchyType.get(hierarchyTypeCode);
+    ServerGeoObjectType parentType = ServerGeoObjectType.get(parentGeoObjectTypeCode);
+    ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), type, parentGeoObjectTypeCode, childGeoObjectTypeCode);
+    ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanRemoveChild(type, parentType, childType);
 
-    type.removeChild(parentGeoObjectTypeCode, childGeoObjectTypeCode, migrateChildren);
+    type.removeChild(parentType, childType, migrateChildren);
 
     return type.getType();
   }

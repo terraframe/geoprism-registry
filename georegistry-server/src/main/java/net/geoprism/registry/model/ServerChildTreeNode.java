@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -26,9 +26,6 @@ import java.util.List;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -79,20 +76,14 @@ public class ServerChildTreeNode extends ServerTreeNode
     HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
 
     ChildTreeNode node = new ChildTreeNode(go, ht);
-    
-    SingleActorDAOIF actor = null;
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      actor = Session.getCurrentSession().getUser();
-    }
-    
+
     String orgCode = go.getType().getOrganizationCode();
-    String typeCode = go.getType().getCode();
+
+    ServerGeoObjectType type = ServerGeoObjectType.get(go.getType());
 
     for (ServerChildTreeNode child : this.children)
     {
-      if (!enforcePermissions
-          || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(actor, orgCode, typeCode, child.getGeoObject().getType().getCode()))
+      if (!enforcePermissions || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(orgCode, type, child.getGeoObject().getType()))
       {
         node.addChild(child.toNode(enforcePermissions));
       }

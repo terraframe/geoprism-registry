@@ -53,7 +53,7 @@ export class DataExportComponent implements OnInit {
     constructor( private service: IOService, private modalService: BsModalService, private authService: AuthService ) { }
 
     ngOnInit(): void {
-        this.service.listGeoObjectTypes( false ).then( types => {
+        this.service.listGeoObjectTypes( true ).then( types => {
         
             //this.types = types;
             

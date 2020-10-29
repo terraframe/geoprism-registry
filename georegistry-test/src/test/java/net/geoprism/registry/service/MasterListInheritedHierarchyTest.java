@@ -120,7 +120,7 @@ public class MasterListInheritedHierarchyTest
   @Request
   public void testPublishVersion()
   {
-    JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+    JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, false, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
 
     MasterList test = MasterList.create(json);
 
@@ -151,7 +151,7 @@ public class MasterListInheritedHierarchyTest
   @Request
   public void testMarkAsInvalidByInheritedParent()
   {
-    JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, USATestData.DISTRICT, USATestData.STATE);
+    JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, false, USATestData.DISTRICT, USATestData.STATE);
 
     MasterList masterlist = MasterList.create(json);
 

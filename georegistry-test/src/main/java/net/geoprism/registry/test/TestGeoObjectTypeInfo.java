@@ -204,7 +204,7 @@ public class TestGeoObjectTypeInfo
         this.children.add(child);
       }
 
-      hierarchy.getServerObject().addToHierarchy(this.getCode(), child.getCode());
+      hierarchy.getServerObject().addToHierarchy(this.getServerObject(), child.getServerObject());
 //      this.getServerObject().add(child.getServerObject(), hierarchy.getServerObject());
 //      return child.getUniversal().addLink(universal, hierarchy.getServerObject());
     }

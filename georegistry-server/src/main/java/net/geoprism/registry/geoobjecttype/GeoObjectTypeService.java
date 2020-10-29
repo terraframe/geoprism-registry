@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobjecttype;
 
@@ -26,9 +26,6 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -87,12 +84,6 @@ public class GeoObjectTypeService
       }
     }
 
-    SingleActorDAOIF actor = null;
-    if (Session.getCurrentSession() != null)
-    {
-      actor = Session.getCurrentSession().getUser();
-    }
-
     Iterator<GeoObjectType> it = gots.iterator();
     while (it.hasNext())
     {
@@ -101,7 +92,7 @@ public class GeoObjectTypeService
       ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
 
       // Filter ones that they can't see due to permissions
-      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(actor, serverGot.getOrganization().getCode(), context))
+      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(serverGot.getOrganization().getCode(), context))
       {
         it.remove();
       }

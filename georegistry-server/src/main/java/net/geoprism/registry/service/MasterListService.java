@@ -28,7 +28,6 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
@@ -355,18 +354,14 @@ public class MasterListService
 
   private void enforceWritePermissions(MasterList masterList)
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
-      SingleActorDAOIF user = Session.getCurrentSession().getUser();
-      Organization organization = geoObjectType.getOrganization();
+    ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
+    Organization organization = geoObjectType.getOrganization();
 
-      if (!ServiceFactory.getGeoObjectPermissionService().canWrite(user, organization.getCode(), geoObjectType.getCode()))
-      {
-        CreateListPermissionException ex = new CreateListPermissionException();
-        ex.setOrganization(organization.getDisplayLabel().getValue());
-        throw ex;
-      }
+    if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
+    {
+      CreateListPermissionException ex = new CreateListPermissionException();
+      ex.setOrganization(organization.getDisplayLabel().getValue());
+      throw ex;
     }
   }
 }

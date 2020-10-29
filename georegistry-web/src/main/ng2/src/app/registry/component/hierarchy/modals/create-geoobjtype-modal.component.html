@@ -48,8 +48,39 @@
         </div>
       </div>
     </div>
-
+    
     <div class="row">
+      <div class="col-md-12" style="margin-bottom: 15px;">
+        <div class="form-group">
+          <div class="check-block">
+            <div (click)="toggleIsAbstract()" [ngClass]="{'chk-checked' : geoObjectType.isAbstract}"
+              style="margin:0;" class="jcf-unselectable chk-area">
+              <span></span>
+            </div>
+
+            <label class="checkbox-label">
+              <localize key="attribute.isAbstract.label"></localize>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row" *ngIf="!geoObjectType.isAbstract">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="parentType">
+            <localize key="attribute.parentType.label"></localize>
+          </label>
+          <select class="select-area" [(ngModel)]="geoObjectType.superTypeCode" name="superTypeCode">
+            <option></option>
+            <option *ngFor="let parent of parents" [value]="parent.code">{{parent.label.localizedValue}}</option>
+          </select>
+        </div>
+      </div>
+    </div>    
+
+    <div class="row" *ngIf="geoObjectType.superTypeCode == null">
       <div class="col-md-12">
         <div class="form-group">
           <label for="geometryType">
@@ -118,8 +149,7 @@
         </div>
       </div>
     </div>
-
-
+    
     <div class="row">
       <div class="col-md-12">
         <div class="form-group">

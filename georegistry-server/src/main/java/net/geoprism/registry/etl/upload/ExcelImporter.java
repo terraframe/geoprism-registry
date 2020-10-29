@@ -38,7 +38,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -225,18 +224,15 @@ public class ExcelImporter implements FormatSpecificImporterIF
       GeoObjectImportConfiguration config = this.getObjectImporter().getConfiguration();
       ServerGeoObjectType type = config.getType();
 
-      if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+      if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
       {
-        if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
-        {
-          this.geoObjectPermissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-        }
-        else
-        {
-          this.geoObjectPermissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-        }
+        this.geoObjectPermissionService.enforceCanCreate(type.getOrganization().getCode(), type);
       }
-      
+      else
+      {
+        this.geoObjectPermissionService.enforceCanWrite(type.getOrganization().getCode(), type);
+      }
+
       this.progressListener.setWorkTotal(this.getWorkTotal(file));
 
       if (this.config.isExternalImport() && this.config.getExternalSystem() instanceof RevealExternalSystem && this.config instanceof GeoObjectImportConfiguration)

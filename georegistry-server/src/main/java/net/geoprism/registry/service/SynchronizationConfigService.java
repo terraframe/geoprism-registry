@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -47,7 +47,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
@@ -117,24 +116,18 @@ public class SynchronizationConfigService
     SynchronizationConfig config = SynchronizationConfig.get(oid);
     Organization organization = config.getOrganization();
 
-    SessionIF session = Session.getCurrentSession();
-
-    if (session != null)
-    {
-      ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), organization.getCode());
-    }
+    ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
 
     config.delete();
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getConfigForExternalSystem(String sessionId, String externalSystemId, String hierarchyTypeCode)
   {
     JsonObject ret = new JsonObject();
-    
-    
+
     // Add GeoObjectTypes
-    GeoObjectType[] gots = ServiceFactory.getRegistryService().getGeoObjectTypes(sessionId, null, new String[] {hierarchyTypeCode}, null);
+    GeoObjectType[] gots = ServiceFactory.getRegistryService().getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, null);
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
 
     JsonArray jarray = new JsonArray();
@@ -142,33 +135,32 @@ public class SynchronizationConfigService
     {
       jarray.add(gots[i].toJSON(serializer));
     }
-    
+
     ret.add("types", jarray);
-    
-    
+
     // Add DHIS2 OrgUnitGroups
     DHIS2ExternalSystem system = DHIS2ExternalSystem.get(externalSystemId);
     DHIS2ServiceIF dhis2 = DataExportJob.getDHIS2Service(system);
-    
+
     try
     {
       JsonArray jaGroups = new JsonArray();
-      
-      MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.<OrganisationUnitGroup>metadataGet(OrganisationUnitGroup.class);
-      
+
+      MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.<OrganisationUnitGroup> metadataGet(OrganisationUnitGroup.class);
+
       List<OrganisationUnitGroup> groups = resp.getObjects();
-      
+
       for (OrganisationUnitGroup group : groups)
       {
         JsonObject joGroup = new JsonObject();
-        
+
         joGroup.addProperty("id", group.getId());
-        
+
         joGroup.addProperty("name", group.getName());
-        
+
         jaGroups.add(joGroup);
       }
-      
+
       ret.add("orgUnitGroups", jaGroups);
     }
     catch (InvalidLoginException e)
@@ -181,23 +173,23 @@ public class SynchronizationConfigService
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;
     }
-    
+
     return ret;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonArray getCustomAttributeConfiguration(String sessionId, String dhis2SystemOid, String geoObjectTypeCode)
   {
     DHIS2ExternalSystem system = DHIS2ExternalSystem.get(dhis2SystemOid);
-    
+
     JsonArray response = new JsonArray();
-    
+
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
-    
+
     Map<String, AttributeType> cgrAttrs = got.getAttributeMap();
 
     List<Attribute> dhis2Attrs = null;
-    
+
     for (AttributeType cgrAttr : cgrAttrs.values())
     {
       if (!cgrAttr.getIsDefault())
@@ -207,16 +199,16 @@ public class SynchronizationConfigService
         joAttr.addProperty("label", cgrAttr.getLabel().getValue());
         joAttr.addProperty("type", cgrAttr.getType());
         joAttr.addProperty("typeLabel", AttributeTypeMetadata.get().getTypeEnumDisplayLabel(cgrAttr.getType()));
-        
+
         DHIS2ServiceIF dhis2 = DataExportJob.getDHIS2Service(system);
-        
+
         if (dhis2Attrs == null)
         {
           dhis2Attrs = getDHIS2Attributes(dhis2);
         }
-        
+
         DHIS2OptionCache optionCache = new DHIS2OptionCache(dhis2);
-        
+
         JsonArray jaDhis2Attrs = new JsonArray();
         for (Attribute dhis2Attr : dhis2Attrs)
         {
@@ -224,50 +216,37 @@ public class SynchronizationConfigService
           {
             continue;
           }
-          
+
           boolean valid = false;
-          
+
           JsonObject jo = new JsonObject();
-          
-          if (cgrAttr instanceof AttributeBooleanType && dhis2Attr.getOptionSetId() == null &&
-              (dhis2Attr.getValueType().equals(ValueType.BOOLEAN)
-              || dhis2Attr.getValueType().equals(ValueType.TRUE_ONLY)))
+
+          if (cgrAttr instanceof AttributeBooleanType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.BOOLEAN) || dhis2Attr.getValueType().equals(ValueType.TRUE_ONLY) ))
           {
             valid = true;
           }
-          else if (cgrAttr instanceof AttributeIntegerType && dhis2Attr.getOptionSetId() == null &&
-              (dhis2Attr.getValueType().equals(ValueType.INTEGER) ||
-              dhis2Attr.getValueType().equals(ValueType.INTEGER_POSITIVE) ||
-              dhis2Attr.getValueType().equals(ValueType.INTEGER_NEGATIVE) ||
-              dhis2Attr.getValueType().equals(ValueType.INTEGER_ZERO_OR_POSITIVE)))
+          else if (cgrAttr instanceof AttributeIntegerType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.INTEGER) || dhis2Attr.getValueType().equals(ValueType.INTEGER_POSITIVE) || dhis2Attr.getValueType().equals(ValueType.INTEGER_NEGATIVE) || dhis2Attr.getValueType().equals(ValueType.INTEGER_ZERO_OR_POSITIVE) ))
           {
             valid = true;
           }
-          else if (cgrAttr instanceof AttributeFloatType && dhis2Attr.getOptionSetId() == null &&
-              (dhis2Attr.getValueType().equals(ValueType.NUMBER) ||
-              dhis2Attr.getValueType().equals(ValueType.UNIT_INTERVAL) ||
-              dhis2Attr.getValueType().equals(ValueType.PERCENTAGE)))
+          else if (cgrAttr instanceof AttributeFloatType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.NUMBER) || dhis2Attr.getValueType().equals(ValueType.UNIT_INTERVAL) || dhis2Attr.getValueType().equals(ValueType.PERCENTAGE) ))
           {
             valid = true;
           }
-          else if (cgrAttr instanceof AttributeDateType && dhis2Attr.getOptionSetId() == null &&
-              (dhis2Attr.getValueType().equals(ValueType.DATE) ||
-              dhis2Attr.getValueType().equals(ValueType.DATETIME) ||
-              dhis2Attr.getValueType().equals(ValueType.TIME) ||
-              dhis2Attr.getValueType().equals(ValueType.AGE)))
+          else if (cgrAttr instanceof AttributeDateType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.DATE) || dhis2Attr.getValueType().equals(ValueType.DATETIME) || dhis2Attr.getValueType().equals(ValueType.TIME) || dhis2Attr.getValueType().equals(ValueType.AGE) ))
           {
             valid = true;
           }
           else if (cgrAttr instanceof AttributeTermType && dhis2Attr.getOptionSetId() != null)
           {
             valid = true;
-            
+
             JsonArray jaDhis2Options = new JsonArray();
-            
+
             IntegratedOptionSet set = optionCache.getOptionSet(dhis2Attr.getOptionSetId());
-            
+
             SortedSet<Option> options = set.getOptions();
-            
+
             for (Option option : options)
             {
               JsonObject joDhis2Option = new JsonObject();
@@ -276,21 +255,14 @@ public class SynchronizationConfigService
               joDhis2Option.addProperty("id", option.getName());
               jaDhis2Options.add(joDhis2Option);
             }
-            
+
             jo.add("options", jaDhis2Options);
           }
-          else if (cgrAttr instanceof AttributeCharacterType && dhis2Attr.getOptionSetId() == null && (
-              dhis2Attr.getValueType().equals(ValueType.TEXT) ||
-              dhis2Attr.getValueType().equals(ValueType.LONG_TEXT) ||
-              dhis2Attr.getValueType().equals(ValueType.LETTER) ||
-              dhis2Attr.getValueType().equals(ValueType.PHONE_NUMBER) ||
-              dhis2Attr.getValueType().equals(ValueType.EMAIL) ||
-              dhis2Attr.getValueType().equals(ValueType.USERNAME) ||
-              dhis2Attr.getValueType().equals(ValueType.URL)))
+          else if (cgrAttr instanceof AttributeCharacterType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.TEXT) || dhis2Attr.getValueType().equals(ValueType.LONG_TEXT) || dhis2Attr.getValueType().equals(ValueType.LETTER) || dhis2Attr.getValueType().equals(ValueType.PHONE_NUMBER) || dhis2Attr.getValueType().equals(ValueType.EMAIL) || dhis2Attr.getValueType().equals(ValueType.USERNAME) || dhis2Attr.getValueType().equals(ValueType.URL) ))
           {
             valid = true;
           }
-          
+
           if (valid)
           {
             jo.addProperty("dhis2Id", dhis2Attr.getId());
@@ -299,15 +271,15 @@ public class SynchronizationConfigService
             jaDhis2Attrs.add(jo);
           }
         }
-        
+
         joAttr.add("dhis2Attrs", jaDhis2Attrs);
-        
+
         if (cgrAttr instanceof AttributeTermType)
         {
           JsonArray terms = new JsonArray();
-          
-          List<Term> children = ((AttributeTermType) cgrAttr).getTerms();
-          
+
+          List<Term> children = ( (AttributeTermType) cgrAttr ).getTerms();
+
           for (Term child : children)
           {
             JsonObject joTerm = new JsonObject();
@@ -315,38 +287,38 @@ public class SynchronizationConfigService
             joTerm.addProperty("code", child.getCode());
             terms.add(joTerm);
           }
-          
+
           joAttr.add("terms", terms);
         }
-        
+
         response.add(joAttr);
       }
     }
-    
+
     return response;
   }
-  
+
   private List<Attribute> getDHIS2Attributes(DHIS2ServiceIF dhis2)
   {
     try
     {
-      MetadataGetResponse<Attribute> resp = dhis2.<Attribute>metadataGet(Attribute.class);
-      
+      MetadataGetResponse<Attribute> resp = dhis2.<Attribute> metadataGet(Attribute.class);
+
       if (!resp.isSuccess())
       {
-//        if (resp.hasMessage())
-//        {
-//          ExportRemoteException ere = new ExportRemoteException();
-//          ere.setRemoteError(resp.getMessage());
-//          throw ere;
-//        }
-//        else
-//        {
-          UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
-          throw re;
-//        }
+        // if (resp.hasMessage())
+        // {
+        // ExportRemoteException ere = new ExportRemoteException();
+        // ere.setRemoteError(resp.getMessage());
+        // throw ere;
+        // }
+        // else
+        // {
+        UnexpectedRemoteResponse re = new UnexpectedRemoteResponse();
+        throw re;
+        // }
       }
-      
+
       return resp.getObjects();
     }
     catch (InvalidLoginException e)
@@ -436,12 +408,7 @@ public class SynchronizationConfigService
   {
     SynchronizationConfig config = SynchronizationConfig.get(oid);
 
-    SessionIF session = Session.getCurrentSession();
-
-    if (session != null)
-    {
-      ServiceFactory.getRolePermissionService().enforceRA(session.getUser(), config.getOrganization().getCode());
-    }
+    ServiceFactory.getRolePermissionService().enforceRA(config.getOrganization().getCode());
 
     List<? extends DataExportJob> jobs = config.getJobs();
 

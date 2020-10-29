@@ -102,7 +102,7 @@ export class DataImporterComponent implements OnInit {
 			this.error(err);
 		});
 
-		this.service.listGeoObjectTypes(true).then(types => {
+		this.service.listGeoObjectTypes(false).then(types => {
 
 			var myOrgTypes = [];
 			for (var i = 0; i < types.length; ++i) {

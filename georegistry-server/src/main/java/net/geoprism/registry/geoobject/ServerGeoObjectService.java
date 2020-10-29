@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobject;
 
@@ -32,7 +32,6 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
@@ -94,7 +93,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
-    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     return parent.addChild(child, ht).toNode(false);
   }
@@ -106,7 +105,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectIF child = this.getGeoObject(childId, childGeoObjectTypeCode);
     ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
-    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(Session.getCurrentSession().getUser(), ht.getOrganization().getCode(), parent.getType().getCode(), child.getType().getCode());
+    ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     parent.removeChild(child, hierarchyCode);
   }
@@ -117,16 +116,13 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    if (isNew)
     {
-      if (isNew)
-      {
-        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-      }
-      else
-      {
-        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-      }
+      permissionService.enforceCanCreate(type.getOrganization().getCode(), type);
+    }
+    else
+    {
+      permissionService.enforceCanWrite(type.getOrganization().getCode(), type);
     }
 
     ServerGeoObjectIF geoObject = strategy.constructFromGeoObject(object, isNew);
@@ -159,16 +155,13 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     ServerGeoObjectType type = ServerGeoObjectType.get(goTime.getType());
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    if (isNew)
     {
-      if (isNew)
-      {
-        permissionService.enforceCanCreate(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-      }
-      else
-      {
-        permissionService.enforceCanWrite(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-      }
+      permissionService.enforceCanCreate(type.getOrganization().getCode(), type);
+    }
+    else
+    {
+      permissionService.enforceCanWrite(type.getOrganization().getCode(), type);
     }
 
     ServerGeoObjectIF goServer = strategy.constructFromGeoObjectOverTime(goTime, isNew);
@@ -255,10 +248,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-    }
+    this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 
@@ -267,10 +257,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
   public ServerGeoObjectIF getGeoObjectByCode(String code, ServerGeoObjectType type)
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      this.permissionService.enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
-    }
+    this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
 

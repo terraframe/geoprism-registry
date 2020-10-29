@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -923815224)
+@com.runwaysdk.business.ClassSignature(hash = 898523891)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = -923815224;
+  private static final long serialVersionUID = 898523891;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -55,6 +55,7 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String REPRESENTATIVITYDATE = "representativityDate";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
+  public static java.lang.String SUBTYPEHIERARCHIES = "subtypeHierarchies";
   public static java.lang.String TELEPHONENUMBER = "telephoneNumber";
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
@@ -1009,6 +1010,43 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
+  }
+  
+  public String getSubtypeHierarchies()
+  {
+    return getValue(SUBTYPEHIERARCHIES);
+  }
+  
+  public void setSubtypeHierarchies(String value)
+  {
+    if(value == null)
+    {
+      setValue(SUBTYPEHIERARCHIES, "");
+    }
+    else
+    {
+      setValue(SUBTYPEHIERARCHIES, value);
+    }
+  }
+  
+  public boolean isSubtypeHierarchiesWritable()
+  {
+    return isWritable(SUBTYPEHIERARCHIES);
+  }
+  
+  public boolean isSubtypeHierarchiesReadable()
+  {
+    return isReadable(SUBTYPEHIERARCHIES);
+  }
+  
+  public boolean isSubtypeHierarchiesModified()
+  {
+    return isModified(SUBTYPEHIERARCHIES);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getSubtypeHierarchiesMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(SUBTYPEHIERARCHIES).getAttributeMdDTO();
   }
   
   public String getTelephoneNumber()

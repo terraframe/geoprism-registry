@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.permission;
 
@@ -27,15 +27,16 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.roles.GeoObjectAddChildPermissionException;
 import net.geoprism.registry.roles.GeoObjectRemoveChildPermissionException;
 import net.geoprism.registry.roles.GeoObjectViewRelationshipPermissionException;
 
-public class GeoObjectRelationshipPermissionService implements GeoObjectRelationshipPermissionServiceIF
+public class GeoObjectRelationshipPermissionService extends UserPermissionService implements GeoObjectRelationshipPermissionServiceIF
 {
-  protected void enforceActorHasPermission(SingleActorDAOIF actor, String orgCode, String parentTypeCode, String childTypeCode, Operation op, boolean isChangeRequest)
+  protected void enforceActorHasPermission(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType, Operation op, boolean isChangeRequest)
   {
-    if (!this.doesActorHavePermission(actor, orgCode, parentTypeCode, childTypeCode, op, isChangeRequest))
+    if (!this.doesActorHavePermission(orgCode, parentType, childType, op, isChangeRequest))
     {
       Organization org = Organization.getByCode(orgCode);
 
@@ -60,15 +61,17 @@ public class GeoObjectRelationshipPermissionService implements GeoObjectRelation
     }
   }
 
-  protected boolean doesActorHavePermission(SingleActorDAOIF actor, String orgCode, String parentTypeCode, String childTypeCode, Operation op, boolean isChangeRequest)
+  protected boolean hasDirectPermission(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType, Operation op, boolean isChangeRequest)
   {
-    if (actor == null) // null actor is assumed to be SYSTEM
+    if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
       return true;
     }
 
     if (orgCode != null)
     {
+      SingleActorDAOIF actor = this.getSessionUser();
+
       Set<RoleDAOIF> roles = actor.authorizedRoles();
 
       for (RoleDAOIF role : roles)
@@ -79,7 +82,7 @@ public class GeoObjectRelationshipPermissionService implements GeoObjectRelation
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-          if (RegistryRole.Type.isRA_Role(roleName) && (orgCode.equals(roleOrgCode) || op.equals(Operation.READ_CHILD)))
+          if (RegistryRole.Type.isRA_Role(roleName) && ( orgCode.equals(roleOrgCode) || op.equals(Operation.READ_CHILD) ))
           {
             return true;
           }
@@ -87,7 +90,7 @@ public class GeoObjectRelationshipPermissionService implements GeoObjectRelation
           {
             String gotCode = RegistryRole.Type.parseGotCode(roleName);
 
-            if (parentTypeCode == null || childTypeCode == null || gotCode.equals(parentTypeCode) || gotCode.equals(childTypeCode))
+            if (parentType == null || childType == null || gotCode.equals(parentType.getCode()) || gotCode.equals(childType.getCode()))
             {
               return true;
             }
@@ -101,12 +104,12 @@ public class GeoObjectRelationshipPermissionService implements GeoObjectRelation
 
             String gotCode = RegistryRole.Type.parseGotCode(roleName);
 
-            if (parentTypeCode != null && gotCode.equals(parentTypeCode))
+            if (parentType != null && gotCode.equals(parentType.getCode()))
             {
               return true;
             }
 
-            if (childTypeCode != null && gotCode.equals(childTypeCode))
+            if (childType != null && gotCode.equals(childType.getCode()))
             {
               return true;
             }
@@ -122,63 +125,80 @@ public class GeoObjectRelationshipPermissionService implements GeoObjectRelation
     return false;
   }
 
-  @Override
-  public boolean canAddChild(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  protected boolean doesActorHavePermission(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType, Operation op, boolean isChangeRequest)
   {
-    return this.doesActorHavePermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.ADD_CHILD, false);
+    boolean permission = this.hasDirectPermission(orgCode, parentType, childType, op, isChangeRequest);
+
+    if (!permission)
+    {
+      ServerGeoObjectType superType = childType.getSuperType();
+
+      if (superType != null)
+      {
+        permission = this.hasDirectPermission(orgCode, parentType, superType, op, isChangeRequest);
+      }
+    }
+
+    return permission;
   }
 
   @Override
-  public void enforceCanAddChild(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public boolean canAddChild(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    this.enforceActorHasPermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.ADD_CHILD, false);
+    return this.doesActorHavePermission(orgCode, parentType, childType, Operation.ADD_CHILD, false);
   }
 
   @Override
-  public boolean canAddChildCR(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public void enforceCanAddChild(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    return this.doesActorHavePermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.ADD_CHILD, true);
+    this.enforceActorHasPermission(orgCode, parentType, childType, Operation.ADD_CHILD, false);
   }
 
   @Override
-  public void enforceCanAddChildCR(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public boolean canAddChildCR(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    this.enforceActorHasPermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.ADD_CHILD, true);
+    return this.doesActorHavePermission(orgCode, parentType, childType, Operation.ADD_CHILD, true);
   }
 
   @Override
-  public boolean canRemoveChild(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public void enforceCanAddChildCR(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    return this.doesActorHavePermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.DELETE_CHILD, false);
+    this.enforceActorHasPermission(orgCode, parentType, childType, Operation.ADD_CHILD, true);
   }
 
   @Override
-  public void enforceCanRemoveChild(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public boolean canRemoveChild(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    this.enforceActorHasPermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.DELETE_CHILD, false);
+    return this.doesActorHavePermission(orgCode, parentType, childType, Operation.DELETE_CHILD, false);
   }
 
   @Override
-  public boolean canRemoveChildCR(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public void enforceCanRemoveChild(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    return this.doesActorHavePermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.DELETE_CHILD, true);
+    this.enforceActorHasPermission(orgCode, parentType, childType, Operation.DELETE_CHILD, false);
   }
 
   @Override
-  public void enforceCanRemoveChildCR(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public boolean canRemoveChildCR(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    this.enforceActorHasPermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.DELETE_CHILD, true);
+    return this.doesActorHavePermission(orgCode, parentType, childType, Operation.DELETE_CHILD, true);
   }
 
   @Override
-  public boolean canViewChild(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public void enforceCanRemoveChildCR(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    return this.doesActorHavePermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.READ_CHILD, false);
+    this.enforceActorHasPermission(orgCode, parentType, childType, Operation.DELETE_CHILD, true);
   }
 
   @Override
-  public void enforceCanViewChild(SingleActorDAOIF actor, String orgCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  public boolean canViewChild(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
-    this.enforceActorHasPermission(actor, orgCode, parentGeoObjectTypeCode, childGeoObjectTypeCode, Operation.READ_CHILD, false);
+    return this.doesActorHavePermission(orgCode, parentType, childType, Operation.READ_CHILD, false);
+  }
+
+  @Override
+  public void enforceCanViewChild(String orgCode, ServerGeoObjectType parentType, ServerGeoObjectType childType)
+  {
+    this.enforceActorHasPermission(orgCode, parentType, childType, Operation.READ_CHILD, false);
   }
 }
