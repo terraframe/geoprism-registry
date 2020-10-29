@@ -397,18 +397,20 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
       if (ancestors.size() > 0)
       {
         this.setRoot(null);
-        
-//        GeoObjectType rootType = ancestors.get(0);
-//        ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(ServerGeoObjectType.get(rootType), this.getStartDate());
-//
-//        if (query.getCount() > 0)
-//        {
-//          this.setRoot(query.getSingleResult().toGeoObject());
-//        }
-//        else
-//        {
-//          this.setRoot(null);
-//        }
+
+        // GeoObjectType rootType = ancestors.get(0);
+        // ServerGeoObjectQuery query = new
+        // ServerGeoObjectService().createQuery(ServerGeoObjectType.get(rootType),
+        // this.getStartDate());
+        //
+        // if (query.getCount() > 0)
+        // {
+        // this.setRoot(query.getSingleResult().toGeoObject());
+        // }
+        // else
+        // {
+        // this.setRoot(null);
+        // }
       }
     }
 
@@ -469,7 +471,16 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         String target = location.getString(TARGET);
         ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
 
-        this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
+        // This is supported for testing reasons. On a live server all data
+        // coming in with use BasicColumnFunctions
+        if (location.has("type") && location.getString("type").equals(ConstantShapefileFunction.class.getName()))
+        {
+          this.addParent(new Location(pType, pHierarchy, new ConstantShapefileFunction(target), matchStrategy));
+        }
+        else
+        {
+          this.addParent(new Location(pType, pHierarchy, new BasicColumnFunction(target), matchStrategy));
+        }
       }
     }
 

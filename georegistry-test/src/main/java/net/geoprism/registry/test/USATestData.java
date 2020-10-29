@@ -56,11 +56,11 @@ public class USATestData extends TestDataSet
 
   public static final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.POINT, ORG_NPS);
 
-  public static final TestGeoObjectTypeInfo HEALTH_FACILITY  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthFacility", GeometryType.POINT, ORG_NPS, true);
+  public static final TestGeoObjectTypeInfo HEALTH_FACILITY  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthFacility", GeometryType.MULTIPOLYGON, ORG_NPS, true);
 
-  public static final TestGeoObjectTypeInfo HEALTH_STOP      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthStop", GeometryType.POINT, ORG_NPS, HEALTH_FACILITY);
+  public static final TestGeoObjectTypeInfo HEALTH_STOP      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthStop", GeometryType.MULTIPOLYGON, ORG_NPS, HEALTH_FACILITY);
 
-  public static final TestGeoObjectTypeInfo HEALTH_POST      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthPost", GeometryType.POINT, ORG_NPS, HEALTH_FACILITY);
+  public static final TestGeoObjectTypeInfo HEALTH_POST      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthPost", GeometryType.MULTIPOLYGON, ORG_NPS, HEALTH_FACILITY);
 
   public static final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(TEST_DATA_KEY + "USA", COUNTRY);
 
