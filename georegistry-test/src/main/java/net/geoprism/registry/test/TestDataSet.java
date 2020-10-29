@@ -378,14 +378,14 @@ abstract public class TestDataSet
     LinkedList<TestGeoObjectTypeInfo> list = new LinkedList<>(managedGeoObjectTypeInfos);
     Collections.reverse(list);
 
-    for (TestGeoObjectTypeInfo got : list)
-    {
-      got.delete();
-    }
-
     for (TestHierarchyTypeInfo ht : this.getManagedHierarchyTypes())
     {
       ht.delete();
+    }
+
+    for (TestGeoObjectTypeInfo got : list)
+    {
+      got.delete();
     }
 
     for (TestOrganizationInfo org : this.getManagedOrganizations())

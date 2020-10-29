@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -47,8 +47,10 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 
+import net.geoprism.registry.GeoObjectTypeAssignmentException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
@@ -83,13 +85,13 @@ public class GeoObjectTypeServiceTest
 
     setUpExtras();
 
-//    testData.logIn(FastTestDataset.USER_CGOV_RA);
+    // testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
   public void tearDown()
   {
-//    testData.logOut();
+    // testData.logOut();
 
     cleanUpExtras();
 
@@ -108,7 +110,7 @@ public class GeoObjectTypeServiceTest
   {
     cleanUpExtras();
   }
-  
+
   private void createGot(ClientRequestIF request, TestRegistryAdapterClient adapter)
   {
     GeoObjectType testGot = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), TEST_GOT.getGeometryType(), TEST_GOT.getDisplayLabel(), TEST_GOT.getDescription(), true, TEST_GOT.getOrganization().getCode(), adapter);
@@ -119,7 +121,7 @@ public class GeoObjectTypeServiceTest
 
     checkMdBusinessAttributes(TEST_GOT.getCode());
     checkMdGraphAttributes(TEST_GOT.getCode());
-    
+
     TEST_GOT.assertEquals(returned);
     TEST_GOT.assertApplied();
   }
@@ -128,13 +130,13 @@ public class GeoObjectTypeServiceTest
   public void testCreateGeoObjectTypeAsGoodUser()
   {
     TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
-    
+
     for (TestUserInfo user : users)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         createGot(request, adapter);
       });
-      
+
       TEST_GOT.delete();
     }
   }
@@ -161,14 +163,14 @@ public class GeoObjectTypeServiceTest
       }
     }
   }
-  
+
   private void updateGot(ClientRequestIF request, TestRegistryAdapterClient adapter)
   {
     GeoObjectType got = TEST_GOT.fetchDTO();
-    
+
     final String newLabel = "Some Label 2";
     got.setLabel(MdAttributeLocalInfo.DEFAULT_LOCALE, newLabel);
-    
+
     final String newDesc = "Some Description 2";
     got.setDescription(MdAttributeLocalInfo.DEFAULT_LOCALE, newDesc);
 
@@ -185,12 +187,12 @@ public class GeoObjectTypeServiceTest
     TEST_GOT.apply();
 
     TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
-    
+
     for (TestUserInfo user : users)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         updateGot(request, adapter);
-        
+
         TEST_GOT.delete();
         TEST_GOT.apply();
       });
@@ -269,29 +271,29 @@ public class GeoObjectTypeServiceTest
       Assert.assertEquals(1, response.length);
     });
   }
-  
+
   @Test
   public void testGetGeoObjectTypes()
   {
     FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
       String[] codes = new String[] { FastTestDataset.COUNTRY.getCode(), FastTestDataset.PROVINCE.getCode() };
-  
+
       GeoObjectType[] gots = adapter.getGeoObjectTypes(codes, null, PermissionContext.READ);
-  
+
       Assert.assertEquals(codes.length, gots.length);
-  
+
       GeoObjectType state = gots[0];
       Assert.assertEquals(state.toJSON().toString(), GeoObjectType.fromJSON(state.toJSON().toString(), adapter).toJSON().toString());
       FastTestDataset.COUNTRY.assertEquals(state);
-  
+
       GeoObjectType district = gots[1];
       Assert.assertEquals(district.toJSON().toString(), GeoObjectType.fromJSON(district.toJSON().toString(), adapter).toJSON().toString());
       FastTestDataset.PROVINCE.assertEquals(district);
-  
+
       // Test to make sure we can provide none
       GeoObjectType[] gots2 = adapter.getGeoObjectTypes(new String[] {}, null, PermissionContext.READ);
       Assert.assertTrue(gots2.length > 0);
-  
+
       GeoObjectType[] gots3 = adapter.getGeoObjectTypes(null, null, PermissionContext.READ);
       Assert.assertTrue(gots3.length > 0);
     });
@@ -302,22 +304,22 @@ public class GeoObjectTypeServiceTest
   {
     FastTestDataset.runAsUser(FastTestDataset.USER_CGOV_RA, (request, adapter) -> {
       JsonArray types = adapter.listGeoObjectTypes();
-  
+
       ArrayList<TestGeoObjectTypeInfo> expectedGots = testData.getManagedGeoObjectTypes();
       for (TestGeoObjectTypeInfo got : expectedGots)
       {
         boolean found = false;
-  
+
         for (int i = 0; i < types.size(); ++i)
         {
           JsonObject jo = types.get(i).getAsJsonObject();
-  
+
           if (jo.get("label").getAsString().equals(got.getDisplayLabel().getValue()) && jo.get("code").getAsString().equals(got.getCode()))
           {
             found = true;
           }
         }
-  
+
         Assert.assertTrue(found);
       }
     });
@@ -447,6 +449,56 @@ public class GeoObjectTypeServiceTest
   /*
    * Utility methods for this test class:
    */
+
+  @Test
+  @Request
+  public void testExtendAbstractType()
+  {
+    TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
+    parentGot.setAbstract(true);
+
+    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
+    childGot.setSuperType(parentGot);
+
+    try
+    {
+      parentGot.apply();
+      childGot.apply();
+
+      ServerGeoObjectType childType = childGot.getServerObject();
+
+      ServerGeoObjectType superType = childType.getSuperType();
+
+      Assert.assertNotNull(superType);
+      Assert.assertEquals(parentGot.getCode(), superType.getCode());
+    }
+    finally
+    {
+      childGot.delete();
+      parentGot.delete();
+    }
+  }
+
+  @Test(expected = GeoObjectTypeAssignmentException.class)
+  @Request
+  public void testExtendNonAbstractType()
+  {
+    TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
+
+    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
+    childGot.setSuperType(parentGot);
+
+    try
+    {
+      parentGot.apply();
+      childGot.apply();
+    }
+    finally
+    {
+      childGot.delete();
+      parentGot.delete();
+    }
+  }
 
   @Request
   private void checkAttributePoint(String code)

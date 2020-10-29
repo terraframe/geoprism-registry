@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
@@ -42,6 +42,8 @@ public class USATestData extends TestDataSet
 
   public static final TestHierarchyTypeInfo HIER_SCHOOL      = new TestHierarchyTypeInfo(TEST_DATA_KEY + "School", ORG_NPS);
 
+  public static final TestHierarchyTypeInfo HIER_REPORTS_TO  = new TestHierarchyTypeInfo(TEST_DATA_KEY + "ReportsTo", ORG_NPS);
+
   public static final TestGeoObjectTypeInfo COUNTRY          = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_NPS);
 
   public static final TestGeoObjectTypeInfo STATE            = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "State", GeometryType.MULTIPOLYGON, ORG_NPS);
@@ -53,6 +55,12 @@ public class USATestData extends TestDataSet
   public static final TestGeoObjectTypeInfo AREA             = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Area", GeometryType.POLYGON, ORG_NPS);
 
   public static final TestGeoObjectTypeInfo DISTRICT         = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.POINT, ORG_NPS);
+
+  public static final TestGeoObjectTypeInfo HEALTH_FACILITY  = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthFacility", GeometryType.POINT, ORG_NPS, true);
+
+  public static final TestGeoObjectTypeInfo HEALTH_STOP      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthStop", GeometryType.POINT, ORG_NPS, HEALTH_FACILITY);
+
+  public static final TestGeoObjectTypeInfo HEALTH_POST      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "HealthPost", GeometryType.POINT, ORG_NPS, HEALTH_FACILITY);
 
   public static final TestGeoObjectInfo     USA              = new TestGeoObjectInfo(TEST_DATA_KEY + "USA", COUNTRY);
 
@@ -78,6 +86,14 @@ public class USATestData extends TestDataSet
 
   public static final TestGeoObjectInfo     CANADA           = new TestGeoObjectInfo(TEST_DATA_KEY + "CANADA", COUNTRY);
 
+  public static final TestGeoObjectInfo     HP_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpOne", HEALTH_POST);
+
+  public static final TestGeoObjectInfo     HP_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "HpTwo", HEALTH_POST);
+
+  public static final TestGeoObjectInfo     HS_ONE           = new TestGeoObjectInfo(TEST_DATA_KEY + "HsOne", HEALTH_STOP);
+
+  public static final TestGeoObjectInfo     HS_TWO           = new TestGeoObjectInfo(TEST_DATA_KEY + "HsTwo", HEALTH_STOP);
+
   /**
    * The Mexico Hierarchy cannot have any leaf nodes in it.
    */
@@ -102,6 +118,7 @@ public class USATestData extends TestDataSet
 
     managedHierarchyTypeInfos.add(HIER_ADMIN);
     managedHierarchyTypeInfos.add(HIER_SCHOOL);
+    managedHierarchyTypeInfos.add(HIER_REPORTS_TO);
 
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(STATE);
@@ -109,6 +126,9 @@ public class USATestData extends TestDataSet
     managedGeoObjectTypeInfos.add(COUNTY);
     managedGeoObjectTypeInfos.add(AREA);
     managedGeoObjectTypeInfos.add(SCHOOL_ZONE);
+    managedGeoObjectTypeInfos.add(HEALTH_FACILITY);
+    managedGeoObjectTypeInfos.add(HEALTH_POST);
+    managedGeoObjectTypeInfos.add(HEALTH_STOP);
 
     managedGeoObjectInfos.add(USA);
     managedGeoObjectInfos.add(CANADA);
@@ -122,6 +142,10 @@ public class USATestData extends TestDataSet
     managedGeoObjectInfos.add(WA_D_ONE);
     managedGeoObjectInfos.add(WA_D_TWO);
     managedGeoObjectInfos.add(SCHOOL_ONE);
+    managedGeoObjectInfos.add(HP_ONE);
+    managedGeoObjectInfos.add(HP_TWO);
+    managedGeoObjectInfos.add(HS_ONE);
+    managedGeoObjectInfos.add(HS_TWO);
 
     managedGeoObjectTypeInfos.add(MEXICO_STATE);
     managedGeoObjectTypeInfos.add(MEXICO_CITY_GOT);
@@ -149,12 +173,16 @@ public class USATestData extends TestDataSet
     STATE.addChild(DISTRICT, HIER_ADMIN);
     STATE.addChild(COUNTY, HIER_ADMIN);
     COUNTY.addChild(AREA, HIER_ADMIN);
+    DISTRICT.addChild(HEALTH_FACILITY, HIER_ADMIN);
 
     COUNTRY.addChild(MEXICO_STATE, HIER_ADMIN);
     MEXICO_STATE.addChild(MEXICO_CITY_GOT, HIER_ADMIN);
 
     HIER_SCHOOL.setRoot(DISTRICT);
     DISTRICT.addChild(SCHOOL_ZONE, HIER_SCHOOL);
+
+    HIER_REPORTS_TO.setRoot(HEALTH_POST);
+    HEALTH_POST.addChild(HEALTH_STOP, HIER_REPORTS_TO);
   }
 
   @Transaction
@@ -162,8 +190,6 @@ public class USATestData extends TestDataSet
   public void setUpRelationships()
   {
     USA.setChildren(new ArrayList<TestGeoObjectInfo>());
-
-//    USA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
     USA.addChild(COLORADO, HIER_ADMIN);
     COLORADO.addChild(CO_D_ONE, HIER_ADMIN);
@@ -180,9 +206,16 @@ public class USATestData extends TestDataSet
     MEXICO.addChild(MEXICO_STATE_TWO, HIER_ADMIN);
     MEXICO_STATE_TWO.addChild(MEXICO_CITY_ONE, HIER_ADMIN);
     MEXICO_STATE_TWO.addChild(MEXICO_CITY_TWO, HIER_ADMIN);
-    
-//    CO_D_ONE.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_SCHOOL.getServerObject().getEntityType());
+
     CO_D_ONE.addChild(SCHOOL_ONE, HIER_SCHOOL);
+
+    CO_D_ONE.addChild(HP_ONE, HIER_ADMIN);
+    CO_D_ONE.addChild(HP_TWO, HIER_ADMIN);
+    CO_D_ONE.addChild(HS_ONE, HIER_ADMIN);
+    CO_D_ONE.addChild(HS_TWO, HIER_ADMIN);
+
+    HP_ONE.addChild(HS_ONE, HIER_REPORTS_TO);
+    HP_TWO.addChild(HS_TWO, HIER_REPORTS_TO);
   }
 
   @Override

@@ -295,30 +295,35 @@ public class ServerGeoObjectType
     Classifier classRootTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
     classRootTerm.delete();
 
-    Actor ownerActor = this.universal.getOwner();
-
-    if (ownerActor instanceof Roles)
+    // Delete the roles. Sub types don't have direct roles, they only have the
+    // roles specified on the super type.
+    if (this.getSuperType() == null)
     {
-      Roles ownerRole = (Roles) ownerActor;
-      String roleName = ownerRole.getRoleName();
+      Actor ownerActor = this.universal.getOwner();
 
-      if (RegistryRole.Type.isOrgRole(roleName))
+      if (ownerActor instanceof Roles)
       {
-        String organizationCode = RegistryRole.Type.parseOrgCode(roleName);
+        Roles ownerRole = (Roles) ownerActor;
+        String roleName = ownerRole.getRoleName();
 
-        String geoObjectTypeCode = this.type.getCode();
+        if (RegistryRole.Type.isOrgRole(roleName))
+        {
+          String organizationCode = RegistryRole.Type.parseOrgCode(roleName);
 
-        String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
-        Roles role = Roles.findRoleByName(rmRoleName);
-        role.delete();
+          String geoObjectTypeCode = this.type.getCode();
 
-        String rcRoleName = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectTypeCode);
-        role = Roles.findRoleByName(rcRoleName);
-        role.delete();
+          String rmRoleName = RegistryRole.Type.getRM_RoleName(organizationCode, geoObjectTypeCode);
+          Roles role = Roles.findRoleByName(rmRoleName);
+          role.delete();
 
-        String acRoleName = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectTypeCode);
-        role = Roles.findRoleByName(acRoleName);
-        role.delete();
+          String rcRoleName = RegistryRole.Type.getRC_RoleName(organizationCode, geoObjectTypeCode);
+          role = Roles.findRoleByName(rcRoleName);
+          role.delete();
+
+          String acRoleName = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectTypeCode);
+          role = Roles.findRoleByName(acRoleName);
+          role.delete();
+        }
       }
     }
 
@@ -771,7 +776,7 @@ public class ServerGeoObjectType
     return getHierarchies(true, true);
   }
 
-  private List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone, boolean includeFromSuperType)
+  public List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone, boolean includeFromSuperType)
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
@@ -782,7 +787,7 @@ public class ServerGeoObjectType
     {
       Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
 
-      if (Session.getCurrentSession() != null && ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
+      if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
       {
         ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 

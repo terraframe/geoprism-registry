@@ -63,6 +63,58 @@ import net.geoprism.registry.test.USATestData;
 
 public class MasterListTest
 {
+  private static class MasterListBuilder
+  {
+    private Organization            org;
+
+    private TestHierarchyTypeInfo   ht;
+
+    private TestGeoObjectTypeInfo   info;
+
+    private String                  visibility;
+
+    private boolean                 isMaster;
+
+    private TestGeoObjectTypeInfo[] parents;
+
+    private TestHierarchyTypeInfo[] subtypeHierarchies;
+
+    public void setOrg(Organization org)
+    {
+      this.org = org;
+    }
+
+    public void setHt(TestHierarchyTypeInfo ht)
+    {
+      this.ht = ht;
+    }
+
+    public void setInfo(TestGeoObjectTypeInfo info)
+    {
+      this.info = info;
+    }
+
+    public void setVisibility(String visibility)
+    {
+      this.visibility = visibility;
+    }
+
+    public void setMaster(boolean isMaster)
+    {
+      this.isMaster = isMaster;
+    }
+
+    public void setParents(TestGeoObjectTypeInfo... parents)
+    {
+      this.parents = parents;
+    }
+
+    public void setSubtypeHierarchies(TestHierarchyTypeInfo... subtypeHierarchies)
+    {
+      this.subtypeHierarchies = subtypeHierarchies;
+    }
+  }
+
   private static USATestData       testData;
 
   private static AttributeTermType testTerm;
@@ -224,6 +276,8 @@ public class MasterListTest
     catch (DuplicateDataDatabaseException e)
     {
       test1.delete();
+
+      Assert.fail("Not able to create multiple masterlists with the same universal when list is not a master");
     }
   }
 
@@ -363,6 +417,74 @@ public class MasterListTest
         Assert.assertNotNull(mdTable);
 
         version.publish();
+      }
+      finally
+      {
+        version.delete();
+      }
+    }
+    finally
+    {
+      test.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testPublishVersionOfAbstract()
+  {
+    MasterListBuilder builder = new MasterListBuilder();
+    builder.setOrg(USATestData.ORG_NPS.getServerObject());
+    builder.setHt(USATestData.HIER_ADMIN);
+    builder.setInfo(USATestData.HEALTH_FACILITY);
+    builder.setVisibility(MasterList.PUBLIC);
+    builder.setMaster(false);
+    builder.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+    builder.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+
+    JsonObject json = getJson(builder);
+
+    MasterList test = MasterList.create(json);
+
+    try
+    {
+      MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+
+      try
+      {
+        MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
+
+        Assert.assertNotNull(mdTable);
+
+        version.publish();
+
+        JsonObject data = version.data(1, 100, null, null);
+
+        // Entries should be HP_1, HP_2, HS_1, HS_2
+        Assert.assertEquals(4, data.get("count").getAsLong());
+
+        JsonArray results = data.get("results").getAsJsonArray();
+
+        for (int i = 0; i < results.size(); i++)
+        {
+          JsonObject result = results.get(i).getAsJsonObject();
+
+          String code = result.get("code").getAsString();
+          String reportsTo = result.get("usatestdatareportstocode").getAsString();
+
+          if (code.equals(USATestData.HS_ONE.getCode()))
+          {
+            Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
+          }
+          else if (code.equals(USATestData.HS_TWO.getCode()))
+          {
+            Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
+          }
+          else
+          {
+            Assert.assertEquals("", reportsTo);
+          }
+        }
       }
       finally
       {
@@ -743,8 +865,22 @@ public class MasterListTest
   @Request
   public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, String visibility, boolean isMaster, TestGeoObjectTypeInfo... parents)
   {
+    MasterListBuilder builder = new MasterListBuilder();
+    builder.setOrg(org);
+    builder.setHt(ht);
+    builder.setInfo(info);
+    builder.setVisibility(visibility);
+    builder.setMaster(isMaster);
+    builder.setParents(parents);
+
+    return getJson(builder);
+  }
+
+  @Request
+  public static JsonObject getJson(MasterListBuilder builder)
+  {
     JsonArray pArray = new JsonArray();
-    for (TestGeoObjectTypeInfo parent : parents)
+    for (TestGeoObjectTypeInfo parent : builder.parents)
     {
       JsonObject object = new JsonObject();
       object.addProperty("code", parent.getCode());
@@ -754,14 +890,14 @@ public class MasterListTest
     }
 
     JsonObject hierarchy = new JsonObject();
-    hierarchy.addProperty("code", ht.getCode());
+    hierarchy.addProperty("code", builder.ht.getCode());
     hierarchy.add("parents", pArray);
 
     JsonArray array = new JsonArray();
     array.add(hierarchy);
 
     MasterList list = new MasterList();
-    list.setUniversal(info.getUniversal());
+    list.setUniversal(builder.info.getUniversal());
     list.getDisplayLabel().setValue("Test List");
     list.setCode("TEST_CODE");
     list.setRepresentativityDate(new Date());
@@ -774,13 +910,28 @@ public class MasterListTest
     list.setAcknowledgements("Acknowledgements");
     list.setDisclaimer("Disclaimer");
     list.setContactName("Contact Name");
-    list.setOrganization(org);
+    list.setOrganization(builder.org);
     list.setTelephoneNumber("Telephone Number");
     list.setEmail("Email");
     list.setHierarchies(array.toString());
     list.addFrequency(ChangeFrequency.ANNUAL);
-    list.setIsMaster(isMaster);
-    list.setVisibility(visibility);
+    list.setIsMaster(builder.isMaster);
+    list.setVisibility(builder.visibility);
+
+    if (builder.subtypeHierarchies != null)
+    {
+      JsonArray hArray = new JsonArray();
+      for (TestHierarchyTypeInfo ht : builder.subtypeHierarchies)
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", ht.getCode());
+        object.addProperty("selected", true);
+
+        hArray.add(object);
+
+      }
+      list.setSubtypeHierarchies(hArray.toString());
+    }
 
     return list.toJSON();
   }
