@@ -24,17 +24,20 @@
 							</span>
 							<localize key="hierarchy.sidebar.geoObjectTypes"></localize>
 						</div>
-						<button *ngIf="isRA()" (click)="createGeoObjectType()" type="button" class="btn btn-primary"
-							style="margin-bottom:20px;">
-							<!-- <i style="color:#6BA542;" class="fa fa-plus"></i> -->
-							<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
-						</button>
 						<div class="sidebar-section-content">
 							<ul *ngFor="let typeByOrg of filteredTypesByOrg;" class="list-group">
 								<div *ngIf="typeByOrg.types.length > 0">
-									
+
 									<div class="got-org-label-wrapper">
 										<label>{{typeByOrg.org.label.localizedValue}}</label>
+									</div>
+
+									<div style="text-align: right;padding: 10px 0;">
+										<button *ngIf="typeByOrg.org.code === userOrganization" (click)="createGeoObjectType()" type="button" class="btn btn-primary"
+											style="margin-bottom:20px;">
+											<!-- <i style="color:#6BA542;" class="fa fa-plus"></i> -->
+											<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
+										</button>
 									</div>
 
 									<li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
@@ -68,17 +71,20 @@
 							</span>
 							<localize key="hierarchy.sidebar.hierarchies"></localize>
 						</div>
-						<button *ngIf="isRA()" (click)="createHierarchy()" type="button" class="btn btn-primary"
-							style="margin-bottom:20px;">
-							<i style="color:#369c00;" class="fa fa-plus"></i>
-							<localize key="hierarchy.sidebar.newHierarchy"></localize>
-						</button>
 						<div class="sidebar-section-content">
 							<ul *ngFor="let hierarchyByOrg of filteredHierarchiesByOrg" class="list-group">
 								<div *ngIf="hierarchyByOrg.hierarchies.length > 0">
 
 									<div class="got-org-label-wrapper">
 										<label>{{hierarchyByOrg.org.label.localizedValue}}</label>
+									</div>
+
+									<div style="text-align: right;padding: 10px 0;">
+										<button *ngIf="hierarchyByOrg.org.code === userOrganization" (click)="createHierarchy()" type="button" class="btn btn-primary"
+											style="margin-bottom:20px;">
+											<i style="color:#369c00;" class="fa fa-plus"></i>
+											<localize key="hierarchy.sidebar.newHierarchy"></localize>
+										</button>
 									</div>
 
 									<li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code"

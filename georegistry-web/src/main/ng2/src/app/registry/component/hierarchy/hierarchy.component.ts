@@ -36,6 +36,8 @@ const TREE_SCALE_FACTOR_Y: number = 1.8;
 })
 export class HierarchyComponent implements OnInit, SvgController {
 
+	userOrganization: string = null;
+
 	primarySvgHierarchy: SvgHierarchyType;
 	currentHierarchy: HierarchyType = null;
 
@@ -163,7 +165,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 			svg.attr("id", "svg");
 		}
 
-		this.primarySvgHierarchy = new SvgHierarchyType(this, svg, this.currentHierarchy, true);
+		this.primarySvgHierarchy = new SvgHierarchyType(this, svg, this.currentHierarchy, true, this.localizeService, this.modalService);
 		this.primarySvgHierarchy.render();
 
 		this.calculateSvgViewBox();
@@ -748,6 +750,12 @@ export class HierarchyComponent implements OnInit, SvgController {
 			this.geoObjectTypes = response.types;
 
 			this.organizations = response.organizations;
+
+			this.organizations.forEach(org => {
+				if(this.isOrganizationRA(org.code)){
+					this.userOrganization = org.code;
+				}
+			})
 
 			this.geoObjectTypes.sort((a, b) => {
 				if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;

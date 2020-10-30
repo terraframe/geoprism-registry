@@ -7,6 +7,9 @@ import { SvgHierarchyNode } from './svg-hierarchy-node';
 import { calculateTextWidth } from './svg-util';
 import { SvgController, INHERITED_NODE_BANNER_COLOR, DEFAULT_NODE_BANNER_COLOR, RELATED_NODE_BANNER_COLOR, DEFAULT_NODE_FILL, INHERITED_NODE_FILL } from './svg-controller';
 
+import { LocalizationService } from '@shared/service';
+import { BsModalService } from 'ngx-bootstrap/modal';
+
 export class SvgHierarchyType {
 
 	public static gotRectW: number = 150;
@@ -27,7 +30,7 @@ export class SvgHierarchyType {
 
 	isPrimary: boolean;
 
-	public constructor(hierarchyComponent: SvgController, svgEl: any, ht: HierarchyType, isPrimary: boolean) {
+	public constructor(hierarchyComponent: SvgController, svgEl: any, ht: HierarchyType, isPrimary: boolean, public localizationService: LocalizationService, public modalService: BsModalService) {
 //		const hierarchyType = JSON.parse(JSON.stringify(ht));
 		const hierarchyType = ht;
 
@@ -52,7 +55,7 @@ export class SvgHierarchyType {
 	public getNodeByCode(gotCode: string): SvgHierarchyNode {
 		let treeNode = this.getD3Tree().find((node) => { return node.data.geoObjectType === gotCode; });
 
-		return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode);
+		return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode, this.localizationService, this.modalService);
 	}
 
 	public renderHierarchyHeader(hg: any, colHeaderLabel: string) {
@@ -329,7 +332,7 @@ export class SvgHierarchyType {
 				.data(descends)
 				.join("text")
 				.filter(function(d: any) {
-					return (d.data.geoObjectType === "GhostNode" ? false : that.getRelatedHierarchies(d.data.geoObjectType).length > 0) && d.data.inheritedHierarchyCode == null;
+					return (d.data.geoObjectType === "GhostNode" ? false : true) && d.data.inheritedHierarchyCode == null;
 				})
 				.classed("svg-got-relatedhiers-button", true)
 				.attr("data-gotCode", (d: any) => d.data.geoObjectType)
