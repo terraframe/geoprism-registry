@@ -45,7 +45,10 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdBusiness;
 
+import net.geoprism.registry.AbstractParentException;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.RootGeoObjectType;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
@@ -313,19 +316,26 @@ public class HierarchyServiceTest
     String gtJSON = country.toJSON().toString();
     country = testData.adapter.createGeoObjectType(gtJSON);
 
-    HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.clientSession.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
-
-    List<HierarchyType.HierarchyNode> rootGots = adminHierarchy.getRootGeoObjectTypes();
-
-    for (HierarchyType.HierarchyNode node : rootGots)
+    try
     {
-      if (node.getGeoObjectType().getCode().equals(country.getCode()))
-      {
-        return;
-      }
-    }
+      HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.clientSession.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
+      
+      List<HierarchyType.HierarchyNode> rootGots = adminHierarchy.getRootGeoObjectTypes();
 
-    Assert.fail("We did not find the child we just added.");
+      for (HierarchyType.HierarchyNode node : rootGots)
+      {
+        if (node.getGeoObjectType().getCode().equals(country.getCode()))
+        {
+          return;
+        }
+      }
+
+      Assert.fail("We did not find the child we just added.");
+    }
+    finally
+    {
+      ServiceFactory.getHierarchyService().removeFromHierarchy(testData.clientSession.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode(), false);
+    }
   }
 
   @Test
@@ -445,4 +455,79 @@ public class HierarchyServiceTest
 
     Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
   }
+
+  @Test
+  @Request
+  public void testAddAbstractType()
+  {
+    TEST_GOT.apply();
+
+    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
+    childGot.setAbstract(true);
+
+    try
+    {
+      childGot.apply();
+
+      ServerHierarchyType type = FastTestDataset.HIER_ADMIN.getServerObject();
+      ServerGeoObjectType parentType = TEST_GOT.getServerObject();
+      ServerGeoObjectType childType = childGot.getServerObject();
+
+      try
+      {
+        type.addToHierarchy(RootGeoObjectType.INSTANCE, parentType);
+        type.addToHierarchy(parentType, childType);
+
+        List<ServerGeoObjectType> children = parentType.getChildren(type);
+
+        Assert.assertEquals(1, children.size());
+        Assert.assertEquals(childType.getCode(), children.get(0).getCode());
+      }
+      finally
+      {
+        type.removeChild(RootGeoObjectType.INSTANCE, parentType, false);
+        type.removeChild(parentType, childType, false);
+      }
+    }
+    finally
+    {
+      childGot.delete();
+    }
+  }
+
+  @Test(expected = AbstractParentException.class)
+  @Request
+  public void testChildOfAbstractType()
+  {
+    TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
+    parentGot.setAbstract(true);
+
+    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
+
+    try
+    {
+      parentGot.apply();
+      childGot.apply();
+
+      ServerHierarchyType type = FastTestDataset.HIER_ADMIN.getServerObject();
+      ServerGeoObjectType parentType = parentGot.getServerObject();
+      ServerGeoObjectType childType = childGot.getServerObject();
+
+      try
+      {
+        type.addToHierarchy(RootGeoObjectType.INSTANCE, parentType);
+        type.addToHierarchy(parentType, childType);
+      }
+      finally
+      {
+        type.removeChild(RootGeoObjectType.INSTANCE, parentType, false);
+      }
+    }
+    finally
+    {
+      parentGot.delete();
+      childGot.delete();
+    }
+  }
+
 }

@@ -58,7 +58,7 @@
                     </span>
 
 
-                        <button *ngIf="isWritable" type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
+                        <button *ngIf="isWritable && !list.isAbstract" type="submit" (click)="onNewGeoObject()" class="btn btn-primary" role="button">
                             <localize key="masterlist.newGeoObject"></localize>
                         </button>
                         <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">

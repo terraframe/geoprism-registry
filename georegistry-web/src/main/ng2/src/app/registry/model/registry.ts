@@ -333,13 +333,13 @@ export class MasterListVersion {
 	oid: string;
 	typeCode: string;
 	orgCode: string;
-	leaf: boolean;
 	masterlist: string;
 	forDate: string;
 	createDate: string;
 	publishDate: string;
 	attributes: any[];
 	isGeometryEditable: boolean;
+	isAbstract?: boolean;	
 	locales?: string[];
 	shapefile?: boolean;
 }

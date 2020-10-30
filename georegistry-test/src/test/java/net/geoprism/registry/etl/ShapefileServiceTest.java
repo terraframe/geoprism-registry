@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
@@ -66,7 +65,6 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.resource.CloseableFile;
-import com.runwaysdk.resource.FileResource;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
@@ -89,6 +87,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.LocationBuilder;
@@ -107,6 +106,7 @@ import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.USATestData;
 
 public class ShapefileServiceTest
@@ -1123,9 +1123,57 @@ public class ShapefileServiceTest
     Assert.assertEquals(0, json.getJSONArray("results").length());
   }
 
+  @Test
+  @Request
+  public void testImportSubtypeShapefile() throws InterruptedException
+  {
+    String parentCode = "ZZZZ000";
+
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode());
+    geoObj.setCode(parentCode);
+    geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
+    geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+
+    ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
+
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE, USATestData.HEALTH_POST);
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+
+    config.setHierarchy(hierarchyType);
+    config.addParent(new Location(USATestData.DISTRICT.getServerObject(), hierarchyType, new ConstantShapefileFunction(serverGO.getCode()), ParentMatchStrategy.CODE));
+
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(56), hist.getWorkTotal());
+    Assert.assertEquals(new Long(56), hist.getWorkProgress());
+    Assert.assertEquals(new Long(56), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.HEALTH_POST.getCode());
+
+    Assert.assertNotNull(object);
+    Assert.assertNotNull(object.getGeometry());
+    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+  }
+
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm, ImportStrategy strategy)
   {
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, strategy);
+    return getTestConfiguration(istream, service, testTerm, strategy, USATestData.STATE);
+  }
+
+  private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm, ImportStrategy strategy, TestGeoObjectTypeInfo info)
+  {
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, strategy);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

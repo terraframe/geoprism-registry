@@ -891,12 +891,7 @@ public class GeoObjectImporter implements ObjectImporterIF
       }
     }
 
-    if (parent != null)
-    {
-      return this.service.getGeoObjectByCode(parent.getCode(), parent.getType());
-    }
-
-    return null;
+    return parent;
   }
 
   protected Object getParentCode(FeatureRow feature, Location location)
