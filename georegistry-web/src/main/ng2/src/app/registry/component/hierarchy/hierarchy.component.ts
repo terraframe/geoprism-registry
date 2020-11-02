@@ -264,8 +264,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 				// we need to expand the HierarchyNode's BoundingBox to accomodate our new drop zones. 
 				that.primarySvgHierarchy.getD3Tree().descendants().forEach((node: any) => {
 					if (node.data.geoObjectType !== "GhostNode" && isPointWithin(svgMousePoint, node.data.dropZoneBbox)) {
-
-						this.dropEl = d3.select(node.data.gotBodySquare);
+						this.dropEl = d3.select('.g-hierarchy[data-primary=true] .svg-got-body-rect[data-gotCode="' + node.data.geoObjectType + '"]');
 						node.data.activeDropZones = true;
 
 						if (node.parent == null) {

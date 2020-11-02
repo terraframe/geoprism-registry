@@ -236,7 +236,6 @@ export class SvgHierarchyType {
 					else {
 						d.data.dropZoneBbox = { x: d.x - SvgHierarchyType.gotRectW / 2, y: d.y - SvgHierarchyType.gotRectH / 2, width: SvgHierarchyType.gotRectW, height: SvgHierarchyType.gotRectH };
 					}
-					d.data.gotBodySquare = this;
 				}
 			});
 
