@@ -1,47 +1,85 @@
+li.list-group-item {
+	font-size: 14px;
+}
+
 li.list-group-item.active {
     background-color: #DBD7A5;
 }
 
-#app-container {
+li.list-group-item.got-li-item
+{
+	border-top: 15px solid #a0a0a0;
+	border-radius: 5px;
+}
+
+li.list-group-item.hier-li-item {
+	background: none;
+    border: 2px solid white;
+    color: white;
+}
+li.list-group-item.hier-li-item i.fa {
+	color: white;
+}
+
+li.list-group-item.hier-li-item.primary
+{
+	background: #6BA542;
+}
+
+.got-org-label-wrapper{
+	padding: 7px 0;
+}
+.got-org-label-wrapper > label {
+	border-bottom: solid 1px;
+	width: 100%;
+}
+
+/* #app-container {
     display: flex;
     width: 100%;
-}
+} */
 
 .sidebar-section-content {
 	overflow-y: auto;
-	height: calc(100vh - 144px - 175px - 40px);
+	/* height: calc(100vh - 144px - 175px + 4px); */
 }
 
 .hierarchy-sidebar button {
-	width:100%;
 	margin:0;
 }
 
 .hierarchy-sidebar {
-    width:350px;
-    position: fixed;
-    top: 144px;
-    left: 0;
-    height: 100vh;
+    /* width:350px; */
+    /* position: fixed; */
+    /* top: 144px;
+    left: 0; */
+    /* height: 100vh; */
     z-index: 999;
     background: #6e6775;
     color: #fff;
-    transition: all 0.3s;
+	transition: all 0.3s;
+	display: table-cell;
+  float: none;
+  padding:0;
+      vertical-align: top;
 }
 
 .hierarchy-content {
-	left:350px;
-	position:fixed;
-	width:calc(100vw - 350px);
-	top:144px;
-	padding-left: 0px;
-  padding-top: 0px;
+	/* left:350px; */
+	/* position:fixed; */
+	/* width:calc(100vw - 350px); */
+	/* top:144px; */
+	/* padding-left: 0px;
+	  padding-top: 0px; */
+	  display: table-cell;
+  float: none;
 }
 
 #overflow-div {
 	overflow:auto;
-	height: calc(100vh - 144px);
-	width: calc(100vw - 350px)
+	/* height: 100vh; */
+	top: 0;
+	/* width: calc(100vw - 350px) */
 }
 
 .upload-text {
@@ -60,15 +98,19 @@ li.list-group-item.active {
 	cursor: grab;
 }
 
+
 .hierarchy-sidebar-content .panel-body {
 	color: #6e6775;
 	background-color: #6e6775;
+	max-height: 500px;
+    overflow: auto;
 }
 
 .sidebar-section-header {
 	margin-left:20px;
 	cursor: pointer;
 }
+
 
 accordion-group.panel {
 	background-color: #505050;

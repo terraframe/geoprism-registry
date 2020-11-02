@@ -1,5 +1,6 @@
 import { GeoObjectType } from "../registry";
 import { HierarchyType } from "../hierarchy";
+import { SvgHierarchyType } from '@registry/model/d3/svg-hierarchy-type';
 
 export const DEFAULT_NODE_FILL = '#e6e6e6';
 export const DEFAULT_NODE_BANNER_COLOR = '#A29BAB';
@@ -27,4 +28,6 @@ export interface SvgController {
 	calculateSvgViewBox(): void;
 	handleInheritHierarchy(hierarchyTypeCode: string, inheritedHierarchyTypeCode: string, geoObjectTypeCode: string): void;
 	handleUninheritHierarchy(hierarchyTypeCode: string, geoObjectTypeCode: string): void;
+	primarySvgHierarchy: SvgHierarchyType;
+	removeFromHierarchy(parentGotCode, gotCode, errCallback);
 }
