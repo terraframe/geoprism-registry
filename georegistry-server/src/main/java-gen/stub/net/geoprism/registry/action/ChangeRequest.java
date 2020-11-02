@@ -223,7 +223,7 @@ public class ChangeRequest extends ChangeRequestBase
             body += append(rejected, "change.request.email.body.rejected");
           }
 
-          EmailSetting.sendEmail(subject, body, new String[] { email });
+//          EmailSetting.sendEmail(subject, body, new String[] { email });
         }
       }
     }

@@ -105,7 +105,7 @@ public class TestHierarchyTypeInfo
       return this.serverObj;
     }
 
-    Optional<HierarchyType> hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code);
+    Optional<ServerHierarchyType> hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(code);
 
     if (hierarchyType.isPresent())
     {

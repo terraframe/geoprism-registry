@@ -104,16 +104,19 @@ export class DataImporterComponent implements OnInit {
 
 		this.service.listGeoObjectTypes(false).then(types => {
 
-			var myOrgTypes = [];
+			const myOrgTypes = [];
+
 			for (var i = 0; i < types.length; ++i) {
-				let type = types[i];
-				
-				if (this.authService.isOrganizationRA(type.orgCode) || this.authService.isGeoObjectTypeRM(type.orgCode, type.code)) {
+				const type = types[i];
+				const orgCode = type.orgCode;
+				const typeCode = type.superTypeCode != null ? type.superTypeCode : type.code;
+
+				if (this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
 					myOrgTypes.push(types[i]);
 				}
 			}
-			this.types = myOrgTypes;
 
+			this.types = myOrgTypes;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -215,8 +218,8 @@ export class DataImporterComponent implements OnInit {
 
 
 	public error(err: any): void {
-			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-			this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+		this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

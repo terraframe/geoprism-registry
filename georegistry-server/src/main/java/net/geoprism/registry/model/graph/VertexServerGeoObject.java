@@ -1032,7 +1032,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     if (vertex.isNew())// && !vertex.isAppliedToDB())
     {
       geoObj.setUid(RegistryIdService.getInstance().next());
-      geoObj.setStatus(ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get());
+      geoObj.setStatus(ServiceFactory.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code).get());
     }
 
     return geoObj;

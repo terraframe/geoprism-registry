@@ -189,11 +189,11 @@ public class TestGeoObjectTypeInfo
     }
     else
     {
-      Optional<GeoObjectType> got = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code);
+      Optional<ServerGeoObjectType> got = ServiceFactory.getMetadataCache().getGeoObjectType(code);
 
       if (got.isPresent())
       {
-        this.serverObject = ServerGeoObjectType.get(getCode());
+        this.serverObject = got.get();
 
         return this.serverObject;
       }
@@ -271,7 +271,7 @@ public class TestGeoObjectTypeInfo
     applyInTrans();
 
     // If this did not error out then add to the cache
-    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(this.serverObject.getType());
+    ServiceFactory.getMetadataCache().addGeoObjectType(this.serverObject);
   }
 
   @Transaction
@@ -350,7 +350,7 @@ public class TestGeoObjectTypeInfo
 
   public boolean isPersisted()
   {
-    Boolean exists = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).isPresent();
+    Boolean exists = ServiceFactory.getMetadataCache().getGeoObjectType(code).isPresent();
 
     if (exists)
     {

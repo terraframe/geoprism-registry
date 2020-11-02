@@ -598,7 +598,6 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "geoobjecttype/list-types", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  // Heads up: Cleanup includeLeafTypes parameter
   public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeAbstractTypes") Boolean includeAbstractTypes)
   {
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.WRITE);
@@ -624,6 +623,7 @@ public class RegistryController
         type.addProperty("label", geoObjectType.getLabel().getValue());
         type.addProperty("code", geoObjectType.getCode());
         type.addProperty("orgCode", geoObjectType.getOrganizationCode());
+        type.addProperty("superTypeCode", geoObjectType.getSuperTypeCode());
 
         jarray.add(type);
       }

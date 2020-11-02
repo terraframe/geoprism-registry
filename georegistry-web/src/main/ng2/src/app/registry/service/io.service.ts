@@ -10,211 +10,211 @@ declare var acp: string;
 @Injectable()
 export class IOService {
 
-    constructor( private http: HttpClient, private eventService: EventService ) { }
+	constructor(private http: HttpClient, private eventService: EventService) { }
 
-    importSpreadsheet( configuration: ImportConfiguration ): Promise<ImportConfiguration> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	importSpreadsheet(configuration: ImportConfiguration): Promise<ImportConfiguration> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        this.eventService.start();
+		this.eventService.start();
 
-        return this.http
-            .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
+		return this.http
+			.post<ImportConfiguration>(acp + '/etl/import', JSON.stringify({ json: configuration }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-            .toPromise();
-    }
+			.toPromise();
+	}
 
-    cancelImport( configuration: ImportConfiguration ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	cancelImport(configuration: ImportConfiguration): Promise<void> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        this.eventService.start();
+		this.eventService.start();
 
-        return this.http
-            .post<void>( acp + '/etl/cancel-import', JSON.stringify( { configuration: configuration } ), { headers: headers } )
+		return this.http
+			.post<void>(acp + '/etl/cancel-import', JSON.stringify({ configuration: configuration }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-            .toPromise()
-    }
+			.toPromise()
+	}
 
-    importShapefile( configuration: ImportConfiguration ): Promise<ImportConfiguration> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	importShapefile(configuration: ImportConfiguration): Promise<ImportConfiguration> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        this.eventService.start();
+		this.eventService.start();
 
-        return this.http
-            .post<ImportConfiguration>( acp + '/etl/import', JSON.stringify( { json: configuration } ), { headers: headers } )
+		return this.http
+			.post<ImportConfiguration>(acp + '/etl/import', JSON.stringify({ json: configuration }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-            .toPromise()
-    }
+			.toPromise()
+	}
 
-    listGeoObjectTypes( includeAbstractTypes: boolean ): Promise<{ label: string, code: string, orgCode: string }[]> {
-        let params: HttpParams = new HttpParams();
-        params = params.set( 'includeAbstractTypes', includeAbstractTypes.toString() );
+	listGeoObjectTypes(includeAbstractTypes: boolean): Promise<{ label: string, code: string, orgCode: string, superTypeCode?: string }[]> {
+		let params: HttpParams = new HttpParams();
+		params = params.set('includeAbstractTypes', includeAbstractTypes.toString());
 
-        return this.http
-            .get<{ label: string, code: string, orgCode: string }[]>( acp + '/cgr/geoobjecttype/list-types', { params: params } )
-            .toPromise();
-    }
+		return this.http
+			.get<{ label: string, code: string, orgCode: string }[]>(acp + '/cgr/geoobjecttype/list-types', { params: params })
+			.toPromise();
+	}
 
-    getTypeAncestors( code: string, hierarchyCode: string, includeInheritedTypes:boolean ): Promise<Location[]> {
-        let params: HttpParams = new HttpParams();
-        params = params.set( 'code', code );
-        params = params.set( 'hierarchyCode', hierarchyCode );
-        params = params.set( 'includeInheritedTypes', includeInheritedTypes.toString() );
+	getTypeAncestors(code: string, hierarchyCode: string, includeInheritedTypes: boolean): Promise<Location[]> {
+		let params: HttpParams = new HttpParams();
+		params = params.set('code', code);
+		params = params.set('hierarchyCode', hierarchyCode);
+		params = params.set('includeInheritedTypes', includeInheritedTypes.toString());
 
-        return this.http
-            .get<Location[]>( acp + '/cgr/geoobjecttype/get-ancestors', { params: params } )
-            .toPromise();
-    }
+		return this.http
+			.get<Location[]>(acp + '/cgr/geoobjecttype/get-ancestors', { params: params })
+			.toPromise();
+	}
 
-    getHierarchiesForType( code: string, includeTypes: boolean ): Promise<{ label: string, code: string, parents: { label: string, code: string }[] }[]> {
-        let params: HttpParams = new HttpParams();
-        params = params.set( 'code', code );
-        params = params.set( 'includeTypes', includeTypes.toString() );
+	getHierarchiesForType(code: string, includeTypes: boolean): Promise<{ label: string, code: string, parents: { label: string, code: string }[] }[]> {
+		let params: HttpParams = new HttpParams();
+		params = params.set('code', code);
+		params = params.set('includeTypes', includeTypes.toString());
 
-        this.eventService.start();
+		this.eventService.start();
 
-        return this.http
-            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>( acp + '/cgr/geoobjecttype/get-hierarchies', { params: params } )
+		return this.http
+			.get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(acp + '/cgr/geoobjecttype/get-hierarchies', { params: params })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-            .toPromise();
-    }
+			.toPromise();
+	}
 
-    getHierarchiesForSubtypes( code: string, includeTypes: boolean ): Promise<{ label: string, code: string, parents: { label: string, code: string }[] }[]> {
-        let params: HttpParams = new HttpParams();
-        params = params.set( 'code', code );
-        params = params.set( 'includeTypes', includeTypes.toString() );
+	getHierarchiesForSubtypes(code: string, includeTypes: boolean): Promise<{ label: string, code: string, parents: { label: string, code: string }[] }[]> {
+		let params: HttpParams = new HttpParams();
+		params = params.set('code', code);
+		params = params.set('includeTypes', includeTypes.toString());
 
-        this.eventService.start();
+		this.eventService.start();
 
-        return this.http
-            .get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>( acp + '/cgr/geoobjecttype/get-subtype-hierarchies', { params: params } )
+		return this.http
+			.get<{ label: string, code: string, parents: { label: string, code: string }[] }[]>(acp + '/cgr/geoobjecttype/get-subtype-hierarchies', { params: params })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-            .toPromise();
-    }
+			.toPromise();
+	}
 
-    getGeoObjectSuggestions( text: string, type: string, parent: string, hierarchy: string ): Promise<any> {
-        
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	getGeoObjectSuggestions(text: string, type: string, parent: string, hierarchy: string): Promise<any> {
 
-        let params = {
-            text: text,
-            type: type,
-        } as any;
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        if ( parent != null && hierarchy != null ) {
-            params.parent = parent;
-            params.hierarchy = parent;
-        }
+		let params = {
+			text: text,
+			type: type,
+		} as any;
 
-        return this.http
-            .post<any>( acp + '/cgr/geoobject/suggestions', JSON.stringify( params ), { headers: headers } )
-            .toPromise();
-    }
+		if (parent != null && hierarchy != null) {
+			params.parent = parent;
+			params.hierarchy = parent;
+		}
 
-    createGeoObjectSynonym( entityId: string, label: string ): Promise<Synonym> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+		return this.http
+			.post<any>(acp + '/cgr/geoobject/suggestions', JSON.stringify(params), { headers: headers })
+			.toPromise();
+	}
 
-        this.eventService.start();
+	createGeoObjectSynonym(entityId: string, label: string): Promise<Synonym> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        return this.http
-            .post<Synonym>( acp + '/geo-synonym/createGeoEntitySynonym', JSON.stringify( { entityId: entityId, label: label } ), { headers: headers } )
+		this.eventService.start();
+
+		return this.http
+			.post<Synonym>(acp + '/geo-synonym/createGeoEntitySynonym', JSON.stringify({ entityId: entityId, label: label }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-            .toPromise();
-    }
+			.toPromise();
+	}
 
-    deleteGeoObjectSynonym( synonymId: string, vOid: string ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	deleteGeoObjectSynonym(synonymId: string, vOid: string): Promise<void> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        this.eventService.start();
+		this.eventService.start();
 
-        return this.http
-            .post<void>( acp + '/geo-synonym/deleteGeoEntitySynonym', JSON.stringify( { synonymId: synonymId, vOid: vOid } ), { headers: headers } )
+		return this.http
+			.post<void>(acp + '/geo-synonym/deleteGeoEntitySynonym', JSON.stringify({ synonymId: synonymId, vOid: vOid }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
-            .toPromise()
-    }
+			.toPromise()
+	}
 
-    getTermSuggestions( mdAttributeId: string, text: string, limit: string ): Promise<{ text: string, data: any }[]> {
+	getTermSuggestions(mdAttributeId: string, text: string, limit: string): Promise<{ text: string, data: any }[]> {
 
-        let params: HttpParams = new HttpParams();
-        params = params.set( 'mdAttributeId', mdAttributeId );
-        params = params.set( 'text', text );
-        params = params.set( 'limit', limit );
+		let params: HttpParams = new HttpParams();
+		params = params.set('mdAttributeId', mdAttributeId);
+		params = params.set('text', text);
+		params = params.set('limit', limit);
 
-        return this.http
-            .get<{ text: string, data: any }[]>( acp + '/uploader/getClassifierSuggestions', { params: params } )
-            .toPromise()
-    }
+		return this.http
+			.get<{ text: string, data: any }[]>(acp + '/uploader/getClassifierSuggestions', { params: params })
+			.toPromise()
+	}
 
-    createTermSynonym( classifierId: string, label: string ): Promise<Synonym> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	createTermSynonym(classifierId: string, label: string): Promise<Synonym> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        let data = JSON.stringify( { classifierId: classifierId, label: label } );
+		let data = JSON.stringify({ classifierId: classifierId, label: label });
 
-        return this.http
-            .post<Synonym>( acp + '/uploader/createClassifierSynonym', data, { headers: headers } )
-            .toPromise();
-    }
+		return this.http
+			.post<Synonym>(acp + '/uploader/createClassifierSynonym', data, { headers: headers })
+			.toPromise();
+	}
 
-    deleteTermSynonym( synonymId: string ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	deleteTermSynonym(synonymId: string): Promise<void> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        let data = JSON.stringify( { synonymId: synonymId } );
+		let data = JSON.stringify({ synonymId: synonymId });
 
-        return this.http
-            .post<void>( acp + '/uploader/deleteClassifierSynonym', data, { headers: headers } )
-            .toPromise()
-    }
+		return this.http
+			.post<void>(acp + '/uploader/deleteClassifierSynonym', data, { headers: headers })
+			.toPromise()
+	}
 
-    createTerm( label: string, code: string, parentTermCode: string ): Promise<Term> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	createTerm(label: string, code: string, parentTermCode: string): Promise<Term> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        let params = { parentTermCode: parentTermCode, termJSON: { label: label, code: code } };
+		let params = { parentTermCode: parentTermCode, termJSON: { label: label, code: code } };
 
-        return this.http
-            .post<Term>( acp + '/cgr/geoobjecttype/addterm', JSON.stringify( params ), { headers: headers } )
-            .toPromise();
-    }
+		return this.http
+			.post<Term>(acp + '/cgr/geoobjecttype/addterm', JSON.stringify(params), { headers: headers })
+			.toPromise();
+	}
 
-    removeTerm( parentTermCode: string, termCode: string ): Promise<void> {
-        let headers = new HttpHeaders( {
-            'Content-Type': 'application/json'
-        } );
+	removeTerm(parentTermCode: string, termCode: string): Promise<void> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
 
-        return this.http
-            .post<void>( acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify( { 'parentTermCode': parentTermCode, 'termCode': termCode } ), { headers: headers } )
-            .toPromise()
-    }
+		return this.http
+			.post<void>(acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify({ 'parentTermCode': parentTermCode, 'termCode': termCode }), { headers: headers })
+			.toPromise()
+	}
 
 
 
