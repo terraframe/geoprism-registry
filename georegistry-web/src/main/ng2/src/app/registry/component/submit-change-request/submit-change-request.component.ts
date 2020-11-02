@@ -70,8 +70,9 @@ export class SubmitChangeRequestComponent implements OnInit {
 
 			var myOrgTypes = [];
 			for (var i = 0; i < types.length; ++i) {
-				const orgCode = types[i].organizationCode;
-				const typeCode = types[i].superTypeCode != null ? types[i].superTypeCode : types[i].code;
+				const type = types[i];
+				const orgCode = type.organizationCode;
+				const typeCode = type.superTypeCode != null && type.superTypeCode != '' ? type.superTypeCode : type.code;
 				
 				if (this.authService.isGeoObjectTypeRC(orgCode, typeCode)) {
 					myOrgTypes.push(types[i]);
