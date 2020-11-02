@@ -776,11 +776,11 @@ public class MasterList extends MasterListBase
     {
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
       String hCode = hierarchy.get("code").getAsString();
-      Optional<HierarchyType> ht = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode);
+      Optional<ServerHierarchyType> ht = ServiceFactory.getMetadataCache().getHierachyType(hCode);
 
       if (ht.isPresent())
       {
-        ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ServerHierarchyType.get(ht.get()), type);
+        ServerHierarchyType actualHierarchy = masterlistType.findHierarchy(ht.get(), type);
 
         if (hCode.equals(hierarchyType.getCode()) || actualHierarchy.getCode().equals(hierarchyType.getCode()))
         {
@@ -817,7 +817,8 @@ public class MasterList extends MasterListBase
     {
       JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
       String hCode = hierarchy.get("code").getAsString();
-      Optional<HierarchyType> ht = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode);
+
+      Optional<ServerHierarchyType> ht = ServiceFactory.getMetadataCache().getHierachyType(hCode);
 
       if (ht.isPresent())
       {

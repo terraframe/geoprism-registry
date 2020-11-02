@@ -53,7 +53,7 @@ export class GeoObjectType {
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 	relatedHierarchies?: string[];
 	superTypeCode?: string;
-	isAbstract?: boolean;	
+	isAbstract?: boolean;
 }
 
 export class Task {
@@ -339,9 +339,10 @@ export class MasterListVersion {
 	publishDate: string;
 	attributes: any[];
 	isGeometryEditable: boolean;
-	isAbstract?: boolean;	
 	locales?: string[];
 	shapefile?: boolean;
+	isAbstract?: boolean;
+	superTypeCode?: boolean;
 }
 
 export class HierarchyOverTime {

@@ -48,6 +48,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class Organization extends OrganizationBase
@@ -100,9 +101,9 @@ public class Organization extends OrganizationBase
   public void delete()
   {
     // Can't delete if there's existing data
-    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
 
-    for (HierarchyType ht : hierarchyTypes)
+    for (ServerHierarchyType ht : hierarchyTypes)
     {
       if (ht.getOrganizationCode().equals(this.getCode()))
       {

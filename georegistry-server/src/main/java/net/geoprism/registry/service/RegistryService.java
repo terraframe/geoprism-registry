@@ -110,12 +110,13 @@ public class RegistryService
   public synchronized void initialize(RegistryAdapter adapter)
   {
     this.adapter = adapter;
+
     refreshMetadataCache();
   }
 
   public void refreshMetadataCache()
   {
-    adapter.getMetadataCache().rebuild();
+    ServiceFactory.getMetadataCache().rebuild();
 
     QueryFactory qf = new QueryFactory();
     UniversalQuery uq = new UniversalQuery(qf);
@@ -134,7 +135,7 @@ public class RegistryService
 
         ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
 
-        adapter.getMetadataCache().addGeoObjectType(type.getType());
+        ServiceFactory.getMetadataCache().addGeoObjectType(type);
       }
     }
     finally
@@ -164,7 +165,7 @@ public class RegistryService
 
         ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdTermRel);
 
-        adapter.getMetadataCache().addHierarchyType(ht.getType());
+        ServiceFactory.getMetadataCache().addHierarchyType(ht);
       }
     }
     finally
@@ -187,9 +188,7 @@ public class RegistryService
         {
           Organization organization = it3.next();
 
-          OrganizationDTO organizationDTO = new OrganizationConverter().build(organization);
-
-          adapter.getMetadataCache().addOrganization(organizationDTO);
+          ServiceFactory.getMetadataCache().addOrganization(organization);
         }
       }
       finally
@@ -386,12 +385,11 @@ public class RegistryService
     OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
 
     final Organization org = new OrganizationConverter().create(organizationDTO);
-    OrganizationDTO dto = org.toDTO();
 
     // If this did not error out then add to the cache
-    adapter.getMetadataCache().addOrganization(dto);
+    ServiceFactory.getMetadataCache().addOrganization(org);
 
-    return dto;
+    return ServiceFactory.getAdapter().getMetadataCache().getOrganization(org.getCode()).get();
   }
 
   /**
@@ -410,12 +408,11 @@ public class RegistryService
     OrganizationDTO organizationDTO = OrganizationDTO.fromJSON(json);
 
     final Organization org = new OrganizationConverter().update(organizationDTO);
-    OrganizationDTO dto = org.toDTO();
 
     // If this did not error out then add to the cache
-    adapter.getMetadataCache().addOrganization(dto);
+    ServiceFactory.getMetadataCache().addOrganization(org);
 
-    return dto;
+    return ServiceFactory.getAdapter().getMetadataCache().getOrganization(org.getCode()).get();
   }
 
   /**
@@ -435,7 +432,7 @@ public class RegistryService
     organization.delete();
 
     // If this did not error out then remove from the cache
-    adapter.getMetadataCache().removeOrganization(code);
+    ServiceFactory.getMetadataCache().removeOrganization(code);
   }
 
   /**
@@ -476,7 +473,7 @@ public class RegistryService
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
     // If this did not error out then add to the cache
-    adapter.getMetadataCache().addGeoObjectType(type.getType());
+    ServiceFactory.getMetadataCache().addGeoObjectType(type);
 
     return type.getType();
   }
@@ -685,17 +682,17 @@ public class RegistryService
     {
       String geoObjectTypeCode = mdAttribute.getDefiningMdClass().getTypeName();
 
-      Optional<GeoObjectType> optional = adapter.getMetadataCache().getGeoObjectType(geoObjectTypeCode);
+      Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode);
 
       if (optional.isPresent())
       {
-        GeoObjectType geoObjectType = optional.get();
+        ServerGeoObjectType geoObjectType = optional.get();
 
         AttributeType attributeType = new AttributeTypeConverter().build((MdAttributeConcreteDAOIF) BusinessFacade.getEntityDAO(mdAttribute));
 
-        geoObjectType.addAttribute(attributeType);
+        geoObjectType.getType().addAttribute(attributeType);
 
-        adapter.getMetadataCache().addGeoObjectType(geoObjectType);
+        ServiceFactory.getMetadataCache().addGeoObjectType(geoObjectType);
       }
     }
   }

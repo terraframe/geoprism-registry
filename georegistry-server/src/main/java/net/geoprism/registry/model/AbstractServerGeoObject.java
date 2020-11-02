@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,15 +38,14 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
   {
     ServerGeoObjectType geoObjectType = this.getType();
 
-    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
     JsonArray hierarchies = new JsonArray();
     Universal root = Universal.getRoot();
 
-    for (HierarchyType hierarchyType : hierarchyTypes)
+    for (ServerHierarchyType sType : hierarchyTypes)
     {
-      if (ServiceFactory.getHierarchyPermissionService().canRead(hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+      if (ServiceFactory.getHierarchyPermissionService().canRead(sType.getOrganization().getCode(), PermissionContext.WRITE))
       {
-        ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
         // Note: Ordered ancestors always includes self
         Collection<?> uniParents = GeoEntityUtil.getOrderedAncestors(root, geoObjectType.getUniversal(), sType.getUniversalType());
@@ -57,8 +55,8 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
         if (uniParents.size() > 1)
         {
           JsonObject object = new JsonObject();
-          object.addProperty("code", hierarchyType.getCode());
-          object.addProperty("label", hierarchyType.getLabel().getValue());
+          object.addProperty("code", sType.getCode());
+          object.addProperty("label", sType.getDisplayLabel().getValue());
 
           JsonArray pArray = new JsonArray();
 
@@ -75,7 +73,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
               List<ParentTreeNode> ptns = ptnAncestors.findParentOfType(pType.getCode());
               for (ParentTreeNode ptn : ptns)
               {
-                if (ptn.getHierachyType().getCode().equals(hierarchyType.getCode()))
+                if (ptn.getHierachyType().getCode().equals(sType.getCode()))
                 {
                   pObject.add("ptn", ptn.toJSON());
                   break; // TODO Sibling ancestors
@@ -99,13 +97,13 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
        * This is a root type so include all hierarchies
        */
 
-      for (HierarchyType hierarchyType : hierarchyTypes)
+      for (ServerHierarchyType hierarchyType : hierarchyTypes)
       {
-        if (ServiceFactory.getHierarchyPermissionService().canRead(hierarchyType.getOrganizationCode(), PermissionContext.WRITE))
+        if (ServiceFactory.getHierarchyPermissionService().canRead(hierarchyType.getOrganization().getCode(), PermissionContext.WRITE))
         {
           JsonObject object = new JsonObject();
           object.addProperty("code", hierarchyType.getCode());
-          object.addProperty("label", hierarchyType.getLabel().getValue());
+          object.addProperty("label", hierarchyType.getDisplayLabel().getValue());
           object.add("parents", new JsonArray());
 
           hierarchies.add(object);

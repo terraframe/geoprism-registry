@@ -60,7 +60,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     ServerHierarchyType sType = new ServerHierarchyTypeBuilder().createHierarchyType(hierarchyType);
 
     // The transaction did not error out, so it is safe to put into the cache.
-    adapter.getMetadataCache().addHierarchyType(sType.getType());
+    ServiceFactory.getMetadataCache().addHierarchyType(sType);
 
     return hierarchyType.getCode();
   }
