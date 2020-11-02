@@ -128,27 +128,41 @@ export class SvgHierarchyNode {
 			const fontFamily = "sans-serif";
 			const titleFontSize = 10;
 			const titleLabel = this.hierarchyComponent.localize("hierarchy.content.relatedHierarchies");
+			const removeFromHierarchyLabel = this.hierarchyComponent.localize("hierarchy.content.removeFromHierarchy");
+			const noRelatedHierLabel = this.hierarchyComponent.localize("hierarchy.content.noRelatedHierarchies");
 
 			// Calculate the width of our title
 			let width = calculateTextWidth(titleLabel, titleFontSize);
-
+			
+			// Calculate with of remove text
+			let removeWidth = calculateTextWidth(removeFromHierarchyLabel, titleFontSize);
+			width = removeWidth > width ? removeWidth : width;
+			
 			// Calculate the width of our context menu, which is based on how long the text inside it will be.
 			// We don't know how long text is until we render it. So we'll need to loop over all the text and
 			// render and destroy all of it.
-			relatedHierarchies.forEach((relatedHierarchyCode: string) => {
-				let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
-
-				let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
-				if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code) {
-					relatedHierarchyLabel = relatedHierarchyLabel + " (" + this.hierarchyComponent.localize("hierarchy.content.inherited") + ")";
-				}
-
-				let textWidth = calculateTextWidth(relatedHierarchyLabel, fontSize);
-
-				if (textWidth > width) {
-					width = textWidth;
-				}
-			});
+			if (relatedHierarchies.length > 0)
+			{
+  			relatedHierarchies.forEach((relatedHierarchyCode: string) => {
+  				let relatedHierarchy = this.hierarchyComponent.findHierarchyByCode(relatedHierarchyCode);
+  
+  				let relatedHierarchyLabel = relatedHierarchy.label.localizedValue;
+  				if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code) {
+  					relatedHierarchyLabel = relatedHierarchyLabel + " (" + this.hierarchyComponent.localize("hierarchy.content.inherited") + ")";
+  				}
+  
+  				let textWidth = calculateTextWidth(relatedHierarchyLabel, fontSize);
+  
+  				if (textWidth > width) {
+  					width = textWidth;
+  				}
+  			});
+			}
+			else
+			{
+			  let noHierLabelWidth = calculateTextWidth(noRelatedHierLabel, titleFontSize);
+			  width = noHierLabelWidth > width ? noHierLabelWidth : width;
+			}
 
 			width = width + widthPadding;
 
@@ -236,7 +250,7 @@ export class SvgHierarchyNode {
 					.attr("y", y + (height / 2) + (fontSize / 2))
 					.style("font-size", fontSize)
 					.attr("font-family", fontFamily)
-					.text("No related hierarchies")
+					.text(noRelatedHierLabel)
 
 				y = y + height;
 
@@ -281,7 +295,7 @@ export class SvgHierarchyNode {
 				.attr("y", y + (height / 2) + (fontSize / 2))
 				.style("font-size", fontSize)
 				.attr("font-family", fontFamily)
-				.text("Remove from hierarchy")
+				.text(removeFromHierarchyLabel)
 				.style("cursor", "pointer")
 				.on('click', function (event, node) { that.removeGotFromHierarchy(); });
 
