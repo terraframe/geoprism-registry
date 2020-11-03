@@ -1009,7 +1009,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 		});
 		this.bsModalRef.content.edit = true;
 		this.bsModalRef.content.readOnly = readOnly;
-		this.bsModalRef.content.hierarchyType = JSON.parse(JSON.stringify(obj));
+		this.bsModalRef.content.hierarchyType = obj;
 		this.bsModalRef.content.onHierarchytTypeCreate.subscribe(data => {
 			let pos = this.getHierarchyTypePosition(data.code);
 
@@ -1031,7 +1031,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 	}
 
 	setCurrentHierarchy(hierarchyType: HierarchyType): void {
-		this.currentHierarchy = JSON.parse(JSON.stringify(hierarchyType));
+		this.currentHierarchy = hierarchyType;
 	}
 
 	isPrimaryHierarchy(hierarchy: HierarchyType): boolean {

@@ -31,7 +31,6 @@ export class SvgHierarchyType {
 	isPrimary: boolean;
 
 	public constructor(hierarchyComponent: SvgController, svgEl: any, ht: HierarchyType, isPrimary: boolean, public localizationService: LocalizationService, public modalService: BsModalService) {
-//		const hierarchyType = JSON.parse(JSON.stringify(ht));
 		const hierarchyType = ht;
 
 		this.hierarchyComponent = hierarchyComponent;
@@ -130,7 +129,7 @@ export class SvgHierarchyType {
 			got.relatedHierarchies = this.hierarchyComponent.calculateRelatedHierarchies(got);
 		}
 
-		let relatedHiers: string[] = JSON.parse(JSON.stringify(got.relatedHierarchies));
+    let relatedHiers: string[] = got.relatedHierarchies;
 
 		let index = null;
 		for (let i = 0; i < relatedHiers.length; ++i) {
