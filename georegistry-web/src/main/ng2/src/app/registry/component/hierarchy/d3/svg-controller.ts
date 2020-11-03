@@ -1,6 +1,6 @@
-import { GeoObjectType } from "../registry";
-import { HierarchyType } from "../hierarchy";
-import { SvgHierarchyType } from '@registry/model/d3/svg-hierarchy-type';
+import { GeoObjectType } from "@registry/model/registry";
+import { HierarchyType } from "@registry/model/hierarchy";
+import { SvgHierarchyType } from './svg-hierarchy-type';
 
 export const DEFAULT_NODE_FILL = '#e6e6e6';
 export const DEFAULT_NODE_BANNER_COLOR = '#A29BAB';

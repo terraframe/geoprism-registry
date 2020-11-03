@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
-import { svgPoint } from '@registry/model/d3/svg-util';
+import { svgPoint } from './svg-util';
 
-import { GeoObjectType } from '../registry';
-import { HierarchyType } from '../hierarchy';
+import { GeoObjectType } from '@registry/model/registry';
+import { HierarchyType } from '@registry/model/hierarchy';
 
 import { SvgHierarchyType } from './svg-hierarchy-type';
 import { calculateTextWidth } from './svg-util';

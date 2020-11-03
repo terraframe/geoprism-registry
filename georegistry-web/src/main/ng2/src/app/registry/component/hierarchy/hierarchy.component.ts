@@ -20,10 +20,10 @@ import { GeoObjectType } from '@registry/model/registry';
 import { Organization } from '@shared/model/core';
 import { RegistryService, HierarchyService } from '@registry/service';
 
-import { SvgHierarchyType } from '@registry/model/d3/svg-hierarchy-type';
-import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection, isBboxPartiallyWithin } from '@registry/model/d3/svg-util';
-import { SvgHierarchyNode } from '@registry/model/d3/svg-hierarchy-node';
-import { SvgController, Instance, DropTarget } from '@registry/model/d3/svg-controller';
+import { SvgHierarchyType } from './d3/svg-hierarchy-type';
+import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection, isBboxPartiallyWithin } from './d3/svg-util';
+import { SvgHierarchyNode } from './d3/svg-hierarchy-node';
+import { SvgController, Instance, DropTarget } from './d3/svg-controller';
 
 const TREE_SCALE_FACTOR_X: number = 1.8;
 const TREE_SCALE_FACTOR_Y: number = 1.8;
