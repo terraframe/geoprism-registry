@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 
-import { HierarchyType } from '../hierarchy';
-import { GeoObjectType } from '../registry';
+import { HierarchyType } from '@registry/model/hierarchy';
+import { GeoObjectType } from '@registry/model/registry';
 
 import { SvgHierarchyNode } from './svg-hierarchy-node';
 import { calculateTextWidth } from './svg-util';
@@ -31,7 +31,6 @@ export class SvgHierarchyType {
 	isPrimary: boolean;
 
 	public constructor(hierarchyComponent: SvgController, svgEl: any, ht: HierarchyType, isPrimary: boolean, public localizationService: LocalizationService, public modalService: BsModalService) {
-//		const hierarchyType = JSON.parse(JSON.stringify(ht));
 		const hierarchyType = ht;
 
 		this.hierarchyComponent = hierarchyComponent;
@@ -43,7 +42,7 @@ export class SvgHierarchyType {
 
 		this.d3Tree = d3.tree().nodeSize([300, 80]).separation((a, b) => 0.8)(this.d3Hierarchy);
 	}
-
+	
 	public getD3Tree() {
 		return this.d3Tree;
 	}
@@ -54,7 +53,7 @@ export class SvgHierarchyType {
 
 	public getNodeByCode(gotCode: string): SvgHierarchyNode {
 		let treeNode = this.getD3Tree().find((node) => { return node.data.geoObjectType === gotCode; });
-
+		
 		return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode, this.localizationService, this.modalService);
 	}
 
@@ -130,7 +129,7 @@ export class SvgHierarchyType {
 			got.relatedHierarchies = this.hierarchyComponent.calculateRelatedHierarchies(got);
 		}
 
-		let relatedHiers: string[] = JSON.parse(JSON.stringify(got.relatedHierarchies));
+    let relatedHiers: string[] = got.relatedHierarchies;
 
 		let index = null;
 		for (let i = 0; i < relatedHiers.length; ++i) {

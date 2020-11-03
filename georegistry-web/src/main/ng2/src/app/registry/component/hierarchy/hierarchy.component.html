@@ -40,7 +40,7 @@
 										</button>
 									</div>
 
-									<li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types" [id]="type.code"
+									<li class="list-group-item got-li-item" [attr.data-superTypeCode]="(type.superTypeCode && type.superTypeCode.length > 0) ? type.superTypeCode : null" *ngFor="let type of typeByOrg.types" [id]="type.code"
                                     [ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}" >
 										{{type.label.localizedValue}}
 
