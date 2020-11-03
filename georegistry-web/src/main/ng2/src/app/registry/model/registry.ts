@@ -53,12 +53,7 @@ export class GeoObjectType {
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 	relatedHierarchies?: string[];
 	superTypeCode?: string;
-<<<<<<< HEAD
 	isAbstract?: boolean;	
-	subTypes?: GeoObjectType[] = [];
-=======
-	isAbstract?: boolean;
->>>>>>> 2917e0a9d87884655e5b8e59539478439c72fc00
 }
 
 export class Task {
