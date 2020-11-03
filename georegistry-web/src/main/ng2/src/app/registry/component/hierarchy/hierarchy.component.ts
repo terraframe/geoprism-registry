@@ -497,33 +497,63 @@ export class HierarchyComponent implements OnInit, SvgController {
 			.on("drag", function(event: any) {
 
 				d3.select(".g-context-menu").remove();
+				
+				let selThis = d3.select(this);
 
 				// Kind of a dumb hack, but if we hide our drag element for a sec, then we can check what's underneath it.
-				d3.select(this)
-					.style("display", "none");
+				selThis.style("display", "none");
 
 				let target = document.elementFromPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
 
-				d3.select(this)
-					.style("display", null);
+				selThis.style("display", null);
 
 				for (let i = 0; i < dropTargets.length; ++i) {
 					dropTargets[i].onDrag(this, target, event);
 				}
 
 				// Move the GeoObjectType with the pointer when they move their mouse
-				d3.select(this)
+				selThis
 					.classed("dragging", true)
 					.style("left", (event.sourceEvent.pageX + deltaX) + "px")
 					.style("top", (event.sourceEvent.pageY + deltaY) + "px")
 					.style("width", width + "px");
-
+					
+			  // If they are moving a GOT group then we have to move the children as well 
+        if (selThis.classed("got-group-parent"))
+        {
+          let index = 1;
+          d3.selectAll('.got-group-child[data-superTypeCode="' + selThis.attr("id") + '"]').each(function() {
+            let child = d3.select(this);
+            
+            child
+              .classed("dragging", true)
+              .style("left", (event.sourceEvent.pageX + deltaX) + "px")
+              .style("top", (event.sourceEvent.pageY + deltaY + (this.getBoundingClientRect().height + 2)*index) + "px")
+              .style("width", width + "px");
+              
+            index++;
+          });
+        }
 			}).on("end", function(event: any) {
-				let selected = d3.select(this)
+				let selThis = d3.select(this)
 					.classed("dragging", false)
 					.style("left", null)
 					.style("top", null)
 					.style("width", null);
+
+        // If they are moving a GOT group then we have to reset the children as well 
+        if (selThis.classed("got-group-parent"))
+        {
+          d3.selectAll('.got-group-child[data-superTypeCode="' + selThis.attr("id") + '"]').each(function() {
+            let child = d3.select(this);
+            
+            child
+              .classed("dragging", false)
+              .style("left", null)
+              .style("top", null)
+              .style("width", null);
+          });
+        }
 
 				for (let i = 0; i < dropTargets.length; ++i) {
 					dropTargets[i].onDrop(this, event);
