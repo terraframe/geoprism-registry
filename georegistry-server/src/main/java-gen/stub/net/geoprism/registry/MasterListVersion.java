@@ -530,8 +530,8 @@ public class MasterListVersion extends MasterListVersionBase
       {
         String hCode = hierarchy.get("code").getAsString();
 
-        HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hCode).get();
-        String hierarchyLabel = hierarchyType.getLabel().getValue(currentLocale);
+        ServerHierarchyType hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(hCode).get();
+        String hierarchyLabel = hierarchyType.getDisplayLabel().getValue(currentLocale);
 
         for (String pCode : pCodes)
         {
@@ -1055,6 +1055,11 @@ public class MasterListVersion extends MasterListVersionBase
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
+
+    if (type.getSuperType() != null)
+    {
+      object.addProperty("superTypeCode", type.getSuperType().getCode());
+    }
 
     if (this.getPublishDate() != null)
     {

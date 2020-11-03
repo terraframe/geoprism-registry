@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -47,10 +47,10 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class LocalizedValueConverter
 {
-  
+
   public Term getTerm(String code)
   {
-    return ServiceFactory.getAdapter().getMetadataCache().getTerm(code).get();
+    return ServiceFactory.getMetadataCache().getTerm(code).get();
   }
 
   public Term geoObjectStatusToTerm(GeoObjectStatus gos)
@@ -199,11 +199,10 @@ public class LocalizedValueConverter
       }
     }
   }
-  
 
   /**
-   * Set the owner to the corresponding {@link Organization} role for the given code, or if code is null then
-   * the owner field is not set.
+   * Set the owner to the corresponding {@link Organization} role for the given
+   * code, or if code is null then the owner field is not set.
    * 
    * @param business
    * @param organizationCode
@@ -220,9 +219,9 @@ public class LocalizedValueConverter
     }
   }
 
-
   /**
-   * Populates the {@link Organization} display label on the given {@link RegistryRole} object.
+   * Populates the {@link Organization} display label on the given
+   * {@link RegistryRole} object.
    * 
    * @param registryRole
    */
@@ -235,9 +234,10 @@ public class LocalizedValueConverter
       registryRole.setOrganizationLabel(LocalizedValueConverter.convert(organization.getDisplayLabel()));
     }
   }
-  
+
   /**
-   * Populates the {@link GeoObjectType} display label on the given {@link RegistryRole} object.
+   * Populates the {@link GeoObjectType} display label on the given
+   * {@link RegistryRole} object.
    * 
    * @param registryRole
    */
@@ -250,5 +250,5 @@ public class LocalizedValueConverter
       registryRole.setGeoObjectTypeLabel(LocalizedValueConverter.convert(universal.getDisplayLabel()));
     }
   }
-  
+
 }

@@ -4,23 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package com.runwaysdk.build.domain;
 
 import java.util.List;
 
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +41,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**
@@ -52,40 +52,40 @@ import net.geoprism.registry.service.ServiceFactory;
 public class AddWritePermissions
 {
   private static Logger logger = LoggerFactory.getLogger(AddWritePermissions.class);
-  
+
   public static void main(String[] args)
   {
     new AddWritePermissions().doIt();
   }
-  
+
   @Transaction
   private void doIt()
   {
-    initializeStrategies();
-    
-    List<HierarchyType> htypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-    
-    for (HierarchyType ht : htypes)
-    {
-      if (ht.getCode().equals("LocatedIn"))
-        continue;
-      
-      reassignPermissions(ht);
-    }
+//    initializeStrategies();
+//
+//    List<ServerHierarchyType> htypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
+//
+//    for (ServerHierarchyType ht : htypes)
+//    {
+//      if (ht.getCode().equals("LocatedIn"))
+//        continue;
+//
+//      reassignPermissions(ht);
+//    }
   }
-  
+
   private void initializeStrategies()
   {
     Classifier.getStrategy().initialize(ClassifierIsARelationship.CLASS);
     Universal.getStrategy().initialize(AllowedIn.CLASS);
   }
-  
-  private void reassignPermissions(HierarchyType hierarchyType)
+
+  private void reassignPermissions(ServerHierarchyType hierarchyType)
   {
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
     RoleDAO consumer = RoleDAO.findRole(RegistryConstants.API_CONSUMER_ROLE).getBusinessDAO();
     RoleDAO contributor = RoleDAO.findRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE).getBusinessDAO();
-    
+
     InitializationStrategyIF strategy = new InitializationStrategyIF()
     {
       @Override
@@ -120,7 +120,7 @@ public class AddWritePermissions
         contributor.grantPermission(Operation.READ_ALL, mdBusiness.getOid());
       }
     };
-    
+
     String key = GISConstants.GEO_PACKAGE + "." + hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST;
     if (hierarchyType.getCode().equals("LocatedIn"))
     {
@@ -149,10 +149,10 @@ public class AddWritePermissions
     this.grantWritePermissionsOnMdTermRel(maintainer, mdEdge);
     this.grantReadPermissionsOnMdTermRel(consumer, mdEdge);
     this.grantReadPermissionsOnMdTermRel(contributor, mdEdge);
-    
+
     logger.info("Updated permissions for HierarchyType [" + hierarchyType.getCode() + "]. ");
   }
-  
+
   private void grantWritePermissionsOnMdTermRel(ComponentIF mdTermRelationship)
   {
     RoleDAO adminRole = RoleDAO.findRole(DefaultConfiguration.ADMIN).getBusinessDAO();

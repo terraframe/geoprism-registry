@@ -8,7 +8,7 @@ export function calculateTextWidth(text: string, fontSize: number): number {
 	let textEl = textCalcGroup.append("text")
 		.attr("x", -5000)
 		.attr("y", -5000)
-		.style("font-size", fontSize)
+		.attr("font-size", fontSize)
 		.text(text);
 
 	let bbox = textEl.node().getBBox();

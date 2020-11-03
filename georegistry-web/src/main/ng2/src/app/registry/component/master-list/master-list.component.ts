@@ -65,8 +65,10 @@ export class MasterListComponent implements OnInit, OnDestroy {
 			this.list.attributes.forEach(attribute => {
 				attribute.isCollapsed = true;
 			});
+			const orgCode = this.list.orgCode;
+			const typeCode = this.list.superTypeCode != null ? this.list.superTypeCode : this.list.typeCode;
 
-			this.isWritable = this.authService.isGeoObjectTypeRC(this.list.orgCode, this.list.typeCode);
+			this.isWritable = this.authService.isGeoObjectTypeRC(orgCode, typeCode);
 
 			this.onPageChange(1);
 		});

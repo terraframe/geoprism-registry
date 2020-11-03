@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -63,14 +63,14 @@ public class AttributeTypeConverter extends LocalizedValueConverter
     LocalizedValue description = this.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
     boolean required = mdAttribute.isRequired();
     boolean unique = mdAttribute.isUnique();
-    
+
     boolean isChangeOverTime = true;
     DefaultAttribute defaultAttr = DefaultAttribute.getByAttributeName(attributeName);
     if (defaultAttr != null)
     {
       isChangeOverTime = defaultAttr.isChangeOverTime();
     }
-    
+
     if (mdAttribute instanceof MdAttributeBooleanDAOIF)
     {
       return AttributeType.factory(attributeName, displayLabel, description, AttributeBooleanType.TYPE, required, unique, isChangeOverTime);
@@ -107,7 +107,7 @@ public class AttributeTypeConverter extends LocalizedValueConverter
 
       if (mdAttribute instanceof MdAttributeEnumerationDAOIF && mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
       {
-        Term rootStatusTerm = ServiceFactory.getAdapter().getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
+        Term rootStatusTerm = ServiceFactory.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
 
         attributeType.setRootTerm(rootStatusTerm);
       }

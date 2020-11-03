@@ -175,7 +175,7 @@ public class ServerHierarchyType
     this.universalRelationship = updated.getUniversalRelationship();
     this.entityRelationship = updated.getEntityRelationship();
 
-    ServiceFactory.getAdapter().getMetadataCache().addHierarchyType(this.type);
+    ServiceFactory.getMetadataCache().addHierarchyType(this);
   }
 
   public void update(HierarchyType hierarchyType)
@@ -227,7 +227,7 @@ public class ServerHierarchyType
     }
 
     // No error at this point so the transaction completed successfully.
-    ServiceFactory.getAdapter().getMetadataCache().removeHierarchyType(this.getCode());
+    ServiceFactory.getMetadataCache().removeHierarchyType(this.getCode());
   }
 
   @Transaction
@@ -305,6 +305,33 @@ public class ServerHierarchyType
    *         HierarchyType is AllowedIn (or constructed incorrectly) this method
    *         will return null.
    */
+  public String getOrganizationCode()
+  {
+    if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS) || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
+    {
+      return null; // AllowedIn is deprecated and should not be used by the
+      // end-user.
+    }
+
+    Actor uniRelActor = this.getUniversalRelationship().getOwner();
+    if (! ( uniRelActor instanceof Roles ))
+    {
+      return null; // If we get here, then the HierarchyType was not created
+      // correctly.
+    }
+    else
+    {
+      Roles uniRelRole = (Roles) uniRelActor;
+
+      return RegistryRole.Type.parseOrgCode(uniRelRole.getRoleName());
+    }
+  }
+
+  /**
+   * @return The organization associated with this HierarchyType. If this
+   *         HierarchyType is AllowedIn (or constructed incorrectly) this method
+   *         will return null.
+   */
   public Organization getOrganization()
   {
     if (this.getUniversalRelationship().getKey().equals(AllowedIn.CLASS) || this.getUniversalRelationship().getKey().equals(LocatedIn.CLASS))
@@ -324,7 +351,7 @@ public class ServerHierarchyType
       Roles uniRelRole = (Roles) uniRelActor;
       String myOrgCode = RegistryRole.Type.parseOrgCode(uniRelRole.getRoleName());
 
-      return Organization.getByCode(myOrgCode);
+      return ServiceFactory.getMetadataCache().getOrganization(myOrgCode).get();
     }
   }
 
@@ -576,7 +603,7 @@ public class ServerHierarchyType
 
   public static ServerHierarchyType get(String hierarchyTypeCode)
   {
-    Optional<HierarchyType> hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(hierarchyTypeCode);
+    Optional<ServerHierarchyType> hierarchyType = ServiceFactory.getMetadataCache().getHierachyType(hierarchyTypeCode);
 
     if (!hierarchyType.isPresent())
     {
@@ -587,48 +614,64 @@ public class ServerHierarchyType
       throw ex;
     }
 
-    return ServerHierarchyType.get(hierarchyType.get());
+    return hierarchyType.get();
   }
 
   public static ServerHierarchyType get(HierarchyType hierarchyType)
   {
-    String universalKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
-    String geoEntityKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
-    String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
+    return get(hierarchyType.getCode());
 
-    MdTermRelationship universalRelationship = MdTermRelationship.getByKey(universalKey);
-    MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
-    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
-
-    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship, mdEdge);
+    // String universalKey =
+    // buildMdTermRelUniversalKey(hierarchyType.getCode());
+    // String geoEntityKey =
+    // buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+    // String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
+    //
+    // MdTermRelationship universalRelationship =
+    // MdTermRelationship.getByKey(universalKey);
+    // MdTermRelationship entityRelationship =
+    // MdTermRelationship.getByKey(geoEntityKey);
+    // MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
+    //
+    // return new ServerHierarchyType(hierarchyType, universalRelationship,
+    // entityRelationship, mdEdge);
   }
 
   public static ServerHierarchyType get(MdTermRelationship universalRelationship)
   {
     String code = buildHierarchyKeyFromMdTermRelUniversal(universalRelationship.getKey());
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
+    return ServiceFactory.getMetadataCache().getHierachyType(code).get();
 
-    String geoEntityKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
-    String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
-
-    MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
-    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
-
-    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship, mdEdge);
+    // String geoEntityKey =
+    // buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+    // String mdEdgeKey = buildMdEdgeKey(hierarchyType.getCode());
+    //
+    // MdTermRelationship entityRelationship =
+    // MdTermRelationship.getByKey(geoEntityKey);
+    // MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(mdEdgeKey);
+    //
+    // return new ServerHierarchyType(hierarchyType, universalRelationship,
+    // entityRelationship, mdEdge);
   }
 
   public static ServerHierarchyType get(MdEdgeDAOIF mdEdge)
   {
     String code = buildHierarchyKeyFromMdEdge(mdEdge);
-    HierarchyType hierarchyType = ServiceFactory.getAdapter().getMetadataCache().getHierachyType(code).get();
 
-    String universalKey = buildMdTermRelUniversalKey(hierarchyType.getCode());
-    String geoEntityKey = buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+    return ServiceFactory.getMetadataCache().getHierachyType(code).get();
 
-    MdTermRelationship entityRelationship = MdTermRelationship.getByKey(geoEntityKey);
-    MdTermRelationship universalRelationship = MdTermRelationship.getByKey(universalKey);
-
-    return new ServerHierarchyType(hierarchyType, universalRelationship, entityRelationship, mdEdge);
+    // String universalKey =
+    // buildMdTermRelUniversalKey(hierarchyType.getCode());
+    // String geoEntityKey =
+    // buildMdTermRelGeoEntityKey(hierarchyType.getCode());
+    //
+    // MdTermRelationship entityRelationship =
+    // MdTermRelationship.getByKey(geoEntityKey);
+    // MdTermRelationship universalRelationship =
+    // MdTermRelationship.getByKey(universalKey);
+    //
+    // return new ServerHierarchyType(hierarchyType, universalRelationship,
+    // entityRelationship, mdEdge);
   }
 
   /**
@@ -742,13 +785,13 @@ public class ServerHierarchyType
     final HierarchyTypePermissionServiceIF service = ServiceFactory.getHierarchyPermissionService();
     final List<ServerHierarchyType> list = new LinkedList<ServerHierarchyType>();
 
-    List<HierarchyType> lHt = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<ServerHierarchyType> lHt = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
     // Filter out what they're not allowed to see
 
     lHt.forEach(ht -> {
       if (service.canRead(organization.getCode(), PermissionContext.WRITE))
       {
-        list.add(ServerHierarchyType.get(ht));
+        list.add(ht);
       }
     });
 
@@ -757,15 +800,6 @@ public class ServerHierarchyType
 
   public static List<ServerHierarchyType> getAll()
   {
-    final List<ServerHierarchyType> list = new LinkedList<ServerHierarchyType>();
-
-    List<HierarchyType> lHt = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
-    // Filter out what they're not allowed to see
-
-    lHt.forEach(ht -> {
-      list.add(ServerHierarchyType.get(ht));
-    });
-
-    return list;
+    return ServiceFactory.getMetadataCache().getAllHierarchyTypes();
   }
 }

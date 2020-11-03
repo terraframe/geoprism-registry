@@ -39,7 +39,6 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
@@ -339,7 +338,7 @@ public class ServerGeoObjectType
     ServerGeoObjectType geoObjectTypeModifiedApplied = new ServerGeoObjectTypeConverter().build(universal);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied.getType());
+    ServiceFactory.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
 
     this.type = geoObjectTypeModifiedApplied.getType();
     this.universal = geoObjectTypeModifiedApplied.getUniversal();
@@ -384,7 +383,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(this.type);
+    ServiceFactory.getMetadataCache().addGeoObjectType(this);
 
     // Refresh the users session
     if (Session.getCurrentSession() != null)
@@ -548,7 +547,7 @@ public class ServerGeoObjectType
     this.type.removeAttribute(attributeName);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(this.type);
+    ServiceFactory.getMetadataCache().addGeoObjectType(this);
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -628,7 +627,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getAdapter().getMetadataCache().addGeoObjectType(this.type);
+    ServiceFactory.getMetadataCache().addGeoObjectType(this);
 
     return attrType;
   }
@@ -780,29 +779,28 @@ public class ServerGeoObjectType
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
-    List<HierarchyType> hierarchyTypes = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
+    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
     Universal root = Universal.getRoot();
 
-    for (HierarchyType hierarchyType : hierarchyTypes)
+    for (ServerHierarchyType hierarchyType : hierarchyTypes)
     {
-      Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
+      Organization org = hierarchyType.getOrganization();
 
       if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
       {
-        ServerHierarchyType sType = ServerHierarchyType.get(hierarchyType);
 
-        if (this.isRoot(sType))
+        if (this.isRoot(hierarchyType))
         {
-          hierarchies.add(sType);
+          hierarchies.add(hierarchyType);
         }
         else
         {
           // Note: Ordered ancestors always includes self
-          Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, this.getUniversal(), sType.getUniversalType());
+          Collection<?> parents = GeoEntityUtil.getOrderedAncestors(root, this.getUniversal(), hierarchyType.getUniversalType());
 
           if (parents.size() > 1)
           {
-            hierarchies.add(sType);
+            hierarchies.add(hierarchyType);
           }
         }
 
@@ -825,13 +823,13 @@ public class ServerGeoObjectType
        * This is a root type so include all hierarchies
        */
 
-      for (HierarchyType hierarchyType : hierarchyTypes)
+      for (ServerHierarchyType hierarchyType : hierarchyTypes)
       {
-        Organization org = Organization.getByCode(hierarchyType.getOrganizationCode());
+        Organization org = hierarchyType.getOrganization();
 
         if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
         {
-          hierarchies.add(ServerHierarchyType.get(hierarchyType));
+          hierarchies.add(hierarchyType);
         }
       }
     }
@@ -1017,11 +1015,11 @@ public class ServerGeoObjectType
       return RootGeoObjectType.INSTANCE;
     }
 
-    Optional<GeoObjectType> geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code);
+    Optional<ServerGeoObjectType> geoObjectType = ServiceFactory.getMetadataCache().getGeoObjectType(code);
 
     if (geoObjectType.isPresent())
     {
-      return get(geoObjectType.get());
+      return geoObjectType.get();
     }
     else
     {
@@ -1035,30 +1033,23 @@ public class ServerGeoObjectType
 
   public static ServerGeoObjectType get(GeoObjectType geoObjectType)
   {
-    Universal universal = ServerGeoObjectType.geoObjectTypeToUniversal(geoObjectType);
+    String code = geoObjectType.getCode();
 
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
+    return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
   }
 
   public static ServerGeoObjectType get(Universal universal)
   {
-    GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(universal.getKey()).get();
+    String code = universal.getKey();
 
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, GeoVertexType.getMdGeoVertex(universal.getUniversalId()));
+    return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
   }
 
   public static ServerGeoObjectType get(MdVertexDAOIF mdVertex)
   {
-    GeoObjectType geoObjectType = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(mdVertex.getTypeName()).get();
+    String code = mdVertex.getTypeName();
 
-    Universal universal = ServerGeoObjectType.geoObjectTypeToUniversal(geoObjectType);
-    MdBusiness mdBusiness = universal.getMdBusiness();
-
-    return new ServerGeoObjectType(geoObjectType, universal, mdBusiness, mdVertex);
+    return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
   }
 
   // public String buildRMRoleName()

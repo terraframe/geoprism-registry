@@ -52,7 +52,10 @@ export class PublishModalComponent implements OnInit {
 
 				var myOrgTypes = [];
 				for (var i = 0; i < types.length; ++i) {
-					if (this.authService.isGeoObjectTypeRM(types[i].orgCode, types[i].code)) {
+					const orgCode = types[i].orgCode;
+					const typeCode = types[i].superTypeCode != null ? types[i].superTypeCode : types[i].code;
+
+					if (this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
 						myOrgTypes.push(types[i]);
 					}
 				}
@@ -82,7 +85,7 @@ export class PublishModalComponent implements OnInit {
 				telephoneNumber: '',
 				email: '',
 				hierarchies: [],
-				subtypeHierarchies: [],				
+				subtypeHierarchies: [],
 				leaf: false,
 				frequency: 'ANNUAL',
 				isMaster: null,
@@ -115,7 +118,7 @@ export class PublishModalComponent implements OnInit {
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});
-			
+
 			this.iService.getHierarchiesForSubtypes(this.master.typeCode, false).then(hierarchies => {
 				this.master.subtypeHierarchies = hierarchies;
 			}).catch((err: HttpErrorResponse) => {
@@ -142,7 +145,7 @@ export class PublishModalComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }
