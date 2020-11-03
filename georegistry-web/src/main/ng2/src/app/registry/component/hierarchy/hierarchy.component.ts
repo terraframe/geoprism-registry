@@ -223,7 +223,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 		// Empty Hierarchy Drop Zone
 		dropTargets.push({
-			dropSelector: ".drop-box-container", onDrag: function (dragEl: Element, dropEl: Element) {
+			dropSelector: ".drop-box-container", onDrag: function(dragEl: Element, dropEl: Element) {
 				if (this.dropEl != null) {
 					this.dropEl.style("border-color", null);
 					this.dropEl = null;
@@ -233,10 +233,10 @@ export class HierarchyComponent implements OnInit, SvgController {
 					let emptyHierarchyDropZone = dropEl.closest(".drop-box-container");
 
 					if (emptyHierarchyDropZone != null) {
-						this.dropEl = d3.select(emptyHierarchyDropZone).style("border-color", "blue");
+						this.dropEl = d3.select(emptyHierarchyDropZone).style("border-color", "#6BA542");
 					}
 				}
-			}, onDrop: function (dragEl: Element) {
+			}, onDrop: function(dragEl: Element) {
 				if (this.dropEl != null) {
 					this.dropEl.style("border-color", null);
 					that.addChild(that.currentHierarchy.code, "ROOT", d3.select(dragEl).attr("id"));
@@ -247,7 +247,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 		// SVG GeoObjectType Drop Zone
 		dropTargets.push({
-			dropSelector: ".svg-got-body-rect", onDrag: function (dragEl: Element, mouseTarget: Element, event: any) {
+			dropSelector: ".svg-got-body-rect", onDrag: function(dragEl: Element, mouseTarget: Element, event: any) {
 				this.clearDropZones();
 
 				let lastDropEl = this.dropEl;
@@ -408,7 +408,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 						this.activeDz = "sibling";
 					}
 				}
-			}, onDrop: function (dragEl: Element) {
+			}, onDrop: function(dragEl: Element) {
 				if (this.dropEl != null && this.activeDz != null) {
 					let dropGot = this.dropEl.attr("data-gotCode");
 					let dropNode = that.primarySvgHierarchy.getD3Tree().find((node) => { return node.data.geoObjectType === dropGot; });
@@ -446,7 +446,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 				}
 				this.clearDropZones();
 				this.clearGhostNodes(true);
-			}, clearDropZones: function () {
+			}, clearDropZones: function() {
 				if (this.dropEl != null) {
 					this.dropEl.attr("stroke", null);
 				}
@@ -459,7 +459,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 				d3.select(".svg-dropZone-g").remove();
 
-			}, clearGhostNodes: function (renderTree: boolean) {
+			}, clearGhostNodes: function(renderTree: boolean) {
 				if (this.ghostCode != null) {
 					let ghostNode = that.primarySvgHierarchy.getD3Tree().find((node) => { return node.data.ghostingCode === this.ghostCode; });
 
@@ -489,13 +489,13 @@ export class HierarchyComponent implements OnInit, SvgController {
 		// GeoObjectTypes and Hierarchies
 		let deltaX: number, deltaY: number, width: number;
 		let sidebarDragHandler = d3.drag()
-			.on("start", function (event: any) {
+			.on("start", function(event: any) {
 				let rect = this.getBoundingClientRect();
 				deltaX = rect.left - event.sourceEvent.pageX;
 				deltaY = rect.top - event.sourceEvent.pageY;
 				width = rect.width;
 			})
-			.on("drag", function (event: any) {
+			.on("drag", function(event: any) {
 
 				d3.select(".g-context-menu").remove();
 
@@ -519,7 +519,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 					.style("top", (event.sourceEvent.pageY + deltaY) + "px")
 					.style("width", width + "px");
 
-			}).on("end", function (event: any) {
+			}).on("end", function(event: any) {
 				let selected = d3.select(this)
 					.classed("dragging", false)
 					.style("left", null)
@@ -542,13 +542,13 @@ export class HierarchyComponent implements OnInit, SvgController {
 		let startPoint: any;
 		let svgGot: SvgHierarchyNode;
 		let svgDragHandler = d3.drag()
-			.on("start", function (event: any) {
+			.on("start", function(event: any) {
 				let svgMousePoint: any = svgPoint(event.sourceEvent.pageX, event.sourceEvent.pageY);
 				// let select = d3.select(this);
 
 				svgGot = hierarchyComponent.primarySvgHierarchy.getNodeByCode(d3.select(this).attr("data-gotCode"));
 
-				
+
 
 				// d3.selectAll(".svg-got-relatedhiers-button").sort(function (a: any, b: any) {
 				// 	if (a.data.geoObjectType !== event.subject.data.geoObjectType) {
@@ -584,7 +584,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 				deltaX = startPoint.x - svgMousePoint.x;
 				deltaY = startPoint.y - svgMousePoint.y;
 			})
-			.on("drag", function (event: any) {
+			.on("drag", function(event: any) {
 
 				d3.select(".g-context-menu").remove();
 
@@ -594,7 +594,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 				svgGot.setPos(svgMousePoint.x + deltaX, svgMousePoint.y + deltaY, true);
 
-			}).on("end", function (event: any) {
+			}).on("end", function(event: any) {
 
 				let bbox: string[] = d3.select("#svg").attr("viewBox").split(" ");
 
@@ -747,21 +747,17 @@ export class HierarchyComponent implements OnInit, SvgController {
 		this.registryService.init().then(response => {
 			this.localizeService.setLocales(response.locales);
 
-			this.geoObjectTypes = response.types;
+			console.log(response.types)
+			
+			this.setGeoObjectTypes(response.types);
 
 			this.organizations = response.organizations;
 
 			this.organizations.forEach(org => {
-				if(this.isOrganizationRA(org.code)){
+				if (this.isOrganizationRA(org.code)) {
 					this.userOrganization = org.code;
 				}
 			})
-
-			this.geoObjectTypes.sort((a, b) => {
-				if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
-				else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
-				else return 0;
-			});
 
 			let pos = this.getGeoObjectTypePosition("ROOT");
 			if (pos) {
@@ -776,6 +772,54 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
+		});
+	}
+
+	public setGeoObjectTypes(types: GeoObjectType[]): void {
+
+		// Set group parent types
+		this.setAbstractTypes(types);
+
+		// Set GeoObjectTypes that aren't part of a group.
+		types.forEach(type => {
+			if (!type.isAbstract) {
+				if ( !type.superTypeCode ) {
+					this.geoObjectTypes.push(type);
+				}
+			}
+		});
+		
+		// Sort aphabetically because all other types to add will be children in a group.
+		this.geoObjectTypes.sort((a, b) => {
+			if (a.label.localizedValue.toLowerCase() < b.label.localizedValue.toLowerCase()) return -1;
+			else if (a.label.localizedValue.toLowerCase() > b.label.localizedValue.toLowerCase()) return 1;
+			else return 0;
+		});
+		
+		// Add group children
+		types.forEach(type => {
+			if (!type.isAbstract) {
+				if (type.superTypeCode && type.superTypeCode.length > 0) {
+
+					for (let i = 0; i < this.geoObjectTypes.length; i++) {
+						let setType = this.geoObjectTypes[i];
+						if (type.superTypeCode === setType.code) {
+							this.geoObjectTypes.splice(i + 1, 0, type);
+						}
+					}
+
+				}
+			}
+		});
+
+	}
+
+	private setAbstractTypes(types: GeoObjectType[]): void {
+		types.forEach(type => {
+			if (type.isAbstract) {
+				type.subTypes = [];
+				this.geoObjectTypes.push(type);
+			}
 		});
 	}
 
@@ -867,7 +911,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 	private getHierarchyLabel(geoObjectTypeCode: string): string {
 		let label: string = null;
-		this.geoObjectTypes.forEach(function (gOT) {
+		this.geoObjectTypes.forEach(function(gOT) {
 			if (gOT.code === geoObjectTypeCode) {
 				label = gOT.label.localizedValue;
 			}

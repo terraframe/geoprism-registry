@@ -1,12 +1,12 @@
-<div class="new-admin-design-main">
+<div class="new-admin-design-main" style="overflow-y:hidden;">
 	<cgr-header></cgr-header>
 
 	<loading-bar></loading-bar>
 
-	<div id="app-container" class="container-fluid" style="display:table;width: 100%;margin-top: -50px;padding: 50px 0 0 0;box-sizing: border-box; min-height: calc(100vh - 94px);">
+	<div id="app-container" class="container-fluid">
 
 		<!--   <h2> <localize key="hierarchy.management.title"></localize> </h2> -->
-		<div class="row" style="height: 100%; display: table-row;">
+		<div class="row">
 
 			<nav class="col-md-3 hierarchy-sidebar">
 
@@ -32,16 +32,16 @@
 										<label>{{typeByOrg.org.label.localizedValue}}</label>
 									</div>
 
-									<div style="text-align: right;padding: 10px 0;">
-										<button *ngIf="typeByOrg.org.code === userOrganization" (click)="createGeoObjectType()" type="button" class="btn btn-primary"
+									<div *ngIf="typeByOrg.org.code === userOrganization" style="text-align: right;padding: 10px 0;">
+										<button (click)="createGeoObjectType()" type="button" class="btn btn-primary"
 											style="margin-bottom:20px;">
 											<!-- <i style="color:#6BA542;" class="fa fa-plus"></i> -->
 											<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
 										</button>
 									</div>
 
-									<li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
-										[id]="type.code">
+									<li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types" [id]="type.code"
+                                    [ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}" >
 										{{type.label.localizedValue}}
 
 										<span *ngIf="isOrganizationRA(type.organizationCode)">
@@ -59,7 +59,28 @@
 												(click)="manageGeoObjectType(type, true)"
 												[title]="'button.view.helptext' | localize"> </i>
 										</span>
+                                        
+                                        
+<!--                                          <ul class="list-group" *ngIf="type.subTypes && type.subTypes.length > 0"> -->
+<!--                                             <li class="list-group-item got-li-item" [ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}" -->
+<!--                                              *ngFor="let subType of type.subTypes" [id]="subType.code"> -->
+<!--                                                 {{subType.label.localizedValue}} -->
+                                                
+<!--                                                 <span *ngIf="isOrganizationRA(type.organizationCode)"> -->
+<!--                                                     <i class="fa fa-times delete-btn clickable pull-right" -->
+<!--                                                         *ngIf="!excludeGeoObjectTypeDeletes(type)" -->
+<!--                                                         (click)="deleteGeoObjectType(type)" -->
+<!--                                                         [title]="'button.delete.helptext' | localize"></i> -->
+<!--                                                     <i class="fa fa-pencil clickable pull-right" -->
+<!--                                                         (click)="manageGeoObjectType(type, false)" -->
+<!--                                                         [title]="'button.edit.helptext' | localize"></i> -->
+<!--                                                 </span> -->
+                                                        
+<!--                                             </li> -->
+<!--                                         </ul> -->
+                                        
 									</li>
+                                    
 								</div>
 							</ul>
 						</div>
@@ -79,8 +100,8 @@
 										<label>{{hierarchyByOrg.org.label.localizedValue}}</label>
 									</div>
 
-									<div style="text-align: right;padding: 10px 0;">
-										<button *ngIf="hierarchyByOrg.org.code === userOrganization" (click)="createHierarchy()" type="button" class="btn btn-primary"
+									<div *ngIf="hierarchyByOrg.org.code === userOrganization" style="text-align: right;padding: 10px 0;">
+										<button (click)="createHierarchy()" type="button" class="btn btn-primary"
 											style="margin-bottom:20px;">
 											<i style="color:#369c00;" class="fa fa-plus"></i>
 											<localize key="hierarchy.sidebar.newHierarchy"></localize>

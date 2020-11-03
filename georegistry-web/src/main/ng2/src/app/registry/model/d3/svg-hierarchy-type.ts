@@ -41,7 +41,7 @@ export class SvgHierarchyType {
 		this.d3Hierarchy = d3.hierarchy(hierarchyType.rootGeoObjectTypes[0]);
 		this.isPrimary = isPrimary;
 
-		this.d3Tree = d3.tree().nodeSize([300, 85]).separation((a, b) => 0.8)(this.d3Hierarchy);
+		this.d3Tree = d3.tree().nodeSize([300, 80]).separation((a, b) => 0.8)(this.d3Hierarchy);
 	}
 
 	public getD3Tree() {
