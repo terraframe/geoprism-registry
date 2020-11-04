@@ -285,6 +285,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 				}
 
 				if (this.dropEl != null) {
+				  let isGroup = d3.select(dragEl).classed("got-group-parent");
 					const gotCode = this.dropEl.attr("data-gotCode");
 					let dropNode = that.primarySvgHierarchy.getD3Tree().find((node) => { return node.data.geoObjectType === gotCode; });
 
@@ -300,59 +301,67 @@ export class HierarchyComponent implements OnInit, SvgController {
 					let dzg = d3.select("#svg").append("g").classed("svg-dropZone-g", true);
 
 					// Render Child Drop Zone
-					this.childDzBacker = dzg.append("rect").classed("svg-got-child-dz-backer", true)
-						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
-						.attr("y", dropElY + SvgHierarchyType.gotRectH + 10)
-						.attr("width", childW)
-						.attr("height", childH)
-						.attr("fill", "white")
-
-					this.childDz = dzg.append("rect").classed("svg-got-child-dz", true)
-						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
-						.attr("y", dropElY + SvgHierarchyType.gotRectH + 10)
-						.attr("width", childW)
-						.attr("height", childH)
-						.attr("fill", "none")
-						.attr("stroke", "black")
-						.attr("stroke-width", "1")
-						.attr("stroke-dasharray", "5,5");
-
-					let addChildLabel = dropNode.children == null || dropNode.children.length == 0 ? that.localizeService.decode("hierarchy.content.addChild") : that.localizeService.decode("hierarchy.content.intersectChild");
-					this.childDzText = dzg.append("text").classed("svg-got-child-dz-text", true)
-						.attr("font-family", "sans-serif")
-						.attr("font-size", 10)
-						.attr("fill", "black")
-						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - calculateTextWidth(addChildLabel, 10) / 2)
-						.attr("y", dropElY + SvgHierarchyType.gotRectH + 10 + childH / 2 + 2)
-						.text(addChildLabel);
+					let dropTargetHasChildren = !(dropNode.children == null || dropNode.children.length == 0);
+					let isChildDZActive = !isGroup || !dropTargetHasChildren;
+					if (isChildDZActive)
+					{
+  					this.childDzBacker = dzg.append("rect").classed("svg-got-child-dz-backer", true)
+  						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
+  						.attr("y", dropElY + SvgHierarchyType.gotRectH + 10)
+  						.attr("width", childW)
+  						.attr("height", childH)
+  						.attr("fill", "white")
+  
+  					this.childDz = dzg.append("rect").classed("svg-got-child-dz", true)
+  						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
+  						.attr("y", dropElY + SvgHierarchyType.gotRectH + 10)
+  						.attr("width", childW)
+  						.attr("height", childH)
+  						.attr("fill", "none")
+  						.attr("stroke", "black")
+  						.attr("stroke-width", "1")
+  						.attr("stroke-dasharray", "5,5");
+  
+  					let addChildLabel = dropTargetHasChildren ? that.localizeService.decode("hierarchy.content.intersectChild") : that.localizeService.decode("hierarchy.content.addChild");
+  					this.childDzText = dzg.append("text").classed("svg-got-child-dz-text", true)
+  						.attr("font-family", "sans-serif")
+  						.attr("font-size", 10)
+  						.attr("fill", "black")
+  						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - calculateTextWidth(addChildLabel, 10) / 2)
+  						.attr("y", dropElY + SvgHierarchyType.gotRectH + 10 + childH / 2 + 2)
+  						.text(addChildLabel);
+				  }
 
 					// Render Parent Drop Zone
-					this.parentDzBacker = dzg.append("rect").classed("svg-got-parent-dz-backer", true)
-						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
-						.attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH)
-						.attr("width", childW)
-						.attr("height", childH)
-						.attr("fill", "white")
-
-					this.parentDz = dzg.append("rect").classed("svg-got-parent-dz", true)
-						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
-						.attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH)
-						.attr("width", childW)
-						.attr("height", childH)
-						.attr("fill", "none")
-						.attr("stroke", "black")
-						.attr("stroke-width", "1")
-						.attr("stroke-dasharray", "5,5");
-
-					d3.select(".svg-got-parent-dz-text").remove();
-					let addParentLabel = dropNode.parent == null ? that.localizeService.decode("hierarchy.content.addParent") : that.localizeService.decode("hierarchy.content.intersectParent");
-					this.parentDzText = dzg.append("text").classed("svg-got-parent-dz-text", true)
-						.attr("font-family", "sans-serif")
-						.attr("font-size", 10)
-						.attr("fill", "black")
-						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - calculateTextWidth(addParentLabel, 10) / 2)
-						.attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH / 2 + 2)
-						.text(addParentLabel);
+          if (!isGroup) // Don't render it if we're a group
+          {
+  					this.parentDzBacker = dzg.append("rect").classed("svg-got-parent-dz-backer", true)
+  						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
+  						.attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH)
+  						.attr("width", childW)
+  						.attr("height", childH)
+  						.attr("fill", "white")
+  
+  					this.parentDz = dzg.append("rect").classed("svg-got-parent-dz", true)
+  						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
+  						.attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH)
+  						.attr("width", childW)
+  						.attr("height", childH)
+  						.attr("fill", "none")
+  						.attr("stroke", "black")
+  						.attr("stroke-width", "1")
+  						.attr("stroke-dasharray", "5,5");
+  						
+  				  d3.select(".svg-got-parent-dz-text").remove();
+            let addParentLabel = dropNode.parent == null ? that.localizeService.decode("hierarchy.content.addParent") : that.localizeService.decode("hierarchy.content.intersectParent");
+            this.parentDzText = dzg.append("text").classed("svg-got-parent-dz-text", true)
+              .attr("font-family", "sans-serif")
+              .attr("font-size", 10)
+              .attr("fill", "black")
+              .attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - calculateTextWidth(addParentLabel, 10) / 2)
+              .attr("y", dropElY - SvgHierarchyType.gotHeaderH - childH / 2 + 2)
+              .text(addParentLabel);
+				  }
 
 					// Render Sibling Drop Zone
 					if (this.ghostCode != gotCode) {
@@ -382,27 +391,27 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 					let siblingGhostBody = d3.select(".svg-sibling-ghost-body-dz");
 
-					if (isPointWithin(svgMousePoint, getBboxFromSelection(this.parentDz))) {
+					if (!isGroup && isPointWithin(svgMousePoint, getBboxFromSelection(this.parentDz))) {
 						this.parentDz.attr("stroke", "blue");
 						this.parentDzText.attr("fill", "blue");
-						this.childDz.attr("stroke", "black");
-						this.childDzText.attr("fill", "black");
+						isChildDZActive && this.childDz.attr("stroke", "black");
+						isChildDZActive && this.childDzText.attr("fill", "black");
 						siblingGhostBody.attr("stroke", "black");
 						this.activeDz = this.parentDz;
 					}
-					else if (isPointWithin(svgMousePoint, getBboxFromSelection(this.childDz))) {
-						this.parentDz.attr("stroke", "black");
-						this.parentDzText.attr("fill", "black");
+					else if (isChildDZActive && isPointWithin(svgMousePoint, getBboxFromSelection(this.childDz))) {
+						!isGroup && this.parentDz.attr("stroke", "black");
+						!isGroup && this.parentDzText.attr("fill", "black");
 						this.childDz.attr("stroke", "blue");
 						this.childDzText.attr("fill", "blue");
 						siblingGhostBody.attr("stroke", "black");
 						this.activeDz = this.childDz;
 					}
 					else if (siblingGhostBody.node() != null && isPointWithin(svgMousePoint, getBboxFromSelection(siblingGhostBody))) {
-						this.parentDz.attr("stroke", "black");
-						this.parentDzText.attr("fill", "black");
-						this.childDz.attr("stroke", "black");
-						this.childDzText.attr("fill", "black");
+						!isGroup && this.parentDz.attr("stroke", "black");
+						!isGroup && this.parentDzText.attr("fill", "black");
+						isChildDZActive && this.childDz.attr("stroke", "black");
+						isChildDZActive && this.childDzText.attr("fill", "black");
 						siblingGhostBody.attr("stroke", "blue");
 						this.activeDz = "sibling";
 					}
@@ -523,12 +532,13 @@ export class HierarchyComponent implements OnInit, SvgController {
         {
           let index = 1;
           d3.selectAll('.got-group-child[data-superTypeCode="' + selThis.attr("id") + '"]').each(function() {
-            let child = d3.select(this);
+            let li: any = this;
+            let child = d3.select(li);
             
             child
               .classed("dragging", true)
               .style("left", (event.sourceEvent.pageX + deltaX) + "px")
-              .style("top", (event.sourceEvent.pageY + deltaY + (this.getBoundingClientRect().height + 2)*index) + "px")
+              .style("top", (event.sourceEvent.pageY + deltaY + (li.getBoundingClientRect().height + 2)*index) + "px")
               .style("width", width + "px");
               
             index++;
