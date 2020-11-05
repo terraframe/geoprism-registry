@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
-import { svgPoint } from '@registry/model/d3/svg-util';
+import { svgPoint } from './svg-util';
 
-import { GeoObjectType } from '../registry';
-import { HierarchyType } from '../hierarchy';
+import { GeoObjectType } from '@registry/model/registry';
+import { HierarchyType } from '@registry/model/hierarchy';
 
 import { SvgHierarchyType } from './svg-hierarchy-type';
 import { calculateTextWidth } from './svg-util';
@@ -135,7 +135,7 @@ export class SvgHierarchyNode {
 			let width = calculateTextWidth(titleLabel, titleFontSize);
 			
 			// Calculate with of remove text
-			let removeWidth = calculateTextWidth(removeFromHierarchyLabel, titleFontSize);
+			let removeWidth = calculateTextWidth(removeFromHierarchyLabel, fontSize);
 			width = removeWidth > width ? removeWidth : width;
 			
 			// Calculate the width of our context menu, which is based on how long the text inside it will be.
@@ -160,7 +160,7 @@ export class SvgHierarchyNode {
 			}
 			else
 			{
-			  let noHierLabelWidth = calculateTextWidth(noRelatedHierLabel, titleFontSize);
+			  let noHierLabelWidth = calculateTextWidth(noRelatedHierLabel, fontSize);
 			  width = noHierLabelWidth > width ? noHierLabelWidth : width;
 			}
 
@@ -185,7 +185,7 @@ export class SvgHierarchyNode {
 				.classed("contextmenu-relatedhiers-title", true)
 				.attr("x", x + widthPadding / 2)
 				.attr("y", y + (height / 2) + (titleFontSize / 2))
-				.style("font-size", titleFontSize)
+				.attr("font-size", titleFontSize)
 				.attr("font-family", fontFamily)
 				.attr("font-weight", "bold")
 				.text(titleLabel);
@@ -220,7 +220,7 @@ export class SvgHierarchyNode {
 						.attr("data-hierCode", relatedHierarchyCode)
 						.attr("x", x + widthPadding / 2)
 						.attr("y", y + (height / 2) + (fontSize / 2))
-						.style("font-size", fontSize)
+						.attr("font-size", fontSize)
 						.attr("font-family", fontFamily)
 						.text(relatedHierarchyLabel)
 						.style("cursor", "pointer")
@@ -243,12 +243,12 @@ export class SvgHierarchyNode {
 				};
 			}
 			else{
-				// Text that says the hierarchy's display label
+				// Text that says "No related Hierarchies"
 				contextMenuGroup.append("text")
 					.classed("contextmenu-relatedhiers-text", true)
 					.attr("x", x + widthPadding / 2)
 					.attr("y", y + (height / 2) + (fontSize / 2))
-					.style("font-size", fontSize)
+					.attr("font-size", fontSize)
 					.attr("font-family", fontFamily)
 					.text(noRelatedHierLabel)
 
@@ -271,7 +271,7 @@ export class SvgHierarchyNode {
 				.classed("contextmenu-relatedhiers-title", true)
 				.attr("x", x + widthPadding / 2)
 				.attr("y", y + (height / 2) + (titleFontSize / 2))
-				.style("font-size", titleFontSize)
+				.attr("font-size", titleFontSize)
 				.attr("font-family", fontFamily)
 				.attr("font-weight", "bold")
 				.text("Actions");
@@ -293,7 +293,7 @@ export class SvgHierarchyNode {
 				.attr("data-remove", "REPLACE---gotCode")
 				.attr("x", x + widthPadding / 2)
 				.attr("y", y + (height / 2) + (fontSize / 2))
-				.style("font-size", fontSize)
+				.attr("font-size", fontSize) 
 				.attr("font-family", fontFamily)
 				.text(removeFromHierarchyLabel)
 				.style("cursor", "pointer")

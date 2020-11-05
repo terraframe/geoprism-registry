@@ -1,5 +1,6 @@
 li.list-group-item {
 	font-size: 14px;
+	border: none;
 }
 
 li.list-group-item.active {
@@ -10,6 +11,21 @@ li.list-group-item.got-li-item
 {
 	border-top: 15px solid #a0a0a0;
 	border-radius: 5px;
+}
+
+li.list-group-item.got-li-item.got-group-parent{
+}
+li.list-group-item.got-li-item.got-group-child {
+	margin-left: 40px;
+}
+li.list-group-item.got-li-item.got-group-child:before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    border-left: 3px solid white;
+    height: 44px;
+    width: 1px;
+    top: -10px;
 }
 
 li.list-group-item.hier-li-item {
@@ -26,6 +42,37 @@ li.list-group-item.hier-li-item.primary
 	background: #6BA542;
 }
 
+
+ul li:first-child:before {
+   /* first li's line */
+   top: 6px; /* moves the line down so that it disappears under the bullet. Adjust manually */
+}
+
+ul li:last-child:before {
+    /* last li's line */
+   height: 6px; /* shorten the line so it goes only up to the bullet. Is equal to first-child:before's top */
+}
+
+/* li.list-group-item.got-li-item.got-group-parent:before { */
+/*     background-color: white; */
+/*     width: 3px; */
+/*     content: ''; */
+/*     position: absolute; */
+/*     top: 40px; */
+/*     bottom: -35px; */
+/*     left: 14px; */
+/* } */
+/* li.list-group-item.got-li-item.got-group-child:before { */
+/*     background-color: white; */
+/*     width: 25px; */
+/*     height: 3px; */
+/*     content: ''; */
+/*     position: absolute; */
+/*     top: 14px; */
+/*     left: -16px; */
+/* } */
+
+
 .got-org-label-wrapper{
 	padding: 7px 0;
 }
@@ -34,14 +81,8 @@ li.list-group-item.hier-li-item.primary
 	width: 100%;
 }
 
-/* #app-container {
-    display: flex;
-    width: 100%;
-} */
-
 .sidebar-section-content {
 	overflow-y: auto;
-	/* height: calc(100vh - 144px - 175px + 4px); */
 }
 
 .hierarchy-sidebar button {
@@ -49,37 +90,24 @@ li.list-group-item.hier-li-item.primary
 }
 
 .hierarchy-sidebar {
-    /* width:350px; */
-    /* position: fixed; */
-    /* top: 144px;
-    left: 0; */
-    /* height: 100vh; */
     z-index: 999;
     background: #6e6775;
     color: #fff;
 	transition: all 0.3s;
-	display: table-cell;
-  float: none;
-  padding:0;
-      vertical-align: top;
+  	padding:0;
+    vertical-align: top;
+    height: calc(100vh - 143px);
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .hierarchy-content {
-	/* left:350px; */
-	/* position:fixed; */
-	/* width:calc(100vw - 350px); */
-	/* top:144px; */
-	/* padding-left: 0px;
-	  padding-top: 0px; */
-	  display: table-cell;
-  float: none;
+	height: calc(100vh - 143px);
+    overflow: auto;
 }
 
 #overflow-div {
-	overflow:auto;
-	/* height: 100vh; */
 	top: 0;
-	/* width: calc(100vw - 350px) */
 }
 
 .upload-text {
@@ -122,11 +150,11 @@ li.list-group-item {
 }
 
 .drop-box-container {
-    height: 200px;
-    width: 300px;
+    width: 80%;
     border: 3px grey dashed;
     border-radius: 5px;
-    margin-top: 0px;
+    margin: 0 auto;
+    margin-top: 50px;
 }
 
 .hierarchy-drop-box {
@@ -142,7 +170,15 @@ li.list-group-item {
 }
 
 
-/* #svgHolder,
-#emptyHierarchyDropzone {
-	margin: 0 auto;
-} */
+:host /deep/ .panel .panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: #c8c8c8;         /* adjust as needed */
+    margin-top: -30px;
+}
+:host /deep/ .panel.panel-open .panel-heading .accordion-toggle:after {
+    /* symbol for "collapsed" panels */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+}
