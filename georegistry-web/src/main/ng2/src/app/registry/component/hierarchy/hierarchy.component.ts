@@ -175,6 +175,10 @@ export class HierarchyComponent implements OnInit, SvgController {
 		overflowDiv2.scrollRight = scrollRight;
 
 		this.registerSvgHandlers();
+		
+		this.geoObjectTypes.forEach((got: GeoObjectType) => {
+      got.canDrag = this.calculateCanDrag(got);
+    });
 	}
 
 	calculateSvgViewBox(): void {
@@ -192,6 +196,57 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 		d3.select("#svgHolder").style("width", width + "px");
 		//d3.select("#svgHolder").style("height", height + "px"); 
+	}
+	
+	calculateCanDrag(got: GeoObjectType): boolean {
+	  let hierarchyComponent = this;
+	
+	  let li = d3.select('li[id="' + got.code + '"]');
+	  if (!li.empty() && li.classed("dragging"))
+	  {
+	    return ;
+	  }
+	  
+	  if (this.primarySvgHierarchy != null)
+	  {
+	    if (this.primarySvgHierarchy.getNodeByCode(got.code) != null)
+      {
+        return false;
+      }
+      
+      if (got.isAbstract)
+      {
+        let isChildOnGraph = false;
+      
+        this.geoObjectTypes.forEach((child: GeoObjectType) => {
+          if (child.superTypeCode === got.code)
+          {
+            if (hierarchyComponent.primarySvgHierarchy.getNodeByCode(child.code) != null)
+            {
+              isChildOnGraph = true;
+            }
+          }
+        });
+        
+        if (isChildOnGraph)
+        {
+          return false;
+        }
+      }
+      else if (got.superTypeCode != null)
+      {
+        if (hierarchyComponent.primarySvgHierarchy.getNodeByCode(got.superTypeCode) != null)
+        {
+          return false;
+        }
+      }
+	  }
+	  else
+	  {
+	    return false;
+	  }
+	  
+	  return true;
 	}
 
 	calculateRelatedHierarchies(got: GeoObjectType): string[] {
@@ -215,7 +270,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 		return relatedHiers;
 	}
-
+	
 	private registerDragHandlers(): any {
 		let that = this;
 
@@ -499,12 +554,23 @@ export class HierarchyComponent implements OnInit, SvgController {
 		let deltaX: number, deltaY: number, width: number;
 		let sidebarDragHandler = d3.drag()
 			.on("start", function(event: any) {
+			  let canDrag = d3.select(this).attr("data-candrag");
+        if (canDrag === "false")
+        {
+          return;
+        }
+			
 				let rect = this.getBoundingClientRect();
 				deltaX = rect.left - event.sourceEvent.pageX;
 				deltaY = rect.top - event.sourceEvent.pageY;
 				width = rect.width;
 			})
 			.on("drag", function(event: any) {
+        let canDrag = d3.select(this).attr("data-candrag");
+        if (canDrag === "false")
+        {
+          return;
+        }
 
 				d3.select(".g-context-menu").remove();
 				
@@ -874,7 +940,11 @@ export class HierarchyComponent implements OnInit, SvgController {
 			this.hierarchiesByOrg.push({ org: org, hierarchies: this.getHierarchiesByOrg(org) });
 			this.typesByOrg.push({ org: org, types: this.getTypesByOrg(org) });
 		}
-
+		
+		this.geoObjectTypes.forEach((got: GeoObjectType) => {
+      got.canDrag = this.calculateCanDrag(got);
+    });
+		
 		this.onFilterChange();
 	}
 

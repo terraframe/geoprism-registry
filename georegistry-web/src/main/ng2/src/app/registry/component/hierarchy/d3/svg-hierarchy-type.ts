@@ -54,6 +54,11 @@ export class SvgHierarchyType {
 	public getNodeByCode(gotCode: string): SvgHierarchyNode {
 		let treeNode = this.getD3Tree().find((node) => { return node.data.geoObjectType === gotCode; });
 		
+		if (treeNode == null)
+		{
+		  return null;
+		}
+		
 		return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode, this.localizationService, this.modalService);
 	}
 
