@@ -21,6 +21,7 @@ package net.geoprism.registry.model;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
@@ -291,6 +292,29 @@ public class ServerHierarchyType
       exception.apply();
 
       throw exception;
+    }
+
+    // Check to see if the child type is already in the hierarchy
+    List<ServerHierarchyType> hierarchies = childType.getHierarchies(false, true);
+
+    if (hierarchies.contains(this))
+    {
+      GeoObjectTypeAlreadyInHierarchyException ex = new GeoObjectTypeAlreadyInHierarchyException();
+      ex.setGotCode(childType.getCode());
+      throw ex;
+    }
+
+    // Ensure a subtype is not already in the hierarchy
+    if (childType.getIsAbstract())
+    {
+      Set<ServerHierarchyType> hierarchiesOfSubTypes = childType.getHierarchiesOfSubTypes();
+
+      if (hierarchiesOfSubTypes.contains(this))
+      {
+        GeoObjectTypeAlreadyInHierarchyException ex = new GeoObjectTypeAlreadyInHierarchyException();
+        ex.setGotCode(childType.getCode());
+        throw ex;
+      }
     }
 
     this.addToHierarchyTransaction(parentType, childType);
