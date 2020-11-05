@@ -285,9 +285,10 @@ export class HierarchyComponent implements OnInit, SvgController {
 				}
 
 				if (this.dropEl != null) {
-				  let isGroup = d3.select(dragEl).classed("got-group-parent");
+				  let isDragGroup = d3.select(dragEl).classed("got-group-parent");
 					const gotCode = this.dropEl.attr("data-gotCode");
 					let dropNode = that.primarySvgHierarchy.getD3Tree().find((node) => { return node.data.geoObjectType === gotCode; });
+					let isDropGroup = that.findGeoObjectTypeByCode(gotCode).isAbstract;
 
 					this.dropEl.attr("stroke", "blue");
 
@@ -302,7 +303,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 					// Render Child Drop Zone
 					let dropTargetHasChildren = !(dropNode.children == null || dropNode.children.length == 0);
-					let isChildDZActive = !isGroup || !dropTargetHasChildren;
+					let isChildDZActive = !isDropGroup && (!isDragGroup || !dropTargetHasChildren);
 					if (isChildDZActive)
 					{
   					this.childDzBacker = dzg.append("rect").classed("svg-got-child-dz-backer", true)
@@ -333,7 +334,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 				  }
 
 					// Render Parent Drop Zone
-          if (!isGroup) // Don't render it if we're a group
+          if (!isDragGroup) // Don't render it if we're a group
           {
   					this.parentDzBacker = dzg.append("rect").classed("svg-got-parent-dz-backer", true)
   						.attr("x", dropElX + (SvgHierarchyType.gotRectW / 2) - (childW / 2))
@@ -391,7 +392,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 					let siblingGhostBody = d3.select(".svg-sibling-ghost-body-dz");
 
-					if (!isGroup && isPointWithin(svgMousePoint, getBboxFromSelection(this.parentDz))) {
+					if (!isDragGroup && isPointWithin(svgMousePoint, getBboxFromSelection(this.parentDz))) {
 						this.parentDz.attr("stroke", "blue");
 						this.parentDzText.attr("fill", "blue");
 						isChildDZActive && this.childDz.attr("stroke", "black");
@@ -400,16 +401,16 @@ export class HierarchyComponent implements OnInit, SvgController {
 						this.activeDz = this.parentDz;
 					}
 					else if (isChildDZActive && isPointWithin(svgMousePoint, getBboxFromSelection(this.childDz))) {
-						!isGroup && this.parentDz.attr("stroke", "black");
-						!isGroup && this.parentDzText.attr("fill", "black");
+						!isDragGroup && this.parentDz.attr("stroke", "black");
+						!isDragGroup && this.parentDzText.attr("fill", "black");
 						this.childDz.attr("stroke", "blue");
 						this.childDzText.attr("fill", "blue");
 						siblingGhostBody.attr("stroke", "black");
 						this.activeDz = this.childDz;
 					}
 					else if (siblingGhostBody.node() != null && isPointWithin(svgMousePoint, getBboxFromSelection(siblingGhostBody))) {
-						!isGroup && this.parentDz.attr("stroke", "black");
-						!isGroup && this.parentDzText.attr("fill", "black");
+						!isDragGroup && this.parentDz.attr("stroke", "black");
+						!isDragGroup && this.parentDzText.attr("fill", "black");
 						isChildDZActive && this.childDz.attr("stroke", "black");
 						isChildDZActive && this.childDzText.attr("fill", "black");
 						siblingGhostBody.attr("stroke", "blue");

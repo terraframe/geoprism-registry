@@ -20,6 +20,7 @@ package net.geoprism.registry;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.commongeoregistry.adapter.Term;
 import org.json.JSONObject;
 import org.junit.After;
@@ -108,15 +109,15 @@ public class GeoObjectQueryTest
 
     List<ServerGeoObjectIF> results = query.getResults();
 
-    Assert.assertEquals(5, results.size());
-
-    ServerGeoObjectIF result = results.get(0);
-
-    Assert.assertEquals(USATestData.CO_D_ONE.getCode(), result.getCode());
-    Assert.assertNotNull(result.getGeometry());
-    Assert.assertEquals(USATestData.CO_D_ONE.getDisplayLabel(), result.getDisplayLabel().getValue());
-
-    Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+    String[] expectedCodes = new String[] {USATestData.CO_D_ONE.getCode(), USATestData.CO_D_TWO.getCode(), USATestData.CO_D_THREE.getCode(), USATestData.WA_D_ONE.getCode(), USATestData.WA_D_TWO.getCode()};
+    Assert.assertEquals(expectedCodes.length, results.size());
+    
+    for (ServerGeoObjectIF result : results)
+    {
+      Assert.assertTrue(ArrayUtils.contains(expectedCodes, result.getCode()));
+      Assert.assertNotNull(result.getGeometry());
+      Assert.assertTrue(result.getDisplayLabel().getValue().length() > 0);
+    }
   }
 
   @Test
