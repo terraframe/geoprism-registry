@@ -121,10 +121,6 @@ ul li:last-child:before {
   color:#fff;
 }
 
-.sidebar-section-content ul.list-group li.got-li-item
-{
-	cursor: grab;
-}
 
 
 .hierarchy-sidebar-content .panel-body {
@@ -163,10 +159,17 @@ li.list-group-item {
   cursor: default;
 }
 
-.dragging {
+li.got-li-item.dragging {
 	position: fixed;
 	cursor: grabbing !important;
 	z-index: 99999999;
+}
+
+[data-candrag="true"] {
+	cursor: pointer;
+}
+[data-candrag="false"] {
+  cursor: not-allowed;
 }
 
 
