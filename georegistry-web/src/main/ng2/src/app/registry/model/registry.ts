@@ -54,7 +54,6 @@ export class GeoObjectType {
 	relatedHierarchies?: string[];
 	superTypeCode?: string;
 	isAbstract?: boolean;	
-	subTypes?: GeoObjectType[] = [];
 }
 
 export class Task {

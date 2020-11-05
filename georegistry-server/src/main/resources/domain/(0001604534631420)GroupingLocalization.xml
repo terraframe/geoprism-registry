@@ -1,0 +1,34 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  		  <object type="com.runwaysdk.localization.LocalizedValueStore" key="attribute.isAbstract.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="attribute.isAbstract.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Group parent" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attribute.group.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="attribute.group.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Group Membership" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.add.group.button.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchies.add.group.button.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Add group" />
+	        </attributeStruct>
+	      </object>
+  	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
