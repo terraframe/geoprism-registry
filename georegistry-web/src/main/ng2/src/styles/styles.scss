@@ -650,19 +650,24 @@ div.row-holder .rad-area {
 	cursor: pointer;
 }
 .chk-checked{
-    border-color:#02789e;
+    border-color:#598a37;
     background: #6BA542 url(../images/sprite-green.png) no-repeat -43px -20px; /* IE fallback */
 	background: var(--theme-submit-button-color-hover) url(../images/sprite-green.png) no-repeat -43px -20px;
+}
+.chk-checked.disabled{
+    border-color:#888a85;
+    background: #cccccc url(../images/sprite-green.png) no-repeat -65px -20px; /* IE fallback */
+	background: var(--theme-submit-button-color-hover) url(../images/sprite-green.png) no-repeat -65px -20px;
 }
 .chk-focus{border-color:#6BA542;}
 .chk-focus.chk-checked{border-color:#02789e;}
 .chk-disabled{
-	border:1px solid #dbdbdb;
-	background:#f8f8f8;
+	border:1px solid #888a85;
+	background:#cccccc;
 }
 .chk-checked.chk-disabled{
-	border:1px solid #b3b3b3;
-	background:#b3b3b3 url(../images/sprite-green.png) no-repeat -65px -20px;
+	border:1px solid #888a85;
+	background:#cccccc url(../images/sprite-green.png) no-repeat -65px -20px;
 }
 
 .checkbox-label {
