@@ -59,7 +59,7 @@
       </div>
     </div>
 
-    <div class="row" *ngIf="geoObjectType.superTypeCode == null">
+    <div class="row" *ngIf="geoObjectType.superTypeCode == null || geoObjectType.superTypeCode == ''">
       <div class="col-md-12">
         <div class="form-group">
           <label for="geometryType">
