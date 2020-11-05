@@ -147,6 +147,9 @@ export class HierarchyComponent implements OnInit, SvgController {
 	private renderTree(): void {
 		if (this.currentHierarchy == null || this.currentHierarchy.rootGeoObjectTypes == null || this.currentHierarchy.rootGeoObjectTypes.length == 0) {
 			d3.select("#svg").remove();
+			this.geoObjectTypes.forEach((got: GeoObjectType) => {
+        got.canDrag = true;
+      });
 			return;
 		}
 
