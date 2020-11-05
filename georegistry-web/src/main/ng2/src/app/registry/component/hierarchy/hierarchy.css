@@ -29,7 +29,7 @@ li.list-group-item.got-li-item.got-group-child:before {
 }
 
 li.list-group-item.hier-li-item {
-	background: none;
+	background: #6e6775;
     border: 2px solid white;
     color: white;
 }

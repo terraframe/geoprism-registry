@@ -23,6 +23,43 @@
             <localized-input [disabled]="readOnly" [(value)]="editGeoObjectType.label" key="data.property.label.label"></localized-input>
             <localized-text [disabled]="readOnly" [(value)]="editGeoObjectType.description" key="data.property.label.description"></localized-text>
 
+<!--             <div class="row"> -->
+<!--                 <div class="col-md-12" style="margin-bottom: 15px;"> -->
+<!--                     <div class="form-group"> -->
+<!--                         <div class="check-block"> -->
+<!--                             Disabled click ((click)="toggleIsAbstract()") because this is initiated through a button push -->
+<!--                             <div [ngClass]="{'chk-checked' : geoObjectType.isAbstract}" style="margin: 0;" class="jcf-unselectable chk-area"> -->
+<!--                                 <span></span> -->
+<!--                             </div> -->
+
+<!--                             <label class="checkbox-label"> <localize key="attribute.isAbstract.label"></localize> -->
+<!--                             </label> -->
+<!--                         </div> -->
+<!--                     </div> -->
+<!--                 </div> -->
+<!--             </div> -->
+            
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="attribute.group.label"></localize></label>
+                </div>
+                <div class="holder">
+                    <boolean-field [disable]="true" [(value)]="geoObjectType.isAbstract" [localizeLabelKey]="'attribute.isAbstract.label'"></boolean-field>
+                </div>
+            </div>
+            
+            <div class="row-holder" *ngIf="!geoObjectType.isAbstract && geoObjectType.superTypeCode">
+                <div class="label-holder">
+                    <localize key="attribute.parentType.label"></localize>
+                </div>
+                <div class="holder">
+                    <span class="text"> 
+                        {{geoObjectType.superTypeCode}}
+                    </span>
+                </div>
+            </div>
+
+
             <div class="row-holder">
                 <div class="label-holder">
                     <label><localize key="data.property.label.geometryType"></localize></label>
@@ -74,7 +111,7 @@
                                 <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li>
                             </ul>
 
-                            <button [disabled]="readOnly" type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
+                            <button [disabled]="readOnly || geoObjectType.superTypeCode" type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
                                 <localize key="modal.button.manageAttributes"></localize>
                             </button>
                         </div>

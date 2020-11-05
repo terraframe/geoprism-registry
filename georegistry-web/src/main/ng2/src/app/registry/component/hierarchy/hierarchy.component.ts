@@ -783,11 +783,13 @@ export class HierarchyComponent implements OnInit, SvgController {
 	}
 
 	public refreshAll(desiredHierarchy: HierarchyType) {
+		
+		// Clear the types to then refresh
+		this.geoObjectTypes = [];
+		
 		this.registryService.init().then(response => {
 			this.localizeService.setLocales(response.locales);
 
-			console.log(response.types)
-			
 			this.setGeoObjectTypes(response.types);
 
 			this.organizations = response.organizations;
@@ -856,7 +858,6 @@ export class HierarchyComponent implements OnInit, SvgController {
 	private setAbstractTypes(types: GeoObjectType[]): void {
 		types.forEach(type => {
 			if (type.isAbstract) {
-				type.subTypes = [];
 				this.geoObjectTypes.push(type);
 			}
 		});
@@ -1100,20 +1101,20 @@ export class HierarchyComponent implements OnInit, SvgController {
 		});
 	}
 
-	public createGeoObjectType(): void {
+	public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean): void {
 		this.bsModalRef = this.modalService.show(CreateGeoObjTypeModalComponent, {
 			animated: true,
 			backdrop: true,
 			ignoreBackdropClick: true,
 			'class': 'upload-modal'
 		});
-		this.bsModalRef.content.init(this.organizations, this.geoObjectTypes);
+		this.bsModalRef.content.init(this.organizations, this.geoObjectTypes, groupSuperType, isAbstract);
 
 		this.bsModalRef.content.onGeoObjTypeCreate.subscribe(data => {
 
 			data.relatedHierarchies = this.calculateRelatedHierarchies(data);
 
-			this.geoObjectTypes.push(data);
+			this.refreshAll(this.currentHierarchy)
 
 			this.geoObjectTypes.sort((a: GeoObjectType, b: GeoObjectType) => {
 				var nameA = a.label.localizedValue.toUpperCase(); // ignore upper and lowercase

@@ -42,11 +42,15 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
 			"isLeaf": false,
 			"isGeometryEditable": true,
 			"organizationCode": "",
-			"attributes": []
+			"attributes": [],
 		};
 	}
 
-	init(organizations: Organization[], parents: GeoObjectType[]) {
+	init(organizations: Organization[], parents: GeoObjectType[], groupSuperType: GeoObjectType, isAbstract: boolean) {
+		
+		this.geoObjectType.superTypeCode = groupSuperType ? groupSuperType.code : "";
+		this.geoObjectType.isAbstract = isAbstract ? isAbstract : false;
+		
 		// Filter out parents that are not abstract
 		this.parents = parents.filter(parent => parent.isAbstract);
 
