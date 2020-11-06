@@ -5,10 +5,10 @@
 
   <loading-bar></loading-bar>
 
-  <div class="modal-header" style="text-align: center; border-bottom:none;">
-    <h2 class="modal-title">
+  <div class="heading text-center">
+    <h1>
       Account
-    </h2>
+    </h1>
   </div>
 
   <form *ngIf="account" #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()" [mustMatch]="['password', 'certainPassword']">
@@ -223,18 +223,18 @@
         </div>
 
         <role-management *ngIf="account.roles" [newInstance]="account.user.newInstance" [roles]="account.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
-
-       </div> <!-- End modal-body -->
-
-
-      <div class="row">
-        <div class="col-md-12">
-          <div class="button-holder">
-            <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
-            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
-          </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+              <div class="button-holder">
+                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
+                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
+              </div>
+            </div>
         </div>
-      </div>
+
+      </div> <!-- End modal-body -->
+
     </fieldset>
     <!-- </div> -->
     <!-- </div> -->

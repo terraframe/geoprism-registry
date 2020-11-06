@@ -3,11 +3,12 @@
   <div class="modal-body">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <!-- <div class="heading">
+    <div class="heading text-center">
       <h1>
-        <localize key="hierarchy.management.manage.attributes.title"></localize> {{geoObjectType.label.localizedValue}}
+        <localize *ngIf="geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.group.title"></localize> 
+        <localize *ngIf="!geoObjectType.isAbstract" key="hierarchy.management.create.geoobjecttype.title"></localize> 
       </h1>
-    </div> -->
+    </div> 
 
     <div class="row">
       <div class="col-md-12">
@@ -59,13 +60,13 @@
       </div>
     </div>
 
-    <div class="row" *ngIf="geoObjectType.superTypeCode == null || geoObjectType.superTypeCode == ''">
+    <div class="row">
       <div class="col-md-12">
         <div class="form-group">
           <label for="geometryType">
             <localize key="data.property.label.geometryType"></localize>
           </label>
-          <select class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required>
+          <select class="select-area" name="geometryType" [(ngModel)]="geoObjectType.geometryType" required [attr.disabled]="geoObjectType.superTypeCode == null || geoObjectType.superTypeCode == ''">
             <option></option>
             <!-- <option value="POINT">
               <localize key="georegistry.geometry.point"></localize>
