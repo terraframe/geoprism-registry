@@ -170,5 +170,5 @@ if [ "$release_github" == "true" ]; then
   wget https://nexus.terraframe.com/content/repositories/allrepos//net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
   wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.jar -O cgradapter-common-$CGR_RELEASE_VERSION.jar
   wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar -O cgradapter-android-$CGR_RELEASE_VERSION.aar
-  gh release create $CGR_RELEASE_VERSION 'georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp' 'cgradapter-common-$CGR_RELEASE_VERSION.jar#CGR Java Adapter' 'cgradapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter'
+  gh release create $CGR_RELEASE_VERSION "georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp" "cgradapter-common-$CGR_RELEASE_VERSION.jar#CGR Java Adapter" "cgradapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter"
 fi
