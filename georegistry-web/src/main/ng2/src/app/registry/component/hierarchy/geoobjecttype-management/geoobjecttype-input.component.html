@@ -3,10 +3,10 @@
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
     <form #form="ngForm" *ngIf="editGeoObjectType" class="modal-form" (ngSubmit)="form.valid">
-        <div class="heading">
+        <div class="heading text-center">
             <h1>
-                <localize key="hierarchy.management.manage.editGeoObjectType.title"></localize>
-                {{editGeoObjectType.label.localizedValue}}
+                <localize key="hierarchy.management.edit.geoobjecttype.title"></localize>
+                : {{editGeoObjectType.label.localizedValue}}
             </h1>
         </div>
         <fieldset>

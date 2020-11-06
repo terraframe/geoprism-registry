@@ -29,6 +29,7 @@ import { PageResult } from '@shared/model/core';
 import { User, Account } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
 import { AccountComponent } from './account.component';
+import { AccountInviteComponent } from '../account/account-invite.component';
 
 @Component({
 	selector: 'accounts',
@@ -91,6 +92,18 @@ export class AccountsComponent implements OnInit {
 			this.onPageChange(this.res.pageNumber);
 		});
 
+	}
+	
+	inviteUsers(): void {
+		// this.router.navigate(['/admin/invite']);	  
+
+		this.bsModalRef = this.modalService.show(AccountInviteComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+
+		this.bsModalRef.content.organization = null;
 	}
 
 	onPageChange(pageNumber: number): void {
