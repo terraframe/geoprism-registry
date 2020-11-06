@@ -19,6 +19,8 @@
 package net.geoprism.registry.test;
 
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -39,6 +41,8 @@ import net.geoprism.registry.etl.ValidationProblemQuery;
 
 public class SchedulerTestUtils
 {
+  private static final Logger logger = LoggerFactory.getLogger(SchedulerTestUtils.class);
+  
   @Request
   public static void waitUntilStatus(String histId, AllJobStatus status) throws InterruptedException
   {
@@ -82,20 +86,6 @@ public class SchedulerTestUtils
   @Request
   public static void clearImportData()
   {
-    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
-    OIterator<? extends ValidationProblem> vpit = vpq.getIterator();
-    while (vpit.hasNext())
-    {
-      ValidationProblem.lock(vpit.next().getOid()).delete();
-    }
-
-    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
-    OIterator<? extends ImportError> ieit = ieq.getIterator();
-    while (ieit.hasNext())
-    {
-      ImportError.lock(ieit.next().getOid()).delete();
-    }
-
     JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
     OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
 
@@ -108,12 +98,32 @@ public class SchedulerTestUtils
       {
         hist = ImportHistory.lock(hist.getOid());
         
+        // If any tests are currently running, they will be errored out as a result of this.
+        if (hist.getStatus().get(0).equals(AllJobStatus.RUNNING) || hist.getStatus().get(0).equals(AllJobStatus.NEW) || hist.getStatus().get(0).equals(AllJobStatus.QUEUED))
+        {
+          logger.error("History with oid [" + hist.getOid() + "] currently has status [" + hist.getStatus().get(0).getEnumName() + "] which is concerning because it is about to be deleted. This will probably cause errors in the running job.");
+        }
+        
         ExecutableJob job = jhr.getParent();
         job.appLock();
         
         jhr.delete(); // This will also delete the history.
         ExecutableJob.lock(job.getOid()).delete();
       }
+    }
+    
+    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+    OIterator<? extends ValidationProblem> vpit = vpq.getIterator();
+    while (vpit.hasNext())
+    {
+      ValidationProblem.lock(vpit.next().getOid()).delete();
+    }
+
+    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
+    OIterator<? extends ImportError> ieit = ieq.getIterator();
+    while (ieit.hasNext())
+    {
+      ImportError.lock(ieit.next().getOid()).delete();
     }
 
     SynonymQuery sq = new SynonymQuery(new QueryFactory());
