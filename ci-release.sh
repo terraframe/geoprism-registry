@@ -163,3 +163,11 @@ if [ "$tag_cloud" == "true" ]; then
   git tag -a cgr-$CGR_RELEASE_VERSION -m "Deployment scripts for Common GeoRegistry version $CGR_RELEASE_VERSION"
   git push origin cgr-$CGR_RELEASE_VERSION
 fi
+
+if [ "$release_github" == "true" ]; then
+  ## Create a Github Release
+  wget https://nexus.terraframe.com/content/repositories/allrepos//net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
+  wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.jar -O cgradapter-common-$CGR_RELEASE_VERSION.jar
+  wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar -O cgradapter-android-$CGR_RELEASE_VERSION.aar
+  gh release create $CGR_RELEASE_VERSION 'georegistry-web-$CGR_RELEASE_VERSION.war#CGR Webapp' 'cgradapter-common-$CGR_RELEASE_VERSION.jar#CGR Java Adapter' 'cgradapter-android-$CGR_RELEASE_VERSION.aar#CGR Android Adapter'
+fi
