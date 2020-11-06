@@ -129,34 +129,7 @@ public class GeoObjectImporterTest
   @Request
   private static void clearData()
   {
-    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
-    OIterator<? extends ImportError> ieit = ieq.getIterator();
-
-    while (ieit.hasNext())
-    {
-      ieit.next().delete();
-    }
-
-    JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
-    OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
-
-    while (jhrs.hasNext())
-    {
-      JobHistoryRecord jhr = jhrs.next();
-
-      ExecutableJob job = jhr.getParent();
-      jhr.delete();
-      job.delete();
-    }
-
-    SynonymQuery sq = new SynonymQuery(new QueryFactory());
-    sq.WHERE(sq.getDisplayLabel().localize().EQ("00"));
-    OIterator<? extends Synonym> it = sq.getIterator();
-
-    while (it.hasNext())
-    {
-      it.next().delete();
-    }
+    SchedulerTestUtils.clearImportData();
     
     for (int i = 1; i < 11; ++i)
     {

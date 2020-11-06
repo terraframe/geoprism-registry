@@ -20,9 +20,22 @@ package net.geoprism.registry.test;
 
 import org.junit.Assert;
 
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.gis.geo.Synonym;
+import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryRecord;
+import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
+
+import net.geoprism.registry.etl.ImportError;
+import net.geoprism.registry.etl.ImportErrorQuery;
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ValidationProblem;
+import net.geoprism.registry.etl.ValidationProblemQuery;
 
 public class SchedulerTestUtils
 {
@@ -64,5 +77,52 @@ public class SchedulerTestUtils
 
     Thread.sleep(100);
     waitTime += 100;
+  }
+  
+  @Request
+  public static void clearImportData()
+  {
+    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
+    OIterator<? extends ValidationProblem> vpit = vpq.getIterator();
+    while (vpit.hasNext())
+    {
+      ValidationProblem.lock(vpit.next().getOid()).delete();
+    }
+
+    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
+    OIterator<? extends ImportError> ieit = ieq.getIterator();
+    while (ieit.hasNext())
+    {
+      ImportError.lock(ieit.next().getOid()).delete();
+    }
+
+    JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
+    OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
+
+    while (jhrs.hasNext())
+    {
+      JobHistoryRecord jhr = JobHistoryRecord.lock(jhrs.next().getOid());
+
+      JobHistory hist = jhr.getChild();
+      if (hist instanceof ImportHistory)
+      {
+        hist = ImportHistory.lock(hist.getOid());
+        
+        ExecutableJob job = jhr.getParent();
+        job.appLock();
+        
+        jhr.delete(); // This will also delete the history.
+        ExecutableJob.lock(job.getOid()).delete();
+      }
+    }
+
+    SynonymQuery sq = new SynonymQuery(new QueryFactory());
+    sq.WHERE(sq.getDisplayLabel().localize().EQ("00"));
+    OIterator<? extends Synonym> it = sq.getIterator();
+
+    while (it.hasNext())
+    {
+      Synonym.lock(it.next().getOid()).delete();
+    }
   }
 }

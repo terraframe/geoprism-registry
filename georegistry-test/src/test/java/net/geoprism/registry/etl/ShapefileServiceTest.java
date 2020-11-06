@@ -165,44 +165,7 @@ public class ShapefileServiceTest
   @Request
   private static void clearData()
   {
-    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
-    OIterator<? extends ValidationProblem> vpit = vpq.getIterator();
-    while (vpit.hasNext())
-    {
-      vpit.next().delete();
-    }
-
-    ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
-    OIterator<? extends ImportError> ieit = ieq.getIterator();
-    while (ieit.hasNext())
-    {
-      ieit.next().delete();
-    }
-
-    JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
-    OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
-
-    while (jhrs.hasNext())
-    {
-      JobHistoryRecord jhr = jhrs.next();
-
-      JobHistory hist = jhr.getChild();
-      if (hist instanceof ImportHistory)
-      {
-        ExecutableJob job = jhr.getParent();
-        JobHistoryRecord.get(jhr.getOid()).delete();
-        ExecutableJob.get(job.getOid()).delete();
-      }
-    }
-
-    SynonymQuery sq = new SynonymQuery(new QueryFactory());
-    sq.WHERE(sq.getDisplayLabel().localize().EQ("00"));
-    OIterator<? extends Synonym> it = sq.getIterator();
-
-    while (it.hasNext())
-    {
-      it.next().delete();
-    }
+    SchedulerTestUtils.clearImportData();
 
     TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
     parent.delete();
