@@ -1,0 +1,46 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attribute.parentType.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attribute.parentType.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Group" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attribute.isAbstract.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attribute.isAbstract.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Is group" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.subtypeHierarchies">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.subtypeHierarchies" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Group hierarchies" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+      
+    <update>
+      <mdException name="net.geoprism.registry.AbstractParentException" 
+                   message="You cannot add [{childGeoObjectTypeLabel}] to the hierarchy [{hierarchyTypeLabel}] as a child to [{parentGeoObjectTypeLabel}] because [{parentGeoObjectTypeLabel}] is a group.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.ChainInheritanceException" 
+                   message="A Geo-Object Type can only belong to a Group and not another Geo-Object Type.">
+      </mdException>
+      <mdException name="net.geoprism.registry.GeoObjectTypeAssignmentException" 
+                   message="A Geo-Object Type can only be added to a Group">
+      </mdException>
+    </update>      
+  </doIt>
+  <undoIt>
+    <delete>
+      
+    </delete>
+  </undoIt>
+</version>
