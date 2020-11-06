@@ -31,10 +31,8 @@
           
           <role-management *ngIf="invite.roles" [newInstance]="true" [roles]="invite.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
 
-          <div class="row-holder">
-            <div class="label-holder">
-            </div>                    
-            <div class="holder">
+          <div class="row">
+            <div class="col-md-12">
               <div class="button-holder">
                 <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
                 <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid && roleIds.length > 0)" />

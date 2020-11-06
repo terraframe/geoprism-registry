@@ -1,14 +1,14 @@
 <div class="modal-body">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <div class="text-center">
-        <h2 *ngIf="isNew">
+    <div class="heading text-center">
+        <h1 *ngIf="isNew">
             <localize key="type.publish.title"></localize>
-        </h2>
-        <h2 *ngIf="!isNew">
+        </h1>
+        <h1 *ngIf="!isNew">
             {{master.displayLabel.localizedValue}}
             <localize key="type.publish.view.title"></localize>
-        </h2>
+        </h1>
     </div>
     <!-- <div class="col-md-12 order-md-1"> -->
     <form #form="ngForm" class="modal-form">

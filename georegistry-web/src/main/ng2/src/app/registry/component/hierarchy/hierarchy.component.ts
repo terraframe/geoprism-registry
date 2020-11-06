@@ -147,6 +147,9 @@ export class HierarchyComponent implements OnInit, SvgController {
 	private renderTree(): void {
 		if (this.currentHierarchy == null || this.currentHierarchy.rootGeoObjectTypes == null || this.currentHierarchy.rootGeoObjectTypes.length == 0) {
 			d3.select("#svg").remove();
+			this.geoObjectTypes.forEach((got: GeoObjectType) => {
+        got.canDrag = true;
+      });
 			return;
 		}
 
@@ -201,12 +204,6 @@ export class HierarchyComponent implements OnInit, SvgController {
 	calculateCanDrag(got: GeoObjectType): boolean {
 	  let hierarchyComponent = this;
 	
-	  let li = d3.select('li[id="' + got.code + '"]');
-	  if (!li.empty() && li.classed("dragging"))
-	  {
-	    return ;
-	  }
-	  
 	  if (this.primarySvgHierarchy != null)
 	  {
 	    if (this.primarySvgHierarchy.getNodeByCode(got.code) != null)
@@ -876,7 +873,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 			this.setNodesOnInit(desiredHierarchy);
 
-			this.updateViewDatastructures();
+      this.updateViewDatastructures();
 
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -1186,23 +1183,6 @@ export class HierarchyComponent implements OnInit, SvgController {
 			data.relatedHierarchies = this.calculateRelatedHierarchies(data);
 
 			this.refreshAll(this.currentHierarchy)
-
-			this.geoObjectTypes.sort((a: GeoObjectType, b: GeoObjectType) => {
-				var nameA = a.label.localizedValue.toUpperCase(); // ignore upper and lowercase
-				var nameB = b.label.localizedValue.toUpperCase(); // ignore upper and lowercase
-
-				if (nameA < nameB) {
-					return -1; //nameA comes first
-				}
-
-				if (nameA > nameB) {
-					return 1; // nameB comes first
-				}
-
-				return 0;  // names must be equal
-			});
-
-			this.updateViewDatastructures();
 
 		});
 	}
