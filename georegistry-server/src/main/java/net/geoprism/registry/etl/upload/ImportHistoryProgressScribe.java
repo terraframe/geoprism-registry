@@ -102,6 +102,12 @@ public class ImportHistoryProgressScribe implements ImportProgressListenerIF
   {
     return this.history.getWorkProgress();
   }
+  
+  @Override
+  public Long getRawImportedRecords()
+  {
+    return this.history.getImportedRecords();
+  }
 
   @Override
   public Long getImportedRecords()

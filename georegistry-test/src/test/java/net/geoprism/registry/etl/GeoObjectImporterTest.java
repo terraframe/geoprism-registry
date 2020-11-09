@@ -263,6 +263,55 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(2, json.getJSONArray("results").length());
   }
+  
+  /**
+   * Tests to make sure that we are recording the correct amount of import errors.
+   * 
+   * @throws InterruptedException
+   */
+  @Test
+  @Request
+  public void testUpdateErrorCount() throws InterruptedException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet3.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_ONLY);
+    config.setHierarchy(hierarchyType);
+    
+    // First, import the spreadsheet. It should be succesful
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(10), hist.getWorkTotal());
+    Assert.assertEquals(new Long(10), hist.getWorkProgress());
+    Assert.assertEquals(new Long(10), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+    
+    // Import a second spreadsheet, which should have a few duplicate records.
+    InputStream istream2 = this.getClass().getResourceAsStream("/test-spreadsheet4.xlsx");
+    GeoObjectImportConfiguration config2 = this.getTestConfiguration(istream2, service, null, ImportStrategy.NEW_ONLY);
+    config2.setHierarchy(hierarchyType);
+    ImportHistory hist2 = importExcelFile(testData.clientRequest.getSessionId(), config2.toJSON().toString());
+
+    SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.FEEDBACK);
+
+    hist2 = ImportHistory.get(hist2.getOid());
+    Assert.assertEquals(new Long(17), hist2.getWorkTotal());
+    Assert.assertEquals(new Long(17), hist2.getWorkProgress());
+    Assert.assertEquals(new Long(7), hist2.getImportedRecords());
+    Assert.assertEquals(ImportStage.IMPORT_RESOLVE, hist2.getStage().get(0));
+
+    JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist2.getOid(), false, 100, 1).toString());
+
+    Assert.assertEquals(10, json.getJSONArray("results").length());
+  }
 
   @Test
   @Request

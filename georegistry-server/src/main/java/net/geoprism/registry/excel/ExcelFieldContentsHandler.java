@@ -31,6 +31,8 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
@@ -43,6 +45,8 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ExcelFieldContentsHandler implements SheetHandler
 {
+  private static final Logger logger = LoggerFactory.getLogger(ExcelFieldContentsHandler.class);
+  
   public static class Field
   {
     /**
@@ -348,6 +352,7 @@ public class ExcelFieldContentsHandler implements SheetHandler
     
     if (cellType.equals(ColumnType.FORMULA))
     {
+      logger.error("Your excel spreadsheet has a formula at [" + reference.formatAsString() + "]"); // TODO : Embed this into the exception
       throw new ExcelFormulaException();
     }
 

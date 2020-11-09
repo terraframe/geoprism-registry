@@ -46,4 +46,6 @@ public interface ImportProgressListenerIF
 
   public void applyValidationProblems();
 
+  public Long getRawImportedRecords();
+
 }
