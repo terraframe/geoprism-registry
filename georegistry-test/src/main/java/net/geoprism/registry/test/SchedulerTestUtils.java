@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.test;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
+import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.etl.ImportError;
 import net.geoprism.registry.etl.ImportErrorQuery;
@@ -86,29 +89,17 @@ public class SchedulerTestUtils
   @Request
   public static void clearImportData()
   {
-    JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
-    OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
-
-    while (jhrs.hasNext())
+    List<JobHistoryRecord> stoppedJobs = SchedulerManager.interruptAllRunningJobs();
+    
+    if (stoppedJobs.size() > 0)
     {
-      JobHistoryRecord jhr = JobHistoryRecord.lock(jhrs.next().getOid());
-
-      JobHistory hist = jhr.getChild();
-      if (hist instanceof ImportHistory)
+      try
       {
-        hist = ImportHistory.lock(hist.getOid());
-        
-        // If any tests are currently running, they will be errored out as a result of this.
-        if (hist.getStatus().get(0).equals(AllJobStatus.RUNNING) || hist.getStatus().get(0).equals(AllJobStatus.NEW) || hist.getStatus().get(0).equals(AllJobStatus.QUEUED))
-        {
-          logger.error("History with oid [" + hist.getOid() + "] currently has status [" + hist.getStatus().get(0).getEnumName() + "] which is concerning because it is about to be deleted. This will probably cause errors in the running job.");
-        }
-        
-        ExecutableJob job = jhr.getParent();
-        job.appLock();
-        
-        jhr.delete(); // This will also delete the history.
-        ExecutableJob.lock(job.getOid()).delete();
+        Thread.sleep(2000); // Wait a few seconds for the job to stop
+      }
+      catch (InterruptedException e)
+      {
+        throw new RuntimeException(e);
       }
     }
     
@@ -124,6 +115,52 @@ public class SchedulerTestUtils
     while (ieit.hasNext())
     {
       ImportError.lock(ieit.next().getOid()).delete();
+    }
+    
+    JobHistoryRecordQuery query = new JobHistoryRecordQuery(new QueryFactory());
+    OIterator<? extends JobHistoryRecord> jhrs = query.getIterator();
+    
+    while (jhrs.hasNext())
+    {
+      JobHistoryRecord jhr = JobHistoryRecord.lock(jhrs.next().getOid());
+      jhr.appLock();
+
+      JobHistory hist = jhr.getChild();
+      if (hist instanceof ImportHistory)
+      {
+        hist = ImportHistory.lock(hist.getOid());
+        hist.appLock();
+        
+        ExecutableJob job = jhr.getParent();
+        job.appLock();
+        
+        // If any tests are currently running, they will be errored out as a result of this.
+        if (hist.getStatus().get(0).equals(AllJobStatus.RUNNING) || hist.getStatus().get(0).equals(AllJobStatus.NEW) || hist.getStatus().get(0).equals(AllJobStatus.QUEUED))
+        {
+          logger.error("History with oid [" + hist.getOid() + "] currently has status [" + hist.getStatus().get(0).getEnumName() + "] which is concerning because it is about to be deleted. This will probably cause errors in the running job.");
+        }
+        
+//        hist = ImportHistory.lock(hist.getOid());
+//        hist.appLock();
+//        hist = ImportHistory.lock(hist.getOid());
+//        VaultFile vf = ( (ImportHistory) hist ).getImportFile();
+//        hist.setValue(ImportHistory.IMPORTFILE, null);
+//        JobHistoryHistoryComment comment = hist.getHistoryComment();
+//        hist.setValue(JobHistory.HISTORYCOMMENT, null);
+//        JobHistoryHistoryInformation information = hist.getHistoryInformation();
+//        hist.setValue(JobHistory.HISTORYINFORMATION, null);
+//        hist.apply();
+//        vf.delete();
+//        comment.delete();
+//        information.delete();
+//        hist = ImportHistory.lock(hist.getOid());
+//        hist.appLock();
+//        hist = ImportHistory.lock(hist.getOid());
+//        hist.delete();
+        
+        JobHistoryRecord.lock(jhr.getOid()).delete(); // This will also delete the history.
+        ExecutableJob.lock(job.getOid()).delete();
+      }
     }
 
     SynonymQuery sq = new SynonymQuery(new QueryFactory());

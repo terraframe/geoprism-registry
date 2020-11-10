@@ -24,9 +24,9 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 public interface ObjectImporterIF
 {
 
-  public void validateRow(FeatureRow simpleFeatureRow);
+  public void validateRow(FeatureRow simpleFeatureRow) throws InterruptedException;
 
-  public void importRow(FeatureRow simpleFeatureRow);
+  public void importRow(FeatureRow simpleFeatureRow) throws InterruptedException;
 
   public void setFormatSpecificImporter(FormatSpecificImporterIF formatImporter);
 

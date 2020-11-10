@@ -42,18 +42,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.configuration.CommonsConfigurationResolver;
 import com.runwaysdk.constants.VaultProperties;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Synonym;
-import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
-import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
-import com.runwaysdk.system.scheduler.JobHistoryRecord;
-import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -63,6 +57,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
@@ -151,6 +146,120 @@ public class GeoObjectImporterTest
 
     return ImportHistory.get(historyId);
   }
+  
+  @Test
+  public void testSessionExpire() throws InterruptedException
+  {
+    CommonsConfigurationResolver.getInMemoryConfigurator().setProperty("import.refreshSessionRecordCount", "1");
+    
+    Assert.assertEquals(1, GeoregistryProperties.getRefreshSessionRecordCount());
+    
+    GeoObjectImportConfiguration config = testSessionSetup();
+    
+    Date startTime = new Date();
+    
+    long oldSessionTime = Session.getSessionTime();
+    
+    final long sessionTimeMs = 3000;
+    Session.setSessionTime(sessionTimeMs / (1000));
+    
+    ImportHistory hist;
+    try
+    {
+      hist = testSessionExpireInReq(config);
+    }
+    finally
+    {
+      Session.setSessionTime(oldSessionTime);
+    }
+    
+    sessionTestValidateInRequest(hist, startTime, sessionTimeMs);
+  }
+  
+  @Request
+  private void sessionTestValidateInRequest(ImportHistory hist, Date startTime, long sessionTimeMs) throws InterruptedException
+  {
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    
+    Date endTime = new Date();
+    
+    if ((endTime.getTime() - startTime.getTime()) < sessionTimeMs)
+    {
+      Assert.fail("The test completed before the session had a chance to expire. Try setting the 'sessionTimeMs' lower.");
+    }
+  }
+  
+  @Request
+  private GeoObjectImportConfiguration testSessionSetup()
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet-500records.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    config.setHierarchy(hierarchyType);
+    return config;
+  }
+  
+  @Request
+  public ImportHistory testSessionExpireInReq(GeoObjectImportConfiguration config) throws InterruptedException
+  {
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    
+    // We have to wait until the job is running so that it will run with the session time.
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.RUNNING);
+    
+    return hist;
+  }
+  
+//  @Test
+//  public void testSessionExpire() throws InterruptedException
+//  {
+//    long beforeTime = Session.getSessionTime();
+//    
+//    Session.setSessionTime(1);
+//    
+//    try
+//    {
+//      testSessionExpireInReq();
+//    }
+//    finally
+//    {
+//      Session.setSessionTime(beforeTime);
+//    }
+//  }
+//  
+//  @Request
+//  public void testSessionExpireInReq() throws InterruptedException
+//  {
+//    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet-50records.xlsx");
+//
+//    Assert.assertNotNull(istream);
+//
+//    ExcelService service = new ExcelService();
+//    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+//
+//    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+//    config.setHierarchy(hierarchyType);
+//
+//    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+//
+//    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FAILURE);
+//
+//    hist = ImportHistory.get(hist.getOid());
+////    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
+////    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
+////    Assert.assertEquals(new Long(3), hist.getImportedRecords());
+////    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+////
+////    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+////
+////    Assert.assertNotNull(object);
+////    Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
+//  }
 
   @Test
   @Request

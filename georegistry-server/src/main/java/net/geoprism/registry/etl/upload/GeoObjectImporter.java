@@ -63,6 +63,7 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.StatusValueException;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
@@ -146,7 +147,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   
   private long lastImportSessionRefresh = 0;
   
-  private static final long refreshSessionRecordCount = 10000; // Refresh the user's session every X amount of records
+  private static final long refreshSessionRecordCount = GeoregistryProperties.getRefreshSessionRecordCount(); // Refresh the user's session every X amount of records
   
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
@@ -261,7 +262,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   }
 
   @Transaction
-  public void validateRow(FeatureRow row)
+  public void validateRow(FeatureRow row) throws InterruptedException
   {
     // Refresh the session because it might expire on long imports
     final long curWorkProgress = this.progressListener.getWorkProgress();
@@ -413,15 +414,23 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
 
     this.progressListener.setWorkProgress(curWorkProgress + 1);
+    
+    if (Thread.interrupted())
+    {
+      throw new InterruptedException();
+    }
+    
+    Thread.yield();
   }
 
   /**
    * Imports a GeoObject based on the given SimpleFeature.
    * 
    * @param feature
+   * @throws InterruptedException 
    * @throws Exception
    */
-  public void importRow(FeatureRow row)
+  public void importRow(FeatureRow row) throws InterruptedException
   {
     RowData data = new RowData();
 
@@ -448,6 +457,11 @@ public class GeoObjectImporter implements ObjectImporterIF
       this.recordError(e);
     }
 
+    if (Thread.interrupted())
+    {
+      throw new InterruptedException();
+    }
+    
     Thread.yield();
   }
 
@@ -461,7 +475,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       obj.put("parents", parentBuilder.build());
     }
-
+    
     this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setImportedRecords(this.progressListener.getRawImportedRecords());

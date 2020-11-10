@@ -213,9 +213,10 @@ public class ShapefileImporter implements FormatSpecificImporterIF
    *          Log file writer
    * @throws InvocationTargetException
    * @throws IOException
+   * @throws InterruptedException 
    */
   @Request
-  private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException
+  private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException, InterruptedException
   {
     /*
      * Check permissions
