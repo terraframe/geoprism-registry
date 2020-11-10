@@ -17,6 +17,16 @@
 # License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
 #
 
+
+# Before running this script, you must have set the following environment variables: #
+# CGR_RELEASE_VERSION
+# CGR_NEXT_VERSION
+# NEXUS_ADMIN_USERNAME
+# NEXUS_ADMIN_PASSWORD
+# release_adapter, release_georegistry, tag_platform, tag_cloud, release_github
+
+
+
 if [ "$release_adapter" == "true" ]; then
   if curl -f -s --head "https://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=com.cgr.adapter&a=cgradapter-common&p=jar&v=$CGR_RELEASE_VERSION" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null; then
     echo "The release version $CGR_RELEASE_VERSION has already been deployed! Please ensure you are releasing the correct version."
@@ -24,19 +34,17 @@ if [ "$release_adapter" == "true" ]; then
   fi
 fi
 
+export WORKSPACE=/workspace
+export ANDROID_HOME=/root/android-sdk
+
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
 
-sudo chmod 700 /home/ec2-user/.ssh/id_rsa
+cp /workspace/id_rsa /root/.ssh/id_rsa
+chmod 700 /root/.ssh/id_rsa
 
 
 if [ "$release_adapter" == "true" ]; then
-  ### Update Gradle ###
-  source "/home/ec2-user/.sdkman/bin/sdkman-init.sh"
-  yes | sdk update
-  yes | sdk install gradle 5.4.1
-  
-  
   #### CGR Adapter ####
   cd $WORKSPACE/adapter/java
   
@@ -58,7 +66,6 @@ if [ "$release_adapter" == "true" ]; then
   mvn release:perform -B -Darguments="-Dmaven.javadoc.skip=true -Dmaven.site.skip=true"
   
   # CGR Adapter : Gradle Android Release
-  export ANDROID_HOME=/home/ec2-user/android-sdk
   sed -i -E "s/implementation 'com.cgr.adapter:cgradapter-common:.*'/implementation 'com.cgr.adapter:cgradapter-common:$CGR_RELEASE_VERSION'/g" $WORKSPACE/adapter/java/android/cgradapter_android/build.gradle
   sed -i -E "s/VERSION_NAME=.*/VERSION_NAME=$CGR_RELEASE_VERSION/g" $WORKSPACE/adapter/java/android/gradle.properties
   cd $WORKSPACE/adapter/java/android/cgradapter_android
@@ -145,7 +152,7 @@ if [ "$release_georegistry" == "true" ]; then
 fi
 
 if [ "$tag_platform" == "true" ]; then
-  ## Tag Geoprism-Platform
+  cd $WORKSPACE
   git clone -b master git@github.com:terraframe/geoprism-platform.git
   cd geoprism-platform
   git merge origin/dev
@@ -155,7 +162,7 @@ if [ "$tag_platform" == "true" ]; then
 fi
 
 if [ "$tag_cloud" == "true" ]; then
-  ## Tag Geoprism-Cloud
+  cd $WORKSPACE
   git clone -b master git@github.com:terraframe/geoprism-cloud.git
   cd geoprism-cloud
   git merge origin/dev
