@@ -40,7 +40,7 @@ export WORKSPACE=/workspace
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
 
-. $NVM_DIR/nvm.sh && nvm instal lts/erbium
+. $NVM_DIR/nvm.sh && nvm install lts/erbium
 
 if [ "$release_adapter" == "true" ]; then
   #### CGR Adapter ####
