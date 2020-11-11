@@ -25,9 +25,6 @@
 # NEXUS_ADMIN_PASSWORD
 # release_adapter, release_georegistry, tag_platform, tag_cloud, release_github
 
-set -e
-set -x
-
 if [ "$release_adapter" == "true" ]; then
   if curl -f -s --head "https://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=com.cgr.adapter&a=cgradapter-common&p=jar&v=$CGR_RELEASE_VERSION" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null; then
     echo "The release version $CGR_RELEASE_VERSION has already been deployed! Please ensure you are releasing the correct version."
