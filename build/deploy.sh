@@ -19,15 +19,13 @@
 
 
 # Replace build params in our ansible inventory files (TODO : Should this be passed along as a param to the ansible-playbook command?)
-sed -i -e "s/clean_db=true/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
-sed -i -e "s/clean_db=false/clean_db=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
-sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
-sed -i -e "s/clean_orientdb=false/clean_orientdb=$clean_db/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
-sed -i -e "s/artifact_version=.*/artifact_version=$version/g" geoprism-platform/ansible/inventory/georegistry/$environment.ini
+sed -i -e "s/clean_db=true/clean_db=$clean_db/g" $WORKSPACE/geoprism-platform/ansible/inventory/georegistry/$environment.ini
+sed -i -e "s/clean_db=false/clean_db=$clean_db/g" $WORKSPACE/geoprism-platform/ansible/inventory/georegistry/$environment.ini
+sed -i -e "s/clean_orientdb=true/clean_orientdb=$clean_db/g" $WORKSPACE/geoprism-platform/ansible/inventory/georegistry/$environment.ini
+sed -i -e "s/clean_orientdb=false/clean_orientdb=$clean_db/g" $WORKSPACE/geoprism-platform/ansible/inventory/georegistry/$environment.ini
+sed -i -e "s/artifact_version=.*/artifact_version=$version/g" $WORKSPACE/geoprism-platform/ansible/inventory/georegistry/$environment.ini
 
-
-pwd
-echo $WORKSPACE
+. $NVM_DIR/nvm.sh && nvm install lts/erbium
 
 virtualenv cgr
 source cgr/bin/activate
