@@ -161,7 +161,7 @@ fi
 
 if [ "$tag_cloud" == "true" ]; then
   cd $WORKSPACE
-  git clone -b master git@github.com:terraframe/geoprism-cloud.git
+  #git clone -b master git@github.com:terraframe/geoprism-cloud.git
   cd geoprism-cloud
   git merge origin/dev
   git push
