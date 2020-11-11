@@ -29,8 +29,12 @@ export ANSIBLE_HOST_KEY_CHECKING=false
 :
 if [ "$build_artifact" == "true" ]; then
   cd $WORKSPACE/adapter/java
-  aecode=$(mvn clean deploy -B)
+  
+  set +e
+  mvn clean deploy -B
+  aecode=$?
   mv $WORKSPACE/adapter/java/target/surefire-reports $TEST_OUTPUT/adapter/surefire-reports && chmod 777 -R $TEST_OUTPUT/adapter/surefire-reports
+  set -e
   [ "$aecode" != 0 ] && exit $aecode;
   
   ## Build angular source ##
@@ -47,8 +51,11 @@ if [ "$build_artifact" == "true" ]; then
     cd $WORKSPACE/georegistry/georegistry-server
     mvn install -B -P database -Ddb.clean=true -Ddatabase.port=5432 -Ddb.patch=false -Ddb.rootUser=postgres -Ddb.rootPass=postgres -Ddb.rootDb=postgres
     cd $WORKSPACE/georegistry/georegistry-test
-    ecode=$(mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry)
+    set +e
+    mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry
+    ecode=$?
     mv $WORKSPACE/georegistry/georegistry-test/target/surefire-reports $TEST_OUTPUT/georegistry-test/surefire-reports && chmod 777 -R $TEST_OUTPUT/georegistry-test/surefire-reports
+    set -e
     [ "$ecode" != 0 ] && exit $ecode;
   
     ## Deploy the test results to s3 ##
