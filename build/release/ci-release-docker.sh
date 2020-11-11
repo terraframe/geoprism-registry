@@ -163,6 +163,7 @@ if [ "$tag_cloud" == "true" ]; then
   cd $WORKSPACE
   #git clone -b master git@github.com:terraframe/geoprism-cloud.git
   cd geoprism-cloud
+  git checkout master
   git merge origin/dev
   git push
   git tag -a cgr-$CGR_RELEASE_VERSION -m "Deployment scripts for Common GeoRegistry version $CGR_RELEASE_VERSION"
