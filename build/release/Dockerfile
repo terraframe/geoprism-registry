@@ -52,4 +52,4 @@ RUN wget https://dl.google.com/android/repository/commandlinetools-linux-6858069
 ENV ANDROID_HOME=/opt/android-sdk
 RUN yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
-ENTRYPOINT /bin/sh /workspace/build/release/ci-release-docker.sh
+ENTRYPOINT /bin/sh /workspace/georegistry/build/release/ci-release-docker.sh
