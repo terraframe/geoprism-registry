@@ -26,7 +26,7 @@
 # release_adapter, release_georegistry, tag_platform, tag_cloud, release_github
 
 set -e
-set +x
+set -x
 
 echo "Hello this is a test"
 
