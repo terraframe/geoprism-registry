@@ -35,7 +35,7 @@ if [ "$release_adapter" == "true" ]; then
 fi
 
 export WORKSPACE=/workspace
-export ANDROID_HOME=/root/android-sdk
+export ANDROID_HOME=/opt/android-sdk
 
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
