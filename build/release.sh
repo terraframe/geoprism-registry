@@ -32,8 +32,6 @@ if [ "$release_adapter" == "true" ]; then
   fi
 fi
 
-export WORKSPACE=/workspace
-
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
 

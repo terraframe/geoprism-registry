@@ -45,7 +45,8 @@ if [ "$build_artifact" == "true" ]; then
     cd $WORKSPACE/georegistry/georegistry-server
     mvn install -B -P database -Ddb.clean=true -Ddatabase.port=5432 -Ddb.patch=false -Ddb.rootUser=postgres -Ddb.rootPass=postgres -Ddb.rootDb=postgres
     cd $WORKSPACE/georegistry/georegistry-test
-    mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry
+    ecode = mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry
+    [ "$ecode" != 0 ] && exit $ecode;
   
     ## Deploy the test results to s3 ##
     cd $WORKSPACE/georegistry/georegistry-site
