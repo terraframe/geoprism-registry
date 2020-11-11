@@ -40,8 +40,6 @@ export ANDROID_HOME=/opt/android-sdk
 git config --global user.name "$GIT_TF_BUILDER_USERNAME"
 git config --global user.email builder@terraframe.com
 
-cp /workspace/
-
 if [ "$release_adapter" == "true" ]; then
   #### CGR Adapter ####
   cd $WORKSPACE/adapter/java
