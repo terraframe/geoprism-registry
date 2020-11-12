@@ -160,7 +160,7 @@ public class GeoObjectImporterTest
     
     long oldSessionTime = Session.getSessionTime();
     
-    final long sessionTimeMs = 3000;
+    final long sessionTimeMs = 5000;
     Session.setSessionTime(sessionTimeMs / (1000));
     
     ImportHistory hist;
