@@ -33,7 +33,7 @@ if [ "$build_artifact" == "true" ]; then
   set +e
   mvn clean deploy -B
   aecode=$?
-  mkdir -p $TEST_OUTPUT/adapter/surefire-reports && mv $WORKSPACE/adapter/java/target/surefire-reports/* $TEST_OUTPUT/adapter/surefire-reports/ && chmod 777 -R $TEST_OUTPUT/adapter/surefire-reports
+  mkdir -p $TEST_OUTPUT/adapter/surefire-reports && mv $WORKSPACE/adapter/java/target/surefire-reports/* $TEST_OUTPUT/adapter/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
   set -e
   [ "$aecode" != 0 ] && exit $aecode;
   
@@ -54,7 +54,7 @@ if [ "$build_artifact" == "true" ]; then
     set +e
     mvn test -Dappcfg=$WORKSPACE/georegistry/envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=$WORKSPACE/georegistry
     ecode=$?
-    mkdir -p $TEST_OUTPUT/georegistry-test/surefire-reports && mv $WORKSPACE/georegistry/georegistry-test/target/surefire-reports/* $TEST_OUTPUT/georegistry-test/surefire-reports/ && chmod 777 -R $TEST_OUTPUT/georegistry-test/surefire-reports
+    mkdir -p $TEST_OUTPUT/georegistry-test/surefire-reports && mv $WORKSPACE/georegistry/georegistry-test/target/surefire-reports/* $TEST_OUTPUT/georegistry-test/surefire-reports/ && chmod 777 -R $TEST_OUTPUT
     set -e
     [ "$ecode" != 0 ] && exit $ecode;
   
