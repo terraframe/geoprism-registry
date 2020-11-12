@@ -37,12 +37,16 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.QuartzRunwayJob;
 import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.upload.FormatSpecificImporterIF;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.roles.RAException;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -81,6 +85,22 @@ public class DataImportJob extends DataImportJobBase
   @Transaction
   private JobHistoryRecord startInTrans(ImportConfiguration configuration)
   {
+    Organization org = ((GeoObjectImportConfiguration)configuration).getType().getOrganization();
+    
+    RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    if (perms.isRA())
+    {
+      perms.enforceRA(org.getCode());
+    }
+    else if (perms.isRM())
+    {
+      perms.enforceRM(org.getCode());
+    }
+    else
+    {
+      perms.enforceRM();
+    }
+    
     ImportHistory history = (ImportHistory) this.createNewHistory();
 
     configuration.setHistoryId(history.getOid());
@@ -89,6 +109,12 @@ public class DataImportJob extends DataImportJobBase
     history.appLock();
     history.setConfigJson(configuration.toJSON().toString());
     history.setImportFileId(configuration.getVaultFileId());
+    
+    if (configuration instanceof GeoObjectImportConfiguration)
+    {
+      history.setOrganization(org);
+    }
+    
     history.apply();
 
     JobHistoryRecord record = new JobHistoryRecord(this, history);

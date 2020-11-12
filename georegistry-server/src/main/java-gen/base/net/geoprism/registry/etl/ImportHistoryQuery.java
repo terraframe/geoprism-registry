@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -1191285236)
+@com.runwaysdk.business.ClassSignature(hash = -977524435)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -147,6 +129,29 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
 
   }
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization()
+  {
+    return getOrganization(null);
+
+  }
+ 
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.ImportHistory.ORGANIZATION);
+
+    return (net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportHistory.ORGANIZATION, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.etl.ImportHistory.ORGANIZATION);
+
+    return (net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.etl.ImportHistory.ORGANIZATION, mdAttributeIF, this, alias, displayLabel);
+
+  }
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage()
   {
     return getStage(null);
@@ -177,6 +182,10 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     if (name.equals(net.geoprism.registry.etl.ImportHistory.IMPORTFILE)) 
     {
        return new com.runwaysdk.system.VaultFileQuery.VaultFileQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.etl.ImportHistory.ORGANIZATION)) 
+    {
+       return new net.geoprism.registry.OrganizationQuery.OrganizationQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -245,6 +254,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableLong getImportedRecords();
     public com.runwaysdk.query.SelectableLong getImportedRecords(String alias);
     public com.runwaysdk.query.SelectableLong getImportedRecords(String alias, String displayLabel);
+    public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization();
+    public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias);
+    public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias, String displayLabel);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage();
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel);
@@ -368,6 +380,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
 
   }
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization()
+  {
+    return getOrganization(null);
+
+  }
+ 
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias)
+  {
+    return (net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.ORGANIZATION, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.ORGANIZATION,  alias, displayLabel);
+
+  }
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage()
   {
     return getStage(null);
@@ -392,6 +421,10 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     if (name.equals(net.geoprism.registry.etl.ImportHistory.IMPORTFILE)) 
     {
        return new com.runwaysdk.system.VaultFileQuery.VaultFileQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.etl.ImportHistory.ORGANIZATION)) 
+    {
+       return new net.geoprism.registry.OrganizationQuery.OrganizationQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -437,6 +470,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableLong getImportedRecords();
     public com.runwaysdk.query.SelectableLong getImportedRecords(String alias);
     public com.runwaysdk.query.SelectableLong getImportedRecords(String alias, String displayLabel);
+    public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization();
+    public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias);
+    public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias, String displayLabel);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage();
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias);
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage(String alias, String displayLabel);
@@ -609,6 +645,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.IMPORTEDRECORDS, alias, displayLabel);
 
   }
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization()
+  {
+    return getOrganization(null);
+
+  }
+ 
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias)
+  {
+    return (net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.ORGANIZATION, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF getOrganization(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.OrganizationQuery.OrganizationQueryReferenceIF)this.get(net.geoprism.registry.etl.ImportHistory.ORGANIZATION,  alias, displayLabel);
+
+  }
   public net.geoprism.registry.etl.ImportStageMasterQuery.ImportStageQueryIF getStage()
   {
     return getStage(null);
@@ -633,6 +686,10 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     if (name.equals(net.geoprism.registry.etl.ImportHistory.IMPORTFILE)) 
     {
        return new com.runwaysdk.system.VaultFileQuery.VaultFileQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.etl.ImportHistory.ORGANIZATION)) 
+    {
+       return new net.geoprism.registry.OrganizationQuery.OrganizationQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {

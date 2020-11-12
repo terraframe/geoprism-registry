@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 
@@ -45,9 +44,8 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
 import net.geoprism.DataUploader;
-import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
-import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.controller.GeoObjectEditorController;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
@@ -59,6 +57,8 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.roles.RAException;
 import net.geoprism.registry.service.GeoSynonymService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;
@@ -76,7 +76,7 @@ public class ETLService
   private void cancelImportInTrans(String sessionId, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
-
+    
     String id = config.getVaultFileId();
 
     VaultFile.get(id).delete();
@@ -84,8 +84,11 @@ public class ETLService
     if (config.getHistoryId() != null && config.getHistoryId().length() > 0)
     {
       String historyId = config.getHistoryId();
+      ImportHistory hist = ImportHistory.get(historyId);
       
-      if (!ImportHistory.get(historyId).getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
+      this.checkPermissions(hist.getOrganization().getCode());
+      
+      if (!hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
       {
         throw new ProgrammingErrorException("Import jobs can only be canceled if they are in " + ImportStage.VALIDATION_RESOLVE.name() + " stage.");
       }
@@ -105,7 +108,7 @@ public class ETLService
         it.close();
       }
       
-      ImportHistory hist = ImportHistory.lock(historyId);
+      hist = ImportHistory.lock(historyId);
       hist.clearStage();
       hist.addStage(ImportStage.COMPLETE);
       hist.clearStatus();
@@ -128,6 +131,10 @@ public class ETLService
   {
     ImportConfiguration config = ImportConfiguration.build(json);
     
+    ImportHistory hist = ImportHistory.get(config.getHistoryId());
+    
+    this.checkPermissions(hist.getOrganization().getCode());
+    
     VaultFile vf = VaultFile.get(config.getVaultFileId());
     vf.delete();
     
@@ -144,7 +151,7 @@ public class ETLService
     config.setVaultFileId(vf2.getOid());
     config.setFileName(file.getFilename());
     
-    ImportHistory hist = ImportHistory.lock(config.getHistoryId());
+    hist = ImportHistory.lock(config.getHistoryId());
     hist.setImportFile(vf2);
     hist.setConfigJson(config.toJSON().toString());
     hist.apply();
@@ -154,6 +161,8 @@ public class ETLService
   public JsonObject doImport(String sessionId, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
+    
+    this.checkPermissions(((GeoObjectImportConfiguration)config).getType().getOrganization().getCode());
 
     ImportHistory hist;
     
@@ -182,11 +191,20 @@ public class ETLService
   @Request(RequestType.SESSION)
   public JsonObject getActiveImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
+    String orgCode = ServiceFactory.getRolePermissionService().getOrganization();
+    if (orgCode == null)
+    {
+      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
+    }
+    Organization org = Organization.getByCode(orgCode);
+    
     JsonArray ja = new JsonArray();
     
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.RUNNING).OR(ihq.getStatus().containsExactly(AllJobStatus.NEW)).OR(ihq.getStatus().containsExactly(AllJobStatus.QUEUED)).OR(ihq.getStatus().containsExactly(AllJobStatus.FEEDBACK)));
+    ihq.WHERE(ihq.getOrganization().EQ(org));
+    
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
     
@@ -215,11 +233,19 @@ public class ETLService
   @Request(RequestType.SESSION)
   public JsonObject getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
+    String orgCode = ServiceFactory.getRolePermissionService().getOrganization();
+    if (orgCode == null)
+    {
+      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
+    }
+    Organization org = Organization.getByCode(orgCode);
+    
     JsonArray ja = new JsonArray();
     
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.SUCCESS).OR(ihq.getStatus().containsExactly(AllJobStatus.FAILURE)).OR(ihq.getStatus().containsExactly(AllJobStatus.CANCELED)));
+    ihq.WHERE(ihq.getOrganization().EQ(org));
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
     
@@ -502,6 +528,8 @@ public class ETLService
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
     
+    this.checkPermissions(hist.getOrganization().getCode());
+    
     JsonObject jo = this.serializeHistory(hist, user, job);
     
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
@@ -530,15 +558,21 @@ public class ETLService
     return jo;
   }
   
-  private void checkPermissions()
+  private void checkPermissions(String orgCode)
   {
-    Map<String, String> roles = Session.getCurrentSession().getUserRoles();
-    if (! (roles.keySet().contains(DefaultConfiguration.ADMIN)
-        || roles.keySet().contains(RegistryConstants.REGISTRY_MAINTAINER_ROLE)
-        || roles.keySet().contains(RegistryConstants.REGISTRY_ADMIN_ROLE)
-      ))
+    RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    
+    if (perms.isRA())
     {
-      throw new ProgrammingErrorException("You don't have permissions to access this endpoint.");
+      perms.enforceRA(orgCode);
+    }
+    else if (perms.isRM())
+    {
+      perms.enforceRM(orgCode);
+    }
+    else
+    {
+      perms.enforceRM();
     }
   }
 
@@ -551,11 +585,13 @@ public class ETLService
   @Transaction
   private void submitImportErrorResolutionInTrans(String sessionId, String json)
   {
-    checkPermissions();
-    
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
     
     ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
+    
+    this.checkPermissions(hist.getOrganization().getCode());
+    
+    checkPermissions(hist.getOrganization().getCode());
     
     ImportError err = ImportError.get(config.get("importErrorId").getAsString());
     
@@ -606,13 +642,13 @@ public class ETLService
   @Transaction
   private JsonObject submitValidationProblemResolutionInTrans(String sessionId, String json)
   {
-    checkPermissions();
-    
     JsonObject response = new JsonObject();
     
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
     
-//    ImportHistory hist = ImportHistory.get(config.getString("historyId"));
+    ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
+    
+    this.checkPermissions(hist.getOrganization().getCode());
     
     ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
     
@@ -681,9 +717,9 @@ public class ETLService
   @Request(RequestType.SESSION)
   public void resolveImport(String sessionId, String historyId)
   {
-    checkPermissions();
-    
     ImportHistory hist = ImportHistory.get(historyId);
+    
+    this.checkPermissions(hist.getOrganization().getCode());
     
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
     {

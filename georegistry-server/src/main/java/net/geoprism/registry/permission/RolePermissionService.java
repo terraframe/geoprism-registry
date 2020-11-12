@@ -27,6 +27,7 @@ import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRAException;
+import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.SRAException;
 import net.geoprism.registry.roles.RAException;
 
@@ -130,5 +131,93 @@ public class RolePermissionService extends UserPermissionService
         throw ex;
       }
     }
+  }
+  
+  public boolean isRM()
+  {
+    return isRM(null);
+  }
+
+  public boolean isRM(String orgCode)
+  {
+    if (!this.hasSessionUser())
+    {
+      return true;
+    }
+
+    SingleActorDAOIF actor = this.getSessionUser();
+
+    Set<RoleDAOIF> roles = actor.authorizedRoles();
+
+    for (RoleDAOIF role : roles)
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isRM_Role(roleName))
+      {
+        String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+
+        if (orgCode != null)
+        {
+          return orgCode.equals(roleOrgCode);
+        }
+        else
+        {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public void enforceRM()
+  {
+    enforceRM(null);
+  }
+
+  public void enforceRM(String orgCode)
+  {
+    if (!isRM(orgCode))
+    {
+      if (orgCode != null)
+      {
+        Organization org = Organization.getByCode(orgCode);
+
+        OrganizationRMException ex = new OrganizationRMException();
+        ex.setOrganizationLabel(org.getDisplayLabel().getValue());
+        throw ex;
+      }
+      else
+      {
+        OrganizationRMException ex = new OrganizationRMException();
+        throw ex;
+      }
+    }
+  }
+  
+  /**
+   * If the session user is an org role, this method will return the user's organization. Otherwise
+   * this method will return null.
+   */
+  public String getOrganization()
+  {
+    SingleActorDAOIF actor = this.getSessionUser();
+
+    Set<RoleDAOIF> roles = actor.authorizedRoles();
+
+    for (RoleDAOIF role : roles)
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isOrgRole(roleName))
+      {
+        String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+
+        return roleOrgCode;
+      }
+    }
+    
+    return null;
   }
 }

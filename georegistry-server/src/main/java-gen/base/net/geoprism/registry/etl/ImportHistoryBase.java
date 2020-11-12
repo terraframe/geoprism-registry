@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 886977315)
+@com.runwaysdk.business.ClassSignature(hash = 948610614)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -34,8 +16,9 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
   public static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
+  public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String STAGE = "stage";
-  private static final long serialVersionUID = 886977315;
+  private static final long serialVersionUID = 948610614;
   
   public ImportHistoryBase()
   {
@@ -203,6 +186,58 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     else
     {
       setValue(IMPORTEDRECORDS, java.lang.Long.toString(value));
+    }
+  }
+  
+  public net.geoprism.registry.Organization getOrganization()
+  {
+    if (getValue(ORGANIZATION).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.Organization.get(getValue(ORGANIZATION));
+    }
+  }
+  
+  public String getOrganizationOid()
+  {
+    return getValue(ORGANIZATION);
+  }
+  
+  public void validateOrganization()
+  {
+    this.validateAttribute(ORGANIZATION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getOrganizationMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(ORGANIZATION);
+  }
+  
+  public void setOrganization(net.geoprism.registry.Organization value)
+  {
+    if(value == null)
+    {
+      setValue(ORGANIZATION, "");
+    }
+    else
+    {
+      setValue(ORGANIZATION, value.getOid());
+    }
+  }
+  
+  public void setOrganizationId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(ORGANIZATION, "");
+    }
+    else
+    {
+      setValue(ORGANIZATION, oid);
     }
   }
   

@@ -147,6 +147,9 @@ public class GeoObjectImporterTest
     return ImportHistory.get(historyId);
   }
   
+  /*
+   * I simply could not get this test to work on the build machine :(. It works locally for me but not on the build machine and I don't know why.
+   */
 //  @Test
 //  public void testSessionExpire() throws InterruptedException
 //  {

@@ -21,6 +21,8 @@ package net.geoprism.registry.etl;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+
 public class ImportHistory extends ImportHistoryBase
 {
   private static final long serialVersionUID = 752640606;
@@ -55,6 +57,11 @@ public class ImportHistory extends ImportHistoryBase
     {
       it.close();
     }
+  }
+  
+  public ImportConfiguration getConfig()
+  {
+    return ImportConfiguration.build(this.getConfigJson());
   }
   
   public void deleteAllValidationProblems()

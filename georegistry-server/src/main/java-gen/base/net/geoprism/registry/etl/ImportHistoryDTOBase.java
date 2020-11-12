@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 1159668131)
+@com.runwaysdk.business.ClassSignature(hash = -1897437258)
 public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.scheduler.JobHistoryDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.ImportHistory";
-  private static final long serialVersionUID = 1159668131;
+  private static final long serialVersionUID = -1897437258;
   
   protected ImportHistoryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -50,6 +32,7 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   public static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
+  public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String STAGE = "stage";
   public String getConfigJson()
   {
@@ -246,6 +229,21 @@ public abstract class ImportHistoryDTOBase extends com.runwaysdk.system.schedule
   public final com.runwaysdk.transport.metadata.AttributeNumberMdDTO getImportedRecordsMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeNumberMdDTO) getAttributeDTO(IMPORTEDRECORDS).getAttributeMdDTO();
+  }
+  
+  public boolean isOrganizationWritable()
+  {
+    return isWritable(ORGANIZATION);
+  }
+  
+  public boolean isOrganizationReadable()
+  {
+    return isReadable(ORGANIZATION);
+  }
+  
+  public boolean isOrganizationModified()
+  {
+    return isModified(ORGANIZATION);
   }
   
   @SuppressWarnings("unchecked")
