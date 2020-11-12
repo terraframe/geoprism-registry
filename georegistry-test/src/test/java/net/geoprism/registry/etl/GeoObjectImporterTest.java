@@ -80,7 +80,7 @@ public class GeoObjectImporterTest
   protected static USATestData testData;
 
   private final Integer        ROW_COUNT = 3;
-
+  
   @BeforeClass
   public static void setUpClass()
   {
@@ -151,8 +151,13 @@ public class GeoObjectImporterTest
   public void testSessionExpire() throws InterruptedException
   {
     CommonsConfigurationResolver.getInMemoryConfigurator().setProperty("import.refreshSessionRecordCount", "1");
-    
     Assert.assertEquals(1, GeoregistryProperties.getRefreshSessionRecordCount());
+    
+    Date benchmarkStartTime = new Date();
+    testUpdateOnly();
+    Date benchmarkEndTime = new Date();
+    long benchmarkRuntime = benchmarkEndTime.getTime() - benchmarkStartTime.getTime();
+    System.out.println("Benchmark time is " + benchmarkRuntime); // Find out how long it takes on this computer to import one record
     
     GeoObjectImportConfiguration config = testSessionSetup();
     
@@ -160,7 +165,10 @@ public class GeoObjectImporterTest
     
     long oldSessionTime = Session.getSessionTime();
     
-    final long sessionTimeMs = 8000;
+    // This value must be very finely tuned. It has to be short enough such that it is less than the time a fast computer
+    // will take to import the entire spreadsheet, but small enough so that a slow computer can import a single record
+    // before the session expires.
+    final long sessionTimeMs = benchmarkRuntime + 500; 
     Session.setSessionTime(sessionTimeMs / (1000));
     
     ImportHistory hist;
