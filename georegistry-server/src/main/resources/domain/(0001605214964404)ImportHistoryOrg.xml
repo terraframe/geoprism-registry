@@ -1,0 +1,17 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.etl.ImportHistory">
+        <create>
+          <attributes>
+            <reference name="organization" required="false" type="net.geoprism.registry.Organization"/>
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete><object key="net.geoprism.registry.etl.ImportHistory.organization" type="com.runwaysdk.system.metadata.MdAttribute"></object></delete>
+  </undoIt>
+</version>
