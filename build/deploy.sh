@@ -90,3 +90,5 @@ if [ "$deploy" == "true" ]; then
   fi
 
 fi
+
+exit 0;
