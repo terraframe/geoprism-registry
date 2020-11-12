@@ -160,7 +160,7 @@ public class GeoObjectImporterTest
     
     long oldSessionTime = Session.getSessionTime();
     
-    final long sessionTimeMs = 5000;
+    final long sessionTimeMs = 8000;
     Session.setSessionTime(sessionTimeMs / (1000));
     
     ImportHistory hist;
@@ -182,6 +182,8 @@ public class GeoObjectImporterTest
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
     
     Date endTime = new Date();
+    
+    System.out.println("Session expiration test took " + (endTime.getTime() - startTime.getTime()) + " miliseconds to complete.");
     
     if ((endTime.getTime() - startTime.getTime()) < sessionTimeMs)
     {
