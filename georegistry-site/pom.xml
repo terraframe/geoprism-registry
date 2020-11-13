@@ -39,7 +39,7 @@
     <repository>
       <id>terraframe</id>
       <name>terraframe</name>
-      <url>http://nexus.terraframe.com/content/groups/allrepos</url>
+      <url>https://nexus.terraframe.com/content/groups/allrepos</url>
       <layout>default</layout>
     </repository>
   </repositories>
