@@ -18,6 +18,9 @@
  */
 package com.runwaysdk.build.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -30,6 +33,8 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class PatchOrgIntoImportHistory
 {
+  private static final Logger logger = LoggerFactory.getLogger(PatchOrgIntoImportHistory.class);
+  
   public static void main(String[] args)
   {
     new PatchOrgIntoImportHistory().doIt();
@@ -45,17 +50,24 @@ public class PatchOrgIntoImportHistory
     {
       for (ImportHistory hist : it)
       {
-        ImportConfiguration config = hist.getConfig();
-        
-        if (config instanceof GeoObjectImportConfiguration)
+        try
         {
-          GeoObjectImportConfiguration goConfig = (GeoObjectImportConfiguration) config;
+          ImportConfiguration config = hist.getConfig();
           
-          Organization org = goConfig.getType().getOrganization();
-          
-          hist.appLock();
-          hist.setOrganization(org);
-          hist.apply();
+          if (config instanceof GeoObjectImportConfiguration)
+          {
+            GeoObjectImportConfiguration goConfig = (GeoObjectImportConfiguration) config;
+            
+            Organization org = goConfig.getType().getOrganization();
+            
+            hist.appLock();
+            hist.setOrganization(org);
+            hist.apply();
+          }
+        }
+        catch (net.geoprism.registry.DataNotFoundException e)
+        {
+          logger.error("ImportHistory references object which does not exist", e);
         }
       }
     }
