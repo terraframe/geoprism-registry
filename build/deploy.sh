@@ -76,12 +76,11 @@ fi
 : ----------------------------------
 :
 if [ "$deploy" == "true" ]; then
-  cd $WORKSPACE/geoprism-platform/ansible
+  cd $WORKSPACE/geoprism-cloud/ansible
 
-  [ -e ./roles ] && unlink ./roles
-  ln -s $WORKSPACE/geoprism-cloud/ansible/roles ./roles
-  [ -e ./georegistry.yml ] && unlink ./georegistry.yml
-  ln -s $WORKSPACE/geoprism-cloud/ansible/georegistry.yml ./georegistry.yml
+  [ -h ./inventory ] && unlink ./inventory
+  [ -d ./inventory ] && rm -r ./inventory
+  ln -s $WORKSPACE/geoprism-platform/ansible/inventory ./inventory
 
   ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db artifact_version=$version"
 
