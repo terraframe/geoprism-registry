@@ -81,6 +81,9 @@ if [ "$deploy" == "true" ]; then
   [ -h ./inventory ] && unlink ./inventory
   [ -d ./inventory ] && rm -r ./inventory
   ln -s $WORKSPACE/geoprism-platform/ansible/inventory ./inventory
+  
+  [ -h ../permissions ] && unlink ../permissions
+  ln -s $WORKSPACE/geoprism-platform/permissions ../permissions
 
   ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db artifact_version=$version"
 
