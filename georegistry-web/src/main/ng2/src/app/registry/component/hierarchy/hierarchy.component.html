@@ -26,7 +26,7 @@
 						</div>
 						<div class="sidebar-section-content">
 							<ul *ngFor="let typeByOrg of filteredTypesByOrg;" class="list-group">
-								<div *ngIf="typeByOrg.types.length > 0">
+								<div>
 
 									<div class="got-org-label-wrapper">
 										<label>{{typeByOrg.org.label.localizedValue}}</label>
@@ -91,7 +91,7 @@
 						</div>
 						<div class="sidebar-section-content">
 							<ul *ngFor="let hierarchyByOrg of filteredHierarchiesByOrg" class="list-group">
-								<div *ngIf="hierarchyByOrg.hierarchies.length > 0">
+								<div>
 
 									<div class="got-org-label-wrapper">
 										<label>{{hierarchyByOrg.org.label.localizedValue}}</label>
@@ -107,7 +107,7 @@
 
 									<li *ngFor="let hierarchy of hierarchyByOrg.hierarchies;" [id]="hierarchy.code"
 										class="list-group-item hier-li-item clickable"
-										[ngClass]="{'primary': hierarchy.code === currentHierarchy.code, 'active': isActive(hierarchy)}"
+										[ngClass]="{'primary': (currentHierarchy != null && hierarchy.code === currentHierarchy.code), 'active': isActive(hierarchy)}"
 										(click)="hierarchyOnClick($event,hierarchy)">
 										<i class="fa fa-sitemap"></i> {{hierarchy.label.localizedValue}}
 
