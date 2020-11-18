@@ -78,7 +78,9 @@ import { SynchronizationConfigComponent } from './component/synchronization-conf
 import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 
 import { LocationManagerComponent } from './component/location-manager/location-manager.component';
+import { DatasetLocationManagerComponent } from './component/location-manager/dataset-location-manager.component';
 import { ContextLayerModalComponent } from './component/location-manager/context-layer-modal.component';
+import { LayerPanelComponent } from './component/location-manager/layer-panel.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -122,7 +124,7 @@ import '../rxjs-extensions';
 		NgxPaginationModule,
 		SharedModule,
 		RegistryRoutingModule,
-    AccordionModule.forRoot()
+		AccordionModule.forRoot()
 	],
 	declarations: [
 		HierarchyComponent,
@@ -196,7 +198,9 @@ import '../rxjs-extensions';
 		SyncDetailsComponent,
 		// Location manager
 		LocationManagerComponent,
-		ContextLayerModalComponent
+		DatasetLocationManagerComponent,
+		ContextLayerModalComponent,
+		LayerPanelComponent
 	],
 	providers: [
 		MapService,

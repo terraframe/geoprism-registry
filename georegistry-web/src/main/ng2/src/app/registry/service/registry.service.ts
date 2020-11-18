@@ -673,8 +673,11 @@ export class RegistryService {
 			'Content-Type': 'application/json'
 		});
 
-		let params = { parentTreeNode: parentTreeNode, geoObject: geoObject, isNew: isNew, masterListId: masterListId };
+		let params = { geoObject: geoObject, isNew: isNew, masterListId: masterListId };
 
+		if (parentTreeNode != null) {
+			params['parentTreeNode'] = parentTreeNode;
+		}
 		if (notes != null) {
 			params['notes'] = notes;
 		}
@@ -787,6 +790,14 @@ export class RegistryService {
 			.toPromise();
 	}
 
+	getDatasetBounds(oid: string): Promise<number[]> {
+		let params: HttpParams = new HttpParams();
+		params = params.set('oid', oid)
+
+		return this.http
+			.get<number[]>(acp + '/master-list/bounds', { params: params })
+			.toPromise();
+	}
 
 	getOrganizations(): Promise<Organization[]> {
 

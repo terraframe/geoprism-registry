@@ -9,10 +9,8 @@ import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
 
-import { GeoObject, MasterList, ContextLayer, ContextLayerGroup } from '@registry/model/registry';
+import { GeoObject, ContextLayer, ContextLayerGroup } from '@registry/model/registry';
 import { LocationInformation } from '@registry/model/location-manager';
-
-import { ContextLayerModalComponent } from './context-layer-modal.component';
 
 import { MapService, RegistryService } from '@registry/service';
 
@@ -66,10 +64,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	vectorLayers: string[] = [];
 
-	contextLayerGroups: ContextLayerGroup[] = [];
-
-	lists: MasterList[] = [];
-
     /* 
      * List of base layers
      */
@@ -91,8 +85,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		// }
 	];
 
-	baselayerIconHover = false;
-
 	hoverFeatureId: string;
 
 	preventSingleClick: boolean = false;
@@ -108,14 +100,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	subject: Subject<MapboxEvent<MouseEvent | TouchEvent | WheelEvent>>;
 
 	constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService) {
+		mapService.init();
 	}
 
 	ngOnInit(): void {
-		this.service.getAllMasterListVersions().then(lists => {
-			this.lists = lists;
-
-			this.convertListsToContextLayers(lists);
-		});
 	}
 
 	ngOnDestroy(): void {
@@ -161,17 +149,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.initMap();
 		});
 
-	}
-
-	convertListsToContextLayers(lists: MasterList[]): void {
-		lists.forEach(list => {
-			let thisList = { oid: list.oid, displayLabel: list.displayLabel.localizedValue, contextLayers: [] };
-			this.contextLayerGroups.push(thisList);
-			list.versions.forEach(version => {
-				let thisContextLayer = { oid: version.oid, displayLabel: version.forDate, active: false, enabled: false };
-				thisList.contextLayers.push(thisContextLayer);
-			});
-		});
 	}
 
 	handleDateChange(): void {
@@ -267,12 +244,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			}
 		});
 
-		this.contextLayerGroups.forEach(cLayerGroup => {
-			cLayerGroup.contextLayers.forEach(cLayer => {
-				if (cLayer.enabled) {
-					this.addVectorLayer(cLayer.oid);
-				}
-			});
+		this.vectorLayers.forEach(cLayer => {
+			this.addVectorLayer(cLayer);
 		});
 
 	}
@@ -371,26 +344,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	// 		]
 	// 	});
 	// }
-
-	addContextLayerModal(): void {
-		this.bsModalRef = this.modalService.show(ContextLayerModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
-			'class': 'context-layer-modal'
-		});
-		this.bsModalRef.content.contextLayerGroups = this.contextLayerGroups;
-
-		(<ContextLayerModalComponent>this.bsModalRef.content).onSubmit.subscribe(cLayerGroups => {
-
-			// cLayerGroups.forEach(cLayerGroup => {
-			// 	cLayerGroup.contextLayers.forEach(cLayer => {
-			// 		this.toggleContextLayer(cLayer.oid)
-			// 	});
-			// })
-
-		});
-	}
 
 	highlightMapFeature(id: string): void {
 
@@ -550,147 +503,107 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 
-	groupHasEnabledContextLayers(group: string): boolean {
-		let hasEnabled = false;
-		this.contextLayerGroups.forEach(cLayerGroup => {
-			if (cLayerGroup.oid === group) {
-				cLayerGroup.contextLayers.forEach(cLayer => {
-					if (cLayer.enabled) {
-						hasEnabled = true;
-					}
-				});
-			}
-		});
+	onContextLayerChange(layer: ContextLayer): void {
 
-		return hasEnabled;
-	}
-
-	hasEnabledContextLayers(): boolean {
-		let hasEnabled = false;
-		this.contextLayerGroups.forEach(cLayerGroup => {
-			cLayerGroup.contextLayers.forEach(cLayer => {
-				if (cLayer.enabled) {
-					hasEnabled = true;
-				}
-			});
-		});
-
-		return hasEnabled;
-	}
-
-	removeContextLayer(cLayer: ContextLayer): void {
-		if (cLayer.active) {
-			this.map.removeLayer(cLayer.oid + "-points");
-			this.map.removeLayer(cLayer.oid + "-polygon");
-			this.map.removeLayer(cLayer.oid + "-label");
-			this.map.removeSource(cLayer.oid);
-
-			cLayer.active = false;
+		if (layer.active) {
+			this.addVectorLayer(layer.oid);
+		}
+		else {
+			this.removeVectorLayer(layer.oid);
 		}
 
-		cLayer.enabled = false;
 	}
 
-	toggleContextLayer(source: string): void {
+	removeVectorLayer(source: string): void {
 
-		this.contextLayerGroups.forEach(cLayerGroup => {
-			cLayerGroup.contextLayers.forEach(cLayer => {
-				if (cLayer.oid === source) {
+		const index = this.vectorLayers.indexOf(source);
 
-					// WARNING: the boolean component returns the value already switched (false --> true). 
-					// I'm reversing that value here so the logic below is more intuitive.
-					// cLayer.active = !cLayer.active 
-					//
+		if (index !== -1) {
+			this.map.removeLayer(source + "-points");
+			this.map.removeLayer(source + "-polygon");
+			this.map.removeLayer(source + "-label");
+			this.map.removeSource(source);
 
-					if (cLayer.active) {
-						this.map.removeLayer(source + "-points");
-						this.map.removeLayer(source + "-polygon");
-						this.map.removeLayer(source + "-label");
-						this.map.removeSource(source);
+			this.vectorLayers.splice(index, 1);
+		}
 
-						cLayer.active = false;
-					}
-					else {
-						this.addVectorLayer(source);
-
-						cLayer.active = true;
-					}
-				}
-			})
-		})
 	}
 
 	addVectorLayer(source: string): void {
-		const prevLayer = 'children-points';
+		const index = this.vectorLayers.indexOf(source);
 
-		// console.log(navigator.language.toLowerCase());
+		if (index === -1) {
+			const prevLayer = 'children-points';
 
-		var protocol = window.location.protocol;
-		var host = window.location.host;
+			var protocol = window.location.protocol;
+			var host = window.location.host;
 
-		this.map.addSource(source, {
-			type: 'vector',
-			tiles: [protocol + '//' + host + acp + '/master-list/tile?x={x}&y={y}&z={z}&config=' + encodeURIComponent(JSON.stringify({ oid: source }))]
-		});
+			this.map.addSource(source, {
+				type: 'vector',
+				tiles: [protocol + '//' + host + acp + '/master-list/tile?x={x}&y={y}&z={z}&config=' + encodeURIComponent(JSON.stringify({ oid: source }))]
+			});
 
-		// Point layer
-		this.map.addLayer({
-			"id": source + "-points",
-			"type": "circle",
-			"source": source,
-			"source-layer": 'context',
-			"paint": {
-				"circle-radius": 10,
-				"circle-color": '#800000',
-				"circle-stroke-width": 2,
-				"circle-stroke-color": '#FFFFFF'
-			},
-			filter: ['all',
-				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-			]
-		}, prevLayer);
+			// Point layer
+			this.map.addLayer({
+				"id": source + "-points",
+				"type": "circle",
+				"source": source,
+				"source-layer": 'context',
+				"paint": {
+					"circle-radius": 10,
+					"circle-color": '#800000',
+					"circle-stroke-width": 2,
+					"circle-stroke-color": '#FFFFFF'
+				},
+				filter: ['all',
+					["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+				]
+			}, prevLayer);
 
-		// Polygon layer
-		this.map.addLayer({
-			'id': source + '-polygon',
-			'type': 'fill',
-			'source': source,
-			"source-layer": 'context',
-			'layout': {},
-			'paint': {
-				'fill-color': '#80cdc1',
-				'fill-opacity': 0.8,
-				'fill-outline-color': 'black'
-			},
-			filter: ['all',
-				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
-			]
-		}, prevLayer);
+			// Polygon layer
+			this.map.addLayer({
+				'id': source + '-polygon',
+				'type': 'fill',
+				'source': source,
+				"source-layer": 'context',
+				'layout': {},
+				'paint': {
+					'fill-color': '#80cdc1',
+					'fill-opacity': 0.8,
+					'fill-outline-color': 'black'
+				},
+				filter: ['all',
+					["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+				]
+			}, prevLayer);
 
 
-		// Label layer
-		this.map.addLayer({
-			"id": source + "-label",
-			"source": source,
-			"source-layer": 'context',
-			"type": "symbol",
-			"paint": {
-				"text-color": "black",
-				"text-halo-color": "#fff",
-				"text-halo-width": 2
-			},
-			"layout": {
-				"text-field": ["case",
-					["has", "displayLabel_" + navigator.language.toLowerCase()],
-					["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
-					["string", ["get", "displayLabel"]]
-				],
-				"text-font": ["NotoSansRegular"],
-				"text-offset": [0, 0.6],
-				"text-anchor": "top",
-				"text-size": 12,
-			}
-		}, prevLayer);
+			// Label layer
+			this.map.addLayer({
+				"id": source + "-label",
+				"source": source,
+				"source-layer": 'context',
+				"type": "symbol",
+				"paint": {
+					"text-color": "black",
+					"text-halo-color": "#fff",
+					"text-halo-width": 2
+				},
+				"layout": {
+					"text-field": ["case",
+						["has", "displayLabel_" + navigator.language.toLowerCase()],
+						["coalesce", ["string", ["get", "displayLabel_" + navigator.language.toLowerCase()]], ["string", ["get", "displayLabel"]]],
+						["string", ["get", "displayLabel"]]
+					],
+					"text-font": ["NotoSansRegular"],
+					"text-offset": [0, 0.6],
+					"text-anchor": "top",
+					"text-size": 12,
+				}
+			}, prevLayer);
 
+
+			this.vectorLayers.push(source);
+		}
 	}
 }

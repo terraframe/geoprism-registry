@@ -16,6 +16,7 @@ import { SynchronizationConfigManagerComponent } from './component/synchronizati
 import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
 import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 import { LocationManagerComponent } from './component/location-manager/location-manager.component';
+import { DatasetLocationManagerComponent } from './component/location-manager/dataset-location-manager.component';
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from '../shared/service/guard.service';
 
@@ -88,6 +89,11 @@ const routes: Routes = [
     {
         path: 'location-manager',
         component: LocationManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'dataset-location-manager/:datasetId/:typeCode/:date',
+        component: DatasetLocationManagerComponent,
         canActivate: [AuthGuard]
     },
     {

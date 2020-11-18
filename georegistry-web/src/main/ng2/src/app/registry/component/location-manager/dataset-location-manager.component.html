@@ -1,0 +1,34 @@
+<div class="">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+
+  <div id="app-container" class="container-fluid">
+
+    <div class="row">
+<!-- 
+      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
+        <div class="row">
+          <div class="col-md-12">
+            <div *ngIf="code != null">
+            </div>
+          </div>
+        </div>
+      </div>
+ -->    
+
+      <div class="col-md-12" id="site-explorer-map">
+        <div class="row">
+
+          <article class="base-layer-panel">
+            <layer-panel (layerChange)="onContextLayerChange($event)" [filter]="[datasetId]"></layer-panel>
+          </article>
+
+          <div id="map" class="map-view-port"></div>
+          
+          <simple-edit-control [visible]="code != null" (editEmitter)="onEdit()"  #simpleEditControl></simple-edit-control>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

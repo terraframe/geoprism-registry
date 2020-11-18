@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -57,6 +57,8 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -110,6 +112,7 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
@@ -973,6 +976,9 @@ public class MasterListVersion extends MasterListVersionBase
   {
     object.setDate(this.getForDate());
 
+    // Delete tile cache
+    TileCache.deleteTiles(this);
+
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     List<Locale> locales = SupportedLocaleCache.getLocales();
@@ -1391,6 +1397,33 @@ public class MasterListVersion extends MasterListVersionBase
     return query;
   }
 
+  public String bbox()
+  {
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+
+    double[] geometry = GeoserverFacade.getBBOX(mdBusiness.getTableName());
+
+    if (geometry != null)
+    {
+      try
+      {
+        JSONArray bboxArr = new JSONArray();
+        bboxArr.put(geometry[0]);
+        bboxArr.put(geometry[1]);
+        bboxArr.put(geometry[2]);
+        bboxArr.put(geometry[3]);
+
+        return bboxArr.toString();
+      }
+      catch (JSONException ex)
+      {
+        throw new ProgrammingErrorException(ex);
+      }
+    }
+
+    return null;
+  }
+
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
@@ -1674,5 +1707,4 @@ public class MasterListVersion extends MasterListVersionBase
       return it.getAll();
     }
   }
-
 }
