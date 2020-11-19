@@ -8,7 +8,7 @@ import { Component, ElementRef, Input, Output, EventEmitter } from '@angular/cor
 export class SimpleEditControl {
   elRef: ElementRef
   
-  @Input() visible = false;
+  @Input() visible:boolean = true;
   
   @Output() editEmitter = new EventEmitter<void>();
   

@@ -65,6 +65,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	@Output() valid = new EventEmitter<boolean>();
 
+	@Output() onAttributeVersions = new EventEmitter<Attribute>();
+
+	@Input() customEvent: boolean = false;
+
 	modifiedTermOption: Term = null;
 	currentTermOption: Term = null;
 	isValid: boolean = true;
@@ -218,21 +222,27 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	onManageAttributeVersions(attribute: Attribute): void {
-		this.bsModalRef = this.modalService.show(ManageVersionsModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
-		});
 
-		// TODO: sending the properties like this is wrong
-		this.bsModalRef.content.geoObjectOverTime = this.postGeoObject;
-		this.bsModalRef.content.geoObjectType = this.geoObjectType;
-		this.bsModalRef.content.isNewGeoObject = this.isNew;
-		this.bsModalRef.content.attribute = attribute;
-		this.bsModalRef.content.onAttributeVersionChange.subscribe(versionObj => {
-			this.calculate();
-		});
-		this.bsModalRef.content.tfInit();
+		if (this.customEvent) {
+			this.onAttributeVersions.emit(attribute);
+		}
+		else {
+			this.bsModalRef = this.modalService.show(ManageVersionsModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
+			});
+
+			// TODO: sending the properties like this is wrong
+			this.bsModalRef.content.geoObjectOverTime = this.postGeoObject;
+			this.bsModalRef.content.geoObjectType = this.geoObjectType;
+			this.bsModalRef.content.isNewGeoObject = this.isNew;
+			this.bsModalRef.content.attribute = attribute;
+			this.bsModalRef.content.onAttributeVersionChange.subscribe(versionObj => {
+				this.calculate();
+			});
+			this.bsModalRef.content.tfInit();
+		}
 	}
 
 	onManageGeometryVersions(): void {

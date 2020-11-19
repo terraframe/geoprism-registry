@@ -138,7 +138,7 @@
                                               </geoobject-editor-map>
                                             </div>
                                             
-                                            <div *ngIf="attr.isChangeOverTime" class="button-holder" style="text-align:left;" >
+                                            <div *ngIf="attr.isChangeOverTime && !readOnly" class="button-holder" style="text-align:left;" >
                                               <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button">
                                                 <localize key="changeovertime.manageVersions.button.label"></localize>
                                               </button>

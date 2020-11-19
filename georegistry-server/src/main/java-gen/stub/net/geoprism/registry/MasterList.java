@@ -568,7 +568,7 @@ public class MasterList extends MasterListBase
 
     if (this.getPublishingStartDate() != null)
     {
-      return new Pair<Date, Date>(this.getPublishDate(), range.getSecond());
+      return new Pair<Date, Date>(this.getPublishingStartDate(), range.getSecond());
     }
 
     return range;

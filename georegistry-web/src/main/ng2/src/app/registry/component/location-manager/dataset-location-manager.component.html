@@ -6,18 +6,47 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-<!-- 
       <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
         <div class="row">
           <div class="col-md-12">
-            <div *ngIf="code != null">
+            <div *ngIf="mode == 'ATTRIBUTES' && preGeoObject != null">
+              <!-- Attributes tab -->
+              <geoobject-shared-attribute-editor 
+                #attributeEditor 
+                [geoObjectType]="type"
+                [preGeoObject]="preGeoObject" 
+                [postGeoObject]="postGeoObject" 
+                [forDate]="this.forDate" 
+                [isNew]="false"
+                [isEditingGeometries]="false"
+                [customEvent]="true"
+                (onAttributeVersions)="onManageAttributeVersions($event)"
+                [readOnly]="readOnly">
+              </geoobject-shared-attribute-editor>
+              <div class="button-holder" style="text-align: left;">
+                <button *ngIf="readOnly" type="submit" style="" (click)="onEditAttributes()" class="btn btn-primary" role="button">
+                  <localize key="changeovertime.manageVersions.button.label"></localize>
+                </button>
+                <button *ngIf="!readOnly" type="submit" style="" (click)="handleSubmit()" class="btn btn-primary" role="button">
+                  <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
+                </button>
+              </div>
+            </div>
+            <div *ngIf="mode == 'VERSIONS' && attribute != null">
+              <!-- Attributes tab -->
+                <manage-versions 
+                  [attribute]="attribute"
+                  [geoObjectType]="type"
+                  [geoObjectOverTime]="postGeoObject"
+                  [isNewGeoObject]="false"
+                  (onChange)="onVersionChange($event)"
+                ></manage-versions>
             </div>
           </div>
         </div>
       </div>
- -->    
 
-      <div class="col-md-12" id="site-explorer-map">
+      <div class="col-md-9" id="site-explorer-map">
         <div class="row">
 
           <article class="base-layer-panel">
@@ -26,7 +55,7 @@
 
           <div id="map" class="map-view-port"></div>
           
-          <simple-edit-control [visible]="code != null" (editEmitter)="onEdit()"  #simpleEditControl></simple-edit-control>
+          <simple-edit-control [visible]="!readOnly" (editEmitter)="onMapEdit()"  #simpleEditControl></simple-edit-control>
         </div>
       </div>
     </div>

@@ -5,9 +5,9 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Map, NavigationControl, AttributionControl, LngLatBounds, IControl } from 'mapbox-gl';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
-import { ContextLayer, GeoObjectType, GeoObjectOverTime } from '@registry/model/registry';
+import { ContextLayer, GeoObjectType, GeoObjectOverTime, Attribute } from '@registry/model/registry';
 import { MapService, RegistryService } from '@registry/service';
-import { LocalizationService } from '@shared/service';
+import { LocalizationService, AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
 import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
 
@@ -61,6 +61,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	];
 
 
+	mode: string = null;
+
 	@ViewChild("simpleEditControl") simpleEditControl: IControl;
 	editingControl: any;
 
@@ -76,7 +78,15 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	calculatedPostObject: any = {};
 
-	constructor(private mapService: MapService, public service: RegistryService, private lService: LocalizationService, private modalService: BsModalService, private route: ActivatedRoute) {
+	attribute: Attribute = null;
+
+	readOnly: boolean = true;
+
+	isMaintainer: boolean;
+
+
+	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, authService: AuthService) {
+		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 	}
 
 	ngOnInit(): void {
@@ -331,35 +341,34 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 			if (feature.properties.code != null && this.code !== feature.properties.code) {
 				this.code = feature.properties.code;
+				this.readOnly = true;
 
-				let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
-				editModal.content.configureAsExisting(this.code, this.typeCode, this.date, false);
-				editModal.content.setMasterListId(this.datasetId);
+				this.service.getGeoObjectOverTime(this.code, this.typeCode).then(geoObject => {
+					this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
+					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+
+					this.calculate();
+					this.mode = 'ATTRIBUTES';
+				})
+
+
+				//				let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
+				//				editModal.content.configureAsExisting(this.code, this.typeCode, this.date, false);
+				//				editModal.content.setMasterListId(this.datasetId);
 			}
 		}
 	}
 
+	calculate(): void {
+		this.calculatedPreObject = this.calculateCurrent(this.preGeoObject);
+		this.calculatedPostObject = this.calculateCurrent(this.postGeoObject);
+	}
 
-	onEdit(): void {
-		// Save the object
-		if (this.postGeoObject != null) {
-			console.log('On Save');
 
-			this.submit();
-		}
+	onMapEdit(): void {
 		// Enable editing
-		else {
-			this.service.getGeoObjectOverTime(this.code, this.typeCode).then(geoObject => {
-				this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
-				this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
-
-				this.calculatedPreObject = this.calculateCurrent(this.preGeoObject);
-				this.calculatedPostObject = this.calculateCurrent(this.postGeoObject);
-
-				console.log('Adding Layers');
-
-				this.addEditLayers();
-			})
+		if (this.editingControl == null) {
+			this.addEditLayers();
 		}
 	}
 
@@ -369,9 +378,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 			this.enableEditing();
 		}
-		//		if (this.calculatedPreObject.geometry != null) {
-		//			this.renderGeometryAsLayer(this.calculatedPreObject.geometry.value, "post", "#3368EF");
-		//		}
 	}
 
 	enableEditing(): void {
@@ -631,38 +637,58 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		return this.calculatedPostObject.geometry.value;
 	}
 
-	public submit(): void {
-		const geometry = this.getDrawGeometry();
-		let values = this.postGeoObject.attributes['geometry'].values;
-		const time = this.forDate.getTime();
+	handleSubmit(): void {
+		// Check if the geometry has been updated
+		if (this.editingControl != null) {
+			const geometry = this.getDrawGeometry();
+			let values = this.postGeoObject.attributes['geometry'].values;
+			const time = this.forDate.getTime();
 
-		values.forEach(vot => {
+			values.forEach(vot => {
 
-			const startDate = Date.parse(vot.startDate);
-			const endDate = Date.parse(vot.endDate);
+				const startDate = Date.parse(vot.startDate);
+				const endDate = Date.parse(vot.endDate);
 
-			if (time >= startDate && time <= endDate) {
-				vot.value = geometry;
-			}
-		});
+				if (time >= startDate && time <= endDate) {
+					vot.value = geometry;
+				}
+			});
+		}
 
 		this.service.applyGeoObjectEdit(null, this.postGeoObject, false, this.datasetId, null).then(() => {
-			console.log('Reload vector layer');
-
-			this.editingControl.deleteAll();
+			this.readOnly = true;
 			this.calculatedPostObject = {};
 			this.calculatedPreObject = {};
 			this.postGeoObject = null;
 			this.preGeoObject = null;
 
-			this.map.removeControl(this.editingControl);
-
 			this.removeVectorLayer(this.datasetId);
 			this.addVectorLayer(this.datasetId);
 
+			if (this.editingControl != null) {
+				this.editingControl.deleteAll();
+				this.map.removeControl(this.editingControl);
+			}
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
+
+	}
+
+	onManageAttributeVersions(attribute: Attribute): void {
+		this.attribute = attribute;
+		this.mode = "VERSIONS";
+	}
+
+	onVersionChange(postGeoObject: GeoObjectOverTime): void {
+		this.postGeoObject = postGeoObject;
+
+		this.calculate();
+		this.mode = 'ATTRIBUTES';
+	}
+
+	onEditAttributes(): void {
+		this.readOnly = false;
 	}
 
 	public error(err: HttpErrorResponse): void {
