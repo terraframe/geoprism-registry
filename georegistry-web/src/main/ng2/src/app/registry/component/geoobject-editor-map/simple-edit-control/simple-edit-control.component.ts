@@ -8,15 +8,17 @@ import { Component, ElementRef, Input, Output, EventEmitter } from '@angular/cor
 export class SimpleEditControl {
   elRef: ElementRef
   
-  @Input() visible:boolean = true;
-  
   @Output() editEmitter = new EventEmitter<void>();
+
+  visible:boolean = false;
   
   constructor(elRef: ElementRef) {
     this.elRef = elRef;
   }
 
   onAdd(map): any {
+	console.log('On Add');
+	
     this.visible = true;
     return this.elRef.nativeElement;
   }

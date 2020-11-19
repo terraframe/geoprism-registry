@@ -5,11 +5,10 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Map, NavigationControl, AttributionControl, LngLatBounds, IControl } from 'mapbox-gl';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
-import { ContextLayer, GeoObjectType, GeoObjectOverTime, Attribute } from '@registry/model/registry';
+import { ContextLayer, GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime } from '@registry/model/registry';
 import { MapService, RegistryService } from '@registry/service';
-import { LocalizationService, AuthService } from '@shared/service';
+import { AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
-import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
 
 declare var acp: string;
 
@@ -19,6 +18,12 @@ declare var acp: string;
 	styleUrls: ['./dataset-location-manager.css']
 })
 export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
+	MODE = {
+		VERSIONS: 'VERSIONS',
+		ATTRIBUTES: 'ATTRIBUTES',
+		HIERARCHY: 'HIERARCHY'
+	}
+
 
 	datasetId: string;
 
@@ -63,10 +68,12 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	mode: string = null;
 
-	@ViewChild("simpleEditControl") simpleEditControl: IControl;
-	editingControl: any;
+	isMaintainer: boolean;
 
 	forDate: Date = new Date();
+
+	@ViewChild("simpleEditControl") simpleEditControl: IControl;
+	editingControl: any;
 
 	// The current state of the GeoObject in the GeoRegistry
 	preGeoObject: GeoObjectOverTime;
@@ -82,8 +89,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	readOnly: boolean = true;
 
-	isMaintainer: boolean;
+	hierarchies: HierarchyOverTime[];
 
+	hierarchy: HierarchyOverTime = null;
 
 	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, authService: AuthService) {
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
@@ -349,15 +357,22 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 					this.calculate();
 					this.mode = 'ATTRIBUTES';
-				})
+				}).catch((err: HttpErrorResponse) => {
+					this.error(err);
+				});
 
+				this.service.getHierarchiesForGeoObject(this.code, this.typeCode).then((hierarchies: HierarchyOverTime[]) => {
+					this.hierarchies = hierarchies;
+				}).catch((err: HttpErrorResponse) => {
+					this.error(err);
+				});
 
-				//				let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
-				//				editModal.content.configureAsExisting(this.code, this.typeCode, this.date, false);
-				//				editModal.content.setMasterListId(this.datasetId);
 			}
 		}
 	}
+
+
+
 
 	calculate(): void {
 		this.calculatedPreObject = this.calculateCurrent(this.preGeoObject);
@@ -637,7 +652,16 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		return this.calculatedPostObject.geometry.value;
 	}
 
-	handleSubmit(): void {
+	onCancel(): void {
+		this.readOnly = true;
+		this.code = null;
+		this.calculatedPostObject = {};
+		this.calculatedPreObject = {};
+		this.postGeoObject = null;
+		this.preGeoObject = null;
+	}
+
+	onSubmit(): void {
 		// Check if the geometry has been updated
 		if (this.editingControl != null) {
 			const geometry = this.getDrawGeometry();
@@ -655,8 +679,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 			});
 		}
 
-		this.service.applyGeoObjectEdit(null, this.postGeoObject, false, this.datasetId, null).then(() => {
+		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, false, this.datasetId, null).then(() => {
 			this.readOnly = true;
+			this.code = null;
 			this.calculatedPostObject = {};
 			this.calculatedPreObject = {};
 			this.postGeoObject = null;
@@ -675,16 +700,30 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	}
 
-	onManageAttributeVersions(attribute: Attribute): void {
+	onManageAttributeVersion(attribute: Attribute): void {
 		this.attribute = attribute;
-		this.mode = "VERSIONS";
+		this.mode = this.MODE.VERSIONS;
 	}
 
-	onVersionChange(postGeoObject: GeoObjectOverTime): void {
+	onManageHiearchyVersion(hierarchy: HierarchyOverTime): void {
+		this.hierarchy = hierarchy;
+		this.mode = this.MODE.HIERARCHY;
+	}
+
+	onAttributeChange(postGeoObject: GeoObjectOverTime): void {
 		this.postGeoObject = postGeoObject;
 
 		this.calculate();
-		this.mode = 'ATTRIBUTES';
+		this.mode = this.MODE.ATTRIBUTES;
+	}
+
+	onHierarchyChange(hierarchy: HierarchyOverTime): void {
+		const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
+		if (index !== -1) {
+			this.hierarchies[index] = hierarchy;
+		}
+
+		this.mode = this.MODE.ATTRIBUTES;
 	}
 
 	onEditAttributes(): void {

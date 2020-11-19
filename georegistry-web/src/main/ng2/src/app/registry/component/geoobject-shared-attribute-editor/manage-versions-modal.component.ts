@@ -58,7 +58,7 @@ export class ManageVersionsModalComponent implements OnInit {
 
 	onVersionChange(geoObjectOverTime: GeoObjectOverTime): void {
 		if (geoObjectOverTime != null) {
-			this.onAttributeVersionChange.next(this.geoObjectOverTime);
+			this.onAttributeVersionChange.next(geoObjectOverTime);
 		}
 
 		this.bsModalRef.hide();

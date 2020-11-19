@@ -10,124 +10,134 @@ import { ManageParentVersionsModalComponent } from './manage-parent-versions-mod
 
 import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
-@Component( {
+@Component({
 
-    selector: 'cascading-geo-selector',
-    templateUrl: './cascading-geo-selector.html',
-} )
+	selector: 'cascading-geo-selector',
+	templateUrl: './cascading-geo-selector.html',
+})
 export class CascadingGeoSelector {
 
-    @Input() hierarchies: HierarchyOverTime[];
+	@Input() hierarchies: HierarchyOverTime[];
 
-    @Output() valid = new EventEmitter<boolean>();
+	@Output() valid = new EventEmitter<boolean>();
 
-    @Input() isValid: boolean = true;
+	@Input() isValid: boolean = true;
+	@Input() readOnly: boolean = false;
 
-    @ViewChild( "mainForm" ) mainForm;
+	@ViewChild("mainForm") mainForm;
 
-    @Input() forDate: Date = new Date();
+	@Input() forDate: Date = new Date();
 
-    dateStr: string;
+	@Input() customEvent: boolean = false;
 
-    cHierarchies: any[] = [];
+	@Output() onManageVersion = new EventEmitter<HierarchyOverTime>();
 
-    parentMap: any = {};
+	dateStr: string;
 
-    bsModalRef: BsModalRef;
+	cHierarchies: any[] = [];
 
-    constructor( private modalService: BsModalService, private registryService: RegistryService ) {
+	parentMap: any = {};
 
-    }
+	bsModalRef: BsModalRef;
 
-    ngOnInit(): void {
-        const day = this.forDate.getUTCDate();
+	constructor(private modalService: BsModalService, private registryService: RegistryService) {
 
-        this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
+	}
 
-        // Truncate any hours/minutes/etc which may be part of the date
-        this.forDate = new Date( Date.parse( this.dateStr ) );
+	ngOnInit(): void {
+		const day = this.forDate.getUTCDate();
 
-        this.calculate();
-    }
+		this.dateStr = this.forDate.getUTCFullYear() + "-" + (this.forDate.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
 
-    ngOnChanges( changes: SimpleChanges ) {
+		// Truncate any hours/minutes/etc which may be part of the date
+		this.forDate = new Date(Date.parse(this.dateStr));
 
-        if ( changes['forDate'] ) {
-            this.calculate();
-        }
-    }
+		this.calculate();
+	}
 
-    calculate(): any {
-        const time = this.forDate.getTime();
+	ngOnChanges(changes: SimpleChanges) {
 
-        this.isValid = true;
+		if (changes['forDate']) {
+			this.calculate();
+		}
+	}
 
-        this.cHierarchies = [];
-        this.hierarchies.forEach( hierarchy => {
-            const object = {};
-            object['label'] = hierarchy.label;
-            object['code'] = hierarchy.code;
+	calculate(): any {
+		const time = this.forDate.getTime();
 
-            this.isValid = this.isValid && ( this.hierarchies.length > 0 );
+		this.isValid = true;
 
-            hierarchy.entries.forEach( pot => {
-                const startDate = Date.parse( pot.startDate );
-                const endDate = Date.parse( pot.endDate );
+		this.cHierarchies = [];
+		this.hierarchies.forEach(hierarchy => {
+			const object = {};
+			object['label'] = hierarchy.label;
+			object['code'] = hierarchy.code;
 
-                if ( time >= startDate && time <= endDate ) {
-                    let parents = [];
+			this.isValid = this.isValid && (this.hierarchies.length > 0);
 
-                    hierarchy.types.forEach( type => {
-                        let parent: any = {
-                            code: type.code,
-                            label: type.label
-                        }
+			hierarchy.entries.forEach(pot => {
+				const startDate = Date.parse(pot.startDate);
+				const endDate = Date.parse(pot.endDate);
 
-                        if ( pot.parents[type.code] != null ) {
-                            parent.text = pot.parents[type.code].text;
-                            parent.geoObject = pot.parents[type.code].geoObject;
-                        }
+				if (time >= startDate && time <= endDate) {
+					let parents = [];
 
-                        parents.push( parent );
-                    } );
+					hierarchy.types.forEach(type => {
+						let parent: any = {
+							code: type.code,
+							label: type.label
+						}
 
-                    object['parents'] = parents;
-                }
-            } );
+						if (pot.parents[type.code] != null) {
+							parent.text = pot.parents[type.code].text;
+							parent.geoObject = pot.parents[type.code].geoObject;
+						}
 
-            this.cHierarchies.push( object );
+						parents.push(parent);
+					});
 
-        } );
+					object['parents'] = parents;
+				}
+			});
 
-        this.valid.emit();
-    }
+			this.cHierarchies.push(object);
 
-    public getIsValid(): boolean {
-        return true;
-    }
+		});
 
-    public getHierarchies(): any {
-        return this.hierarchies;
-    }
+		this.valid.emit();
+	}
 
-    onManageVersions( code: string ): void {
+	public getIsValid(): boolean {
+		return true;
+	}
 
-        const hierarchy = this.hierarchies.find( h => h.code === code );
+	public getHierarchies(): any {
+		return this.hierarchies;
+	}
 
-        this.bsModalRef = this.modalService.show( ManageParentVersionsModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-        } );
-        this.bsModalRef.content.init( hierarchy );
-        this.bsModalRef.content.onVersionChange.subscribe( hierarchy => {
-            this.calculate();
-        } );
-    }
+	onManageVersions(code: string): void {
+		const hierarchy = this.hierarchies.find(h => h.code === code);
 
-    public error( err: HttpErrorResponse ): void {
-            let bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
-    }
+		if (this.customEvent) {
+			this.onManageVersion.emit(hierarchy);
+		}
+		else {
+
+			this.bsModalRef = this.modalService.show(ManageParentVersionsModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
+			});
+			this.bsModalRef.content.init(hierarchy);
+			this.bsModalRef.content.onVersionChange.subscribe(hierarchy => {
+				this.calculate();
+			});
+		}
+	}
+
+	public error(err: HttpErrorResponse): void {
+		let bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+		bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+	}
 
 }

@@ -1,0 +1,87 @@
+<div>
+    <ng-template #customItemTemplate let-model="item" let-index="index">
+      <h5>{{model.name }} : {{ model.code }}</h5>
+    </ng-template>
+
+    <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert"><localize key="changeovertime.manageVersions.duplicateDate"></localize></div>
+
+    <form #form="ngForm" class="modal-form">
+        <fieldset>
+            <div class="row-holder">
+                <div class="holder" style="width: 100%; border: none;">
+                    <div class="panel" style="box-shadow: none;">
+                        <div class="panel-body">
+                            <ul class="list-group" *ngIf="hierarchy != null">
+                                <li class="list-group-item" style="text-align: left;">
+                                    <table class="table table-striped">
+                                        <thead style="font-size: 14px;">
+                                            <tr>
+                                                <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th>
+                                                <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
+                                                <th style="width: 20%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
+                                                <th style="width: 10%; text-align: center;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let entry of hierarchy.entries; let i = index;">
+                                                <td>
+                                                
+                                                  <div class="col-sm-12" style="float:left;width:150px;" *ngFor="let type of hierarchy.types; let j = index">
+                                                    {{type.label}}
+                                                    
+                                                    <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
+                                                      name="{{type.code}}-{{i}}"
+                                                      [disabled]="entry.startDate == null || entry.startDate === ''"
+                                                      [(ngModel)]="entry.parents[type.code].text" 
+                                                      [typeaheadAsync]="true"
+                                                      [typeahead]="getTypeAheadObservable(entry.startDate, type, entry, j)"
+                                                      (typeaheadOnSelect)="typeaheadOnSelect($event, type, entry, entry.startDate)" 
+                                                      [typeaheadOptionsLimit]="7"
+                                                      [typeaheadItemTemplate]="customItemTemplate" 
+                                                      [typeaheadMinLength]="0"
+                                                      [typeaheadWaitMs]="300"
+                                                      required>
+                                                  </div>
+                                                
+                                                </td>
+                                                <td style="vertical-align: bottom;">
+                                                  <input style="width: 100%;" type="date" name="startDate-{{i}}" [(ngModel)]="entry.startDate" (blur)="snapDates()" required />
+                                                </td> 
+                                                <td style="vertical-align: bottom;">
+                                                  <p *ngIf="entry.startDate != null && entry.startDate !== ''" style="font-size: 14px;"> {{entry.endDate | date:'MM-dd-yyyy'}} </p>
+                                                </td>
+                                                <td style="vertical-align: middle; width: 10%; padding: 5px; text-align: center;">
+                                                  <i class="fa fa-times delete-btn" (click)="remove(entry)"></i>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </li>
+
+                                <li class="list-group-item" style="text-align: left;">
+                                  <i class="fa fa-plus clickable" (click)="onAddNewVersion()"><localize key="changeovertime.manageVersions.newVersion"></localize></i>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row-holder">
+                <!-- <div class="label-holder"></div> -->
+                <div class="holder" style="border: none; width: 100%;">
+                    <div class="button-holder pull-right">
+                        <!-- <button type="button" (click)="onCancel()" class="btn btn-default" role="button" >
+                            <localize key="io.cancel"></localize>
+                        </button> -->
+                        <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid || hasDuplicateDate">
+                            <localize key="io.ok"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+</div>

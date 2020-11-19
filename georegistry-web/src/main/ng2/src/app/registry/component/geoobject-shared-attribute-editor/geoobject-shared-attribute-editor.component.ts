@@ -65,7 +65,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	@Output() valid = new EventEmitter<boolean>();
 
-	@Output() onAttributeVersions = new EventEmitter<Attribute>();
+	@Output() onManageVersion = new EventEmitter<Attribute>();
 
 	@Input() customEvent: boolean = false;
 
@@ -224,7 +224,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	onManageAttributeVersions(attribute: Attribute): void {
 
 		if (this.customEvent) {
-			this.onAttributeVersions.emit(attribute);
+			this.onManageVersion.emit(attribute);
 		}
 		else {
 			this.bsModalRef = this.modalService.show(ManageVersionsModalComponent, {
