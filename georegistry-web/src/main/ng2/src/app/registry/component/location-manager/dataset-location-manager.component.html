@@ -6,12 +6,12 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
+      <div *ngIf="type != null && code != null" id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
         <div class="row">
           <div class="col-md-12">
-            <feature-panel *ngIf="type != null"
-              [code]="code"
+            <feature-panel
               [type]="type"
+              [code]="code"              
               [forDate]="forDate"
               [datasetId]="datasetId"
               [geometryChange]="geometryChange"
@@ -22,7 +22,7 @@
         </div>
       </div>
 
-      <div class="col-md-9" id="site-explorer-map">
+      <div [ngClass]="{'col-md-9':code != null, 'col-md-12':code == null}" id="site-explorer-map">
         <div class="row">
 
           <article class="base-layer-panel">

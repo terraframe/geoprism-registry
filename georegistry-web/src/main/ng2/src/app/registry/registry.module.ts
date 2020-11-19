@@ -84,6 +84,7 @@ import { DatasetLocationManagerComponent } from './component/location-manager/da
 import { ContextLayerModalComponent } from './component/location-manager/context-layer-modal.component';
 import { LayerPanelComponent } from './component/location-manager/layer-panel.component';
 import { FeaturePanelComponent } from './component/location-manager/feature-panel.component';
+import { GeometryPanelComponent } from './component/location-manager/geometry-panel.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -206,7 +207,8 @@ import '../rxjs-extensions';
 		DatasetLocationManagerComponent,
 		ContextLayerModalComponent,
 		LayerPanelComponent,
-		FeaturePanelComponent
+		FeaturePanelComponent,
+		GeometryPanelComponent
 	],
 	providers: [
 		MapService,

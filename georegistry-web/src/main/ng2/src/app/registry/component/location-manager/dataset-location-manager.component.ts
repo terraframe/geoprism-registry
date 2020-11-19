@@ -5,7 +5,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Map, NavigationControl, AttributionControl, LngLatBounds, IControl } from 'mapbox-gl';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
-import { ContextLayer, GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime } from '@registry/model/registry';
+import { ContextLayer, GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
 import { MapService, RegistryService } from '@registry/service';
 import { AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
@@ -77,6 +77,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	editingControl: any;
 
 	geometryChange: Subject<any> = new Subject();
+
+	vot: ValueOverTime;
 
 	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, authService: AuthService) {
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
@@ -348,11 +350,16 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 		this.editingControl.deleteAll();
 		this.map.removeControl(this.editingControl);
-		this.geometryChange.next(geometry);
+		//		this.geometryChange.next(geometry);
+
+		this.vot.value = geometry;
+		this.vot = null;
 	}
 
-	onGeometryEdit(event: { pre: any, post: any }): void {
-		this.addEditLayers(event.pre, event.post);
+	onGeometryEdit(vot: ValueOverTime): void {
+		this.vot = vot;
+
+		this.addEditLayers(vot);
 	}
 
 	//	onMapEdit(): void {
@@ -362,15 +369,15 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	//		}
 	//	}
 
-	addEditLayers(preGeometry: any, postGeometry: any): void {
-		if (postGeometry != null) {
+	addEditLayers(vot: ValueOverTime): void {
+		if (vot != null) {
 			//			this.renderGeometryAsLayer(this.calculatedPreObject.geometry.value, "pre", "#EFA22E");
 
-			this.enableEditing(postGeometry);
+			this.enableEditing(vot);
 		}
 	}
 
-	enableEditing(postGeometry: any): void {
+	enableEditing(vot: ValueOverTime): void {
 		if (this.type.geometryType === "MULTIPOLYGON" || this.type.geometryType === "POLYGON") {
 			this.editingControl = new MapboxDraw({
 				controls: {
@@ -409,8 +416,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		}
 		this.map.addControl(this.editingControl);
 
-		if (postGeometry != null) {
-			this.editingControl.add(postGeometry);
+		if (vot.value != null) {
+			this.editingControl.add(vot.value);
 		}
 	}
 

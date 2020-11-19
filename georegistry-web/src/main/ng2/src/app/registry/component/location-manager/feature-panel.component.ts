@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angu
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime } from '@registry/model/registry';
+import { GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
 import { AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
@@ -17,7 +17,8 @@ export class FeaturePanelComponent implements OnInit {
 	MODE = {
 		VERSIONS: 'VERSIONS',
 		ATTRIBUTES: 'ATTRIBUTES',
-		HIERARCHY: 'HIERARCHY'
+		HIERARCHY: 'HIERARCHY',
+		GEOMETRY: 'GEOMETRY'
 	}
 
 	@Input() datasetId: string;
@@ -34,7 +35,7 @@ export class FeaturePanelComponent implements OnInit {
 
 	@Input() geometryChange: Subject<any>;
 
-	@Output() geometryEdit = new EventEmitter<{ pre: any, post: any }>();
+	@Output() geometryEdit = new EventEmitter<ValueOverTime>();
 	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
 
 	bsModalRef: BsModalRef;
@@ -75,7 +76,7 @@ export class FeaturePanelComponent implements OnInit {
 		this.hierarchies = null;
 		this.readOnly = true;
 
-		if (code != null) {
+		if (code != null && this.type != null) {
 
 			this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
 				this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
@@ -92,11 +93,11 @@ export class FeaturePanelComponent implements OnInit {
 		}
 	}
 
-	onEditGeometry(): void {
-		const preGeometry = this.calculateGeometry(this.preGeoObject);
-		const postGeometry = this.calculateGeometry(this.postGeoObject);
-
-		this.geometryEdit.emit({ pre: preGeometry, post: postGeometry });
+	onEditGeometryVersion(vot: ValueOverTime): void {
+		//		const preGeometry = this.calculateGeometry(this.preGeoObject);
+		//		const postGeometry = this.calculateGeometry(this.postGeoObject);
+		//
+		this.geometryEdit.emit(vot);
 	}
 
 	updateGeometry(geometry: any): void {
