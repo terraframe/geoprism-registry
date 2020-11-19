@@ -1,0 +1,63 @@
+<div>
+  <div *ngIf="mode == MODE.ATTRIBUTES && postGeoObject != null">
+    <!-- Attributes tab -->
+    <geoobject-shared-attribute-editor 
+      #attributeEditor
+      [geoObjectType]="type"
+      [preGeoObject]="preGeoObject"
+      [postGeoObject]="postGeoObject"
+      [forDate]="this.forDate"
+      [isNew]="false"
+      [isEditingGeometries]="false"
+      [customEvent]="true"
+      (onManageVersion)="onManageAttributeVersion($event)"
+      [readOnly]="readOnly">
+    </geoobject-shared-attribute-editor>
+    
+    <div *ngIf="!readOnly" class="button-holder" style="text-align: left;">
+      <button type="submit" style="" (click)="onEditGeometry()" class="btn btn-primary" role="button">
+        Edit Geometry
+      </button>
+    </div>
+    
+
+    <cascading-geo-selector
+      *ngIf="hierarchies != null"
+      #parentSelector
+      [forDate]="forDate"
+      [hierarchies]="hierarchies"
+      [customEvent]="true"
+      (onManageVersion)="onManageHiearchyVersion($event)"
+      [readOnly]="readOnly">
+    </cascading-geo-selector>
+
+    <div class="button-holder" style="text-align: left;">
+      <button *ngIf="readOnly" type="submit" style="" (click)="onEditAttributes()" class="btn btn-primary" role="button">
+        <localize key="changeovertime.manageVersions.button.label"></localize>
+      </button>
+      <button *ngIf="!readOnly" type="button" class="btn btn-default" (click)="onCancel()">
+        <localize key="modal.button.cancel"></localize>
+      </button>
+      <button *ngIf="!readOnly" type="submit" style="" (click)="onSubmit()" class="btn btn-primary" role="button">
+        <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
+      </button>
+    </div>
+  </div>
+  <div *ngIf="mode == MODE.VERSIONS && attribute != null">
+    <!-- Attributes tab -->
+    <manage-versions 
+      [attribute]="attribute"
+      [geoObjectType]="type"
+      [geoObjectOverTime]="postGeoObject"
+      [isNewGeoObject]="false"
+      (onChange)="onAttributeChange($event)">
+    </manage-versions>
+  </div>
+  <div *ngIf="mode == MODE.HIERARCHY && hierarchy != null">
+    <!-- Attributes tab -->
+    <manage-parent-versions 
+      [hierarchy]="hierarchy"
+      (onChange)="onHierarchyChange($event)">
+    </manage-parent-versions>
+  </div>
+</div>

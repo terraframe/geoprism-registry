@@ -9,6 +9,7 @@ import { ContextLayer, GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOve
 import { MapService, RegistryService } from '@registry/service';
 import { AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
+import { Subject } from 'rxjs';
 
 declare var acp: string;
 
@@ -75,23 +76,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	@ViewChild("simpleEditControl") simpleEditControl: IControl;
 	editingControl: any;
 
-	// The current state of the GeoObject in the GeoRegistry
-	preGeoObject: GeoObjectOverTime;
-
-	// The state of the GeoObject after our edit has been applied
-	postGeoObject: GeoObjectOverTime;
-
-	calculatedPreObject: any = {};
-
-	calculatedPostObject: any = {};
-
-	attribute: Attribute = null;
-
-	readOnly: boolean = true;
-
-	hierarchies: HierarchyOverTime[];
-
-	hierarchy: HierarchyOverTime = null;
+	geometryChange: Subject<any> = new Subject();
 
 	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, authService: AuthService) {
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
@@ -342,6 +327,11 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     /*
      * EDIT FUNCTIONALITY
      */
+	onFeatureChange(): void {
+		// Refresh the layer
+		this.removeVectorLayer(this.datasetId);
+		this.addVectorLayer(this.datasetId);
+	}
 
 	handleMapClickEvent(event: any): void {
 		if (event.features != null && event.features.length > 0) {
@@ -349,53 +339,38 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 			if (feature.properties.code != null && this.code !== feature.properties.code) {
 				this.code = feature.properties.code;
-				this.readOnly = true;
-
-				this.service.getGeoObjectOverTime(this.code, this.typeCode).then(geoObject => {
-					this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
-					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
-
-					this.calculate();
-					this.mode = 'ATTRIBUTES';
-				}).catch((err: HttpErrorResponse) => {
-					this.error(err);
-				});
-
-				this.service.getHierarchiesForGeoObject(this.code, this.typeCode).then((hierarchies: HierarchyOverTime[]) => {
-					this.hierarchies = hierarchies;
-				}).catch((err: HttpErrorResponse) => {
-					this.error(err);
-				});
-
 			}
 		}
 	}
 
+	onMapSave(): void {
+		const geometry = this.getDrawGeometry();
 
-
-
-	calculate(): void {
-		this.calculatedPreObject = this.calculateCurrent(this.preGeoObject);
-		this.calculatedPostObject = this.calculateCurrent(this.postGeoObject);
+		this.editingControl.deleteAll();
+		this.map.removeControl(this.editingControl);
+		this.geometryChange.next(geometry);
 	}
 
-
-	onMapEdit(): void {
-		// Enable editing
-		if (this.editingControl == null) {
-			this.addEditLayers();
-		}
+	onGeometryEdit(event: { pre: any, post: any }): void {
+		this.addEditLayers(event.pre, event.post);
 	}
 
-	addEditLayers(): void {
-		if (this.calculatedPreObject.geometry != null) {
+	//	onMapEdit(): void {
+	//		// Enable editing
+	//		if (this.editingControl == null) {
+	//			this.addEditLayers();
+	//		}
+	//	}
+
+	addEditLayers(preGeometry: any, postGeometry: any): void {
+		if (postGeometry != null) {
 			//			this.renderGeometryAsLayer(this.calculatedPreObject.geometry.value, "pre", "#EFA22E");
 
-			this.enableEditing();
+			this.enableEditing(postGeometry);
 		}
 	}
 
-	enableEditing(): void {
+	enableEditing(postGeometry: any): void {
 		if (this.type.geometryType === "MULTIPOLYGON" || this.type.geometryType === "POLYGON") {
 			this.editingControl = new MapboxDraw({
 				controls: {
@@ -434,11 +409,10 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		}
 		this.map.addControl(this.editingControl);
 
-		if (this.calculatedPreObject.geometry != null) {
-			this.editingControl.add(this.calculatedPreObject.geometry.value);
+		if (postGeometry != null) {
+			this.editingControl.add(postGeometry);
 		}
 	}
-
 
 	renderGeometryAsLayer(geometry: any, prefix: string, color: string) {
 		let sourceName: string = prefix + "-geoobject";
@@ -649,86 +623,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 			}
 		}
 
-		return this.calculatedPostObject.geometry.value;
+		return null;
 	}
 
-	onCancel(): void {
-		this.readOnly = true;
-		this.code = null;
-		this.calculatedPostObject = {};
-		this.calculatedPreObject = {};
-		this.postGeoObject = null;
-		this.preGeoObject = null;
-	}
-
-	onSubmit(): void {
-		// Check if the geometry has been updated
-		if (this.editingControl != null) {
-			const geometry = this.getDrawGeometry();
-			let values = this.postGeoObject.attributes['geometry'].values;
-			const time = this.forDate.getTime();
-
-			values.forEach(vot => {
-
-				const startDate = Date.parse(vot.startDate);
-				const endDate = Date.parse(vot.endDate);
-
-				if (time >= startDate && time <= endDate) {
-					vot.value = geometry;
-				}
-			});
-		}
-
-		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, false, this.datasetId, null).then(() => {
-			this.readOnly = true;
-			this.code = null;
-			this.calculatedPostObject = {};
-			this.calculatedPreObject = {};
-			this.postGeoObject = null;
-			this.preGeoObject = null;
-
-			this.removeVectorLayer(this.datasetId);
-			this.addVectorLayer(this.datasetId);
-
-			if (this.editingControl != null) {
-				this.editingControl.deleteAll();
-				this.map.removeControl(this.editingControl);
-			}
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-
-	}
-
-	onManageAttributeVersion(attribute: Attribute): void {
-		this.attribute = attribute;
-		this.mode = this.MODE.VERSIONS;
-	}
-
-	onManageHiearchyVersion(hierarchy: HierarchyOverTime): void {
-		this.hierarchy = hierarchy;
-		this.mode = this.MODE.HIERARCHY;
-	}
-
-	onAttributeChange(postGeoObject: GeoObjectOverTime): void {
-		this.postGeoObject = postGeoObject;
-
-		this.calculate();
-		this.mode = this.MODE.ATTRIBUTES;
-	}
-
-	onHierarchyChange(hierarchy: HierarchyOverTime): void {
-		const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
-		if (index !== -1) {
-			this.hierarchies[index] = hierarchy;
-		}
-
-		this.mode = this.MODE.ATTRIBUTES;
-	}
-
-	onEditAttributes(): void {
-		this.readOnly = false;
-	}
 
 	public error(err: HttpErrorResponse): void {
 		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });

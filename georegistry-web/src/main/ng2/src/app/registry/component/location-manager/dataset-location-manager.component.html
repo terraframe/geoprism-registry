@@ -9,58 +9,15 @@
       <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
         <div class="row">
           <div class="col-md-12">
-            <div *ngIf="mode == MODE.ATTRIBUTES && preGeoObject != null">
-              <!-- Attributes tab -->
-              <geoobject-shared-attribute-editor 
-                #attributeEditor 
-                [geoObjectType]="type"
-                [preGeoObject]="preGeoObject" 
-                [postGeoObject]="postGeoObject" 
-                [forDate]="this.forDate" 
-                [isNew]="false"
-                [isEditingGeometries]="false"
-                [customEvent]="true"
-                (onManageVersion)="onManageAttributeVersion($event)"
-                [readOnly]="readOnly">
-              </geoobject-shared-attribute-editor>
-              
-              <cascading-geo-selector *ngIf="hierarchies != null" #parentSelector 
-                [forDate]="forDate"             
-                [hierarchies]="hierarchies"
-                [customEvent]="true"
-                (onManageVersion)="onManageHiearchyVersion($event)"
-                [readOnly]="readOnly">
-              </cascading-geo-selector>
-              
-              <div class="button-holder" style="text-align: left;">
-                <button *ngIf="readOnly" type="submit" style="" (click)="onEditAttributes()" class="btn btn-primary" role="button">
-                  <localize key="changeovertime.manageVersions.button.label"></localize>
-                </button>
-                <button *ngIf="!readOnly" type="button" class="btn btn-default" (click)="onCancel()">
-                  <localize key="modal.button.cancel"></localize>
-                </button>
-                <button *ngIf="!readOnly" type="submit" style="" (click)="onSubmit()" class="btn btn-primary" role="button">
-                  <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
-                </button>
-              </div>
-            </div>
-            <div *ngIf="mode == MODE.VERSIONS && attribute != null">
-              <!-- Attributes tab -->
-                <manage-versions 
-                  [attribute]="attribute"
-                  [geoObjectType]="type"
-                  [geoObjectOverTime]="postGeoObject"
-                  [isNewGeoObject]="false"
-                  (onChange)="onAttributeChange($event)"
-                ></manage-versions>
-            </div>
-            <div *ngIf="mode == MODE.HIERARCHY && hierarchy != null">
-              <!-- Attributes tab -->
-              <manage-parent-versions
-                [hierarchy]="hierarchy"
-                (onChange)="onHierarchyChange($event)"
-              ></manage-parent-versions>
-            </div>
+            <feature-panel *ngIf="type != null"
+              [code]="code"
+              [type]="type"
+              [forDate]="forDate"
+              [datasetId]="datasetId"
+              [geometryChange]="geometryChange"
+              (geometryEdit)="onGeometryEdit($event)"
+              (featureChange)="onFeatureChange($event)"              
+            ></feature-panel>
           </div>
         </div>
       </div>
@@ -72,9 +29,9 @@
             <layer-panel (layerChange)="onContextLayerChange($event)" [filter]="[datasetId]"></layer-panel>
           </article>
 
-          <div id="map" class="map-view-port"></div>
-          
-          <simple-edit-control (editEmitter)="onMapEdit()"  #simpleEditControl></simple-edit-control>
+          <div id="map" class="map-view-port"></div>     
+          <simple-edit-control [visible]="editingControl != null" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
+               
         </div>
       </div>
     </div>

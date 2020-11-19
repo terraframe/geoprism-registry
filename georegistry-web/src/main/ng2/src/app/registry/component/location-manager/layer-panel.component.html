@@ -9,7 +9,8 @@
         <localize key="explorer.base.layers.label"></localize>
       </h4>
       <div class="row-form" *ngFor="let baseLayer of baseLayers">
-        <input class="layer-toggle-input" type='radio' name='rtoggle' [value]='baseLayer.id' [checked]="baseLayer.selected" (change)="handleBasemapStyle(baseLayer)"> <label class="layer-toggle-label">{{baseLayer.label}}</label>
+        <input class="layer-toggle-input" type='radio' name='rtoggle' [value]='baseLayer.id' [checked]="baseLayer.selected">
+        <label class="layer-toggle-label">{{baseLayer.label}}</label>
       </div>
     </div>
     <div>

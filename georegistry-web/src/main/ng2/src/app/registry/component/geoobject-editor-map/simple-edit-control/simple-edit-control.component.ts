@@ -10,16 +10,14 @@ export class SimpleEditControl {
   
   @Output() editEmitter = new EventEmitter<void>();
 
-  visible:boolean = false;
+  @Input() visible:boolean = true;
   
   constructor(elRef: ElementRef) {
     this.elRef = elRef;
   }
 
   onAdd(map): any {
-	console.log('On Add');
-	
-    this.visible = true;
+//    this.visible = true;
     return this.elRef.nativeElement;
   }
   
