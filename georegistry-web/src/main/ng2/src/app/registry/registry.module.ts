@@ -54,6 +54,7 @@ import { GeoObjectEditorComponent } from './component/geoobject-editor/geoobject
 import { GeoObjectEditorMapComponent } from './component/geoobject-editor-map/geoobject-editor-map.component';
 import { SimpleEditControl } from './component/geoobject-editor-map/simple-edit-control/simple-edit-control.component';
 import { CascadingGeoSelector } from './component/cascading-geo-selector/cascading-geo-selector';
+import { TreeGeoSelector } from './component/tree-geo-selector/tree-geo-selector';
 import { ManageParentVersionsModalComponent } from './component/cascading-geo-selector/manage-parent-versions-modal.component';
 import { ManageParentVersionsComponent } from './component/cascading-geo-selector/manage-parent-versions.component';
 import { ActionDetailModalComponent } from './component/crtable/action-detail/action-detail-modal.component';
@@ -172,6 +173,7 @@ import '../rxjs-extensions';
 		DataPageComponent,
 		ChangeRequestPageComponent,
 		CascadingGeoSelector,
+		TreeGeoSelector,
 		ManageParentVersionsModalComponent,
 		ManageParentVersionsComponent,
 		ActionDetailModalComponent,

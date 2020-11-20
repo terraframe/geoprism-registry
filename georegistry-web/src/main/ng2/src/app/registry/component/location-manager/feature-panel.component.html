@@ -20,16 +20,14 @@
       </button>
     </div>
     
-
-    <cascading-geo-selector
-      *ngIf="hierarchies != null"
-      #parentSelector
-      [forDate]="forDate"
-      [hierarchies]="hierarchies"
-      [customEvent]="true"
-      (onManageVersion)="onManageHiearchyVersion($event)"
-      [readOnly]="readOnly">
-    </cascading-geo-selector>
+    <div *ngIf="hierarchies != null">
+      <tree-geo-selector 
+        *ngFor="let hierarchy of hierarchies"
+        [hierarchy]="hierarchy"
+        [readOnly]="readOnly"
+        (onManageVersion)="onManageHiearchyVersion($event)" >
+      </tree-geo-selector>
+    </div>
 
     <div class="button-holder" style="text-align: left;">
       <button *ngIf="readOnly" type="submit" style="" (click)="onEditAttributes()" class="btn btn-primary" role="button">
