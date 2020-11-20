@@ -29,6 +29,18 @@ export class ExternalSystem {
 	password?: string;
 	url?: string;
 	version?: string;
+	oAuthServer?: OAuthServer;
+}
+
+export class OAuthServer {
+  keyName?: string;
+  label?: LocalizedValue;
+  authorizationLocation: string;
+  tokenLocation: string;
+  profileLocation: string;
+  clientId: string;
+  secretKey: string;
+  serverType: string;
 }
 
 export class PageResult<T> {

@@ -23,11 +23,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { ExternalSystem, Organization } from '@shared/model/core';
+import { ExternalSystem, Organization, OAuthServer } from '@shared/model/core';
 
 import { LocalizationService, AuthService, ExternalSystemService } from '@shared/service';
 
 import { ErrorHandler } from '@shared/component';
+
+declare var acp: any;
 
 @Component({
 	selector: 'external-system-modal',
@@ -36,6 +38,8 @@ import { ErrorHandler } from '@shared/component';
 })
 export class ExternalSystemModalComponent implements OnInit {
 
+  context: string;
+
 	message: string = null;
 
 	system: ExternalSystem = {
@@ -43,7 +47,9 @@ export class ExternalSystemModalComponent implements OnInit {
 		type: 'DHIS2ExternalSystem',
 		organization: "",
 		label: this.lService.create(),
-		description: this.lService.create()
+		description: this.lService.create(),
+		version: "2.31",
+		oAuthServer: null
 	};
 
 	organizations: Organization[] = [];
@@ -51,7 +57,9 @@ export class ExternalSystemModalComponent implements OnInit {
 
 	public onSuccess: Subject<ExternalSystem>;
 
-	constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) { }
+	constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) {
+	  this.context = acp as string;
+	}
 
 	ngOnInit(): void {
 		this.onSuccess = new Subject();
@@ -66,6 +74,26 @@ export class ExternalSystemModalComponent implements OnInit {
 			this.system = system;
 		}
 	}
+	
+	enableOAuth(): void {
+	  if (!this.system.url.endsWith("/"))
+	  {
+	    this.system.url = this.system.url + "/";
+	  }
+	
+	  this.system.oAuthServer = {
+      authorizationLocation: this.system.url + "uaa/oauth/authorize",
+      tokenLocation: this.system.url + "uaa/oauth/token",
+      profileLocation: this.system.url + "api/me",
+      clientId: "geoprism",
+      secretKey: "",
+      serverType: "DHIS2"
+    };
+	}
+
+  downloadDhis2Plugin(): void {
+    window.location.href = this.context + "/external-system/download-dhis2-plugin";
+  }
 
 	cancel(): void {
 		this.bsModalRef.hide();

@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.registry.dhis2;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.resource.CloseableFile;
 
 import net.geoprism.GeoprismProperties;
+import net.geoprism.registry.GeoregistryProperties;
 
 /**
  * This class is responsible for extracting a DHIS2 plugin zip (created from the
