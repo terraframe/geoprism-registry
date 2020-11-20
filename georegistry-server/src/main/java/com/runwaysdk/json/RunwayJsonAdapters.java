@@ -22,6 +22,9 @@ import com.runwaysdk.dataaccess.MdClassDAOIF;
 /**
  * This class is a starting point for implementation of generic Runway object serialization / deserialization using Google Gson.
  * 
+ * Tests currently exist for the ExternalSystem / OAuthServer usecase in JsonSerializationTest.java (which directly tests this
+ * code).
+ * 
  * @author rrowlands
  */
 public class RunwayJsonAdapters

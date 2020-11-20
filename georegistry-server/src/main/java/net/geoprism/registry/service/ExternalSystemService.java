@@ -62,7 +62,7 @@ public class ExternalSystemService
       if (jo.has(DHIS2ExternalSystem.OAUTH_SERVER))
       {
         Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
-        OauthServer oauth = gson2.fromJson(json, OauthServer.class);
+        OauthServer oauth = gson2.fromJson(jo.get(DHIS2ExternalSystem.OAUTH_SERVER), OauthServer.class);
         oauth.apply();
         
         dhis2Sys.setOauthServer(oauth);
