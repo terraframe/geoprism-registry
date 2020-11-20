@@ -22,13 +22,17 @@ import java.util.List;
 
 import org.json.JSONException;
 
-import com.google.gson.JsonElement;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.json.RunwayJsonAdapters;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.account.OauthServer;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.Page;
 
@@ -46,10 +50,25 @@ public class ExternalSystemService
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, String json) throws JSONException
   {
-    JsonElement element = JsonParser.parseString(json);
+    JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
 
-    ExternalSystem system = ExternalSystem.desieralize(element.getAsJsonObject());
+    ExternalSystem system = ExternalSystem.desieralize(jo);
     system.apply();
+    
+    if (system instanceof DHIS2ExternalSystem)
+    {
+      DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
+      
+      if (jo.has(DHIS2ExternalSystem.OAUTH_SERVER))
+      {
+        Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
+        OauthServer oauth = gson2.fromJson(json, OauthServer.class);
+        oauth.apply();
+        
+        dhis2Sys.setOauthServer(oauth);
+        dhis2Sys.apply();
+      }
+    }
 
     return system.toJSON();
   }
