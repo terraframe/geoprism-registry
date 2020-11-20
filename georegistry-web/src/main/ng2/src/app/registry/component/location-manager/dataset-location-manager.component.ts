@@ -299,6 +299,42 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 				]
 			}, prevLayer);
 
+			// Selected object layers
+			if (source === this.datasetId) {
+				this.map.addLayer({
+					"id": source + "-points-selected",
+					"type": "circle",
+					"source": source,
+					"source-layer": 'context',
+					"paint": {
+						"circle-radius": 10,
+						"circle-color": '#0080ff',
+						"circle-stroke-width": 2,
+						"circle-stroke-color": '#FFFFFF'
+					},
+					filter: ['all',
+						["==", ['get', 'code'], this.code != null ? this.code : ''],
+						["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+					]
+				}, prevLayer);
+
+				this.map.addLayer({
+					'id': source + '-polygon-selected',
+					'type': 'fill',
+					'source': source,
+					"source-layer": 'context',
+					'layout': {},
+					'paint': {
+						'fill-color': '#0080ff',
+						'fill-opacity': 0.8,
+						'fill-outline-color': 'black'
+					},
+					filter: ['all',
+						["==", ['get', 'code'], this.code != null ? this.code : ''],
+						["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+					]
+				}, prevLayer);
+			}
 
 			// Label layer
 			this.map.addLayer({
@@ -330,9 +366,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 
 
-    /*
-     * EDIT FUNCTIONALITY
-     */
+	/*
+	 * EDIT FUNCTIONALITY
+	 */
 	onFeatureChange(): void {
 		// Refresh the layer
 		this.removeVectorLayer(this.datasetId);
@@ -345,6 +381,17 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 			if (feature.properties.code != null && this.code !== feature.properties.code) {
 				this.code = feature.properties.code;
+
+				// Update the filter properties
+				this.map.setFilter(this.datasetId + '-points-selected', ['all',
+					["==", ['get', 'code'], this.code != null ? this.code : ''],
+					["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+				]);
+
+				this.map.setFilter(this.datasetId + '-polygon-selected', ['all',
+					["==", ['get', 'code'], this.code != null ? this.code : ''],
+					["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+				]);
 			}
 		}
 	}
