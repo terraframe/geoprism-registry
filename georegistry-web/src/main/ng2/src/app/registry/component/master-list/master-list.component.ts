@@ -243,9 +243,9 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	}
 
 	onGoto(data): void {
-		const oid = data.code;
+		const code = data.code;
 
-		if (oid != null && oid.length > 0) {
+		if (code != null && code.length > 0) {
 			window.open(acp + "/nav/management#/locations/" + oid, '_blank');
 		}
 

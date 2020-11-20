@@ -97,6 +97,11 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
+        path: 'dataset-location-manager/:datasetId/:typeCode/:date/:code',
+        component: DatasetLocationManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
         path: 'sync/details/:oid',
         component: SyncDetailsComponent,
         canActivate: [MaintainerGuard]

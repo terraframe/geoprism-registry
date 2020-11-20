@@ -92,6 +92,10 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.date = this.route.snapshot.params["date"];
 		this.forDate = new Date(Date.parse(this.date));
 
+		if (this.route.snapshot.params["code"] != null) {
+			this.code = this.route.snapshot.params["code"];
+		}
+
 		this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
 			this.type = types[0];
 		}).catch((err: HttpErrorResponse) => {
