@@ -48,6 +48,7 @@ export class PageResult<T> {
 	pageNumber: number;
 	pageSize: number;
 	resultSet: T[];
+	externalSystems?: ExternalSystem[];
 }
 
 export class LocalizedValue {

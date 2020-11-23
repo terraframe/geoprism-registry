@@ -66,6 +66,7 @@ export class AccountsComponent implements OnInit {
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.oid = user.oid;
+		this.bsModalRef.content.setExternalSystems = this.res.externalSystems;
 
 		let that = this;
 		this.bsModalRef.content.onEdit.subscribe((data: Account) => {
@@ -87,6 +88,7 @@ export class AccountsComponent implements OnInit {
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.oid = 'NEW';
+		this.bsModalRef.content.setExternalSystems = this.res.externalSystems;
 
 		this.bsModalRef.content.onEdit.subscribe(data => {
 			this.onPageChange(this.res.pageNumber);

@@ -155,13 +155,30 @@
           </div>
         </div>
 
-
-        <div *ngIf="!account.user.newInstance" class="heading">
+        <div *ngIf="!account.changePassword && externalSystems.length > 0 && systemHasOauth" class="row-holder">
+          <div class="button-holder" style="text-align: left;">
+            <input *ngIf="!editingOauth" type="button" [value]="'account.user.enableOauth' | localize" class="btn btn-primary" (click)="toggleEditingOauth()" />
+            <input *ngIf="editingOauth" type="button" [value]="'account.user.disableOauth' | localize" class="btn btn-primary" (click)="toggleEditingOauth()" />
+          </div>
+          <div *ngIf="editingOauth" class="label-holder">
+            <label>
+              <localize key="account.user.oauthExternalSystem"></localize>
+            </label>
+          </div>
+          <div *ngIf="editingOauth" class="holder">
+	          <select style="float:none;" [(ngModel)]="account.user.externalSystemOid" name=externalSystemOid [disabled]="externalSystems.length == 1">
+	            <option *ngFor="let system of externalSystems" [value]="system.oid">
+	              {{system.label.localizedValue}}
+	            </option>
+	          </select>
+          </div>
+        </div>
+        <div *ngIf="!account.user.newInstance && !editingOauth" class="heading">
           <h4>
             <localize key="account.user.password"></localize>
           </h4>
         </div>
-        <div *ngIf="!account.user.newInstance" class="row-holder">
+        <div *ngIf="!account.user.newInstance && !editingOauth" class="row-holder">
           <div class="button-holder" style="text-align: left;">
             <input type="button" *ngIf="!account.changePassword" [value]="'account.user.change.password.button' | localize" class="btn btn-primary"
               (click)="onChangePassword()" />
@@ -169,7 +186,7 @@
               (click)="onChangePassword()" />
           </div>
         </div>
-        <div *ngIf="account.changePassword || account.user.newInstance">
+        <div *ngIf="(account.changePassword || account.user.newInstance) && !editingOauth">
           <div class="row-holder">
             <div class="label-holder">
               <label>

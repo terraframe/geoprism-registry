@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -100902951)
+@com.runwaysdk.business.ClassSignature(hash = -507459063)
 public abstract class UserInfoDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.UserInfo";
-  private static final long serialVersionUID = -100902951;
+  private static final long serialVersionUID = -507459063;
   
   protected UserInfoDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -52,6 +34,7 @@ public abstract class UserInfoDTOBase extends com.runwaysdk.business.BusinessDTO
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String DEPARTMENT = "department";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String EXTERNALSYSTEMOID = "externalSystemOid";
   public static java.lang.String GEOPRISMUSER = "geoprismUser";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -320,6 +303,43 @@ public abstract class UserInfoDTOBase extends com.runwaysdk.business.BusinessDTO
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getEntityDomainMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(ENTITYDOMAIN).getAttributeMdDTO();
+  }
+  
+  public String getExternalSystemOid()
+  {
+    return getValue(EXTERNALSYSTEMOID);
+  }
+  
+  public void setExternalSystemOid(String value)
+  {
+    if(value == null)
+    {
+      setValue(EXTERNALSYSTEMOID, "");
+    }
+    else
+    {
+      setValue(EXTERNALSYSTEMOID, value);
+    }
+  }
+  
+  public boolean isExternalSystemOidWritable()
+  {
+    return isWritable(EXTERNALSYSTEMOID);
+  }
+  
+  public boolean isExternalSystemOidReadable()
+  {
+    return isReadable(EXTERNALSYSTEMOID);
+  }
+  
+  public boolean isExternalSystemOidModified()
+  {
+    return isModified(EXTERNALSYSTEMOID);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeUUIDMdDTO getExternalSystemOidMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeUUIDMdDTO) getAttributeDTO(EXTERNALSYSTEMOID).getAttributeMdDTO();
   }
   
   public net.geoprism.GeoprismUserDTO getGeoprismUser()

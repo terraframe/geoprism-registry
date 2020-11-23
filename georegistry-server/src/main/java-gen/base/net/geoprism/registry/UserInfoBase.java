@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 574818649)
+@com.runwaysdk.business.ClassSignature(hash = 84502665)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -36,6 +18,7 @@ public abstract class UserInfoBase extends com.runwaysdk.business.Business
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String DEPARTMENT = "department";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String EXTERNALSYSTEMOID = "externalSystemOid";
   public static java.lang.String GEOPRISMUSER = "geoprismUser";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -47,7 +30,7 @@ public abstract class UserInfoBase extends com.runwaysdk.business.Business
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 574818649;
+  private static final long serialVersionUID = 84502665;
   
   public UserInfoBase()
   {
@@ -259,6 +242,34 @@ public abstract class UserInfoBase extends com.runwaysdk.business.Business
     else
     {
       setValue(ENTITYDOMAIN, oid);
+    }
+  }
+  
+  public String getExternalSystemOid()
+  {
+    return getValue(EXTERNALSYSTEMOID);
+  }
+  
+  public void validateExternalSystemOid()
+  {
+    this.validateAttribute(EXTERNALSYSTEMOID);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF getExternalSystemOidMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.UserInfo.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(EXTERNALSYSTEMOID);
+  }
+  
+  public void setExternalSystemOid(String value)
+  {
+    if(value == null)
+    {
+      setValue(EXTERNALSYSTEMOID, "");
+    }
+    else
+    {
+      setValue(EXTERNALSYSTEMOID, value);
     }
   }
   

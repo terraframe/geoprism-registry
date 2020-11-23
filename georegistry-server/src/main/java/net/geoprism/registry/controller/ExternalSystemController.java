@@ -48,7 +48,7 @@ public class ExternalSystemController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "download-dhis2-plugin")
-  public ResponseIF getAll(ClientRequestIF request) throws FileNotFoundException
+  public ResponseIF downloadDhis2Plugin(ClientRequestIF request) throws FileNotFoundException
   {
     File pluginZip = DHIS2PluginZipManager.getPluginZip();
     
