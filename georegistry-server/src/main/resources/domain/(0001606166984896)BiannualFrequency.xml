@@ -1,0 +1,24 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <object key="BIANNUAL" type="net.geoprism.registry.ChangeFrequencyMaster">
+        <attribute name="enumName" value="BIANNUAL" />
+        <attributeStruct name="displayLabel">
+          <attribute name="defaultLocale" value="Biannual" />
+        </attributeStruct>
+      </object>    
+    </create>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="georegistry.frequency.biannual">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="georegistry.frequency.biannual" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Biannual" />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

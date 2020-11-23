@@ -286,6 +286,19 @@ public class MasterList extends MasterListBase
           calendar.add(Calendar.YEAR, 1);
         }
       }
+      else if (frequencies.contains(ChangeFrequency.BIANNUAL))
+      {
+        Calendar end = getEndOfHalfYear(endDate);
+        Calendar calendar = getEndOfHalfYear(startDate);
+
+        while (calendar.before(end) || calendar.equals(end))
+        {
+          dates.add(calendar.getTime());
+
+          calendar.add(Calendar.DAY_OF_YEAR, 1);
+          this.moveToEndOfHalfYear(calendar);
+        }
+      }
       else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
         Calendar end = getEndOfQuarter(endDate);
@@ -331,6 +344,16 @@ public class MasterList extends MasterListBase
     return calendar;
   }
 
+  private Calendar getEndOfHalfYear(Date date)
+  {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    calendar.setTime(date);
+
+    moveToEndOfHalfYear(calendar);
+
+    return calendar;
+  }
+
   private Calendar getEndOfQuarter(Date date)
   {
     Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -360,6 +383,15 @@ public class MasterList extends MasterListBase
   {
     int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
     int month = ( quarter * 3 ) - 1;
+
+    calendar.set(Calendar.MONTH, month);
+    moveToEndOfMonth(calendar);
+  }
+
+  private void moveToEndOfHalfYear(Calendar calendar)
+  {
+    int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
+    int month = ( halfYear * 6 ) - 1;
 
     calendar.set(Calendar.MONTH, month);
     moveToEndOfMonth(calendar);
