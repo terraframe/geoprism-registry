@@ -242,15 +242,6 @@ export class MasterListComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	onGoto(data): void {
-		const code = data.code;
-
-		if (code != null && code.length > 0) {
-			window.open(acp + "/nav/management#/locations/" + oid, '_blank');
-		}
-
-	}
-
 	onPublish(): void {
 		this.message = null;
 
