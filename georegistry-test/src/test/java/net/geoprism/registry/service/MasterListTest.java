@@ -740,6 +740,28 @@ public class MasterListTest
 
   @Test
   @Request
+  public void testGetBiannualFrequencyDates()
+  {
+    final MasterList list = new MasterList();
+    list.addFrequency(ChangeFrequency.BIANNUAL);
+    
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    calendar.clear();
+    calendar.set(2012, Calendar.MARCH, 3);
+    
+    final Date startDate = calendar.getTime();
+    
+    calendar.set(2013, Calendar.JANUARY, 2);
+    
+    final Date endDate = calendar.getTime();
+    
+    List<Date> dates = list.getFrequencyDates(startDate, endDate);
+    
+    Assert.assertEquals(3, dates.size());
+  }
+  
+  @Test
+  @Request
   public void testGetMonthFrequencyDates()
   {
     final MasterList list = new MasterList();

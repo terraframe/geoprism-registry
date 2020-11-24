@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -286,6 +286,19 @@ public class MasterList extends MasterListBase
           calendar.add(Calendar.YEAR, 1);
         }
       }
+      else if (frequencies.contains(ChangeFrequency.BIANNUAL))
+      {
+        Calendar end = getEndOfHalfYear(endDate);
+        Calendar calendar = getEndOfHalfYear(startDate);
+
+        while (calendar.before(end) || calendar.equals(end))
+        {
+          dates.add(calendar.getTime());
+
+          calendar.add(Calendar.DAY_OF_YEAR, 1);
+          this.moveToEndOfHalfYear(calendar);
+        }
+      }
       else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
         Calendar end = getEndOfQuarter(endDate);
@@ -331,6 +344,16 @@ public class MasterList extends MasterListBase
     return calendar;
   }
 
+  private Calendar getEndOfHalfYear(Date date)
+  {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    calendar.setTime(date);
+
+    moveToEndOfHalfYear(calendar);
+
+    return calendar;
+  }
+
   private Calendar getEndOfQuarter(Date date)
   {
     Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -360,6 +383,15 @@ public class MasterList extends MasterListBase
   {
     int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
     int month = ( quarter * 3 ) - 1;
+
+    calendar.set(Calendar.MONTH, month);
+    moveToEndOfMonth(calendar);
+  }
+
+  private void moveToEndOfHalfYear(Calendar calendar)
+  {
+    int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
+    int month = ( halfYear * 6 ) - 1;
 
     calendar.set(Calendar.MONTH, month);
     moveToEndOfMonth(calendar);
@@ -565,12 +597,10 @@ public class MasterList extends MasterListBase
   private Pair<Date, Date> getDateRange(final ServerGeoObjectType objectType)
   {
     Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-
     if (this.getPublishingStartDate() != null)
     {
       return new Pair<Date, Date>(this.getPublishingStartDate(), range.getSecond());
     }
-
     return range;
   }
 

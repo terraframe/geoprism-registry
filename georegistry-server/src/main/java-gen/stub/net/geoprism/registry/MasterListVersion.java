@@ -1091,6 +1091,15 @@ public class MasterListVersion extends MasterListVersionBase
 
       return Integer.toString(calendar.get(Calendar.YEAR));
     }
+    else if (frequency.contains(ChangeFrequency.BIANNUAL))
+    {
+      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      calendar.setTime(this.getForDate());
+
+      int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
+
+      return "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR));
+    }
     else if (frequency.contains(ChangeFrequency.QUARTER))
     {
       Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));

@@ -13,6 +13,8 @@ import { GeoObject, ContextLayer, ContextLayerGroup } from '@registry/model/regi
 import { LocationInformation } from '@registry/model/location-manager';
 
 import { MapService, RegistryService } from '@registry/service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 declare var acp: string;
 
@@ -256,6 +258,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.setData(data);
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
 			});
 		} else {
 			this.mapService.select(this.current.properties.code, this.current.properties.type, this.childType, this.hierarchy, this.dateStr).then(data => {
@@ -263,6 +267,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 
 				this.setData(data);
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
 			});
 		}
 		this.hierarchy = null;
@@ -441,6 +447,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			(<any>this.map.getSource('children')).setData(data.geojson);
 
 			this.setData(data);
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
 		});
 
 		this.hierarchy = null;
@@ -466,6 +474,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 				(<any>this.map.getSource('children')).setData(data.geojson);
 
 				this.setData(data);
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
 			});
 		}
 		else if (this.breadcrumbs.length > 0) {
@@ -476,6 +486,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 				this.current = null;
 				this.breadcrumbs = [];
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
 			});
 		}
 
@@ -606,4 +618,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.vectorLayers.push(source);
 		}
 	}
+
+	error(err: HttpErrorResponse): void {
+		const bsModalRef: any = this.modalService.show(ErrorModalComponent, { backdrop: true });
+		bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+	}
+
 }
