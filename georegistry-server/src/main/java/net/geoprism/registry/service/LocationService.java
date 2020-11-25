@@ -45,6 +45,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.gis.geo.GeoEntityDTO;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.MdTermRelationship;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.controller.GeoObjectEditorControllerNoOverTime;
@@ -269,7 +270,7 @@ public class LocationService
 
       if (type != null)
       {
-        ServiceFactory.getGeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
+        ServiceFactory.getGeoObjectPermissionService().enforceCanRead(Session.getCurrentSession().getUser(), type.getOrganization().getCode(), type.getCode());
 
         information.setChildType(type.getType());
 
