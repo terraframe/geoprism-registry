@@ -102,7 +102,7 @@ public class GeoObjectPermissionService implements GeoObjectPermissionServiceIF
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
           
-          if (RegistryRole.Type.isRA_Role(roleName) && roleOrgCode.equals(orgCode) || op.equals(Operation.READ))
+          if (RegistryRole.Type.isRA_Role(roleName) && ( roleOrgCode.equals(orgCode) || op.equals(Operation.READ) ))
           {
             return true;
           }
