@@ -27,11 +27,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.json.RunwayJsonAdapters;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.account.OauthServer;
+import net.geoprism.account.OauthServerQuery;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.Page;
@@ -63,6 +67,19 @@ public class ExternalSystemService
       {
         Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
         OauthServer oauth = gson2.fromJson(jo.get(DHIS2ExternalSystem.OAUTH_SERVER), OauthServer.class);
+        
+        OauthServer dbServer = dhis2Sys.getOauthServer();
+        if (dbServer != null)
+        {
+          dbServer.lock();
+          dbServer.populate(oauth);
+          
+          oauth = dbServer;
+        }
+        
+        String systemLabel = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL)).getValue();
+        oauth.getDisplayLabel().setValue(systemLabel);
+        
         oauth.apply();
         
         dhis2Sys.setOauthServer(oauth);

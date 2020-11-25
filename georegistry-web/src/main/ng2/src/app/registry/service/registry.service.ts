@@ -31,7 +31,7 @@ import {
 import { HierarchyType } from '@registry/model/hierarchy';
 import { Progress } from '@shared/model/progress';
 
-import { Organization } from '@shared/model/core';
+import { Organization, OAuthServer } from '@shared/model/core';
 import { EventService } from '@shared/service';
 
 declare var acp: any;
@@ -256,7 +256,7 @@ export class RegistryService {
 			}))
 			.toPromise();
 	}
-
+	
 	getGeoObject(id: string, typeCode: string): Promise<GeoObject> {
 		let params: HttpParams = new HttpParams();
 

@@ -18,7 +18,7 @@
 ///
 
 import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
 
 import { Application } from '@shared/model/application';
 
@@ -39,4 +39,17 @@ export class HubService {
 			.post<Application[]>(acp + '/menu/applications', { headers: headers })
 			.toPromise();
 	}
+	
+	oauthGetPublic(id: string): Promise<any[]> {
+    let params: HttpParams = new HttpParams();
+
+    if (id)
+    {
+      params = params.set('id', id)
+    }
+
+    return this.http
+      .get<any[]>(acp + '/cgr/oauth/get-public', { params: params })
+      .toPromise();
+  }
 }

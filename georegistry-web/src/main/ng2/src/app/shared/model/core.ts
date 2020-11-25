@@ -35,6 +35,7 @@ export class ExternalSystem {
 export class OAuthServer {
   keyName?: string;
   label?: LocalizedValue;
+  url?: string;
   authorizationLocation: string;
   tokenLocation: string;
   profileLocation: string;

@@ -23,7 +23,6 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
-    <!--
     <create></create>
     <update>
       <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem">
@@ -59,7 +58,6 @@
         </grant>
       </role>
     </permissions>
-    -->
   </doIt>
   <undoIt>
     <delete>
