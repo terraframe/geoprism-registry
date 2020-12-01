@@ -85,7 +85,7 @@ export class ExternalSystemModalComponent implements OnInit {
       authorizationLocation: this.system.url + "uaa/oauth/authorize",
       tokenLocation: this.system.url + "uaa/oauth/token",
       profileLocation: this.system.url + "api/me",
-      clientId: "geoprism",
+      clientId: "georegistry",
       secretKey: "",
       serverType: "DHIS2"
     };
