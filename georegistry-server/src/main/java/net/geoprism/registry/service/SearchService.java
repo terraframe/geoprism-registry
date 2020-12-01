@@ -1,0 +1,319 @@
+package net.geoprism.registry.service;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+
+import com.runwaysdk.ComponentIF;
+import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.constants.IndexTypes;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
+import com.runwaysdk.constants.MdAttributeTextInfo;
+import com.runwaysdk.constants.graph.MdEdgeInfo;
+import com.runwaysdk.constants.graph.MdVertexInfo;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphDDLCommandAction;
+import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
+import com.runwaysdk.dataaccess.metadata.MdAttributeDateDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeTextDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.system.Roles;
+
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
+import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
+
+public class SearchService
+{
+  public static final String PACKAGE       = "net.geoprism.registry.search";
+
+  public static final String VERTEX_PREFIX = "Search";
+
+  public static final String EDGE_PREFIX   = "SearchLink";
+
+  public static final String LABEL         = "label";
+
+  public static final String VERTEX_TYPE   = "vertexType";
+
+  public static final String CODE          = "code";
+
+  public static final String START_DATE    = "startDate";
+
+  public static final String END_DATE      = "endDate";
+
+  @Transaction
+  public void createSearchTable()
+  {
+    String suffix = this.getSuffix();
+    String typeName = VERTEX_PREFIX + suffix;
+
+    MdVertexDAO mdVertex = MdVertexDAO.newInstance();
+    mdVertex.setValue(MdVertexInfo.PACKAGE, PACKAGE);
+    mdVertex.setValue(MdVertexInfo.NAME, typeName);
+    mdVertex.setValue(MdVertexInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
+    mdVertex.apply();
+
+    MdAttributeTextDAO label = MdAttributeTextDAO.newInstance();
+    label.setValue(MdAttributeTextInfo.NAME, LABEL);
+    label.setValue(MdAttributeTextInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+    label.apply();
+
+    MdAttributeTextDAO code = MdAttributeTextDAO.newInstance();
+    code.setValue(MdAttributeTextInfo.NAME, CODE);
+    code.setValue(MdAttributeTextInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+    code.setValue(MdAttributeTextInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+    code.apply();
+
+    MdAttributeTextDAO vertexType = MdAttributeTextDAO.newInstance();
+    vertexType.setValue(MdAttributeTextInfo.NAME, VERTEX_TYPE);
+    vertexType.setValue(MdAttributeTextInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+    vertexType.setValue(MdAttributeTextInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+    vertexType.apply();
+
+    MdAttributeDateDAO startDate = MdAttributeDateDAO.newInstance();
+    startDate.setValue(MdAttributeTextInfo.NAME, START_DATE);
+    startDate.setValue(MdAttributeTextInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+    startDate.setValue(MdAttributeTextInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+    startDate.apply();
+
+    MdAttributeDateDAO endDate = MdAttributeDateDAO.newInstance();
+    endDate.setValue(MdAttributeTextInfo.NAME, END_DATE);
+    endDate.setValue(MdAttributeTextInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+    endDate.setValue(MdAttributeTextInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+    endDate.apply();
+
+    MdEdgeDAO mdEdge = MdEdgeDAO.newInstance();
+    mdEdge.setValue(MdVertexInfo.PACKAGE, PACKAGE);
+    mdEdge.setValue(MdVertexInfo.NAME, EDGE_PREFIX + suffix);
+    mdEdge.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdVertex.getOid());
+    mdEdge.setValue(MdEdgeInfo.CHILD_MD_VERTEX, MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS).getOid());
+    mdEdge.apply();
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest dml = service.getGraphDBRequest();
+    GraphRequest ddl = service.getDDLGraphDBRequest();
+
+    String attributeName = label.getValue(MdAttributeTextInfo.NAME);
+    String className = mdVertex.getDBClassName();
+
+    String statement = "CREATE INDEX " + className + "." + attributeName + " ON " + className + "(" + attributeName + ") FULLTEXT ENGINE LUCENE";
+
+    GraphDDLCommandAction action = service.ddlCommand(dml, ddl, statement, new HashMap<String, Object>());
+    action.execute();
+
+    this.assignAllPermissions(Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE), mdVertex, mdEdge);
+    this.assignAllPermissions(Roles.findRoleByName(RegistryConstants.REGISTRY_ADMIN_ROLE), mdVertex, mdEdge);
+    this.assignAllPermissions(Roles.findRoleByName(RegistryConstants.REGISTRY_MAINTAINER_ROLE), mdVertex, mdEdge);
+  }
+
+  private void assignAllPermissions(Roles role, ComponentIF... components)
+  {
+    RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
+
+    for (ComponentIF component : components)
+    {
+      roleDAO.grantPermission(Operation.CREATE, component.getOid());
+      roleDAO.grantPermission(Operation.DELETE, component.getOid());
+      roleDAO.grantPermission(Operation.WRITE, component.getOid());
+      roleDAO.grantPermission(Operation.WRITE_ALL, component.getOid());
+      roleDAO.grantPermission(Operation.READ, component.getOid());
+      roleDAO.grantPermission(Operation.READ_ALL, component.getOid());
+    }
+  }
+
+  @Transaction
+  public void deleteSearchTable()
+  {
+    String suffix = this.getSuffix();
+
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(PACKAGE + "." + EDGE_PREFIX + suffix);
+    mdEdge.getBusinessDAO().delete();
+
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
+    mdVertex.getBusinessDAO().delete();
+  }
+
+  @Transaction
+  public void clear()
+  {
+    String suffix = this.getSuffix();
+
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("DELETE VERTEX " + mdVertex.getDBClassName());
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+
+    service.command(request, statement.toString(), new HashMap<>());
+  }
+
+  // @Transaction
+  public void clear(String vertexType)
+  {
+    String suffix = this.getSuffix();
+
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
+    MdAttributeDAOIF mdVertexType = mdVertex.definesAttribute(VERTEX_TYPE);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("DELETE VERTEX " + mdVertex.getDBClassName());
+    statement.append(" WHERE " + mdVertexType.getColumnName() + " = :vertexType");
+
+    Map<String, Object> parameters = new HashMap<String, Object>();
+    parameters.put("vertexType", vertexType);
+
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest request = service.getGraphDBRequest();
+    GraphRequest ddlRequest = service.getDDLGraphDBRequest();
+
+    service.ddlCommand(request, ddlRequest, statement.toString(), parameters);
+  }
+
+  // @Transaction
+  public void remove(String code)
+  {
+    // String suffix = this.getSuffix();
+    //
+    // MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." +
+    // VERTEX_PREFIX + suffix);
+    // MdAttributeDAOIF mdCode = mdVertex.definesAttribute(CODE);
+    //
+    // StringBuilder statement = new StringBuilder();
+    // statement.append("DELETE VERTEX " + mdVertex.getDBClassName());
+    // statement.append(" WHERE " + mdCode.getColumnName() + " = :code");
+    //
+    // Map<String, Object> parameters = new HashMap<String, Object>();
+    // parameters.put("code", code);
+    //
+    // GraphDBService service = GraphDBService.getInstance();
+    // GraphRequest request = service.getGraphDBRequest();
+    //
+    // service.command(request, statement.toString(), parameters);
+
+    String suffix = this.getSuffix();
+
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
+    MdAttributeDAOIF mdCode = mdVertex.definesAttribute(CODE);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE :code = " + mdCode.getColumnName());
+
+    List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("code", code);
+
+    List<VertexObject> results = query.getResults();
+
+    for (VertexObject result : results)
+    {
+      result.delete();
+    }
+  }
+
+  // @Transaction
+  public void insert(VertexServerGeoObject object)
+  {
+    this.remove(object.getCode());
+
+    String suffix = this.getSuffix();
+
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(PACKAGE + "." + EDGE_PREFIX + suffix);
+
+    ValueOverTimeCollection vots = object.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName());
+
+    for (ValueOverTime vot : vots)
+    {
+      VertexObjectDAOIF value = (VertexObjectDAOIF) vot.getValue();
+
+      List<String> attributeNames = SupportedLocaleCache.getLocaleNames();
+
+      for (String attributeName : attributeNames)
+      {
+        String label = value.getObjectValue(attributeName);
+
+        if (label != null && label.length() > 0)
+        {
+          VertexObject vertex = new VertexObject(mdVertex.definesType());
+          vertex.setValue(START_DATE, vot.getStartDate());
+          vertex.setValue(END_DATE, vot.getEndDate());
+          vertex.setValue(CODE, object.getCode());
+          vertex.setValue(LABEL, label);
+          vertex.setValue(VERTEX_TYPE, object.getType().getCode());
+          vertex.apply();
+
+          vertex.addChild(object.getVertex(), mdEdge).apply();
+        }
+      }
+    }
+
+  }
+
+  public List<ServerGeoObjectIF> search(String text, Date date, Long limit)
+  {
+    String suffix = this.getSuffix();
+
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
+    MdAttributeDAOIF code = mdVertex.definesAttribute(CODE);
+    MdAttributeDAOIF startDate = mdVertex.definesAttribute(START_DATE);
+    MdAttributeDAOIF endDate = mdVertex.definesAttribute(END_DATE);
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(PACKAGE + "." + EDGE_PREFIX + suffix);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
+    statement.append(" FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE SEARCH_CLASS(\"+label:" + text + "*\") = true");
+    statement.append(" OR :code = " + code.getColumnName());
+    statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
+
+    if (limit != null)
+    {
+      statement.append(" LIMIT " + limit);
+    }
+
+    List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("code", text);
+    query.setParameter("date", date);
+
+    List<VertexObject> results = query.getResults();
+
+    for (VertexObject result : results)
+    {
+      MdVertexDAOIF mdVertexType = (MdVertexDAOIF) result.getMdClass();
+      ServerGeoObjectType type = ServerGeoObjectType.get(mdVertexType);
+
+      list.add(new VertexServerGeoObject(type, result, date));
+    }
+
+    return list;
+  }
+
+  private String getSuffix()
+  {
+    // return locale != null ? locale.toString() : "Default";
+    return "Default";
+  }
+}
