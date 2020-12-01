@@ -9,8 +9,7 @@ import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
 
-import { GeoObject, ContextLayer, ContextLayerGroup } from '@registry/model/registry';
-import { LocationInformation } from '@registry/model/location-manager';
+import { GeoObject, ContextLayer, GeoObjectType } from '@registry/model/registry';
 
 import { MapService, RegistryService } from '@registry/service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -25,34 +24,45 @@ declare var acp: string;
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
+	MODE = {
+		SEARCH: 0,
+		VIEW: 1,
+	}
+
 	bsModalRef: BsModalRef;
 
     /* 
      * Root nodes of the tree
      */
-	data: LocationInformation = {
-		types: [],
-		hierarchies: [],
-		geojson: { type: 'MultiPolygon', features: [] },
-	};
+	data: GeoObject[] = [];
 
-	childType: string = null;
-	hierarchy: string = null;
+    /* 
+     *  Search Text
+     */
+	text: string = '';
+
+    /* 
+     *  MODE
+     */
+	mode: number = this.MODE.SEARCH;
 
     /*
      * Date of data for explorer
      */
 	dateStr: string = null;
 
-    /* 
-     * Breadcrumb of previous children clicked on
-     */
-	breadcrumbs = [] as GeoObject[];
+	forDate: Date = new Date();
+
 
     /* 
-     * Root nodes of the tree
+     * Currently selected geo object
      */
 	current: GeoObject;
+
+    /* 
+     * Currently selected geo object type
+     */
+	type: GeoObjectType;
 
     /* 
      * mapbox-gl map
@@ -154,32 +164,28 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	handleDateChange(): void {
-		this.back(null);
+		this.forDate = new Date(Date.parse(this.dateStr));
 	}
 
 	initMap(): void {
 
 		this.map.on('style.load', () => {
 			this.addLayers();
-			this.refresh();
 		});
 
 		this.addLayers();
-
-
-		this.refresh();
 
 		// Add zoom and rotation controls to the map.
 		this.map.addControl(new NavigationControl({ 'visualizePitch': true }));
 		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
 
-		this.map.on('dblclick', 'children-points', (event: any) => {
-			this.handleMapClickEvent(event);
-		});
-
-		this.map.on('dblclick', 'children-polygon', (event: any) => {
-			this.handleMapClickEvent(event);
-		});
+		//		this.map.on('dblclick', 'children-points', (event: any) => {
+		//			this.handleMapClickEvent(event);
+		//		});
+		//
+		//		this.map.on('dblclick', 'children-polygon', (event: any) => {
+		//			this.handleMapClickEvent(event);
+		//		});
 	}
 
 	addLayers(): void {
@@ -192,22 +198,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 				"type": "FeatureCollection",
 				"features": []
 			}
-		});
-
-		// Point layer
-		this.map.addLayer({
-			"id": source + "-points",
-			"type": "circle",
-			"source": source,
-			"paint": {
-				"circle-radius": 10,
-				"circle-color": '#a6611a',
-				"circle-stroke-width": 2,
-				"circle-stroke-color": '#FFFFFF'
-			},
-			filter: ['all',
-				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-			]
 		});
 
 		// Polygon layer
@@ -223,6 +213,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			},
 			filter: ['all',
 				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+			]
+		});
+
+		// Point layer
+		this.map.addLayer({
+			"id": source + "-points",
+			"type": "circle",
+			"source": source,
+			"paint": {
+				"circle-radius": 10,
+				"circle-color": '#a6611a',
+				"circle-stroke-width": 2,
+				"circle-stroke-color": '#FFFFFF'
+			},
+			filter: ['all',
+				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
 			]
 		});
 
@@ -249,30 +255,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.vectorLayers.forEach(cLayer => {
 			this.addVectorLayer(cLayer);
 		});
-
-	}
-
-	refresh(): void {
-		if (this.current == null) {
-			this.mapService.roots(this.childType, this.hierarchy, this.dateStr).then(data => {
-				(<any>this.map.getSource('children')).setData(data.geojson);
-
-				this.setData(data);
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		} else {
-			this.mapService.select(this.current.properties.code, this.current.properties.type, this.childType, this.hierarchy, this.dateStr).then(data => {
-				(<any>this.map.getSource('children')).setData(data.geojson);
-
-
-				this.setData(data);
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		}
-		this.hierarchy = null;
-		this.childType = null;
 	}
 
 	handleBasemapStyle(layer: any): void {
@@ -310,90 +292,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		});
 	}
 
-	// handleStyle(layer: any): void {
+	search(): void {
+		this.mapService.search(this.text, this.dateStr).then(data => {
+			(<any>this.map.getSource('children')).setData(data);
 
-	// 	this.baseLayers.forEach(baseLayer => {
-	// 		baseLayer.selected = false;
-	// 	});
 
-	// 	layer.selected = true;
-
-	// 	this.map.setStyle({
-	// 		"version": 8,
-	// 		"name": layer.name,
-	// 		"metadata": {
-	// 			"mapbox:autocomposite": true
-	// 		},
-	// 		"sources": {
-	// 			"mapbox": {
-	// 				"type": "raster",
-	// 				"url": layer.url,
-	// 				"tileSize": 256
-	// 			}
-	// 		},
-	// 		"sprite": layer.sprite,
-	// 		"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
-	// 		"layers": [
-	// 			{
-	// 				"id": "background",
-	// 				"type": "background",
-	// 				"paint": {
-	// 					"background-color": "rgb(4,7,14)"
-	// 				}
-	// 			},
-	// 			{
-	// 				"id": layer.id,
-	// 				"type": "raster",
-	// 				"source": "mapbox",
-	// 				"source-layer": "mapbox_satellite_full"
-	// 			}
-	// 		]
-	// 	});
-	// }
-
-	highlightMapFeature(id: string): void {
-
-		//		this.map.setFilter('hover-points', ['all',
-		//			['==', 'oid', id]
-		//		])
+			this.setData(data.features);
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 
 	}
 
-	clearHighlightMapFeature(): void {
-
-		//		this.map.setFilter('hover-points', ['all',
-		//			['==', 'oid', "NONE"]
-		//		])
-
-	}
-
-	onListEntityHover(event: GeoObject, site: GeoObject): void {
-		if (this.current == null) {
-			this.highlightMapFeature(site.properties.code);
-		}
-	}
-
-	onListEntityHoverOff(): void {
-		this.clearHighlightMapFeature();
-	}
-
-	//	highlightListItem(id: string): void {
-	//		this.nodes.forEach(node => {
-	//			if (node.properties.code === id) {
-	//				this.hoverFeatureId = id;
-	//			}
-	//		})
-	//	}
-	//
-	//	clearHighlightListItem(): void {
-	//		if (this.hoverFeatureId) {
-	//			this.nodes.forEach(node => {
-	//				if (node.properties.code === this.hoverFeatureId) {
-	//					this.hoverFeatureId = null;
-	//				}
-	//			})
-	//		}
-	//	}
 
 	zoomToFeature(node: GeoObject, event: MouseEvent): void {
 		if (event != null) {
@@ -420,98 +330,35 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			event.stopPropagation();
 		}
 
-		this.preventSingleClick = true;
-		clearTimeout(this.timer);
-
-		this.drillDown(node);
-	}
-
-	handleMapClickEvent(event: any): void {
-		if (event.features != null && event.features.length > 0) {
-			const feature = event.features[0];
-
-			const index = this.data.geojson.features.findIndex(node => { return node.properties.code === feature.properties.code });
-
-			if (index !== -1) {
-				this.drillDown(this.data.geojson.features[index]);
-			}
-		}
-	}
-
-	drillDown(node: GeoObject): void {
-		this.mapService.select(node.properties.code, node.properties.type, null, this.hierarchy, this.dateStr).then(data => {
+		this.service.getGeoObjectTypes([node.properties.type], null).then(types => {
+			this.type = types[0];
 			this.current = node;
-
-			this.addBreadcrumb(node);
-
-			(<any>this.map.getSource('children')).setData(data.geojson);
-
-			this.setData(data);
+			this.mode = this.MODE.VIEW;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
 
-		this.hierarchy = null;
-		this.childType = null;
+
+		//			this.preventSingleClick = true;
+		//			clearTimeout(this.timer);
+		//	
+		//			this.drillDown(node);
 	}
-
-	addBreadcrumb(node: GeoObject): void {
-
-		if (this.breadcrumbs.length == 0 || this.breadcrumbs[this.breadcrumbs.length - 1].properties.code !== node.properties.code) {
-			this.breadcrumbs.push(node);
-		}
-	}
-
-	back(node: GeoObject): void {
-
-		if (node != null) {
-			this.mapService.select(node.properties.code, node.properties.type, null, this.hierarchy, this.dateStr).then(data => {
-				var indexOf = this.breadcrumbs.findIndex(i => i.properties.code === node.properties.code);
-
-				this.current = node;
-				this.breadcrumbs.splice(indexOf + 1);
-
-				(<any>this.map.getSource('children')).setData(data.geojson);
-
-				this.setData(data);
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		}
-		else if (this.breadcrumbs.length > 0) {
-			this.mapService.roots(null, null, this.dateStr).then(data => {
-				(<any>this.map.getSource('children')).setData(data.geojson);
-
-				this.setData(data);
-
-				this.current = null;
-				this.breadcrumbs = [];
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		}
-
-		this.hierarchy = null;
-		this.childType = null;
-	}
-
-	expand(node: GeoObject) {
-		this.current = node;
-	}
-
-	setNodes(nodes: GeoObject[]): void {
-		this.data.geojson.features = [];
-
-		nodes.forEach(node => {
-			this.data.geojson.features.push(node);
-		})
-	}
-
-	setData(data: LocationInformation): void {
+	//
+	//	handleMapClickEvent(event: any): void {
+	//		if (event.features != null && event.features.length > 0) {
+	//			const feature = event.features[0];
+	//
+	//			const index = this.data.geojson.features.findIndex(node => { return node.properties.code === feature.properties.code });
+	//
+	//			if (index !== -1) {
+	//				this.drillDown(this.data.geojson.features[index]);
+	//			}
+	//		}
+	//	}
+	//
+	setData(data: GeoObject[]): void {
 		this.data = data;
-
-		this.hierarchy = data.hierarchy;
-		this.childType = data.childType;
 	}
 
 

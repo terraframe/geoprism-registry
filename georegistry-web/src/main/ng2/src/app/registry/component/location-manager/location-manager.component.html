@@ -7,24 +7,11 @@
 
     <div class="row">
       <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
+        <div *ngIf="mode === MODE.SEARCH">
         <div class="row">
           <div class="col-md-12">
-
-            <div class="row">
-              <div class="col-md-12" style="height: 56px; overflow: auto;">
-                <ul class="breadcrumb">
-                  <li *ngIf="current != null">
-                    <!-- <i class="fa fa-angle-left breadcrumb-back-ico" aria-hidden="true"></i> -->
-                    <a (click)="back(null)" style="color: #007276;"><localize key="explorer.root.label"></localize></a>
-                  </li>
-                  <li *ngFor="let entity of breadcrumbs; last as isLast" [ngClass]="{'active':isLast}">
-                    <a *ngIf="!isLast" (click)="back(entity)" style="color: #007276;"> {{entity.properties.displayLabel.localizedValue}}</a>
-                    <span *ngIf="isLast">
-                      <b>{{entity.properties.displayLabel.localizedValue}}</b>
-                    </span>
-                  </li>
-                </ul>
-              </div>
+            <div *ngIf="current != null && type != null">
+              <i class="fa fa-arrow-right clickable" aria-hidden="true" (click)="this.mode = this.MODE.VIEW"></i>              
             </div>
 
             <div class="row">
@@ -39,47 +26,20 @@
             </div>
 
             <!-- Search bar -->
-            <!-- <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section"> -->
-                  <!-- 
-                        <input class="form-control search-input" type="text" placeholder="Search..." [(ngModel)]="search"
-                          [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="handleClick($event)"
-                          [typeaheadOptionsLimit]="10" [typeaheadItemTemplate]="bsItemTemplate" typeaheadOptionField="label"
-                          [ngModelOptions]="{standalone: true}" (keydown.enter)="$event.preventDefault()" />
- -->
-                <!-- </div>
-              </div>
-            </div> -->
-
             <div class="row">
               <div class="col-md-12">
                 <div class="location-management-widget-section">
-                  <label>
-                    <localize key="explorer.hierarchy.label"></localize>
-                  </label>
-                  <select id="hierarchy" name="hierarchy" class="select-area" [(ngModel)]="hierarchy" (change)="refresh()"  required>
-                    <option></option>
-                    <option *ngFor="let hierarchy of data.hierarchies" [value]="hierarchy.code">{{hierarchy.label.localizedValue}}</option>
-                  </select>
+                  <div class="input-group">
+                    <input type="search" class="form-control" [(ngModel)]="text" name="text">
+                    <span class="input-group-btn">
+                      <button class="btn btn-primary" type="button" (click)="search()">
+                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search!
+                      </button>
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-
-            <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section">
-                  <label>
-                    <localize key="explorer.hierarchy.branch.label"></localize>
-                  </label>
-                  <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="childType" (change)="refresh()" required>
-                    <option></option>
-                    <option *ngFor="let type of data.types" [value]="type.code">{{type.label.localizedValue}}</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            
           </div>
         </div>
 
@@ -88,7 +48,7 @@
             <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container">
                   <div class="list-group">
 
-                    <div *ngFor="let node of data.geojson.features; let i = index" class="list-group-item">
+                    <div *ngFor="let node of data; let i = index" class="list-group-item">
                       <!-- Single column card -->
                       <div class="card card-default" (click)="zoomToFeature(node, $event)" >
                         <div class="card-body">
@@ -98,22 +58,23 @@
                       </div>
                     </div>
 
-                <!-- <tab heading="Context Layers"> 
-                  <div class="list-group">
-                    <div *ngFor="let list of lists; let i = index" class="list-group-item">
-                      {{ list.displayLabel.localizedValue }}
-                      <div class="list-group">
-                        <div *ngFor="let version of list.versions" class="list-group-item">
-                          <input type="checkbox" (click)="toggleContextLayer(version.oid)"> {{ version.forDate }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>              
-                </tab>  -->
               </div>
             </div>
           </div>
         </div>
+        </div>    
+        <div *ngIf="mode === MODE.VIEW && current != null" class="row">
+          <div class="col-md-12">
+            <div>
+              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="this.mode = this.MODE.SEARCH"></i>              
+            </div>
+            <feature-panel
+              [type]="type"
+              [code]="current.properties.code"              
+              [forDate]="forDate"
+            ></feature-panel>
+          </div>
+        </div>            
       </div>
 
       <div class="col-md-9" id="site-explorer-map">

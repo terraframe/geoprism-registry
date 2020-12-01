@@ -99,8 +99,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
 			this.type = types[0];
 		}).catch((err: HttpErrorResponse) => {
-			console.log(err);
-			//                this.error( err );
+			this.error(err);
 		});
 
 	}
