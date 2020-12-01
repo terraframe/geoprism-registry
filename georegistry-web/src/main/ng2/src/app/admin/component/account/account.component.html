@@ -173,12 +173,12 @@
 	          </select>
           </div>
         </div>
-        <div *ngIf="!account.user.newInstance && !editingOauth" class="heading">
+        <div *ngIf="!account.user.newInstance" class="heading">
           <h4>
             <localize key="account.user.password"></localize>
           </h4>
         </div>
-        <div *ngIf="!account.user.newInstance && !editingOauth" class="row-holder">
+        <div *ngIf="!account.user.newInstance" class="row-holder">
           <div class="button-holder" style="text-align: left;">
             <input type="button" *ngIf="!account.changePassword" [value]="'account.user.change.password.button' | localize" class="btn btn-primary"
               (click)="onChangePassword()" />
@@ -186,7 +186,7 @@
               (click)="onChangePassword()" />
           </div>
         </div>
-        <div *ngIf="(account.changePassword || account.user.newInstance) && !editingOauth">
+        <div *ngIf="(account.changePassword || account.user.newInstance)">
           <div class="row-holder">
             <div class="label-holder">
               <label>
