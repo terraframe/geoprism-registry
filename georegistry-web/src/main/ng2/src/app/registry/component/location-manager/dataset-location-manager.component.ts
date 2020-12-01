@@ -404,6 +404,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 		this.vot.value = geometry;
 		this.vot = null;
+
+		this.editingControl = null;
 	}
 
 	onGeometryEdit(vot: ValueOverTime): void {

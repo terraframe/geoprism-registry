@@ -66,12 +66,15 @@
         <div *ngIf="mode === MODE.VIEW && current != null" class="row">
           <div class="col-md-12">
             <div>
-              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="this.mode = this.MODE.SEARCH"></i>              
+              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"></i>              
             </div>
             <feature-panel
               [type]="type"
               [code]="current.properties.code"              
               [forDate]="forDate"
+              [geometryChange]="geometryChange"
+              (geometryEdit)="onGeometryEdit($event)"
+              (featureChange)="search()"                            
             ></feature-panel>
           </div>
         </div>            
@@ -85,6 +88,8 @@
           </article>
 
           <div id="map" class="map-view-port"></div>
+          <simple-edit-control [visible]="editingControl != null" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control>
+          
         </div>
       </div>
     </div>

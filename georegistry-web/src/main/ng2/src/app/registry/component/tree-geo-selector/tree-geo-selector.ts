@@ -78,8 +78,6 @@ export class TreeGeoSelector {
 			}
 		});
 
-		console.log(nodes);
-
 		this.nodes = nodes;
 	}
 

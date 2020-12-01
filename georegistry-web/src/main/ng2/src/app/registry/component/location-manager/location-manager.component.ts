@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl } from 'mapbox-gl';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
+import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl } from 'mapbox-gl';
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -9,7 +10,7 @@ import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
 
-import { GeoObject, ContextLayer, GeoObjectType } from '@registry/model/registry';
+import { GeoObject, ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
 
 import { MapService, RegistryService } from '@registry/service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -111,6 +112,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
 	subject: Subject<MapboxEvent<MouseEvent | TouchEvent | WheelEvent>>;
 
+
+	// 
+	// Editing of geomemtries
+	//
+	geometryChange: Subject<any> = new Subject();
+
+	vot: ValueOverTime = null;
+
+	@ViewChild("simpleEditControl") simpleEditControl: IControl;
+
+	editingControl: any;
+
+
 	constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService) {
 		mapService.init();
 	}
@@ -161,6 +175,17 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.initMap();
 		});
 
+		this.map.addControl(this.simpleEditControl);
+	}
+
+	changeMode(mode: number): void {
+		this.mode = mode;
+
+		if (this.editingControl != null) {
+			this.editingControl.deleteAll();
+			this.map.removeControl(this.editingControl);
+		}
+		this.vot = null;
 	}
 
 	handleDateChange(): void {
@@ -464,6 +489,162 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 			this.vectorLayers.push(source);
 		}
+	}
+
+
+	//
+	// Editing of features
+	//
+	onGeometryEdit(vot: ValueOverTime): void {
+		this.vot = vot;
+
+		this.addEditLayers(vot);
+	}
+
+	addEditLayers(vot: ValueOverTime): void {
+		if (vot != null) {
+			//			this.renderGeometryAsLayer(this.calculatedPreObject.geometry.value, "pre", "#EFA22E");
+
+			this.enableEditing(vot);
+		}
+	}
+
+	enableEditing(vot: ValueOverTime): void {
+		if (this.type.geometryType === "MULTIPOLYGON" || this.type.geometryType === "POLYGON") {
+			this.editingControl = new MapboxDraw({
+				controls: {
+					point: false,
+					line_string: false,
+					polygon: true,
+					trash: true,
+					combine_features: false,
+					uncombine_features: false
+				}
+			});
+		}
+		else if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
+			this.editingControl = new MapboxDraw({
+				controls: {
+					point: true,
+					line_string: false,
+					polygon: false,
+					trash: true,
+					combine_features: false,
+					uncombine_features: false
+				}
+			});
+		}
+		else if (this.type.geometryType === "LINE" || this.type.geometryType === "MULTILINE") {
+			this.editingControl = new MapboxDraw({
+				controls: {
+					point: false,
+					line_string: true,
+					polygon: false,
+					trash: true,
+					combine_features: false,
+					uncombine_features: false
+				}
+			});
+		}
+		this.map.addControl(this.editingControl);
+
+		if (vot.value != null) {
+			this.editingControl.add(vot.value);
+		}
+	}
+
+	onMapSave(): void {
+		const geometry = this.getDrawGeometry();
+
+		this.editingControl.deleteAll();
+		this.map.removeControl(this.editingControl);
+		//		this.geometryChange.next(geometry);
+
+		this.vot.value = geometry;
+		this.vot = null;
+		
+		this.editingControl = null;
+	}
+
+	getDrawGeometry(): any {
+		if (this.editingControl != null) {
+			let featureCollection: any = this.editingControl.getAll();
+
+			if (featureCollection.features.length > 0) {
+
+				// The first Feature is our GeoObject.
+
+				// Any additional features were created using the draw editor. Combine them into the GeoObject if its a multi-polygon.
+				if (this.type.geometryType === "MULTIPOLYGON") {
+					let polygons = [];
+
+					for (let i = 0; i < featureCollection.features.length; i++) {
+						let feature = featureCollection.features[i];
+
+						if (feature.geometry.type === 'MultiPolygon') {
+							for (let j = 0; j < feature.geometry.coordinates.length; j++) {
+								polygons.push(feature.geometry.coordinates[j]);
+							}
+						}
+						else {
+							polygons.push(feature.geometry.coordinates);
+						}
+					}
+
+					return {
+						coordinates: polygons,
+						type: 'MultiPolygon'
+					};
+				}
+				else if (this.type.geometryType === "MULTIPOINT") {
+					let points = [];
+
+					for (let i = 0; i < featureCollection.features.length; i++) {
+						let feature = featureCollection.features[i];
+
+						if (feature.geometry.type === 'MultiPoint') {
+							for (let j = 0; j < feature.geometry.coordinates.length; j++) {
+								points.push(feature.geometry.coordinates[j]);
+							}
+						}
+						else {
+							points.push(feature.geometry.coordinates);
+						}
+					}
+
+					return {
+						coordinates: points,
+						type: 'MultiPoint'
+					};
+				}
+				else if (this.type.geometryType === "MULTILINE") {
+					let lines = [];
+
+					for (let i = 0; i < featureCollection.features.length; i++) {
+						let feature = featureCollection.features[i];
+
+						if (feature.geometry.type === 'MultiLineString') {
+							for (let j = 0; j < feature.geometry.coordinates.length; j++) {
+								lines.push(feature.geometry.coordinates[j]);
+							}
+						}
+						else {
+							lines.push(feature.geometry.coordinates);
+						}
+					}
+
+					return {
+						coordinates: lines,
+						type: 'MultiLineString'
+					};
+				}
+				else {
+					return featureCollection.features[0].geometry;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	error(err: HttpErrorResponse): void {
