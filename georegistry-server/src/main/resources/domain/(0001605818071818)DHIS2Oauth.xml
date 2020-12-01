@@ -23,7 +23,21 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
-    <create></create>
+    <create>
+      <mdUtil name="net.geoprism.session.RegistrySessionService" label="Session Service">
+        <mdMethod name="ologin" static="true" label="oLogin" returnType="java.lang.String">
+          <mdParameter name="serverId" label="Server id" order="0" type="java.lang.String"/>
+          <mdParameter name="code" label="Code" order="1" type="java.lang.String"/>
+          <mdParameter name="locales" label="Locales" order="2" type="java.lang.String"/>
+          <mdParameter name="redirectBase" label="Redirect base" order="3" type="java.lang.String"/>
+        </mdMethod>
+      </mdUtil>
+      <mdException name="net.geoprism.registry.session.UserNotFoundException" message="User [{username}] does not exist in the GeoRegistry. You must first create this user (and assign roles to it) before you can login with it." >
+        <attributes>
+          <text name="username"/>
+        </attributes>
+      </mdException>
+    </create>
     <update>
       <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem">
         <create>
@@ -57,12 +71,26 @@
           </mdBusinessPermission>
         </grant>
       </role>
+      <role roleName="PUBLIC">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.session.RegistrySessionService">
+            <mdMethodPermission methodName="ologin">
+              <operation name="EXECUTE"/>
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <method methodName="login" type="net.geoprism.account.ExternalProfile">
+        <assignedRole roleName="Administrator"/>
+      </method>
     </permissions>
   </doIt>
   <undoIt>
     <delete>
       <object key="net.geoprism.registry.graph.DHIS2ExternalSystem.oauthServer" type="com.runwaysdk.system.metadata.MdAttribute"/>
       <object key="net.geoprism.registry.UserInfo.externalSystemOid" type="com.runwaysdk.system.metadata.MdAttribute"/>
+      <object key="net.geoprism.registry.session.UserNotFoundException" type="com.runwaysdk.system.metadata.MdException" />
+      <object key="net.geoprism.session.RegistrySessionService" type="com.runwaysdk.system.metadata.MdUtil"></object>
     </delete>
   </undoIt>
 </version>

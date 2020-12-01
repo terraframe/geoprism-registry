@@ -42,7 +42,6 @@ export class LoginHeaderComponent implements OnInit {
   ngOnInit(): void {
     this.hubService.oauthGetPublic(null).then(oauthServers => {
       
-      console.log("Retrieved oauth servers", oauthServers);
       if (oauthServers && oauthServers.length > 0)
       {
         this.oauthServer = oauthServers[0];

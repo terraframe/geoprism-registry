@@ -55,7 +55,7 @@ export class SessionService {
                 return user;
             } )
     }
-
+    
     logout(): Promise<void> {
 
         let headers = new HttpHeaders( {

@@ -16,6 +16,7 @@ import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
@@ -23,11 +24,10 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.InvalidLoginException;
-import com.runwaysdk.session.Request;
 import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.system.Users;
+import com.runwaysdk.system.UsersQuery;
 
-import net.geoprism.account.ExternalProfile;
-import net.geoprism.account.ExternalProfileQuery;
 import net.geoprism.account.LocaleSerializer;
 import net.geoprism.account.OauthServer;
 import net.geoprism.registry.session.UserNotFoundException;
@@ -35,12 +35,21 @@ import net.geoprism.registry.session.UserNotFoundException;
 public class RegistrySessionService extends RegistrySessionServiceBase
 {
   private static final long serialVersionUID = -75045565;
-  
+
   public RegistrySessionService()
   {
     super();
   }
-  
+
+  /**
+   * Serves as a "redirect url" for logging into DHIS2 via oauth.
+   * 
+   * @param serverId
+   * @param code
+   * @param locales
+   * @param redirectBase
+   * @return
+   */
   @Authenticate
   public static java.lang.String ologin(java.lang.String serverId, java.lang.String code, java.lang.String locales, java.lang.String redirectBase)
   {
@@ -56,18 +65,13 @@ public class RegistrySessionService extends RegistrySessionServiceBase
       tokenBuilder.setGrantType(GrantType.AUTHORIZATION_CODE);
       tokenBuilder.setRedirectURI(redirect);
       tokenBuilder.setCode(code);
-      
-//    tokenBuilder.setClientId(server.getClientId());
-//    tokenBuilder.setClientSecret(server.getSecretKey());
-//      tokenBuilder.setUsername(server.getClientId());
-//      tokenBuilder.setPassword(server.getSecretKey());
-      
+
       String auth = server.getClientId() + ":" + server.getSecretKey();
-      
+
       OAuthClientRequest tokenRequest = tokenBuilder.buildBodyMessage();
       tokenRequest.setHeader("Accept", "application/json");
       tokenRequest.setHeader("Authorization", "Basic " + new String(Base64.getEncoder().encode(auth.getBytes())));
-      
+
       URLConnectionClient connClient = new URLConnectionClient();
       OAuthClient oAuthClient = new OAuthClient(connClient);
       OAuthJSONAccessTokenResponse accessToken = oAuthClient.accessToken(tokenRequest, OAuth.HttpMethod.POST, OAuthJSONAccessTokenResponse.class);
@@ -84,49 +88,74 @@ public class RegistrySessionService extends RegistrySessionServiceBase
       String body = resourceResponse.getBody();
 
       JSONObject object = new JSONObject(body);
+      
+      final String username = object.getJSONObject("userCredentials").getString("username");
 
-      SingleActorDAOIF profile = RegistrySessionService.getOrCreateActor(server, object);
+      SingleActorDAOIF profile = RegistrySessionService.getOrCreateActor(server, username);
 
-      return SessionFacade.logIn(profile, LocaleSerializer.deserialize(locales));
+      String sessionId = SessionFacade.logIn(profile, LocaleSerializer.deserialize(locales));
+      
+      JsonObject json = new JsonObject();
+      json.addProperty("sessionId", sessionId);
+      json.addProperty("username", username);
+      return json.toString();
     }
     catch (JSONException | OAuthSystemException | OAuthProblemException e)
     {
       throw new InvalidLoginException(e);
     }
   }
-  
+
   @Transaction
-  private static synchronized SingleActorDAOIF getOrCreateActor(OauthServer server, JSONObject object) throws JSONException
+  private static synchronized SingleActorDAOIF getOrCreateActor(OauthServer server, String username) throws JSONException
   {
-    String serverType = server.getServerType();
-
-    String remoteId = OauthServer.getRemoteId(serverType, object);
-
-    ExternalProfileQuery query = new ExternalProfileQuery(new QueryFactory());
-    query.WHERE(query.getRemoteId().EQ(remoteId));
-    OIterator<? extends ExternalProfile> it = query.getIterator();
+    UsersQuery query = new UsersQuery(new QueryFactory());
+    query.WHERE(query.getUsername().EQ(username));
+    OIterator<? extends Users> it = query.getIterator();
 
     try
     {
       if (it.hasNext())
       {
-        ExternalProfile profile = it.next();
-        profile.lock();
-        OauthServer.populate(serverType, profile, object);
-        profile.apply();
-
-        return (SingleActorDAOIF) BusinessFacade.getEntityDAO(profile);
+        return (SingleActorDAOIF) BusinessFacade.getEntityDAO(it.next());
       }
       else
       {
         UserNotFoundException ex = new UserNotFoundException();
-//        ex.setUsername();
+        ex.setUsername(username);
         throw ex;
       }
     }
     finally
     {
-      it.close();
+
     }
   }
+
+  // ExternalProfileQuery query = new ExternalProfileQuery(new QueryFactory());
+  // query.WHERE(query.getUsername().EQ(username));
+  // OIterator<? extends ExternalProfile> it = query.getIterator();
+  //
+  // try
+  // {
+  // if (it.hasNext())
+  // {
+  // ExternalProfile profile = it.next();
+  // profile.lock();
+  // OauthServer.populate(serverType, profile, object);
+  // profile.apply();
+  //
+  // return (SingleActorDAOIF) BusinessFacade.getEntityDAO(profile);
+  // }
+  // else
+  // {
+  // UserNotFoundException ex = new UserNotFoundException();
+  // ex.setUsername(username);
+  // throw ex;
+  // }
+  // }
+  // finally
+  // {
+  // it.close();
+  // }
 }

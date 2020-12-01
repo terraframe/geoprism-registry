@@ -18,25 +18,36 @@
  */
 package net.geoprism.registry.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONArray;
+import javax.servlet.http.Cookie;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.constants.ClientConstants;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
+import com.runwaysdk.mvc.RedirectResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.request.ServletRequestIF;
 import com.runwaysdk.web.WebClientSession;
 
-import net.geoprism.CookieResponse;
+import net.geoprism.ClientConfigurationService;
 import net.geoprism.RoleViewDTO;
 import net.geoprism.SessionController;
 import net.geoprism.account.LocaleSerializer;
@@ -68,17 +79,52 @@ public class RegistrySessionController
     {
       ClientRequestIF clientRequest = clientSession.getRequest();
 
-      String sessionId = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), redirect);
-
+      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), redirect);
+      
+      JsonObject cgrSessionJson = (JsonObject) JsonParser.parseString(cgrSessionJsonString);
+      final String sessionId = cgrSessionJson.get("sessionId").getAsString();
+      final String username = cgrSessionJson.get("username").getAsString();
+      
       geoprism.createSession(req, sessionId, locales);
+      clientRequest = (ClientRequestIF) req.getAttribute(ClientConstants.CLIENTREQUEST);
 
-      JSONArray roles = new JSONArray(RoleViewDTO.getCurrentRoles(clientRequest));
+      JsonArray roles = (JsonArray) JsonParser.parseString(RoleViewDTO.getCurrentRoles(clientRequest));
+      JsonArray roleDisplayLabels = (JsonArray) JsonParser.parseString(RoleViewDTO.getCurrentRoleDisplayLabels(clientRequest));
+      
+      JsonObject cookieJson = new JsonObject();
+      cookieJson.addProperty("loggedIn", clientRequest.isLoggedIn());
+      cookieJson.add("roles", roles);
+      cookieJson.add("roleDisplayLabels", roleDisplayLabels);
+      cookieJson.addProperty("userName", username);
+      cookieJson.addProperty("version", ClientConfigurationService.getServerVersion());
+      
+      JsonArray installedLocalesArr = new JsonArray();
+      List<Locale> installedLocales = LocalizationFacade.getInstalledLocales();
+      for (Locale loc : installedLocales)
+      {
+        JsonObject locObj = new JsonObject();
+        locObj.addProperty("language", loc.getDisplayLanguage());
+        locObj.addProperty("country", loc.getDisplayCountry());
+        locObj.addProperty("name", loc.getDisplayName());
+        locObj.addProperty("variant", loc.getDisplayVariant());
 
-      CookieResponse response = new CookieResponse("user", -1);
-      response.set("loggedIn", clientRequest.isLoggedIn());
-      response.set("roles", roles);
-
+        installedLocalesArr.add(locObj);
+      }
+      cookieJson.add("installedLocales", installedLocalesArr);
+      
+      final String cookieValue = URLEncoder.encode(cookieJson.toString(), "UTF-8");
+      
+      Cookie cookie = new Cookie("user", cookieValue);
+      cookie.setMaxAge(-1);
+      
+      RedirectResponse response = new RedirectResponse("/");
+      response.addCookie(cookie);
+      
       return response;
+    }
+    catch (UnsupportedEncodingException e)
+    {
+      throw new ProgrammingErrorException(e);
     }
     finally
     {
