@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
 
 import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.BusinessFacade;
@@ -34,8 +33,6 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeTextDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.RegistryConstants;
@@ -118,7 +115,8 @@ public class SearchService
     String attributeName = label.getValue(MdAttributeTextInfo.NAME);
     String className = mdVertex.getDBClassName();
 
-    String statement = "CREATE INDEX " + className + "." + attributeName + " ON " + className + "(" + attributeName + ") FULLTEXT ENGINE LUCENE";
+    String indexName = className + "." + attributeName;
+    String statement = "CREATE INDEX " + indexName + " ON " + className + "(" + attributeName + ") FULLTEXT ENGINE LUCENE";
 
     GraphDDLCommandAction action = service.ddlCommand(dml, ddl, statement, new HashMap<String, Object>());
     action.execute();
@@ -223,7 +221,6 @@ public class SearchService
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
     statement.append(" WHERE :code = " + mdCode.getColumnName());
 
-    List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("code", code);
 
@@ -282,14 +279,19 @@ public class SearchService
     MdAttributeDAOIF code = mdVertex.definesAttribute(CODE);
     MdAttributeDAOIF startDate = mdVertex.definesAttribute(START_DATE);
     MdAttributeDAOIF endDate = mdVertex.definesAttribute(END_DATE);
+    MdAttributeDAOIF label = mdVertex.definesAttribute(LABEL);
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(PACKAGE + "." + EDGE_PREFIX + suffix);
+    String attributeName = label.getValue(MdAttributeTextInfo.NAME);
+    String className = mdVertex.getDBClassName();
+    String indexName = className + "." + attributeName;
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM " + mdVertex.getDBClassName());
-    statement.append(" WHERE SEARCH_CLASS(\"+label:" + text + "*\") = true");
+    statement.append(" WHERE SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
     statement.append(" OR :code = " + code.getColumnName());
     statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
+    statement.append(" ORDER BY " + label.getColumnName() + " DESC");
 
     if (limit != null)
     {
