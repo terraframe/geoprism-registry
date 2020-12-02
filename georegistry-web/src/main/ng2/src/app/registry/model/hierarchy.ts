@@ -10,6 +10,8 @@ export class HierarchyType {
 	progress?: string;
 	acknowledgement?: string;
 	contact?: string;
+	accessConstraints?: string;
+	useConstraints?: string;
 }
 
 export class Hierarchy {
