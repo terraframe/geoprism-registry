@@ -88,7 +88,7 @@ if [ "$deploy" == "true" ]; then
   ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db artifact_version=$version"
 
   if [ "$environment" == "demo" ]; then
-    ansible-playbook aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
+    ansible-playbook $WORKSPACE/geoprism-platform/aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini
   fi
 
 fi
