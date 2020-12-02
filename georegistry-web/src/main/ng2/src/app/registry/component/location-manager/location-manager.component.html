@@ -50,9 +50,9 @@
 
                     <div *ngFor="let node of data; let i = index" class="list-group-item">
                       <!-- Single column card -->
-                      <div class="card card-default" (click)="zoomToFeature(node, $event)" >
+                      <div class="card card-default" (click)="select(node, $event)">
                         <div class="card-body">
-                          <i class="fa fa-level-down clickable" style="float: right;" aria-hidden="true" (click)="select(node, $event)" title="Drill into location"></i>
+                          <i class="fa fa-level-down clickable" style="float: right;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Drill into location"></i>
                           <h4 class="clickable" style="word-break: break-all;" title="Zoom to location">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
                         </div>
                       </div>

@@ -242,6 +242,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		if (index !== -1) {
 			this.map.removeLayer(source + "-points");
 			this.map.removeLayer(source + "-polygon");
+			this.map.removeLayer(source + "-points-selected");
+			this.map.removeLayer(source + "-polygon-selected");
 			this.map.removeLayer(source + "-label");
 			this.map.removeSource(source);
 
@@ -368,6 +370,16 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	/*
 	 * EDIT FUNCTIONALITY
 	 */
+
+	clearGeometryEditing(): void {
+		if (this.editingControl != null) {
+			this.editingControl.deleteAll();
+			this.map.removeControl(this.editingControl);
+		}
+
+		this.editingControl = null;
+	}
+
 	onFeatureChange(): void {
 		// Refresh the layer
 		this.removeVectorLayer(this.datasetId);
@@ -409,6 +421,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 
 	onGeometryEdit(vot: ValueOverTime): void {
+		this.clearGeometryEditing();
+
 		this.vot = vot;
 
 		this.addEditLayers(vot);
@@ -423,8 +437,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	addEditLayers(vot: ValueOverTime): void {
 		if (vot != null) {
-			//			this.renderGeometryAsLayer(this.calculatedPreObject.geometry.value, "pre", "#EFA22E");
-
 			this.enableEditing(vot);
 		}
 	}
@@ -473,136 +485,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		}
 	}
 
-	renderGeometryAsLayer(geometry: any, prefix: string, color: string) {
-		let sourceName: string = prefix + "-geoobject";
-
-		this.map.addSource(sourceName, {
-			type: 'geojson',
-			data: {
-				"type": "FeatureCollection",
-				"features": []
-			}
-		});
-
-		if (this.type.geometryType === "MULTIPOLYGON" || this.type.geometryType === "POLYGON") {
-			// Polygon Layer
-			this.map.addLayer({
-				"id": sourceName + "-polygon",
-				"type": "fill",
-				"source": sourceName,
-				"paint": {
-					"fill-color": color,
-					"fill-outline-color": "black",
-					"fill-opacity": 0.7,
-				},
-			});
-		}
-		else if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
-			// Point layer
-			this.map.addLayer({
-				"id": sourceName + "-point",
-				"type": "circle",
-				"source": sourceName,
-				"paint": {
-					"circle-radius": 3,
-					"circle-color": color,
-					"circle-stroke-width": 2,
-					"circle-stroke-color": '#FFFFFF'
-				}
-			});
-		}
-		else if (this.type.geometryType === "LINE" || this.type.geometryType === "MULTILINE") {
-			this.map.addLayer({
-				"id": sourceName + "-line",
-				"source": sourceName,
-				"type": "line",
-				"layout": {
-					"line-join": "round",
-					"line-cap": "round"
-				},
-				"paint": {
-					"line-color": color,
-					"line-width": 2
-				}
-			});
-		}
-
-		(<any>this.map.getSource(sourceName)).setData(geometry);
-	}
-
-
-
-	calculateCurrent(goot: GeoObjectOverTime): any {
-		const object = {};
-
-		const time = this.forDate.getTime();
-
-		const attr = {
-			code: 'geometry',
-			type: 'geometry'
-		}
-
-		//		for (let i = 0; i < this.type.attributes.length; ++i) {
-		//			let attr = this.type.attributes[i];
-		//			object[attr.code] = null;
-		//
-		//			if (attr.type === 'local') {
-		//				object[attr.code] = this.lService.create();
-		//			}
-		//
-		//			if (attr.isChangeOverTime) {
-		let values = goot.attributes[attr.code].values;
-
-		values.forEach(vot => {
-
-			const startDate = Date.parse(vot.startDate);
-			const endDate = Date.parse(vot.endDate);
-
-			if (time >= startDate && time <= endDate) {
-
-				if (attr.type === 'local') {
-					object[attr.code] = {
-						startDate: vot.startDate,
-						endDate: vot.endDate,
-						value: JSON.parse(JSON.stringify(vot.value))
-					};
-				}
-				else if (attr.type === 'term' && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0) {
-					object[attr.code] = {
-						startDate: vot.startDate,
-						endDate: vot.endDate,
-						value: vot.value[0]
-					};
-				}
-				else {
-					object[attr.code] = {
-						startDate: vot.startDate,
-						endDate: vot.endDate,
-						value: vot.value
-					};
-				}
-			}
-		});
-		//			}
-		//			else {
-		//				object[attr.code] = goot.attributes[attr.code];
-		//			}
-		//		}
-		//
-		//		for (let i = 0; i < this.type.attributes.length; ++i) {
-		//			let attr = this.type.attributes[i];
-		//
-		//			if (attr.isChangeOverTime && object[attr.code] == null) {
-		//				object[attr.code] = {
-		//					startDate: null,
-		//					endDate: null,
-		//					value: ""
-		//				}
-		//			}
-		//		}
-
-		return object;
-	}
 
 	getDrawGeometry(): any {
 		if (this.editingControl != null) {

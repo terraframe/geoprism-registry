@@ -169,6 +169,8 @@ export class FeaturePanelComponent implements OnInit {
 		this.postGeoObject = postGeoObject;
 
 		this.mode = this.MODE.ATTRIBUTES;
+
+		this.geometryEdit.emit(null);
 	}
 
 	onHierarchyChange(hierarchy: HierarchyOverTime): void {

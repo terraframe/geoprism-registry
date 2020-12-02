@@ -181,10 +181,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	changeMode(mode: number): void {
 		this.mode = mode;
 
-		if (this.editingControl != null) {
-			this.editingControl.deleteAll();
-			this.map.removeControl(this.editingControl);
-		}
+		this.clearGeometryEditing();
+
 		this.vot = null;
 	}
 
@@ -495,7 +493,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	//
 	// Editing of features
 	//
+	clearGeometryEditing(): void {
+		if (this.editingControl != null) {
+			this.editingControl.deleteAll();
+			this.map.removeControl(this.editingControl);
+		}
+
+		this.editingControl = null;
+	}
+
+
 	onGeometryEdit(vot: ValueOverTime): void {
+		this.clearGeometryEditing();
+
 		this.vot = vot;
 
 		this.addEditLayers(vot);
@@ -562,7 +572,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 		this.vot.value = geometry;
 		this.vot = null;
-		
+
 		this.editingControl = null;
 	}
 
