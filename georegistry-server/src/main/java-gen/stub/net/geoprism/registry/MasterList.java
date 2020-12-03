@@ -47,7 +47,6 @@ import com.runwaysdk.Pair;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -921,8 +920,10 @@ public class MasterList extends MasterListBase
 
     if (list.getIsMaster() != null && list.getIsMaster())
     {
+      Universal universal = list.getUniversal();
+
       MasterListQuery query = new MasterListQuery(new QueryFactory());
-      query.WHERE(query.getUniversal().EQ(list.getUniversal()));
+      query.WHERE(query.getUniversal().EQ(universal));
       query.AND(query.getOrganization().EQ(list.getOrganization()));
       query.AND(query.getIsMaster().EQ(true));
 
@@ -933,9 +934,10 @@ public class MasterList extends MasterListBase
 
       if (query.getCount() > 0)
       {
-        ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+        DuplicateMasterListException ex = new DuplicateMasterListException();
+        ex.setGeoObjectType(universal.getDisplayLabel().getValue());
 
-        throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+        throw ex;
       }
     }
 
