@@ -295,6 +295,9 @@ export class MasterListComponent implements OnInit, OnDestroy {
 		});
 	}
 
+	changeTypeaheadLoading(attribute: any, loading: boolean): void {
+		attribute.loading = loading;
+	}
 
 	error(err: HttpErrorResponse): void {
 		this.message = ErrorHandler.getMessageFromError(err);
