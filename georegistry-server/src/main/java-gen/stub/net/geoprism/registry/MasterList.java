@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
@@ -37,13 +38,14 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -429,16 +431,16 @@ public class MasterList extends MasterListBase
 
       object.addProperty(MasterList.OID, this.getOid());
       object.addProperty(MasterList.ORGANIZATION, org.getOid());
-      object.addProperty("write", this.doesActorHaveWritePermission());
-      object.addProperty("read", this.doesActorHaveReadPermission());
     }
     else
     {
       object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
-      object.addProperty("write", false);
-      object.addProperty("read", false);
     }
 
+    object.addProperty("write", this.doesActorHaveWritePermission());
+    object.addProperty("read", this.doesActorHaveReadPermission());
+    object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
+    object.add("typeLabel", type.getLabel().toJSON(serializer));
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
@@ -771,28 +773,32 @@ public class MasterList extends MasterListBase
 
   public boolean doesActorHaveWritePermission()
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-      ServerGeoObjectType type = this.getGeoObjectType();
+    ServerGeoObjectType type = this.getGeoObjectType();
 
-      return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
-    }
-
-    return true;
+    return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
   }
 
   public boolean doesActorHaveReadPermission()
   {
+    ServerGeoObjectType type = this.getGeoObjectType();
+
+    return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
+  }
+
+  public boolean doesActorHaveExploratoryPermission()
+  {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-      ServerGeoObjectType type = this.getGeoObjectType();
+      Set<RoleDAOIF> roles = Session.getCurrentSession().getUser().authorizedRoles();
+      Boolean isSRA = roles.stream().reduce(Boolean.FALSE, (value, role) -> ( RegistryRole.Type.isSRA_Role(role.getRoleName()) || value ), Boolean::logicalOr);
 
-      return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
+      if (isSRA)
+      {
+        return false;
+      }
     }
 
-    return true;
+    return this.doesActorHaveReadPermission();
   }
 
   public void markAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
