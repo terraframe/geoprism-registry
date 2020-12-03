@@ -14,7 +14,7 @@
 				</div>
 
 				<div>
-					<a style="margin-right:10px;font-size:20px;" *ngIf="isMaintainer" [routerLink]="" [ngClass]="{'active': content === 'MANAGE'}" (click)="renderContent('MANAGE')">Manage</a> 
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'MANAGE'}" (click)="renderContent('MANAGE')">Manage</a> 
 					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'SUBMIT'}" (click)="renderContent('SUBMIT')">Submit</a>
 				</div>
 
