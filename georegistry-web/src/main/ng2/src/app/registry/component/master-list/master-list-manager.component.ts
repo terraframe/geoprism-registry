@@ -53,8 +53,8 @@ export class MasterListManagerComponent implements OnInit {
 				createDate: list.createDate,
 				lastUpdateDate: list.lastUpdateDate,
 				isMaster: list.isMaster,
-				write: list.admin,
-				read: list.admin,
+				write: list.write,
+				read: list.read,
 				visibility: list.visibility
 			};
 
