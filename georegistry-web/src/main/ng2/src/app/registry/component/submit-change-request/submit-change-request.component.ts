@@ -50,7 +50,6 @@ export class SubmitChangeRequestComponent implements OnInit {
 	isValid: boolean = false;
 
 	loading: boolean = false;
-	noData: boolean = false;
 
 	geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
 
@@ -132,10 +131,6 @@ export class SubmitChangeRequestComponent implements OnInit {
 
 	changeTypeaheadLoading(e: boolean): void {
 		this.loading = e;
-	}
-
-	typeaheadNoResults(e: boolean): void {
-		this.noData = e;
 	}
 
 	typeaheadOnSelect(e: TypeaheadMatch): void {
