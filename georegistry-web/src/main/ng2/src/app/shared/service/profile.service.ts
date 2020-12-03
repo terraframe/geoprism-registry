@@ -31,7 +31,7 @@ declare var acp: any;
 @Injectable()
 export class ProfileService {
 
-    constructor( service: EventService, private http: HttpClient ) { }
+    constructor( private http: HttpClient ) { }
 
     get(): Promise<Profile> {
 

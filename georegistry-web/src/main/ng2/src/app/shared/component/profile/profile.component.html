@@ -1,7 +1,7 @@
 <div *ngIf="_profile">
   <message></message>
 
-  <form #form="ngForm" class="modal-form" style="background: none;border: none;" (ngSubmit)="form.valid && onSubmit()">
+  <form #form="ngForm" class="modal-form" style="background: none;border: none;" (ngSubmit)="form.valid && onSubmit()" [mustMatch]="['password', 'certainPassword']">
     <fieldset>
       <div class="heading">
         <h3>
@@ -59,6 +59,32 @@
             </span>
           </div>
         </div>            
+
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.phonenumber"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="_profile.phoneNumber" name="phoneNumber">
+            </span>
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.altPhonenumber"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text">
+              <input type="text" [(ngModel)]="_profile.altPhoneNumber" name="altPhoneNumber">
+            </span>
+          </div>
+        </div>
+
       
       <div class="row-holder">
         <div class="label-holder">
@@ -146,8 +172,8 @@
             <span class="text">
               <input type="password" [(ngModel)]="_profile.password" name="password" #password="ngModel" required
                 minlength="5" maxlength="50">
-              <ng2-password-strength-bar [passwordToCheck]="_profile.password">
-              </ng2-password-strength-bar>
+              <password-strength-bar [passwordToCheck]="_profile.password">
+              </password-strength-bar>
             </span>
           </div>
         </div>
@@ -159,9 +185,9 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" [equalTo]="password" />
+              <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" />
             </span>
-            <div *ngIf="certainPassword.errors?.equalTo" class="inline-error-message">
+            <div *ngIf="certainPassword.errors?.mustMatch" class="inline-error-message">
               <localize key="account.certainPassword.validation"></localize>
             </div>
           </div>

@@ -19,11 +19,18 @@ import { Role } from "../../admin/model/account";
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 export class Profile {
-  oid: string;
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  changePassword: boolean;
+	oid: string;
+	username: string;
+	password: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+	changePassword?: boolean;
+	phoneNumber?: string;
+	altFirstName?: string;
+	altLastName?: string;
+	altPhoneNumber?: string;
+	position?: string;
+	department?: string;
+
 }
