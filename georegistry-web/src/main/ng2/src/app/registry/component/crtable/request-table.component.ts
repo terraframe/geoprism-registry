@@ -36,7 +36,7 @@ export class RequestTableComponent {
 
 	isMaintainer: boolean = false;
 
-	constructor(private service: ChangeRequestService, private modalService: BsModalService, localizationService: LocalizationService, authService: AuthService) {
+	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, localizationService: LocalizationService) {
 
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
@@ -107,6 +107,9 @@ export class RequestTableComponent {
 		// action.geoObjectJson = this.attributeEditor.getGeoObject();
 
 		this.service.applyActionStatusProperties(action).then(response => {
+			action.decisionMaker = (action.approvalStatus !== 'PENDING') ? this.authService.getUsername() : '';
+			
+			console.log(action);
 			// this.crtable.refresh()
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);

@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = -543072280)
+@com.runwaysdk.business.ClassSignature(hash = -1247807262)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -35,6 +17,7 @@ public abstract class AbstractActionBase extends com.runwaysdk.business.Business
   public static java.lang.String CREATEACTIONDATE = "createActionDate";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
+  public static java.lang.String DECISIONMAKER = "decisionMaker";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -46,7 +29,7 @@ public abstract class AbstractActionBase extends com.runwaysdk.business.Business
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -543072280;
+  private static final long serialVersionUID = -1247807262;
   
   public AbstractActionBase()
   {
@@ -217,6 +200,58 @@ public abstract class AbstractActionBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.AbstractAction.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
+  }
+  
+  public com.runwaysdk.system.SingleActor getDecisionMaker()
+  {
+    if (getValue(DECISIONMAKER).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return com.runwaysdk.system.SingleActor.get(getValue(DECISIONMAKER));
+    }
+  }
+  
+  public String getDecisionMakerOid()
+  {
+    return getValue(DECISIONMAKER);
+  }
+  
+  public void validateDecisionMaker()
+  {
+    this.validateAttribute(DECISIONMAKER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getDecisionMakerMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.AbstractAction.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(DECISIONMAKER);
+  }
+  
+  public void setDecisionMaker(com.runwaysdk.system.SingleActor value)
+  {
+    if(value == null)
+    {
+      setValue(DECISIONMAKER, "");
+    }
+    else
+    {
+      setValue(DECISIONMAKER, value.getOid());
+    }
+  }
+  
+  public void setDecisionMakerId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(DECISIONMAKER, "");
+    }
+    else
+    {
+      setValue(DECISIONMAKER, oid);
+    }
   }
   
   public com.runwaysdk.system.metadata.MdDomain getEntityDomain()

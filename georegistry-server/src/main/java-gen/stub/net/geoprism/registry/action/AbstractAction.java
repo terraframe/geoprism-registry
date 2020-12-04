@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action;
 
@@ -24,6 +24,8 @@ import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.SingleActor;
+import com.runwaysdk.system.Users;
 
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -90,6 +92,13 @@ public abstract class AbstractAction extends AbstractActionBase
     jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0).getEnumName());
     jo.put("statusLabel", status.getDisplayLabel());
     jo.put(AbstractAction.CREATEACTIONDATE, format.format(this.getCreateActionDate()));
+
+    SingleActor decisionMaker = this.getDecisionMaker();
+
+    if (decisionMaker != null && ( decisionMaker instanceof Users ))
+    {
+      jo.put(AbstractAction.DECISIONMAKER, ( (Users) decisionMaker ).getUsername());
+    }
 
     return jo;
   }
