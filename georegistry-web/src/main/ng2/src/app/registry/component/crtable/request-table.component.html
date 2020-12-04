@@ -139,8 +139,8 @@
                   <div class="row" style="border-top: 1px grey solid;margin:0;margin-bottom: 20px" *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
                     <div class="col-md-5" >
                     <label> 
-                      <localize *ngIf="action.approvalStatus !== 'ACCEPTED'" key="change.request.status.acceptedBy"></localize>
-                      <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.rejectedBy"></localize>
+                      <localize *ngIf="action.approvalStatus === 'ACCEPTED'" key="change.request.status.acceptedBy"></localize>
+                      <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize>
                     </label> {{action.decisionMaker}}
                     </div>
                   </div>
