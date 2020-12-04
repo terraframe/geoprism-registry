@@ -9,7 +9,7 @@ import { ChangeRequestService } from '@registry/service';
 import { LocalizationService, AuthService } from '@shared/service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent } from '@shared/component';
 
 @Component({
 
@@ -116,23 +116,40 @@ export class RequestTableComponent {
 	onApproveAll(changeRequest: ChangeRequest): void {
 
 		if (changeRequest != null) {
-			this.service.approveAllActions(changeRequest.oid, this.actions).then(actions => {
-				this.actions = actions;
-			}).catch((response: HttpErrorResponse) => {
-				this.error(response);
+			const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
 			});
+
+			bsModalRef.content.onConfirm.subscribe(data => {
+				this.service.approveAllActions(changeRequest.oid, this.actions).then(actions => {
+					this.actions = actions;
+				}).catch((response: HttpErrorResponse) => {
+					this.error(response);
+				});
+			});
+
 		}
 	}
 
 	onRejectAll(changeRequest: ChangeRequest): void {
 		if (changeRequest != null) {
-			this.service.rejectAllActions(changeRequest.oid, this.actions).then(actions => {
-				this.actions = actions;
+			const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
+			});
 
-				// TODO: Determine if there is a way to update an individual record
-				// this.refresh();
-			}).catch((response: HttpErrorResponse) => {
-				this.error(response);
+			bsModalRef.content.onConfirm.subscribe(data => {
+				this.service.rejectAllActions(changeRequest.oid, this.actions).then(actions => {
+					this.actions = actions;
+
+					// TODO: Determine if there is a way to update an individual record
+					// this.refresh();
+				}).catch((response: HttpErrorResponse) => {
+					this.error(response);
+				});
 			});
 		}
 	}
@@ -171,9 +188,17 @@ export class RequestTableComponent {
 	}
 
 	setActionStatus(action: AbstractAction, status: string): void {
-		action.approvalStatus = status;
+		const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
 
-		this.applyActionStatusProperties(action);
+		bsModalRef.content.onConfirm.subscribe(data => {
+			action.approvalStatus = status;
+
+			this.applyActionStatusProperties(action);
+		});
 	}
 
 	getActiveDetailComponent(action: AbstractAction): any {
