@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.excel;
 
@@ -140,8 +140,8 @@ public class MasterListExcelExporter
 
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CODE, this.list.getCode());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.REPRESENTATIVITYDATE, this.list.getRepresentativityDate());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PUBLISHDATE, this.list.getPublishDate());
+    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), this.version.getForDate());
+    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), this.version.getPublishDate());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.LISTABSTRACT, this.list.getListAbstract());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROCESS, this.list.getProcess());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROGRESS, this.list.getProgress());
@@ -153,7 +153,7 @@ public class MasterListExcelExporter
     rowNumber++;
 
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CONTACTNAME, this.list.getContactName());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ORGANIZATION, this.list.getOrganization());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ORGANIZATION, this.list.getOrganization().getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.TELEPHONENUMBER, this.list.getTelephoneNumber());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.EMAIL, this.list.getEmail());
   }
@@ -165,10 +165,17 @@ public class MasterListExcelExporter
 
   private void createRow(Sheet sheet, Locale locale, int rowNum, MdAttributeConcreteDAOIF mdAttribute, Object value)
   {
+    String label = mdAttribute.getDisplayLabel(locale);
+
+    this.createRow(sheet, rowNum, label, value);
+  }
+
+  private void createRow(Sheet sheet, int rowNum, String label, Object value)
+  {
     Row row = sheet.createRow(rowNum);
     Cell labelCell = row.createCell(0);
     labelCell.setCellStyle(this.boldStyle);
-    labelCell.setCellValue(mdAttribute.getDisplayLabel(locale));
+    labelCell.setCellValue(label);
 
     if (value instanceof String)
     {
