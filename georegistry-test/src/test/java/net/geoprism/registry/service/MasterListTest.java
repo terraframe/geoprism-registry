@@ -48,6 +48,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.ChangeFrequency;
+import net.geoprism.registry.DuplicateMasterListException;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
@@ -252,7 +253,7 @@ public class MasterListTest
 
       Assert.fail("Able to create multiple masterlists with the same universal");
     }
-    catch (DuplicateDataDatabaseException e)
+    catch (DuplicateMasterListException e)
     {
       test1.delete();
     }
@@ -612,7 +613,7 @@ public class MasterListTest
 
     try
     {
-      TestUserInfo[] users = new TestUserInfo[] { USATestData.ADMIN_USER, USATestData.USER_PPP_RA };
+      TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
 
       for (TestUserInfo user : users)
       {

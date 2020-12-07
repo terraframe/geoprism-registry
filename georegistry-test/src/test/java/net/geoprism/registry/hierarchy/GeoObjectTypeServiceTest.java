@@ -129,7 +129,7 @@ public class GeoObjectTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeAsGoodUser()
   {
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA };
 
     for (TestUserInfo user : users)
     {
@@ -144,7 +144,7 @@ public class GeoObjectTypeServiceTest
   @Test
   public void testCreateGeoObjectTypeAsBadUser()
   {
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : users)
     {
@@ -186,7 +186,7 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA };
 
     for (TestUserInfo user : users)
     {
@@ -204,7 +204,7 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : users)
     {
@@ -228,7 +228,7 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : users)
     {

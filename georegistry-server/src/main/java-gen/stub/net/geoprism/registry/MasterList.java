@@ -438,7 +438,7 @@ public class MasterList extends MasterListBase
 
     object.addProperty("write", this.doesActorHaveWritePermission());
     object.addProperty("read", this.doesActorHaveReadPermission());
-    object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
+    object.addProperty("exploratory", this.doesActorHaveReadPermission());
     object.add("typeLabel", type.getLabel().toJSON(serializer));
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON(serializer));
@@ -782,22 +782,6 @@ public class MasterList extends MasterListBase
     ServerGeoObjectType type = this.getGeoObjectType();
 
     return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
-  }
-
-  public boolean doesActorHaveExploratoryPermission()
-  {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      Set<RoleDAOIF> roles = Session.getCurrentSession().getUser().authorizedRoles();
-      Boolean isSRA = roles.stream().reduce(Boolean.FALSE, (value, role) -> ( RegistryRole.Type.isSRA_Role(role.getRoleName()) || value ), Boolean::logicalOr);
-
-      if (isSRA)
-      {
-        return false;
-      }
-    }
-
-    return this.doesActorHaveReadPermission();
   }
 
   public void markAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)

@@ -1,7 +1,7 @@
 <form>
 
   <div class="modal-body">
-    <form class="modal-form">
+    <form #form="ngForm" class="modal-form">
 
       <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
@@ -81,7 +81,7 @@
             <button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
               <localize key="modal.button.cancel"></localize>
             </button>
-            <button *ngIf="!readOnly" type="submit" [disabled]="hierarchyType.code.length < 1" class="btn btn-primary"
+            <button *ngIf="!readOnly" type="submit" [disabled]="hierarchyType.code.length < 1 || form.invalid" class="btn btn-primary"
               (click)="handleOnSubmit()" style="padding: 4px 18px;">
               <localize key="modal.button.ok"></localize>
             </button>

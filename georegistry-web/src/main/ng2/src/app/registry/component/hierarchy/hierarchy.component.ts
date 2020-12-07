@@ -21,7 +21,7 @@ import { Organization } from '@shared/model/core';
 import { RegistryService, HierarchyService } from '@registry/service';
 
 import { SvgHierarchyType } from './d3/svg-hierarchy-type';
-import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection, isBboxPartiallyWithin } from './d3/svg-util';
+import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection } from './d3/svg-util';
 import { SvgHierarchyNode } from './d3/svg-hierarchy-node';
 import { SvgController, Instance, DropTarget } from './d3/svg-controller';
 
@@ -79,7 +79,7 @@ export class HierarchyComponent implements OnInit, SvgController {
      */
 	current: any;
 
-	private root: any;
+	isSRA: boolean = false;
 
 	hierarchyService: HierarchyService;
 
@@ -114,12 +114,11 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 
 	constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
-		private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
+		private contextMenuService: ContextMenuService,
 		localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
 
-		// this.admin = authService.isAdmin();
-		// this.isMaintainer = this.isAdmin || service.isMaintainer();
-		// this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+		this.isSRA = authService.isSRA();
+
 		this.hierarchyService = hierarchyService;
 		this.localizeService = localizeService;
 	}
@@ -801,7 +800,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 	}
 
 	isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
-		return this.authService.isOrganizationRA(orgCode);
+		return this.isSRA || this.authService.isOrganizationRA(orgCode);
 	}
 
 	getTypesByOrg(org: Organization): GeoObjectType[] {
@@ -1155,14 +1154,14 @@ export class HierarchyComponent implements OnInit, SvgController {
 		});
 	}
 
-	public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean): void {
+	public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean, org:Organization): void {
 		this.bsModalRef = this.modalService.show(CreateGeoObjTypeModalComponent, {
 			animated: true,
 			backdrop: true,
 			ignoreBackdropClick: true,
 			'class': 'upload-modal'
 		});
-		this.bsModalRef.content.init(this.organizations, this.geoObjectTypes, groupSuperType, isAbstract);
+		this.bsModalRef.content.init(org, this.geoObjectTypes, groupSuperType, isAbstract);
 
 		this.bsModalRef.content.onGeoObjTypeCreate.subscribe(data => {
 
