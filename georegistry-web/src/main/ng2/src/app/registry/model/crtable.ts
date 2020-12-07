@@ -8,6 +8,8 @@ export class ChangeRequest {
 	statusCode: string;
 	total: number;
 	pending: number;
+	phoneNumber?: string;
+	email?: string;
 }
 
 export class AbstractAction {

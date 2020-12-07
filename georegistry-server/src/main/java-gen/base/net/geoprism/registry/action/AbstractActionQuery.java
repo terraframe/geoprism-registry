@@ -1,6 +1,6 @@
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 1574513099)
+@com.runwaysdk.business.ClassSignature(hash = -1876188695)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -37,6 +37,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public String getClassType()
   {
     return net.geoprism.registry.action.AbstractAction.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.AbstractAction.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.AbstractAction.ADDITIONALNOTES, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableChar getApiVersion()
   {
@@ -584,6 +601,9 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public interface AbstractActionQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes();
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getApiVersion();
     public com.runwaysdk.query.SelectableChar getApiVersion(String alias);
     public com.runwaysdk.query.SelectableChar getApiVersion(String alias, String displayLabel);
@@ -697,6 +717,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
       return this.NE(abstractAction.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.AbstractAction.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.AbstractAction.ADDITIONALNOTES, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getApiVersion()
   {
     return getApiVersion(null);
@@ -1178,6 +1215,9 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
   public interface AbstractActionQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes();
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getApiVersion();
     public com.runwaysdk.query.SelectableChar getApiVersion(String alias);
     public com.runwaysdk.query.SelectableChar getApiVersion(String alias, String displayLabel);
@@ -1315,6 +1355,23 @@ public  class AbstractActionQuery extends com.runwaysdk.query.GeneratedBusinessQ
       }
 
       return this.containsExactly(itemIdArray);
+  }
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.AbstractAction.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.AbstractAction.ADDITIONALNOTES, alias, displayLabel);
+
   }
   public com.runwaysdk.query.SelectableChar getApiVersion()
   {

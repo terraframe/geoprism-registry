@@ -54,8 +54,8 @@
         <tbody>
       <ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
         <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
-                  <td class="col-md-4">
-            <h5><strong>{{req.createdBy}}</strong></h5>
+          <td class="col-md-4">
+            <h5><strong>{{req.createdBy}} {{req.email}} {{req.phoneNumber}}</strong></h5>
           </td>
           <td class="col-md-2" style="vertical-align: middle; color:grey;">
              {{req.createDate}}
@@ -146,16 +146,22 @@
                   </div>
                   
                   <div class="row" style="height: 150px;margin:0;">
-                    <div class="col-md-5" >
+                    <div class="col-md-4" >
                       <div class="form-group">
                         <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
                         <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
                       </div>  
                     </div>
-                    <div class="col-md-5" >
+                    <div class="col-md-3" >
                       <div class="form-group">
                         <label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
                         <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                      </div>  
+                    </div>
+                    <div class="col-md-3" >
+                      <div class="form-group">
+                        <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
+                        <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
                       </div>  
                     </div>
                     <div class="col-md-2" style="height:100%;">

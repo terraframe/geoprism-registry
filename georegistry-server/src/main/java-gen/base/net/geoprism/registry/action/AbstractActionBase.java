@@ -1,6 +1,6 @@
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = -1247807262)
+@com.runwaysdk.business.ClassSignature(hash = 204963122)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,6 +11,7 @@ package net.geoprism.registry.action;
 public abstract class AbstractActionBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.action.AbstractAction";
+  public static java.lang.String ADDITIONALNOTES = "additionalNotes";
   public static java.lang.String APIVERSION = "apiVersion";
   public static java.lang.String APPROVALSTATUS = "approvalStatus";
   public static java.lang.String CONTRIBUTORNOTES = "contributorNotes";
@@ -29,11 +30,39 @@ public abstract class AbstractActionBase extends com.runwaysdk.business.Business
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -1247807262;
+  private static final long serialVersionUID = 204963122;
   
   public AbstractActionBase()
   {
     super();
+  }
+  
+  public String getAdditionalNotes()
+  {
+    return getValue(ADDITIONALNOTES);
+  }
+  
+  public void validateAdditionalNotes()
+  {
+    this.validateAttribute(ADDITIONALNOTES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAdditionalNotesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.AbstractAction.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ADDITIONALNOTES);
+  }
+  
+  public void setAdditionalNotes(String value)
+  {
+    if(value == null)
+    {
+      setValue(ADDITIONALNOTES, "");
+    }
+    else
+    {
+      setValue(ADDITIONALNOTES, value);
+    }
   }
   
   public String getApiVersion()
