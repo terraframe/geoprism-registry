@@ -1154,7 +1154,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 		});
 	}
 
-	public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean, org:Organization): void {
+	public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean, org: Organization): void {
 		this.bsModalRef = this.modalService.show(CreateGeoObjTypeModalComponent, {
 			animated: true,
 			backdrop: true,
@@ -1167,7 +1167,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 			data.relatedHierarchies = this.calculateRelatedHierarchies(data);
 
-			this.refreshAll(this.currentHierarchy)
+			this.refreshAll(this.currentHierarchy);
 
 		});
 	}
@@ -1222,25 +1222,31 @@ export class HierarchyComponent implements OnInit, SvgController {
 		this.bsModalRef.content.readOnly = readOnly;
 
 		(<ManageGeoObjectTypeModalComponent>this.bsModalRef.content).onGeoObjectTypeSubmitted.subscribe(data => {
-			const position = this.getGeoObjectTypePosition(data.code);
 
-			if (position !== -1) {
-				this.geoObjectTypes[position] = data;
+			if (data.isAbstract) {
+				this.refreshAll(this.currentHierarchy);
 			}
+			else {
+				const position = this.getGeoObjectTypePosition(data.code);
 
-			// Update all of the hierarchies for the new geo object type
-			this.updateViewDatastructures();
+				if (position !== -1) {
+					this.geoObjectTypes[position] = data;
+				}
 
-			this.hierarchies.forEach((hierarchyType: HierarchyType) => {
-				this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
-			});
+				// Update all of the hierarchies for the new geo object type
+				this.updateViewDatastructures();
 
-			// Update the current hierarchy view
-			if (this.currentHierarchy != null) {
-				this.processHierarchyNodes(this.currentHierarchy.rootGeoObjectTypes[0]);
+				this.hierarchies.forEach((hierarchyType: HierarchyType) => {
+					this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
+				});
+
+				// Update the current hierarchy view
+				if (this.currentHierarchy != null) {
+					this.processHierarchyNodes(this.currentHierarchy.rootGeoObjectTypes[0]);
+				}
+
+				this.renderTree();
 			}
-
-			this.renderTree();
 		});
 	}
 

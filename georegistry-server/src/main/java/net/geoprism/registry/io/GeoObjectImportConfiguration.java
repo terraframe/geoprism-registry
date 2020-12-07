@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -389,28 +389,18 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     {
       String hCode = config.getString(HIERARCHY);
 
-      ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-      List<GeoObjectType> ancestors = got.getTypeAncestors(hierarchyType, true);
-
-      this.setHierarchy(hierarchyType);
-
-      if (ancestors.size() > 0)
+      if (hCode.length() > 0)
       {
-        this.setRoot(null);
 
-        // GeoObjectType rootType = ancestors.get(0);
-        // ServerGeoObjectQuery query = new
-        // ServerGeoObjectService().createQuery(ServerGeoObjectType.get(rootType),
-        // this.getStartDate());
-        //
-        // if (query.getCount() > 0)
-        // {
-        // this.setRoot(query.getSingleResult().toGeoObject());
-        // }
-        // else
-        // {
-        // this.setRoot(null);
-        // }
+        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
+        List<GeoObjectType> ancestors = got.getTypeAncestors(hierarchyType, true);
+
+        this.setHierarchy(hierarchyType);
+
+        if (ancestors.size() > 0)
+        {
+          this.setRoot(null);
+        }
       }
     }
 
