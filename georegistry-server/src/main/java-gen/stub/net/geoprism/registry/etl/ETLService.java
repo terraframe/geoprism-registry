@@ -715,11 +715,11 @@ public class ETLService
 
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
 
-    ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
-
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
-
     ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
+    
+    ImportHistory hist = problem.getHistory();
+    
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
 
     String resolution = config.get("resolution").getAsString();
 
