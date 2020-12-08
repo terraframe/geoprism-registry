@@ -55,7 +55,7 @@
       <ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
         <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
           <td class="col-md-4">
-            <h5><strong>{{req.createdBy}} {{req.email}} {{req.phoneNumber}}</strong></h5>
+            <h5><strong>{{req.createdBy}}</strong></h5>
           </td>
           <td class="col-md-2" style="vertical-align: middle; color:grey;">
              {{req.createDate}}
@@ -150,18 +150,32 @@
                     <div class="col-md-4" >
                       <div class="form-group">
                         <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
-                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
+                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
                       </div>  
                       
-                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default " style="width:100%;margin:0;" role="button">
+                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default " style="float:right;margin:0;" role="button">
                         <localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
                       </button>
+                      
+                      <div>
+                          <span style="font-style: italic;">
+                            <localize key="change.request.action.detail.contributor.contact.email"></localize>:
+                          </span>
+                          <label>{{req.email}}</label>
+                      </div>
+                      
+                      <div>
+                          <span style="font-style: italic;">
+                            <localize key="change.request.action.detail.contributor.contact.phone"></localize>:
+                          </span>
+                          <label>{{req.phoneNumber}}</label>
+                      </div>
                     </div>
                     
                     <div class="col-md-4" >
                       <div class="form-group">
                         <label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
-                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
                       </div>  
                       
                         <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
@@ -176,7 +190,7 @@
                     <div class="col-md-4" >
                       <div class="form-group">
                         <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
-                        <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                        <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
                       </div>  
                     </div>
                   </div>
