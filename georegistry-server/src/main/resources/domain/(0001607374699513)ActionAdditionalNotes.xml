@@ -5,7 +5,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="change.request.action.detail.additionalNotes" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Additional decision makers" />
+          <attribute name="defaultLocale" value="Additional Decision Makers" />
         </attributeStruct>
       </object>
    </createOrUpdate>

@@ -21,7 +21,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="change.request.status.approvedBy" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Approved By" />
+          <attribute name="defaultLocale" value="Accepted By" />
         </attributeStruct>
       </object>
     </createOrUpdate>

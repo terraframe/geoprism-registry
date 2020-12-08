@@ -29,6 +29,7 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationRAException;
 import net.geoprism.registry.OrganizationRMException;
 import net.geoprism.registry.SRAException;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.roles.RAException;
 
 public class RolePermissionService extends UserPermissionService
@@ -173,14 +174,24 @@ public class RolePermissionService extends UserPermissionService
 
   public void enforceRM()
   {
-    enforceRM(null);
+    enforceRM(null, null);
   }
 
-  public void enforceRM(String orgCode)
+  public void enforceRM(String orgCode, String gotCode)
   {
     if (!isRM(orgCode))
     {
-      if (orgCode != null)
+      if (gotCode != null && orgCode != null && orgCode != "" && gotCode != "")
+      {
+        Organization org = Organization.getByCode(orgCode);
+        ServerGeoObjectType type = ServerGeoObjectType.get(gotCode);
+        
+        OrganizationRMException ex = new OrganizationRMException();
+        ex.setOrganizationLabel(org.getDisplayLabel().getValue());
+        ex.setGeoObjectTypeLabel(type.getLabel().getValue());
+        throw ex;
+      }
+      else if (orgCode != null && orgCode != "")
       {
         Organization org = Organization.getByCode(orgCode);
 
@@ -211,6 +222,31 @@ public class RolePermissionService extends UserPermissionService
       String roleName = role.getRoleName();
 
       if (RegistryRole.Type.isOrgRole(roleName))
+      {
+        String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+
+        return roleOrgCode;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * If the session user is a role, this method will return the user's GeoObjectType. Otherwise
+   * this method will return null.
+   */
+  public String getRMGeoObjectType()
+  {
+    SingleActorDAOIF actor = this.getSessionUser();
+
+    Set<RoleDAOIF> roles = actor.authorizedRoles();
+
+    for (RoleDAOIF role : roles)
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isOrgRole(roleName) && RegistryRole.Type.isRM_Role(roleName))
       {
         String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
