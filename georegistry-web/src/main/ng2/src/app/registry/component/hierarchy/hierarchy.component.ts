@@ -1109,10 +1109,14 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 			this.hierarchies[pos].label = data.label;
 			this.hierarchies[pos].description = data.description;
-			this.hierarchies[pos].abstractDescription = data.abstractDescription;
 			this.hierarchies[pos].progress = data.progress;
 			this.hierarchies[pos].acknowledgement = data.acknowledgement;
+			this.hierarchies[pos].disclaimer = data.disclaimer;
+			this.hierarchies[pos].useConstraints = data.useConstraints;
+			this.hierarchies[pos].accessConstraints = data.accessConstraints;
 			this.hierarchies[pos].contact = data.contact;
+			this.hierarchies[pos].phoneNumber = data.phoneNumber;
+			this.hierarchies[pos].email = data.email;
 
 			this.updateViewDatastructures();
 
