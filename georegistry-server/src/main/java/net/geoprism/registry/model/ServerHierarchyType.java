@@ -210,7 +210,10 @@ public class ServerHierarchyType
     metadata.setAbstractDescription(hierarchyType.getAbstractDescription());
     metadata.setProgress(hierarchyType.getProgress());
     metadata.setAcknowledgement(hierarchyType.getAcknowledgement());
+    metadata.setDisclaimer(hierarchyType.getDisclaimer());
     metadata.setContact(hierarchyType.getContact());
+    metadata.setPhoneNumber(hierarchyType.getPhoneNumber());
+    metadata.setEmail(hierarchyType.getEmail());
     metadata.setAccessConstraints(hierarchyType.getAccessConstraints());
     metadata.setUseConstraints(hierarchyType.getUseConstraints());
     metadata.apply();

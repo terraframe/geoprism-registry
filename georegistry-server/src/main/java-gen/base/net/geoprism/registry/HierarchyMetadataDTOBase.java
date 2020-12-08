@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -753696601)
+@com.runwaysdk.business.ClassSignature(hash = -303964739)
 public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.HierarchyMetadata";
-  private static final long serialVersionUID = -753696601;
+  private static final long serialVersionUID = -303964739;
   
   protected HierarchyMetadataDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -33,6 +33,8 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public static java.lang.String CONTACT = "contact";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
+  public static java.lang.String DISCLAIMER = "disclaimer";
+  public static java.lang.String EMAIL = "email";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -41,6 +43,7 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public static java.lang.String MDTERMRELATIONSHIP = "mdTermRelationship";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String PHONENUMBER = "phoneNumber";
   public static java.lang.String PROGRESS = "progress";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
@@ -254,6 +257,80 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getCreatedByMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CREATEDBY).getAttributeMdDTO();
+  }
+  
+  public String getDisclaimer()
+  {
+    return getValue(DISCLAIMER);
+  }
+  
+  public void setDisclaimer(String value)
+  {
+    if(value == null)
+    {
+      setValue(DISCLAIMER, "");
+    }
+    else
+    {
+      setValue(DISCLAIMER, value);
+    }
+  }
+  
+  public boolean isDisclaimerWritable()
+  {
+    return isWritable(DISCLAIMER);
+  }
+  
+  public boolean isDisclaimerReadable()
+  {
+    return isReadable(DISCLAIMER);
+  }
+  
+  public boolean isDisclaimerModified()
+  {
+    return isModified(DISCLAIMER);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getDisclaimerMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(DISCLAIMER).getAttributeMdDTO();
+  }
+  
+  public String getEmail()
+  {
+    return getValue(EMAIL);
+  }
+  
+  public void setEmail(String value)
+  {
+    if(value == null)
+    {
+      setValue(EMAIL, "");
+    }
+    else
+    {
+      setValue(EMAIL, value);
+    }
+  }
+  
+  public boolean isEmailWritable()
+  {
+    return isWritable(EMAIL);
+  }
+  
+  public boolean isEmailReadable()
+  {
+    return isReadable(EMAIL);
+  }
+  
+  public boolean isEmailModified()
+  {
+    return isModified(EMAIL);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getEmailMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(EMAIL).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.metadata.MdDomainDTO getEntityDomain()
@@ -537,6 +614,43 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getOwnerMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(OWNER).getAttributeMdDTO();
+  }
+  
+  public String getPhoneNumber()
+  {
+    return getValue(PHONENUMBER);
+  }
+  
+  public void setPhoneNumber(String value)
+  {
+    if(value == null)
+    {
+      setValue(PHONENUMBER, "");
+    }
+    else
+    {
+      setValue(PHONENUMBER, value);
+    }
+  }
+  
+  public boolean isPhoneNumberWritable()
+  {
+    return isWritable(PHONENUMBER);
+  }
+  
+  public boolean isPhoneNumberReadable()
+  {
+    return isReadable(PHONENUMBER);
+  }
+  
+  public boolean isPhoneNumberModified()
+  {
+    return isModified(PHONENUMBER);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getPhoneNumberMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(PHONENUMBER).getAttributeMdDTO();
   }
   
   public String getProgress()

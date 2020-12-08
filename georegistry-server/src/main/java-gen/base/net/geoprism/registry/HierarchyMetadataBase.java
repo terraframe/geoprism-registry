@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 643240487)
+@com.runwaysdk.business.ClassSignature(hash = 1238642493)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -17,6 +17,8 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
   public static java.lang.String CONTACT = "contact";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
+  public static java.lang.String DISCLAIMER = "disclaimer";
+  public static java.lang.String EMAIL = "email";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -25,12 +27,13 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
   public static java.lang.String MDTERMRELATIONSHIP = "mdTermRelationship";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String PHONENUMBER = "phoneNumber";
   public static java.lang.String PROGRESS = "progress";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
   public static java.lang.String USECONSTRAINTS = "useConstraints";
-  private static final long serialVersionUID = 643240487;
+  private static final long serialVersionUID = 1238642493;
   
   public HierarchyMetadataBase()
   {
@@ -191,6 +194,62 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
+  }
+  
+  public String getDisclaimer()
+  {
+    return getValue(DISCLAIMER);
+  }
+  
+  public void validateDisclaimer()
+  {
+    this.validateAttribute(DISCLAIMER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getDisclaimerMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(DISCLAIMER);
+  }
+  
+  public void setDisclaimer(String value)
+  {
+    if(value == null)
+    {
+      setValue(DISCLAIMER, "");
+    }
+    else
+    {
+      setValue(DISCLAIMER, value);
+    }
+  }
+  
+  public String getEmail()
+  {
+    return getValue(EMAIL);
+  }
+  
+  public void validateEmail()
+  {
+    this.validateAttribute(EMAIL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getEmailMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(EMAIL);
+  }
+  
+  public void setEmail(String value)
+  {
+    if(value == null)
+    {
+      setValue(EMAIL, "");
+    }
+    else
+    {
+      setValue(EMAIL, value);
+    }
   }
   
   public com.runwaysdk.system.metadata.MdDomain getEntityDomain()
@@ -462,6 +521,34 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
     else
     {
       setValue(OWNER, oid);
+    }
+  }
+  
+  public String getPhoneNumber()
+  {
+    return getValue(PHONENUMBER);
+  }
+  
+  public void validatePhoneNumber()
+  {
+    this.validateAttribute(PHONENUMBER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getPhoneNumberMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(PHONENUMBER);
+  }
+  
+  public void setPhoneNumber(String value)
+  {
+    if(value == null)
+    {
+      setValue(PHONENUMBER, "");
+    }
+    else
+    {
+      setValue(PHONENUMBER, value);
     }
   }
   

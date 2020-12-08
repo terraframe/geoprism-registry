@@ -6,10 +6,12 @@ export class HierarchyType {
 	label: LocalizedValue;
 	rootGeoObjectTypes: HierarchyNode[];
 	organizationCode: string;
-	abstractDescription?: string;
 	progress?: string;
 	acknowledgement?: string;
+	disclaimer?: string;
 	contact?: string;
+	phoneNumber?: string;
+	email?: string;
 	accessConstraints?: string;
 	useConstraints?: string;
 }

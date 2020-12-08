@@ -46,11 +46,6 @@
       </div>
       
       <div class="form-group">
-        <label><localize key="data.property.label.abstractDescription"></localize></label>
-        <input [(ngModel)]="hierarchyType.abstractDescription" name="abstractDescription" type="text" class="form-control" [disabled]="readOnly">
-      </div>
-      
-      <div class="form-group">
         <label><localize key="data.property.label.progress"></localize></label>
         <input [(ngModel)]="hierarchyType.progress" name="progress" type="text" class="form-control" [disabled]="readOnly">
       </div>
@@ -59,10 +54,9 @@
         <label><localize key="data.property.label.acknowledgement"></localize></label>
         <input [(ngModel)]="hierarchyType.acknowledgement" name="acknowledgement" type="text" class="form-control" [disabled]="readOnly">
       </div>
-
       <div class="form-group">
-        <label><localize key="data.property.label.contact"></localize></label>
-        <input [(ngModel)]="hierarchyType.contact" name="contact" type="text" class="form-control" [disabled]="readOnly">
+        <label><localize key="data.property.label.disclaimer"></localize></label>
+        <input [(ngModel)]="hierarchyType.disclaimer" name="disclaimer" type="text" class="form-control" [disabled]="readOnly">
       </div>
 
       <div class="form-group">
@@ -74,6 +68,29 @@
         <label><localize key="data.property.label.useConstraints"></localize></label>
         <input [(ngModel)]="hierarchyType.useConstraints" name="useConstraints" type="text" class="form-control" [disabled]="readOnly">
       </div>
+      
+      <hr/>
+      
+      <div class="form-group">
+        <h4>
+          <localize key="masterlist.contact"></localize>
+        </h4>
+      </div>
+      
+      <div class="form-group">
+        <label><localize key="data.property.label.contact"></localize></label>
+        <input [(ngModel)]="hierarchyType.contact" name="contact" type="text" class="form-control" [disabled]="readOnly">
+      </div>
+
+      <div class="form-group">
+        <label><localize key="data.property.label.phoneNumber"></localize></label>
+        <input [(ngModel)]="hierarchyType.phoneNumber" name="phoneNumber" type="text" class="form-control" [disabled]="readOnly">
+      </div>
+
+      <div class="form-group">
+        <label><localize key="data.property.label.email"></localize></label>
+        <input [(ngModel)]="hierarchyType.email" name="email" type="email" class="form-control" [disabled]="readOnly">
+      </div>      
 
       <div class="row">
         <div class="col-md-12">

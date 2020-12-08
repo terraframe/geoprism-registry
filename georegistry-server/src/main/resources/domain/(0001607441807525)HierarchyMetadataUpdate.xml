@@ -1,0 +1,74 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.acknowledgement">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.acknowledgement" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Acknowledgement" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.disclaimer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.disclaimer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Disclaimer" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.contact">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.contact" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Contact name" />
+        </attributeStruct>
+      </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.accessConstraints">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.accessConstraints" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Access Constraints" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.useConstraints">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.useConstraints" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Use Constraints" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.phoneNumber">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.phoneNumber" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Telephone number" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.email">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.email" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Email address" />
+        </attributeStruct>
+      </object>
+      
+    </createOrUpdate>
+    <update>
+      <mdBusiness name="net.geoprism.registry.HierarchyMetadata">
+        <create>
+          <attributes>
+            <text name="disclaimer" label="Disclaimer" />
+            <text name="phoneNumber" label="Telephone number" />
+            <text name="email" label="Email address" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.HierarchyMetadata.disclaimer" />
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.HierarchyMetadata.phoneNumber" />
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.HierarchyMetadata.email" />
+    </delete>
+  </undoIt>
+</version>

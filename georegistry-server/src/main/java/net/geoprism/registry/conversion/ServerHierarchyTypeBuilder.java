@@ -143,7 +143,10 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     metadata.setMdTermRelationship(mdTermRelUniversal);
     metadata.setAbstractDescription(hierarchyType.getAbstractDescription());
     metadata.setAcknowledgement(hierarchyType.getAcknowledgement());
+    metadata.setDisclaimer(hierarchyType.getDisclaimer());
     metadata.setContact(hierarchyType.getContact());
+    metadata.setPhoneNumber(hierarchyType.getPhoneNumber());
+    metadata.setEmail(hierarchyType.getEmail());
     metadata.setProgress(hierarchyType.getProgress());
     metadata.setAccessConstraints(hierarchyType.getAccessConstraints());
     metadata.setUseConstraints(hierarchyType.getUseConstraints());
@@ -334,7 +337,10 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       ht.setAbstractDescription(metadata.getAbstractDescription());
       ht.setProgress(metadata.getProgress());
       ht.setAcknowledgement(metadata.getAcknowledgement());
+      ht.setDisclaimer(metadata.getDisclaimer());
       ht.setContact(metadata.getContact());
+      ht.setPhoneNumber(metadata.getPhoneNumber());
+      ht.setEmail(metadata.getEmail());
       ht.setAccessConstraints(metadata.getAccessConstraints());
       ht.setUseConstraints(metadata.getUseConstraints());
     }

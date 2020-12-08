@@ -113,7 +113,10 @@ public class HierarchyServiceTest
     HierarchyType reportingDivision = MetadataFactory.newHierarchyType(TEST_HT.getCode(), new LocalizedValue("Reporting Division"), new LocalizedValue("The rporting division hieracy..."), organizationCode, testData.adapter);
     reportingDivision.setAbstractDescription("Test Abstract");
     reportingDivision.setAcknowledgement("Test Acknowledgement");
+    reportingDivision.setDisclaimer("Test disclaimer");
     reportingDivision.setContact("Test Contact");
+    reportingDivision.setPhoneNumber("Test phone number");
+    reportingDivision.setEmail("Test email");
     reportingDivision.setProgress("Test Progress");
     reportingDivision.setAccessConstraints("Access Constraints");
     reportingDivision.setUseConstraints("Test Use Constraints");
@@ -133,7 +136,10 @@ public class HierarchyServiceTest
     Assert.assertEquals("Reporting Division", hierarchy.getLabel().getValue());
     Assert.assertEquals("Test Abstract", hierarchy.getAbstractDescription());
     Assert.assertEquals("Test Acknowledgement", hierarchy.getAcknowledgement());
+    Assert.assertEquals("Test disclaimer", hierarchy.getDisclaimer());
     Assert.assertEquals("Test Contact", hierarchy.getContact());
+    Assert.assertEquals("Test phone number", hierarchy.getPhoneNumber());
+    Assert.assertEquals("Test email", hierarchy.getEmail());
     Assert.assertEquals("Test Progress", hierarchy.getProgress());
     Assert.assertEquals("Access Constraints", hierarchy.getAccessConstraints());
     Assert.assertEquals("Test Use Constraints", hierarchy.getUseConstraints());

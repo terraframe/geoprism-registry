@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1954682864)
+@com.runwaysdk.business.ClassSignature(hash = 1655791014)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -144,6 +144,40 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.HierarchyMetadata.CREATEDBY);
 
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.HierarchyMetadata.CREATEDBY, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getDisclaimer()
+  {
+    return getDisclaimer(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getDisclaimer(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.DISCLAIMER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getDisclaimer(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.DISCLAIMER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getEmail()
+  {
+    return getEmail(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getEmail(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.EMAIL, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getEmail(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.EMAIL, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
@@ -310,6 +344,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.HierarchyMetadata.OWNER);
 
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.HierarchyMetadata.OWNER, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getPhoneNumber()
+  {
+    return getPhoneNumber(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.PHONENUMBER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.PHONENUMBER, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getProgress()
@@ -482,6 +533,12 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getDisclaimer();
+    public com.runwaysdk.query.SelectableChar getDisclaimer(String alias);
+    public com.runwaysdk.query.SelectableChar getDisclaimer(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getEmail();
+    public com.runwaysdk.query.SelectableChar getEmail(String alias);
+    public com.runwaysdk.query.SelectableChar getEmail(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
@@ -506,6 +563,9 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getPhoneNumber();
+    public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias);
+    public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getProgress();
     public com.runwaysdk.query.SelectableChar getProgress(String alias);
     public com.runwaysdk.query.SelectableChar getProgress(String alias, String displayLabel);
@@ -658,6 +718,40 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.HierarchyMetadata.CREATEDBY,  alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getDisclaimer()
+  {
+    return getDisclaimer(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getDisclaimer(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.DISCLAIMER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getDisclaimer(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.DISCLAIMER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getEmail()
+  {
+    return getEmail(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getEmail(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.EMAIL, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getEmail(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.EMAIL, alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
   {
     return getEntityDomain(null);
@@ -792,6 +886,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.HierarchyMetadata.OWNER,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getPhoneNumber()
+  {
+    return getPhoneNumber(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.PHONENUMBER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.PHONENUMBER, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getProgress()
@@ -941,6 +1052,12 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getDisclaimer();
+    public com.runwaysdk.query.SelectableChar getDisclaimer(String alias);
+    public com.runwaysdk.query.SelectableChar getDisclaimer(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getEmail();
+    public com.runwaysdk.query.SelectableChar getEmail(String alias);
+    public com.runwaysdk.query.SelectableChar getEmail(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
@@ -965,6 +1082,9 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getPhoneNumber();
+    public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias);
+    public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getProgress();
     public com.runwaysdk.query.SelectableChar getProgress(String alias);
     public com.runwaysdk.query.SelectableChar getProgress(String alias, String displayLabel);
@@ -1166,6 +1286,40 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.HierarchyMetadata.CREATEDBY,  alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getDisclaimer()
+  {
+    return getDisclaimer(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getDisclaimer(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.DISCLAIMER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getDisclaimer(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.DISCLAIMER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getEmail()
+  {
+    return getEmail(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getEmail(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.EMAIL, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getEmail(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.EMAIL, alias, displayLabel);
+
+  }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
   {
     return getEntityDomain(null);
@@ -1300,6 +1454,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF)this.get(net.geoprism.registry.HierarchyMetadata.OWNER,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getPhoneNumber()
+  {
+    return getPhoneNumber(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.PHONENUMBER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getPhoneNumber(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.PHONENUMBER, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getProgress()
