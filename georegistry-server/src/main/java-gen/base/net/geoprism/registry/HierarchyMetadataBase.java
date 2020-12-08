@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -352935162)
+@com.runwaysdk.business.ClassSignature(hash = 1238642493)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -30,10 +12,13 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
 {
   public final static String CLASS = "net.geoprism.registry.HierarchyMetadata";
   public static java.lang.String ABSTRACTDESCRIPTION = "abstractDescription";
+  public static java.lang.String ACCESSCONSTRAINTS = "accessConstraints";
   public static java.lang.String ACKNOWLEDGEMENT = "acknowledgement";
   public static java.lang.String CONTACT = "contact";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
+  public static java.lang.String DISCLAIMER = "disclaimer";
+  public static java.lang.String EMAIL = "email";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -42,11 +27,13 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
   public static java.lang.String MDTERMRELATIONSHIP = "mdTermRelationship";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String PHONENUMBER = "phoneNumber";
   public static java.lang.String PROGRESS = "progress";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -352935162;
+  public static java.lang.String USECONSTRAINTS = "useConstraints";
+  private static final long serialVersionUID = 1238642493;
   
   public HierarchyMetadataBase()
   {
@@ -78,6 +65,34 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
     else
     {
       setValue(ABSTRACTDESCRIPTION, value);
+    }
+  }
+  
+  public String getAccessConstraints()
+  {
+    return getValue(ACCESSCONSTRAINTS);
+  }
+  
+  public void validateAccessConstraints()
+  {
+    this.validateAttribute(ACCESSCONSTRAINTS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAccessConstraintsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ACCESSCONSTRAINTS);
+  }
+  
+  public void setAccessConstraints(String value)
+  {
+    if(value == null)
+    {
+      setValue(ACCESSCONSTRAINTS, "");
+    }
+    else
+    {
+      setValue(ACCESSCONSTRAINTS, value);
     }
   }
   
@@ -179,6 +194,62 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
+  }
+  
+  public String getDisclaimer()
+  {
+    return getValue(DISCLAIMER);
+  }
+  
+  public void validateDisclaimer()
+  {
+    this.validateAttribute(DISCLAIMER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getDisclaimerMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(DISCLAIMER);
+  }
+  
+  public void setDisclaimer(String value)
+  {
+    if(value == null)
+    {
+      setValue(DISCLAIMER, "");
+    }
+    else
+    {
+      setValue(DISCLAIMER, value);
+    }
+  }
+  
+  public String getEmail()
+  {
+    return getValue(EMAIL);
+  }
+  
+  public void validateEmail()
+  {
+    this.validateAttribute(EMAIL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getEmailMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(EMAIL);
+  }
+  
+  public void setEmail(String value)
+  {
+    if(value == null)
+    {
+      setValue(EMAIL, "");
+    }
+    else
+    {
+      setValue(EMAIL, value);
+    }
   }
   
   public com.runwaysdk.system.metadata.MdDomain getEntityDomain()
@@ -453,6 +524,34 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
     }
   }
   
+  public String getPhoneNumber()
+  {
+    return getValue(PHONENUMBER);
+  }
+  
+  public void validatePhoneNumber()
+  {
+    this.validateAttribute(PHONENUMBER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getPhoneNumberMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(PHONENUMBER);
+  }
+  
+  public void setPhoneNumber(String value)
+  {
+    if(value == null)
+    {
+      setValue(PHONENUMBER, "");
+    }
+    else
+    {
+      setValue(PHONENUMBER, value);
+    }
+  }
+  
   public String getProgress()
   {
     return getValue(PROGRESS);
@@ -527,6 +626,34 @@ public abstract class HierarchyMetadataBase extends com.runwaysdk.business.Busin
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
+  }
+  
+  public String getUseConstraints()
+  {
+    return getValue(USECONSTRAINTS);
+  }
+  
+  public void validateUseConstraints()
+  {
+    this.validateAttribute(USECONSTRAINTS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getUseConstraintsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.HierarchyMetadata.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(USECONSTRAINTS);
+  }
+  
+  public void setUseConstraints(String value)
+  {
+    if(value == null)
+    {
+      setValue(USECONSTRAINTS, "");
+    }
+    else
+    {
+      setValue(USECONSTRAINTS, value);
+    }
   }
   
   protected String getDeclaredType()

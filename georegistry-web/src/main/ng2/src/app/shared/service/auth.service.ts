@@ -73,11 +73,11 @@ export class AuthService {
 	}
 
 	isMaintainer(): boolean {
-		return this.isRM();
+		return this.isSRA() || this.isRM();
 	}
 
 	isContributer(): boolean {
-		return this.isRC();
+		return this.isSRA() || this.isRC();
 	}
 
 	// Used to exactly identify a role. I.e. if we say we need RC, SRA doesn't count.
@@ -106,6 +106,10 @@ export class AuthService {
 	}
 
 	isRA(): boolean {
+		if (this.isSRA()) {
+			return true;
+		}
+		
 		for (let i = 0; i < this.user.roles.length; ++i) {
 			let role: RegistryRole = this.user.roles[i];
 
@@ -123,6 +127,10 @@ export class AuthService {
 	}
 
 	isRM(): boolean {
+		if (this.isSRA()) {
+			return true;
+		}
+
 		for (let i = 0; i < this.user.roles.length; ++i) {
 			let role: RegistryRole = this.user.roles[i];
 
@@ -140,6 +148,10 @@ export class AuthService {
 	}
 
 	isOrganizationRA(orgCode: string): boolean {
+		if (this.isSRA()) {
+			return true;
+		}
+
 		for (let i = 0; i < this.user.roles.length; ++i) {
 			let role: RegistryRole = this.user.roles[i];
 
@@ -152,6 +164,10 @@ export class AuthService {
 	}
 
 	isGeoObjectTypeRM(orgCode: string, gotCode: string): boolean {
+		if (this.isSRA()) {
+			return true;
+		}
+
 		for (let i = 0; i < this.user.roles.length; ++i) {
 			let role: RegistryRole = this.user.roles[i];
 
@@ -164,6 +180,10 @@ export class AuthService {
 	}
 
 	isGeoObjectTypeRC(orgCode: string, gotCode: string): boolean {
+		if (this.isSRA()) {
+			return true;
+		}
+
 		for (let i = 0; i < this.user.roles.length; ++i) {
 			let role: RegistryRole = this.user.roles[i];
 
@@ -176,6 +196,10 @@ export class AuthService {
 	}
 
 	isRC(): boolean {
+		if (this.isSRA()) {
+			return true;
+		}
+
 		for (let i = 0; i < this.user.roles.length; ++i) {
 			let role: RegistryRole = this.user.roles[i];
 
@@ -200,7 +224,7 @@ export class AuthService {
 		for (let i = 0; i < this.user.roles.length; ++i) {
 			let role: RegistryRole = this.user.roles[i];
 
-			if (role.type === RegistryRoleType.RC || role.type === RegistryRoleType.RM || role.type === RegistryRoleType.RA) {
+			if (role.type === RegistryRoleType.SRA || role.type === RegistryRoleType.RC || role.type === RegistryRoleType.RM || role.type === RegistryRoleType.RA) {
 				orgCodes.push(role.orgCode);
 			}
 		}

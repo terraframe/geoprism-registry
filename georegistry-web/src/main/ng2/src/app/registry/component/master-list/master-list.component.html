@@ -104,7 +104,21 @@
                                         <div *ngIf="attribute.type === 'date'">
                                             <input [name]="attribute.name + 'Start'" [(ngModel)]="attribute.value.start" (change)="handleDateChange(attribute)" type="date" class="form-control search-input" /> <input [name]="attribute.name + 'End'" [(ngModel)]="attribute.value.end" (change)="handleDateChange(attribute)" type="date" class="form-control search-input" />
                                         </div>
-                                        <input *ngIf="attribute.type === 'list'" type="text" [name]="attribute.name" [(ngModel)]="attribute.search" [typeaheadAsync]="true" [typeahead]="getValues(attribute)" (typeaheadOnSelect)="handleListChange($event, attribute)" [typeaheadOptionsLimit]="100" [typeaheadMinLength]="0" [typeaheadWaitMs]="300" typeaheadOptionField="label" class="form-control" autocomplete="off">
+                                        <input *ngIf="attribute.type === 'list'" 
+                                          type="text" 
+                                          [placeholder]="('masterlist.search' | localize) + '...'" 
+                                          [name]="attribute.name"
+                                          [(ngModel)]="attribute.search"
+                                          [typeaheadAsync]="true"
+                                          [typeahead]="getValues(attribute)"
+                                          (typeaheadOnSelect)="handleListChange($event, attribute)"
+                                          [typeaheadOptionsLimit]="100"
+                                          [typeaheadMinLength]="0"
+                                          [typeaheadWaitMs]="300"
+                                          [ngClass]="{'inline-loading':attribute.loading}"    
+                                          (typeaheadLoading)="changeTypeaheadLoading(attribute, $event)"                                      
+                                          typeaheadOptionField="label"
+                                          class="form-control" autocomplete="off">
 
                                     </div>
                                 </div>

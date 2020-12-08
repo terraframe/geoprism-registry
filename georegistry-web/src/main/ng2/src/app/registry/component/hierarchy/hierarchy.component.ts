@@ -21,7 +21,7 @@ import { Organization } from '@shared/model/core';
 import { RegistryService, HierarchyService } from '@registry/service';
 
 import { SvgHierarchyType } from './d3/svg-hierarchy-type';
-import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection, isBboxPartiallyWithin } from './d3/svg-util';
+import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection } from './d3/svg-util';
 import { SvgHierarchyNode } from './d3/svg-hierarchy-node';
 import { SvgController, Instance, DropTarget } from './d3/svg-controller';
 
@@ -79,7 +79,7 @@ export class HierarchyComponent implements OnInit, SvgController {
      */
 	current: any;
 
-	private root: any;
+	isSRA: boolean = false;
 
 	hierarchyService: HierarchyService;
 
@@ -114,12 +114,11 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 
 	constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
-		private contextMenuService: ContextMenuService, private changeDetectorRef: ChangeDetectorRef,
+		private contextMenuService: ContextMenuService,
 		localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {
 
-		// this.admin = authService.isAdmin();
-		// this.isMaintainer = this.isAdmin || service.isMaintainer();
-		// this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+		this.isSRA = authService.isSRA();
+
 		this.hierarchyService = hierarchyService;
 		this.localizeService = localizeService;
 	}
@@ -801,7 +800,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 	}
 
 	isOrganizationRA(orgCode: string, dropZone: boolean = false): boolean {
-		return this.authService.isOrganizationRA(orgCode);
+		return this.isSRA || this.authService.isOrganizationRA(orgCode);
 	}
 
 	getTypesByOrg(org: Organization): GeoObjectType[] {
@@ -1110,10 +1109,14 @@ export class HierarchyComponent implements OnInit, SvgController {
 
 			this.hierarchies[pos].label = data.label;
 			this.hierarchies[pos].description = data.description;
-			this.hierarchies[pos].abstractDescription = data.abstractDescription;
 			this.hierarchies[pos].progress = data.progress;
 			this.hierarchies[pos].acknowledgement = data.acknowledgement;
+			this.hierarchies[pos].disclaimer = data.disclaimer;
+			this.hierarchies[pos].useConstraints = data.useConstraints;
+			this.hierarchies[pos].accessConstraints = data.accessConstraints;
 			this.hierarchies[pos].contact = data.contact;
+			this.hierarchies[pos].phoneNumber = data.phoneNumber;
+			this.hierarchies[pos].email = data.email;
 
 			this.updateViewDatastructures();
 
@@ -1155,20 +1158,20 @@ export class HierarchyComponent implements OnInit, SvgController {
 		});
 	}
 
-	public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean): void {
+	public createGeoObjectType(groupSuperType: GeoObjectType, isAbstract: boolean, org: Organization): void {
 		this.bsModalRef = this.modalService.show(CreateGeoObjTypeModalComponent, {
 			animated: true,
 			backdrop: true,
 			ignoreBackdropClick: true,
 			'class': 'upload-modal'
 		});
-		this.bsModalRef.content.init(this.organizations, this.geoObjectTypes, groupSuperType, isAbstract);
+		this.bsModalRef.content.init(org, this.geoObjectTypes, groupSuperType, isAbstract);
 
 		this.bsModalRef.content.onGeoObjTypeCreate.subscribe(data => {
 
 			data.relatedHierarchies = this.calculateRelatedHierarchies(data);
 
-			this.refreshAll(this.currentHierarchy)
+			this.refreshAll(this.currentHierarchy);
 
 		});
 	}
@@ -1223,25 +1226,31 @@ export class HierarchyComponent implements OnInit, SvgController {
 		this.bsModalRef.content.readOnly = readOnly;
 
 		(<ManageGeoObjectTypeModalComponent>this.bsModalRef.content).onGeoObjectTypeSubmitted.subscribe(data => {
-			const position = this.getGeoObjectTypePosition(data.code);
 
-			if (position !== -1) {
-				this.geoObjectTypes[position] = data;
+			if (data.isAbstract) {
+				this.refreshAll(this.currentHierarchy);
 			}
+			else {
+				const position = this.getGeoObjectTypePosition(data.code);
 
-			// Update all of the hierarchies for the new geo object type
-			this.updateViewDatastructures();
+				if (position !== -1) {
+					this.geoObjectTypes[position] = data;
+				}
 
-			this.hierarchies.forEach((hierarchyType: HierarchyType) => {
-				this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
-			});
+				// Update all of the hierarchies for the new geo object type
+				this.updateViewDatastructures();
 
-			// Update the current hierarchy view
-			if (this.currentHierarchy != null) {
-				this.processHierarchyNodes(this.currentHierarchy.rootGeoObjectTypes[0]);
+				this.hierarchies.forEach((hierarchyType: HierarchyType) => {
+					this.processHierarchyNodes(hierarchyType.rootGeoObjectTypes[0]);
+				});
+
+				// Update the current hierarchy view
+				if (this.currentHierarchy != null) {
+					this.processHierarchyNodes(this.currentHierarchy.rootGeoObjectTypes[0]);
+				}
+
+				this.renderTree();
 			}
-
-			this.renderTree();
 		});
 	}
 

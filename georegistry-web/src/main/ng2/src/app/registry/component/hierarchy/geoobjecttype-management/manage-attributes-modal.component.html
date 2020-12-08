@@ -33,9 +33,9 @@
                                     <td>{{attr.label.localizedValue}}</td>
                                     <td class="button-column">
                                         <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
-                                            title="<localize key='modal.button.edit'></localize>"></a>
+                                            [title]="'modal.button.edit' | localize"></a>
                                         <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
-                                            title="<localize key='modal.button.remove'></localize>"></a>
+                                            [title]="'modal.button.remove' | localize"></a>
                                     </td>
                                 </tr>
                             </tbody>

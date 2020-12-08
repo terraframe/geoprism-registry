@@ -252,7 +252,7 @@ public class ServerGeoObjectType
     if (hierarchies.size() > 0)
     {
       StringBuilder codes = hierarchies.stream().collect(StringBuilder::new, (x, y) -> x.append(y.getCode()), (a, b) -> a.append(",").append(b));
-
+      
       throw new TypeInUseException("Cannot delete a GeoObjectType used in the hierarchies: " + codes);
     }
 
@@ -398,7 +398,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     // Refresh the users session
     if (Session.getCurrentSession() != null)
@@ -407,6 +407,20 @@ public class ServerGeoObjectType
     }
 
     return attrType;
+  }
+
+  private void refreshCache()
+  {
+    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+
+    // Refresh all of the subtypes
+    List<ServerGeoObjectType> subtypes = this.getSubtypes();
+    for (ServerGeoObjectType subtype : subtypes)
+    {
+      ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(subtype.getUniversal());
+
+      ServiceFactory.getMetadataCache().addGeoObjectType(type);
+    }
   }
 
   /**
@@ -562,7 +576,7 @@ public class ServerGeoObjectType
     this.type.removeAttribute(attributeName);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -642,7 +656,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     return attrType;
   }

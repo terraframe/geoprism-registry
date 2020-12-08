@@ -168,6 +168,11 @@ public class SynchronizationConfigService
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
+    catch (IllegalArgumentException e)
+    {
+      HttpError cgrhttp = new HttpError(e);
+      throw cgrhttp;
+    }
     catch (HTTPException e)
     {
       HttpError cgrhttp = new HttpError(e);

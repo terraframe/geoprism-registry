@@ -40,13 +40,11 @@ export class PublishedMasterListHistoryComponent implements OnInit, OnDestroy {
 	notifier: WebSocketSubject<{ type: string, content: any }>;
 
 	isAdmin: boolean;
-	isSRA: boolean;
 
 
 	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService, private localizeService: LocalizationService) {
 
 		this.isAdmin = authService.isAdmin();
-		this.isSRA = authService.isSRA();
 	}
 
 	ngOnInit(): void {

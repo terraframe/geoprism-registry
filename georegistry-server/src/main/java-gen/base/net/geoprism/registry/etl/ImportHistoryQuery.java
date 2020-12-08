@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -977524435)
+@com.runwaysdk.business.ClassSignature(hash = 1689524280)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -105,6 +87,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableLong)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.ImportHistory.GEOOBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()
@@ -266,6 +265,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableLong getErrorResolvedCount();
     public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias);
     public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
@@ -362,6 +364,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.GEOOBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()
@@ -482,6 +501,9 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
     public com.runwaysdk.query.SelectableLong getErrorResolvedCount();
     public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias);
     public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile();
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias);
     public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile(String alias, String displayLabel);
@@ -627,6 +649,23 @@ public  class ImportHistoryQuery extends com.runwaysdk.system.scheduler.JobHisto
   public com.runwaysdk.query.SelectableLong getErrorResolvedCount(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableLong)this.get(net.geoprism.registry.etl.ImportHistory.ERRORRESOLVEDCOUNT, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.ImportHistory.GEOOBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.system.VaultFileQuery.VaultFileQueryReferenceIF getImportFile()

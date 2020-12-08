@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 948610614)
+@com.runwaysdk.business.ClassSignature(hash = -254919921)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -32,11 +14,12 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
   public static java.lang.String CONFIGJSON = "configJson";
   public static java.lang.String ERRORCOUNT = "errorCount";
   public static java.lang.String ERRORRESOLVEDCOUNT = "errorResolvedCount";
+  public static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
   public static java.lang.String IMPORTFILE = "importFile";
   public static java.lang.String IMPORTEDRECORDS = "importedRecords";
   public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String STAGE = "stage";
-  private static final long serialVersionUID = 948610614;
+  private static final long serialVersionUID = -254919921;
   
   public ImportHistoryBase()
   {
@@ -124,6 +107,34 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     else
     {
       setValue(ERRORRESOLVEDCOUNT, java.lang.Long.toString(value));
+    }
+  }
+  
+  public String getGeoObjectTypeCode()
+  {
+    return getValue(GEOOBJECTTYPECODE);
+  }
+  
+  public void validateGeoObjectTypeCode()
+  {
+    this.validateAttribute(GEOOBJECTTYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeoObjectTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.ImportHistory.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOOBJECTTYPECODE);
+  }
+  
+  public void setGeoObjectTypeCode(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOOBJECTTYPECODE, "");
+    }
+    else
+    {
+      setValue(GEOOBJECTTYPECODE, value);
     }
   }
   

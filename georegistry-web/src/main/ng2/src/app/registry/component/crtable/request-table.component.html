@@ -15,170 +15,203 @@
 </div> -->
 
 <div class="row">
-	<div class="col-md-12">
-		<div class="form-group button-row">
+  <div class="col-md-12">
+    <div class="form-group button-row">
 
-			<a [routerLink]="" (click)="filter('ALL')" [ngClass]="filterCriteria === 'ALL' ? 'cr-filter-link-active' : ''" >
-				<localize key="change.request.all.filter.link"></localize>
-			</a>
-			<a [routerLink]="" (click)="filter('PENDING')" [ngClass]="filterCriteria === 'PENDING' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
-				<localize key="change.request.pending.filter.link"></localize>
-			</a>
-			<a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
-				<localize key="change.request.accepted.filter.link"></localize>
-			</a>
-			<a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
-				<localize key="change.request.rejected.filter.link"></localize>
-			</a>
+      <a [routerLink]="" (click)="filter('ALL')" [ngClass]="filterCriteria === 'ALL' ? 'cr-filter-link-active' : ''" >
+        <localize key="change.request.all.filter.link"></localize>
+      </a>
+      <a [routerLink]="" (click)="filter('PENDING')" [ngClass]="filterCriteria === 'PENDING' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
+        <localize key="change.request.pending.filter.link"></localize>
+      </a>
+      <a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
+        <localize key="change.request.accepted.filter.link"></localize>
+      </a>
+      <a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
+        <localize key="change.request.rejected.filter.link"></localize>
+      </a>
 
-		</div>
+    </div>
 
-		<hr style="border-top:solid 3px #6BA542" />
+    <hr style="border-top:solid 3px #6BA542" />
 
-	</div>
+  </div>
 </div>
 
 <div class="row">
-	<div class="col-md-12">
+  <div class="col-md-12">
 
-	<table class="table">
-		<thead>
-			<tr style="height: 50px;color: grey;">
-				<th style="vertical-align: middle;"> <localize key="change.request.contributor.label"></localize> </th>
-				<th style="vertical-align: middle;"> <localize key="change.request.date.contributed.label"></localize> </th>
-				<th style="vertical-align: middle;"> <localize key="change.request.status.label"></localize> </th>
-				<!-- <th style="vertical-align: middle;">Actions</th> -->
-				<th></th>
-			</tr>
-		</thead>
+  <table class="table">
+    <thead>
+      <tr style="height: 50px;color: grey;">
+        <th style="vertical-align: middle;"> <localize key="change.request.contributor.label"></localize> </th>
+        <th style="vertical-align: middle;"> <localize key="change.request.id.label"></localize> </th>
+        <th style="vertical-align: middle;"> <localize key="change.request.date.contributed.label"></localize> </th>
+        <th style="vertical-align: middle;"> <localize key="change.request.status.label"></localize> </th>
+        <!-- <th style="vertical-align: middle;">Actions</th> -->
+        <th></th>
+      </tr>
+    </thead>
         <tbody>
-			<ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
-				<tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
-                	<td class="col-md-4">
-						<h5><strong>{{req.createdBy}}</strong></h5>
-					</td>
-					<td class="col-md-2" style="vertical-align: middle; color:grey;">
-						 {{req.createDate}}
-					</td>
-					<td class="col-md-2">
-						<h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-rejected':req.approvalStatus === 'REJECTED'}">
-							 <strong>{{req.approvalStatus}}</strong>
-						</h5>
-					</td>
-					<!-- <td class="col-md-3">
-						<button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onConfirmChangeRequest(req)" class="btn btn-primary" style="" role="button">
-							<localize key="change.request.accept.all.btn"></localize>
-						</button>
-						<button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onRejectAll()" class="btn btn-danger" style="" role="button">
-							<localize key="change.request.reject.all.btn"></localize>
-						</button>	
-					</td> -->
-					<td class="col-md-1" style="vertical-align: middle;">
-						<i class="arrow arrow-right" aria-hidden="true"></i>
-					</td>
-				</tr>
-				<tr *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;">
-            		<td colspan="5" >
+      <ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
+        <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
+          <td class="col-md-3">
+            <h5><strong>{{req.createdBy}}</strong></h5>
+          </td>
+          <td class="col-md-4">
+            <h5><strong>{{req.oid}}</strong></h5>
+          </td>
+          <td class="col-md-2" style="vertical-align: middle; color:grey;">
+             {{req.createDate}}
+          </td>
+          <td class="col-md-2">
+            <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-rejected':req.approvalStatus === 'REJECTED'}">
+               <strong>{{req.approvalStatus}}</strong>
+            </h5>
+          </td>
+          <td class="col-md-1" style="vertical-align:middle;text-align:right;padding-right:25px;">
+            <i class="arrow arrow-right" aria-hidden="true"></i>
+          </td>
+        </tr>
+        <tr *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;">
+          <td colspan="5" >
 
-						<div class="row" style="margin:0;">
-							<!-- <div class="col-md-1"></div> -->
-							<div class="col-md-12">
+            <div class="row" style="margin:0;">
+              <!-- <div class="col-md-1"></div> -->
+              <div class="col-md-12">
 
-								<div *ngFor="let action of actions" class="action-card" [ngClass]="{'status-pending-container':action.approvalStatus === 'PENDING', 'status-accepted-container':action.approvalStatus === 'ACCEPTED', 'status-rejected-container':action.approvalStatus === 'REJECTED'}" style="margin-bottom:10px; background-color:white;"> 
-									<div class="row" style="margin:0; padding-top:5px; padding-bottom:5px;">
-										<div class="col-md-3" style="border-right:2px grey solid; height:50px;">
-											<i class="fa fa-circle" style="float:left; line-height: 50px;" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" aria-hidden="true"></i>
-											<h4 class="vertical-center" style="margin:0; float:left; padding-left:20px;">{{req.createdBy}}</h4>
-										</div>
-										<div class="col-md-5" style="height: 50px;">
-											<i *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="fa fa-refresh vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
-											<i *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="fa fa-plus vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
-											<i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="fa fa-link vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
-											<i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="fa fa-chain-broken vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
+                <div *ngFor="let action of actions" class="action-card" [ngClass]="{'status-pending-container':action.approvalStatus === 'PENDING', 'status-accepted-container':action.approvalStatus === 'ACCEPTED', 'status-rejected-container':action.approvalStatus === 'REJECTED'}" style="margin-bottom:10px; background-color:white;"> 
+                  <div class="row" style="margin:0; padding-top:5px; padding-bottom:5px;">
+                    <div class="col-md-3" style="border-right:2px grey solid; height:50px;">
+                      <i class="fa fa-circle" style="float:left; line-height: 50px;" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" aria-hidden="true"></i>
+                      <h4 class="vertical-center" style="margin:0; float:left; padding-left:20px;">{{req.createdBy}}</h4>
+                    </div>
+                    <div class="col-md-5" style="height: 50px;">
+                      <i *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="fa fa-refresh vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
+                      <i *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="fa fa-plus vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
+                      <i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="fa fa-link vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
+                      <i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="fa fa-chain-broken vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
 
-											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-												<li>Update <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ]</li>
-												<li>on {{action.createActionDate}}</li>
-											</ul>
-											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-												<li>Create <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ] </li>
-												<li>on {{action.createActionDate}}</li>
-											</ul>
-											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.SetParentAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-												<li>Set parents of <b>{{action.childCode}}</b>
-												<li>on {{action.createActionDate}}</li>
-											</ul>
-											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-												<li>Set <b>{{action.childTypeCode}}</b> as a child of <b>{{action.parentTypeCode}}</b> </li>
-												<li>on {{action.createActionDate}}</li>
-											</ul>
-											<ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-												<li>Remove <b>{{action.childTypeCode}}</b> from <b>{{action.parentTypeCode}}</b> </li>
-												<li>on {{action.createActionDate}}</li>
-											</ul>
-										</div>
-										<div class="col-md-4" style="height: 50px;text-align: center;">
-											<h4 *ngIf="req.approvalStatus !== 'PENDING'" class="vertical-center" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" style="margin: 0;">{{action.approvalStatus}}</h4>
-											<button type="submit" [disabled]="action.approvalStatus === 'ACCEPTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'ACCEPTED')" class="btn btn-primary vertical-center" style="width:30%;" role="button">
-												<localize style="text-transform:uppercase;" key="change.request.accept.btn"></localize>
-												<!-- <i *ngIf="action.approvalStatus === 'ACCEPTED'" class="fa fa-check" aria-hidden="true"></i> -->
-											</button>
-											<button type="submit" [disabled]="action.approvalStatus === 'REJECTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'REJECTED')" class="btn btn-danger vertical-center" style="width:30%;" role="button">
-												<localize style="text-transform:uppercase;" key="change.request.reject.btn"></localize>
-												<!-- <i *ngIf="action.approvalStatus === 'REJECTED'" class="fa fa-check" aria-hidden="true"></i> -->
-											</button>
-											<button type="submit" [disabled]="action.approvalStatus === 'PENDING'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'PENDING')" class="btn btn-warning vertical-center" style="width:30%;" role="button">
-												<localize style="text-transform:uppercase;" key="change.request.pending.btn"></localize>
-												<!-- <i *ngIf="action.approvalStatus === 'PENDING'" class="fa fa-check" aria-hidden="true"></i> -->
-											</button>
-										</div>
-									</div>
+                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
+                        <li>Update <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ]</li>
+                        <li>on {{action.createActionDate}}</li>
+                      </ul>
+                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
+                        <li>Create <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ] </li>
+                        <li>on {{action.createActionDate}}</li>
+                      </ul>
+                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.SetParentAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
+                        <li>Set parents of <b>{{action.childCode}}</b>
+                        <li>on {{action.createActionDate}}</li>
+                      </ul>
+                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
+                        <li>Set <b>{{action.childTypeCode}}</b> as a child of <b>{{action.parentTypeCode}}</b> </li>
+                        <li>on {{action.createActionDate}}</li>
+                      </ul>
+                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
+                        <li>Remove <b>{{action.childTypeCode}}</b> from <b>{{action.parentTypeCode}}</b> </li>
+                        <li>on {{action.createActionDate}}</li>
+                      </ul>
+                    </div>
+                    <div class="col-md-4" style="height: 50px;text-align: center;">
+                      <h4 *ngIf="req.approvalStatus !== 'PENDING'" class="vertical-center" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" style="margin: 0;">{{action.approvalStatus}}</h4>
+                      <span *ngIf="isMaintainer">
+                        <button type="submit" [disabled]="action.approvalStatus === 'ACCEPTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'ACCEPTED')" class="btn btn-primary vertical-center" style="width:30%;" role="button">
+                          <localize style="text-transform:uppercase;" key="change.request.accept.btn"></localize>
+                        <!-- <i *ngIf="action.approvalStatus === 'ACCEPTED'" class="fa fa-check" aria-hidden="true"></i> -->
+                        </button>
+                        <button type="submit" [disabled]="action.approvalStatus === 'REJECTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'REJECTED')" class="btn btn-danger vertical-center" style="width:30%;" role="button">
+                          <localize style="text-transform:uppercase;" key="change.request.reject.btn"></localize>
+                          <!-- <i *ngIf="action.approvalStatus === 'REJECTED'" class="fa fa-check" aria-hidden="true"></i> -->
+                        </button>
+                        <button type="submit" [disabled]="action.approvalStatus === 'PENDING'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'PENDING')" class="btn btn-warning vertical-center" style="width:30%;" role="button">
+                          <localize style="text-transform:uppercase;" key="change.request.pending.btn"></localize>
+                          <!-- <i *ngIf="action.approvalStatus === 'PENDING'" class="fa fa-check" aria-hidden="true"></i> -->
+                        </button>
+                      </span>
+                    </div>
+                  </div>
 
-									<div class="row" style="height: 150px;border-top: 1px grey solid;margin:0;">
-										<div class="col-md-5" >
-											<div class="form-group">
-												<label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
-												<textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
-											</div>	
-										</div>
-										<div class="col-md-5" >
-											<div class="form-group">
-												<label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
-												<textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
-											</div>	
-										</div>
-										<div class="col-md-2" style="height:100%;">
-											<button type="submit" (click)="showActionDetail(action)" class="btn btn-default vertical-center" style="width:100%;" role="button">
-												<localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
-											</button>
-										</div>
-									</div>
-								</div> <!-- END action-card -->
+<!--                   <div class="row" style="border-top: 1px grey solid;margin:0;margin-bottom:20px" *ngIf="action.approvalStatus !== 'PENDING'"> -->
+<!--                     <div class="col-md-5" *ngIf="action.decisionMaker !== ''"> -->
+<!--                         <label>  -->
+<!--                           <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize> -->
+<!--                           <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize> -->
+<!--                         </label> {{action.decisionMaker}} -->
+<!--                     </div> -->
+<!--                   </div> -->
+                  
+                  <div class="row" style="border-top: 1px grey solid;margin:0;padding: 10px 0;">
+                    
+                    <div class="col-md-4" >
+                      <div class="form-group">
+                        <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
+                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
+                      </div>  
+                      
+                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default " style="float:right;margin:0;" role="button">
+                        <localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
+                      </button>
+                      
+                      <div>
+                          <span style="font-style: italic;">
+                            <localize key="change.request.action.detail.contributor.contact.email"></localize>:
+                          </span>
+                          <label>{{req.email}}</label>
+                      </div>
+                      
+                      <div>
+                          <span style="font-style: italic;">
+                            <localize key="change.request.action.detail.contributor.contact.phone"></localize>:
+                          </span>
+                          <label>{{req.phoneNumber}}</label>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-4" >
+                      <div class="form-group">
+                        <label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
+                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                      </div>  
+                      
+                        <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
+                            <span style="font-style: italic;">
+                                <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize>
+                                <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize>:
+                            </span>
+                            <label> {{action.decisionMaker}} </label>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4" >
+                      <div class="form-group">
+                        <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
+                        <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                      </div>  
+                    </div>
+                  </div>
+                </div> <!-- END action-card -->
 
-								<!-- <div class="form-group">
-									<label for="maintainerNotesInput-{{req.oid}}">Change Request Notes</label>
-									<textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" value="" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
-								</div>	 -->
 
-								<div class="button-holder">
-									<button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onApproveAll(req)" class="btn btn-primary" style="" role="button">
-										<localize key="change.request.accept.all.btn"></localize>
-									</button>
-									<button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onRejectAll(req)" class="btn btn-danger" style="" role="button">
-										<localize key="change.request.reject.all.btn"></localize>
-									</button>	
-									<button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onExecute(req)" class="btn btn-primary" style="" role="button">
-										<localize key="change.request.accept.changes.btn"></localize>
-									</button>
-								</div>
-							</div>
-							<!-- <div class="col-md-1"></div> -->
-						</div>
+                <div *ngIf="isMaintainer" class="button-holder">
+                  <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onApproveAll(req)" class="btn btn-primary" style="" role="button">
+                    <localize key="change.request.accept.all.btn"></localize>
+                  </button>
+                  <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onRejectAll(req)" class="btn btn-danger" style="" role="button">
+                    <localize key="change.request.reject.all.btn"></localize>
+                  </button>  
+                  <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onExecute(req)" class="btn btn-primary" style="" role="button">
+                    <localize key="change.request.accept.changes.btn"></localize>
+                  </button>
+                </div>
+              </div>
+              <!-- <div class="col-md-1"></div> -->
+            </div>
 
-					</td>
-        		</tr>
-			</ng-template>
+          </td>
+            </tr>
+      </ng-template>
         </tbody>
-	</table>
-	</div>	 
+  </table>
+  </div>   
 </div>

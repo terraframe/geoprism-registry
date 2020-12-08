@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1861073786)
+@com.runwaysdk.business.ClassSignature(hash = -303964739)
 public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.HierarchyMetadata";
-  private static final long serialVersionUID = -1861073786;
+  private static final long serialVersionUID = -303964739;
   
   protected HierarchyMetadataDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -46,10 +28,13 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   }
   
   public static java.lang.String ABSTRACTDESCRIPTION = "abstractDescription";
+  public static java.lang.String ACCESSCONSTRAINTS = "accessConstraints";
   public static java.lang.String ACKNOWLEDGEMENT = "acknowledgement";
   public static java.lang.String CONTACT = "contact";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
+  public static java.lang.String DISCLAIMER = "disclaimer";
+  public static java.lang.String EMAIL = "email";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -58,10 +43,12 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public static java.lang.String MDTERMRELATIONSHIP = "mdTermRelationship";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
+  public static java.lang.String PHONENUMBER = "phoneNumber";
   public static java.lang.String PROGRESS = "progress";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
+  public static java.lang.String USECONSTRAINTS = "useConstraints";
   public String getAbstractDescription()
   {
     return getValue(ABSTRACTDESCRIPTION);
@@ -97,6 +84,43 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getAbstractDescriptionMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ABSTRACTDESCRIPTION).getAttributeMdDTO();
+  }
+  
+  public String getAccessConstraints()
+  {
+    return getValue(ACCESSCONSTRAINTS);
+  }
+  
+  public void setAccessConstraints(String value)
+  {
+    if(value == null)
+    {
+      setValue(ACCESSCONSTRAINTS, "");
+    }
+    else
+    {
+      setValue(ACCESSCONSTRAINTS, value);
+    }
+  }
+  
+  public boolean isAccessConstraintsWritable()
+  {
+    return isWritable(ACCESSCONSTRAINTS);
+  }
+  
+  public boolean isAccessConstraintsReadable()
+  {
+    return isReadable(ACCESSCONSTRAINTS);
+  }
+  
+  public boolean isAccessConstraintsModified()
+  {
+    return isModified(ACCESSCONSTRAINTS);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getAccessConstraintsMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ACCESSCONSTRAINTS).getAttributeMdDTO();
   }
   
   public String getAcknowledgement()
@@ -233,6 +257,80 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getCreatedByMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CREATEDBY).getAttributeMdDTO();
+  }
+  
+  public String getDisclaimer()
+  {
+    return getValue(DISCLAIMER);
+  }
+  
+  public void setDisclaimer(String value)
+  {
+    if(value == null)
+    {
+      setValue(DISCLAIMER, "");
+    }
+    else
+    {
+      setValue(DISCLAIMER, value);
+    }
+  }
+  
+  public boolean isDisclaimerWritable()
+  {
+    return isWritable(DISCLAIMER);
+  }
+  
+  public boolean isDisclaimerReadable()
+  {
+    return isReadable(DISCLAIMER);
+  }
+  
+  public boolean isDisclaimerModified()
+  {
+    return isModified(DISCLAIMER);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getDisclaimerMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(DISCLAIMER).getAttributeMdDTO();
+  }
+  
+  public String getEmail()
+  {
+    return getValue(EMAIL);
+  }
+  
+  public void setEmail(String value)
+  {
+    if(value == null)
+    {
+      setValue(EMAIL, "");
+    }
+    else
+    {
+      setValue(EMAIL, value);
+    }
+  }
+  
+  public boolean isEmailWritable()
+  {
+    return isWritable(EMAIL);
+  }
+  
+  public boolean isEmailReadable()
+  {
+    return isReadable(EMAIL);
+  }
+  
+  public boolean isEmailModified()
+  {
+    return isModified(EMAIL);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getEmailMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(EMAIL).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.metadata.MdDomainDTO getEntityDomain()
@@ -518,6 +616,43 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(OWNER).getAttributeMdDTO();
   }
   
+  public String getPhoneNumber()
+  {
+    return getValue(PHONENUMBER);
+  }
+  
+  public void setPhoneNumber(String value)
+  {
+    if(value == null)
+    {
+      setValue(PHONENUMBER, "");
+    }
+    else
+    {
+      setValue(PHONENUMBER, value);
+    }
+  }
+  
+  public boolean isPhoneNumberWritable()
+  {
+    return isWritable(PHONENUMBER);
+  }
+  
+  public boolean isPhoneNumberReadable()
+  {
+    return isReadable(PHONENUMBER);
+  }
+  
+  public boolean isPhoneNumberModified()
+  {
+    return isModified(PHONENUMBER);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getPhoneNumberMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(PHONENUMBER).getAttributeMdDTO();
+  }
+  
   public String getProgress()
   {
     return getValue(PROGRESS);
@@ -603,6 +738,43 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
+  }
+  
+  public String getUseConstraints()
+  {
+    return getValue(USECONSTRAINTS);
+  }
+  
+  public void setUseConstraints(String value)
+  {
+    if(value == null)
+    {
+      setValue(USECONSTRAINTS, "");
+    }
+    else
+    {
+      setValue(USECONSTRAINTS, value);
+    }
+  }
+  
+  public boolean isUseConstraintsWritable()
+  {
+    return isWritable(USECONSTRAINTS);
+  }
+  
+  public boolean isUseConstraintsReadable()
+  {
+    return isReadable(USECONSTRAINTS);
+  }
+  
+  public boolean isUseConstraintsModified()
+  {
+    return isModified(USECONSTRAINTS);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getUseConstraintsMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(USECONSTRAINTS).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.HierarchyMetadataDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

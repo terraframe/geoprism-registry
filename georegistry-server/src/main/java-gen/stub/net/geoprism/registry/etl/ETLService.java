@@ -4,33 +4,39 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
@@ -57,8 +63,8 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.roles.RAException;
 import net.geoprism.registry.service.GeoSynonymService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;
@@ -71,28 +77,28 @@ public class ETLService
   {
     cancelImportInTrans(sessionId, json);
   }
-  
+
   @Transaction
   private void cancelImportInTrans(String sessionId, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
-    
+
     String id = config.getVaultFileId();
 
     VaultFile.get(id).delete();
-    
+
     if (config.getHistoryId() != null && config.getHistoryId().length() > 0)
     {
       String historyId = config.getHistoryId();
       ImportHistory hist = ImportHistory.get(historyId);
-      
-      this.checkPermissions(hist.getOrganization().getCode());
-      
+
+      this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+
       if (!hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
       {
         throw new ProgrammingErrorException("Import jobs can only be canceled if they are in " + ImportStage.VALIDATION_RESOLVE.name() + " stage.");
       }
-      
+
       ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
       vpq.WHERE(vpq.getHistory().EQ(historyId));
       OIterator<? extends ValidationProblem> it = vpq.getIterator();
@@ -107,7 +113,7 @@ public class ETLService
       {
         it.close();
       }
-      
+
       hist = ImportHistory.lock(historyId);
       hist.clearStage();
       hist.addStage(ImportStage.COMPLETE);
@@ -117,27 +123,27 @@ public class ETLService
       hist.apply();
     }
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject reImport(String sessionId, MultipartFileParameter file, String json)
   {
     reImportInTrans(file, json);
-    
+
     return this.doImport(sessionId, json);
   }
-  
+
   @Transaction
   public void reImportInTrans(MultipartFileParameter file, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
-    
+
     ImportHistory hist = ImportHistory.get(config.getHistoryId());
-    
-    this.checkPermissions(hist.getOrganization().getCode());
-    
+
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+
     VaultFile vf = VaultFile.get(config.getVaultFileId());
     vf.delete();
-    
+
     VaultFile vf2 = null;
     try (InputStream is = file.getInputStream())
     {
@@ -147,30 +153,31 @@ public class ETLService
     {
       throw new RuntimeException(e);
     }
-    
+
     config.setVaultFileId(vf2.getOid());
     config.setFileName(file.getFilename());
-    
+
     hist = ImportHistory.lock(config.getHistoryId());
     hist.setImportFile(vf2);
     hist.setConfigJson(config.toJSON().toString());
     hist.apply();
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject doImport(String sessionId, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
-    
-    this.checkPermissions(((GeoObjectImportConfiguration)config).getType().getOrganization().getCode());
+
+    ServerGeoObjectType type = ( (GeoObjectImportConfiguration) config ).getType();
+    this.checkPermissions( type.getOrganization().getCode(), type.getCode() );
 
     ImportHistory hist;
-    
+
     if (config.getHistoryId() != null && config.getHistoryId().length() > 0)
     {
       String historyId = config.getHistoryId();
       hist = ImportHistory.get(historyId);
-      
+
       JobHistoryRecord record = hist.getAllJobRel().getAll().get(0);
       ExecutableJob execJob = record.getParent();
 
@@ -181,108 +188,168 @@ public class ETLService
       DataImportJob job = new DataImportJob();
       job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
       job.apply();
-     
+
       hist = job.start(config);
     }
-    
+
     return JsonParser.parseString(hist.getConfigJson()).getAsJsonObject();
   }
   
+  public void filterHistoryQueryBasedOnPermissions(ImportHistoryQuery ihq)
+  {
+    List<String> raOrgs = new ArrayList<String>();
+    List<String> rmGeoObjects = new ArrayList<String>();
+    
+    Condition cond = null;
+    
+    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+    for (RoleDAOIF role : actor.authorizedRoles())
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+      {
+        if (RegistryRole.Type.isRA_Role(roleName))
+        {
+          String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+          raOrgs.add(roleOrgCode);
+        }
+        else if (RegistryRole.Type.isRM_Role(roleName))
+        {
+          rmGeoObjects.add(roleName);
+        }
+      }
+    }
+    
+    if (raOrgs.size() == 0 && rmGeoObjects.size() == 0)
+    {
+      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
+    }
+    
+    for (String orgCode : raOrgs)
+    {
+      Organization org = Organization.getByCode(orgCode);
+      
+      Condition loopCond = ihq.getOrganization().EQ(org);
+      
+      if (cond == null)
+      {
+        cond = loopCond;
+      }
+      else
+      {
+        cond = cond.OR(loopCond);
+      }
+    }
+    
+    for (String roleName : rmGeoObjects)
+    {
+      String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+      Organization org = Organization.getByCode(roleOrgCode);
+      String gotCode = RegistryRole.Type.parseGotCode(roleName);
+      
+      Condition loopCond = ihq.getGeoObjectTypeCode().EQ(gotCode).AND(ihq.getOrganization().EQ(org));
+      
+      if (cond == null)
+      {
+        cond = loopCond;
+      }
+      else
+      {
+        cond = cond.OR(loopCond);
+      }
+    }
+    
+    if (cond != null)
+    {
+      ihq.AND(cond);
+    }
+  }
+
   @Request(RequestType.SESSION)
   public JsonObject getActiveImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    String orgCode = ServiceFactory.getRolePermissionService().getOrganization();
-    if (orgCode == null)
-    {
-      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
-    }
-    Organization org = Organization.getByCode(orgCode);
-    
     JsonArray ja = new JsonArray();
-    
+
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.RUNNING).OR(ihq.getStatus().containsExactly(AllJobStatus.NEW)).OR(ihq.getStatus().containsExactly(AllJobStatus.QUEUED)).OR(ihq.getStatus().containsExactly(AllJobStatus.FEEDBACK)));
-    ihq.WHERE(ihq.getOrganization().EQ(org));
-    
+
+    this.filterHistoryQueryBasedOnPermissions(ihq);
+
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
-    
+
     JsonObject page = new JsonObject();
     page.addProperty("count", ihq.getCount());
     page.addProperty("pageNumber", ihq.getPageNumber());
     page.addProperty("pageSize", ihq.getPageSize());
-    
+
     OIterator<? extends ImportHistory> it = ihq.getIterator();
-    
+
     while (it.hasNext())
     {
       ImportHistory hist = it.next();
       DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-      
+
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
-      
+
       ja.add(serializeHistory(hist, user, job));
     }
-    
+
     page.add("results", ja);
-    
+
     return page;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    String orgCode = ServiceFactory.getRolePermissionService().getOrganization();
-    if (orgCode == null)
-    {
-      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
-    }
-    Organization org = Organization.getByCode(orgCode);
-    
     JsonArray ja = new JsonArray();
-    
+
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.SUCCESS).OR(ihq.getStatus().containsExactly(AllJobStatus.FAILURE)).OR(ihq.getStatus().containsExactly(AllJobStatus.CANCELED)));
-    ihq.WHERE(ihq.getOrganization().EQ(org));
+
+    this.filterHistoryQueryBasedOnPermissions(ihq);
+
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
-    
+
     JsonObject page = new JsonObject();
     page.addProperty("count", ihq.getCount());
     page.addProperty("pageNumber", ihq.getPageNumber());
     page.addProperty("pageSize", ihq.getPageSize());
-    
+
     OIterator<? extends ImportHistory> it = ihq.getIterator();
-    
+
     while (it.hasNext())
     {
       ImportHistory hist = it.next();
       DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
-      
+
       GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
-      
+
       ja.add(serializeHistory(hist, user, job));
     }
-    
+
     page.add("results", ja);
-    
+
     return page;
   }
-  
+
   public static String formatDate(Date date)
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT, Session.getCurrentLocale());
-//    format.setTimeZone(TimeZone.getTimeZone("GMT"));
-    
+    // format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     return format.format(date);
   }
 
   protected JsonObject serializeHistory(JobHistory hist, GeoprismUser user, ExecutableJob job)
   {
     JsonObject jo = new JsonObject();
-    
+
     jo.addProperty("jobType", job.getType());
     jo.addProperty("status", hist.getStatus().get(0).name());
     jo.addProperty("author", user.getUsername());
@@ -292,15 +359,15 @@ public class ETLService
     jo.addProperty("workTotal", hist.getWorkTotal());
     jo.addProperty("historyId", hist.getOid());
     jo.addProperty("jobId", job.getOid());
-    
+
     if (hist instanceof ImportHistory)
     {
       ImportHistory iHist = (ImportHistory) hist;
-      
+
       jo.addProperty("importedRecords", iHist.getImportedRecords());
-      
+
       jo.addProperty("stage", iHist.getStage().get(0).name());
-      
+
       JsonObject config = JsonParser.parseString(iHist.getConfigJson()).getAsJsonObject();
       jo.addProperty("fileName", config.get(ImportConfiguration.FILE_NAME).getAsString());
       jo.add("configuration", JsonParser.parseString(config.toString()));
@@ -308,91 +375,91 @@ public class ETLService
     else if (hist instanceof ExportHistory)
     {
       ExportHistory eHist = (ExportHistory) hist;
-      
+
       jo.addProperty("exportedRecords", eHist.getExportedRecords());
-      
+
       jo.addProperty("stage", eHist.getStage().get(0).name());
     }
-    
+
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)
     {
       JsonObject exception = new JsonObject();
-      
+
       exception.add("type", JsonParser.parseString(hist.getErrorJson()).getAsJsonObject().get("type"));
       exception.addProperty("message", hist.getLocalizedError(Session.getCurrentLocale()));
-      
+
       jo.add("exception", exception);
     }
-    
+
     return jo;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getImportErrors(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportErrorQuery query = new ImportErrorQuery(new QueryFactory());
-    
+
     query.WHERE(query.getHistory().EQ(historyId));
-    
+
     if (onlyUnresolved)
     {
       query.WHERE(query.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
     }
-    
+
     query.ORDER_BY(query.getRowIndex(), SortOrder.ASC);
 
     query.restrictRows(pageSize, pageNumber);
-    
+
     JsonObject page = new JsonObject();
     page.addProperty("count", query.getCount());
     page.addProperty("pageNumber", query.getPageNumber());
     page.addProperty("pageSize", query.getPageSize());
-    
+
     JsonArray ja = new JsonArray();
-    
+
     OIterator<? extends ImportError> it = query.getIterator();
     while (it.hasNext())
     {
       ImportError err = it.next();
-      
+
       ja.add(err.toJson());
     }
-    
+
     page.add("results", ja);
-    
+
     return page;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
-    
+
     ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
     vpq.WHERE(vpq.getHistory().EQ(hist));
     vpq.restrictRows(pageSize, pageNumber);
     vpq.ORDER_BY(vpq.getSeverity(), SortOrder.DESC);
     vpq.ORDER_BY(vpq.getAffectedRows(), SortOrder.ASC);
-    
+
     if (onlyUnresolved)
     {
       vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
     }
-    
+
     JsonObject page = new JsonObject();
     page.addProperty("count", vpq.getCount());
     page.addProperty("pageNumber", vpq.getPageNumber());
     page.addProperty("pageSize", vpq.getPageSize());
-    
+
     JsonArray jaVP = new JsonArray();
-    
+
     OIterator<? extends ValidationProblem> it = vpq.getIterator();
     try
     {
       while (it.hasNext())
       {
         ValidationProblem vp = it.next();
-        
+
         jaVP.add(vp.toJson());
       }
     }
@@ -400,138 +467,142 @@ public class ETLService
     {
       it.close();
     }
-    
+
     page.add("results", jaVP);
-    
+
     return page;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getExportErrors(String sessionId, String historyId, int pageSize, int pageNumber)
   {
     JsonArray ja = new JsonArray();
-    
+
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
-    
+
     query.WHERE(query.getHistory().EQ(historyId));
-    
+
     query.ORDER_BY(query.getRowIndex(), SortOrder.ASC);
 
     query.restrictRows(pageSize, pageNumber);
-    
+
     JsonObject page = new JsonObject();
     page.addProperty("count", query.getCount());
     page.addProperty("pageNumber", query.getPageNumber());
     page.addProperty("pageSize", query.getPageSize());
-    
+
     OIterator<? extends ExportError> it = query.getIterator();
     while (it.hasNext())
     {
       ExportError err = it.next();
-      
+
       ja.add(err.toJson());
     }
-    
+
     page.add("results", ja);
-    
+
     return page;
   }
-  
-//  @Request(RequestType.SESSION)
-//  public JSONObject getReferenceValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
-//  {
-//    ImportHistory hist = ImportHistory.get(historyId);
-//    
-//    ValidationProblemQuery vpq = new ValidationProblemQuery(new QueryFactory());
-//    vpq.WHERE(vpq.getHistory().EQ(hist).AND(vpq.getType().EQ(ParentReferenceProblem.CLASS).OR(vpq.getType().EQ(TermReferenceProblem.CLASS))));
-//    vpq.restrictRows(pageSize, pageNumber);
-//    vpq.ORDER_BY(vpq.getCreateDate(), SortOrder.ASC);
-//    
-//    if (onlyUnresolved)
-//    {
-//      vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
-//    }
-//    
-//    JSONObject page = new JSONObject();
-//    page.put("count", vpq.getCount());
-//    page.put("pageNumber", vpq.getPageNumber());
-//    page.put("pageSize", vpq.getPageSize());
-//    
-//    JSONArray jaVP = new JSONArray();
-//    
-//    OIterator<? extends ValidationProblem> it = vpq.getIterator();
-//    try
-//    {
-//      while (it.hasNext())
-//      {
-//        ValidationProblem vp = it.next();
-//        
-//        jaVP.put(vp.toJSON());
-//      }
-//    }
-//    finally
-//    {
-//      it.close();
-//    }
-//    
-//    page.put("results", jaVP);
-//    
-//    return page;
-//  }
-//  
-//  @Request(RequestType.SESSION)
-//  public JSONObject getRowValidationProblems(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
-//  {
-//    ImportHistory hist = ImportHistory.get(historyId);
-//    
-//    RowValidationProblemQuery vpq = new RowValidationProblemQuery(new QueryFactory());
-//    vpq.WHERE(vpq.getHistory().EQ(hist));
-//    vpq.restrictRows(pageSize, pageNumber);
-//    vpq.ORDER_BY(vpq.getRowNum(), SortOrder.ASC);
-//    
-//    if (onlyUnresolved)
-//    {
-//      vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
-//    }
-//    
-//    JSONObject page = new JSONObject();
-//    page.put("count", vpq.getCount());
-//    page.put("pageNumber", vpq.getPageNumber());
-//    page.put("pageSize", vpq.getPageSize());
-//    
-//    JSONArray jaVP = new JSONArray();
-//    
-//    OIterator<? extends ValidationProblem> it = vpq.getIterator();
-//    try
-//    {
-//      while (it.hasNext())
-//      {
-//        ValidationProblem vp = it.next();
-//        
-//        jaVP.put(vp.toJSON());
-//      }
-//    }
-//    finally
-//    {
-//      it.close();
-//    }
-//    
-//    page.put("results", jaVP);
-//    
-//    return page;
-//  }
-  
+
+  // @Request(RequestType.SESSION)
+  // public JSONObject getReferenceValidationProblems(String sessionId, String
+  // historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  // {
+  // ImportHistory hist = ImportHistory.get(historyId);
+  //
+  // ValidationProblemQuery vpq = new ValidationProblemQuery(new
+  // QueryFactory());
+  // vpq.WHERE(vpq.getHistory().EQ(hist).AND(vpq.getType().EQ(ParentReferenceProblem.CLASS).OR(vpq.getType().EQ(TermReferenceProblem.CLASS))));
+  // vpq.restrictRows(pageSize, pageNumber);
+  // vpq.ORDER_BY(vpq.getCreateDate(), SortOrder.ASC);
+  //
+  // if (onlyUnresolved)
+  // {
+  // vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
+  // }
+  //
+  // JSONObject page = new JSONObject();
+  // page.put("count", vpq.getCount());
+  // page.put("pageNumber", vpq.getPageNumber());
+  // page.put("pageSize", vpq.getPageSize());
+  //
+  // JSONArray jaVP = new JSONArray();
+  //
+  // OIterator<? extends ValidationProblem> it = vpq.getIterator();
+  // try
+  // {
+  // while (it.hasNext())
+  // {
+  // ValidationProblem vp = it.next();
+  //
+  // jaVP.put(vp.toJSON());
+  // }
+  // }
+  // finally
+  // {
+  // it.close();
+  // }
+  //
+  // page.put("results", jaVP);
+  //
+  // return page;
+  // }
+  //
+  // @Request(RequestType.SESSION)
+  // public JSONObject getRowValidationProblems(String sessionId, String
+  // historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
+  // {
+  // ImportHistory hist = ImportHistory.get(historyId);
+  //
+  // RowValidationProblemQuery vpq = new RowValidationProblemQuery(new
+  // QueryFactory());
+  // vpq.WHERE(vpq.getHistory().EQ(hist));
+  // vpq.restrictRows(pageSize, pageNumber);
+  // vpq.ORDER_BY(vpq.getRowNum(), SortOrder.ASC);
+  //
+  // if (onlyUnresolved)
+  // {
+  // vpq.WHERE(vpq.getResolution().EQ(ErrorResolution.UNRESOLVED.name()));
+  // }
+  //
+  // JSONObject page = new JSONObject();
+  // page.put("count", vpq.getCount());
+  // page.put("pageNumber", vpq.getPageNumber());
+  // page.put("pageSize", vpq.getPageSize());
+  //
+  // JSONArray jaVP = new JSONArray();
+  //
+  // OIterator<? extends ValidationProblem> it = vpq.getIterator();
+  // try
+  // {
+  // while (it.hasNext())
+  // {
+  // ValidationProblem vp = it.next();
+  //
+  // jaVP.put(vp.toJSON());
+  // }
+  // }
+  // finally
+  // {
+  // it.close();
+  // }
+  //
+  // page.put("results", jaVP);
+  //
+  // return page;
+  // }
+
   @Request(RequestType.SESSION)
   public JsonObject getImportDetails(String sessionId, String historyId, boolean onlyUnresolved, int pageSize, int pageNumber)
   {
     ImportHistory hist = ImportHistory.get(historyId);
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
-    
-    this.checkPermissions(hist.getOrganization().getCode());
-    
+
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+
     JsonObject jo = this.serializeHistory(hist, user, job);
-    
+
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE) && hist.hasImportErrors())
     {
       jo.add("importErrors", this.getImportErrors(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
@@ -540,35 +611,35 @@ public class ETLService
     {
       jo.add("problems", this.getValidationProblems(sessionId, historyId, onlyUnresolved, pageSize, pageNumber));
     }
-    
+
     return jo;
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getExportDetails(String sessionId, String historyId, int pageSize, int pageNumber)
   {
     ExportHistory hist = ExportHistory.get(historyId);
     DataExportJob job = (DataExportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
-    
+
     JsonObject jo = this.serializeHistory(hist, user, job);
-    
+
     jo.add("exportErrors", this.getExportErrors(sessionId, historyId, pageSize, pageNumber));
-    
+
     return jo;
   }
-  
-  private void checkPermissions(String orgCode)
+
+  private void checkPermissions(String orgCode, String gotCode)
   {
     RolePermissionService perms = ServiceFactory.getRolePermissionService();
-    
+
     if (perms.isRA())
     {
       perms.enforceRA(orgCode);
     }
     else if (perms.isRM())
     {
-      perms.enforceRM(orgCode);
+      perms.enforceRM(orgCode, gotCode);
     }
     else
     {
@@ -586,36 +657,34 @@ public class ETLService
   private void submitImportErrorResolutionInTrans(String sessionId, String json)
   {
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
-    
+
     ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
-    
-    this.checkPermissions(hist.getOrganization().getCode());
-    
-    checkPermissions(hist.getOrganization().getCode());
-    
+
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+
     ImportError err = ImportError.get(config.get("importErrorId").getAsString());
-    
+
     String resolution = config.get("resolution").getAsString();
-    
+
     if (resolution.equals(ErrorResolution.APPLY_GEO_OBJECT.name()))
     {
       String parentTreeNode = config.get("parentTreeNode").toString();
       String geoObject = config.get("geoObject").toString();
       Boolean isNew = config.get("isNew").getAsBoolean();
-      
+
       if (isNew)
       {
         GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
         go.setUid(RegistryIdService.getInstance().next());
         geoObject = go.toJSON().toString();
       }
-      
+
       new GeoObjectEditorController().applyInReq(sessionId, parentTreeNode, geoObject, isNew, null, null);
-      
+
       err.appLock();
       err.setResolution(resolution);
       err.apply();
-      
+
       hist.appLock();
       hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
       hist.setImportedRecords(hist.getImportedRecords() + 1);
@@ -632,7 +701,7 @@ public class ETLService
       throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
     }
   }
-  
+
   @Request(RequestType.SESSION)
   public void submitValidationProblemResolution(String sessionId, String json)
   {
@@ -643,24 +712,24 @@ public class ETLService
   private JsonObject submitValidationProblemResolutionInTrans(String sessionId, String json)
   {
     JsonObject response = new JsonObject();
-    
+
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
-    
+
     ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
-    
-    this.checkPermissions(hist.getOrganization().getCode());
-    
+
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+
     ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
-    
+
     String resolution = config.get("resolution").getAsString();
-    
+
     if (resolution.equals(ValidationResolution.SYNONYM.name()))
     {
       if (problem instanceof TermReferenceProblem)
       {
         String classifierId = config.get("classifierId").getAsString();
         String label = config.get("label").getAsString();
-        
+
         response = JsonParser.parseString(DataUploader.createClassifierSynonym(classifierId, label)).getAsJsonObject();
       }
       else if (problem instanceof ParentReferenceProblem)
@@ -668,19 +737,19 @@ public class ETLService
         String code = config.get("code").getAsString();
         String typeCode = config.get("typeCode").getAsString();
         String label = config.get("label").getAsString();
-        
+
         ServerGeoObjectIF go = new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
-        
+
         response = JsonParser.parseString(new GeoSynonymService().createGeoEntitySynonym(sessionId, typeCode, go.getCode(), label).toString()).getAsJsonObject();
       }
-      
+
       problem.appLock();
       problem.setResolution(resolution);
       problem.apply();
-      
-//      hist.appLock();
-//      hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
-//      hist.apply();
+
+      // hist.appLock();
+      // hist.setErrorResolvedCount(hist.getErrorResolvedCount() + 1);
+      // hist.apply();
     }
     else if (resolution.equals(ValidationResolution.IGNORE.name()))
     {
@@ -694,14 +763,14 @@ public class ETLService
       {
         String parentTermCode = config.get("parentTermCode").getAsString();
         String termJSON = config.get("termJSON").toString();
-        
+
         response = RegistryService.getInstance().createTerm(sessionId, parentTermCode, termJSON).toJSON();
       }
       else if (problem instanceof ParentReferenceProblem)
       {
         // TODO
       }
-      
+
       problem.appLock();
       problem.setResolution(resolution);
       problem.apply();
@@ -710,17 +779,17 @@ public class ETLService
     {
       throw new UnsupportedOperationException("Invalid import resolution [" + resolution + "].");
     }
-    
+
     return response;
   }
-  
+
   @Request(RequestType.SESSION)
   public void resolveImport(String sessionId, String historyId)
   {
     ImportHistory hist = ImportHistory.get(historyId);
-    
-    this.checkPermissions(hist.getOrganization().getCode());
-    
+
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
     {
       resolveImportInTrans(historyId, hist);
@@ -735,29 +804,29 @@ public class ETLService
   private void resolveImportInTrans(String historyId, ImportHistory hist)
   {
     hist.appLock();
-    
+
     ImportErrorQuery ieq = new ImportErrorQuery(new QueryFactory());
     ieq.WHERE(ieq.getHistory().EQ(historyId));
     OIterator<? extends ImportError> it = ieq.getIterator();
     try
     {
       ImportError err = it.next();
-      
+
       err.delete();
     }
     finally
     {
       it.close();
     }
-    
+
     hist.clearStatus();
     hist.addStatus(AllJobStatus.SUCCESS);
-    
+
     hist.clearStage();
     hist.addStage(ImportStage.COMPLETE);
-    
+
     hist.apply();
-    
+
     VaultFile file = hist.getImportFile();
     file.delete();
   }

@@ -118,6 +118,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     uploads.setSrc("net/geoprism/images/dm_icon.svg");
     uploads.setUrl("cgr/manage#/registry/data");
     uploads.setDescription(LocalizationFacadeDTO.getFromBundles(request, "uploads.landing.description"));
+    uploads.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     uploads.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     applications.add(uploads);
@@ -128,6 +129,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     scheduledJobs.setSrc("net/geoprism/images/job-scheduler.svg");
     scheduledJobs.setUrl("cgr/manage#/registry/scheduled-jobs");
     scheduledJobs.setDescription(LocalizationFacadeDTO.getFromBundles(request, "scheduledjobs.menu"));
+    scheduledJobs.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     scheduledJobs.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     scheduledJobs.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     applications.add(scheduledJobs);
@@ -151,6 +153,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     requests.setSrc("net/geoprism/images/update-icon-modified.svg");
     requests.setUrl("cgr/manage#/registry/change-requests");
     requests.setDescription(LocalizationFacadeDTO.getFromBundles(request, "requests.landing.description"));
+    requests.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     requests.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
@@ -162,6 +165,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     tasks.setSrc("net/geoprism/images/task.svg");
     tasks.setUrl("cgr/manage#/registry/tasks");
     tasks.setDescription(LocalizationFacadeDTO.getFromBundles(request, "header.tasks"));
+    tasks.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     tasks.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     tasks.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     applications.add(tasks);
