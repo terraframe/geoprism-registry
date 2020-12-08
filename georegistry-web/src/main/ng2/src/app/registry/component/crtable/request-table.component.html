@@ -136,46 +136,52 @@
                     </div>
                   </div>
 
-                  <div class="row" style="border-top: 1px grey solid;margin:0;margin-bottom: 20px" *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
-                    <div class="col-md-5" >
-                    <label> 
-                      <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize>
-                      <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize>
-                    </label> {{action.decisionMaker}}
-                    </div>
-                  </div>
+<!--                   <div class="row" style="border-top: 1px grey solid;margin:0;margin-bottom:20px" *ngIf="action.approvalStatus !== 'PENDING'"> -->
+<!--                     <div class="col-md-5" *ngIf="action.decisionMaker !== ''"> -->
+<!--                         <label>  -->
+<!--                           <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize> -->
+<!--                           <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize> -->
+<!--                         </label> {{action.decisionMaker}} -->
+<!--                     </div> -->
+<!--                   </div> -->
                   
-                  <div class="row" style="height: 150px;margin:0;">
+                  <div class="row" style="border-top: 1px grey solid;margin:0;padding: 10px 0;">
+                    
                     <div class="col-md-4" >
                       <div class="form-group">
                         <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
                         <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
                       </div>  
+                      
+                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default " style="width:100%;margin:0;" role="button">
+                        <localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
+                      </button>
                     </div>
-                    <div class="col-md-3" >
+                    
+                    <div class="col-md-4" >
                       <div class="form-group">
                         <label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
-                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
                       </div>  
+                      
+                        <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
+                            <span style="font-style: italic;">
+                                <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize>
+                                <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize>:
+                            </span>
+                            <label> {{action.decisionMaker}} </label>
+                        </div>
                     </div>
-                    <div class="col-md-3" >
+                    
+                    <div class="col-md-4" >
                       <div class="form-group">
                         <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
                         <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height: 90px;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
                       </div>  
                     </div>
-                    <div class="col-md-2" style="height:100%;">
-                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default vertical-center" style="width:100%;" role="button">
-                        <localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
-                      </button>
-                    </div>
                   </div>
                 </div> <!-- END action-card -->
 
-                <!-- <div class="form-group">
-                  <label for="maintainerNotesInput-{{req.oid}}">Change Request Notes</label>
-                  <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height: 90px;" value="" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
-                </div>   -->
 
                 <div *ngIf="isMaintainer" class="button-holder">
                   <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onApproveAll(req)" class="btn btn-primary" style="" role="button">
