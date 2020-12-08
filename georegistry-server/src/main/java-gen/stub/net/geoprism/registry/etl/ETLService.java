@@ -21,16 +21,22 @@ package net.geoprism.registry.etl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
@@ -57,6 +63,7 @@ import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.GeoSynonymService;
 import net.geoprism.registry.service.RegistryIdService;
@@ -85,7 +92,7 @@ public class ETLService
       String historyId = config.getHistoryId();
       ImportHistory hist = ImportHistory.get(historyId);
 
-      this.checkPermissions(hist.getOrganization().getCode());
+      this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
 
       if (!hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
       {
@@ -132,7 +139,7 @@ public class ETLService
 
     ImportHistory hist = ImportHistory.get(config.getHistoryId());
 
-    this.checkPermissions(hist.getOrganization().getCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
 
     VaultFile vf = VaultFile.get(config.getVaultFileId());
     vf.delete();
@@ -161,7 +168,8 @@ public class ETLService
   {
     ImportConfiguration config = ImportConfiguration.build(json);
 
-    this.checkPermissions( ( (GeoObjectImportConfiguration) config ).getType().getOrganization().getCode());
+    ServerGeoObjectType type = ( (GeoObjectImportConfiguration) config ).getType();
+    this.checkPermissions( type.getOrganization().getCode(), type.getCode() );
 
     ImportHistory hist;
 
@@ -186,28 +194,88 @@ public class ETLService
 
     return JsonParser.parseString(hist.getConfigJson()).getAsJsonObject();
   }
+  
+  public void filterHistoryQueryBasedOnPermissions(ImportHistoryQuery ihq)
+  {
+    List<String> raOrgs = new ArrayList<String>();
+    List<String> rmGeoObjects = new ArrayList<String>();
+    
+    Condition cond = null;
+    
+    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+    for (RoleDAOIF role : actor.authorizedRoles())
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+      {
+        if (RegistryRole.Type.isRA_Role(roleName))
+        {
+          String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+          raOrgs.add(roleOrgCode);
+        }
+        else if (RegistryRole.Type.isRM_Role(roleName))
+        {
+          rmGeoObjects.add(roleName);
+        }
+      }
+    }
+    
+    if (raOrgs.size() == 0 && rmGeoObjects.size() == 0)
+    {
+      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
+    }
+    
+    for (String orgCode : raOrgs)
+    {
+      Organization org = Organization.getByCode(orgCode);
+      
+      Condition loopCond = ihq.getOrganization().EQ(org);
+      
+      if (cond == null)
+      {
+        cond = loopCond;
+      }
+      else
+      {
+        cond = cond.OR(loopCond);
+      }
+    }
+    
+    for (String roleName : rmGeoObjects)
+    {
+      String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+      Organization org = Organization.getByCode(roleOrgCode);
+      String gotCode = RegistryRole.Type.parseGotCode(roleName);
+      
+      Condition loopCond = ihq.getGeoObjectTypeCode().EQ(gotCode).AND(ihq.getOrganization().EQ(org));
+      
+      if (cond == null)
+      {
+        cond = loopCond;
+      }
+      else
+      {
+        cond = cond.OR(loopCond);
+      }
+    }
+    
+    if (cond != null)
+    {
+      ihq.AND(cond);
+    }
+  }
 
   @Request(RequestType.SESSION)
   public JsonObject getActiveImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    RolePermissionService permissionService = ServiceFactory.getRolePermissionService();
-    String orgCode = permissionService.getOrganization();
-    if (!permissionService.isSRA() && orgCode == null)
-    {
-      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
-    }
-
     JsonArray ja = new JsonArray();
 
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.RUNNING).OR(ihq.getStatus().containsExactly(AllJobStatus.NEW)).OR(ihq.getStatus().containsExactly(AllJobStatus.QUEUED)).OR(ihq.getStatus().containsExactly(AllJobStatus.FEEDBACK)));
 
-    if (orgCode != null)
-    {
-      Organization org = Organization.getByCode(orgCode);
-      ihq.WHERE(ihq.getOrganization().EQ(org));
-    }
+    this.filterHistoryQueryBasedOnPermissions(ihq);
 
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
@@ -237,24 +305,13 @@ public class ETLService
   @Request(RequestType.SESSION)
   public JsonObject getCompletedImports(String sessionId, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
-    RolePermissionService permissionService = ServiceFactory.getRolePermissionService();
-    String orgCode = permissionService.getOrganization();
-    if (!permissionService.isSRA() && orgCode == null)
-    {
-      throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
-    }
-
     JsonArray ja = new JsonArray();
 
     QueryFactory qf = new QueryFactory();
     ImportHistoryQuery ihq = new ImportHistoryQuery(qf);
     ihq.WHERE(ihq.getStatus().containsExactly(AllJobStatus.SUCCESS).OR(ihq.getStatus().containsExactly(AllJobStatus.FAILURE)).OR(ihq.getStatus().containsExactly(AllJobStatus.CANCELED)));
 
-    if (orgCode != null)
-    {
-      Organization org = Organization.getByCode(orgCode);
-      ihq.WHERE(ihq.getOrganization().EQ(org));
-    }
+    this.filterHistoryQueryBasedOnPermissions(ihq);
 
     ihq.restrictRows(pageSize, pageNumber);
     ihq.ORDER_BY(ihq.get(sortAttr), isAscending ? SortOrder.ASC : SortOrder.DESC);
@@ -542,7 +599,7 @@ public class ETLService
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
 
-    this.checkPermissions(hist.getOrganization().getCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
 
     JsonObject jo = this.serializeHistory(hist, user, job);
 
@@ -572,7 +629,7 @@ public class ETLService
     return jo;
   }
 
-  private void checkPermissions(String orgCode)
+  private void checkPermissions(String orgCode, String gotCode)
   {
     RolePermissionService perms = ServiceFactory.getRolePermissionService();
 
@@ -582,7 +639,7 @@ public class ETLService
     }
     else if (perms.isRM())
     {
-      perms.enforceRM(orgCode);
+      perms.enforceRM(orgCode, gotCode);
     }
     else
     {
@@ -603,9 +660,7 @@ public class ETLService
 
     ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
 
-    this.checkPermissions(hist.getOrganization().getCode());
-
-    checkPermissions(hist.getOrganization().getCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
 
     ImportError err = ImportError.get(config.get("importErrorId").getAsString());
 
@@ -662,7 +717,7 @@ public class ETLService
 
     ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
 
-    this.checkPermissions(hist.getOrganization().getCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
 
     ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
 
@@ -733,7 +788,7 @@ public class ETLService
   {
     ImportHistory hist = ImportHistory.get(historyId);
 
-    this.checkPermissions(hist.getOrganization().getCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
 
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
     {

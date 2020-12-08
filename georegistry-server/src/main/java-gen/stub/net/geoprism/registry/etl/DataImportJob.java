@@ -44,8 +44,8 @@ import net.geoprism.registry.etl.upload.ImportHistoryProgressScribe;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
-import net.geoprism.registry.roles.RAException;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -85,7 +85,8 @@ public class DataImportJob extends DataImportJobBase
   @Transaction
   private JobHistoryRecord startInTrans(ImportConfiguration configuration)
   {
-    Organization org = ((GeoObjectImportConfiguration)configuration).getType().getOrganization();
+    ServerGeoObjectType type = ((GeoObjectImportConfiguration)configuration).getType();
+    Organization org = type.getOrganization();
     
     RolePermissionService perms = ServiceFactory.getRolePermissionService();
     if (perms.isRA())
@@ -94,7 +95,7 @@ public class DataImportJob extends DataImportJobBase
     }
     else if (perms.isRM())
     {
-      perms.enforceRM(org.getCode());
+      perms.enforceRM(org.getCode(), type.getCode());
     }
     else
     {
@@ -113,6 +114,7 @@ public class DataImportJob extends DataImportJobBase
     if (configuration instanceof GeoObjectImportConfiguration)
     {
       history.setOrganization(org);
+      history.setGeoObjectTypeCode(type.getCode());
     }
     
     history.apply();
