@@ -45,6 +45,7 @@
     <thead>
       <tr style="height: 50px;color: grey;">
         <th style="vertical-align: middle;"> <localize key="change.request.contributor.label"></localize> </th>
+        <th style="vertical-align: middle;"> <localize key="change.request.id.label"></localize> </th>
         <th style="vertical-align: middle;"> <localize key="change.request.date.contributed.label"></localize> </th>
         <th style="vertical-align: middle;"> <localize key="change.request.status.label"></localize> </th>
         <!-- <th style="vertical-align: middle;">Actions</th> -->
@@ -54,8 +55,11 @@
         <tbody>
       <ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
         <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
-          <td class="col-md-4">
+          <td class="col-md-3">
             <h5><strong>{{req.createdBy}}</strong></h5>
+          </td>
+          <td class="col-md-4">
+            <h5><strong>{{req.oid}}</strong></h5>
           </td>
           <td class="col-md-2" style="vertical-align: middle; color:grey;">
              {{req.createDate}}
@@ -65,20 +69,12 @@
                <strong>{{req.approvalStatus}}</strong>
             </h5>
           </td>
-          <!-- <td class="col-md-3">
-            <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onConfirmChangeRequest(req)" class="btn btn-primary" style="" role="button">
-              <localize key="change.request.accept.all.btn"></localize>
-            </button>
-            <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onRejectAll()" class="btn btn-danger" style="" role="button">
-              <localize key="change.request.reject.all.btn"></localize>
-            </button>  
-          </td> -->
-          <td class="col-md-1" style="vertical-align: middle;">
+          <td class="col-md-1" style="vertical-align:middle;text-align:right;padding-right:25px;">
             <i class="arrow arrow-right" aria-hidden="true"></i>
           </td>
         </tr>
         <tr *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;">
-                <td colspan="5" >
+          <td colspan="5" >
 
             <div class="row" style="margin:0;">
               <!-- <div class="col-md-1"></div> -->
