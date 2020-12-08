@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1861073786)
+@com.runwaysdk.business.ClassSignature(hash = -753696601)
 public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.HierarchyMetadata";
-  private static final long serialVersionUID = -1861073786;
+  private static final long serialVersionUID = -753696601;
   
   protected HierarchyMetadataDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -46,6 +28,7 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   }
   
   public static java.lang.String ABSTRACTDESCRIPTION = "abstractDescription";
+  public static java.lang.String ACCESSCONSTRAINTS = "accessConstraints";
   public static java.lang.String ACKNOWLEDGEMENT = "acknowledgement";
   public static java.lang.String CONTACT = "contact";
   public static java.lang.String CREATEDATE = "createDate";
@@ -62,6 +45,7 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
+  public static java.lang.String USECONSTRAINTS = "useConstraints";
   public String getAbstractDescription()
   {
     return getValue(ABSTRACTDESCRIPTION);
@@ -97,6 +81,43 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getAbstractDescriptionMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ABSTRACTDESCRIPTION).getAttributeMdDTO();
+  }
+  
+  public String getAccessConstraints()
+  {
+    return getValue(ACCESSCONSTRAINTS);
+  }
+  
+  public void setAccessConstraints(String value)
+  {
+    if(value == null)
+    {
+      setValue(ACCESSCONSTRAINTS, "");
+    }
+    else
+    {
+      setValue(ACCESSCONSTRAINTS, value);
+    }
+  }
+  
+  public boolean isAccessConstraintsWritable()
+  {
+    return isWritable(ACCESSCONSTRAINTS);
+  }
+  
+  public boolean isAccessConstraintsReadable()
+  {
+    return isReadable(ACCESSCONSTRAINTS);
+  }
+  
+  public boolean isAccessConstraintsModified()
+  {
+    return isModified(ACCESSCONSTRAINTS);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getAccessConstraintsMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ACCESSCONSTRAINTS).getAttributeMdDTO();
   }
   
   public String getAcknowledgement()
@@ -603,6 +624,43 @@ public abstract class HierarchyMetadataDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
+  }
+  
+  public String getUseConstraints()
+  {
+    return getValue(USECONSTRAINTS);
+  }
+  
+  public void setUseConstraints(String value)
+  {
+    if(value == null)
+    {
+      setValue(USECONSTRAINTS, "");
+    }
+    else
+    {
+      setValue(USECONSTRAINTS, value);
+    }
+  }
+  
+  public boolean isUseConstraintsWritable()
+  {
+    return isWritable(USECONSTRAINTS);
+  }
+  
+  public boolean isUseConstraintsReadable()
+  {
+    return isReadable(USECONSTRAINTS);
+  }
+  
+  public boolean isUseConstraintsModified()
+  {
+    return isModified(USECONSTRAINTS);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getUseConstraintsMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(USECONSTRAINTS).getAttributeMdDTO();
   }
   
   public static net.geoprism.registry.HierarchyMetadataDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

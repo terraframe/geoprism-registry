@@ -1,0 +1,37 @@
+<!-- Copyright (c) 2019 TerraFrame, Inc. All rights reserved. This file is part of Geoprism Registry(tm). Geoprism Registry(tm) is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. Geoprism Registry(tm) is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details. You should have received a copy of the GNU Lesser General Public License along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>. -->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.acknowledgement">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.accessConstraints" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Access Constraints" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="data.property.label.contact">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="data.property.label.useConstraints" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Use Constraints" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <update>
+      <mdBusiness name="net.geoprism.registry.HierarchyMetadata">
+        <create>
+          <attributes>
+            <text name="accessConstraints" label="Access Constraints" />
+            <text name="useConstraints" label="Use Constraints" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.HierarchyMetadata.accessConstraints" />
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.HierarchyMetadata.useConstraints" />
+    </delete>
+  </undoIt>
+</version>

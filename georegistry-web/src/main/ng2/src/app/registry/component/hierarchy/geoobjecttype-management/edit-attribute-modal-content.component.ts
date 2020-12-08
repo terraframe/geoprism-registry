@@ -1,10 +1,4 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import {
-	trigger,
-	style,
-	animate,
-	transition
-} from '@angular/animations'
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -30,6 +24,8 @@ export class EditAttributeModalContentComponent implements OnInit {
 
 	@Input() geoObjectType: GeoObjectType;
 	@Input() attribute: Attribute;
+	@Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+
 	message: string = null;
 	modalState: ManageGeoObjectTypeModalState = { "state": GeoObjectTypeModalStates.editAttribute, "attribute": this.attribute, "termOption": "" };
 	modalStepConfig: StepConfig = {
@@ -73,6 +69,8 @@ export class EditAttributeModalContentComponent implements OnInit {
 			}
 
 			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageAttributes, "attribute": "", "termOption": "" })
+
+			this.geoObjectTypeChange.emit(this.geoObjectType);
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -99,7 +97,7 @@ export class EditAttributeModalContentComponent implements OnInit {
 	}
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

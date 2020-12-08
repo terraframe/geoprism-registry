@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 571870397)
+@com.runwaysdk.business.ClassSignature(hash = -1954682864)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -71,6 +53,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
   public com.runwaysdk.query.SelectableChar getAbstractDescription(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.ABSTRACTDESCRIPTION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getAccessConstraints()
+  {
+    return getAccessConstraints(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.ACCESSCONSTRAINTS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.ACCESSCONSTRAINTS, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getAcknowledgement()
@@ -381,6 +380,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getUseConstraints()
+  {
+    return getUseConstraints(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUseConstraints(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.USECONSTRAINTS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.HierarchyMetadata.USECONSTRAINTS, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -451,6 +467,9 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.query.SelectableChar getAbstractDescription();
     public com.runwaysdk.query.SelectableChar getAbstractDescription(String alias);
     public com.runwaysdk.query.SelectableChar getAbstractDescription(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getAccessConstraints();
+    public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias);
+    public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getAcknowledgement();
     public com.runwaysdk.query.SelectableChar getAcknowledgement(String alias);
     public com.runwaysdk.query.SelectableChar getAcknowledgement(String alias, String displayLabel);
@@ -499,6 +518,9 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getUseConstraints();
+    public com.runwaysdk.query.SelectableChar getUseConstraints(String alias);
+    public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.HierarchyMetadata hierarchyMetadata);
 
@@ -549,6 +571,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
   public com.runwaysdk.query.SelectableChar getAbstractDescription(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.ABSTRACTDESCRIPTION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getAccessConstraints()
+  {
+    return getAccessConstraints(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.ACCESSCONSTRAINTS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.ACCESSCONSTRAINTS, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getAcknowledgement()
@@ -823,6 +862,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getUseConstraints()
+  {
+    return getUseConstraints(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUseConstraints(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.USECONSTRAINTS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.USECONSTRAINTS, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -870,6 +926,9 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.query.SelectableChar getAbstractDescription();
     public com.runwaysdk.query.SelectableChar getAbstractDescription(String alias);
     public com.runwaysdk.query.SelectableChar getAbstractDescription(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getAccessConstraints();
+    public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias);
+    public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getAcknowledgement();
     public com.runwaysdk.query.SelectableChar getAcknowledgement(String alias);
     public com.runwaysdk.query.SelectableChar getAcknowledgement(String alias, String displayLabel);
@@ -918,6 +977,9 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getUseConstraints();
+    public com.runwaysdk.query.SelectableChar getUseConstraints(String alias);
+    public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.HierarchyMetadata ... hierarchyMetadata);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.HierarchyMetadata ... hierarchyMetadata);
@@ -1019,6 +1081,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.ABSTRACTDESCRIPTION, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getAccessConstraints()
+  {
+    return getAccessConstraints(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.ACCESSCONSTRAINTS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAccessConstraints(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.ACCESSCONSTRAINTS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getAcknowledgement()
   {
     return getAcknowledgement(null);
@@ -1289,6 +1368,23 @@ public  class HierarchyMetadataQuery extends com.runwaysdk.query.GeneratedBusine
   public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.TYPE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getUseConstraints()
+  {
+    return getUseConstraints(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUseConstraints(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.USECONSTRAINTS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getUseConstraints(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.HierarchyMetadata.USECONSTRAINTS, alias, displayLabel);
 
   }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)

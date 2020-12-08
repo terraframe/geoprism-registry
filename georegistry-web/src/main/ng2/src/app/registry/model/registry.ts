@@ -303,6 +303,7 @@ export class Step {
 export class MasterList {
 	oid: string;
 	typeCode: string;
+	typeLabel?: LocalizedValue;
 	displayLabel: LocalizedValue;
 	code: string;
 	representativityDate: Date;
@@ -326,6 +327,7 @@ export class MasterList {
 	visibility: string;
 	write?: boolean;
 	read?: boolean;
+	exploratory?: boolean;
 	versions?: MasterListVersion[]
 }
 

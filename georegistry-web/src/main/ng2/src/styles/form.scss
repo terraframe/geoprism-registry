@@ -177,3 +177,11 @@ textarea.ng-invalid:required {
     font-size: 14px;
     margin: 5px 0 0 0;
 }
+
+input.inline-loading {    
+    background-color: #ffffff;
+	background-image: url('../images/loading_spinner_splitring.gif');
+    background-size: 25px 25px;
+    background-position:right center;
+    background-repeat: no-repeat;
+}

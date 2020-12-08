@@ -27,10 +27,6 @@ export class SubmitChangeRequestComponent implements OnInit {
 
 	geoObjectTypes: GeoObjectType[] = [];
 
-	typeaheadLoading: boolean;
-
-	typeaheadNoResults: boolean;
-
 	geoObjectId: string = "";
 
 	reason: string = "";
@@ -53,6 +49,8 @@ export class SubmitChangeRequestComponent implements OnInit {
 
 	isValid: boolean = false;
 
+	loading: boolean = false;
+
 	geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "status"];
 
 	constructor(private modalService: BsModalService, private registryService: RegistryService,
@@ -73,7 +71,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 				const type = types[i];
 				const orgCode = type.organizationCode;
 				const typeCode = type.superTypeCode != null && type.superTypeCode != '' ? type.superTypeCode : type.code;
-				
+
 				if (this.authService.isGeoObjectTypeRC(orgCode, typeCode)) {
 					myOrgTypes.push(types[i]);
 				}
@@ -132,7 +130,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 	}
 
 	changeTypeaheadLoading(e: boolean): void {
-		this.typeaheadLoading = e;
+		this.loading = e;
 	}
 
 	typeaheadOnSelect(e: TypeaheadMatch): void {

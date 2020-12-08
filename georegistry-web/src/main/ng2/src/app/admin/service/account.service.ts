@@ -98,7 +98,7 @@ export class AccountService {
             .toPromise();
     }
 
-    newInvite(): Promise<Account> {
+    newInvite(organizationCodes: string[]): Promise<Account> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -107,7 +107,7 @@ export class AccountService {
         this.eventService.start();
 
         return this.http
-            .post<Account>( acp + '/registryaccount/newInvite', JSON.stringify( {} ), { headers: headers } )
+            .post<Account>( acp + '/registryaccount/newInvite', JSON.stringify( {"organizationCodes": organizationCodes} ), { headers: headers } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

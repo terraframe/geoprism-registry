@@ -118,9 +118,7 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
             }
           }
         }
-        // SRA only has the ability to see type and hierarchies, it does not
-        // have permissions to modify
-        else if (op.equals(Operation.READ) && RegistryRole.Type.isSRA_Role(roleName))
+        else if (RegistryRole.Type.isSRA_Role(roleName))
         {
           return true;
         }

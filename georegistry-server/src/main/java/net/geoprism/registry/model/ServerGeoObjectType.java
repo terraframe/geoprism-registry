@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -384,7 +384,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     // Refresh the users session
     if (Session.getCurrentSession() != null)
@@ -393,6 +393,20 @@ public class ServerGeoObjectType
     }
 
     return attrType;
+  }
+
+  private void refreshCache()
+  {
+    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+
+    // Refresh all of the subtypes
+    List<ServerGeoObjectType> subtypes = this.getSubtypes();
+    for (ServerGeoObjectType subtype : subtypes)
+    {
+      ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(subtype.getUniversal());
+
+      ServiceFactory.getMetadataCache().addGeoObjectType(type);
+    }
   }
 
   /**
@@ -548,7 +562,7 @@ public class ServerGeoObjectType
     this.type.removeAttribute(attributeName);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -628,7 +642,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     return attrType;
   }

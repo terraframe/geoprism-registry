@@ -211,6 +211,8 @@ public class ServerHierarchyType
     metadata.setProgress(hierarchyType.getProgress());
     metadata.setAcknowledgement(hierarchyType.getAcknowledgement());
     metadata.setContact(hierarchyType.getContact());
+    metadata.setAccessConstraints(hierarchyType.getAccessConstraints());
+    metadata.setUseConstraints(hierarchyType.getUseConstraints());
     metadata.apply();
 
     this.entityRelationship.apply();
