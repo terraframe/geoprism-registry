@@ -8,6 +8,13 @@
           <attribute name="defaultLocale" value="Set Locale" />
         </attributeStruct>
       </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.gotoMap">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.gotoMap" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="See on map" />
+        </attributeStruct>
+      </object>    
     </createOrUpdate>
   </doIt>
   <undoIt>
