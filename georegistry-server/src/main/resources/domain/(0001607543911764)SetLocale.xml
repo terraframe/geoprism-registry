@@ -1,0 +1,16 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="userDashboards.setLocale">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="userDashboards.setLocale" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Set Locale" />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
