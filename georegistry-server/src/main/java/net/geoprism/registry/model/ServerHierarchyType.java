@@ -637,9 +637,9 @@ public class ServerHierarchyType
     if (!hierarchyType.isPresent())
     {
       net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-      ex.setTypeLabel(HierarchyTypeMetadata.get().getClassDisplayLabel());
+      ex.setTypeLabel(HierarchyMetadata.sGetClassDisplayLabel());
       ex.setDataIdentifier(hierarchyTypeCode);
-      ex.setAttributeLabel(HierarchyTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+      ex.setAttributeLabel(HierarchyMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
       throw ex;
     }
 

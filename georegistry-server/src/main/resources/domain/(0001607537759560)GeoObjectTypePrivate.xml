@@ -1,0 +1,59 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.isPrivate">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoObjectType.attr.isPrivate" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Is Private" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdBusiness name="net.geoprism.registry.model.GeoObjectTypeMetadata" label="GeoObjectType Metadata" generateController="false" cacheAlgorithm="everything">
+        <attributes>
+          <reference name="universal" type="com.runwaysdk.system.gis.geo.Universal" required="true" label="Universal" />
+          <boolean name="isPrivate" defaultValue="false" label="Is Private" />
+        </attributes>
+      </mdBusiness>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.model.GeoObjectTypeMetadata">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.model.GeoObjectTypeMetadata">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.model.GeoObjectTypeMetadata">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.model.GeoObjectTypeMetadata">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.model.GeoObjectTypeMetadata" type="com.runwaysdk.system.metadata.MdBusiness"/>
+    </delete>
+  </undoIt>
+</version>

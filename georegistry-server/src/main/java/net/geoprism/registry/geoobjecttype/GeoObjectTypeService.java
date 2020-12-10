@@ -76,9 +76,9 @@ public class GeoObjectTypeService
         else
         {
           net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-          ex.setTypeLabel(GeoObjectTypeMetadata.get().getClassDisplayLabel());
+          ex.setTypeLabel(GeoObjectTypeMetadata.sGetClassDisplayLabel());
           ex.setDataIdentifier(codes[i]);
-          ex.setAttributeLabel(GeoObjectTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+          ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
       }

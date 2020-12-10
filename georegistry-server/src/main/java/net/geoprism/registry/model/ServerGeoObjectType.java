@@ -326,6 +326,8 @@ public class ServerGeoObjectType
         }
       }
     }
+    
+    this.getMetadata().delete();
 
     MasterList.markAllAsInvalid(null, this);
   }
@@ -363,12 +365,25 @@ public class ServerGeoObjectType
     mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
     mdBusiness.getDescription().setValue(universal.getDescription().getValue());
     mdBusiness.apply();
+    
+    GeoObjectTypeMetadata metadata = this.getMetadata();
+    if (! metadata.getIsPrivate().equals(geoObjectType.getIsPrivate()))
+    {
+      metadata.appLock();
+      metadata.setIsPrivate(geoObjectType.getIsPrivate());
+      metadata.apply();
+    }
 
     mdBusiness.unlock();
 
     universal.unlock();
 
     return universal;
+  }
+  
+  public GeoObjectTypeMetadata getMetadata()
+  {
+    return GeoObjectTypeMetadata.getByKey(this.universal.getKey());
   }
 
   public AttributeType createAttributeType(String attributeTypeJSON)
@@ -1039,9 +1054,9 @@ public class ServerGeoObjectType
     else
     {
       net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-      ex.setTypeLabel(GeoObjectTypeMetadata.get().getClassDisplayLabel());
+      ex.setTypeLabel(GeoObjectTypeMetadata.sGetClassDisplayLabel());
       ex.setDataIdentifier(code);
-      ex.setAttributeLabel(GeoObjectTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
       throw ex;
     }
   }
