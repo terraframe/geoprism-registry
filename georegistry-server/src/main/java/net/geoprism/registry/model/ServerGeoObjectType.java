@@ -1082,6 +1082,16 @@ public class ServerGeoObjectType
     return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
   }
 
+  public boolean getIsPrivate()
+  {
+    return this.type.getIsPrivate();
+  }
+  
+  public void setIsPrivate(Boolean isPrivate)
+  {
+    this.type.setIsPrivate(isPrivate);
+  }
+
   // public String buildRMRoleName()
   // {
   // String ownerActorOid = this.universal.getOwnerOid();

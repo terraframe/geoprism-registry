@@ -217,7 +217,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode(), geoObjectType.getIsPrivate());
 
     String superTypeCode = geoObjectType.getSuperTypeCode();
     Boolean isAbstract = geoObjectType.getIsAbstract();
