@@ -20,14 +20,16 @@
       </div>
       <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues">
         <label for="labelInput">
-          <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
+          <localize key="data.property.label.label"></localize> 
+          <span style="color: #BABABA">({{localeValue.locale}})</span>
         </label>
         <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control"
           required>
       </div>
       <div class="form-group" *ngFor="let localeValue of hierarchyType.description.localeValues">
         <label for="descriptionInput">
-          <localize key="data.property.label.description"></localize> ({{localeValue.locale}})
+          <localize key="data.property.label.description"></localize> 
+          <span style="color: #BABABA">({{localeValue.locale}})</span>
         </label>
         <textarea [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" class="form-control"></textarea>
       </div>
