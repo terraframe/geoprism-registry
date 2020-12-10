@@ -32,6 +32,7 @@
   ClientRequestIF clientRequest = (ClientRequestIF) request.getAttribute(ClientConstants.CLIENTREQUEST);
 
   request.setAttribute("ilocales", RegistryService.getInstance().getLocales(clientRequest.getSessionId()));
+  request.setAttribute("locale", RegistryService.getInstance().getCurrentLocale(clientRequest.getSessionId()));
 %>
 
 
@@ -52,7 +53,7 @@
   
   <script>
     window.acp = "<%=request.getContextPath()%>"; 
-    window.registry = {locales:<%=request.getAttribute("ilocales")%>}; 
+    window.registry = {locale:'<%=request.getAttribute("locale")%>', locales:<%=request.getAttribute("ilocales")%>}; 
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
   </script>
   

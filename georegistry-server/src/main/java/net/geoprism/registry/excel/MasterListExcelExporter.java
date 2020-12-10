@@ -117,7 +117,7 @@ public class MasterListExcelExporter
 
   private void createDataDictionarySheet(Workbook workbook)
   {
-    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(LocalizationFacade.getFromBundles("masterlist.data.dictionary")));
+    Sheet sheet = workbook.createSheet(getSheetName(workbook, "masterlist.data.dictionary"));
 
     Locale locale = Session.getCurrentLocale();
 
@@ -129,9 +129,26 @@ public class MasterListExcelExporter
     }
   }
 
+  private String getSheetName(Workbook workbook, String key)
+  {
+    String label = LocalizationFacade.getFromBundles(key);
+    String name = WorkbookUtil.createSafeSheetName(label);
+
+    int i = 0;
+
+    while (workbook.getSheet(name) != null)
+    {
+      name = WorkbookUtil.createSafeSheetName(label + "_" + i);
+
+      i++;
+    }
+
+    return name;
+  }
+
   private void createMetadataSheet(Workbook workbook)
   {
-    Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(LocalizationFacade.getFromBundles("masterlist.metadata")));
+    Sheet sheet = workbook.createSheet(this.getSheetName(workbook, "masterlist.metadata"));
 
     Locale locale = Session.getCurrentLocale();
     MdBusinessDAOIF metadata = MdBusinessDAO.getMdBusinessDAO(MasterList.CLASS);

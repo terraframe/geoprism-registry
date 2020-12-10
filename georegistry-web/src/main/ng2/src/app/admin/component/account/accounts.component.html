@@ -12,7 +12,7 @@
 
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="row">
+        <div class="row" *ngIf="isRA">
             <div class="col-md-12 text-right">
                 <input class="btn btn-primary" style="margin-top: 10px;" type="submit" value="Invite User" (click)="inviteUsers()">
             </div>
@@ -24,7 +24,7 @@
             <table id="manage-accounts-table" class="list-table table table-bordered table-striped">
                 <thead>
                     <tr>
-                        <th></th>
+                        <th *ngIf="isRA"></th>
                         <th class="label-column"><localize key='account.username'></localize></th>
                         <th class="label-column"><localize key='account.firstname'></localize></th>
                         <th class="label-column"><localize key='account.lastname'></localize></th>
@@ -36,7 +36,9 @@
                 </thead>
                 <tbody>
                     <tr *ngFor="let account of res.resultSet | paginate: { itemsPerPage: res.pageSize, currentPage: res.pageNumber, totalItems: res.count }" class="fade-ngRepeat-item" [ngClass]="{'inactive': account.inactive}">
-                        <td class="button-column"><a class="fa fa-pencil ico-edit" (click)="edit(account, $event)" [title]="'account.editTooltip' | localize"></a> 
+                        <td *ngIf="isRA" class="button-column">
+                          <a class="fa fa-pencil ico-edit" (click)="edit(account, $event)" [title]="'account.editTooltip' | localize"></a>
+                        </td>
                         <td class="label-column username-col">{{ account.username }}</td>
                         <td class="label-column firstname-col">{{ account.firstName }}</td>
                         <td class="label-column lastname-col">{{ account.lastName }}</td>
@@ -48,7 +50,7 @@
                         </td>
                         <!-- <td class="label-column role-col">{{ account.roles }}</td> -->
                     </tr>
-                    <tr>
+                    <tr *ngIf="isRA">
                         <td class="button-column"><a class="fa fa-plus" (click)="newInstance()" [title]="'account.newTooltip' | localize"></a></td>
                     </tr>
 

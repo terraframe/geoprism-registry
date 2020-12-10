@@ -931,6 +931,14 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
+  public String getCurrentLocale(String sessionId)
+  {
+    Locale locale = Session.getCurrentLocale();
+
+    return locale.toString();
+  }
+
+  @Request(RequestType.SESSION)
   public CustomSerializer serializer(String sessionId)
   {
     Locale locale = Session.getCurrentLocale();

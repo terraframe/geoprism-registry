@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.localization;
 
@@ -24,11 +24,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.LocaleUtils;
 
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.MdLocalizableInfo;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.localization.LocalizationExcelExporter;
@@ -44,6 +46,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 import com.runwaysdk.system.Operations;
 import com.runwaysdk.system.PostalCode;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -121,6 +124,30 @@ public class LocalizationService
     ByteArrayInputStream is = new ByteArrayInputStream(bytes.toByteArray());
 
     return new InputStreamResponse(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "localization.xlsx");
+  }
+
+  @Request(RequestType.SESSION)
+  public void setLocale(String sessionId, String locale)
+  {
+    SessionIF session = Session.getCurrentSession();
+
+    if (session != null)
+    {
+      if (locale != null && locale.length() > 0)
+      {
+        List<String> locales = SupportedLocaleCache.getLocaleNames();
+
+        if (locales.contains(locale))
+        {
+          ( (Session) session ).setLocale(LocaleUtils.toLocale(locale));
+        }
+      }
+      else
+      {
+        ( (Session) session ).setLocale(CommonProperties.getDefaultLocale());
+      }
+    }
+
   }
 
   private SpreadsheetConfiguration buildConfig()
@@ -201,4 +228,5 @@ public class LocalizationService
                                                   // not AND
     localTabConfig.addQueryCriteria(myCriteria);
   }
+
 }
