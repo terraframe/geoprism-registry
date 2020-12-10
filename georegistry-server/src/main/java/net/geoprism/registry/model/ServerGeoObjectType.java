@@ -288,6 +288,8 @@ public class ServerGeoObjectType
      */
     AttributeHierarchy.deleteByUniversal(this.universal);
 
+    this.getMetadata().delete();
+    
     // This deletes the {@link MdBusiness} as well
     this.universal.delete(false);
 
@@ -327,8 +329,6 @@ public class ServerGeoObjectType
       }
     }
     
-    this.getMetadata().delete();
-
     MasterList.markAllAsInvalid(null, this);
   }
 
