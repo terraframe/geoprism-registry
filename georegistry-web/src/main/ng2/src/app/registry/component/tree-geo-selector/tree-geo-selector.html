@@ -1,15 +1,13 @@
 <div>
-  <div class="row">
-    <div class="col-md-12">{{hierarchy.label}}</div>
-  </div>
-  <div class="row">
-    <div class="col-md-8">
+
+  <div class="panel panel-default">
+    <div class="panel-heading">{{hierarchy.label}}</div>
+    <div class="panel-body">
       <div *ngIf="nodes.length > 0" class="tree">
         <tree-root [nodes]="nodes" [options]="options"></tree-root>
       </div>
-    </div>
-    <div *ngIf="!readOnly" class="col-md-4">
-      <button (click)="onEdit()"><localize key="changeovertime.manageVersions.button.label"></localize></button>
+      
+       <button class="btn btn-primary" *ngIf="!readOnly" (click)="onEdit()"><localize key="changeovertime.manageVersions.button.label"></localize></button>
     </div>
   </div>
 </div>

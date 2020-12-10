@@ -10,9 +10,9 @@
         <div *ngIf="mode === MODE.SEARCH">
         <div class="row">
           <div class="col-md-12">
-            <div *ngIf="current != null && type != null">
-              <i class="fa fa-arrow-right clickable" aria-hidden="true" (click)="this.mode = this.MODE.VIEW"></i>              
-            </div>
+<!--             <div *ngIf="current != null && type != null"> -->
+<!--               <i class="fa fa-arrow-right clickable" aria-hidden="true" (click)="this.mode = this.MODE.VIEW"></i>               -->
+<!--             </div> -->
 
             <div class="row">
               <div class="col-md-12">
@@ -52,7 +52,7 @@
                       <!-- Single column card -->
                       <div class="card card-default" (click)="select(node, $event)">
                         <div class="card-body">
-                          <i class="fa fa-level-down clickable" style="float: right;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Drill into location"></i>
+                          <i class="arrow arrow-right clickable" style="float: right;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Drill into location"></i>
                           <h4 class="clickable" style="word-break: break-all;" title="Zoom to location">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
                         </div>
                       </div>
@@ -65,8 +65,8 @@
         </div>    
         <div *ngIf="mode === MODE.VIEW && current != null" class="row">
           <div class="col-md-12">
-            <div>
-              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"></i>              
+            <div style="padding: 20px 0;">
+              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>              
             </div>
             <feature-panel
               [type]="type"

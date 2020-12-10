@@ -52,7 +52,7 @@ export class FeaturePanelComponent implements OnInit {
 
 	attribute: Attribute = null;
 
-	readOnly: boolean = true;
+	readOnly: boolean = false;
 
 	hierarchies: HierarchyOverTime[];
 
@@ -74,7 +74,7 @@ export class FeaturePanelComponent implements OnInit {
 		this.postGeoObject = null;
 		this.preGeoObject = null;
 		this.hierarchies = null;
-		this.readOnly = true;
+		this.readOnly = false;
 
 		if (code != null && this.type != null) {
 
@@ -183,7 +183,7 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onEditAttributes(): void {
-		this.readOnly = false;
+		this.readOnly = !this.readOnly;
 	}
 
 	public error(err: HttpErrorResponse): void {

@@ -16,7 +16,7 @@
     
     <div *ngIf="!readOnly" class="button-holder" style="text-align: left;">
       <button type="submit" style="" (click)="this.mode = this.MODE.GEOMETRY" class="btn btn-primary" role="button">
-        Edit Geometry
+        <localize key="explorer.edit.geometry.button.label"></localize>
       </button>
     </div>
     
@@ -29,8 +29,8 @@
       </tree-geo-selector>
     </div>
 
-    <div class="button-holder" style="text-align: left;">
-      <button *ngIf="readOnly" type="submit" style="" (click)="onEditAttributes()" class="btn btn-primary" role="button">
+    <div class="button-holder" >
+      <button *ngIf="readOnly" type="submit" (click)="onEditAttributes()" class="btn btn-primary" role="button">
         <localize key="changeovertime.manageVersions.button.label"></localize>
       </button>
       <button *ngIf="!readOnly" type="button" class="btn btn-default" (click)="onCancel()">
@@ -46,7 +46,7 @@
     <manage-versions 
       [attribute]="attribute"
       [geoObjectType]="type"
-      [geoObjectOverTime]="postGeoObject"
+      [geoObjectOverTimeInput]="postGeoObject"
       [isNewGeoObject]="false"
       (onChange)="onAttributeChange($event)">
     </manage-versions>
