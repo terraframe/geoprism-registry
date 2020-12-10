@@ -1532,8 +1532,8 @@ public class MasterListVersion extends MasterListVersionBase
 
   public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
   {
-    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
 
@@ -1620,7 +1620,7 @@ public class MasterListVersion extends MasterListVersionBase
               }
               else if (value instanceof Date)
               {
-                object.addProperty(mdAttribute.definesAttribute(), dateFormat.format((Date) value));
+                object.addProperty(mdAttribute.definesAttribute(), format.format((Date) value));
               }
             }
           }
