@@ -41,6 +41,8 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.RolePermissionService;
 
 public class SearchService
 {
@@ -275,11 +277,15 @@ public class SearchService
   {
     String suffix = this.getSuffix();
 
+    GeoObjectPermissionService service = new GeoObjectPermissionService();
+    List<String> vertexTypes = service.getReadableTypes(new RolePermissionService().getOrganization());
+
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
     MdAttributeDAOIF code = mdVertex.definesAttribute(CODE);
     MdAttributeDAOIF startDate = mdVertex.definesAttribute(START_DATE);
     MdAttributeDAOIF endDate = mdVertex.definesAttribute(END_DATE);
     MdAttributeDAOIF label = mdVertex.definesAttribute(LABEL);
+    MdAttributeDAOIF vertexType = mdVertex.definesAttribute(VERTEX_TYPE);
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(PACKAGE + "." + EDGE_PREFIX + suffix);
     String attributeName = label.getValue(MdAttributeTextInfo.NAME);
     String className = mdVertex.getDBClassName();
@@ -288,9 +294,10 @@ public class SearchService
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT EXPAND(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM " + mdVertex.getDBClassName());
-    statement.append(" WHERE SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
-    statement.append(" OR :code = " + code.getColumnName());
+    statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
+    statement.append(" OR :code = " + code.getColumnName() + ")");
     statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
+    statement.append(" AND " + vertexType.getColumnName() + " IN ( :vertexTypes )");
     statement.append(" ORDER BY " + label.getColumnName() + " DESC");
 
     if (limit != null)
@@ -302,6 +309,7 @@ public class SearchService
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("code", text);
     query.setParameter("date", date);
+    query.setParameter("vertexTypes", vertexTypes);
 
     List<VertexObject> results = query.getResults();
 

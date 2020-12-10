@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -32,6 +34,7 @@ import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.DeleteGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectPermissionService extends UserPermissionService implements GeoObjectPermissionServiceIF
 {
@@ -212,4 +215,15 @@ public class GeoObjectPermissionService extends UserPermissionService implements
   {
     this.enforceActorHasPermission(orgCode, gotCode, Operation.CREATE, true);
   }
+
+  public List<String> getReadableTypes(String orgCode)
+  {
+    List<ServerGeoObjectType> types = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
+
+    return types.stream().filter(type -> {
+      return GeoObjectPermissionService.this.canRead(orgCode, type);
+    }).collect(() -> new LinkedList<String>(), (list, element) -> list.add(element.getCode()), (listA, listB) -> {
+    });
+  }
+
 }
