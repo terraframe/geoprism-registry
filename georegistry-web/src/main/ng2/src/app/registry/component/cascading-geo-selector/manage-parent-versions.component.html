@@ -16,10 +16,10 @@
                                     <table class="table table-striped">
                                         <thead style="font-size: 14px;">
                                             <tr>
-                                                <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th>
-                                                <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
-                                                <th style="width: 20%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
-                                                <th style="width: 10%; text-align: center;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
+                                                <th style="width: 55%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th>
+                                                <th style="width: 30%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
+                                                <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
+                                                <th style="width: 5%; text-align: center;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -29,18 +29,27 @@
                                                   <div class="col-sm-12" style="float:left;width:150px;" *ngFor="let type of hierarchy.types; let j = index">
                                                     {{type.label}}
                                                     
-                                                    <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
-                                                      name="{{type.code}}-{{i}}"
-                                                      [disabled]="entry.startDate == null || entry.startDate === ''"
-                                                      [(ngModel)]="entry.parents[type.code].text" 
-                                                      [typeaheadAsync]="true"
-                                                      [typeahead]="getTypeAheadObservable(entry.startDate, type, entry, j)"
-                                                      (typeaheadOnSelect)="typeaheadOnSelect($event, type, entry, entry.startDate)" 
-                                                      [typeaheadOptionsLimit]="7"
-                                                      [typeaheadItemTemplate]="customItemTemplate" 
-                                                      [typeaheadMinLength]="0"
-                                                      [typeaheadWaitMs]="300"
-                                                      required>
+                                                    <div class="input-group">
+                                                    
+                                                    
+                                                      <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
+                                                        name="{{type.code}}-{{i}}"
+                                                        [disabled]="entry.startDate == null || entry.startDate === ''"
+                                                        [(ngModel)]="entry.parents[type.code].text" 
+                                                        [typeaheadAsync]="true"
+                                                        [typeahead]="getTypeAheadObservable(entry.startDate, type, entry, j)"
+                                                        (typeaheadOnSelect)="typeaheadOnSelect($event, type, entry, entry.startDate)" 
+                                                        [typeaheadOptionsLimit]="7"
+                                                        [typeaheadItemTemplate]="customItemTemplate" 
+                                                        [typeaheadMinLength]="0"
+                                                        [typeaheadWaitMs]="300">
+                                                      
+                                                      <span class="input-group-btn">
+                                                        <button class="btn btn-primary" type="button" (click)="onRemove(type, entry)">
+                                                          <i class="fa fa-times delete-btn"></i>
+                                                        </button>
+                                                      </span>
+                                                    </div>
                                                   </div>
                                                 
                                                 </td>
