@@ -41,6 +41,7 @@ import com.runwaysdk.constants.MdAttributeEnumerationInfo;
 import com.runwaysdk.constants.MdAttributeLocalCharacterEmbeddedInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
+import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeEncryptionDAOIF;
@@ -51,6 +52,7 @@ import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeEnumerationDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
@@ -75,6 +77,7 @@ import com.runwaysdk.system.metadata.MdEnumeration;
 import net.geoprism.registry.ChainInheritanceException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
+import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
@@ -288,12 +291,12 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     universal.setMdBusiness(mdBusiness);
 
     universal.apply();
-    
+
     GeoObjectTypeMetadata metadata = new GeoObjectTypeMetadata();
     metadata.setIsPrivate(geoObjectType.getIsPrivate());
     metadata.setUniversal(universal);
     metadata.apply();
-    
+
     // Create the MdGeoVertexClass
     MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid(), isAbstract, superType);
 
@@ -512,9 +515,16 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
     geoObjType.setIsAbstract(mdBusiness.getIsAbstract());
-    
-    GeoObjectTypeMetadata metadata = GeoObjectTypeMetadata.getByKey(universal.getKey());
-    geoObjType.setIsPrivate(metadata.getIsPrivate());
+
+    try
+    {
+      GeoObjectTypeMetadata metadata = GeoObjectTypeMetadata.getByKey(universal.getKey());
+      geoObjType.setIsPrivate(metadata.getIsPrivate());
+    }
+    catch (DataNotFoundException | AttributeDoesNotExistException e)
+    {
+      geoObjType.setIsPrivate(false);
+    }
 
     if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
     {
