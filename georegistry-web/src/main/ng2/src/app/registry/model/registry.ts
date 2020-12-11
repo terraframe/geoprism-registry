@@ -54,6 +54,7 @@ export class GeoObjectType {
 	relatedHierarchies?: string[];
 	superTypeCode?: string;
 	isAbstract?: boolean;	
+	isPrivate?: boolean;  
 	canDrag?: boolean;
 }
 

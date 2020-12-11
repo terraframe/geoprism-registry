@@ -494,7 +494,7 @@ public class RegistryService
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getIsPrivate(), geoObjectType.getLabel().getValue());
 
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
 
@@ -521,7 +521,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
@@ -545,7 +545,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
@@ -570,7 +570,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     got.removeAttribute(attributeName);
   }
@@ -743,7 +743,7 @@ public class RegistryService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getIsPrivate(), type.getLabel().getValue());
 
     if (type != null)
     {

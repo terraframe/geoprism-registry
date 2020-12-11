@@ -177,6 +177,18 @@ public class DHIS2Bridge
     return new MetadataGetResponse<T>(this.apiGet("metadata", params), objectNamePlural, dhis2Type);
   }
   
+  private String buildApiEndpoint()
+  {
+    if (version == null || version == "")
+    {
+      return "api/";
+    }
+    else
+    {
+      return "api/" + version + "/";
+    }
+  }
+  
   public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
@@ -184,7 +196,7 @@ public class DHIS2Bridge
       url = url + ".json";
     }
     
-    return connector.httpGet("api/" + version + "/" + url, params);
+    return connector.httpGet(this.buildApiEndpoint() + url, params);
   }
   
   public DHIS2ImportResponse apiPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
@@ -194,7 +206,7 @@ public class DHIS2Bridge
       url = url + ".json";
     }
     
-    return new DHIS2ImportResponse(connector.httpPost("api/" + version + "/" + url, params, body));
+    return new DHIS2ImportResponse(connector.httpPost(this.buildApiEndpoint() + url, params, body));
   }
   
   public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
@@ -204,7 +216,7 @@ public class DHIS2Bridge
       url = url + ".json";
     }
     
-    return new DHIS2ImportResponse(connector.httpPost("api/" + version + "/" + url, params, body));
+    return new DHIS2ImportResponse(connector.httpPost(this.buildApiEndpoint() + url, params, body));
   }
   
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
@@ -214,6 +226,6 @@ public class DHIS2Bridge
       url = url + ".json";
     }
     
-    return new DHIS2ImportResponse(connector.httpPatch("api/" + version + "/" + url, params, body));
+    return new DHIS2ImportResponse(connector.httpPatch(this.buildApiEndpoint() + url, params, body));
   }
 }
