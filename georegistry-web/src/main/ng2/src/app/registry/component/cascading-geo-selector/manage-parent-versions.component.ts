@@ -22,6 +22,17 @@ export class ManageParentVersionsComponent implements OnInit {
 	constructor(private service: RegistryService) { }
 
 	ngOnInit(): void {
+
+		this.hierarchy.entries.forEach(entry => {
+			for (let i = 0; i < this.hierarchy.types.length; i++) {
+				let current = this.hierarchy.types[i];
+
+				if (entry.parents[current.code] == null) {
+					entry.parents[current.code] = { text: '', geoObject: null };
+				}
+			}
+		});
+
 	}
 
 	onAddNewVersion(): void {
@@ -120,6 +131,11 @@ export class ManageParentVersionsComponent implements OnInit {
 			}
 
 		});
+	}
+
+	onRemove(type: any, entry: any): void {
+		entry.parents[type.code].text = '';
+		delete entry.parents[type.code].geoObject;
 	}
 
 	onSubmit(): void {
