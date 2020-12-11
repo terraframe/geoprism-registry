@@ -54,7 +54,7 @@ public class SearchServiceTest
 
   @Test
   @Request
-  public void testCreateSearchTable()
+  public void testSearchTable()
   {
     SearchService service = new SearchService();
     service.clear();

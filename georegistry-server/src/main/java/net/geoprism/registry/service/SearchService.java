@@ -277,8 +277,7 @@ public class SearchService
   {
     String suffix = this.getSuffix();
 
-    GeoObjectPermissionService service = new GeoObjectPermissionService();
-    List<String> vertexTypes = service.getReadableTypes(new RolePermissionService().getOrganization());
+    RolePermissionService service = new RolePermissionService();
 
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(PACKAGE + "." + VERTEX_PREFIX + suffix);
     MdAttributeDAOIF code = mdVertex.definesAttribute(CODE);
@@ -297,7 +296,12 @@ public class SearchService
     statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
     statement.append(" OR :code = " + code.getColumnName() + ")");
     statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
-    statement.append(" AND " + vertexType.getColumnName() + " IN ( :vertexTypes )");
+
+    if (!service.isSRA() && service.hasSessionUser())
+    {
+      statement.append(" AND " + vertexType.getColumnName() + " IN ( :vertexTypes )");
+    }
+
     statement.append(" ORDER BY " + label.getColumnName() + " DESC");
 
     if (limit != null)
@@ -309,7 +313,12 @@ public class SearchService
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("code", text);
     query.setParameter("date", date);
-    query.setParameter("vertexTypes", vertexTypes);
+
+    if (!service.isSRA() && service.hasSessionUser())
+    {
+      List<String> vertexTypes = new GeoObjectPermissionService().getReadableTypes(service.getOrganization());
+      query.setParameter("vertexTypes", vertexTypes);
+    }
 
     List<VertexObject> results = query.getResults();
 
