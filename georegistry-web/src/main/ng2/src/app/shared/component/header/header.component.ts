@@ -9,6 +9,7 @@ import { AuthService, ProfileService, LocalizationService } from '@shared/servic
 import { RegistryRoleType } from '@shared/model/core';
 
 declare var acp: string;
+declare var registry: any
 
 @Component({
 

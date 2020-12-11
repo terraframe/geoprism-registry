@@ -50,7 +50,7 @@
               </ul>
          </li> 
        </ul> 
-      <div *ngIf="loggedIn" class="nav navbar-nav navbar-right" style="padding-top: 30px"> 
+      <div *ngIf="loggedIn && locales.length > 0" class="nav navbar-nav navbar-right" style="padding-top: 30px"> 
         <span style="color: white"><localize key="userDashboards.setLocale"></localize></span>
         <span class="select">
           <select type="text" [(ngModel)]="locale" name="organization" (change)="setLocale()" required>
