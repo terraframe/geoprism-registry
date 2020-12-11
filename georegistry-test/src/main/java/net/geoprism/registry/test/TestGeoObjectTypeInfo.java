@@ -61,39 +61,41 @@ public class TestGeoObjectTypeInfo
   private TestOrganizationInfo        organization;
 
   private boolean                     isAbstract = false;
+  
+  private boolean                     isPrivate = false;
 
   private TestGeoObjectTypeInfo       superType;
 
   public TestGeoObjectTypeInfo(String orgCode, String gotCode)
   {
-    this.initialize(orgCode, GeometryType.MULTIPOLYGON, new TestOrganizationInfo(orgCode, orgCode));
+    this.initialize(orgCode, false, GeometryType.MULTIPOLYGON, new TestOrganizationInfo(orgCode, orgCode));
   }
 
   public TestGeoObjectTypeInfo(String gotCode, TestOrganizationInfo organization)
   {
-    initialize(gotCode, GeometryType.MULTIPOLYGON, organization);
+    initialize(gotCode, false, GeometryType.MULTIPOLYGON, organization);
   }
 
   public TestGeoObjectTypeInfo(String gotCode, GeometryType geomType, TestOrganizationInfo organization)
   {
-    initialize(gotCode, geomType, organization);
+    initialize(gotCode, false, geomType, organization);
   }
 
   public TestGeoObjectTypeInfo(String gotCode, GeometryType geomType, TestOrganizationInfo organization, Boolean isAbstract)
   {
-    initialize(gotCode, geomType, organization);
+    initialize(gotCode, false, geomType, organization);
 
     this.isAbstract = true;
   }
 
-  public TestGeoObjectTypeInfo(String gotCode, GeometryType geomType, TestOrganizationInfo organization, TestGeoObjectTypeInfo superType)
+  public TestGeoObjectTypeInfo(String gotCode, GeometryType geomType, boolean isPrivate, TestOrganizationInfo organization, TestGeoObjectTypeInfo superType)
   {
-    initialize(gotCode, geomType, organization);
+    initialize(gotCode, isPrivate, geomType, organization);
 
     this.superType = superType;
   }
 
-  private void initialize(String genKey, GeometryType geomType, TestOrganizationInfo organization)
+  private void initialize(String genKey, boolean isPrivate, GeometryType geomType, TestOrganizationInfo organization)
   {
     this.code = genKey;
     this.displayLabel = new LocalizedValue(genKey);
@@ -102,6 +104,7 @@ public class TestGeoObjectTypeInfo
     this.geomType = geomType;
     this.isLeaf = false; // Leaf types are not supported anymore
     this.organization = organization;
+    this.isPrivate = isPrivate;
   }
 
   public String getCode()
@@ -169,6 +172,16 @@ public class TestGeoObjectTypeInfo
   public void setAbstract(boolean isAbstract)
   {
     this.isAbstract = isAbstract;
+  }
+  
+  public boolean isPrivate()
+  {
+    return isPrivate;
+  }
+
+  public void setPrivate(boolean isPrivate)
+  {
+    this.isPrivate = isPrivate;
   }
 
   public TestOrganizationInfo getOrganization()
@@ -286,6 +299,7 @@ public class TestGeoObjectTypeInfo
 
     GeoObjectType got = new GeoObjectType(this.getCode(), this.geomType, this.getDisplayLabel(), this.getDescription(), true, organizationCode, ServiceFactory.getAdapter());
     got.setIsAbstract(this.isAbstract);
+    got.setIsPrivate(this.isPrivate);
 
     if (this.getSuperType() != null)
     {

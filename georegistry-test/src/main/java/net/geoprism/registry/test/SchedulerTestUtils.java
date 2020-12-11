@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Synonym;
 import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
@@ -36,6 +37,7 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
+import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.ImportError;
 import net.geoprism.registry.etl.ImportErrorQuery;
 import net.geoprism.registry.etl.ImportHistory;
@@ -61,7 +63,17 @@ public class SchedulerTestUtils
           || hist.getStatus().get(0) == AllJobStatus.FEEDBACK || hist.getStatus().get(0) == AllJobStatus.CANCELED
           || hist.getStatus().get(0) == AllJobStatus.STOPPED || hist.getStatus().get(0) == AllJobStatus.WARNING)
       {
-        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected.");
+        String extra = "";
+        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
+        {
+          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
+          
+          String validationProblems = new ETLService().getValidationProblems(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
+
+          extra = extra + " " + validationProblems;
+        }
+        
+        Assert.fail("Job has a finished status [" + hist.getStatus().get(0) + "] which is not what we expected. " + extra);
       }
 
       Thread.sleep(10);
@@ -69,15 +81,17 @@ public class SchedulerTestUtils
       waitTime += 10;
       if (waitTime > 200000)
       {
-//        String extra = "";
-//        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
-//        {
-//          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 100, 1).toString();
-//
-//          extra = extra + " " + ( (ImportHistory) hist ).getValidationProblems();
-//        }
+        String extra = "";
+        if (hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK))
+        {
+          extra = new ETLService().getImportErrors(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
+          
+          String validationProblems = new ETLService().getValidationProblems(Session.getCurrentSession().getOid(), hist.getOid(), false, 10, 1).toString();
 
-        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + ") ");
+          extra = extra + " " + validationProblems;
+        }
+
+        Assert.fail("Job was never scheduled (status is " + hist.getStatus().get(0).getEnumName() + "). " + extra);
         return;
       }
     }

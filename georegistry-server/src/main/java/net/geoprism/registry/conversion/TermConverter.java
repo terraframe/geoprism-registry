@@ -298,7 +298,7 @@ public class TermConverter
         ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(mdEntityDAOIF.getTypeName());
         Organization organization = geoObjectType.getOrganization();
 
-        service.enforceActorHasPermission(organization.getCode(), geoObjectType.getLabel().getValue(), op);
+        service.enforceActorHasPermission(organization.getCode(), geoObjectType.getIsPrivate(), geoObjectType.getLabel().getValue(), op);
       }
     }
   }

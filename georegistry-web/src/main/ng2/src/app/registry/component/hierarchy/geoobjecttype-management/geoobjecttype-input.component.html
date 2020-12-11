@@ -48,6 +48,15 @@
                 </div>
             </div>
             
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label><localize key="geoObjectType.attr.isPrivate"></localize></label>
+                </div>
+                <div class="holder">
+                    <boolean-field [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+                </div>
+            </div>
+            
             <div class="row-holder" *ngIf="!geoObjectType.isAbstract && geoObjectType.superTypeCode">
                 <div class="label-holder">
                     <localize key="attribute.parentType.label"></localize>

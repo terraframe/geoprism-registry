@@ -81,6 +81,7 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -216,7 +217,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode(), geoObjectType.getIsPrivate());
 
     String superTypeCode = geoObjectType.getSuperTypeCode();
     Boolean isAbstract = geoObjectType.getIsAbstract();
@@ -287,7 +288,12 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     universal.setMdBusiness(mdBusiness);
 
     universal.apply();
-
+    
+    GeoObjectTypeMetadata metadata = new GeoObjectTypeMetadata();
+    metadata.setIsPrivate(geoObjectType.getIsPrivate());
+    metadata.setUniversal(universal);
+    metadata.apply();
+    
     // Create the MdGeoVertexClass
     MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid(), isAbstract, superType);
 
@@ -506,6 +512,9 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
     geoObjType.setIsAbstract(mdBusiness.getIsAbstract());
+    
+    GeoObjectTypeMetadata metadata = GeoObjectTypeMetadata.getByKey(universal.getKey());
+    geoObjType.setIsPrivate(metadata.getIsPrivate());
 
     if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
     {

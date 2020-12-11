@@ -76,9 +76,9 @@ public class GeoObjectTypeService
         else
         {
           net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-          ex.setTypeLabel(GeoObjectTypeMetadata.get().getClassDisplayLabel());
+          ex.setTypeLabel(GeoObjectTypeMetadata.sGetClassDisplayLabel());
           ex.setDataIdentifier(codes[i]);
-          ex.setAttributeLabel(GeoObjectTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+          ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
       }
@@ -92,7 +92,7 @@ public class GeoObjectTypeService
       ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
 
       // Filter ones that they can't see due to permissions
-      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(serverGot.getOrganization().getCode(), context))
+      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(serverGot.getOrganization().getCode(), serverGot.getIsPrivate(), context))
       {
         it.remove();
       }

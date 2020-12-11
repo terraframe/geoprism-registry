@@ -300,6 +300,8 @@ public class ServerGeoObjectType
      */
     AttributeHierarchy.deleteByUniversal(this.universal);
 
+    this.getMetadata().delete();
+    
     // This deletes the {@link MdBusiness} as well
     this.universal.delete(false);
 
@@ -338,7 +340,7 @@ public class ServerGeoObjectType
         }
       }
     }
-
+    
     MasterList.markAllAsInvalid(null, this);
 
     new SearchService().clear(this.getCode());
@@ -377,12 +379,25 @@ public class ServerGeoObjectType
     mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
     mdBusiness.getDescription().setValue(universal.getDescription().getValue());
     mdBusiness.apply();
+    
+    GeoObjectTypeMetadata metadata = this.getMetadata();
+    if (! metadata.getIsPrivate().equals(geoObjectType.getIsPrivate()))
+    {
+      metadata.appLock();
+      metadata.setIsPrivate(geoObjectType.getIsPrivate());
+      metadata.apply();
+    }
 
     mdBusiness.unlock();
 
     universal.unlock();
 
     return universal;
+  }
+  
+  public GeoObjectTypeMetadata getMetadata()
+  {
+    return GeoObjectTypeMetadata.getByKey(this.universal.getKey());
   }
 
   public AttributeType createAttributeType(String attributeTypeJSON)
@@ -1053,9 +1068,9 @@ public class ServerGeoObjectType
     else
     {
       net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-      ex.setTypeLabel(GeoObjectTypeMetadata.get().getClassDisplayLabel());
+      ex.setTypeLabel(GeoObjectTypeMetadata.sGetClassDisplayLabel());
       ex.setDataIdentifier(code);
-      ex.setAttributeLabel(GeoObjectTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
       throw ex;
     }
   }
@@ -1079,6 +1094,16 @@ public class ServerGeoObjectType
     String code = mdVertex.getTypeName();
 
     return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
+  }
+
+  public boolean getIsPrivate()
+  {
+    return this.type.getIsPrivate();
+  }
+  
+  public void setIsPrivate(Boolean isPrivate)
+  {
+    this.type.setIsPrivate(isPrivate);
   }
 
   // public String buildRMRoleName()
