@@ -41,6 +41,10 @@ export class CgrHeaderComponent {
 
 		this.locales = localizationService.getLocales().filter(locale => locale !== 'defaultLocale');
 		this.locale = localizationService.getLocale();
+		
+		if(this.locales.indexOf(this.locale) === -1) {
+			this.locale = '';
+		}
 	}
 
 	shouldShowMenuItem(item: string): boolean {

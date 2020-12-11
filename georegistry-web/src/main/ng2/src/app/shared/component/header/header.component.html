@@ -54,7 +54,7 @@
         <span style="color: white"><localize key="userDashboards.setLocale"></localize></span>
         <span class="select">
           <select type="text" [(ngModel)]="locale" name="organization" (change)="setLocale()" required>
-            <option></option>
+            <option value="">Default</option>
             <option *ngFor="let l of locales" [value]="l">{{l}}</option>
           </select>
         </span>
