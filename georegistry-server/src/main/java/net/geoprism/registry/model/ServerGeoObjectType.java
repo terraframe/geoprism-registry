@@ -20,6 +20,8 @@ package net.geoprism.registry.model;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
@@ -341,7 +344,19 @@ public class ServerGeoObjectType
     ServerGeoObjectType geoObjectTypeModifiedApplied = new ServerGeoObjectTypeConverter().build(universal);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+    ServiceFactory.getMetadataCache().refreshGeoObjectType(geoObjectTypeModifiedApplied);
+    
+    // Modifications to supertypes can affect subtypes (i.e. changing isPrivate). We should refresh them as well.
+    if (geoObjectTypeModifiedApplied.getIsAbstract())
+    {
+      List<ServerGeoObjectType> subtypes = geoObjectTypeModifiedApplied.getSubtypes();
+      
+      for (ServerGeoObjectType subtype : subtypes)
+      {
+        ServerGeoObjectType refreshedSubtype = new ServerGeoObjectTypeConverter().build(subtype.getUniversal());
+        ServiceFactory.getMetadataCache().refreshGeoObjectType(refreshedSubtype);
+      }
+    }
 
     this.type = geoObjectTypeModifiedApplied.getType();
     this.universal = geoObjectTypeModifiedApplied.getUniversal();

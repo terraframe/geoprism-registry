@@ -1,0 +1,34 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.geoobjecttype.TypeHasPrivateParents" label="Type Has Private Parents" message="The GeoObjectType [{typeLabel}] has private parents and thus cannot be set to public." generateController="false" publish="false" >
+        <attributes>
+          <text name="typeLabel" label="Type Label" />
+        </attributes>
+      </mdException>
+    
+      <mdException name="net.geoprism.registry.geoobjecttype.PrivateTypeHasPublicChildren" label="Private Type Has Public Children" message="The GeoObjectType [{typeLabel}] has public children and cannot be set to private." generateController="false" publish="false" >
+        <attributes>
+          <text name="typeLabel" label="Type Label" />
+        </attributes>
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.geoobjecttype.PrivateTypeIsReferencedInPublicMasterLists" label="Private Type Is Referenced In Master List" message="The GeoObjectType [{typeLabel}] cannot be set to private because it is referenced in public master lists." generateController="false" publish="false" >
+        <attributes>
+          <text name="typeLabel" label="Type Label" />
+        </attributes>
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType" label="Assign Public Child Of Private Type" message="You cannot add a public GeoObjectType as a child of a private GeoObjectType. All children of private GeoObjectTypes must also be private." generateController="false" publish="false" >
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.geoobjecttype.PrivateTypeHasPublicChildren" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.geoobjecttype.PrivateTypeIsReferencedInPublicMasterLists" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>

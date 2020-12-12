@@ -53,6 +53,7 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
 		if (groupSuperType) {
 			this.geoObjectType.superTypeCode = groupSuperType.code;
 			this.geoObjectType.geometryType = groupSuperType.geometryType;
+			this.geoObjectType.isPrivate = groupSuperType.isPrivate;
 		}
 
 		// Filter out parents that are not abstract

@@ -35,6 +35,15 @@ public class RootGeoObjectType extends ServerGeoObjectType
   {
     return false;
   }
+  
+  public boolean getIsPrivate()
+  {
+    return false;
+  }
+  
+  public void setIsPrivate(Boolean isPrivate)
+  {
+  }
 
   @Override
   public String getCode()

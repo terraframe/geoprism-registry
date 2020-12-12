@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.ComponentIF;
@@ -377,15 +378,15 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
       if (inheritedHierarchy != null)
       {
-        HierarchyType.HierarchyNode child = new HierarchyType.HierarchyNode(geoObjectType.getType(), null);
-        HierarchyType.HierarchyNode root = child;
+        HierarchyNode child = new HierarchyNode(geoObjectType.getType(), null);
+        HierarchyNode root = child;
 
         List<GeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
         Collections.reverse(ancestors);
 
         for (GeoObjectType ancestor : ancestors)
         {
-          HierarchyType.HierarchyNode cNode = new HierarchyType.HierarchyNode(ancestor, inheritedHierarchy.getCode());
+          HierarchyNode cNode = new HierarchyNode(ancestor, inheritedHierarchy.getCode());
           cNode.addChild(root);
 
           root = cNode;
@@ -396,7 +397,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       }
       else
       {
-        HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
+        HierarchyNode node = new HierarchyNode(geoObjectType.getType());
         node = buildHierarchy(node, childUniversal, universalRelationship);
         ht.addRootGeoObjects(node);
       }
@@ -406,7 +407,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     return new ServerHierarchyType(ht, universalRelationship, entityRelationship, mdEdge);
   }
 
-  private HierarchyType.HierarchyNode buildHierarchy(HierarchyType.HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
+  private HierarchyNode buildHierarchy(HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
   {
     List<Universal> childUniversals = new LinkedList<Universal>();
 
@@ -424,7 +425,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     {
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
 
-      HierarchyType.HierarchyNode node = new HierarchyType.HierarchyNode(geoObjectType.getType());
+      HierarchyNode node = new HierarchyNode(geoObjectType.getType());
 
       node = buildHierarchy(node, childUniversal, mdTermRel);
 

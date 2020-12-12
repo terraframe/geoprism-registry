@@ -20,14 +20,17 @@ package net.geoprism.registry.cache;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -113,6 +116,44 @@ public class ServerMetadataCache implements Serializable
     this.organizationMap.remove(code);
 
     getAdapter().getMetadataCache().removeOrganization(code);
+  }
+  
+  /**
+   * Updates the cache with the new GeoObjectType everywhere where it is cached (including in HierarchyTypes).
+   */
+  public void refreshGeoObjectType(ServerGeoObjectType refreshGot)
+  {
+    this.addGeoObjectType(refreshGot);
+    
+    List<ServerHierarchyType> hierarchyTypes = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
+    for (ServerHierarchyType ht : hierarchyTypes)
+    {
+      List<HierarchyNode> rootNodes = ht.getType().getRootGeoObjectTypes();
+      
+      for (HierarchyNode rootNode : rootNodes)
+      {
+        if (refreshGot.getCode().equals(rootNode.getGeoObjectType().getCode()))
+        {
+          rootNode.setGeoObjectType(refreshGot.getType());
+          break;
+        }
+        
+        List<HierarchyNode> rootDescends = rootNode.getAllDescendants();
+        
+        Iterator<HierarchyNode> rootDescendIt = rootDescends.iterator();
+        
+        while (rootDescendIt.hasNext())
+        {
+          HierarchyNode childNode = rootDescendIt.next();
+          
+          if (childNode.getGeoObjectType().getCode().equals(refreshGot.getCode()))
+          {
+            childNode.setGeoObjectType(refreshGot.getType());
+            break;
+          }
+        }
+      }
+    }
   }
 
   public void addGeoObjectType(ServerGeoObjectType geoObjectType)

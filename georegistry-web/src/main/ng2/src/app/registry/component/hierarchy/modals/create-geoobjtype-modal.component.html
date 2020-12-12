@@ -64,7 +64,7 @@
       <div class="col-md-12" style="margin-bottom: 15px;">
         <div class="form-group">
           <div class="check-block">
-            <boolean-field [(value)]="geoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+            <boolean-field [disable]="geoObjectType.superTypeCode != null" [(value)]="geoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
           </div>
         </div>
       </div>
