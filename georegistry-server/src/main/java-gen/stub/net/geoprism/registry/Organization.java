@@ -424,6 +424,23 @@ public class Organization extends OrganizationBase
     }
   }
 
+  public static List<Organization> getUserOrganizations()
+  {
+    OrganizationQuery query = new OrganizationQuery(new QueryFactory());
+    query.ORDER_BY_ASC(query.getDisplayLabel().localize());
+    
+    try (final OIterator<? extends Organization> iterator = query.getIterator())
+    {
+      final List<? extends Organization> orgs = iterator.getAll();
+      
+      List<Organization> result = orgs.stream().filter(o -> {
+        return Organization.isMember(o);
+      }).collect(Collectors.toList());
+      
+      return result;
+    }
+  }
+  
   /**
    * @param org
    * @return If the current user is part of the registry admin role for the

@@ -38,3 +38,22 @@
 .layer-toggle label {
 	margin-left: 5px;
 }
+
+.arrow {
+  border: solid black;
+  border-width: 0 1px 1px 0;
+  display: inline-block;
+  padding: 5px;
+}
+.arrow-right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+.arrow-down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+
+.fa.fa-arrow-left::before {
+	margin-right:5px;
+}

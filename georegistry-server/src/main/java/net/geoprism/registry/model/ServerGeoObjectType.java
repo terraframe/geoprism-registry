@@ -96,6 +96,7 @@ import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerGeoObjectType
@@ -254,6 +255,7 @@ public class ServerGeoObjectType
     if (hierarchies.size() > 0)
     {
       StringBuilder codes = hierarchies.stream().collect(StringBuilder::new, (x, y) -> x.append(y.getCode()), (a, b) -> a.append(",").append(b));
+      
       throw new TypeInUseException("Cannot delete a GeoObjectType used in the hierarchies: " + codes);
     }
 
@@ -273,6 +275,16 @@ public class ServerGeoObjectType
     // it.close();
     // }
     // }
+
+    /*
+     * Delete all subtypes
+     */
+    List<ServerGeoObjectType> subtypes = this.getSubtypes();
+
+    for (ServerGeoObjectType subtype : subtypes)
+    {
+      subtype.deleteInTransaction();
+    }
 
     /*
      * Delete all inherited hierarchies
@@ -333,6 +345,8 @@ public class ServerGeoObjectType
     }
     
     MasterList.markAllAsInvalid(null, this);
+
+    new SearchService().clear(this.getCode());
   }
 
   public void update(GeoObjectType geoObjectTypeNew)

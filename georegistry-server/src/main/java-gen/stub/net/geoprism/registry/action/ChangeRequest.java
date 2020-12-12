@@ -19,6 +19,7 @@
 package net.geoprism.registry.action;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +41,7 @@ import com.runwaysdk.system.Users;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ChangeRequest extends ChangeRequestBase
 {
@@ -103,7 +105,7 @@ public class ChangeRequest extends ChangeRequestBase
 
   public JSONObject toJSON()
   {
-    DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Session.getCurrentLocale());
+    DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
 
     Users user = (Users) this.getCreatedBy();
     AllGovernanceStatus status = this.getApprovalStatus().get(0);

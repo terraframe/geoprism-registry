@@ -93,22 +93,31 @@ input[type="text"]::-moz-placeholder{
 input[type="text"]:focus {
    
 }
-input[type="text"][disabled] {
+input[type="text"][disabled],
+input[type="number"][disabled],
+select[disabled] {
     color: #999;
 }
-input[type="text"]:-ms-input-placeholder{color:#333;}
-input[type="text"]::-webkit-input-placeholder{color:#333;}
-input[type="text"]:-moz-placeholder{color:#333;}
-/* input[type="text"]:focus{
-    border-color: #6BA542; 
-    border-color:var(--theme-input-text-border-active);
-} */
-input[type="text"]:disabled {
+input[type="text"]:-ms-input-placeholder,
+input[type="number"]:-ms-input-placeholder,
+select[disabled]:-ms-input-placeholder {color:#333;}
+input[type="text"]::-webkit-input-placeholder,
+input[type="number"]::-webkit-input-placeholder,
+select[disabled]::-webkit-input-placeholder {color:#333;}
+input[type="text"]:-moz-placeholder,
+input[type="number"]:-moz-placeholder,
+select[disabled]:-moz-placeholder {color:#333;}
+input[type="text"]:disabled,
+input[type="number"]:disabled,
+input[type="date"]:disabled,
+select[disabled]:disabled {
     color: #999;
     box-shadow: none;
     border-color: #ccc;
     border-color: var(--theme-input-text-border-disabled);
 }
+
+
 
 input[type="textarea"]{
 	width:100%;

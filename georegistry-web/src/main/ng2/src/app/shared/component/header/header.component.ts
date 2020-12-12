@@ -4,7 +4,7 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ProfileComponent } from '../profile/profile.component';
 
-import { AuthService, ProfileService } from '@shared/service';
+import { AuthService, ProfileService, LocalizationService } from '@shared/service';
 
 import { RegistryRoleType } from '@shared/model/core';
 
@@ -23,17 +23,28 @@ export class CgrHeaderComponent {
 	isContributor: boolean;
 	bsModalRef: BsModalRef;
 
+	locales: string[]
+	locale: string
+
 	@Input() loggedIn: boolean = true;
 
 	constructor(
 		private modalService: BsModalService,
 		private profileService: ProfileService,
-		private service: AuthService
+		private service: AuthService,
+		localizationService: LocalizationService
 	) {
 		this.context = acp;
 		this.isAdmin = service.isAdmin();
 		this.isMaintainer = this.isAdmin || service.isMaintainer();
 		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+
+		this.locales = localizationService.getLocales().filter(locale => locale !== 'defaultLocale');
+		this.locale = localizationService.getLocale();
+		
+		if(this.locales.indexOf(this.locale) === -1) {
+			this.locale = '';
+		}
 	}
 
 	shouldShowMenuItem(item: string): boolean {
@@ -86,6 +97,13 @@ export class CgrHeaderComponent {
 		let name: string = this.service.getUsername();
 
 		return name;
+	}
+
+	setLocale() {
+		this.profileService.setLocale(this.locale).then(() => {
+			// Refresh the page			
+			window.location.reload();
+		});
 	}
 
 	account(): void {

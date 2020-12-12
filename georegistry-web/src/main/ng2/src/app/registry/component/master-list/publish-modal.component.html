@@ -16,7 +16,8 @@
         <fieldset>
             <div class="row-holder" *ngFor="let localeValue of master.displayLabel.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.label"></localize> ({{localeValue.locale}})
+                    <label> <localize key="masterlist.label"></localize> 
+                    <span style="color: #BABABA">({{localeValue.locale}})</span>
                     </label>
                 </div>
                 <div class="holder">

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -145,16 +145,6 @@ public class RegistryController
     return new RestBodyResponse(resp);
   }
 
-  /**
-   * Returns a GeoObject with the given uid.
-   *
-   * @pre @post
-   *
-   * @param uid
-   *          The UID of the GeoObject.
-   *
-   * @returns a GeoObject in GeoJSON format with the given uid. @throws
-   **/
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/get-bounds")
   public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_CODE_PARAM_CODE) String code, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode) throws JSONException
   {
@@ -1046,4 +1036,32 @@ public class RegistryController
 
     return new RestBodyResponse(org.toJSON(serializer));
   }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobject/search")
+  public ResponseIF search(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_GET_PARAM_TYPE_CODE) String typeCode, @RequestParamter(name = "text") String text, @RequestParamter(name = "date") String date) throws JSONException, ParseException
+  {
+    Date forDate = null;
+
+    if (date != null && date.length() > 0)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+      forDate = format.parse(date);
+    }
+
+    List<GeoObject> results = this.registryService.search(request.getSessionId(), typeCode, text, forDate);
+
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    JsonArray response = new JsonArray();
+
+    for (GeoObject result : results)
+    {
+      response.add(result.toJSON(serializer));
+    }
+
+    return new RestBodyResponse(response);
+  }
+
 }

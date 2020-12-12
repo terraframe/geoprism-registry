@@ -5,6 +5,7 @@ import * as mapboxgl from 'mapbox-gl';
 
 import { LocationInformation } from '@registry/model/location-manager';
 import { EventService } from '@shared/service';
+import { GeoObject } from '@registry/model/registry';
 
 declare var acp: any;
 
@@ -13,6 +14,10 @@ export class MapService {
 
 	constructor(private http: HttpClient, private eventService: EventService) {
 		(mapboxgl as any).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNWE5bWkwazYwNGFtb3loOGxsbjR1In0.ZNEwT-pBnGookEb-BF_jQQ';
+	}
+
+	init(): void {
+		// Initialize the mapbox-gl settings
 	}
 
 	roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
@@ -62,6 +67,24 @@ export class MapService {
 
 		return this.http
 			.get<LocationInformation>(acp + '/registrylocation/select', { params: params })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
+
+	search(text: string, date: string): Promise<{ type: string, features: GeoObject[] }> {
+		let params: HttpParams = new HttpParams();
+		params = params.set('text', text);
+
+		if (date != null) {
+			params = params.set('date', date);
+		}
+
+		this.eventService.start();
+
+		return this.http
+			.get<{ type: string, features: GeoObject[] }>(acp + '/registrylocation/search', { params: params })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

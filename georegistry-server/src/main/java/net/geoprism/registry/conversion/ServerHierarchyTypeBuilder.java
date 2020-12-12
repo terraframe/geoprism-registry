@@ -37,6 +37,7 @@ import com.runwaysdk.constants.MdAttributeDateTimeInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
+import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
@@ -345,7 +346,7 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       ht.setAccessConstraints(metadata.getAccessConstraints());
       ht.setUseConstraints(metadata.getUseConstraints());
     }
-    catch (DataNotFoundException e)
+    catch (DataNotFoundException | AttributeDoesNotExistException e)
     {
       ht.setAbstractDescription("");
       ht.setProgress("");

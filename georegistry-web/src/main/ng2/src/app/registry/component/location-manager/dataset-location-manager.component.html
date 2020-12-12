@@ -1,0 +1,39 @@
+<div class="">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+
+  <div id="app-container" class="container-fluid">
+
+    <div class="row">
+      <div *ngIf="type != null && code != null" id="navigator-left-sidebar" class="col-md-3 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
+        <div class="row">
+          <div class="col-md-12">
+            <feature-panel
+              [type]="type"
+              [code]="code"              
+              [forDate]="forDate"
+              [datasetId]="datasetId"
+              [geometryChange]="geometryChange"
+              (geometryEdit)="onGeometryEdit($event)"
+              (featureChange)="onFeatureChange($event)"              
+            ></feature-panel>
+          </div>
+        </div>
+      </div>
+
+      <div [ngClass]="{'col-md-9':code != null, 'col-md-12':code == null}" id="site-explorer-map">
+        <div class="row">
+
+          <article class="base-layer-panel">
+            <layer-panel (layerChange)="onContextLayerChange($event)" [filter]="[datasetId]"></layer-panel>
+          </article>
+
+          <div id="map" class="map-view-port"></div>     
+          <simple-edit-control [visible]="editingControl != null" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
+               
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

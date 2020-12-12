@@ -19,6 +19,7 @@
 package net.geoprism.registry.action;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
@@ -27,6 +28,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -79,7 +81,7 @@ public abstract class AbstractAction extends AbstractActionBase
   public JSONObject serialize()
   {
     AllGovernanceStatus status = this.getApprovalStatus().get(0);
-    DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Session.getCurrentLocale());
+    DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
 
     JSONObject jo = new JSONObject();
 

@@ -169,7 +169,7 @@ public class ETLService
     ImportConfiguration config = ImportConfiguration.build(json);
 
     ServerGeoObjectType type = ( (GeoObjectImportConfiguration) config ).getType();
-    this.checkPermissions( type.getOrganization().getCode(), type.getCode() );
+    this.checkPermissions(type.getOrganization().getCode(), type.getCode());
 
     ImportHistory hist;
 
@@ -194,14 +194,14 @@ public class ETLService
 
     return JsonParser.parseString(hist.getConfigJson()).getAsJsonObject();
   }
-  
+
   public void filterHistoryQueryBasedOnPermissions(ImportHistoryQuery ihq)
   {
     List<String> raOrgs = new ArrayList<String>();
     List<String> rmGeoObjects = new ArrayList<String>();
-    
+
     Condition cond = null;
-    
+
     SingleActorDAOIF actor = Session.getCurrentSession().getUser();
     for (RoleDAOIF role : actor.authorizedRoles())
     {
@@ -220,18 +220,18 @@ public class ETLService
         }
       }
     }
-    
-    if (raOrgs.size() == 0 && rmGeoObjects.size() == 0)
+
+    if (!new RolePermissionService().isSRA() && raOrgs.size() == 0 && rmGeoObjects.size() == 0)
     {
       throw new ProgrammingErrorException("This endpoint must be invoked by an RA or RM");
     }
-    
+
     for (String orgCode : raOrgs)
     {
       Organization org = Organization.getByCode(orgCode);
-      
+
       Condition loopCond = ihq.getOrganization().EQ(org);
-      
+
       if (cond == null)
       {
         cond = loopCond;
@@ -241,15 +241,15 @@ public class ETLService
         cond = cond.OR(loopCond);
       }
     }
-    
+
     for (String roleName : rmGeoObjects)
     {
       String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
       Organization org = Organization.getByCode(roleOrgCode);
       String gotCode = RegistryRole.Type.parseGotCode(roleName);
-      
+
       Condition loopCond = ihq.getGeoObjectTypeCode().EQ(gotCode).AND(ihq.getOrganization().EQ(org));
-      
+
       if (cond == null)
       {
         cond = loopCond;
@@ -259,7 +259,7 @@ public class ETLService
         cond = cond.OR(loopCond);
       }
     }
-    
+
     if (cond != null)
     {
       ihq.AND(cond);

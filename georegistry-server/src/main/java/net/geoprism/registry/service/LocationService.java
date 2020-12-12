@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.graph.GraphQuery;
@@ -43,6 +44,15 @@ import net.geoprism.registry.view.LocationInformation;
 public class LocationService
 {
   private ServerGeoObjectService service = new ServerGeoObjectService();
+
+  @Request(RequestType.SESSION)
+  public List<GeoObject> search(String sessionId, String text, Date date)
+  {
+    List<ServerGeoObjectIF> results = new SearchService().search(text, date, 20L);
+
+    return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> list.add(element.toGeoObject()), (listA, listB) -> {
+    });
+  }
 
   @Request(RequestType.SESSION)
   public LocationInformation getLocationInformation(String sessionId, Date date, String typeCode, String hierarchyCode)

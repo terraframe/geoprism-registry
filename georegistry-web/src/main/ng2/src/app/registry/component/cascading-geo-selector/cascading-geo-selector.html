@@ -21,7 +21,7 @@
               
             </div>
 
-            <div class="row">
+            <div class="row" *ngIf="!readOnly">
               <div class="col-sm-12">
                   <div class="button-holder" style="padding: 20px 0 20px 0;text-align: left;">
                       <button type="submit" style="" (click)="onManageVersions(hierarchy.code)" class="btn btn-primary" role="button">

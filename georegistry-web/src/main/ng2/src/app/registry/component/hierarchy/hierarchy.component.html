@@ -97,7 +97,7 @@
 										<label>{{hierarchyByOrg.org.label.localizedValue}}</label>
 									</div>
 
-									<div *ngIf="hierarchyByOrg.org.code === userOrganization" style="text-align: center;padding: 10px 0;">
+									<div *ngIf="isSRA || hierarchyByOrg.org.code === userOrganization" style="text-align: center;padding: 10px 0;">
 										<button (click)="createHierarchy()" type="button" class="btn btn-primary"
 											style="margin-bottom:20px;min-width:45%;">
 											<i style="color:#369c00;" class="fa fa-plus"></i>

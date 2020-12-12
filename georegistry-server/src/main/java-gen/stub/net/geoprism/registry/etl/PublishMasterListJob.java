@@ -4,21 +4,23 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,6 +35,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -63,6 +66,9 @@ public class PublishMasterListJob extends PublishMasterListJobBase
 
   public JSONObject toJSON()
   {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     final MasterList masterlist = this.getMasterList();
     final ServerGeoObjectType type = masterlist.getGeoObjectType();
 
@@ -81,8 +87,8 @@ public class PublishMasterListJob extends PublishMasterListJobBase
         final JobHistory history = allHist.get(0);
         object.put(JobHistory.STATUS, history.getStatus().get(0).getDisplayLabel());
         object.put("author", user.getUsername());
-        object.put("createDate", history.getCreateDate());
-        object.put("lastUpdateDate", history.getLastUpdateDate());
+        object.put("createDate", format.format(history.getCreateDate()));
+        object.put("lastUpdateDate", format.format(history.getLastUpdateDate()));
         object.put("workProgress", history.getWorkProgress());
         object.put("workTotal", history.getWorkTotal());
         object.put("historyoryId", history.getOid());

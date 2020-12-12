@@ -57,6 +57,8 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -110,6 +112,7 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
@@ -973,6 +976,9 @@ public class MasterListVersion extends MasterListVersionBase
   {
     object.setDate(this.getForDate());
 
+    // Delete tile cache
+    TileCache.deleteTiles(this);
+
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     List<Locale> locales = SupportedLocaleCache.getLocales();
@@ -1400,6 +1406,33 @@ public class MasterListVersion extends MasterListVersionBase
     return query;
   }
 
+  public String bbox()
+  {
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+
+    double[] geometry = GeoserverFacade.getBBOX(mdBusiness.getTableName());
+
+    if (geometry != null)
+    {
+      try
+      {
+        JSONArray bboxArr = new JSONArray();
+        bboxArr.put(geometry[0]);
+        bboxArr.put(geometry[1]);
+        bboxArr.put(geometry[2]);
+        bboxArr.put(geometry[3]);
+
+        return bboxArr.toString();
+      }
+      catch (JSONException ex)
+      {
+        throw new ProgrammingErrorException(ex);
+      }
+    }
+
+    return null;
+  }
+
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
@@ -1499,8 +1532,8 @@ public class MasterListVersion extends MasterListVersionBase
 
   public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
   {
-    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
 
@@ -1587,7 +1620,7 @@ public class MasterListVersion extends MasterListVersionBase
               }
               else if (value instanceof Date)
               {
-                object.addProperty(mdAttribute.definesAttribute(), dateFormat.format((Date) value));
+                object.addProperty(mdAttribute.definesAttribute(), format.format((Date) value));
               }
             }
           }
@@ -1683,5 +1716,4 @@ public class MasterListVersion extends MasterListVersionBase
       return it.getAll();
     }
   }
-
 }

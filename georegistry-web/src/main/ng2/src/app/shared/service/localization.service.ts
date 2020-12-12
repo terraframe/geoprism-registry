@@ -9,16 +9,22 @@ declare var registry: any
 export class LocalizationService {
 
 	locales: string[] = ['defaultLocale'];
+	locale: string;
 
 	private parser: any = Globalize.numberParser();
 	private formatter: any = Globalize.numberFormatter();
 
 	constructor() {
 		this.locales = registry.locales;
+		this.locale = registry.locale;
 	}
 
 	getLocales(): string[] {
 		return this.locales;
+	}
+
+	getLocale(): string {
+		return this.locale;
 	}
 
 	setLocales(locales: string[]): void {

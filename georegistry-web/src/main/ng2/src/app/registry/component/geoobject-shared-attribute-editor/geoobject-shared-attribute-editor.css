@@ -27,3 +27,28 @@ form.modal-form {
 fieldset {
     width: 100% !important;
 }
+
+
+.panel {
+	margin: 0;
+}
+
+.panel .list-group {
+	margin: 0;
+}
+
+.panel .list-group-item {
+	padding: 0;
+}
+
+.panel-heading h5 {
+	margin:0;
+}
+
+.panel-body input[type="text"],
+.panel-body input[type="number"],
+.panel-body input[type="date"],
+.panel-body select {
+	border-radius: 5px 0 0 5px;
+	width: 100%;
+}

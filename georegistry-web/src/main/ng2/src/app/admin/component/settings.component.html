@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isSRA || isRA" class="row">
+            <div class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.accounts.heading"></localize></h3>
 
@@ -85,7 +85,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-12" *ngIf="isSRA || isRA">
                                 <input class="btn btn-primary" style="margin-top:10px;" type="submit" value="Invite User" (click)="inviteUsers()">
                             </div>
                         </div>
