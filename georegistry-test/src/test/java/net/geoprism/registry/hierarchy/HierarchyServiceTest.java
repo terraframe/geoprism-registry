@@ -23,6 +23,7 @@ import java.util.List;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
 import org.junit.After;
@@ -330,9 +331,9 @@ public class HierarchyServiceTest
     {
       HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.clientSession.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
 
-      List<HierarchyType.HierarchyNode> rootGots = adminHierarchy.getRootGeoObjectTypes();
+      List<HierarchyNode> rootGots = adminHierarchy.getRootGeoObjectTypes();
 
-      for (HierarchyType.HierarchyNode node : rootGots)
+      for (HierarchyNode node : rootGots)
       {
         if (node.getGeoObjectType().getCode().equals(country.getCode()))
         {

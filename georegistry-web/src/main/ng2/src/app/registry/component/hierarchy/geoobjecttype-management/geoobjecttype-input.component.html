@@ -53,7 +53,7 @@
                     <label><localize key="geoObjectType.attr.isPrivate"></localize></label>
                 </div>
                 <div class="holder">
-                    <boolean-field [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
+                    <boolean-field [disable]="geoObjectType.superTypeCode" [(value)]="editGeoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
                 </div>
             </div>
             
