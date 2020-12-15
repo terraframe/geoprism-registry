@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1315457476)
+@com.runwaysdk.business.ClassSignature(hash = -888152034)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -46,7 +28,7 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
   public static java.lang.String VERSIONTYPE = "versionType";
-  private static final long serialVersionUID = 1315457476;
+  private static final long serialVersionUID = -888152034;
   
   public MasterListVersionBase()
   {
@@ -573,6 +555,18 @@ public abstract class MasterListVersionBase extends com.runwaysdk.business.Busin
   public static MasterListVersion getByKey(String key)
   {
     return (MasterListVersion) com.runwaysdk.business.Business.get(CLASS, key);
+  }
+  
+  public java.lang.String publish()
+  {
+    String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.MasterListVersion.java";
+    throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
+  }
+  
+  public static final java.lang.String publish(java.lang.String oid)
+  {
+    MasterListVersion _instance = MasterListVersion.get(oid);
+    return _instance.publish();
   }
   
   public static MasterListVersion lock(java.lang.String oid)

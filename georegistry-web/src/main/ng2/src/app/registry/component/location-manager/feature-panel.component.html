@@ -1,11 +1,20 @@
 <div>
   <div *ngIf="mode == MODE.ATTRIBUTES && postGeoObject != null">
     <!-- Attributes tab -->
-    <geoobject-shared-attribute-editor #attributeEditor [geoObjectType]="type" [preGeoObject]="preGeoObject" [postGeoObject]="postGeoObject" [forDate]="this.forDate" [isNew]="false" [isEditingGeometries]="false" [customEvent]="true"
-      (onManageVersion)="onManageAttributeVersion($event)" [readOnly]="readOnly"
-    > </geoobject-shared-attribute-editor>
+    <geoobject-shared-attribute-editor 
+      #attributeEditor 
+      [geoObjectType]="type" 
+      [preGeoObject]="preGeoObject" 
+      [postGeoObject]="postGeoObject" 
+      [forDate]="this.forDate" 
+      [isNew]="false" 
+      [isEditingGeometries]="false" 
+      [customEvent]="true"
+      (onManageVersion)="onManageAttributeVersion($event)" 
+      [readOnly]="readOnly"> 
+    </geoobject-shared-attribute-editor>
 
-    <div *ngIf="!readOnly" class="panel panel-default">
+    <div *ngIf="!readOnly && type.isGeometryEditable" class="panel panel-default">
       <div class="panel-heading">
         <h4 style="margin:0;">
           <localize key="explorer.geometry.section"></localize>
