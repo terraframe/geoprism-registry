@@ -21,13 +21,12 @@ package net.geoprism.registry.service;
 import java.util.Set;
 import java.util.UUID;
 
+import org.commongeoregistry.adapter.GeoObjectTypeNotFoundException;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.geotools.geometry.jts.GeometryBuilder;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -43,6 +42,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -54,6 +54,8 @@ public class GeoObjectServiceTest
   protected static FastTestDataset      testData;
 
   public static final TestGeoObjectInfo TEST_GO = new TestGeoObjectInfo("GOSERV_TEST_GO", FastTestDataset.COUNTRY);
+  
+  public static final TestGeoObjectInfo TEST_GO_PRIVATE = new TestGeoObjectInfo("GOSERV_TEST_GO_PRIVATE", FastTestDataset.PROVINCE_PRIVATE);
   
   public static final TestUserInfo          USER_CGOV_RM_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrmprivate", "cgovrmprivate", FastTestDataset.TEST_DATA_KEY + "cgovrmprivate@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
 
@@ -261,7 +263,7 @@ public class GeoObjectServiceTest
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         TestDataSet.populateAdapterIds(user, adapter);
-
+        
         try
         {
           adapter.createGeoObject(TEST_GO.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString());
@@ -270,7 +272,7 @@ public class GeoObjectServiceTest
         }
         catch (SmartExceptionDTO ex)
         {
-          // expected
+          Assert.assertEquals(CreateGeoObjectPermissionException.CLASS, ex.getType());
         }
       });
     }
@@ -279,7 +281,61 @@ public class GeoObjectServiceTest
   @Test
   public void testCreatePrivateGeoObject()
   {
-    throw new UnsupportedOperationException();
+    // Allowed Users
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, USER_CGOV_RM_PRIVATE };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        TestDataSet.populateAdapterIds(user, adapter);
+
+        GeoObject returned = adapter.createGeoObject(TEST_GO_PRIVATE.newGeoObject(adapter).toJSON().toString());
+
+        TEST_GO_PRIVATE.assertEquals(returned);
+
+        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, returned.getStatus().getCode());
+
+        TEST_GO_PRIVATE.assertApplied();
+        TEST_GO_PRIVATE.delete();
+      });
+    }
+
+    // Disallowed Users
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
+
+    for (TestUserInfo user : disallowedUsers)
+    {
+      TestGeoObjectInfo go = testData.newTestGeoObjectInfo("UpdateTest", FastTestDataset.PROVINCE_PRIVATE);
+      go.apply();
+
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        
+        if (TestDataSet.populateAdapterIds(user, adapter))
+        {
+          try
+          {
+            adapter.newGeoObjectInstance(FastTestDataset.PROVINCE_PRIVATE.getCode());
+            
+            Assert.fail("Expected an error");
+          }
+          catch (GeoObjectTypeNotFoundException ex)
+          {
+            // Expected
+          }
+        }
+        
+        try
+        {
+          adapter.createGeoObject(TEST_GO_PRIVATE.newGeoObject(ServiceFactory.getAdapter()).toJSON().toString());
+
+          Assert.fail();
+        }
+        catch (SmartExceptionDTO ex)
+        {
+          Assert.assertEquals(CreateGeoObjectPermissionException.CLASS, ex.getType());
+        }
+      });
+    }
   }
 
   private void updateGO(TestRegistryAdapterClient adapter, TestGeoObjectInfo go)
@@ -357,7 +413,7 @@ public class GeoObjectServiceTest
     }
 
     // Disallowed Users
-    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_AC };
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
 
     for (TestUserInfo user : disallowedUsers)
     {

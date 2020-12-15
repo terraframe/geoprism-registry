@@ -112,7 +112,7 @@ public class GeoObjectRelationshipPermissionService extends UserPermissionServic
                 }
                 else if ( RegistryRole.Type.isAC_Role(roleName) )
                 {
-                  if ( op.equals(Operation.READ) )
+                  if ( op.equals(Operation.READ_CHILD) )
                   {
                     return true;
                   }

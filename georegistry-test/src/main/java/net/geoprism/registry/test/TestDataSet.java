@@ -1040,7 +1040,7 @@ abstract public class TestDataSet
     }
   }
 
-  public static void populateAdapterIds(TestUserInfo user, TestRegistryAdapterClient adapter)
+  public static boolean populateAdapterIds(TestUserInfo user, TestRegistryAdapterClient adapter)
   {
     boolean isRAorRM = false;
 
@@ -1071,5 +1071,7 @@ abstract public class TestDataSet
         throw new RuntimeException(e);
       }
     }
+    
+    return isRAorRM;
   }
 }

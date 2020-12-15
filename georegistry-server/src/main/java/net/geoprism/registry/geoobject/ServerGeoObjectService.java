@@ -267,6 +267,8 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public ServerGeoObjectIF getGeoObject(String uid, String typeCode)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+    
+    this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
     ServerGeoObjectIF object = strategy.getGeoObjectByUid(uid);

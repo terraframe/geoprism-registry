@@ -35,8 +35,10 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -123,6 +125,13 @@ public class GeoObjectRelationshipServiceTest
       
       Assert.assertEquals(1, hierarchy.get("entries").getAsJsonArray().size());
     }
+  }
+  
+  // TODO : Test permissions stuff including private GeoObjects
+  @Test
+  public void testGetHierarchiesPrivate()
+  {
+    throw new UnsupportedOperationException();
   }
   
   @Test
@@ -259,6 +268,8 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetPrivateChildGeoObjects()
   {
+    // TODO : Attempt to get children of a parent which is private. This scenario should throw an error
+    
     final String parentId = FastTestDataset.CAMBODIA.getRegistryId();
     final String parentTypeCode = FastTestDataset.CAMBODIA.getGeoObjectType().getCode();
     final String[] childrenTypes = new String[] { FastTestDataset.PROVINCE_PRIVATE.getCode() };
@@ -270,7 +281,7 @@ public class GeoObjectRelationshipServiceTest
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        ChildTreeNode tn = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, childrenTypes, true);
+        ChildTreeNode tn = adapter.getChildGeoObjects(parentId, parentTypeCode, childrenTypes, true);
         FastTestDataset.CAMBODIA.childTreeNodeAssert(tn, expectedChildren);
         Assert.assertEquals(tn.toJSON().toString(), ChildTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
       });
@@ -280,7 +291,7 @@ public class GeoObjectRelationshipServiceTest
     for (TestUserInfo user : disallowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
-        ChildTreeNode ctn = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, childrenTypes, true);
+        ChildTreeNode ctn = adapter.getChildGeoObjects(parentId, parentTypeCode, childrenTypes, true);
         
         Assert.assertEquals(0, ctn.getChildren().size());
       });
@@ -323,6 +334,44 @@ public class GeoObjectRelationshipServiceTest
     ParentTreeNode tn5 = testData.adapter.getParentGeoObjects(childId, childTypeCode, new String[] {}, true, null);
     FastTestDataset.PROV_CENTRAL.parentTreeNodeAssert(tn5, expectedParents);
     Assert.assertEquals(tn5.toJSON().toString(), ParentTreeNode.fromJSON(tn5.toJSON().toString(), testData.adapter).toJSON().toString());
+  }
+  
+  @Test
+  public void testGetPrivateParentGeoObjects()
+  {
+    final String childId = FastTestDataset.PROV_CENTRAL_PRIVATE.getRegistryId();
+    final String childTypeCode = FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode();
+    final String[] parentTypes = new String[] { FastTestDataset.COUNTRY.getCode() };
+    
+    final List<TestGeoObjectInfo> expectedParents = new ArrayList<TestGeoObjectInfo>();
+    expectedParents.add(FastTestDataset.CAMBODIA);
+
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, USER_CGOV_RM_PRIVATE, USER_CGOV_RC_PRIVATE, USER_CGOV_AC_PRIVATE };
+    for (TestUserInfo user : allowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        ParentTreeNode tn = adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, true, null);
+        FastTestDataset.PROV_CENTRAL_PRIVATE.parentTreeNodeAssert(tn, expectedParents);
+        Assert.assertEquals(tn.toJSON().toString(), ParentTreeNode.fromJSON(tn.toJSON().toString(), testData.adapter).toJSON().toString());
+      });
+    }
+    
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    for (TestUserInfo user : disallowedUsers)
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        try
+        {
+          adapter.getParentGeoObjects(childId, childTypeCode, parentTypes, true, null);
+          
+          Assert.fail("Expected a permissions error.");
+        }
+        catch (SmartExceptionDTO e)
+        {
+          Assert.assertEquals(ReadGeoObjectPermissionException.CLASS, e.getType());
+        }
+      });
+    }
   }
 
   @Test
