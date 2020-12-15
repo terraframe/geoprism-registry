@@ -7,58 +7,79 @@
   <form #versionsform="ngForm" class="modal-form">
 
     <fieldset>
-      <div class="row-holder">
+      <div class="row">
 
         <!-- <div class="label-holder"></div> -->
-        <div class="holder" style="width: 100%; border: none;">
-          <div *ngIf="geoObjectOverTime">
+        <div class="col-md-12">
+          <div class="attribute-version-wrapper" *ngIf="geoObjectOverTime">
 
-            <div class="panel" style="box-shadow: none;">
-              <div class="panel-body">
+            <div>
+              <div>
                 <ul class="list-group">
                   <!-- <li class="list-group-item" style="text-align:left;" *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;"> -->
-                  <li class="list-group-item" style="text-align: left;">
+                  <li class="list-group-item" style="text-align:left;padding:0;">
 
                     <div *ngIf="attribute.type !== 'geometry'">
                       <table class="table table-striped">
-                        <thead style="font-size: 14px;">
-                          <tr>
-                            <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th>
-                            <th style="width: 35%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
-                            <th style="width: 20%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
-                            <th style="width: 10%; text-align: center;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
-                          </tr>
-                        </thead>
-
-                        <tbody *ngIf="attribute.type === 'local'">
-                          <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;">
+                        <tbody class="attribute-element-wrapper" *ngIf="attribute.type === 'local'">
+                          <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" >
                             <td>
-                              <table style="width: 100%;">
-                                <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;">
-                                  <td style="vertical-align: bottom; width: 35%; padding: 0; padding-top: 5px;">
+                              <table>
+                                <tr class="attribute-value-row" *ngFor="let loc of vAttribute.value.localeValues; let idx = index;">
+                                  <td colspan="2">
                                     <h5 *ngIf="loc.locale === 'defaultLocale'"><localize key="localization.defaultLocal"></localize></h5>
-                                    <h5 *ngIf="loc.locale !== 'defaultLocale'"><localize key="loc.defaultLocal"></localize></h5>
-                                    <h5>{{loc.locale}}</h5> 
+                                    <h5 *ngIf="loc.locale !== 'defaultLocale'">{{loc.locale}}</h5>
                                     
                                     <input type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event" [required]="loc.locale === 'defaultLocale'">
                                     
                                     <div class="form-input-validation-error-message-wrapper">
-                                      <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">Value is required.</p>
+                                      <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">
+                                        <localize key="manage.versions.value.required.message"></localize>
+                                      </p>
                                     </div>
+                                  </td>
+                                </tr>
+                                <tr class="attribute-date-input-row">
+                                  <td style="padding-right:5px">
+                                    <h5>
+                                      <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
+                                    </h5>
+                                    <input type="date" [name]="'startDate_' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
+                                    
+                                    <div style="width:100%;" class="form-input-validation-error-message-wrapper">
+                                      <p *ngIf="!vAttribute.startDate" class="error-message">
+                                        <localize key="manage.versions.start.date.required.message"></localize>
+                                      </p>
+                                    </div>
+                                  </td>
+                                  <td style="padding-left:5px">
+                                    <h5>
+                                      <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
+                                    </h5>
+                                    <p>{{vAttribute.endDate | date:'yyyy-MM-dd'}}</p>
                                   </td>
                                 </tr>
                               </table>
                             </td>
-
-                            <td style="width: 35%;"><input style="width: 100%;" type="date" [name]="'startDate_' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
-                              <div class="form-input-validation-error-message-wrapper">
-                                <p *ngIf="!vAttribute.startDate" class="error-message">Start date is required.</p>
-                              </div></td>
-                            <td style="width: 20%;">
-                              <p style="font-size: 14px;">{{vAttribute.endDate | date:'MM-dd-yyyy'}}</p>
+                            
+                            <td (click)="remove(vAttribute)" class="clickable" style="vertical-align:middle; width:10%; padding:5px; text-align:center;background-color:#e7e7e7;background-clip:padding-box;">
+                              <i class="fa fa-times clickable delete-btn" ></i>
                             </td>
-                            <td style="vertical-align: middle; width: 10%; padding: 5px; text-align: center;"><i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i></td>
                           </tr>
+                          
+<!--                           <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;"> -->
+                          
+<!--                             <td> -->
+<!--                               <input style="width: 100%;" type="date" [name]="'startDate_' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required> -->
+<!--                                 <div class="form-input-validation-error-message-wrapper"> -->
+<!--                                   <p *ngIf="!vAttribute.startDate" class="error-message">Start date is required.</p> -->
+<!--                                 </div> -->
+<!--                             </td> -->
+<!--                             <td> -->
+<!--                                 <p style="font-size: 14px;">{{vAttribute.endDate | date:'MM-dd-yyyy'}}</p> -->
+<!--                             </td> -->
+                          
+<!--                           </tr> -->
                         </tbody>
 
 

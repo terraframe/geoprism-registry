@@ -10,14 +10,14 @@
                     </div> -->
         <div class="col-md-12">
           <span class="text"></span>
-          <!--           <div class="panel" style="box-shadow: none;"> -->
-          <!--             <div class="panel-body"> -->
+<!--                     <div class="panel" style="box-shadow: none;"> -->
+<!--                       <div class="panel-body"> -->
           <ul class="list-group">
-            <li class="list-group-item" style="text-align: left; border: none;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
+            <li class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
 
               <div class="panel panel-default">
                 <div class="panel-heading">
-                  <h5 *ngIf="attr.code !== 'geometry'">
+                  <h4 *ngIf="attr.code !== 'geometry'" style="margin:0;">
 
                     <span *ngIf="attr.code === 'code'"> 
                       <localize key="geoobject.code.alternate.label"></localize>
@@ -28,7 +28,7 @@
                     <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null"> 
                       ({{calculatedPostObject[attr.code].startDate}} - {{calculatedPostObject[attr.code].endDate}}) 
                     </span>
-                  </h5>
+                  </h4>
 
                   <h5 *ngIf="attr.code === 'geometry'">
                     <localize key="shared.attributes.attribute.geometry.label"></localize>
@@ -103,15 +103,19 @@
                   </div>
 
                   <div *ngIf="attr.type === 'boolean'">
+                  
 
-                    <div class="input-group">
-                      <label> 
-                        <input type="radio" [checked]="calculatedPostObject[attr.code].value" disabled [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true"> 
-                        <localize key="change.request.boolean.option.true"></localize>
-                      </label> 
-                      <label> <input type="radio" [checked]="!calculatedPostObject[attr.code].value" disabled [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false"> 
-                        <localize key="change.request.boolean.option.false"></localize>
-                      </label> 
+                    <div class="input-group" >
+                      <div style="border: solid 1px #ccc;border-radius: 5px 0 0 5px;line-height: 40px;">
+                        <label class="radio radio-inline" style="margin:0;"> 
+                          <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code].value" disabled [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true"> 
+                          <span><localize key="change.request.boolean.option.true"></localize></span>
+                        </label> 
+                        <label class="radio radio-inline" style="margin:0;"> 
+                          <input class="inline-radio-input" type="radio" [checked]="!calculatedPostObject[attr.code].value" disabled [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false"> 
+                          <span><localize key="change.request.boolean.option.false"></localize></span>
+                        </label> 
+                      </div>
                       <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon"> 
                         <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
                       </span>
@@ -190,8 +194,8 @@
               </div>
             </li>
           </ul>
-          <!--             </div> -->
-          <!--           </div> -->
+<!--                       </div> -->
+<!--                     </div> -->
         </div>
       </div>
       <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined">

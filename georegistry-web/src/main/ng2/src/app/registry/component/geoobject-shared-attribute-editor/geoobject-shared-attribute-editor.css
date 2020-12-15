@@ -30,7 +30,7 @@ fieldset {
 
 
 .panel {
-	margin: 0;
+/* 	margin: 0; */
 }
 
 .panel .list-group {
@@ -38,17 +38,17 @@ fieldset {
 }
 
 .panel .list-group-item {
-	padding: 0;
+	padding: 5px 0;
 }
 
 .panel-heading h5 {
 	margin:0;
 }
 
-.panel-body input[type="text"],
-.panel-body input[type="number"],
-.panel-body input[type="date"],
-.panel-body select {
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group input[type="date"],
+.input-group select {
 	border-radius: 5px 0 0 5px;
 	width: 100%;
 }

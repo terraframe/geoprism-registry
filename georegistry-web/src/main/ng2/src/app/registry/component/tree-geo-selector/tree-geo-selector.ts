@@ -7,6 +7,7 @@ import { HierarchyOverTime } from '@registry/model/registry';
 
 	selector: 'tree-geo-selector',
 	templateUrl: './tree-geo-selector.html',
+	styleUrls: ['./tree-geo-selector.css']
 })
 export class TreeGeoSelector {
 
@@ -19,12 +20,20 @@ export class TreeGeoSelector {
 	@Output() onManageVersion = new EventEmitter<HierarchyOverTime>();
 
 	nodes: any[] = [];
+	
+	actionMapping:IActionMapping = {
+	  mouse: {
+	    click: null,
+	  }
+	}
 
 	options: ITreeOptions = {
 		displayField: 'name',
 		isExpandedField: 'expanded',
-		idField: 'code'
+		idField: 'code',
+		actionMapping: this.actionMapping
 	};
+	
 
 	constructor() {
 

@@ -13,6 +13,7 @@ import { RegistryService } from '@registry/service';
 })
 export class ManageParentVersionsComponent implements OnInit {
 
+	originalHierarchy: HierarchyOverTime;
 	@Input() hierarchy: HierarchyOverTime = null;
 
 	@Output() onChange = new EventEmitter<HierarchyOverTime>();
@@ -23,6 +24,8 @@ export class ManageParentVersionsComponent implements OnInit {
 
 	ngOnInit(): void {
 
+		this.originalHierarchy = JSON.parse(JSON.stringify(this.hierarchy));
+		
 		this.hierarchy.entries.forEach(entry => {
 			for (let i = 0; i < this.hierarchy.types.length; i++) {
 				let current = this.hierarchy.types[i];
@@ -32,7 +35,6 @@ export class ManageParentVersionsComponent implements OnInit {
 				}
 			}
 		});
-
 	}
 
 	onAddNewVersion(): void {
@@ -138,15 +140,6 @@ export class ManageParentVersionsComponent implements OnInit {
 		delete entry.parents[type.code].geoObject;
 	}
 
-	onSubmit(): void {
-
-		this.onChange.emit(this.hierarchy);
-	}
-
-	onCancel(): void {
-		this.onChange.emit(null);
-	}
-
 	onDateChange(): any {
 		this.snapDates();
 	}
@@ -192,5 +185,13 @@ export class ManageParentVersionsComponent implements OnInit {
 		const day = dateObj.getUTCDate();
 
 		return dateObj.getUTCFullYear() + "-" + (dateObj.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
+	}
+
+	onSubmit(): void {
+		this.onChange.emit(this.hierarchy);
+	}
+
+	onCancel(): void {
+		this.onChange.emit(this.originalHierarchy);
 	}
 }

@@ -7,16 +7,16 @@
   <form #versionsform="ngForm" class="modal-form">
 
     <fieldset>
-      <div class="row-holder">
+      <div class="row">
 
         <!-- <div class="label-holder"></div> -->
-        <div class="holder" style="width: 100%; border: none;">
+        <div class="col-md-12">
           <div *ngIf="geoObjectOverTime">
 
-            <div class="panel" style="box-shadow: none;">
-              <div class="panel-body">
+            <div>
+              <div >
                 <ul class="list-group">
-                  <li class="list-group-item" style="text-align: left;">
+                  <li class="list-group-item" style="text-align:left;padding:0;">
                       <table class="table table-striped">
                         <thead style="font-size: 14px;">
                           <th style="width: 60%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th>
@@ -57,6 +57,9 @@
         <!-- <div class="label-holder"></div> -->
         <div class="holder" style="border: none; width: 100%;">
           <div class="button-holder pull-right">
+            <button *ngIf="!readonly" type="submit" (click)="onCancel()" class="btn btn-default" role="button">
+              <localize key="io.cancel"></localize>
+            </button>
             <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!versionsform.valid">
               <localize key="io.ok"></localize>
             </button>

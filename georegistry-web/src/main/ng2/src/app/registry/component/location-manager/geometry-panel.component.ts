@@ -50,7 +50,13 @@ export class GeometryPanelComponent implements OnInit {
 
 	@Input() geoObjectType: GeoObjectType;
 
-	@Input() geoObjectOverTime: GeoObjectOverTime;
+	originalGeoObjectOverTime: GeoObjectOverTime;
+	geoObjectOverTime: GeoObjectOverTime;
+	
+	@Input() set geoObjectOverTimeInput(value: GeoObjectOverTime) {
+		this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value));
+		this.geoObjectOverTime = value;
+	}
 
 	@Input() isNewGeoObject: boolean = false;
 
@@ -210,6 +216,6 @@ export class GeometryPanelComponent implements OnInit {
 	}
 
 	onCancel(): void {
-		this.onChange.emit(null);
+		this.onChange.emit(this.originalGeoObjectOverTime);
 	}
 }
