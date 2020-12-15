@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -42,10 +42,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
+import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -60,6 +59,7 @@ import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -286,6 +286,19 @@ public class MasterList extends MasterListBase
           calendar.add(Calendar.YEAR, 1);
         }
       }
+      else if (frequencies.contains(ChangeFrequency.BIANNUAL))
+      {
+        Calendar end = getEndOfHalfYear(endDate);
+        Calendar calendar = getEndOfHalfYear(startDate);
+
+        while (calendar.before(end) || calendar.equals(end))
+        {
+          dates.add(calendar.getTime());
+
+          calendar.add(Calendar.DAY_OF_YEAR, 1);
+          this.moveToEndOfHalfYear(calendar);
+        }
+      }
       else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
         Calendar end = getEndOfQuarter(endDate);
@@ -331,6 +344,16 @@ public class MasterList extends MasterListBase
     return calendar;
   }
 
+  private Calendar getEndOfHalfYear(Date date)
+  {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    calendar.setTime(date);
+
+    moveToEndOfHalfYear(calendar);
+
+    return calendar;
+  }
+
   private Calendar getEndOfQuarter(Date date)
   {
     Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -360,6 +383,15 @@ public class MasterList extends MasterListBase
   {
     int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
     int month = ( quarter * 3 ) - 1;
+
+    calendar.set(Calendar.MONTH, month);
+    moveToEndOfMonth(calendar);
+  }
+
+  private void moveToEndOfHalfYear(Calendar calendar)
+  {
+    int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
+    int month = ( halfYear * 6 ) - 1;
 
     calendar.set(Calendar.MONTH, month);
     moveToEndOfMonth(calendar);
@@ -397,16 +429,16 @@ public class MasterList extends MasterListBase
 
       object.addProperty(MasterList.OID, this.getOid());
       object.addProperty(MasterList.ORGANIZATION, org.getOid());
-      object.addProperty("write", this.doesActorHaveWritePermission());
-      object.addProperty("read", this.doesActorHaveReadPermission());
     }
     else
     {
       object.addProperty(MasterList.ORGANIZATION, this.getOrganizationOid());
-      object.addProperty("write", false);
-      object.addProperty("read", false);
     }
 
+    object.addProperty("write", this.doesActorHaveWritePermission());
+    object.addProperty("read", this.doesActorHaveReadPermission());
+    object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
+    object.add("typeLabel", type.getLabel().toJSON(serializer));
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
@@ -479,6 +511,7 @@ public class MasterList extends MasterListBase
   }
 
   @Transaction
+  @Authenticate
   public MasterListVersion createVersion(Date forDate, String versionType)
   {
     // MasterListVersionQuery query = new MasterListVersionQuery(new
@@ -565,12 +598,10 @@ public class MasterList extends MasterListBase
   private Pair<Date, Date> getDateRange(final ServerGeoObjectType objectType)
   {
     Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-
     if (this.getPublishingStartDate() != null)
     {
-      return new Pair<Date, Date>(this.getPublishDate(), range.getSecond());
+      return new Pair<Date, Date>(this.getPublishingStartDate(), range.getSecond());
     }
-
     return range;
   }
 
@@ -741,28 +772,28 @@ public class MasterList extends MasterListBase
 
   public boolean doesActorHaveWritePermission()
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-      ServerGeoObjectType type = this.getGeoObjectType();
+    ServerGeoObjectType type = this.getGeoObjectType();
 
-      return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
+    return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
+  }
+
+  public boolean doesActorHaveExploratoryPermission()
+  {
+    ServerGeoObjectType type = this.getGeoObjectType();
+
+    if (new RolePermissionService().isRC(type))
+    {
+      return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
     }
 
-    return true;
+    return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
   }
 
   public boolean doesActorHaveReadPermission()
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-      ServerGeoObjectType type = this.getGeoObjectType();
+    ServerGeoObjectType type = this.getGeoObjectType();
 
-      return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
-    }
-
-    return true;
+    return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
   }
 
   public void markAsInvalid(ServerHierarchyType hierarchyType, ServerGeoObjectType type)
@@ -885,8 +916,10 @@ public class MasterList extends MasterListBase
 
     if (list.getIsMaster() != null && list.getIsMaster())
     {
+      Universal universal = list.getUniversal();
+
       MasterListQuery query = new MasterListQuery(new QueryFactory());
-      query.WHERE(query.getUniversal().EQ(list.getUniversal()));
+      query.WHERE(query.getUniversal().EQ(universal));
       query.AND(query.getOrganization().EQ(list.getOrganization()));
       query.AND(query.getIsMaster().EQ(true));
 
@@ -897,9 +930,10 @@ public class MasterList extends MasterListBase
 
       if (query.getCount() > 0)
       {
-        ProgrammingErrorException cause = new ProgrammingErrorException("Duplicate master list");
+        DuplicateMasterListException ex = new DuplicateMasterListException();
+        ex.setGeoObjectType(universal.getDisplayLabel().getValue());
 
-        throw new DuplicateDataDatabaseException("Duplicate master list", cause);
+        throw ex;
       }
     }
 

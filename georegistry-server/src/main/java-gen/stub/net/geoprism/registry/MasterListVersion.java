@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -57,6 +57,8 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -65,6 +67,7 @@ import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.BusinessInfo;
@@ -110,6 +113,7 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
@@ -738,7 +742,8 @@ public class MasterListVersion extends MasterListVersionBase
   }
 
   @Transaction
-  public JsonObject publish()
+  @Authenticate
+  public String publish()
   {
     this.lock();
 
@@ -812,7 +817,7 @@ public class MasterListVersion extends MasterListVersionBase
         this.setPublishDate(new Date());
         this.apply();
 
-        return this.toJSON(true);
+        return this.toJSON(true).toString();
       }
       finally
       {
@@ -973,6 +978,9 @@ public class MasterListVersion extends MasterListVersionBase
   {
     object.setDate(this.getForDate());
 
+    // Delete tile cache
+    TileCache.deleteTiles(this);
+
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
     List<Locale> locales = SupportedLocaleCache.getLocales();
@@ -1084,6 +1092,15 @@ public class MasterListVersion extends MasterListVersionBase
       calendar.setTime(this.getForDate());
 
       return Integer.toString(calendar.get(Calendar.YEAR));
+    }
+    else if (frequency.contains(ChangeFrequency.BIANNUAL))
+    {
+      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      calendar.setTime(this.getForDate());
+
+      int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
+
+      return "H" + halfYear + " " + Integer.toString(calendar.get(Calendar.YEAR));
     }
     else if (frequency.contains(ChangeFrequency.QUARTER))
     {
@@ -1391,6 +1408,33 @@ public class MasterListVersion extends MasterListVersionBase
     return query;
   }
 
+  public String bbox()
+  {
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+
+    double[] geometry = GeoserverFacade.getBBOX(mdBusiness.getTableName());
+
+    if (geometry != null)
+    {
+      try
+      {
+        JSONArray bboxArr = new JSONArray();
+        bboxArr.put(geometry[0]);
+        bboxArr.put(geometry[1]);
+        bboxArr.put(geometry[2]);
+        bboxArr.put(geometry[3]);
+
+        return bboxArr.toString();
+      }
+      catch (JSONException ex)
+      {
+        throw new ProgrammingErrorException(ex);
+      }
+    }
+
+    return null;
+  }
+
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
@@ -1490,8 +1534,8 @@ public class MasterListVersion extends MasterListVersionBase
 
   public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
   {
-    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Session.getCurrentLocale());
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
     NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
 
@@ -1578,7 +1622,7 @@ public class MasterListVersion extends MasterListVersionBase
               }
               else if (value instanceof Date)
               {
-                object.addProperty(mdAttribute.definesAttribute(), dateFormat.format((Date) value));
+                object.addProperty(mdAttribute.definesAttribute(), format.format((Date) value));
               }
             }
           }
@@ -1674,5 +1718,4 @@ public class MasterListVersion extends MasterListVersionBase
       return it.getAll();
     }
   }
-
 }

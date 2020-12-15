@@ -1,0 +1,22 @@
+<div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 style="margin: 0;">{{hierarchy.label}}</h4>
+    </div>
+    <div class="panel-body">
+
+      <div class="input-group">
+        <div *ngIf="nodes.length > 0" class="tree" >
+          <tree-root [nodes]="nodes" [options]="options"></tree-root>
+        </div>
+        <span *ngIf="!readOnly" class="input-group-addon"> 
+          <i class="fa fa-pencil clickable" (click)="onEdit()" aria-hidden="true"></i>
+        </span>
+      </div>
+      
+      <button class="btn btn-primary" *ngIf="!readOnly" (click)="onEdit()"><localize key="changeovertime.manageVersions.button.label"></localize></button>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+<div>
+  <div *ngIf="mode == MODE.ATTRIBUTES && postGeoObject != null">
+    <!-- Attributes tab -->
+    <geoobject-shared-attribute-editor 
+      #attributeEditor 
+      [geoObjectType]="type" 
+      [preGeoObject]="preGeoObject" 
+      [postGeoObject]="postGeoObject" 
+      [forDate]="this.forDate" 
+      [isNew]="isNew" 
+      [isEditingGeometries]="false" 
+      [customEvent]="true"
+      (onManageVersion)="onManageAttributeVersion($event)" 
+      (onChange)="onAttributeChange($event)" 
+      [readOnly]="readOnly"> 
+    </geoobject-shared-attribute-editor>
+
+    <div *ngIf="!readOnly && type.isGeometryEditable" class="panel panel-default">
+      <div class="panel-heading">
+        <h4 style="margin:0;">
+          <localize key="explorer.geometry.section"></localize>
+        </h4>
+      </div>
+      <div class="panel-body">
+        <div class="button-holder text-left" style="margin:0;">
+          <button type="submit" style="width:100%;" (click)="this.mode = this.MODE.GEOMETRY" class="btn btn-primary" role="button">
+            <localize key="explorer.edit.geometry.button.label"></localize>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="hierarchies != null">
+      <tree-geo-selector *ngFor="let hierarchy of hierarchies" [hierarchy]="hierarchy" [readOnly]="readOnly" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
+    </div>
+
+    <div class="button-holder text-right" style="margin-bottom: 20px;">
+<!-- 
+      <button *ngIf="readOnly" type="submit" (click)="onEditAttributes()" class="btn btn-primary" role="button">
+        <localize key="changeovertime.manageVersions.button.label"></localize>
+      </button>
+ -->    
+      <button *ngIf="!readOnly" type="button" class="btn btn-default" (click)="onCancel()">
+        <localize key="modal.button.cancel"></localize>
+      </button>
+      <button *ngIf="!readOnly" type="submit" style="" (click)="onSubmit()" class="btn btn-primary" role="button">
+        <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
+      </button>
+    </div>
+  </div>
+  <div *ngIf="mode == MODE.VERSIONS && attribute != null">
+    <!-- Attributes tab -->
+    <manage-versions 
+      [attribute]="attribute"
+      [geoObjectType]="type"
+      [geoObjectOverTimeInput]="postGeoObject"
+      [isNewGeoObject]="false"
+      (onChange)="onAttributeChange($event)">
+    </manage-versions>
+  </div>
+  <div *ngIf="mode == MODE.HIERARCHY && hierarchy != null">
+    <!-- Attributes tab -->
+    <manage-parent-versions 
+      [hierarchy]="hierarchy"
+      (onChange)="onHierarchyChange($event)">
+    </manage-parent-versions>
+  </div>
+  <div *ngIf="mode == MODE.GEOMETRY">
+    <!-- Attributes tab -->
+    <geometry-panel 
+      [geoObjectType]="type"
+      [geoObjectOverTimeInput]="postGeoObject"
+      [isNewGeoObject]="false"
+      (onChange)="onAttributeChange($event)"
+      (onEdit)="onEditGeometryVersion($event)">
+    </geometry-panel>
+  </div>
+</div>

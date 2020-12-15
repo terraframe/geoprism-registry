@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.permission;
 
@@ -39,9 +39,9 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
    * 
    * @param op
    */
-  public void enforceActorHasPermission(String orgCode, String gotLabel, Operation op)
+  public void enforceActorHasPermission(String orgCode, boolean isPrivate, String gotLabel, Operation op)
   {
-    if (!this.doesActorHavePermission(orgCode, op, null))
+    if (!this.doesActorHavePermission(orgCode, isPrivate, op, null))
     {
       Organization org = Organization.getByCode(orgCode);
 
@@ -75,7 +75,7 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
     }
   }
 
-  protected boolean doesActorHavePermission(String orgCode, Operation op, PermissionContext context)
+  protected boolean doesActorHavePermission(String orgCode, boolean isPrivate, Operation op, PermissionContext context)
   {
     if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
@@ -92,17 +92,17 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
       {
         String roleName = role.getRoleName();
 
-        if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+        if ( RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName) )
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-          if (RegistryRole.Type.isRA_Role(roleName) && ( orgCode.equals(roleOrgCode) ))
+          if ( RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(roleOrgCode) )
           {
             return true;
           }
           else if (op.equals(Operation.READ))
           {
-            if ( ( RegistryRole.Type.isRA_Role(roleName) || RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ))
+            if ( RegistryRole.Type.isRA_Role(roleName) || RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) )
             {
               if (context != null && context.equals(PermissionContext.WRITE))
               {
@@ -111,16 +111,14 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
                   return true;
                 }
               }
-              else
+              else if ( !isPrivate || (isPrivate && orgCode.equals(roleOrgCode)) )
               {
                 return true;
               }
             }
           }
         }
-        // SRA only has the ability to see type and hierarchies, it does not
-        // have permissions to modify
-        else if (op.equals(Operation.READ) && RegistryRole.Type.isSRA_Role(roleName))
+        else if (RegistryRole.Type.isSRA_Role(roleName))
         {
           return true;
         }
@@ -131,51 +129,51 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
   }
 
   @Override
-  public boolean canRead(String orgCode, PermissionContext context)
+  public boolean canRead(String orgCode, boolean isPrivate, PermissionContext context)
   {
-    return this.doesActorHavePermission(orgCode, Operation.READ, context);
+    return this.doesActorHavePermission(orgCode, isPrivate, Operation.READ, context);
   }
 
   @Override
-  public void enforceCanRead(String orgCode, String gotLabel)
+  public void enforceCanRead(String orgCode, boolean isPrivate, String gotLabel)
   {
-    this.enforceActorHasPermission(orgCode, gotLabel, Operation.READ);
+    this.enforceActorHasPermission(orgCode, isPrivate, gotLabel, Operation.READ);
   }
 
   @Override
-  public boolean canWrite(String orgCode)
+  public boolean canWrite(String orgCode, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, Operation.WRITE, null);
+    return this.doesActorHavePermission(orgCode, isPrivate, Operation.WRITE, null);
   }
 
   @Override
-  public void enforceCanWrite(String orgCode, String gotLabel)
+  public void enforceCanWrite(String orgCode, boolean isPrivate, String gotLabel)
   {
-    this.enforceActorHasPermission(orgCode, gotLabel, Operation.WRITE);
+    this.enforceActorHasPermission(orgCode, isPrivate, gotLabel, Operation.WRITE);
   }
 
   @Override
-  public boolean canCreate(String orgCode)
+  public boolean canCreate(String orgCode, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, Operation.CREATE, null);
+    return this.doesActorHavePermission(orgCode, isPrivate, Operation.CREATE, null);
   }
 
   @Override
-  public void enforceCanCreate(String orgCode)
+  public void enforceCanCreate(String orgCode, boolean isPrivate)
   {
-    this.enforceActorHasPermission(orgCode, null, Operation.CREATE);
+    this.enforceActorHasPermission(orgCode, isPrivate, null, Operation.CREATE);
   }
 
   @Override
-  public boolean canDelete(String orgCode)
+  public boolean canDelete(String orgCode, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, Operation.DELETE, null);
+    return this.doesActorHavePermission(orgCode, isPrivate, Operation.DELETE, null);
   }
 
   @Override
-  public void enforceCanDelete(String orgCode, String gotLabel)
+  public void enforceCanDelete(String orgCode, boolean isPrivate, String gotLabel)
   {
-    this.enforceActorHasPermission(orgCode, gotLabel, Operation.DELETE);
+    this.enforceActorHasPermission(orgCode, isPrivate, gotLabel, Operation.DELETE);
   }
 
 }

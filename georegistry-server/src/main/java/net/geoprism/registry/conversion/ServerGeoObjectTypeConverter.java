@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -41,6 +41,7 @@ import com.runwaysdk.constants.MdAttributeEnumerationInfo;
 import com.runwaysdk.constants.MdAttributeLocalCharacterEmbeddedInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
+import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeEncryptionDAOIF;
@@ -51,6 +52,7 @@ import com.runwaysdk.dataaccess.MdAttributeTimeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
+import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeEnumerationDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
@@ -75,12 +77,14 @@ import com.runwaysdk.system.metadata.MdEnumeration;
 import net.geoprism.registry.ChainInheritanceException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
+import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -216,7 +220,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode(), geoObjectType.getIsPrivate());
 
     String superTypeCode = geoObjectType.getSuperTypeCode();
     Boolean isAbstract = geoObjectType.getIsAbstract();
@@ -287,6 +291,11 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     universal.setMdBusiness(mdBusiness);
 
     universal.apply();
+
+    GeoObjectTypeMetadata metadata = new GeoObjectTypeMetadata();
+    metadata.setIsPrivate(geoObjectType.getIsPrivate());
+    metadata.setUniversal(universal);
+    metadata.apply();
 
     // Create the MdGeoVertexClass
     MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid(), isAbstract, superType);
@@ -507,11 +516,21 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     GeoObjectType geoObjType = new GeoObjectType(universal.getUniversalId(), cgrGeometryType, label, description, universal.getIsGeometryEditable(), organizationCode, ServiceFactory.getAdapter());
     geoObjType.setIsAbstract(mdBusiness.getIsAbstract());
 
+    try
+    {
+      GeoObjectTypeMetadata metadata = GeoObjectTypeMetadata.getByKey(universal.getKey());
+      geoObjType.setIsPrivate(metadata.getIsPrivate());
+    }
+    catch (DataNotFoundException | AttributeDoesNotExistException e)
+    {
+      geoObjType.setIsPrivate(false);
+    }
+
     if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
     {
-      ServerGeoObjectType parentType = ServerGeoObjectType.get(superType);
+      String parentCode = superType.getTypeName();
 
-      geoObjType.setSuperTypeCode(parentType.getCode());
+      geoObjType.setSuperTypeCode(parentCode);
     }
 
     geoObjType = this.convertAttributeTypes(universal, geoObjType, mdBusiness);

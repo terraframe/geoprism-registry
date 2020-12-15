@@ -20,6 +20,7 @@ package net.geoprism.registry;
 
 import java.util.List;
 
+import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
@@ -28,6 +29,8 @@ import net.geoprism.registry.model.ServerHierarchyType;
 public class HierarchyMetadata extends HierarchyMetadataBase
 {
   private static final long serialVersionUID = -1833634695;
+  
+  public static final String TYPE_LABEL = "hierarchyType.label";
 
   public HierarchyMetadata()
   {
@@ -60,6 +63,21 @@ public class HierarchyMetadata extends HierarchyMetadataBase
     {
       hierarchy.delete();
     }
+  }
+  
+  public String getClassDisplayLabel()
+  {
+    return sGetClassDisplayLabel();
+  }
+  
+  public static String sGetClassDisplayLabel()
+  {
+    return LocalizationFacade.localize(TYPE_LABEL);
+  }
+  
+  public static String getAttributeDisplayLabel(String attributeName)
+  {
+    return LocalizationFacade.localize("hierarchyType.attr."  + attributeName);
   }
 
 }

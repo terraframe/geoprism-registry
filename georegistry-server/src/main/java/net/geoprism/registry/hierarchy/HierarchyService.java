@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
@@ -37,10 +38,12 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.GeoObjectRelationshipPermissionServiceIF;
+import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
@@ -188,6 +191,7 @@ public class HierarchyService
   @Request(RequestType.SESSION)
   public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes, PermissionContext context)
   {
+    final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
     List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
 
     if (codes == null || codes.length == 0)
@@ -220,12 +224,59 @@ public class HierarchyService
       if (!ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), context))
       {
         it.remove();
+        continue;
+      }
+      
+      List<HierarchyNode> rootTypes = ht.getRootGeoObjectTypes();
+      
+      Iterator<HierarchyNode> rootIt = rootTypes.iterator();
+      
+      boolean removed = false;
+      while (rootIt.hasNext())
+      {
+        HierarchyNode hn = rootIt.next();
+        GeoObjectType rootGot = hn.getGeoObjectType();
+        
+        if (!typePermServ.canRead(rootGot.getCode(), rootGot.getIsPrivate(), PermissionContext.READ))
+        {
+          removed = true;
+          rootIt.remove();
+        }
+        else
+        {
+          this.filterOutPrivateNodes(hn);
+        }
+      }
+      
+      if (removed && rootTypes.size() == 0)
+      {
+        it.remove();
       }
     }
 
     HierarchyType[] hierarchies = hierarchyTypeList.toArray(new HierarchyType[hierarchyTypeList.size()]);
 
     return hierarchies;
+  }
+  
+  private void filterOutPrivateNodes(HierarchyNode parent)
+  {
+    final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
+    List<HierarchyNode> list = parent.getChildren();
+    
+    for (HierarchyNode child : list)
+    {
+      GeoObjectType got = child.getGeoObjectType();
+      
+      if (!typePermServ.canRead(got.getCode(), got.getIsPrivate(), PermissionContext.READ))
+      {
+        parent.removeChild(child);
+      }
+      else
+      {
+        this.filterOutPrivateNodes(child);
+      }
+    }
   }
 
   /**
@@ -303,6 +354,12 @@ public class HierarchyService
     ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
     ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(type, parentType, childType);
+    
+    if (parentType.getIsPrivate() && !childType.getIsPrivate())
+    {
+      AssignPublicChildOfPrivateType ex = new AssignPublicChildOfPrivateType();
+      throw ex;
+    }
 
     type.addToHierarchy(parentType, childType);
 

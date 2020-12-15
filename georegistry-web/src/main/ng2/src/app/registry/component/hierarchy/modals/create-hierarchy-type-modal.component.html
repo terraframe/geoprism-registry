@@ -1,7 +1,7 @@
 <form>
 
   <div class="modal-body">
-    <form class="modal-form">
+    <form #form="ngForm" class="modal-form">
 
       <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
@@ -20,14 +20,18 @@
       </div>
       <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues">
         <label for="labelInput">
-          <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
+          <localize key="data.property.label.label"></localize> 
+          <span *ngIf="localeValue.locale === 'defaultLocale'" style="color: #BABABA">&nbsp;(<localize key="localization.default.label"></localize>)</span>
+          <span *ngIf="localeValue.locale !== 'defaultLocale'" style="color: #BABABA">&nbsp;({{localeValue.locale}})</span>
         </label>
         <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control"
           required>
       </div>
       <div class="form-group" *ngFor="let localeValue of hierarchyType.description.localeValues">
         <label for="descriptionInput">
-          <localize key="data.property.label.description"></localize> ({{localeValue.locale}})
+          <localize key="data.property.label.description"></localize> 
+          <span *ngIf="localeValue.locale === 'defaultLocale'" style="color: #BABABA">&nbsp;(<localize key="localization.default.label"></localize>)</span>
+          <span *ngIf="localeValue.locale !== 'defaultLocale'" style="color: #BABABA">&nbsp;({{localeValue.locale}})</span>
         </label>
         <textarea [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" class="form-control"></textarea>
       </div>
@@ -46,11 +50,6 @@
       </div>
       
       <div class="form-group">
-        <label><localize key="data.property.label.abstractDescription"></localize></label>
-        <input [(ngModel)]="hierarchyType.abstractDescription" name="abstractDescription" type="text" class="form-control" [disabled]="readOnly">
-      </div>
-      
-      <div class="form-group">
         <label><localize key="data.property.label.progress"></localize></label>
         <input [(ngModel)]="hierarchyType.progress" name="progress" type="text" class="form-control" [disabled]="readOnly">
       </div>
@@ -59,11 +58,43 @@
         <label><localize key="data.property.label.acknowledgement"></localize></label>
         <input [(ngModel)]="hierarchyType.acknowledgement" name="acknowledgement" type="text" class="form-control" [disabled]="readOnly">
       </div>
+      <div class="form-group">
+        <label><localize key="data.property.label.disclaimer"></localize></label>
+        <input [(ngModel)]="hierarchyType.disclaimer" name="disclaimer" type="text" class="form-control" [disabled]="readOnly">
+      </div>
 
+      <div class="form-group">
+        <label><localize key="data.property.label.accessConstraints"></localize></label>
+        <input [(ngModel)]="hierarchyType.accessConstraints" name="accessConstraints" type="text" class="form-control" [disabled]="readOnly">
+      </div>
+
+      <div class="form-group">
+        <label><localize key="data.property.label.useConstraints"></localize></label>
+        <input [(ngModel)]="hierarchyType.useConstraints" name="useConstraints" type="text" class="form-control" [disabled]="readOnly">
+      </div>
+      
+      <hr/>
+      
+      <div class="form-group">
+        <h4>
+          <localize key="masterlist.contact"></localize>
+        </h4>
+      </div>
+      
       <div class="form-group">
         <label><localize key="data.property.label.contact"></localize></label>
         <input [(ngModel)]="hierarchyType.contact" name="contact" type="text" class="form-control" [disabled]="readOnly">
       </div>
+
+      <div class="form-group">
+        <label><localize key="data.property.label.phoneNumber"></localize></label>
+        <input [(ngModel)]="hierarchyType.phoneNumber" name="phoneNumber" type="text" class="form-control" [disabled]="readOnly">
+      </div>
+
+      <div class="form-group">
+        <label><localize key="data.property.label.email"></localize></label>
+        <input [(ngModel)]="hierarchyType.email" name="email" type="email" class="form-control" [disabled]="readOnly">
+      </div>      
 
       <div class="row">
         <div class="col-md-12">
@@ -71,7 +102,7 @@
             <button type="button" class="btn btn-default" (click)="bsModalRef.hide()" style="padding: 4px 18px;">
               <localize key="modal.button.cancel"></localize>
             </button>
-            <button *ngIf="!readOnly" type="submit" [disabled]="hierarchyType.code.length < 1" class="btn btn-primary"
+            <button *ngIf="!readOnly" type="submit" [disabled]="hierarchyType.code.length < 1 || form.invalid" class="btn btn-primary"
               (click)="handleOnSubmit()" style="padding: 4px 18px;">
               <localize key="modal.button.ok"></localize>
             </button>

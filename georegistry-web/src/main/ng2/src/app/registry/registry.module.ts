@@ -46,6 +46,7 @@ import { CreateUpdateGeoObjectDetailComponent } from './component/crtable/action
 import { AddRemoveChildDetailComponent } from './component/crtable/action-detail/add-remove-child/detail.component';
 import { SetParentDetailComponent } from './component/crtable/action-detail/set-parent/set-parent-detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
+import { ManageVersionsComponent } from './component/geoobject-shared-attribute-editor/manage-versions.component';
 import { ManageVersionsModalComponent } from './component/geoobject-shared-attribute-editor/manage-versions-modal.component';
 import { SubmitChangeRequestComponent } from './component/submit-change-request/submit-change-request.component';
 import { ChangeRequestPageComponent } from './component/change-request-page/change-request-page.component';
@@ -53,7 +54,9 @@ import { GeoObjectEditorComponent } from './component/geoobject-editor/geoobject
 import { GeoObjectEditorMapComponent } from './component/geoobject-editor-map/geoobject-editor-map.component';
 import { SimpleEditControl } from './component/geoobject-editor-map/simple-edit-control/simple-edit-control.component';
 import { CascadingGeoSelector } from './component/cascading-geo-selector/cascading-geo-selector';
+import { TreeGeoSelector } from './component/tree-geo-selector/tree-geo-selector';
 import { ManageParentVersionsModalComponent } from './component/cascading-geo-selector/manage-parent-versions-modal.component';
+import { ManageParentVersionsComponent } from './component/cascading-geo-selector/manage-parent-versions.component';
 import { ActionDetailModalComponent } from './component/crtable/action-detail/action-detail-modal.component';
 import { DataImporterComponent } from './component/importer/dataimporter.component';
 import { DataExportComponent } from './component/data-export/data-export.component';
@@ -78,7 +81,11 @@ import { SynchronizationConfigComponent } from './component/synchronization-conf
 import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 
 import { LocationManagerComponent } from './component/location-manager/location-manager.component';
+import { DatasetLocationManagerComponent } from './component/location-manager/dataset-location-manager.component';
 import { ContextLayerModalComponent } from './component/location-manager/context-layer-modal.component';
+import { LayerPanelComponent } from './component/location-manager/layer-panel.component';
+import { FeaturePanelComponent } from './component/location-manager/feature-panel.component';
+import { GeometryPanelComponent } from './component/location-manager/geometry-panel.component';
 
 import { GeoObjectAttributeCodeValidator } from './factory/form-validation.factory';
 
@@ -122,7 +129,7 @@ import '../rxjs-extensions';
 		NgxPaginationModule,
 		SharedModule,
 		RegistryRoutingModule,
-    AccordionModule.forRoot()
+		AccordionModule.forRoot()
 	],
 	declarations: [
 		HierarchyComponent,
@@ -155,6 +162,7 @@ import '../rxjs-extensions';
 		LocalizedInputComponent,
 		LocalizedTextComponent,
 		GeoObjectSharedAttributeEditorComponent,
+		ManageVersionsComponent,
 		ManageVersionsModalComponent,
 		SubmitChangeRequestComponent,
 		GeoObjectEditorComponent,
@@ -165,7 +173,9 @@ import '../rxjs-extensions';
 		DataPageComponent,
 		ChangeRequestPageComponent,
 		CascadingGeoSelector,
+		TreeGeoSelector,
 		ManageParentVersionsModalComponent,
+		ManageParentVersionsComponent,
 		ActionDetailModalComponent,
 		HierarchyComponent,
 		DataImporterComponent,
@@ -196,7 +206,11 @@ import '../rxjs-extensions';
 		SyncDetailsComponent,
 		// Location manager
 		LocationManagerComponent,
-		ContextLayerModalComponent
+		DatasetLocationManagerComponent,
+		ContextLayerModalComponent,
+		LayerPanelComponent,
+		FeaturePanelComponent,
+		GeometryPanelComponent
 	],
 	providers: [
 		MapService,

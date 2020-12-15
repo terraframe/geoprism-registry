@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.business.graph.GraphQuery;
@@ -43,6 +44,15 @@ import net.geoprism.registry.view.LocationInformation;
 public class LocationService
 {
   private ServerGeoObjectService service = new ServerGeoObjectService();
+
+  @Request(RequestType.SESSION)
+  public List<GeoObject> search(String sessionId, String text, Date date)
+  {
+    List<ServerGeoObjectIF> results = new SearchService().search(text, date, 20L);
+
+    return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> list.add(element.toGeoObject()), (listA, listB) -> {
+    });
+  }
 
   @Request(RequestType.SESSION)
   public LocationInformation getLocationInformation(String sessionId, Date date, String typeCode, String hierarchyCode)
@@ -86,6 +96,8 @@ public class LocationService
 
       if (type != null)
       {
+        ServiceFactory.getGeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
+
         information.setChildType(type.getType());
 
         List<VertexServerGeoObject> children = this.getGeoObjects(type.getCode(), date);

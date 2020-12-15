@@ -16,26 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.model;
-
-import com.runwaysdk.LocalizationFacade;
-
-public class GeoObjectTypeMetadata
-{
-  public static final String TYPE_LABEL = "geoObjectType.label";
-  
-  public static GeoObjectTypeMetadata get()
-  {
-    return new GeoObjectTypeMetadata();
-  }
-  
-  public String getClassDisplayLabel()
-  {
-    return LocalizationFacade.localize(TYPE_LABEL);
-  }
-  
-  public String getAttributeDisplayLabel(String attributeName)
-  {
-    return LocalizationFacade.localize("geoObjectType.attr."  + attributeName);
-  }
-}
+/**
+ * This file is just a placeholder. The actual source exists in : src/main/java/com/runwaysdk/build/domain
+ */

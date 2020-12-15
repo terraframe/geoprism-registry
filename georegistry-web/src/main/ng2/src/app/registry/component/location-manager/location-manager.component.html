@@ -6,169 +6,95 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
-        <div class="row">
-          <div class="col-md-12">
-
-            <div class="row">
-              <div class="col-md-12" style="height: 56px; overflow: auto;">
-                <ul class="breadcrumb">
-                  <li *ngIf="current != null">
-                    <!-- <i class="fa fa-angle-left breadcrumb-back-ico" aria-hidden="true"></i> -->
-                    <a (click)="back(null)" style="color: #007276;"><localize key="explorer.root.label"></localize></a>
-                  </li>
-                  <li *ngFor="let entity of breadcrumbs; last as isLast" [ngClass]="{'active':isLast}">
-                    <a *ngIf="!isLast" (click)="back(entity)" style="color: #007276;"> {{entity.properties.displayLabel.localizedValue}}</a>
-                    <span *ngIf="isLast">
-                      <b>{{entity.properties.displayLabel.localizedValue}}</b>
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section">
-                  <label>
-                    <localize key="explorer.date.label"></localize>
-                  </label>
-                  <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
+      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
+        <div>
+          <div class="row">
+            <div class="col-md-12">
+  <!--             <div *ngIf="current != null && type != null"> -->
+  <!--               <i class="fa fa-arrow-right clickable" aria-hidden="true" (click)="this.mode = this.MODE.VIEW"></i>               -->
+  <!--             </div> -->
+  
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="location-management-widget-section">
+<!--                     <label> -->
+<!--                       <localize key="explorer.date.label"></localize> -->
+<!--                     </label> -->
+                    <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" [disabled]="mode !== MODE.SEARCH"/>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Search bar -->
-            <!-- <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section"> -->
-                  <!-- 
-                        <input class="form-control search-input" type="text" placeholder="Search..." [(ngModel)]="search"
-                          [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="handleClick($event)"
-                          [typeaheadOptionsLimit]="10" [typeaheadItemTemplate]="bsItemTemplate" typeaheadOptionField="label"
-                          [ngModelOptions]="{standalone: true}" (keydown.enter)="$event.preventDefault()" />
- -->
-                <!-- </div>
-              </div>
-            </div> -->
-
-            <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section">
-                  <label>
-                    <localize key="explorer.hierarchy.label"></localize>
-                  </label>
-                  <select id="hierarchy" name="hierarchy" class="select-area" [(ngModel)]="hierarchy" (change)="refresh()"  required>
-                    <option></option>
-                    <option *ngFor="let hierarchy of data.hierarchies" [value]="hierarchy.code">{{hierarchy.label.localizedValue}}</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section">
-                  <label>
-                    <localize key="explorer.hierarchy.branch.label"></localize>
-                  </label>
-                  <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="childType" (change)="refresh()" required>
-                    <option></option>
-                    <option *ngFor="let type of data.types" [value]="type.code">{{type.label.localizedValue}}</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-12">
-            <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container">
-                  <div class="list-group">
-
-                    <div *ngFor="let node of data.geojson.features; let i = index" class="list-group-item">
-                      <!-- Single column card -->
-                      <div class="card card-default" (click)="zoomToFeature(node, $event)" >
-                        <div class="card-body">
-                          <i class="fa fa-level-down clickable" style="float: right;" aria-hidden="true" (click)="select(node, $event)" title="Drill into location"></i>
-                          <h4 class="clickable" style="word-break: break-all;" title="Zoom to location">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
-                        </div>
-                      </div>
+  
+              <!-- Search bar -->
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="location-management-widget-section">
+                    <div class="input-group">
+                      <input type="text" class="form-control" [(ngModel)]="text" name="text" [disabled]="mode !== MODE.SEARCH">
+                      <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" (click)="search()" [disabled]="mode !== MODE.SEARCH">
+                          <span class="glyphicon glyphicon-search" aria-hidden="true"></span> 
+<!--                           <localize key="explorer.search.button.message"></localize> -->
+                        </button>
+                      </span>
                     </div>
-
-                <!-- <tab heading="Context Layers"> 
-                  <div class="list-group">
-                    <div *ngFor="let list of lists; let i = index" class="list-group-item">
-                      {{ list.displayLabel.localizedValue }}
-                      <div class="list-group">
-                        <div *ngFor="let version of list.versions" class="list-group-item">
-                          <input type="checkbox" (click)="toggleContextLayer(version.oid)"> {{ version.forDate }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>              
-                </tab>  -->
+                       <div *ngIf="mode === MODE.VIEW && current != null" style="padding: 20px 0;">
+              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>              
+            </div>
+                    
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+  
+          <div class="row"  *ngIf="mode === MODE.SEARCH">
+            <div class="col-md-12">
+              <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container">
+                    <div class="list-group">
+  
+                      <div *ngFor="let node of data; let i = index" class="list-group-item">
+                        <!-- Single column card -->
+                        <div class="card card-default" (click)="select(node, $event)">
+                          <div class="card-body">
+                            <i class="arrow arrow-right clickable" style="float: right;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Drill into location"></i>
+                            <h4 class="clickable" style="word-break: break-all;" title="Zoom to location">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+                          </div>
+                        </div>
+                      </div>
+  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>    
+        <div *ngIf="mode === MODE.VIEW && current != null" class="row">
+          <div class="col-md-12">
+<!--             <div style="padding: 20px 0;"> -->
+<!--               <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>               -->
+<!--             </div> -->
+            <feature-panel
+              [type]="type"
+              [code]="current.properties.code"              
+              [forDate]="forDate"
+              [geometryChange]="geometryChange"
+              (geometryEdit)="onGeometryEdit($event)"
+              (featureChange)="search()"                            
+            ></feature-panel>
+          </div>
+        </div>            
       </div>
 
       <div class="col-md-9" id="site-explorer-map">
         <div class="row">
           
           <article class="base-layer-panel">
-            <div class="layer-toggle" (mouseenter)="baselayerIconHover = true" (mouseleave)="baselayerIconHover = false">
-              
-              <i class="fa fa-bars" *ngIf="!baselayerIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
-              <div *ngIf="baselayerIconHover">
-
-                <div style="margin-bottom: 10px;">
-                  <h4>
-                    <localize key="explorer.base.layers.label"></localize>
-                  </h4>
-                  <div class="row-form" *ngFor="let baseLayer of baseLayers">
-                    <input class="layer-toggle-input" type='radio' name='rtoggle' [value]='baseLayer.id' [checked]="baseLayer.selected" (change)="handleBasemapStyle(baseLayer)"> 
-                    <label class="layer-toggle-label">{{baseLayer.label}}</label>
-                  </div>
-                </div>
-
-                <div *ngIf="hasEnabledContextLayers()">
-                  <h4>
-                    <localize key="explorer.context.layers.label"></localize>
-                  </h4>
-                  <div class="list-group">
-                    <div *ngFor="let cLayerGroup of contextLayerGroups;" >
-                      <div *ngIf="groupHasEnabledContextLayers(cLayerGroup.oid)" class="list-group-item" style="border:none;">
-                        <label>{{ cLayerGroup.displayLabel }}</label>
-                        <div class="list-group">
-                          <div *ngFor="let cLayer of cLayerGroup.contextLayers">
-                            <div class="list-group-item" style="border:none;" *ngIf="cLayer.enabled">
-                              <input type="checkbox" [checked]="cLayer.active" (click)="toggleContextLayer(cLayer.oid)"> 
-                         
-                              <!-- <boolean-field [(value)]="cLayer.active" [label]="cLayer.displayLabel" (change)="toggleContextLayer(cLayer.oid)"></boolean-field> -->
-
-
-                              {{ cLayer.displayLabel }}
-                              <i class="fa fa-times delete-btn clickable" aria-hidden="true" (click)="removeContextLayer(cLayer)"></i>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                  </div>
-                </div>
-
-                <button class="btn btn-primary" (click)="addContextLayerModal()" >+ Add Context Layer</button>
-              </div>
-
-            </div>
+            <layer-panel (layerChange)="onContextLayerChange($event)"></layer-panel>
           </article>
 
           <div id="map" class="map-view-port"></div>
+          <simple-edit-control [visible]="editingControl != null" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control>
+          
         </div>
       </div>
     </div>

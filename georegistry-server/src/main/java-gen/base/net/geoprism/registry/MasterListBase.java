@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 869676147)
+@com.runwaysdk.business.ClassSignature(hash = 1023387615)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -66,7 +48,7 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String USECONSTRAINTS = "useConstraints";
   public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
-  private static final long serialVersionUID = 869676147;
+  private static final long serialVersionUID = 1023387615;
   
   public MasterListBase()
   {
@@ -1096,6 +1078,18 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static MasterList getByKey(String key)
   {
     return (MasterList) com.runwaysdk.business.Business.get(CLASS, key);
+  }
+  
+  public net.geoprism.registry.MasterListVersion createVersion(java.util.Date forDate, java.lang.String versionType)
+  {
+    String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.MasterList.java";
+    throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
+  }
+  
+  public static final net.geoprism.registry.MasterListVersion createVersion(java.lang.String oid, java.util.Date forDate, java.lang.String versionType)
+  {
+    MasterList _instance = MasterList.get(oid);
+    return _instance.createVersion(forDate, versionType);
   }
   
   public static MasterList lock(java.lang.String oid)

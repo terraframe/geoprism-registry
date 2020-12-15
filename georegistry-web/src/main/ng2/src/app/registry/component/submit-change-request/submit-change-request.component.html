@@ -32,10 +32,13 @@
                 </div>
                 <div class="holder">
                     <span class="text">
-                        <input type="text" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId"
-                            [typeaheadAsync]="true" [typeahead]="dataSource"
+                        <input type="text" [ngClass]="{'inline-loading':loading}" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId"
+                            [typeaheadAsync]="true" [typeahead]="dataSource" 
                             (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7"
-                            typeaheadOptionField="name" class="form-control" autocomplete="off" required>
+                            typeaheadOptionField="name"
+                            (typeaheadLoading)="changeTypeaheadLoading($event)"                            
+                            [placeholder]="('masterlist.search' | localize) + '...'"
+                             class="form-control" autocomplete="off" required>
 
                     </span>
                 </div>

@@ -18,10 +18,10 @@ import { HierarchyType } from '@registry/model/hierarchy';
 export class CreateGeoObjTypeModalComponent implements OnInit {
 
 	geoObjectType: GeoObjectType;
-	organizations: Organization[] = [];
+	organization: Organization = null;
 	message: string = null;
 	parents: GeoObjectType[];
-	hierarchyType:HierarchyType;
+	hierarchyType: HierarchyType;
 	organizationLabel: string;
 
     /*
@@ -46,43 +46,23 @@ export class CreateGeoObjTypeModalComponent implements OnInit {
 		};
 	}
 
-	init(organizations: Organization[], parents: GeoObjectType[], groupSuperType: GeoObjectType, isAbstract: boolean) {
-		
+	init(organization: Organization, parents: GeoObjectType[], groupSuperType: GeoObjectType, isAbstract: boolean) {
+
 		this.geoObjectType.isAbstract = isAbstract ? isAbstract : false;
-		
-		if (groupSuperType)
-		{
-		  this.geoObjectType.superTypeCode = groupSuperType.code;
-		  this.geoObjectType.geometryType = groupSuperType.geometryType;
+
+		if (groupSuperType) {
+			this.geoObjectType.superTypeCode = groupSuperType.code;
+			this.geoObjectType.geometryType = groupSuperType.geometryType;
+			this.geoObjectType.isPrivate = groupSuperType.isPrivate;
 		}
-		
+
 		// Filter out parents that are not abstract
 		this.parents = parents.filter(parent => parent.isAbstract);
 
 		// Filter out organizations they're not RA's of
-		this.organizations = [];
-
-		for (var i = 0; i < organizations.length; ++i) {
-			if (this.auth.isOrganizationRA(organizations[i].code)) {
-				this.organizations.push(organizations[i]);
-			}
-		}
-
-		if (this.organizations.length === 1) {
-			this.geoObjectType.organizationCode = this.organizations[0].code;
-			this.organizationLabel = this.organizations[0].label.localizedValue;
-		}
-	}
-
-	getOrganizationLabelFromCode(orgCode: string) {
-		for (var i = 0; i < this.organizations.length; ++i) {
-			if (this.organizations[i].code === orgCode) {
-				return this.organizations[i].label.localizedValue;
-			}
-		}
-
-		console.log("Did not find org with code [" + orgCode + "]");
-		return orgCode;
+		this.organization = organization;
+		this.geoObjectType.organizationCode = this.organization.code;
+		this.organizationLabel = this.organization.label.localizedValue;
 	}
 
 	handleOnSubmit(): void {

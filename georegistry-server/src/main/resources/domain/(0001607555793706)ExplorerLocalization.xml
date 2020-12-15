@@ -1,0 +1,96 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+     <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.add.context.layer.button.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.add.context.layer.button.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Context Layer" />
+        </attributeStruct>
+      </object>
+      
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.back.to.results">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.back.to.results" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Back to results" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.edit.geometry.button.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.edit.geometry.button.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit Geometry" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization.defaultLocale">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization.defaultLocal" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Default Locale" />
+        </attributeStruct>
+      </object>
+      
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.newGeoObjectType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.newGeoObjectType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add New Geo-Object Type" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="localization.default.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="localization.default.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Default" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.value.required.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="manage.versions.value.required.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Value is required" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.start.date.required.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="manage.versions.start.date.required.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Start date is required" />
+        </attributeStruct>
+      </object>
+      
+       <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.button.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.search.button.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.geometry.section">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.geometry.section" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geometry" />
+        </attributeStruct>
+      </object>
+      
+   </createOrUpdate>
+   
+   
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

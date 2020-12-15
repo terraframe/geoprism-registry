@@ -4,22 +4,24 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
@@ -93,6 +96,7 @@ import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerGeoObjectType
@@ -250,7 +254,9 @@ public class ServerGeoObjectType
 
     if (hierarchies.size() > 0)
     {
-      throw new TypeInUseException("Cannot delete a GeoObjectType with children");
+      StringBuilder codes = hierarchies.stream().collect(StringBuilder::new, (x, y) -> x.append(y.getCode()), (a, b) -> a.append(",").append(b));
+      
+      throw new TypeInUseException("Cannot delete a GeoObjectType used in the hierarchies: " + codes);
     }
 
     // for (String hierarchy : hierarchies)
@@ -271,6 +277,16 @@ public class ServerGeoObjectType
     // }
 
     /*
+     * Delete all subtypes
+     */
+    List<ServerGeoObjectType> subtypes = this.getSubtypes();
+
+    for (ServerGeoObjectType subtype : subtypes)
+    {
+      subtype.deleteInTransaction();
+    }
+
+    /*
      * Delete all inherited hierarchies
      */
     List<? extends InheritedHierarchyAnnotation> annotations = InheritedHierarchyAnnotation.getByUniversal(getUniversal());
@@ -287,6 +303,8 @@ public class ServerGeoObjectType
      */
     AttributeHierarchy.deleteByUniversal(this.universal);
 
+    this.getMetadata().delete();
+    
     // This deletes the {@link MdBusiness} as well
     this.universal.delete(false);
 
@@ -325,8 +343,10 @@ public class ServerGeoObjectType
         }
       }
     }
-
+    
     MasterList.markAllAsInvalid(null, this);
+
+    new SearchService().clear(this.getCode());
   }
 
   public void update(GeoObjectType geoObjectTypeNew)
@@ -338,7 +358,19 @@ public class ServerGeoObjectType
     ServerGeoObjectType geoObjectTypeModifiedApplied = new ServerGeoObjectTypeConverter().build(universal);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(geoObjectTypeModifiedApplied);
+    ServiceFactory.getMetadataCache().refreshGeoObjectType(geoObjectTypeModifiedApplied);
+    
+    // Modifications to supertypes can affect subtypes (i.e. changing isPrivate). We should refresh them as well.
+    if (geoObjectTypeModifiedApplied.getIsAbstract())
+    {
+      List<ServerGeoObjectType> subtypes = geoObjectTypeModifiedApplied.getSubtypes();
+      
+      for (ServerGeoObjectType subtype : subtypes)
+      {
+        ServerGeoObjectType refreshedSubtype = new ServerGeoObjectTypeConverter().build(subtype.getUniversal());
+        ServiceFactory.getMetadataCache().refreshGeoObjectType(refreshedSubtype);
+      }
+    }
 
     this.type = geoObjectTypeModifiedApplied.getType();
     this.universal = geoObjectTypeModifiedApplied.getUniversal();
@@ -362,12 +394,25 @@ public class ServerGeoObjectType
     mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
     mdBusiness.getDescription().setValue(universal.getDescription().getValue());
     mdBusiness.apply();
+    
+    GeoObjectTypeMetadata metadata = this.getMetadata();
+    if (! metadata.getIsPrivate().equals(geoObjectType.getIsPrivate()))
+    {
+      metadata.appLock();
+      metadata.setIsPrivate(geoObjectType.getIsPrivate());
+      metadata.apply();
+    }
 
     mdBusiness.unlock();
 
     universal.unlock();
 
     return universal;
+  }
+  
+  public GeoObjectTypeMetadata getMetadata()
+  {
+    return GeoObjectTypeMetadata.getByKey(this.universal.getKey());
   }
 
   public AttributeType createAttributeType(String attributeTypeJSON)
@@ -383,7 +428,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     // Refresh the users session
     if (Session.getCurrentSession() != null)
@@ -392,6 +437,20 @@ public class ServerGeoObjectType
     }
 
     return attrType;
+  }
+
+  private void refreshCache()
+  {
+    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+
+    // Refresh all of the subtypes
+    List<ServerGeoObjectType> subtypes = this.getSubtypes();
+    for (ServerGeoObjectType subtype : subtypes)
+    {
+      ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(subtype.getUniversal());
+
+      ServiceFactory.getMetadataCache().addGeoObjectType(type);
+    }
   }
 
   /**
@@ -547,7 +606,7 @@ public class ServerGeoObjectType
     this.type.removeAttribute(attributeName);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     // Refresh the users session
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -627,7 +686,7 @@ public class ServerGeoObjectType
     this.type.addAttribute(attrType);
 
     // If this did not error out then add to the cache
-    ServiceFactory.getMetadataCache().addGeoObjectType(this);
+    this.refreshCache();
 
     return attrType;
   }
@@ -1024,9 +1083,9 @@ public class ServerGeoObjectType
     else
     {
       net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-      ex.setTypeLabel(GeoObjectTypeMetadata.get().getClassDisplayLabel());
+      ex.setTypeLabel(GeoObjectTypeMetadata.sGetClassDisplayLabel());
       ex.setDataIdentifier(code);
-      ex.setAttributeLabel(GeoObjectTypeMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
       throw ex;
     }
   }
@@ -1050,6 +1109,16 @@ public class ServerGeoObjectType
     String code = mdVertex.getTypeName();
 
     return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
+  }
+
+  public boolean getIsPrivate()
+  {
+    return this.type.getIsPrivate();
+  }
+  
+  public void setIsPrivate(Boolean isPrivate)
+  {
+    this.type.setIsPrivate(isPrivate);
   }
 
   // public String buildRMRoleName()

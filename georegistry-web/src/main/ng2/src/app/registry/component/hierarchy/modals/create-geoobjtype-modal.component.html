@@ -28,7 +28,8 @@
       <div class="col-md-12">
         <div class="form-group" *ngFor="let localeValue of geoObjectType.label.localeValues">
           <label>
-            <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
+            <localize key="data.property.label.label"></localize> 
+            <span style="color: #BABABA"> ({{localeValue.locale}})</span>
           </label>
           <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
             class="form-control" [required]="localeValue.locale === 'defaultLocale'">
@@ -41,7 +42,8 @@
         <div class="form-group" *ngFor="let localeValue of geoObjectType.description.localeValues">
           <div>
             <label>
-              <localize key="data.property.label.description"></localize> ({{localeValue.locale}})
+              <localize key="data.property.label.description"></localize> 
+              <span style="color: #BABABA"> ({{localeValue.locale}})</span>
             </label>
             <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input"
               class="form-control">
@@ -55,6 +57,16 @@
         <div class="form-group">
           <div class="check-block">
             <boolean-field [disable]="true" [(value)]="geoObjectType.isAbstract" [localizeLabelKey]="'attribute.isAbstract.label'"></boolean-field>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-12" style="margin-bottom: 15px;">
+        <div class="form-group">
+          <div class="check-block">
+            <boolean-field [disable]="geoObjectType.superTypeCode != null" [(value)]="geoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
           </div>
         </div>
       </div>
@@ -136,11 +148,9 @@
           <label for="organization">
             <localize key="attribute.organization.label"></localize>
           </label>
-          <select *ngIf="organizations.length > 1" class="select-area" name="organization" [(ngModel)]="geoObjectType.organizationCode" required>
-            <option></option>
-            <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
-          </select>
-          <span *ngIf="organizations.length == 1" class="text"><input type="text" name="organization" [(ngModel)]="organizationLabel" disabled required></span>
+          <span class="text">
+            <input type="text" name="organization" [(ngModel)]="organizationLabel" disabled required>
+          </span>
         </div>
       </div>
     </div>

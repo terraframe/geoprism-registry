@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
@@ -54,6 +55,7 @@ import net.geoprism.registry.etl.PublishMasterListJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
@@ -91,10 +93,9 @@ public class MasterListService
     {
       MasterList masterList = MasterList.get(oid);
 
-      this.enforceWritePermissions(masterList);
+      this.enforceWritePermissions(masterList, MasterListVersion.PUBLISHED);
 
       masterList.delete();
-
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
     catch (DataNotFoundException e)
@@ -113,7 +114,7 @@ public class MasterListService
       throw new InvalidMasterListException();
     }
 
-    this.enforceWritePermissions(masterList);
+    this.enforceWritePermissions(masterList, MasterListVersion.EXPLORATORY);
 
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
 
@@ -127,7 +128,7 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
-    this.enforceWritePermissions(masterList);
+    this.enforceWritePermissions(masterList, MasterListVersion.PUBLISHED);
 
     masterList.publishFrequencyVersions();
   }
@@ -137,7 +138,7 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
-    this.enforceWritePermissions(masterList);
+    this.enforceWritePermissions(masterList, MasterListVersion.PUBLISHED);
 
     QueryFactory factory = new QueryFactory();
 
@@ -201,9 +202,9 @@ public class MasterListService
 
     MasterList masterlist = version.getMasterlist();
 
-    this.enforceWritePermissions(masterlist);
+    this.enforceWritePermissions(masterlist, version.getVersionType());
 
-    return version.publish();
+    return JsonParser.parseString(version.publish()).getAsJsonObject();
   }
 
   @Request(RequestType.SESSION)
@@ -211,7 +212,7 @@ public class MasterListService
   {
     MasterListVersion version = MasterListVersion.get(oid);
 
-    this.enforceWritePermissions(version.getMasterlist());
+    this.enforceWritePermissions(version.getMasterlist(), MasterListVersion.PUBLISHED);
 
     QueryFactory factory = new QueryFactory();
 
@@ -258,6 +259,12 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
+  public String getBounds(String sessionId, String oid)
+  {
+    return MasterListVersion.get(oid).bbox();
+  }
+
+  @Request(RequestType.SESSION)
   public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter, String sort)
   {
     MasterListVersion version = MasterListVersion.get(oid);
@@ -301,7 +308,7 @@ public class MasterListService
     {
       MasterListVersion version = MasterListVersion.get(oid);
 
-      this.enforceWritePermissions(version.getMasterlist());
+      this.enforceWritePermissions(version.getMasterlist(), MasterListVersion.PUBLISHED);
 
       version.delete();
 
@@ -352,12 +359,16 @@ public class MasterListService
     }
   }
 
-  private void enforceWritePermissions(MasterList masterList)
+  private void enforceWritePermissions(MasterList masterList, String versionType)
   {
     ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
     Organization organization = geoObjectType.getOrganization();
 
-    if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
+    if (versionType.equals(MasterListVersion.EXPLORATORY) && new RolePermissionService().isRC(geoObjectType))
+    {
+      // Good to go
+    }
+    else if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
     {
       CreateListPermissionException ex = new CreateListPermissionException();
       ex.setOrganization(organization.getDisplayLabel().getValue());

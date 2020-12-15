@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -99,6 +99,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
+import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -597,7 +598,7 @@ public class RegistryService
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getIsPrivate(), geoObjectType.getLabel().getValue());
 
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
 
@@ -624,7 +625,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
@@ -648,7 +649,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
@@ -673,7 +674,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     got.removeAttribute(attributeName);
   }
@@ -846,7 +847,7 @@ public class RegistryService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getIsPrivate(), type.getLabel().getValue());
 
     if (type != null)
     {
@@ -1034,6 +1035,14 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
+  public String getCurrentLocale(String sessionId)
+  {
+    Locale locale = Session.getCurrentLocale();
+
+    return locale.toString();
+  }
+
+  @Request(RequestType.SESSION)
   public CustomSerializer serializer(String sessionId)
   {
     Locale locale = Session.getCurrentLocale();
@@ -1104,6 +1113,32 @@ public class RegistryService
     ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
 
     return object.toGeoObjectOverTime();
+  }
+
+  @Request(RequestType.SESSION)
+  public List<GeoObject> search(String sessionId, String typeCode, String text, Date date)
+  {
+    List<GeoObject> objects = new LinkedList<GeoObject>();
+
+    if (date == null)
+    {
+      date = ValueOverTime.INFINITY_END_DATE;
+    }
+
+    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+
+    ServerGeoObjectQuery query = this.service.createQuery(type, date);
+    query.setRestriction(new ServerSynonymRestriction(text, date));
+    query.setLimit(20);
+
+    List<ServerGeoObjectIF> results = query.getResults();
+
+    for (ServerGeoObjectIF result : results)
+    {
+      objects.add(result.toGeoObject());
+    }
+
+    return objects;
   }
 
 }

@@ -93,22 +93,41 @@ input[type="text"]::-moz-placeholder{
 input[type="text"]:focus {
    
 }
-input[type="text"][disabled] {
+input[type="text"][disabled],
+input[type="number"][disabled],
+select[disabled] {
     color: #999;
 }
-input[type="text"]:-ms-input-placeholder{color:#333;}
-input[type="text"]::-webkit-input-placeholder{color:#333;}
-input[type="text"]:-moz-placeholder{color:#333;}
-/* input[type="text"]:focus{
-    border-color: #6BA542; 
-    border-color:var(--theme-input-text-border-active);
-} */
-input[type="text"]:disabled {
-    color: #999;
+input[type="text"]:-ms-input-placeholder,
+input[type="number"]:-ms-input-placeholder,
+select[disabled]:-ms-input-placeholder {color:#333;}
+input[type="text"]::-webkit-input-placeholder,
+input[type="number"]::-webkit-input-placeholder,
+select[disabled]::-webkit-input-placeholder {color:#333;}
+input[type="text"]:-moz-placeholder,
+input[type="number"]:-moz-placeholder,
+select[disabled]:-moz-placeholder {color:#333;}
+input[type="text"]:disabled,
+input[type="number"]:disabled,
+input[type="date"]:disabled,
+select[disabled]:disabled,
+input[type="text"]:disabled:-webkit-autofill,
+input[type="text"]:disabled:-webkit-autofill:hover, 
+input[type="text"]:disabled:-webkit-autofill:focus {
+    color: #999 !important;
+	-webkit-text-fill-color: #999;
     box-shadow: none;
     border-color: #ccc;
     border-color: var(--theme-input-text-border-disabled);
 }
+
+input[type=search] {
+	background-color: white !important;
+}
+input[type=search][disabled]:disabled {
+	color: #999 !important;
+}
+
 
 input[type="textarea"]{
 	width:100%;
@@ -176,4 +195,12 @@ textarea.ng-invalid:required {
     color: var(--theme-alert-color);
     font-size: 14px;
     margin: 5px 0 0 0;
+}
+
+input.inline-loading {    
+    background-color: #ffffff;
+	background-image: url('../images/loading_spinner_splitring.gif');
+    background-size: 25px 25px;
+    background-position:right center;
+    background-repeat: no-repeat;
 }

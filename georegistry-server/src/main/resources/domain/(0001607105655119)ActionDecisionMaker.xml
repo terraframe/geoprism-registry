@@ -1,0 +1,35 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdBusiness name="net.geoprism.registry.action.AbstractAction">
+        <create>
+          <attributes>
+            <reference name="decisionMaker" type="com.runwaysdk.system.SingleActor" label="Decision Maker" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.status.rejectedBy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.status.rejectedBy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Rejected By" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.status.approvedBy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.status.approvedBy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Accepted By" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.action.AbstractAction.decisionMaker"/>
+    </delete>
+  </undoIt>
+</version>

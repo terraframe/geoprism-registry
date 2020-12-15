@@ -242,15 +242,6 @@ export class MasterListComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	onGoto(data): void {
-		const oid = data.code;
-
-		if (oid != null && oid.length > 0) {
-			window.open(acp + "/nav/management#/locations/" + oid, '_blank');
-		}
-
-	}
-
 	onPublish(): void {
 		this.message = null;
 
@@ -295,6 +286,9 @@ export class MasterListComponent implements OnInit, OnDestroy {
 		});
 	}
 
+	changeTypeaheadLoading(attribute: any, loading: boolean): void {
+		attribute.loading = loading;
+	}
 
 	error(err: HttpErrorResponse): void {
 		this.message = ErrorHandler.getMessageFromError(err);

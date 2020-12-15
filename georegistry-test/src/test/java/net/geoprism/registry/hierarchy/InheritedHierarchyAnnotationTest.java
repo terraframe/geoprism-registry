@@ -21,8 +21,8 @@ package net.geoprism.registry.hierarchy;
 import java.util.List;
 
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.HierarchyType.HierarchyNode;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;

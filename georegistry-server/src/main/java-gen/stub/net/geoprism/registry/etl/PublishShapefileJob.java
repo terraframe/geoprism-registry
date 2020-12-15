@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.etl;
 
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,6 +31,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -58,6 +62,9 @@ public class PublishShapefileJob extends PublishShapefileJobBase
 
   public JSONObject toJSON()
   {
+    SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+
     final MasterListVersion version = this.getVersion();
     final MasterList masterlist = version.getMasterlist();
 
@@ -74,8 +81,8 @@ public class PublishShapefileJob extends PublishShapefileJobBase
       object.put(JobHistory.STATUS, history.getStatus().get(0).getDisplayLabel());
       object.put("date", version.getPublishDate());
       object.put("author", user.getUsername());
-      object.put("createDate", history.getCreateDate());
-      object.put("lastUpdateDate", history.getLastUpdateDate());
+      object.put("createDate", format.format(history.getCreateDate()));
+      object.put("lastUpdateDate", format.format(history.getLastUpdateDate()));
       object.put("workProgress", history.getWorkProgress());
       object.put("workTotal", history.getWorkTotal());
       object.put("historyoryId", history.getOid());

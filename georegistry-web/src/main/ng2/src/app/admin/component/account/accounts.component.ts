@@ -30,6 +30,7 @@ import { User, Account } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
 import { AccountComponent } from './account.component';
 import { AccountInviteComponent } from '../account/account-invite.component';
+import { AuthService } from '@shared/service';
 
 @Component({
 	selector: 'accounts',
@@ -45,8 +46,11 @@ export class AccountsComponent implements OnInit {
 	};
 	bsModalRef: BsModalRef;
 	message: string = null;
+	isRA: boolean = false;
 
-	constructor(private service: AccountService, private modalService: BsModalService) { }
+	constructor(private service: AccountService, private modalService: BsModalService, authService:AuthService) {
+		this.isRA = authService.isRA();
+	 }
 
 	ngOnInit(): void {
 		this.service.page(1).then(res => {
@@ -95,7 +99,7 @@ export class AccountsComponent implements OnInit {
 		});
 
 	}
-	
+
 	inviteUsers(): void {
 		// this.router.navigate(['/admin/invite']);	  
 

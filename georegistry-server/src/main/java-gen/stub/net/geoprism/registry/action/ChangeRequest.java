@@ -4,21 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,9 +39,9 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
-import net.geoprism.EmailSetting;
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ChangeRequest extends ChangeRequestBase
 {
@@ -104,7 +105,7 @@ public class ChangeRequest extends ChangeRequestBase
 
   public JSONObject toJSON()
   {
-    DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Session.getCurrentLocale());
+    DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
 
     Users user = (Users) this.getCreatedBy();
     AllGovernanceStatus status = this.getApprovalStatus().get(0);
@@ -115,6 +116,12 @@ public class ChangeRequest extends ChangeRequestBase
     object.put(ChangeRequest.CREATEDBY, user.getUsername());
     object.put(ChangeRequest.APPROVALSTATUS, status.getDisplayLabel());
     object.put(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
+
+    if (user instanceof GeoprismUser)
+    {
+      object.put("email", ( (GeoprismUser) user ).getEmail());
+      object.put("phoneNumber", ( (GeoprismUser) user ).getPhoneNumber());
+    }
 
     return object;
   }
@@ -223,7 +230,7 @@ public class ChangeRequest extends ChangeRequestBase
             body += append(rejected, "change.request.email.body.rejected");
           }
 
-//          EmailSetting.sendEmail(subject, body, new String[] { email });
+          // EmailSetting.sendEmail(subject, body, new String[] { email });
         }
       }
     }

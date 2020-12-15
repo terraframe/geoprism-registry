@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1072900028)
+@com.runwaysdk.business.ClassSignature(hash = -978034274)
 public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterListVersion";
-  private static final long serialVersionUID = -1072900028;
+  private static final long serialVersionUID = -978034274;
   
   protected MasterListVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -615,6 +597,22 @@ public abstract class MasterListVersionDTOBase extends com.runwaysdk.business.Bu
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getVersionTypeMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(VERSIONTYPE).getAttributeMdDTO();
+  }
+  
+  public final java.lang.String publish()
+  {
+    String[] _declaredTypes = new String[]{};
+    Object[] _parameters = new Object[]{};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListVersionDTO.CLASS, "publish", _declaredTypes);
+    return (java.lang.String) getRequest().invokeMethod(_metadata, this, _parameters);
+  }
+  
+  public static final java.lang.String publish(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  {
+    String[] _declaredTypes = new String[]{"java.lang.String"};
+    Object[] _parameters = new Object[]{oid};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListVersionDTO.CLASS, "publish", _declaredTypes);
+    return (java.lang.String) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public static net.geoprism.registry.MasterListVersionDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)

@@ -1,0 +1,26 @@
+.attribute-version-wrapper table {
+	width: 100%;
+}
+
+.attribute-version-wrapper .attribute-element-wrapper .attribute-value-row tr td {
+	padding: 0;
+	vertical-align: top; 
+	width: 100%; 
+	padding-top: 5px;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row td {
+	vertical-align: top !important;
+	text-align: left;
+	width: 50%;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row input {
+	width:100%;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row p {
+	font-size:14px;
+	font-weight: bold;
+	line-height:40px;
+}
+
+
+

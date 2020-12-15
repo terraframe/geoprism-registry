@@ -180,14 +180,16 @@ public class DataExportJob extends DataExportJobBase
    */
   public static String getAPIVersion(DHIS2ExternalSystem system)
   {
-    String in = system.getVersion();
-
-    if (in.startsWith("2.31"))
-    {
-      return "26";
-    }
-
-    return "26"; // We currently only support API version 26 right now anyway
+//    String in = system.getVersion();
+//
+//    if (in.startsWith("2.31"))
+//    {
+//      return "26";
+//    }
+//
+//    return "26"; // We currently only support API version 26 right now anyway
+    
+    return null;
   }
   
   public static DHIS2ServiceIF getDHIS2Service(DHIS2ExternalSystem system)

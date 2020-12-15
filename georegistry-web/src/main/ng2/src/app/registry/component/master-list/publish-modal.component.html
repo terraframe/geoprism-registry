@@ -16,7 +16,8 @@
         <fieldset>
             <div class="row-holder" *ngFor="let localeValue of master.displayLabel.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.label"></localize> ({{localeValue.locale}})
+                    <label> <localize key="masterlist.label"></localize> 
+                    <span style="color: #BABABA">({{localeValue.locale}})</span>
                     </label>
                 </div>
                 <div class="holder">
@@ -33,6 +34,15 @@
                         <option></option>
                         <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
                     </select>
+                </div>
+            </div>
+            <div class="row-holder" *ngIf="types && (readonly || edit)">
+                <div class="label-holder">
+                    <label for="typeCode"> <localize key="io.geoObjectType"></localize>
+                    </label>
+                </div>
+                <div class="holder">
+                  <input [(ngModel)]="master.typeLabel.localizedValue" name="code" type="text" class="form-control" disabled />
                 </div>
             </div>
             <div class="row-holder">
@@ -52,6 +62,7 @@
                     <select class="select-area" name="frequency" [(ngModel)]="master.frequency" [disabled]="readonly" required #frequency="ngModel">
                         <option></option>
                         <option value="ANNUAL"><localize key="georegistry.frequency.annual"></localize></option>
+                        <option value="BIANNUAL"><localize key="georegistry.frequency.biannual"></localize></option>
                         <option value="QUARTER"><localize key="georegistry.frequency.quarter"></localize></option>
                         <option value="MONTHLY"><localize key="georegistry.frequency.monthly"></localize></option>
                     </select>                    
