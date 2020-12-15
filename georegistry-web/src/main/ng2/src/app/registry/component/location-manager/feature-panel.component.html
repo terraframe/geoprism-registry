@@ -7,10 +7,11 @@
       [preGeoObject]="preGeoObject" 
       [postGeoObject]="postGeoObject" 
       [forDate]="this.forDate" 
-      [isNew]="false" 
+      [isNew]="isNew" 
       [isEditingGeometries]="false" 
       [customEvent]="true"
       (onManageVersion)="onManageAttributeVersion($event)" 
+      (onChange)="onAttributeChange($event)" 
       [readOnly]="readOnly"> 
     </geoobject-shared-attribute-editor>
 
@@ -34,9 +35,11 @@
     </div>
 
     <div class="button-holder text-right" style="margin-bottom: 20px;">
+<!-- 
       <button *ngIf="readOnly" type="submit" (click)="onEditAttributes()" class="btn btn-primary" role="button">
         <localize key="changeovertime.manageVersions.button.label"></localize>
       </button>
+ -->    
       <button *ngIf="!readOnly" type="button" class="btn btn-default" (click)="onCancel()">
         <localize key="modal.button.cancel"></localize>
       </button>
