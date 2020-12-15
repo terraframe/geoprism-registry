@@ -137,6 +137,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		if (this.geometryEditor != null) {
 			this.geometryEditor.reload();
 		}
+
+		console.log("Post", this.calculatedPostObject);
 	}
 
 	calculateCurrent(goot: GeoObjectOverTime): any {
@@ -149,7 +151,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			object[attr.code] = null;
 
 			if (attr.type === 'local') {
-				object[attr.code] = this.lService.create();
+				object[attr.code] =
+				{
+					startDate: null,
+					endDate: null,
+					value: this.lService.create()
+				};
 			}
 
 			if (attr.isChangeOverTime) {
