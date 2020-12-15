@@ -14,7 +14,7 @@
       [readOnly]="readOnly">
     </geoobject-shared-attribute-editor>
     
-    <div *ngIf="!readOnly" class="button-holder" style="text-align: left;">
+    <div *ngIf="!readOnly && type != null && type.isGeometryEditable" class="button-holder" style="text-align: left;">
       <button type="submit" style="" (click)="this.mode = this.MODE.GEOMETRY" class="btn btn-primary" role="button">
         <localize key="explorer.edit.geometry.button.label"></localize>
       </button>
