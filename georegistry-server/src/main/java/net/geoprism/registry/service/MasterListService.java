@@ -28,6 +28,7 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
@@ -54,6 +55,7 @@ import net.geoprism.registry.etl.PublishMasterListJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
@@ -91,10 +93,9 @@ public class MasterListService
     {
       MasterList masterList = MasterList.get(oid);
 
-      this.enforceWritePermissions(masterList);
+      this.enforceWritePermissions(masterList, MasterListVersion.PUBLISHED);
 
       masterList.delete();
-
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
     catch (DataNotFoundException e)
@@ -113,7 +114,7 @@ public class MasterListService
       throw new InvalidMasterListException();
     }
 
-    this.enforceWritePermissions(masterList);
+    this.enforceWritePermissions(masterList, MasterListVersion.EXPLORATORY);
 
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
 
@@ -127,7 +128,7 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
-    this.enforceWritePermissions(masterList);
+    this.enforceWritePermissions(masterList, MasterListVersion.PUBLISHED);
 
     masterList.publishFrequencyVersions();
   }
@@ -137,7 +138,7 @@ public class MasterListService
   {
     MasterList masterList = MasterList.get(oid);
 
-    this.enforceWritePermissions(masterList);
+    this.enforceWritePermissions(masterList, MasterListVersion.PUBLISHED);
 
     QueryFactory factory = new QueryFactory();
 
@@ -201,9 +202,9 @@ public class MasterListService
 
     MasterList masterlist = version.getMasterlist();
 
-    this.enforceWritePermissions(masterlist);
+    this.enforceWritePermissions(masterlist, version.getVersionType());
 
-    return version.publish();
+    return JsonParser.parseString(version.publish()).getAsJsonObject();
   }
 
   @Request(RequestType.SESSION)
@@ -211,7 +212,7 @@ public class MasterListService
   {
     MasterListVersion version = MasterListVersion.get(oid);
 
-    this.enforceWritePermissions(version.getMasterlist());
+    this.enforceWritePermissions(version.getMasterlist(), MasterListVersion.PUBLISHED);
 
     QueryFactory factory = new QueryFactory();
 
@@ -307,7 +308,7 @@ public class MasterListService
     {
       MasterListVersion version = MasterListVersion.get(oid);
 
-      this.enforceWritePermissions(version.getMasterlist());
+      this.enforceWritePermissions(version.getMasterlist(), MasterListVersion.PUBLISHED);
 
       version.delete();
 
@@ -358,12 +359,16 @@ public class MasterListService
     }
   }
 
-  private void enforceWritePermissions(MasterList masterList)
+  private void enforceWritePermissions(MasterList masterList, String versionType)
   {
     ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
     Organization organization = geoObjectType.getOrganization();
 
-    if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
+    if (versionType.equals(MasterListVersion.EXPLORATORY) && new RolePermissionService().isRC(geoObjectType))
+    {
+      // Good to go
+    }
+    else if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
     {
       CreateListPermissionException ex = new CreateListPermissionException();
       ex.setOrganization(organization.getDisplayLabel().getValue());

@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 898523891)
+@com.runwaysdk.business.ClassSignature(hash = -1857915297)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = 898523891;
+  private static final long serialVersionUID = -1857915297;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -1262,6 +1244,22 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getVisibilityMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(VISIBILITY).getAttributeMdDTO();
+  }
+  
+  public final net.geoprism.registry.MasterListVersionDTO createVersion(java.util.Date forDate, java.lang.String versionType)
+  {
+    String[] _declaredTypes = new String[]{"java.util.Date", "java.lang.String"};
+    Object[] _parameters = new Object[]{forDate, versionType};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListDTO.CLASS, "createVersion", _declaredTypes);
+    return (net.geoprism.registry.MasterListVersionDTO) getRequest().invokeMethod(_metadata, this, _parameters);
+  }
+  
+  public static final net.geoprism.registry.MasterListVersionDTO createVersion(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid, java.util.Date forDate, java.lang.String versionType)
+  {
+    String[] _declaredTypes = new String[]{"java.lang.String", "java.util.Date", "java.lang.String"};
+    Object[] _parameters = new Object[]{oid, forDate, versionType};
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.MasterListDTO.CLASS, "createVersion", _declaredTypes);
+    return (net.geoprism.registry.MasterListVersionDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public static net.geoprism.registry.MasterListDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
