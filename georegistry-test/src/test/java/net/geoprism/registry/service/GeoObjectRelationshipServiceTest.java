@@ -48,27 +48,11 @@ public class GeoObjectRelationshipServiceTest
 {
   protected static FastTestDataset               testData;
   
-  public static final TestUserInfo          USER_CGOV_RM_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrmprivate", "cgovrmprivate", FastTestDataset.TEST_DATA_KEY + "cgovrmprivate@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
-
-  public static final TestUserInfo          USER_CGOV_RC_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrcprivate", "cgovrcprivate", FastTestDataset.TEST_DATA_KEY + "cgovrcprivate@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
-
-  public static final TestUserInfo          USER_CGOV_AC_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovacprivate", "cgovacprivate", FastTestDataset.TEST_DATA_KEY + "cgovacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
-
   @BeforeClass
   public static void setUpClass()
   {
     testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
-    
-    setUpClassMetadata();
-  }
-  
-  @Request
-  private static void setUpClassMetadata()
-  {
-    USER_CGOV_RM_PRIVATE.apply();
-    USER_CGOV_RC_PRIVATE.apply();
-    USER_CGOV_AC_PRIVATE.apply();
   }
   
   @AfterClass
@@ -157,7 +141,7 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetPrivateHierarchyTypes()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, USER_CGOV_RM_PRIVATE, USER_CGOV_RC_PRIVATE, USER_CGOV_AC_PRIVATE };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM_PRIVATE, FastTestDataset.USER_CGOV_RC_PRIVATE, FastTestDataset.USER_CGOV_AC_PRIVATE };
     for (TestUserInfo user : allowedUsers)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
@@ -277,7 +261,7 @@ public class GeoObjectRelationshipServiceTest
     final List<TestGeoObjectInfo> expectedChildren = new ArrayList<TestGeoObjectInfo>();
     expectedChildren.add(FastTestDataset.PROV_CENTRAL_PRIVATE);
 
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, USER_CGOV_RM_PRIVATE, USER_CGOV_RC_PRIVATE, USER_CGOV_AC_PRIVATE };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM_PRIVATE, FastTestDataset.USER_CGOV_RC_PRIVATE, FastTestDataset.USER_CGOV_AC_PRIVATE };
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
@@ -346,7 +330,7 @@ public class GeoObjectRelationshipServiceTest
     final List<TestGeoObjectInfo> expectedParents = new ArrayList<TestGeoObjectInfo>();
     expectedParents.add(FastTestDataset.CAMBODIA);
 
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, USER_CGOV_RM_PRIVATE, USER_CGOV_RC_PRIVATE, USER_CGOV_AC_PRIVATE };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM_PRIVATE, FastTestDataset.USER_CGOV_RC_PRIVATE, FastTestDataset.USER_CGOV_AC_PRIVATE };
     for (TestUserInfo user : allowedUsers)
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {

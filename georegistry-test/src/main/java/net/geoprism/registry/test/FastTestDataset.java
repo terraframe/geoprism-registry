@@ -107,6 +107,12 @@ public class FastTestDataset extends TestDataSet
   public static final TestUserInfo          USER_MOHA_RC          = new TestUserInfo(TEST_DATA_KEY + "_" + "moharc", "moharc", TEST_DATA_KEY + "moharc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
 
   public static final TestUserInfo          USER_MOHA_AC          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohaac", "mohaac", TEST_DATA_KEY + "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
+  
+  public static final TestUserInfo          USER_CGOV_RM_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrmprivate", "cgovrmprivate", FastTestDataset.TEST_DATA_KEY + "cgovrmprivate@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
+
+  public static final TestUserInfo          USER_CGOV_RC_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovrcprivate", "cgovrcprivate", FastTestDataset.TEST_DATA_KEY + "cgovrcprivate@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
+
+  public static final TestUserInfo          USER_CGOV_AC_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovacprivate", "cgovacprivate", FastTestDataset.TEST_DATA_KEY + "cgovacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
 
   public Term                               T_Religion;
 
@@ -144,6 +150,9 @@ public class FastTestDataset extends TestDataSet
     managedUsers.add(USER_MOHA_RM);
     managedUsers.add(USER_MOHA_RC);
     managedUsers.add(USER_MOHA_AC);
+    managedUsers.add(USER_CGOV_RM_PRIVATE);
+    managedUsers.add(USER_CGOV_RC_PRIVATE);
+    managedUsers.add(USER_CGOV_AC_PRIVATE);
   }
 
   public static FastTestDataset newTestData()

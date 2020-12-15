@@ -46,6 +46,11 @@ public abstract class AbstractLocationServiceTest
     
     testData.tearDownMetadata();
   }
+  
+  private int getNumProvinces()
+  {
+    return FastTestDataset.CAMBODIA.getChildren().size();
+  }
 
   @Test
   public void testGetLocationInformationNullTypeAndHierarchy()
@@ -58,7 +63,7 @@ public abstract class AbstractLocationServiceTest
     Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), information.getChildType().getCode());
     Assert.assertEquals(1, information.getChildren().size());
     Assert.assertNull(information.getEntity());
-    Assert.assertEquals(1, information.getHierarchies().size());
+    Assert.assertEquals(testData.getManagedHierarchyTypes().size(), information.getHierarchies().size());
     Assert.assertEquals(1, information.getChildTypes().size());
   }
 
@@ -73,8 +78,8 @@ public abstract class AbstractLocationServiceTest
     Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), information.getChildType().getCode());
     Assert.assertEquals(1, information.getChildren().size());
     Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), information.getEntity().getCode());
-    Assert.assertEquals(1, information.getHierarchies().size());
-    Assert.assertEquals(1, information.getChildTypes().size());
+    Assert.assertEquals(testData.getManagedHierarchyTypes().size(), information.getHierarchies().size());
+    Assert.assertEquals(getNumProvinces(), information.getChildTypes().size());
   }
 
   @Test
@@ -88,8 +93,8 @@ public abstract class AbstractLocationServiceTest
     Assert.assertNotNull(response);
     Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), response.get("hierarchy").getAsString());
     Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), response.get("childType").getAsString());
-    Assert.assertEquals(1, response.get("hierarchies").getAsJsonArray().size());
-    Assert.assertEquals(1, response.get("types").getAsJsonArray().size());
+    Assert.assertEquals(testData.getManagedHierarchyTypes().size(), response.get("hierarchies").getAsJsonArray().size());
+    Assert.assertEquals(getNumProvinces(), response.get("types").getAsJsonArray().size());
 
     JsonObject geojson = response.get("geojson").getAsJsonObject();
     JsonArray features = geojson.get("features").getAsJsonArray();

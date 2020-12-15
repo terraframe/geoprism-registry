@@ -45,9 +45,11 @@ import com.runwaysdk.mvc.AbstractResponseSerializer;
 import com.runwaysdk.mvc.AbstractRestResponse;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.controller.RegistryController;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class TestRegistryAdapterClient extends RegistryAdapter
 {
@@ -77,6 +79,8 @@ public class TestRegistryAdapterClient extends RegistryAdapter
    */
   public void refreshMetadataCache()
   {
+    refreshRequestMetadataCache();
+    
     this.getMetadataCache().rebuild();
 
     GeoObjectType[] gots = this.getGeoObjectTypes(new String[] {}, new String[] {}, PermissionContext.READ);
@@ -92,6 +96,12 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     {
       this.getMetadataCache().addHierarchyType(ht);
     }
+  }
+  
+  @Request
+  private void refreshRequestMetadataCache()
+  {
+    ServiceFactory.getRegistryService().refreshMetadataCache();
   }
 
   public Set<String> getGeoObjectUids(int amount)
@@ -247,6 +257,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
       throw new RuntimeException(e);
     }
   }
+  
+  public HierarchyType addToHierarchy(String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  {
+    return responseToHierarchyType(this.controller.addToHierarchy(this.clientRequest, hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode));
+  }
 
   public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef)
   {
@@ -281,6 +296,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return sDate;
   }
 
+  protected HierarchyType responseToHierarchyType(ResponseIF resp)
+  {
+    return HierarchyType.fromJSON(responseToString(resp), this);
+  }
+  
   protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseIF resp)
   {
     return GeoObjectOverTime.fromJSON(this, responseToString(resp));
