@@ -2,34 +2,38 @@
   <div *ngIf="mode == MODE.ATTRIBUTES && postGeoObject != null">
     <!-- Attributes tab -->
     <geoobject-shared-attribute-editor 
-      #attributeEditor
-      [geoObjectType]="type"
-      [preGeoObject]="preGeoObject"
-      [postGeoObject]="postGeoObject"
-      [forDate]="this.forDate"
-      [isNew]="false"
-      [isEditingGeometries]="false"
+      #attributeEditor 
+      [geoObjectType]="type" 
+      [preGeoObject]="preGeoObject" 
+      [postGeoObject]="postGeoObject" 
+      [forDate]="this.forDate" 
+      [isNew]="false" 
+      [isEditingGeometries]="false" 
       [customEvent]="true"
-      (onManageVersion)="onManageAttributeVersion($event)"
-      [readOnly]="readOnly">
+      (onManageVersion)="onManageAttributeVersion($event)" 
+      [readOnly]="readOnly"> 
     </geoobject-shared-attribute-editor>
-    
-    <div *ngIf="!readOnly && type != null && type.isGeometryEditable" class="button-holder" style="text-align: left;">
-      <button type="submit" style="" (click)="this.mode = this.MODE.GEOMETRY" class="btn btn-primary" role="button">
-        <localize key="explorer.edit.geometry.button.label"></localize>
-      </button>
-    </div>
-    
-    <div *ngIf="hierarchies != null">
-      <tree-geo-selector 
-        *ngFor="let hierarchy of hierarchies"
-        [hierarchy]="hierarchy"
-        [readOnly]="readOnly"
-        (onManageVersion)="onManageHiearchyVersion($event)" >
-      </tree-geo-selector>
+
+    <div *ngIf="!readOnly && type.isGeometryEditable" class="panel panel-default">
+      <div class="panel-heading">
+        <h4 style="margin:0;">
+          <localize key="explorer.geometry.section"></localize>
+        </h4>
+      </div>
+      <div class="panel-body">
+        <div class="button-holder text-left" style="margin:0;">
+          <button type="submit" style="width:100%;" (click)="this.mode = this.MODE.GEOMETRY" class="btn btn-primary" role="button">
+            <localize key="explorer.edit.geometry.button.label"></localize>
+          </button>
+        </div>
+      </div>
     </div>
 
-    <div class="button-holder" >
+    <div *ngIf="hierarchies != null">
+      <tree-geo-selector *ngFor="let hierarchy of hierarchies" [hierarchy]="hierarchy" [readOnly]="readOnly" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
+    </div>
+
+    <div class="button-holder text-right" style="margin-bottom: 20px;">
       <button *ngIf="readOnly" type="submit" (click)="onEditAttributes()" class="btn btn-primary" role="button">
         <localize key="changeovertime.manageVersions.button.label"></localize>
       </button>
@@ -62,7 +66,7 @@
     <!-- Attributes tab -->
     <geometry-panel 
       [geoObjectType]="type"
-      [geoObjectOverTime]="postGeoObject"
+      [geoObjectOverTimeInput]="postGeoObject"
       [isNewGeoObject]="false"
       (onChange)="onAttributeChange($event)"
       (onEdit)="onEditGeometryVersion($event)">

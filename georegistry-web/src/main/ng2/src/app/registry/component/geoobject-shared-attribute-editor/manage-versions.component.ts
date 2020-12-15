@@ -18,7 +18,7 @@ import Utils from '../../utility/Utils';
 @Component({
 	selector: 'manage-versions',
 	templateUrl: './manage-versions.component.html',
-	styleUrls: ['./manage-versions-modal.css'],
+	styleUrls: ['./manage-versions.css'],
 	host: { '[@fadeInOut]': 'true' },
 	animations: [
 		[

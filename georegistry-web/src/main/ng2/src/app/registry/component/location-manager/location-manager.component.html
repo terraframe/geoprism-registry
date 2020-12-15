@@ -6,68 +6,73 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col">
-        <div *ngIf="mode === MODE.SEARCH">
-        <div class="row">
-          <div class="col-md-12">
-<!--             <div *ngIf="current != null && type != null"> -->
-<!--               <i class="fa fa-arrow-right clickable" aria-hidden="true" (click)="this.mode = this.MODE.VIEW"></i>               -->
-<!--             </div> -->
-
-            <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section">
-                  <label>
-                    <localize key="explorer.date.label"></localize>
-                  </label>
-                  <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
+      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
+        <div>
+          <div class="row">
+            <div class="col-md-12">
+  <!--             <div *ngIf="current != null && type != null"> -->
+  <!--               <i class="fa fa-arrow-right clickable" aria-hidden="true" (click)="this.mode = this.MODE.VIEW"></i>               -->
+  <!--             </div> -->
+  
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="location-management-widget-section">
+<!--                     <label> -->
+<!--                       <localize key="explorer.date.label"></localize> -->
+<!--                     </label> -->
+                    <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" [disabled]="mode !== MODE.SEARCH"/>
+                  </div>
                 </div>
               </div>
+  
+              <!-- Search bar -->
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="location-management-widget-section">
+                    <div class="input-group">
+                      <input type="text" class="form-control" [(ngModel)]="text" name="text" [disabled]="mode !== MODE.SEARCH">
+                      <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" (click)="search()" [disabled]="mode !== MODE.SEARCH">
+                          <span class="glyphicon glyphicon-search" aria-hidden="true"></span> 
+<!--                           <localize key="explorer.search.button.message"></localize> -->
+                        </button>
+                      </span>
+                    </div>
+                       <div *ngIf="mode === MODE.VIEW && current != null" style="padding: 20px 0;">
+              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>              
             </div>
-
-            <!-- Search bar -->
-            <div class="row">
-              <div class="col-md-12">
-                <div class="location-management-widget-section">
-                  <div class="input-group">
-                    <input type="search" class="form-control" [(ngModel)]="text" name="text">
-                    <span class="input-group-btn">
-                      <button class="btn btn-primary" type="button" (click)="search()">
-                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search!
-                      </button>
-                    </span>
+                    
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-12">
-            <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container">
-                  <div class="list-group">
-
-                    <div *ngFor="let node of data; let i = index" class="list-group-item">
-                      <!-- Single column card -->
-                      <div class="card card-default" (click)="select(node, $event)">
-                        <div class="card-body">
-                          <i class="arrow arrow-right clickable" style="float: right;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Drill into location"></i>
-                          <h4 class="clickable" style="word-break: break-all;" title="Zoom to location">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+  
+          <div class="row"  *ngIf="mode === MODE.SEARCH">
+            <div class="col-md-12">
+              <div id="hierarchy-tree-container" class="location-management-widget-section location-management-list-container">
+                    <div class="list-group">
+  
+                      <div *ngFor="let node of data; let i = index" class="list-group-item">
+                        <!-- Single column card -->
+                        <div class="card card-default" (click)="select(node, $event)">
+                          <div class="card-body">
+                            <i class="arrow arrow-right clickable" style="float: right;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Drill into location"></i>
+                            <h4 class="clickable" style="word-break: break-all;" title="Zoom to location">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+                          </div>
                         </div>
                       </div>
-                    </div>
-
+  
+                </div>
               </div>
             </div>
           </div>
-        </div>
         </div>    
         <div *ngIf="mode === MODE.VIEW && current != null" class="row">
           <div class="col-md-12">
-            <div style="padding: 20px 0;">
-              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>              
-            </div>
+<!--             <div style="padding: 20px 0;"> -->
+<!--               <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>               -->
+<!--             </div> -->
             <feature-panel
               [type]="type"
               [code]="current.properties.code"              

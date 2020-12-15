@@ -11,6 +11,7 @@ import bbox from '@turf/bbox';
 import { Subject } from 'rxjs';
 
 import { GeoObject, ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
+import { ModalState } from '@registry/model/location-manager';
 
 import { MapService, RegistryService } from '@registry/service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -25,7 +26,7 @@ declare var acp: string;
 })
 export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
 
-	MODE = {
+	MODE: ModalState = {
 		SEARCH: 0,
 		VIEW: 1,
 	}
