@@ -567,6 +567,10 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		return null;
 	}
 
+	onNewGeoObject(): void {
+		this.code = '#_NEW_';
+	}
+
 
 	public error(err: HttpErrorResponse): void {
 		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
