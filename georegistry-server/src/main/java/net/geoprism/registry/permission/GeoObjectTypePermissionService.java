@@ -39,9 +39,9 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
    * 
    * @param op
    */
-  public void enforceActorHasPermission(String orgCode, boolean isPrivate, String gotLabel, Operation op)
+  public void enforceActorHasPermission(String orgCode, String gotCode, boolean isPrivate, String gotLabel, Operation op)
   {
-    if (!this.doesActorHavePermission(orgCode, isPrivate, op, null))
+    if (!this.doesActorHavePermission(orgCode, gotCode, isPrivate, op))
     {
       Organization org = Organization.getByCode(orgCode);
 
@@ -75,7 +75,7 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
     }
   }
 
-  protected boolean doesActorHavePermission(String orgCode, boolean isPrivate, Operation op, PermissionContext context)
+  protected boolean doesActorHavePermission(String orgCode, String gotCode, boolean isPrivate, Operation op)
   {
     if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
@@ -95,25 +95,43 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
         if ( RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName) )
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-
-          if ( RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(roleOrgCode) )
+          
+          if (op.equals(Operation.READ) && !isPrivate)
           {
             return true;
           }
-          else if (op.equals(Operation.READ))
+          
+          
+          if ( roleOrgCode.equals(orgCode) )
           {
-            if ( RegistryRole.Type.isRA_Role(roleName) || RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) )
+            if ( RegistryRole.Type.isRA_Role(roleName) )
             {
-              if (context != null && context.equals(PermissionContext.WRITE))
+                return true;
+            }
+            else if ( RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) )
+            {
+              String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
+              
+              if ( gotCode.equals(roleGotCode) )
               {
-                if (orgCode.equals(roleOrgCode))
+                if ( RegistryRole.Type.isRM_Role(roleName) )
                 {
                   return true;
                 }
-              }
-              else if ( !isPrivate || (isPrivate && orgCode.equals(roleOrgCode)) )
-              {
-                return true;
+                else if ( RegistryRole.Type.isRC_Role(roleName)  )
+                {
+                  if ( op.equals(Operation.READ) ) // || isChangeRequest
+                  {
+                    return true;
+                  }
+                }
+                else if ( RegistryRole.Type.isAC_Role(roleName) )
+                {
+                  if ( op.equals(Operation.READ) )
+                  {
+                    return true;
+                  }
+                }
               }
             }
           }
@@ -129,51 +147,51 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
   }
 
   @Override
-  public boolean canRead(String orgCode, boolean isPrivate, PermissionContext context)
+  public boolean canRead(String orgCode, String gotCode, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, isPrivate, Operation.READ, context);
+    return this.doesActorHavePermission(orgCode, gotCode, isPrivate, Operation.READ);
   }
 
   @Override
-  public void enforceCanRead(String orgCode, boolean isPrivate, String gotLabel)
+  public void enforceCanRead(String orgCode, String gotCode, boolean isPrivate, String gotLabel)
   {
-    this.enforceActorHasPermission(orgCode, isPrivate, gotLabel, Operation.READ);
+    this.enforceActorHasPermission(orgCode, gotCode, isPrivate, gotLabel, Operation.READ);
   }
 
   @Override
-  public boolean canWrite(String orgCode, boolean isPrivate)
+  public boolean canWrite(String orgCode, String gotCode, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, isPrivate, Operation.WRITE, null);
+    return this.doesActorHavePermission(orgCode, gotCode, isPrivate, Operation.WRITE);
   }
 
   @Override
-  public void enforceCanWrite(String orgCode, boolean isPrivate, String gotLabel)
+  public void enforceCanWrite(String orgCode, String gotCode, boolean isPrivate, String gotLabel)
   {
-    this.enforceActorHasPermission(orgCode, isPrivate, gotLabel, Operation.WRITE);
+    this.enforceActorHasPermission(orgCode, gotCode, isPrivate, gotLabel, Operation.WRITE);
   }
 
   @Override
-  public boolean canCreate(String orgCode, boolean isPrivate)
+  public boolean canCreate(String orgCode, String gotCode, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, isPrivate, Operation.CREATE, null);
+    return this.doesActorHavePermission(orgCode, gotCode, isPrivate, Operation.CREATE);
   }
 
   @Override
-  public void enforceCanCreate(String orgCode, boolean isPrivate)
+  public void enforceCanCreate(String orgCode, String gotCode, boolean isPrivate)
   {
-    this.enforceActorHasPermission(orgCode, isPrivate, null, Operation.CREATE);
+    this.enforceActorHasPermission(orgCode, gotCode, isPrivate, null, Operation.CREATE);
   }
 
   @Override
-  public boolean canDelete(String orgCode, boolean isPrivate)
+  public boolean canDelete(String orgCode, String gotCode, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, isPrivate, Operation.DELETE, null);
+    return this.doesActorHavePermission(orgCode, gotCode, isPrivate, Operation.DELETE);
   }
 
   @Override
-  public void enforceCanDelete(String orgCode, boolean isPrivate, String gotLabel)
+  public void enforceCanDelete(String orgCode, String gotCode, boolean isPrivate, String gotLabel)
   {
-    this.enforceActorHasPermission(orgCode, isPrivate, gotLabel, Operation.DELETE);
+    this.enforceActorHasPermission(orgCode, gotCode, isPrivate, gotLabel, Operation.DELETE);
   }
 
 }

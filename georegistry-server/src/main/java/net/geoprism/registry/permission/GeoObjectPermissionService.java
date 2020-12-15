@@ -122,27 +122,43 @@ public class GeoObjectPermissionService extends UserPermissionService implements
         if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-
-          if (RegistryRole.Type.isRA_Role(roleName) && ( roleOrgCode.equals(orgCode) || op.equals(Operation.READ) ))
+          
+          if (op.equals(Operation.READ) && !type.getIsPrivate())
           {
             return true;
           }
-          else if ( ( ( isChangeRequest && RegistryRole.Type.isRC_Role(roleName) ) || RegistryRole.Type.isRM_Role(roleName) ) && orgCode.equals(roleOrgCode))
+          
+          if ( roleOrgCode.equals(orgCode) )
           {
-            String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
-
-            if (type.getCode().equals(roleGotCode))
+            if ( RegistryRole.Type.isRA_Role(roleName) )
             {
-              return true;
+                return true;
             }
-          }
-          else if ( ( RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ) && op.equals(Operation.READ) && orgCode.equals(roleOrgCode))
-          {
-            String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
-
-            if (type.getCode().equals(roleGotCode))
+            else if ( RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) )
             {
-              return true;
+              String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
+              
+              if ( type.getCode().equals(roleGotCode) )
+              {
+                if ( RegistryRole.Type.isRM_Role(roleName) )
+                {
+                  return true;
+                }
+                else if ( RegistryRole.Type.isRC_Role(roleName)  )
+                {
+                  if ( isChangeRequest || op.equals(Operation.READ) )
+                  {
+                    return true;
+                  }
+                }
+                else if ( RegistryRole.Type.isAC_Role(roleName) )
+                {
+                  if ( op.equals(Operation.READ) )
+                  {
+                    return true;
+                  }
+                }
+              }
             }
           }
         }

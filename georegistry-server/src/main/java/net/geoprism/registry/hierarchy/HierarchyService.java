@@ -237,7 +237,7 @@ public class HierarchyService
         HierarchyNode hn = rootIt.next();
         GeoObjectType rootGot = hn.getGeoObjectType();
         
-        if (!typePermServ.canRead(rootGot.getCode(), rootGot.getIsPrivate(), PermissionContext.READ))
+        if (!typePermServ.canRead(rootGot.getOrganizationCode(), rootGot.getCode(), rootGot.getIsPrivate()))
         {
           removed = true;
           rootIt.remove();
@@ -268,7 +268,7 @@ public class HierarchyService
     {
       GeoObjectType got = child.getGeoObjectType();
       
-      if (!typePermServ.canRead(got.getCode(), got.getIsPrivate(), PermissionContext.READ))
+      if (!typePermServ.canRead(got.getOrganizationCode(), got.getCode(), got.getIsPrivate()))
       {
         parent.removeChild(child);
       }

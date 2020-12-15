@@ -60,19 +60,25 @@ public class FastTestDataset extends TestDataSet
 
   public static final TestOrganizationInfo  ORG_MOHA              = new TestOrganizationInfo(TEST_DATA_KEY + "_" + "MOHA", "Ministry of Home Affairs");
 
-  public static final TestUserInfo          USER_CGOV_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode()) });
-
-  public static final TestUserInfo          USER_MOHA_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohara", "mohara", TEST_DATA_KEY + "mohara@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOHA.getCode()) });
-
   public static final TestHierarchyTypeInfo HIER_ADMIN            = new TestHierarchyTypeInfo(TEST_DATA_KEY + "Admin", ORG_CGOV);
+  
+  public static final TestHierarchyTypeInfo HIER_HEALTH_ADMIN     = new TestHierarchyTypeInfo(TEST_DATA_KEY + "HealthAdmin", ORG_MOHA);
 
   public static final TestGeoObjectTypeInfo COUNTRY               = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Country", GeometryType.MULTIPOLYGON, ORG_CGOV);
 
   public static final TestGeoObjectTypeInfo PROVINCE              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Province", GeometryType.MULTIPOLYGON, ORG_CGOV);
+  
+  public static final TestGeoObjectTypeInfo PROVINCE_PRIVATE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "ProvincePrivate", GeometryType.MULTIPOLYGON, true, ORG_CGOV, null);
+  
+  public static final TestGeoObjectTypeInfo HOSPITAL              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Hospital", GeometryType.MULTIPOLYGON, ORG_MOHA);
 
   public static final TestGeoObjectInfo     CAMBODIA              = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY);
 
   public static final TestGeoObjectInfo     PROV_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE);
+  
+  public static final TestGeoObjectInfo     PROV_CENTRAL_PRIVATE  = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvincePrivate", PROVINCE_PRIVATE);
+  
+  public static final TestGeoObjectInfo     CENTRAL_HOSPITAL      = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralHospital", HOSPITAL);
 
   public static final TestAttributeTypeInfo AT_National_Anthem    = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", COUNTRY, AttributeCharacterType.TYPE);
 
@@ -86,11 +92,21 @@ public class FastTestDataset extends TestDataSet
 
   public static final TestAttributeTypeInfo AT_RELIGION           = new TestAttributeTypeInfo("Religion", "Religion", COUNTRY, AttributeTermType.TYPE);
 
+  public static final TestUserInfo          USER_CGOV_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode()) });
+  
   public static final TestUserInfo          USER_CGOV_RM          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrm", "cgovrm", TEST_DATA_KEY + "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
 
   public static final TestUserInfo          USER_CGOV_RC          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovrc", "cgovrc", TEST_DATA_KEY + "cgovrc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
 
   public static final TestUserInfo          USER_CGOV_AC          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovac", "cgovac", TEST_DATA_KEY + "cgovac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CGOV.getCode(), PROVINCE.getCode()) });
+  
+  public static final TestUserInfo          USER_MOHA_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohara", "mohara", TEST_DATA_KEY + "mohara@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOHA.getCode()) });
+  
+  public static final TestUserInfo          USER_MOHA_RM          = new TestUserInfo(TEST_DATA_KEY + "_" + "moharm", "moharm", TEST_DATA_KEY + "moharm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
+
+  public static final TestUserInfo          USER_MOHA_RC          = new TestUserInfo(TEST_DATA_KEY + "_" + "moharc", "moharc", TEST_DATA_KEY + "moharc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
+
+  public static final TestUserInfo          USER_MOHA_AC          = new TestUserInfo(TEST_DATA_KEY + "_" + "mohaac", "mohaac", TEST_DATA_KEY + "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOHA.getCode(), HOSPITAL.getCode()) });
 
   public Term                               T_Religion;
 
@@ -107,12 +123,17 @@ public class FastTestDataset extends TestDataSet
     managedOrganizationInfos.add(ORG_MOHA);
 
     managedHierarchyTypeInfos.add(HIER_ADMIN);
+    managedHierarchyTypeInfos.add(HIER_HEALTH_ADMIN);
 
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(PROVINCE);
+    managedGeoObjectTypeInfos.add(PROVINCE_PRIVATE);
+    managedGeoObjectTypeInfos.add(HOSPITAL);
 
     managedGeoObjectInfos.add(CAMBODIA);
     managedGeoObjectInfos.add(PROV_CENTRAL);
+    managedGeoObjectInfos.add(PROV_CENTRAL_PRIVATE);
+    managedGeoObjectInfos.add(CENTRAL_HOSPITAL);
 
     managedUsers.add(USER_CGOV_RA);
     managedUsers.add(USER_CGOV_RM);
@@ -120,6 +141,9 @@ public class FastTestDataset extends TestDataSet
     managedUsers.add(USER_CGOV_AC);
 
     managedUsers.add(USER_MOHA_RA);
+    managedUsers.add(USER_MOHA_RM);
+    managedUsers.add(USER_MOHA_RC);
+    managedUsers.add(USER_MOHA_AC);
   }
 
   public static FastTestDataset newTestData()
@@ -137,6 +161,11 @@ public class FastTestDataset extends TestDataSet
     {
       COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_ADMIN.getServerObject().getUniversalType());
       COUNTRY.addChild(PROVINCE, HIER_ADMIN);
+      COUNTRY.addChild(PROVINCE_PRIVATE, HIER_ADMIN);
+      
+      COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_HEALTH_ADMIN.getServerObject().getUniversalType());
+      COUNTRY.addChild(PROVINCE, HIER_HEALTH_ADMIN);
+      PROVINCE.addChild(HOSPITAL, HIER_HEALTH_ADMIN);
     }
     catch (DuplicateGraphPathException ex)
     {
@@ -159,6 +188,10 @@ public class FastTestDataset extends TestDataSet
 //      CAMBODIA.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
 
       CAMBODIA.addChild(PROV_CENTRAL, HIER_ADMIN);
+      CAMBODIA.addChild(PROV_CENTRAL_PRIVATE, HIER_ADMIN);
+      
+      CAMBODIA.addChild(PROV_CENTRAL, HIER_HEALTH_ADMIN);
+      PROV_CENTRAL.addChild(CENTRAL_HOSPITAL, HIER_HEALTH_ADMIN);
     }
     catch (DuplicateGraphPathException ex)
     {

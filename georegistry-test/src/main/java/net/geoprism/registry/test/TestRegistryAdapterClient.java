@@ -36,8 +36,6 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -113,16 +111,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return set;
   }
 
-  public JSONArray getGeoObjectSuggestions(String text, String type, String parent, String hierarchy, String date)
+  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, String hierarchy, String date)
   {
-    try
-    {
-      return new JSONArray(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, hierarchy, date)));
-    }
-    catch (JSONException | ParseException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, hierarchy, date))).getAsJsonArray();
   }
   
   public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
@@ -219,10 +210,15 @@ public class TestRegistryAdapterClient extends RegistryAdapter
 
     return responseToHierarchyTypes(this.controller.getHierarchyTypes(this.clientRequest, saCodes, PermissionContext.READ.name()));
   }
-
-  public JSONArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
+  
+  public JsonObject hierarchyManagerInit()
   {
-    return new JSONArray(responseToString(this.controller.getHierarchiesForGeoObjectOverTime(this.clientRequest, code, typeCode)));
+    return JsonParser.parseString(responseToString(this.controller.init(this.clientRequest))).getAsJsonObject();
+  }
+
+  public JsonArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
+  {
+    return JsonParser.parseString(responseToString(this.controller.getHierarchiesForGeoObjectOverTime(this.clientRequest, code, typeCode))).getAsJsonArray();
   }
 
   public JsonArray listGeoObjectTypes()
