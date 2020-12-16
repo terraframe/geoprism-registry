@@ -112,11 +112,12 @@ public class GeoObjectRelationshipServiceTest
   }
   
   // TODO : Test permissions stuff including private GeoObjects
-  @Test
-  public void testGetHierarchiesPrivate()
-  {
-    throw new UnsupportedOperationException();
-  }
+  // It might be worth waiting until we have a DTO before we write this test.
+//  @Test
+//  public void testGetHierarchiesPrivate()
+//  {
+//    throw new UnsupportedOperationException();
+//  }
   
   @Test
   public void testGetHierarchyTypes()

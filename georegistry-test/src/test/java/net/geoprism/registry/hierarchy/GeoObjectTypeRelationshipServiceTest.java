@@ -84,6 +84,8 @@ public class GeoObjectTypeRelationshipServiceTest
   @AfterClass
   public static void cleanUpClass()
   {
+    deleteExtraMetadata();
+    
     testData.tearDownMetadata();
   }
 
@@ -109,7 +111,7 @@ public class GeoObjectTypeRelationshipServiceTest
     testData.tearDownInstanceData();
   }
 
-  private void deleteExtraMetadata()
+  private static void deleteExtraMetadata()
   {
     USER_CHILD_GOT_RM.delete();
     USER_CHILD_GOT_RC.delete();

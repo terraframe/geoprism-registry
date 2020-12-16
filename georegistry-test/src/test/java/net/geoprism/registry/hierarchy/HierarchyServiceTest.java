@@ -77,6 +77,8 @@ public class HierarchyServiceTest
   @AfterClass
   public static void cleanUpClass()
   {
+    deleteExtraMetadata();
+    
     testData.tearDownMetadata();
   }
 
@@ -100,7 +102,7 @@ public class HierarchyServiceTest
     testData.tearDownInstanceData();
   }
 
-  private void deleteExtraMetadata()
+  private static void deleteExtraMetadata()
   {
     TEST_HT.delete();
     TEST_GOT.delete();
@@ -302,7 +304,7 @@ public class HierarchyServiceTest
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
       HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.WRITE);
 
-      Assert.assertEquals(0, hierarchyTypes.length);
+      Assert.assertEquals(1, hierarchyTypes.length);
     });
   }
 
@@ -312,7 +314,7 @@ public class HierarchyServiceTest
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
       HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
 
-      Assert.assertEquals(1, hierarchyTypes.length);
+      Assert.assertEquals(testData.getManagedHierarchyTypes().size(), hierarchyTypes.length);
     });
   }
 

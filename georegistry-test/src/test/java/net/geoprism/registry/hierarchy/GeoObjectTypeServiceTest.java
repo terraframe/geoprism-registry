@@ -94,11 +94,11 @@ public class GeoObjectTypeServiceTest
   
   private static void cleanupPrivateTestGot()
   {
-    TEST_PRIVATE_GOT.apply();
+    TEST_PRIVATE_GOT.delete();
     
-    USER_PRIVATE_GOT_RM.apply();
-    USER_PRIVATE_GOT_RC.apply();
-    USER_PRIVATE_GOT_AC.apply();
+    USER_PRIVATE_GOT_RM.delete();
+    USER_PRIVATE_GOT_RC.delete();
+    USER_PRIVATE_GOT_AC.delete();
   }
 
   @AfterClass
@@ -131,6 +131,8 @@ public class GeoObjectTypeServiceTest
   {
     TestDataSet.deleteClassifier("termValue1");
     TestDataSet.deleteClassifier("termValue2");
+    
+    TEST_GOT.delete();
 
     cleanupPrivateTestGot();
   }
@@ -415,19 +417,22 @@ public class GeoObjectTypeServiceTest
       ArrayList<TestGeoObjectTypeInfo> expectedGots = testData.getManagedGeoObjectTypes();
       for (TestGeoObjectTypeInfo got : expectedGots)
       {
-        boolean found = false;
-
-        for (int i = 0; i < types.size(); ++i)
+        if (got.getOrganization().getCode().equals(FastTestDataset.ORG_CGOV.getCode()))
         {
-          JsonObject jo = types.get(i).getAsJsonObject();
-
-          if (jo.get("label").getAsString().equals(got.getDisplayLabel().getValue()) && jo.get("code").getAsString().equals(got.getCode()))
+          boolean found = false;
+  
+          for (int i = 0; i < types.size(); ++i)
           {
-            found = true;
+            JsonObject jo = types.get(i).getAsJsonObject();
+  
+            if (jo.get("label").getAsString().equals(got.getDisplayLabel().getValue()) && jo.get("code").getAsString().equals(got.getCode()))
+            {
+              found = true;
+            }
           }
+  
+          Assert.assertTrue(found);
         }
-
-        Assert.assertTrue(found);
       }
     });
   }
