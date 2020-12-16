@@ -67,6 +67,7 @@ import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.BusinessInfo;
@@ -741,7 +742,8 @@ public class MasterListVersion extends MasterListVersionBase
   }
 
   @Transaction
-  public JsonObject publish()
+  @Authenticate
+  public String publish()
   {
     this.lock();
 
@@ -815,7 +817,7 @@ public class MasterListVersion extends MasterListVersionBase
         this.setPublishDate(new Date());
         this.apply();
 
-        return this.toJSON(true);
+        return this.toJSON(true).toString();
       }
       finally
       {

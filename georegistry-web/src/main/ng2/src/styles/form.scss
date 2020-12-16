@@ -110,13 +110,23 @@ select[disabled]:-moz-placeholder {color:#333;}
 input[type="text"]:disabled,
 input[type="number"]:disabled,
 input[type="date"]:disabled,
-select[disabled]:disabled {
-    color: #999;
+select[disabled]:disabled,
+input[type="text"]:disabled:-webkit-autofill,
+input[type="text"]:disabled:-webkit-autofill:hover, 
+input[type="text"]:disabled:-webkit-autofill:focus {
+    color: #999 !important;
+	-webkit-text-fill-color: #999;
     box-shadow: none;
     border-color: #ccc;
     border-color: var(--theme-input-text-border-disabled);
 }
 
+input[type=search] {
+	background-color: white !important;
+}
+input[type=search][disabled]:disabled {
+	color: #999 !important;
+}
 
 
 input[type="textarea"]{

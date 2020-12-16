@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -57,6 +57,7 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.TileCache;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
@@ -403,99 +404,105 @@ public class MasterListTest
   @Request
   public void testPublishVersion()
   {
-    JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
+    TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
 
-    MasterList test = MasterList.create(json);
+      JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
-    try
-    {
-      MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+      MasterList test = MasterList.create(json);
 
       try
       {
-        MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
+        MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
 
-        Assert.assertNotNull(mdTable);
+        try
+        {
+          MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
 
-        version.publish();
+          Assert.assertNotNull(mdTable);
+
+          version.publish();
+        }
+        finally
+        {
+          version.delete();
+        }
       }
       finally
       {
-        version.delete();
+        test.delete();
       }
-    }
-    finally
-    {
-      test.delete();
-    }
+    });
   }
 
   @Test
   @Request
   public void testPublishVersionOfAbstract()
   {
-    MasterListBuilder builder = new MasterListBuilder();
-    builder.setOrg(USATestData.ORG_NPS.getServerObject());
-    builder.setHt(USATestData.HIER_ADMIN);
-    builder.setInfo(USATestData.HEALTH_FACILITY);
-    builder.setVisibility(MasterList.PUBLIC);
-    builder.setMaster(false);
-    builder.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
-    builder.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+    TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
 
-    JsonObject json = getJson(builder);
+      MasterListBuilder builder = new MasterListBuilder();
+      builder.setOrg(USATestData.ORG_NPS.getServerObject());
+      builder.setHt(USATestData.HIER_ADMIN);
+      builder.setInfo(USATestData.HEALTH_FACILITY);
+      builder.setVisibility(MasterList.PUBLIC);
+      builder.setMaster(false);
+      builder.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+      builder.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
 
-    MasterList test = MasterList.create(json);
+      JsonObject json = getJson(builder);
 
-    try
-    {
-      MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+      MasterList test = MasterList.create(json);
 
       try
       {
-        MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
+        MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
 
-        Assert.assertNotNull(mdTable);
-
-        version.publish();
-
-        JsonObject data = version.data(1, 100, null, null);
-
-        // Entries should be HP_1, HP_2, HS_1, HS_2
-        Assert.assertEquals(4, data.get("count").getAsLong());
-
-        JsonArray results = data.get("results").getAsJsonArray();
-
-        for (int i = 0; i < results.size(); i++)
+        try
         {
-          JsonObject result = results.get(i).getAsJsonObject();
+          MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
 
-          String code = result.get("code").getAsString();
-          String reportsTo = result.get("usatestdatareportstocode").getAsString();
+          Assert.assertNotNull(mdTable);
 
-          if (code.equals(USATestData.HS_ONE.getCode()))
+          version.publish();
+
+          JsonObject data = version.data(1, 100, null, null);
+
+          // Entries should be HP_1, HP_2, HS_1, HS_2
+          Assert.assertEquals(4, data.get("count").getAsLong());
+
+          JsonArray results = data.get("results").getAsJsonArray();
+
+          for (int i = 0; i < results.size(); i++)
           {
-            Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
+            JsonObject result = results.get(i).getAsJsonObject();
+
+            String code = result.get("code").getAsString();
+            String reportsTo = result.get("usatestdatareportstocode").getAsString();
+
+            if (code.equals(USATestData.HS_ONE.getCode()))
+            {
+              Assert.assertEquals(USATestData.HP_ONE.getCode(), reportsTo);
+            }
+            else if (code.equals(USATestData.HS_TWO.getCode()))
+            {
+              Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
+            }
+            else
+            {
+              Assert.assertEquals("", reportsTo);
+            }
           }
-          else if (code.equals(USATestData.HS_TWO.getCode()))
-          {
-            Assert.assertEquals(USATestData.HP_TWO.getCode(), reportsTo);
-          }
-          else
-          {
-            Assert.assertEquals("", reportsTo);
-          }
+        }
+        finally
+        {
+          version.delete();
         }
       }
       finally
       {
-        version.delete();
+        test.delete();
       }
-    }
-    finally
-    {
-      test.delete();
-    }
+    });
   }
 
   @Test(expected = InvalidMasterListException.class)
@@ -745,22 +752,22 @@ public class MasterListTest
   {
     final MasterList list = new MasterList();
     list.addFrequency(ChangeFrequency.BIANNUAL);
-    
+
     Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
     calendar.clear();
     calendar.set(2012, Calendar.MARCH, 3);
-    
+
     final Date startDate = calendar.getTime();
-    
+
     calendar.set(2013, Calendar.JANUARY, 2);
-    
+
     final Date endDate = calendar.getTime();
-    
+
     List<Date> dates = list.getFrequencyDates(startDate, endDate);
-    
+
     Assert.assertEquals(3, dates.size());
   }
-  
+
   @Test
   @Request
   public void testGetMonthFrequencyDates()

@@ -6,9 +6,9 @@
         <a class="navbar-brand" href="{{context}}/cgr/manage#/menu"><img [src]="context + '/logo/view?id=logo'" /></a>
         <a class="navbar-brand" href="{{context}}/cgr/manage#/menu"><localize key="cgr.standard.title"></localize></a>
       </div>
-                 
        <ul *ngIf="loggedIn" class="nav navbar-nav navbar-right"> 
          <li>
+            
            <a (click)="account()" class="navbar-username">
            <!-- <div>Logged in as</div> -->
              <div>{{getUsername()}}</div>
@@ -34,8 +34,21 @@
                 
                 <hr>
                 <li *ngIf="shouldShowMenuItem('SETTINGS')" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>
+                
+                <hr>
+                <div *ngIf="locales.length > 0" style="padding: 0 20px;">
+<!--                     <span><localize key="userDashboards.setLocale"></localize></span> -->
 
-
+                    <label class="radio" style="font-weight: inherit;">
+                      <input class="inline-radio-input" type="radio" name="default" [value]="''" (change)="setLocale()" [(ngModel)]="locale">
+                      <span><localize key="localization.default.label"></localize></span>
+                    </label>
+                    <label *ngFor="let l of locales" class="radio" style="font-weight: inherit;">
+                      <input class="inline-radio-input" type="radio" name="{{l}}" [value]="l" (change)="setLocale()" [(ngModel)]="locale">
+                      <span>{{l}}</span>
+                    </label>
+                </div>
+                
                 <!-- <hr *ngIf="isAdmin">
                 <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/registry/localization-manager" routerLinkActive="active"><localize key="localization-manager.menu"></localize></a></li>
                 <li *ngIf="isAdmin" role="menuitem"><a class="dropdown-item" routerLink="/admin/logos" routerLinkActive="active"><i></i><localize key="Icons"></localize></a></li>
@@ -49,16 +62,11 @@
             
               </ul>
          </li> 
-       </ul> 
-      <div *ngIf="loggedIn" class="nav navbar-nav navbar-right" style="padding-top: 30px"> 
-        <span style="color: white"><localize key="userDashboards.setLocale"></localize></span>
-        <span class="select">
-          <select type="text" [(ngModel)]="locale" name="organization" (change)="setLocale()" required>
-            <option value="">Default</option>
-            <option *ngFor="let l of locales" [value]="l">{{l}}</option>
-          </select>
-        </span>
-      </div>       
+         
+        
+       </ul>
+       
+       
     </div>
   </nav>
 </header>

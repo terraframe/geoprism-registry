@@ -7,12 +7,12 @@
 
     <form #form="ngForm" class="modal-form">
         <fieldset>
-            <div class="row-holder">
-                <div class="holder" style="width: 100%; border: none;">
-                    <div class="panel" style="box-shadow: none;">
-                        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-12">
+                    <div>
+                        <div>
                             <ul class="list-group" *ngIf="hierarchy != null">
-                                <li class="list-group-item" style="text-align: left;">
+                                <li class="list-group-item" style="text-align:left;padding:0;">
                                     <table class="table table-striped">
                                         <thead style="font-size: 14px;">
                                             <tr>
@@ -31,7 +31,6 @@
                                                     
                                                     <div class="input-group">
                                                     
-                                                    
                                                       <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
                                                         name="{{type.code}}-{{i}}"
                                                         [disabled]="entry.startDate == null || entry.startDate === ''"
@@ -44,10 +43,8 @@
                                                         [typeaheadMinLength]="0"
                                                         [typeaheadWaitMs]="300">
                                                       
-                                                      <span class="input-group-btn">
-                                                        <button class="btn btn-primary" type="button" (click)="onRemove(type, entry)">
-                                                          <i class="fa fa-times delete-btn"></i>
-                                                        </button>
+                                                      <span class="input-group-addon">
+                                                          <i class="fa fa-times delete-btn clickable" (click)="onRemove(type, entry)"></i>
                                                       </span>
                                                     </div>
                                                   </div>
@@ -60,7 +57,7 @@
                                                   <p *ngIf="entry.startDate != null && entry.startDate !== ''" style="font-size: 14px;"> {{entry.endDate | date:'MM-dd-yyyy'}} </p>
                                                 </td>
                                                 <td style="vertical-align: middle; width: 10%; padding: 5px; text-align: center;">
-                                                  <i class="fa fa-times delete-btn" (click)="remove(entry)"></i>
+                                                  <i class="fa fa-times delete-btn clickable" (click)="remove(entry)"></i>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -81,9 +78,9 @@
                 <!-- <div class="label-holder"></div> -->
                 <div class="holder" style="border: none; width: 100%;">
                     <div class="button-holder pull-right">
-                        <!-- <button type="button" (click)="onCancel()" class="btn btn-default" role="button" >
+                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button" >
                             <localize key="io.cancel"></localize>
-                        </button> -->
+                        </button> 
                         <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid || hasDuplicateDate">
                             <localize key="io.ok"></localize>
                         </button>

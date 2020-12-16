@@ -29,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
@@ -38,14 +37,13 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.Pair;
+import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
-import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -61,6 +59,7 @@ import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.roles.UpdateListPermissionException;
 import net.geoprism.registry.service.LocaleSerializer;
@@ -438,7 +437,7 @@ public class MasterList extends MasterListBase
 
     object.addProperty("write", this.doesActorHaveWritePermission());
     object.addProperty("read", this.doesActorHaveReadPermission());
-    object.addProperty("exploratory", this.doesActorHaveReadPermission());
+    object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
     object.add("typeLabel", type.getLabel().toJSON(serializer));
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
     object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON(serializer));
@@ -512,6 +511,7 @@ public class MasterList extends MasterListBase
   }
 
   @Transaction
+  @Authenticate
   public MasterListVersion createVersion(Date forDate, String versionType)
   {
     // MasterListVersionQuery query = new MasterListVersionQuery(new
@@ -773,6 +773,18 @@ public class MasterList extends MasterListBase
   public boolean doesActorHaveWritePermission()
   {
     ServerGeoObjectType type = this.getGeoObjectType();
+
+    return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
+  }
+
+  public boolean doesActorHaveExploratoryPermission()
+  {
+    ServerGeoObjectType type = this.getGeoObjectType();
+
+    if (new RolePermissionService().isRC(type))
+    {
+      return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
+    }
 
     return ServiceFactory.getGeoObjectPermissionService().canWrite(type.getOrganization().getCode(), type);
   }

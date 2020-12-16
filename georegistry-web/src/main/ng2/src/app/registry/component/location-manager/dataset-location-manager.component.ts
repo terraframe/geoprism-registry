@@ -30,6 +30,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	typeCode: string;
 
+	readOnly: boolean = false;
+
 	date: string;
 
 	code: string;
@@ -90,6 +92,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.datasetId = this.route.snapshot.params["datasetId"];
 		this.typeCode = this.route.snapshot.params["typeCode"];
 		this.date = this.route.snapshot.params["date"];
+		this.readOnly = this.route.snapshot.params["readOnly"] === 'true';
 		this.forDate = new Date(Date.parse(this.date));
 
 		if (this.route.snapshot.params["code"] != null) {
@@ -565,6 +568,10 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		}
 
 		return null;
+	}
+
+	onNewGeoObject(): void {
+		this.code = '__NEW__';
 	}
 
 

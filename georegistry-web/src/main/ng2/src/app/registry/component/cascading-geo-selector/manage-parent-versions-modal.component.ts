@@ -20,7 +20,6 @@ export class ManageParentVersionsModalComponent implements OnInit {
 	constructor(public bsModalRef: BsModalRef) { }
 
 	ngOnInit(): void {
-
 		this.onVersionChange = new Subject();
 	}
 

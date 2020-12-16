@@ -27,6 +27,8 @@ export class FeaturePanelComponent implements OnInit {
 
 	@Input() forDate: Date = new Date();
 
+	@Input() readOnly: boolean = false;
+
 	@Input() set code(value: string) {
 		this.updateCode(value);
 	}
@@ -52,7 +54,8 @@ export class FeaturePanelComponent implements OnInit {
 
 	attribute: Attribute = null;
 
-	readOnly: boolean = false;
+
+	isNew: boolean = false;
 
 	hierarchies: HierarchyOverTime[];
 
@@ -74,22 +77,37 @@ export class FeaturePanelComponent implements OnInit {
 		this.postGeoObject = null;
 		this.preGeoObject = null;
 		this.hierarchies = null;
-		this.readOnly = false;
+		//		this.isNew = false;
 
 		if (code != null && this.type != null) {
 
-			this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
-				this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
-				this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
+			if (code !== '__NEW__') {
+				this.isNew = false;
 
-			this.service.getHierarchiesForGeoObject(code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
-				this.hierarchies = hierarchies;
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
+				this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
+					this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
+					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+				}).catch((err: HttpErrorResponse) => {
+					this.error(err);
+				});
+
+				this.service.getHierarchiesForGeoObject(code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
+					this.hierarchies = hierarchies;
+				}).catch((err: HttpErrorResponse) => {
+					this.error(err);
+				});
+			}
+			else {
+				this.isNew = true;
+
+				this.service.newGeoObjectOverTime(this.type.code).then(retJson => {
+					this.preGeoObject = new GeoObjectOverTime(this.type, retJson.geoObject.attributes);
+					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+
+					this.hierarchies = retJson.hierarchies;
+				});
+			}
+
 		}
 	}
 
@@ -146,7 +164,7 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onSubmit(): void {
-		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, false, this.datasetId, null).then(() => {
+		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, null).then(() => {
 			this.featureChange.emit(this.postGeoObject);
 
 			this.updateCode(this._code);
@@ -183,7 +201,7 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onEditAttributes(): void {
-		this.readOnly = !this.readOnly;
+//		this.readOnly = !this.readOnly;
 	}
 
 	public error(err: HttpErrorResponse): void {

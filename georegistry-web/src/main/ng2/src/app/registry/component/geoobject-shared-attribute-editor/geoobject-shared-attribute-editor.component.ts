@@ -67,6 +67,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	@Output() onManageVersion = new EventEmitter<Attribute>();
 
+    /*
+     * Observable subject for MasterList changes.  Called when an update is successful 
+     */
+	@Output() onChange = new EventEmitter<GeoObjectOverTime>()
+
 	@Input() customEvent: boolean = false;
 
 	modifiedTermOption: Term = null;
@@ -149,7 +154,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			object[attr.code] = null;
 
 			if (attr.type === 'local') {
-				object[attr.code] = this.lService.create();
+				object[attr.code] =
+				{
+					startDate: null,
+					endDate: null,
+					value: this.lService.create()
+				};
 			}
 
 			if (attr.isChangeOverTime) {
@@ -216,6 +226,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	handleChangeCode(e: any): void {
 		this.postGeoObject.attributes.code = this.calculatedPostObject['code'];
+		
+		this.onChange.emit(this.postGeoObject);
 		//        
 		//        console.log(this.calculatedPostObject['code'])
 		//        console.log(e)
