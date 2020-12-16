@@ -38,6 +38,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.view.LocationInformation;
 
@@ -48,9 +49,18 @@ public class LocationService
   @Request(RequestType.SESSION)
   public List<GeoObject> search(String sessionId, String text, Date date)
   {
+    final GeoObjectPermissionService pService = new GeoObjectPermissionService();
+
     List<ServerGeoObjectIF> results = new SearchService().search(text, date, 20L);
 
-    return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> list.add(element.toGeoObject()), (listA, listB) -> {
+    return results.stream().collect(() -> new LinkedList<GeoObject>(), (list, element) -> {
+      ServerGeoObjectType type = element.getType();
+
+      GeoObject geoObject = element.toGeoObject();
+      geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
+
+      list.add(geoObject);
+    }, (listA, listB) -> {
     });
   }
 
