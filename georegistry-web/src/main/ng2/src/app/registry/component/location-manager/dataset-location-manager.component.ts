@@ -312,7 +312,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 					"source-layer": 'context',
 					"paint": {
 						"circle-radius": 10,
-						"circle-color": '#0080ff',
+						"circle-color": '#a6611a',
 						"circle-stroke-width": 2,
 						"circle-stroke-color": '#FFFFFF'
 					},
@@ -329,7 +329,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 					"source-layer": 'context',
 					'layout': {},
 					'paint': {
-						'fill-color': '#0080ff',
+						'fill-color': '#a6611a',
 						'fill-opacity': 0.8,
 						'fill-outline-color': 'black'
 					},
