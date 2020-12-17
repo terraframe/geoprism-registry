@@ -48,6 +48,7 @@ export class AccountComponent implements OnInit {
     isSRA: boolean;
 	  isRA: boolean;
 	  
+	  isAppliedAsOauth: boolean = false;
 	  editingOauth: boolean = false;
 	  systemHasOauth: boolean = false;
 
@@ -68,7 +69,11 @@ export class AccountComponent implements OnInit {
         }
         else if ( oid ) {
             this.service.edit( oid ).then( data => {
+            
                 this.account = data;
+                
+                this.editingOauth = (this.account.user.externalSystemOid != null && this.account.user.externalSystemOid !== "");
+                this.isAppliedAsOauth = this.editingOauth;
 
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );

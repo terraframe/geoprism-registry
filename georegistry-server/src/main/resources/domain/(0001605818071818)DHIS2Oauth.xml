@@ -1,6 +1,13 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.oauthTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.user.oauthTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Oauth" />
+        </attributeStruct>
+      </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.enableOauth">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="account.user.enableOauth" />
