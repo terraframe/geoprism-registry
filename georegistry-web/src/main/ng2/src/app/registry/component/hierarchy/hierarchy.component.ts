@@ -176,7 +176,7 @@ export class HierarchyComponent implements OnInit, SvgController {
 		overflowDiv2.scrollLeft = scrollLeft;
 		overflowDiv2.scrollRight = scrollRight;
 
-		this.registerSvgHandlers();
+		//this.registerSvgHandlers();
 
 		this.geoObjectTypes.forEach((got: GeoObjectType) => {
 			got.canDrag = this.calculateCanDrag(got);

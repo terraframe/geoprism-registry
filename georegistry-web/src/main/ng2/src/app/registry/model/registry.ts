@@ -39,6 +39,7 @@ export class GeoObject {
 		sequence: string
 		createDate: string,
 		lastUpdateDate: string,
+		writable?: boolean
 	};
 }
 
@@ -53,8 +54,8 @@ export class GeoObjectType {
 	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
 	relatedHierarchies?: string[];
 	superTypeCode?: string;
-	isAbstract?: boolean;	
-	isPrivate?: boolean;  
+	isAbstract?: boolean;
+	isPrivate?: boolean;
 	canDrag?: boolean;
 }
 

@@ -54,6 +54,7 @@ import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.roles.CreateGeoObjectTypePermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
@@ -158,11 +159,10 @@ public class GeoObjectTypeServiceTest
   }
 
   @Test
-  public void testCreateGeoObjectTypeAsGoodUser()
+  public void testCreateGeoObjectType()
   {
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA };
-
-    for (TestUserInfo user : users)
+    // Allowed users
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA })
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         createGot(request, adapter);
@@ -170,14 +170,9 @@ public class GeoObjectTypeServiceTest
 
       TEST_GOT.delete();
     }
-  }
-
-  @Test
-  public void testCreateGeoObjectTypeAsBadUser()
-  {
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
-
-    for (TestUserInfo user : users)
+    
+    // Disallowed users
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC })
     {
       try
       {
@@ -190,7 +185,7 @@ public class GeoObjectTypeServiceTest
       }
       catch (SmartExceptionDTO e)
       {
-        // This is expected
+        Assert.assertEquals(CreateGeoObjectTypePermissionException.CLASS, e.getType());
       }
     }
   }

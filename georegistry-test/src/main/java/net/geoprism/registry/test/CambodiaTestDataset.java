@@ -65,10 +65,26 @@ public class CambodiaTestDataset extends TestDataSet
   public static final TestGeoObjectTypeInfo GOT_Commune            = new TestGeoObjectTypeInfo("Commune", GeometryType.MULTIPOLYGON, ORG_CENTRAL);
   
   public static final TestGeoObjectTypeInfo GOT_Village            = new TestGeoObjectTypeInfo("Village", GeometryType.MULTIPOINT, ORG_CENTRAL);
+  
+  public static final TestGeoObjectTypeInfo GOT_Hospital              = new TestGeoObjectTypeInfo("Hospital", GeometryType.MULTIPOLYGON, ORG_MOH);
 
   public static final TestGeoObjectInfo     GO_Cambodia              = new TestGeoObjectInfo("Cambodia", GOT_Country);
   
   public static final TestGeoObjectInfo     GO_Oddar_Meanchey              = new TestGeoObjectInfo("Oddar Meanchey", GOT_Province);
+  
+  public static final TestUserInfo          USER_CGOV_RM          = new TestUserInfo("cgovrm", "cgovrm", "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
+
+  public static final TestUserInfo          USER_CGOV_RC          = new TestUserInfo("cgovrc", "cgovrc", "cgovrc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
+
+  public static final TestUserInfo          USER_CGOV_AC          = new TestUserInfo("cgovac", "cgovac", "cgovac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getAC_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
+  
+  public static final TestUserInfo          USER_MOHA_RA          = new TestUserInfo("mohra", "mohra", "mohara@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_MOH.getCode()) });
+  
+  public static final TestUserInfo          USER_MOHA_RM          = new TestUserInfo("mohrm", "mohrm", "moharm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
+
+  public static final TestUserInfo          USER_MOHA_RC          = new TestUserInfo("mohrc", "mohrc", "moharc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
+
+  public static final TestUserInfo          USER_MOHA_AC          = new TestUserInfo("mohac", "mohac", "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
   
   public TestAttributeTypeInfo AT_National_Anthem;
   
@@ -104,12 +120,23 @@ public class CambodiaTestDataset extends TestDataSet
     managedGeoObjectTypeInfos.add(GOT_District);
     managedGeoObjectTypeInfos.add(GOT_Commune);
     managedGeoObjectTypeInfos.add(GOT_Village);
+    
+    managedGeoObjectTypeInfos.add(GOT_Hospital);
 
     managedGeoObjectInfos.add(GO_Cambodia);
     managedGeoObjectInfos.add(GO_Oddar_Meanchey);
     
     managedUsers.add(USER_ORG_RA);
     managedUsers.add(USER_MOH_RA);
+    
+    managedUsers.add(USER_CGOV_RM);
+    managedUsers.add(USER_CGOV_RC);
+    managedUsers.add(USER_CGOV_AC);
+    
+    managedUsers.add(USER_MOHA_RA);
+    managedUsers.add(USER_MOHA_RM);
+    managedUsers.add(USER_MOHA_RC);
+    managedUsers.add(USER_MOHA_AC);
   }
   
   public static void main(String[] args)
@@ -136,6 +163,13 @@ public class CambodiaTestDataset extends TestDataSet
     GOT_Province.addChild(GOT_District, HIER_ADMIN);
     GOT_District.addChild(GOT_Commune, HIER_ADMIN);
     GOT_Commune.addChild(GOT_Village, HIER_ADMIN);
+    
+    GOT_Country.getUniversal().addLink(Universal.getRoot(), HIER_MOH.getServerObject().getUniversalType());
+    
+    GOT_Country.addChild(GOT_Province, HIER_MOH);
+    GOT_Province.addChild(GOT_District, HIER_MOH);
+    GOT_District.addChild(GOT_Commune, HIER_MOH);
+    GOT_Commune.addChild(GOT_Hospital, HIER_MOH);
   }
 
   @Transaction
@@ -188,7 +222,7 @@ public class CambodiaTestDataset extends TestDataSet
     Assert.assertEquals(4, childClassifiers.size());
     
     
-    this.GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
+    GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
   }
 
   @Override

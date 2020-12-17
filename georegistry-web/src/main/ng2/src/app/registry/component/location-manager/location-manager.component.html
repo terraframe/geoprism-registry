@@ -77,6 +77,7 @@
               [type]="type"
               [code]="current.properties.code"              
               [forDate]="forDate"
+              [readOnly]="!current.properties.writable"
               [geometryChange]="geometryChange"
               (geometryEdit)="onGeometryEdit($event)"
               (featureChange)="search()"                            

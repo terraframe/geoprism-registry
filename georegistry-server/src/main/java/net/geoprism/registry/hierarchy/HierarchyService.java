@@ -192,13 +192,13 @@ public class HierarchyService
   public HierarchyType[] getHierarchyTypes(String sessionId, String[] codes, PermissionContext context)
   {
     final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
-    List<HierarchyType> hierarchyTypeList = new LinkedList<HierarchyType>();
+    List<HierarchyType> cachedHierarchyTypes = new LinkedList<HierarchyType>();
 
     if (codes == null || codes.length == 0)
     {
       List<HierarchyType> lHt = ServiceFactory.getAdapter().getMetadataCache().getAllHierarchyTypes();
 
-      hierarchyTypeList = new LinkedList<HierarchyType>(lHt);
+      cachedHierarchyTypes = new LinkedList<HierarchyType>(lHt);
     }
     else
     {
@@ -208,13 +208,20 @@ public class HierarchyService
 
         if (oht.isPresent())
         {
-          hierarchyTypeList.add(oht.get());
+          cachedHierarchyTypes.add(oht.get());
         }
       }
     }
+    
+    // It's important that we don't modify the metadata cache when we filter things out
+    List<HierarchyType> filteredHierarchyTypes = new LinkedList<HierarchyType>();
+    for (HierarchyType cacheType : cachedHierarchyTypes)
+    {
+      filteredHierarchyTypes.add(HierarchyType.fromJSON(cacheType.toJSON().toString(), ServiceFactory.getAdapter()));
+    }
 
     // Filter out what they're not allowed to see
-    Iterator<HierarchyType> it = hierarchyTypeList.iterator();
+    Iterator<HierarchyType> it = filteredHierarchyTypes.iterator();
     while (it.hasNext())
     {
       HierarchyType ht = it.next();
@@ -254,7 +261,7 @@ public class HierarchyService
       }
     }
 
-    HierarchyType[] hierarchies = hierarchyTypeList.toArray(new HierarchyType[hierarchyTypeList.size()]);
+    HierarchyType[] hierarchies = filteredHierarchyTypes.toArray(new HierarchyType[filteredHierarchyTypes.size()]);
 
     return hierarchies;
   }
@@ -264,13 +271,16 @@ public class HierarchyService
     final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
     List<HierarchyNode> list = parent.getChildren();
     
-    for (HierarchyNode child : list)
+    Iterator<HierarchyNode> it = list.iterator();
+    while (it.hasNext())
     {
+      HierarchyNode child = it.next();
+      
       GeoObjectType got = child.getGeoObjectType();
       
       if (!typePermServ.canRead(got.getOrganizationCode(), got.getCode(), got.getIsPrivate()))
       {
-        parent.removeChild(child);
+        it.remove();
       }
       else
       {
