@@ -2,83 +2,58 @@
     <cgr-header></cgr-header> -->
 <loading-bar></loading-bar>
 
-<form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
-    <fieldset>
-        <div style="min-height:50vh;">
+<div class="row">
+  <div class="col-md-2"></div>
+  <div class="col-md-8">
+    <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
+      <fieldset>
+        <div style="min-height: 50vh;">
 
-            <div class="row-holder">
-                <div class="label-holder">
-                    <label>
-                        <localize key="dropdown.select.geoobjecttype.label"></localize>
-                    </label>
-                </div>
-                <div class="holder">
-                    <span class="text">
-                        <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="select-area"
-                            [(ngModel)]="geoObjectType" required>
-                            <!-- <option> <localize key="dropdown.select.geoobjecttype.option.label"></localize> </option> -->
-                            <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.label.localizedValue}}
-                            </option>
-                        </select>
-                    </span>
-                </div>
-            </div>
+          <div class="form-group">
+              <label> 
+                <localize key="dropdown.select.geoobjecttype.label"></localize>
+              </label>
+                <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="form-control select-area" [(ngModel)]="geoObjectType" required>
+                  <!-- <option> <localize key="dropdown.select.geoobjecttype.option.label"></localize> </option> -->
+                  <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.label.localizedValue}}</option>
+                </select>
+          </div>
 
-            <div class="row-holder" style="overflow: visible;">
-                <div class="label-holder">
-                    <label>
-                        <localize key="dropdown.select.geoobject.label"></localize>
-                    </label>
-                </div>
-                <div class="holder">
-                    <span class="text">
-                        <input type="text" [ngClass]="{'inline-loading':loading}" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId"
-                            [typeaheadAsync]="true" [typeahead]="dataSource" 
-                            (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7"
-                            typeaheadOptionField="name"
-                            (typeaheadLoading)="changeTypeaheadLoading($event)"                            
-                            [placeholder]="('masterlist.search' | localize) + '...'"
-                             class="form-control" autocomplete="off" required>
+          <div class="form-group" style="overflow: visible;">
+              <label> 
+                <localize key="dropdown.select.geoobject.label"></localize>
+              </label>
+              <input type="text" [ngClass]="{'inline-loading':loading}" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId" [typeaheadAsync]="true" [typeahead]="dataSource"
+                (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="name" (typeaheadLoading)="changeTypeaheadLoading($event)" [placeholder]="('masterlist.search' | localize) + '...'" class="form-control"
+                autocomplete="off" required>
+          </div>
 
-                    </span>
-                </div>
-            </div>
+          <div *ngIf="preGeoObject">
+            <geoobject-shared-attribute-editor #attributeEditor (valid)="this.onValidChange($event)" [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject" [(postGeoObject)]="this.postGeoObject" [isGeometryInlined]="true">
+            </geoobject-shared-attribute-editor>
+          </div>
 
-            <div *ngIf="preGeoObject">
-                <geoobject-shared-attribute-editor #attributeEditor (valid)="this.onValidChange($event)"
-                    [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject"
-                    [(postGeoObject)]="this.postGeoObject" [isGeometryInlined]="true">
-                </geoobject-shared-attribute-editor>
-            </div>
+          <div class="form-group" style="z-index: 0;">
+              <label> 
+                <localize key="change.request.reason.label"></localize>
+              </label>
+              <textarea rows="4" cols="50" [(ngModel)]="reason" class="form-control" name="reason-input" required></textarea>
+          </div>
 
-            <div class="row-holder" style="z-index: 0;">
-                <div class="label-holder">
-                    <label>
-                        <localize key="change.request.reason.label"></localize>
-                    </label>
-                </div>
-                <div class="holder">
-                    <span class="text">
-                        <textarea rows="4" cols="50" [(ngModel)]="reason" name="reason-input" required></textarea>
-                    </span>
-                </div>
-            </div>
-
-            <div class="row-holder">
-                <div class="label-holder">
-                </div>
-                <div class="holder">
-                    <div class="button-holder">
-                        <button type="button" class="btn btn-default" (click)="cancel()">
-                            <localize key="modal.button.cancel"></localize>
-                        </button>
-                        <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="!attributeForm.valid">
-                            <localize key="modal.button.submit"></localize>
-                        </button>
-                    </div>
-                </div>
-            </div>
+          <div class="form-group">
+              <div class="button-holder">
+                <button type="button" class="btn btn-default" (click)="cancel()">
+                  <localize key="modal.button.cancel"></localize>
+                </button>
+                <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="!attributeForm.valid">
+                  <localize key="modal.button.submit"></localize>
+                </button>
+              </div>
+          </div>
 
         </div>
-    </fieldset>
-</form>
+      </fieldset>
+    </form>
+  </div>
+  <div class="col-md-2"></div>
+</div>
