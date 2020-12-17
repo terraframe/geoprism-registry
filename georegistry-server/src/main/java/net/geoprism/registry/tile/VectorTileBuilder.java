@@ -30,6 +30,7 @@ import java.util.TreeMap;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.json.JSONException;
 import org.postgis.jts.JtsGeometry;
+import org.postgresql.util.PSQLException;
 
 import com.runwaysdk.dataaccess.AttributeIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -229,7 +230,15 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
 
         for (Locale locale : locales)
         {
-          data.put(GeoEntity.DISPLAYLABEL + "_" + locale.toString().toLowerCase(), resultSet.getString(locale.toString()));
+          try
+          {
+            data.put(GeoEntity.DISPLAYLABEL + "_" + locale.toString().toLowerCase(), resultSet.getString(locale.toString()));
+          }
+          catch (PSQLException e)
+          {
+            // Ignore: The column doesn't exist because the list was created
+            // before the locale was installed
+          }
         }
 
         JtsGeometry geom = (JtsGeometry) resultSet.getObject(GeoserverFacade.GEOM_COLUMN);
