@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
 
+import org.apache.commons.io.input.NullInputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -351,7 +352,13 @@ public class MasterListService
     try
     {
       byte[] bytes = TileCache.getTile(object);
-      return new ByteArrayInputStream(bytes);
+
+      if (bytes != null)
+      {
+        return new ByteArrayInputStream(bytes);
+      }
+
+      return new ByteArrayInputStream(new byte[] {});
     }
     catch (JSONException e)
     {
