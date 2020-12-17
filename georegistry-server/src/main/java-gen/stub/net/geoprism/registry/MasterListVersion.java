@@ -969,7 +969,14 @@ public class MasterListVersion extends MasterListVersionBase
   {
     if (business.hasAttribute(name))
     {
-      business.setValue(name, value);
+      if (value != null)
+      {
+        business.setValue(name, value);
+      }
+      else
+      {
+        business.setValue(name, "");
+      }
     }
   }
 
