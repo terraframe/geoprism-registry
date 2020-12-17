@@ -82,36 +82,42 @@ public class GeoObjectRelationshipPermissionService extends UserPermissionServic
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-          if (RegistryRole.Type.isRA_Role(roleName) && ( orgCode.equals(roleOrgCode) || op.equals(Operation.READ_CHILD) ))
+          if (op.equals(Operation.READ_CHILD) && (childType != null && !childType.getIsPrivate()))
           {
             return true;
           }
-          else if (RegistryRole.Type.isRM_Role(roleName) && orgCode.equals(roleOrgCode))
+          
+          if ( roleOrgCode.equals(orgCode) )
           {
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-
-            if (parentType == null || childType == null || gotCode.equals(parentType.getCode()) || gotCode.equals(childType.getCode()))
+            if ( RegistryRole.Type.isRA_Role(roleName) )
             {
-              return true;
+                return true;
             }
-          }
-          else if (RegistryRole.Type.isRC_Role(roleName) && orgCode.equals(roleOrgCode))
-          {
-            if (isChangeRequest)
+            else if ( RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) )
             {
-              return true;
-            }
-
-            String gotCode = RegistryRole.Type.parseGotCode(roleName);
-
-            if (parentType != null && gotCode.equals(parentType.getCode()))
-            {
-              return true;
-            }
-
-            if (childType != null && gotCode.equals(childType.getCode()))
-            {
-              return true;
+              String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
+              
+              if ( childType == null || childType.getCode().equals(roleGotCode) )
+              {
+                if ( RegistryRole.Type.isRM_Role(roleName) )
+                {
+                  return true;
+                }
+                else if ( RegistryRole.Type.isRC_Role(roleName)  )
+                {
+                  if ( isChangeRequest || op.equals(Operation.READ_CHILD) )
+                  {
+                    return true;
+                  }
+                }
+                else if ( RegistryRole.Type.isAC_Role(roleName) )
+                {
+                  if ( op.equals(Operation.READ_CHILD) )
+                  {
+                    return true;
+                  }
+                }
+              }
             }
           }
         }

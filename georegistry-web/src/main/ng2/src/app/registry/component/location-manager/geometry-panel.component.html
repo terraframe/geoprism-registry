@@ -11,34 +11,48 @@
 
         <!-- <div class="label-holder"></div> -->
         <div class="col-md-12">
-          <div *ngIf="geoObjectOverTime">
+          <div class="attribute-version-wrapper" *ngIf="geoObjectOverTime">
 
-            <div>
-              <div >
                 <ul class="list-group">
                   <li class="list-group-item" style="text-align:left;padding:0;">
-                      <table class="table table-striped">
-                        <thead style="font-size: 14px;">
-                          <th style="width: 60%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th>
-                          <th style="width: 20%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
-                          <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
-                          <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
-                        </thead>
-                        <tbody style="text-align: center;">
-                          <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
-                            <td style="vertical-align: middle;">
-                              <button class="btn" (click)="edit(vAttribute)" role="button">
-                                <localize key="changeovertime.manageVersions.geometry.edit"></localize>
-                              </button> 
-                            </td>
-                            <td style="vertical-align: middle;"><input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required></td>
-                            <td style="vertical-align: middle;">
-                              <p style="font-size: 14px;">{{vAttribute.endDate | date:'MM-dd-yyyy'}}</p>
-                            </td>
-                            <td style="vertical-align: middle;"><i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i></td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <table class="table table-striped">
+
+                      <tbody class="attribute-element-wrapper">
+                        <p class="message" *ngIf="geoObjectOverTime.attributes['geometry'].values.length === 0">
+                          <localize key="changeovertime.manageVersions.no.versions.message"></localize>
+                        </p>
+
+                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
+                          <td>
+                            <table>
+                              <tr class="attribute-value-row">
+                                <td colspan="2">
+                                  <button class="btn btn-primary" (click)="edit(vAttribute)" role="button">
+                                    <localize key="changeovertime.manageVersions.geometry.edit"></localize>
+                                  </button>
+                                </td>
+                              </tr>
+                              <tr class="attribute-date-input-row">
+                                <td>
+                                  <h5>
+                                    <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
+                                  </h5> <input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
+                                </td>
+                                <td>
+                                  <h5>
+                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
+                                  </h5>
+                                  <p style="font-size: 14px;">{{vAttribute.endDate | date:'yyyy-MM-dd'}}</p>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                          <td style="vertical-align: middle;" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize" (click)="remove(vAttribute)">
+                            <i class="fa fa-times"></i>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </li>
 
                   <li class="list-group-item" style="text-align: left;">
@@ -47,8 +61,6 @@
                   </li>
                 </ul>
               </div>
-            </div>
-          </div>
         </div>
 
       </div>

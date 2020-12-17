@@ -20,6 +20,7 @@ package net.geoprism.registry.model;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +28,8 @@ import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.permission.GeoObjectRelationshipPermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerChildTreeNode extends ServerTreeNode
@@ -72,6 +75,9 @@ public class ServerChildTreeNode extends ServerTreeNode
 
   public ChildTreeNode toNode(boolean enforcePermissions)
   {
+    final GeoObjectRelationshipPermissionServiceIF relPermServ = ServiceFactory.getGeoObjectRelationshipPermissionService();
+    final GeoObjectPermissionServiceIF goPermServ = ServiceFactory.getGeoObjectPermissionService();
+    
     GeoObject go = this.getGeoObject().toGeoObject();
     HierarchyType ht = this.getHierarchyType() != null ? this.getHierarchyType().getType() : null;
 
@@ -83,12 +89,29 @@ public class ServerChildTreeNode extends ServerTreeNode
 
     for (ServerChildTreeNode child : this.children)
     {
-      if (!enforcePermissions || ServiceFactory.getGeoObjectRelationshipPermissionService().canViewChild(orgCode, type, child.getGeoObject().getType()))
+      if (!enforcePermissions ||
+          (relPermServ.canViewChild(orgCode, type, child.getGeoObject().getType())
+           && goPermServ.canRead(orgCode, type)))
       {
         node.addChild(child.toNode(enforcePermissions));
       }
     }
 
     return node;
+  }
+
+  public void removeChild(ServerChildTreeNode child)
+  {
+    Iterator<ServerChildTreeNode> it = this.children.iterator();
+    
+    while (it.hasNext())
+    {
+      ServerChildTreeNode myChild = it.next();
+      
+      if (myChild.getGeoObject().getCode().equals(child.getGeoObject().getCode()))
+      {
+        it.remove();
+      }
+    }
   }
 }

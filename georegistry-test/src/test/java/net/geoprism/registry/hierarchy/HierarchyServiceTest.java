@@ -77,6 +77,8 @@ public class HierarchyServiceTest
   @AfterClass
   public static void cleanUpClass()
   {
+    deleteExtraMetadata();
+    
     testData.tearDownMetadata();
   }
 
@@ -100,7 +102,7 @@ public class HierarchyServiceTest
     testData.tearDownInstanceData();
   }
 
-  private void deleteExtraMetadata()
+  private static void deleteExtraMetadata()
   {
     TEST_HT.delete();
     TEST_GOT.delete();
@@ -302,7 +304,7 @@ public class HierarchyServiceTest
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
       HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.WRITE);
 
-      Assert.assertEquals(0, hierarchyTypes.length);
+      Assert.assertEquals(1, hierarchyTypes.length);
     });
   }
 
@@ -312,66 +314,8 @@ public class HierarchyServiceTest
     FastTestDataset.runAsUser(FastTestDataset.USER_MOHA_RA, (request, adapter) -> {
       HierarchyType[] hierarchyTypes = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
 
-      Assert.assertEquals(1, hierarchyTypes.length);
+      Assert.assertEquals(testData.getManagedHierarchyTypes().size(), hierarchyTypes.length);
     });
-  }
-
-  @Test
-  public void testAddToHierarchy()
-  {
-    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
-
-    GeoObjectType country = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Country Test"), new LocalizedValue("Some Description"), true, organizationCode, testData.adapter);
-
-    // Create the GeoObjectTypes
-    String gtJSON = country.toJSON().toString();
-    country = testData.adapter.createGeoObjectType(gtJSON);
-
-    try
-    {
-      HierarchyType adminHierarchy = ServiceFactory.getHierarchyService().addToHierarchy(testData.clientSession.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode());
-
-      List<HierarchyNode> rootGots = adminHierarchy.getRootGeoObjectTypes();
-
-      for (HierarchyNode node : rootGots)
-      {
-        if (node.getGeoObjectType().getCode().equals(country.getCode()))
-        {
-          return;
-        }
-      }
-
-      Assert.fail("We did not find the child we just added.");
-    }
-    finally
-    {
-      ServiceFactory.getHierarchyService().removeFromHierarchy(testData.clientSession.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, country.getCode(), false);
-    }
-  }
-
-  @Test
-  public void testAddToHierarchyAsBadRole()
-  {
-    TEST_GOT.apply();
-
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_CGOV_RM };
-
-    for (TestUserInfo user : users)
-    {
-      try
-      {
-        FastTestDataset.runAsUser(user, (request, adapter) -> {
-
-          ServiceFactory.getHierarchyService().addToHierarchy(request.getSessionId(), FastTestDataset.HIER_ADMIN.getCode(), Universal.ROOT, TEST_GOT.getCode());
-        });
-
-        Assert.fail("Able to update a geo object type as a user with bad roles");
-      }
-      catch (SmartExceptionDTO e)
-      {
-        // This is expected
-      }
-    }
   }
 
   @Request
@@ -465,80 +409,6 @@ public class HierarchyServiceTest
     String hierarchyCode = ServerHierarchyType.buildHierarchyKeyFromMdTermRelGeoEntity(locatedInClass);
 
     Assert.assertEquals("AllowedIn relationship type did not get converted into the LocatedIn  hierarchy code", LocatedIn.class.getSimpleName(), hierarchyCode);
-  }
-
-  @Test
-  @Request
-  public void testAddAbstractType()
-  {
-    TEST_GOT.apply();
-
-    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
-    childGot.setAbstract(true);
-
-    try
-    {
-      childGot.apply();
-
-      ServerHierarchyType type = FastTestDataset.HIER_ADMIN.getServerObject();
-      ServerGeoObjectType parentType = TEST_GOT.getServerObject();
-      ServerGeoObjectType childType = childGot.getServerObject();
-
-      try
-      {
-        type.addToHierarchy(RootGeoObjectType.INSTANCE, parentType);
-        type.addToHierarchy(parentType, childType);
-
-        List<ServerGeoObjectType> children = parentType.getChildren(type);
-
-        Assert.assertEquals(1, children.size());
-        Assert.assertEquals(childType.getCode(), children.get(0).getCode());
-      }
-      finally
-      {
-        type.removeChild(RootGeoObjectType.INSTANCE, parentType, false);
-        type.removeChild(parentType, childType, false);
-      }
-    }
-    finally
-    {
-      childGot.delete();
-    }
-  }
-
-  @Test(expected = AbstractParentException.class)
-  @Request
-  public void testChildOfAbstractType()
-  {
-    TestGeoObjectTypeInfo parentGot = new TestGeoObjectTypeInfo("HMST_Abstract", FastTestDataset.ORG_CGOV);
-    parentGot.setAbstract(true);
-
-    TestGeoObjectTypeInfo childGot = new TestGeoObjectTypeInfo("HMST_Child", FastTestDataset.ORG_CGOV);
-
-    try
-    {
-      parentGot.apply();
-      childGot.apply();
-
-      ServerHierarchyType type = FastTestDataset.HIER_ADMIN.getServerObject();
-      ServerGeoObjectType parentType = parentGot.getServerObject();
-      ServerGeoObjectType childType = childGot.getServerObject();
-
-      try
-      {
-        type.addToHierarchy(RootGeoObjectType.INSTANCE, parentType);
-        type.addToHierarchy(parentType, childType);
-      }
-      finally
-      {
-        type.removeChild(RootGeoObjectType.INSTANCE, parentType, false);
-      }
-    }
-    finally
-    {
-      parentGot.delete();
-      childGot.delete();
-    }
   }
 
 }

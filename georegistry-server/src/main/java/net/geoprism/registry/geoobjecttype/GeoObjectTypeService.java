@@ -92,9 +92,19 @@ public class GeoObjectTypeService
       ServerGeoObjectType serverGot = ServerGeoObjectType.get(got);
 
       // Filter ones that they can't see due to permissions
-      if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(serverGot.getOrganization().getCode(), serverGot.getIsPrivate(), context))
+      if (context.equals(PermissionContext.READ))
       {
-        it.remove();
+        if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(serverGot.getOrganization().getCode(), serverGot.getCode(), serverGot.getIsPrivate()))
+        {
+          it.remove();
+        }
+      }
+      else
+      {
+        if (!ServiceFactory.getGeoObjectTypePermissionService().canWrite(serverGot.getOrganization().getCode(), serverGot.getCode(), serverGot.getIsPrivate()))
+        {
+          it.remove();
+        }
       }
 
       if (hierarchies != null && hierarchies.length > 0)

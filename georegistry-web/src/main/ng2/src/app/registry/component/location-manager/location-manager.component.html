@@ -57,8 +57,8 @@
                         <!-- Single column card -->
                         <div class="card card-default" (click)="select(node, $event)">
                           <div class="card-body">
-                            <i class="arrow arrow-right clickable" style="float: right;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Drill into location"></i>
-                            <h4 class="clickable" style="word-break: break-all;" title="Zoom to location">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
+                            <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="zoomToFeature(node, $event)" title="Zoom to location"></i>
+                            <h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
                           </div>
                         </div>
                       </div>
@@ -77,6 +77,7 @@
               [type]="type"
               [code]="current.properties.code"              
               [forDate]="forDate"
+              [readOnly]="!current.properties.writable"
               [geometryChange]="geometryChange"
               (geometryEdit)="onGeometryEdit($event)"
               (featureChange)="search()"                            

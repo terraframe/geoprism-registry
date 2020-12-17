@@ -497,31 +497,6 @@ li.list-group-item.active {
 * custom radio styles
 *
 */
-// .rad-area{
-// 	padding:5px;
-// 	border-radius:50%;
-// }
-// .rad-checked{
-// 	border-color:#02789e;
-// 	background:#00bfff;
-// }
-// .rad-checked span{
-// 	display:block;
-// 	width:8px;
-// 	height:8px;
-// 	border-radius:50%;
-// 	background:#fff;
-// }
-// .rad-focus{border-color:#6BA542;}
-// .rad-focus.rad-checked{border-color:#02789e;}
-// .rad-disabled{
-// 	border-color:#dbdbdb;
-// 	background:#f8f8f8;
-// }
-// .rad-checked.rad-disabled{
-// 	border:1px solid #b3b3b3;
-// 	background:#ccc;
-// }
 div.row-holder .rad-area {
 	margin: 0px 11px 0 0;
 }
@@ -889,3 +864,99 @@ tree-loading-component {
   border: none;
   box-shadow: none;
 }
+
+
+
+
+/*
+ * Manage version widget
+ */
+
+.attribute-version-wrapper table {
+	width: 100%;
+}
+
+.attribute-version-wrapper .attribute-element-wrapper .attribute-value-row tr td {
+	padding: 0;
+	vertical-align: top; 
+	width: 100%; 
+	padding-top: 5px;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row td {
+	vertical-align: top !important;
+	text-align: left;
+	width: 50%;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row td:first-child {
+	padding-right: 5px;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row td:nth-child(2) {
+	padding-left: 5px;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row input {
+	width:100%;
+}
+.attribute-version-wrapper .attribute-element-wrapper .attribute-date-input-row p {
+	font-size:14px;
+	font-weight: bold;
+	line-height:40px;
+}
+
+
+.manage-version-button {
+	vertical-align:middle !important; 
+	width:10%; 
+	padding:5px; 
+	text-align:center;
+	background-color:#e7e7e7;
+	background-clip:padding-box;
+}
+
+td.clickable:hover,
+td.clickable:focus {
+	background-color: #dedede; /* IE fallback */
+}
+
+.message {
+	font-style: italic;
+	color: #9a9a9a;
+	padding: 10px;
+}
+
+.form-group input,
+select {
+	border-color: #aaa;
+}
+
+.input-group-btn,
+.input-group-btn .btn.btn-primary {
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	margin-right: 0;
+}
+
+.input-group .input-group-addon {
+	background: #EDF4E8;
+/* 	border-color: #6BA542; */
+	color: #6BA542;
+//	border-radius: 8px;
+}
+.input-group .input-group-addon i {
+	color: #6BA542;
+}
+.input-group .input-group-addon:hover {
+	background: #f4fcef;
+}
+
+.input-group .input-group-addon.addon-alert {
+	background: #e7e7e7;
+/* 	border-color: #6BA542; */
+	color: inherit;
+}
+.input-group .input-group-addon.addon-alert i {
+	color: inherit;
+}
+.input-group .input-group-addon.addon-alert:hover {
+	background: #dedede;
+}
+

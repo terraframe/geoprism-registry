@@ -49,7 +49,7 @@ input.form-control {
   border:1px solid;
   border-color: #767676; /* IE fallback */
   border-color: var(--theme-input-text-border);;
-  border-radius: 8px;
+  border-radius: 5px;
   background:white;
   outline:none;
   box-shadow:none;
@@ -139,7 +139,7 @@ input[type="textarea"]{
     overflow-y: scroll;
     resize: none;
     max-height: 150px;
-    border-radius: 8px;
+    border-radius: 5px;
 }
 .modal-form .text input[type="textarea"]::-moz-placeholder{
 	color:#333;

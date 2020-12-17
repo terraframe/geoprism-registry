@@ -20,7 +20,6 @@ package net.geoprism.registry;
 
 import java.util.Map;
 
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -33,6 +32,7 @@ import com.runwaysdk.system.Roles;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
 public class OrganizationAndRoleTest
 {
@@ -192,8 +192,8 @@ public class OrganizationAndRoleTest
   @Test
   public void testACRoleNameParsing()
   {
-    String organizationCode = testData.ORG_CGOV.getCode();
-    String geoObjectType = testData.PROVINCE.getCode();
+    String organizationCode = FastTestDataset.ORG_CGOV.getCode();
+    String geoObjectType = FastTestDataset.PROVINCE.getCode();
 
     String rmRole = RegistryRole.Type.getAC_RoleName(organizationCode, geoObjectType);
 
@@ -207,11 +207,21 @@ public class OrganizationAndRoleTest
   @Request
   public void testGetGeoObjectTypesMethod()
   {
-    Map<String, ServerGeoObjectType> geoObjectTypeInfo = testData.ORG_CGOV.getServerObject().getGeoObjectTypes();
+    int numGots = 0;
+    
+    for (TestGeoObjectTypeInfo testGot : testData.getManagedGeoObjectTypes())
+    {
+      if (testGot.getOrganization().getCode().equals(FastTestDataset.ORG_CGOV.getCode()))
+      {
+        numGots++;
+      }
+    }
+    
+    Map<String, ServerGeoObjectType> geoObjectTypeInfo = FastTestDataset.ORG_CGOV.getServerObject().getGeoObjectTypes();
 
-    Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", 2, geoObjectTypeInfo.size());
+    Assert.assertEquals("Method did not return the correct number of GeoObjectTypes managed by the organization", numGots, geoObjectTypeInfo.size());
 
-    Assert.assertEquals(true, geoObjectTypeInfo.containsKey(testData.COUNTRY.getCode()));
-    Assert.assertEquals(true, geoObjectTypeInfo.containsKey(testData.PROVINCE.getCode()));
+    Assert.assertEquals(true, geoObjectTypeInfo.containsKey(FastTestDataset.COUNTRY.getCode()));
+    Assert.assertEquals(true, geoObjectTypeInfo.containsKey(FastTestDataset.PROVINCE.getCode()));
   }
 }

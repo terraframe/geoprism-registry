@@ -45,6 +45,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
@@ -901,7 +902,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "geoobject/suggestions", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "date") String date) throws ParseException
+  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "date") String date)
   {
     Date forDate = null;
 
@@ -910,7 +911,14 @@ public class RegistryController
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
       format.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-      forDate = format.parse(date);
+      try
+      {
+        forDate = format.parse(date);
+      }
+      catch (ParseException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
     }
 
     JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, hierarchy, forDate);

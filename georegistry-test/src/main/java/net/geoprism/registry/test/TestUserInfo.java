@@ -20,6 +20,7 @@ package net.geoprism.registry.test;
 
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Request;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
@@ -48,6 +49,7 @@ public class TestUserInfo
     TestDataSet.deleteUser(username);
   }
   
+  @Request
   public GeoprismUser apply()
   {
     GeoprismUser user = this.getGeoprismUser();

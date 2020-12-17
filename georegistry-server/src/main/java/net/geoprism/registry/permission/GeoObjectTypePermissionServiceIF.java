@@ -23,22 +23,22 @@ import com.runwaysdk.business.rbac.Operation;
 public interface GeoObjectTypePermissionServiceIF
 {
 
-  public boolean canRead(String orgCode, boolean isPrivate, PermissionContext context);
+  public boolean canRead(String orgCode, String gotCode, boolean isPrivate);
 
-  public void enforceCanRead(String orgCode, boolean isPrivate, String gotLabel);
+  public void enforceCanRead(String orgCode, String gotCode, boolean isPrivate, String gotLabel);
 
-  public boolean canWrite(String orgCode, boolean isPrivate);
+  public boolean canWrite(String orgCode, String gotCode, boolean isPrivate);
 
-  public void enforceCanWrite(String orgCode, boolean isPrivate, String gotLabel);
+  public void enforceCanWrite(String orgCode, String gotCode, boolean isPrivate, String gotLabel);
 
-  public boolean canCreate(String orgCode, boolean isPrivate);
+  public boolean canCreate(String orgCode, String gotCode, boolean isPrivate);
 
-  public void enforceCanCreate(String orgCode, boolean isPrivate);
+  public void enforceCanCreate(String orgCode, String gotCode, boolean isPrivate);
 
-  public boolean canDelete(String orgCode, boolean isPrivate);
+  public boolean canDelete(String orgCode, String gotCode, boolean isPrivate);
 
-  public void enforceCanDelete(String orgCode, boolean isPrivate, String gotLabel);
+  public void enforceCanDelete(String orgCode, String gotCode, boolean isPrivate, String gotLabel);
 
-  public void enforceActorHasPermission(String orgCode, boolean isPrivate, String gotLabel, Operation op);
+  public void enforceActorHasPermission(String orgCode, String gotCode, boolean isPrivate, String gotLabel, Operation op);
 
 }

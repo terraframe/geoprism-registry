@@ -46,7 +46,12 @@
                   </div>
 
                   <div *ngIf="attr.type === 'character' && attr.code !== 'code'">
-                    <input *ngIf="postGeoObject" type="text" [ngModel]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled>
+                    <div class="input-group">
+                      <input *ngIf="postGeoObject" type="text" [ngModel]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
+                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon">
+                        <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
+                      </span>
+                    </div>
 
                     <p class="warning-text" *ngIf="!isNew && isDifferentText(attr)">
                       <localize key="change.request.changed.value.prefix"></localize>
@@ -70,8 +75,8 @@
 
                             <div class="input-group">
                               <input disabled [required]="localeValue.locale === 'defaultLocale'" type="text" [ngModel]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale" > 
-                              <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon"> 
-                                  <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
+                              <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
+                                  <i class="fa fa-pencil" aria-hidden="true"></i>
                               </span>
                             </div>
 
@@ -90,8 +95,8 @@
 
                     <div class="input-group">
                       <input type="date" [ngModel]="calculatedPostObject[attr.code].value | date:'yyyy-MM-dd'" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon"> 
-                        <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
+                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
                     </div>
 
@@ -116,8 +121,8 @@
                           <span><localize key="change.request.boolean.option.false"></localize></span>
                         </label> 
                       </div>
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon"> 
-                        <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
+                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
                     </div>
 
@@ -132,8 +137,8 @@
 
                     <div class="input-group">
                       <input disabled type="number" [(ngModel)]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
-                        <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon"> 
-                        <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
+                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
                     </div>
 
@@ -145,11 +150,11 @@
                   </div>
 
                   <div *ngIf="attr.type === 'integer'">
-
+                  
                     <div class="input-group">
                       <input type="number" [(ngModel)]="calculatedPostObject[attr.code].value" disabled id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon"> 
-                        <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
+                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
                     </div>
 
@@ -166,7 +171,9 @@
                       <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float: none;" disabled [(ngModel)]="calculatedPostObject[attr.code].value">
                         <option value=""></option>
                         <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code">{{option.label.localizedValue}}</option>
-                      </select> <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon"> <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
+                      </select> 
+                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
                     </div>
 

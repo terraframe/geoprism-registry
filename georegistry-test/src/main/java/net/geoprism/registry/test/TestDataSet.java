@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -37,6 +35,7 @@ import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -101,7 +100,6 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.WMSService;
 
 abstract public class TestDataSet
 {
@@ -1042,7 +1040,7 @@ abstract public class TestDataSet
     }
   }
 
-  public static void populateAdapterIds(TestUserInfo user, TestRegistryAdapterClient adapter)
+  public static boolean populateAdapterIds(TestUserInfo user, TestRegistryAdapterClient adapter)
   {
     boolean isRAorRM = false;
 
@@ -1073,6 +1071,7 @@ abstract public class TestDataSet
         throw new RuntimeException(e);
       }
     }
+    
+    return isRAorRM;
   }
-
 }

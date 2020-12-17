@@ -9,6 +9,9 @@
       <div *ngIf="type != null && code != null" id="navigator-left-sidebar" class="col-md-3 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
         <div class="row">
           <div class="col-md-12">
+            
+            <h3></h3>
+            
             <feature-panel
               [type]="type"
               [code]="code"              
@@ -33,7 +36,7 @@
           <div id="map" class="map-view-port"></div>     
           <simple-edit-control [visible]="editingControl != null" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
           
-          <span (click)="onNewGeoObject()" style="position: absolute; bottom: 70px; right: 10px" role="button">
+          <span *ngIf="!readOnly" (click)="onNewGeoObject()" style="position: absolute; bottom: 70px; right: 10px" role="button">
             <button class="btn btn-primary">
               <localize key="masterlist.newGeoObject"></localize>              
             </button>

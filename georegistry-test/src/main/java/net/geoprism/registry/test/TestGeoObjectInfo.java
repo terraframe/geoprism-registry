@@ -276,127 +276,57 @@ public class TestGeoObjectInfo
   {
     return this.parents;
   }
-
-  public void assertEquals(ChildTreeNode tn, String[] childrenTypes, boolean recursive)
+  
+  public void childTreeNodeAssert(ChildTreeNode tn, List<TestGeoObjectInfo> expectedChildren)
   {
     this.assertEquals(tn.getGeoObject());
     // TODO : HierarchyType?
 
     List<ChildTreeNode> tnChildren = tn.getChildren();
 
-    // Check array size
-    int numChildren = 0;
-    for (TestGeoObjectInfo testChild : this.children)
+    Assert.assertEquals(expectedChildren.size(), tnChildren.size());
+
+    for (TestGeoObjectInfo expectedChild : expectedChildren)
     {
-      if (childrenTypes == null || ArrayUtils.contains(childrenTypes, testChild.getGeoObjectType().getCode()))
+      ChildTreeNode tnChild = null;
+      for (ChildTreeNode compareChild : tnChildren)
       {
-        numChildren++;
+        if (expectedChild.getCode().equals(compareChild.getGeoObject().getCode()))
+        {
+          tnChild = compareChild;
+        }
       }
-    }
 
-    Assert.assertEquals(numChildren, tnChildren.size());
-
-    // Check to make sure all the children match types in our type array
-    for (ChildTreeNode compareChild : tnChildren)
-    {
-      String code = compareChild.getGeoObject().getType().getCode();
-
-      if (childrenTypes != null && !ArrayUtils.contains(childrenTypes, code))
+      if (tnChild == null)
       {
-        Assert.fail("Unexpected child with code [" + code + "]. Does not match expected childrenTypes array [" + StringUtils.join(childrenTypes, ", ") + "].");
-      }
-    }
-
-    for (TestGeoObjectInfo testChild : this.children)
-    {
-      if (childrenTypes == null || ArrayUtils.contains(childrenTypes, testChild.getGeoObjectType().getCode()))
-      {
-        ChildTreeNode tnChild = null;
-        for (ChildTreeNode compareChild : tnChildren)
-        {
-          if (testChild.getCode().equals(compareChild.getGeoObject().getCode()))
-          {
-            tnChild = compareChild;
-          }
-        }
-
-        if (tnChild == null)
-        {
-          Assert.fail("The ChildTreeNode did not contain a child that we expected to find.");
-        }
-        else if (recursive)
-        {
-          testChild.assertEquals(tnChild, childrenTypes, recursive);
-        }
-        else
-        {
-          testChild.assertEquals(tnChild.getGeoObject());
-          // USATestData.assertEqualsHierarchyType(LocatedIn.CLASS,
-          // tnChild.getHierachyType());
-        }
+        Assert.fail("The ChildTreeNode did not contain a child that we expected to find.");
       }
     }
   }
 
-  public void assertEquals(ParentTreeNode tn, String[] parentTypes, boolean recursive)
+  public void parentTreeNodeAssert(ParentTreeNode tn, List<TestGeoObjectInfo> expectedParents)
   {
     this.assertEquals(tn.getGeoObject());
     // TODO : HierarchyType?
 
     List<ParentTreeNode> tnParents = tn.getParents();
 
-    // Check array size
-    int numParents = 0;
-    for (TestGeoObjectInfo testParent : this.parents)
-    {
-      if (parentTypes == null || ArrayUtils.contains(parentTypes, testParent.getGeoObjectType().getCode()))
-      {
-        numParents++;
-      }
-    }
-    Assert.assertEquals(numParents, tnParents.size());
+    Assert.assertEquals(expectedParents.size(), tnParents.size());
 
-    // Check to make sure all the children match types in our type array
-    if (parentTypes != null)
+    for (TestGeoObjectInfo expectedParent : expectedParents)
     {
+      ParentTreeNode tnParent = null;
       for (ParentTreeNode compareParent : tnParents)
       {
-        String code = compareParent.getGeoObject().getType().getCode();
-
-        if (!ArrayUtils.contains(parentTypes, code))
+        if (expectedParent.getCode().equals(compareParent.getGeoObject().getCode()))
         {
-          Assert.fail("Unexpected child with code [" + code + "]. Does not match expected childrenTypes array [" + StringUtils.join(parentTypes, ", ") + "].");
+          tnParent = compareParent;
         }
       }
-    }
 
-    for (TestGeoObjectInfo testParent : this.parents)
-    {
-      if (parentTypes == null || ArrayUtils.contains(parentTypes, testParent.getCode()))
+      if (tnParent == null)
       {
-        ParentTreeNode tnParent = null;
-        for (ParentTreeNode compareParent : tnParents)
-        {
-          if (testParent.getCode().equals(compareParent.getGeoObject().getCode()))
-          {
-            tnParent = compareParent;
-          }
-        }
-
-        if (tnParent == null)
-        {
-          Assert.fail("The ParentTreeNode did not contain a child that we expected to find.");
-        }
-        else if (recursive)
-        {
-          testParent.assertEquals(tnParent, parentTypes, recursive);
-        }
-        else
-        {
-          testParent.assertEquals(tnParent.getGeoObject());
-          // USATestData.assertEqualsHierarchyType(LocatedIn.CLASS,
-          // tnParent.getHierachyType());
-        }
+        Assert.fail("The ParentTreeNode did not contain a parent that we expected to find.");
       }
     }
   }

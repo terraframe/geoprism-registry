@@ -96,6 +96,7 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
@@ -390,7 +391,7 @@ public class RegistryService
     ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
 
     ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive);
-
+    
     return node.toNode(true);
   }
 
@@ -598,7 +599,7 @@ public class RegistryService
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getIsPrivate(), geoObjectType.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getCode(), geoObjectType.getIsPrivate(), geoObjectType.getLabel().getValue());
 
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
 
@@ -625,7 +626,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
@@ -649,7 +650,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
@@ -674,7 +675,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getIsPrivate(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getCode(), got.getIsPrivate(), got.getLabel().getValue());
 
     got.removeAttribute(attributeName);
   }
@@ -847,7 +848,7 @@ public class RegistryService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getIsPrivate(), type.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getCode(), type.getIsPrivate(), type.getLabel().getValue());
 
     if (type != null)
     {

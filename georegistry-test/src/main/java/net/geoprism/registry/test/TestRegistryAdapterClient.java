@@ -36,8 +36,6 @@ import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -47,9 +45,11 @@ import com.runwaysdk.mvc.AbstractResponseSerializer;
 import com.runwaysdk.mvc.AbstractRestResponse;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.controller.RegistryController;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class TestRegistryAdapterClient extends RegistryAdapter
 {
@@ -79,6 +79,8 @@ public class TestRegistryAdapterClient extends RegistryAdapter
    */
   public void refreshMetadataCache()
   {
+    refreshRequestMetadataCache();
+    
     this.getMetadataCache().rebuild();
 
     GeoObjectType[] gots = this.getGeoObjectTypes(new String[] {}, new String[] {}, PermissionContext.READ);
@@ -94,6 +96,12 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     {
       this.getMetadataCache().addHierarchyType(ht);
     }
+  }
+  
+  @Request
+  private void refreshRequestMetadataCache()
+  {
+    ServiceFactory.getRegistryService().refreshMetadataCache();
   }
 
   public Set<String> getGeoObjectUids(int amount)
@@ -113,16 +121,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return set;
   }
 
-  public JSONArray getGeoObjectSuggestions(String text, String type, String parent, String hierarchy, String date)
+  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, String hierarchy, String date)
   {
-    try
-    {
-      return new JSONArray(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, hierarchy, date)));
-    }
-    catch (JSONException | ParseException e)
-    {
-      throw new RuntimeException(e);
-    }
+    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, hierarchy, date))).getAsJsonArray();
   }
   
   public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
@@ -219,10 +220,15 @@ public class TestRegistryAdapterClient extends RegistryAdapter
 
     return responseToHierarchyTypes(this.controller.getHierarchyTypes(this.clientRequest, saCodes, PermissionContext.READ.name()));
   }
-
-  public JSONArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
+  
+  public JsonObject hierarchyManagerInit()
   {
-    return new JSONArray(responseToString(this.controller.getHierarchiesForGeoObjectOverTime(this.clientRequest, code, typeCode)));
+    return JsonParser.parseString(responseToString(this.controller.init(this.clientRequest))).getAsJsonObject();
+  }
+
+  public JsonArray getHierarchiesForGeoObjectOverTime(String code, String typeCode)
+  {
+    return JsonParser.parseString(responseToString(this.controller.getHierarchiesForGeoObjectOverTime(this.clientRequest, code, typeCode))).getAsJsonArray();
   }
 
   public JsonArray listGeoObjectTypes()
@@ -250,6 +256,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     {
       throw new RuntimeException(e);
     }
+  }
+  
+  public HierarchyType addToHierarchy(String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
+  {
+    return responseToHierarchyType(this.controller.addToHierarchy(this.clientRequest, hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode));
   }
 
   public ParentTreeNode addChild(String parentId, String parentTypeCode, String childId, String childTypeCode, String hierarchyRef)
@@ -285,6 +296,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return sDate;
   }
 
+  protected HierarchyType responseToHierarchyType(ResponseIF resp)
+  {
+    return HierarchyType.fromJSON(responseToString(resp), this);
+  }
+  
   protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseIF resp)
   {
     return GeoObjectOverTime.fromJSON(this, responseToString(resp));
