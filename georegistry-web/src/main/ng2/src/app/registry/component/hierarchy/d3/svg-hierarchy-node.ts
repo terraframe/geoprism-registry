@@ -367,8 +367,14 @@ export class SvgHierarchyNode {
 		if (existingSecondary.node() != null) {
 			existingSecondary.remove();
 			this.hierarchyComponent.calculateSvgViewBox();
+			
+			let existingSecondaryCode = existingSecondary.attr("data-code");
+			if (relatedHierarchy.code === existingSecondaryCode)
+      {
+        return;
+      }
 		}
-
+		
 		// Get the bounding box for our primary hierarchy
 		let primaryHierBbox = (d3.select(".g-hierarchy[data-primary=true]").node() as any).getBBox();
 
