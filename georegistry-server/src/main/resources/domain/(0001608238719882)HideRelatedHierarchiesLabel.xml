@@ -1,0 +1,18 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.hideRelatedHierarchy">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.content.hideRelatedHierarchy" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide related hierarchy" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
