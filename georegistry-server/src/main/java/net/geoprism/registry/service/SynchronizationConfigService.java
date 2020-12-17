@@ -77,6 +77,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
@@ -127,7 +128,7 @@ public class SynchronizationConfigService
     JsonObject ret = new JsonObject();
 
     // Add GeoObjectTypes
-    GeoObjectType[] gots = ServiceFactory.getRegistryService().getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, null);
+    GeoObjectType[] gots = ServiceFactory.getRegistryService().getGeoObjectTypes(sessionId, null, new String[] { hierarchyTypeCode }, PermissionContext.WRITE);
     CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
 
     JsonArray jarray = new JsonArray();
