@@ -146,6 +146,11 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     
     return object;
   }
+  
+  public LocalizedValue getDisplayLabel()
+  {
+    return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
+  }
 
   public static List<ExternalSystem> getExternalSystemsForOrg(Integer pageNumber, Integer pageSize)
   {
