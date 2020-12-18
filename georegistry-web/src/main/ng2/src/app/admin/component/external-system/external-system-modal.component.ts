@@ -41,6 +41,10 @@ export class ExternalSystemModalComponent implements OnInit {
   context: string;
 
 	message: string = null;
+	
+	editPassword: boolean = false;
+	
+	isNew: boolean = false;
 
 	system: ExternalSystem = {
 		id: "",
@@ -72,6 +76,12 @@ export class ExternalSystemModalComponent implements OnInit {
 
 		if (system != null) {
 			this.system = system;
+			this.isNew = false;
+		}
+		else
+		{
+		  this.isNew = true;
+		  this.editPassword = true;
 		}
 	}
 	

@@ -85,18 +85,22 @@
                 <input type="text" [(ngModel)]="system.username" name="username" required>
               </span>
             </div>
-          </div>     
+          </div>
           
           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
             <div class="label-holder">
               <label><localize key="external.system.password"></localize></label>
             </div>          
             <div class="holder" >
-              <span class="text">
+	            <div>
+	              <input *ngIf="!editPassword" type="submit" value="Edit Password" class="btn btn-primary" (click)="editPassword = !editPassword" />
+	              <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="submit" value="Cancel" class="btn btn-default" (click)="editPassword = !editPassword" />
+	            </div>
+              <span *ngIf="editPassword" class="text">
                 <input type="password" [(ngModel)]="system.password" name="password" required>
               </span>
             </div>
-          </div>     
+          </div>
           
           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
             <div class="label-holder">
