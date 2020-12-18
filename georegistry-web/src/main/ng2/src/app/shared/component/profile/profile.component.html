@@ -147,7 +147,7 @@
         </div>
       </div>
 
-      <div class="row-holder">
+      <div *ngIf="_profile.externalSystemOid != null && _profile.externalSystemOid !== ''" class="row-holder">
         <div class="label-holder">
           <label>
             <localize key="account.profile.oauth"></localize>

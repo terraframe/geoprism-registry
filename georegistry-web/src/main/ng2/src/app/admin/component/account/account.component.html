@@ -155,7 +155,7 @@
           </div>
         </div>
 
-        <div *ngIf="!account.changePassword" class="heading">
+        <div *ngIf="!account.changePassword && externalSystems.length > 0 && systemHasOauth" class="heading">
           <h4>
             <localize key="account.user.oauthTitle"></localize>
           </h4>

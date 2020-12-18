@@ -65,6 +65,12 @@
           <text name="username"/>
         </attributes>
       </mdException>
+      <mdException name="net.geoprism.registry.session.UserNotOuathEnabledException" message="User [{username}] is not configured to log in with this Oauth server ({oauthServer})." >
+        <attributes>
+          <text name="username"/>
+          <text name="oauthServer"/>
+        </attributes>
+      </mdException>
     </create>
     <update>
       <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem">
