@@ -66,12 +66,14 @@
                                                        {{type.label}}
                                                        <div class="input-group">
                                                           <input  style="width:100%;" type="text" class="form-control" autocomplete="off"
-                                                            name="{{type.code}}-{{i}}"
+                                                            [name]="type.code + '-' + i"
                                                             [disabled]="entry.startDate == null || entry.startDate === ''"
                                                             [(ngModel)]="entry.parents[type.code].text" 
                                                             [typeaheadAsync]="true"
                                                             [typeahead]="getTypeAheadObservable(entry.startDate, type, entry, j)"
                                                             (typeaheadOnSelect)="typeaheadOnSelect($event, type, entry, entry.startDate)" 
+                                                            (typeaheadLoading)="entry.loading[type.code] = $event"
+                                                            [ngClass]="{'inline-loading':entry.loading[type.code]}"                                                                
                                                             [typeaheadOptionsLimit]="7"
                                                             [typeaheadItemTemplate]="customItemTemplate" 
                                                             [typeaheadMinLength]="0"

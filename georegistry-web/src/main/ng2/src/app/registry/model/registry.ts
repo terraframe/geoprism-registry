@@ -361,6 +361,7 @@ export class HierarchyOverTime {
 		startDate: string;
 		endDate: string;
 		parents: { [k: string]: { text: string; geoObject: GeoObject } };
+		loading?: any
 	}[];
 }
 
