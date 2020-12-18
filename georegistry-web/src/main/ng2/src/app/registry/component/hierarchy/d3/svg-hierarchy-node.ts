@@ -104,6 +104,17 @@ export class SvgHierarchyNode {
 	getTreeNode() {
 		return this.treeNode;
 	}
+	
+	hideRelatedHierarchy(): string {
+	  let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
+    if (existingSecondary.node() != null) {
+      existingSecondary.remove();
+      this.hierarchyComponent.calculateSvgViewBox();
+      
+      let existingSecondaryCode = existingSecondary.attr("data-code");
+      return existingSecondaryCode;
+    }
+	}
 
 	renderRelatedHierarchiesMenu() {
 		let that = this;
@@ -130,6 +141,9 @@ export class SvgHierarchyNode {
 			const titleLabel = this.hierarchyComponent.localize("hierarchy.content.relatedHierarchies");
 			const removeFromHierarchyLabel = this.hierarchyComponent.localize("hierarchy.content.removeFromHierarchy");
 			const noRelatedHierLabel = this.hierarchyComponent.localize("hierarchy.content.noRelatedHierarchies");
+			const hideRelatedHierarchyLabel = this.hierarchyComponent.localize("hierarchy.content.hideRelatedHierarchy");
+			
+      let isSecondaryHierarchyRendered = (d3.select('.g-hierarchy[data-primary="false"]').node() != null);
 
 			// Calculate the width of our title
 			let width = calculateTextWidth(titleLabel, titleFontSize);
@@ -137,6 +151,13 @@ export class SvgHierarchyNode {
 			// Calculate with of remove text
 			let removeWidth = calculateTextWidth(removeFromHierarchyLabel, fontSize);
 			width = removeWidth > width ? removeWidth : width;
+			
+			if (isSecondaryHierarchyRendered)
+			{
+  			// Calculate width of "hide related hierarchy" label
+        let hideRelatedWidth = calculateTextWidth(hideRelatedHierarchyLabel, fontSize);
+        width = hideRelatedWidth > width ? hideRelatedWidth : width;
+      }
 			
 			// Calculate the width of our context menu, which is based on how long the text inside it will be.
 			// We don't know how long text is until we render it. So we'll need to loop over all the text and
@@ -166,7 +187,8 @@ export class SvgHierarchyNode {
 
 			width = width + widthPadding;
 
-			let heightAdditions: number = relatedHierarchies.length > 0 ? 3 : 4;
+      let numActions = (isSecondaryHierarchyRendered) ? 2 : 1;
+			let heightAdditions: number = relatedHierarchies.length > 0 ? (numActions + 2) : (numActions + 3);
 
 			// Background rectangle with border
 			contextMenuGroup.append("rect")
@@ -203,7 +225,7 @@ export class SvgHierarchyNode {
 				.attr("stroke-width", .5);
 
 			
-			if(relatedHierarchies.length > 0){
+			if (relatedHierarchies.length > 0) {
 				// Loop over all related hierarchies and draw them as list items
 				for (let i = 0; i < relatedHierarchies.length; ++i) {
 					let relatedHierarchyCode = relatedHierarchies[i];
@@ -298,7 +320,39 @@ export class SvgHierarchyNode {
 				.text(removeFromHierarchyLabel)
 				.style("cursor", "pointer")
 				.on('click', function (event, node) { that.removeGotFromHierarchy(); });
-
+			
+      if (isSecondaryHierarchyRendered) {
+  			y = y + height;
+  			
+  		  contextMenuGroup.append("line")
+          .classed("contextmenu-relatedhiers-divider", true)
+          .attr("x1", x)
+          .attr("y1", y)
+          .attr("x2", x + width)
+          .attr("y2", y)
+          .attr("stroke", borderColor)
+          .attr("stroke-width", .5);
+  		  
+  		  contextMenuGroup.append("text")
+          .classed("contextmenu-relatedhiers-text", true)
+          .attr("x", x + widthPadding / 2)
+          .attr("y", y + (height / 2) + (fontSize / 2))
+          .attr("font-size", fontSize) 
+          .attr("font-family", fontFamily)
+          .text(hideRelatedHierarchyLabel)
+          .style("cursor", "pointer")
+          .on('click', function (event, node) {
+            that.hideRelatedHierarchy();
+            
+            let existingMenu = d3.select(".g-context-menu");
+            if (existingMenu.node() != null) {
+              existingMenu.remove();
+            }
+            
+            d3.select(".g-hierarchy-got-connector").remove();
+          });
+      }
+      
 			this.hierarchyComponent.calculateSvgViewBox();
 		}
 		else {
@@ -363,16 +417,9 @@ export class SvgHierarchyNode {
 		let svg = d3.select("#svg");
 
 		// Remove any secondary hierarchy that may already be rendered
-		let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
-		if (existingSecondary.node() != null) {
-			existingSecondary.remove();
-			this.hierarchyComponent.calculateSvgViewBox();
-			
-			let existingSecondaryCode = existingSecondary.attr("data-code");
-			if (relatedHierarchy.code === existingSecondaryCode)
-      {
-        return;
-      }
+		if (this.hideRelatedHierarchy() === relatedHierarchy.code)
+		{
+		  return;
 		}
 		
 		// Get the bounding box for our primary hierarchy
