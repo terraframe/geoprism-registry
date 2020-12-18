@@ -116,7 +116,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		const layer = this.baseLayers[0];
 
 		this.map = new Map({
-			container: 'map',
+			container: 'dataset-map',
 			style: {
 				"version": 8,
 				"name": layer.name,
