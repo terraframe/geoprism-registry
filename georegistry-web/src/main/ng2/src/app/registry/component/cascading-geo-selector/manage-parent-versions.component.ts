@@ -6,6 +6,8 @@ import { HierarchyOverTime, PRESENT } from '@registry/model/registry';
 
 import { RegistryService } from '@registry/service';
 
+import * as moment from 'moment';
+
 @Component({
 	selector: 'manage-parent-versions',
 	templateUrl: './manage-parent-versions.component.html',
@@ -190,6 +192,12 @@ export class ManageParentVersionsComponent implements OnInit {
 		const day = dateObj.getUTCDate();
 
 		return dateObj.getUTCFullYear() + "-" + (dateObj.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
+	}
+	
+	formatDate(date: string) {
+		let localeData = moment.localeData(date);
+  		var format = localeData.longDateFormat('L');
+  		return moment().format(format);
 	}
 
 	onSubmit(): void {

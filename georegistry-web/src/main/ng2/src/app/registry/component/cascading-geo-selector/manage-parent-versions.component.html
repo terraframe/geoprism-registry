@@ -62,10 +62,10 @@
                                               <table>
                                                 <tr class="attribute-value-row">
                                                   <td colspan="2">
-                                                     <div style="float:left;width:150px;" *ngFor="let type of hierarchy.types; let j = index"> 
+                                                     <div style="float:left;width:100%;" *ngFor="let type of hierarchy.types; let j = index"> 
                                                        {{type.label}}
                                                        <div class="input-group">
-                                                          <input  style="width:150px;" type="text" class="form-control" autocomplete="off"
+                                                          <input  style="width:100%;" type="text" class="form-control" autocomplete="off"
                                                             [name]="type.code + '-' + i"
                                                             [disabled]="entry.startDate == null || entry.startDate === ''"
                                                             [(ngModel)]="entry.parents[type.code].text" 
@@ -97,7 +97,8 @@
                                                     <h5>
                                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                                     </h5>
-                                                    <p *ngIf="entry.startDate != null && entry.startDate !== ''" style="font-size: 14px;"> {{entry.endDate | date:'yyyy-MM-dd'}} </p>
+                                                    <input *ngIf="entry.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="entry.endDate" disabled>
+                                                    <p *ngIf="entry.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
                                                   </td>
                                                 </tr>
                                               </table>
@@ -127,7 +128,7 @@
                             <localize key="io.cancel"></localize>
                         </button> 
                         <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid || hasDuplicateDate">
-                            <localize key="io.ok"></localize>
+                            <localize key="modal.button.submit"></localize>
                         </button>
                     </div>
                 </div>

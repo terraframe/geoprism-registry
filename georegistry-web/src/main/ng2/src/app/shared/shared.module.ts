@@ -46,6 +46,7 @@ import { MustMatchDirective } from './directive/must-match.directive';
 import { CgrHeaderComponent } from './component/header/header.component';
 import { ProgressBarComponent } from './component/progress-bar/progress-bar.component';
 import { LocalizeComponent } from './component/localize/localize.component';
+import { ConvertKeyLabel } from './component/localize/convert-key-label.component';
 import { ModalStepIndicatorComponent } from './component/modals/modal-step-indicator.component';
 import { ProfileComponent } from './component/profile/profile.component';
 
@@ -70,6 +71,7 @@ import '../rxjs-extensions';
 	],
 	declarations: [
 		LocalizeComponent,
+		ConvertKeyLabel,
 		BooleanFieldComponent,
 		LoadingBarComponent,
 		ErrorMessageComponent,
@@ -90,6 +92,7 @@ import '../rxjs-extensions';
 	],
 	exports: [
 		LocalizeComponent,
+		ConvertKeyLabel,
 		BooleanFieldComponent,
 		LoadingBarComponent,
 		ErrorMessageComponent,

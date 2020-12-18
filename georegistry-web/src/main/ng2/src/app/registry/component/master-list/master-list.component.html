@@ -19,12 +19,12 @@
             <div class="col-md-12">
                 <h4>
                     <localize key="masterlist.publishDate"></localize>
-                    : {{list.publishDate}}
+                    : <input style="border:none;" type="date" [name]="'publishDate_' + list.code" [(ngModel)]="list.publishDate" disabled>
                 </h4>
                 
                 <h4>
                     <localize key="masterlist.forDate"></localize>
-                    : {{list.forDate}}
+                    : <input style="border:none;" type="date" [name]="'forDate_' + list.code" [(ngModel)]="list.forDate" disabled>
                 </h4>
             </div>
         </div>
