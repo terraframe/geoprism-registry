@@ -16,7 +16,7 @@
 /// You should have received a copy of the GNU Lesser General Public
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -37,19 +37,52 @@ declare var acp: any;
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.css']
 } )
-export class LoginComponent {
+export class LoginComponent implements OnInit {
     context: string;
     username: string = '';
     password: string = '';
+    
+    oauthServers: any[] = null;
+    viewOauthServers: boolean = false;
 
     /*
      * Reference to the modal current showing
     */
     private bsModalRef: BsModalRef;
 
+    ngOnInit(): void {
+      this.hService.oauthGetPublic(null).then(oauthServers => {
+        
+        if (oauthServers && oauthServers.length > 0)
+        {
+          this.oauthServers = oauthServers;
+        }
+        
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+    }
 
     constructor( private service: SessionService, private hService: HubService, private modalService: BsModalService, private router: Router ) {
         this.context = acp as string;
+    }
+    
+    onClickDhis2(url: any): void {
+      if (url == null)
+      {
+        if (this.oauthServers.length == 1)
+        {
+          window.location.href = this.oauthServers[0].url;
+        }
+        else
+        {
+          this.viewOauthServers = !this.viewOauthServers;
+        }
+      }
+      else
+      {
+        window.location.href = url;
+      }
     }
 
     onSubmit(): void {
@@ -73,9 +106,8 @@ export class LoginComponent {
     }
 
     public error( err: HttpErrorResponse ): void {
-            // TODO: add error modal
-            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+      this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
+      this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
     }
 
 

@@ -26,11 +26,28 @@ h1 {
 }
 
 #logo_gp {
-    display: block;
-    margin: 0 auto;
-    width: 200px;
-  }
+  display: block;
+  margin: 0 auto;
+  width: 200px;
+}
 
+span.oauth-or-text {
+	font-size:30px;
+	color:darkgray;
+}
+
+span.oauth-or-line {
+	width: 45%;
+  height: 47px;
+  border-bottom: 1px solid black;
+  display: inline-block;
+  margin-bottom: 7px;
+}
+
+div.oauth-or-line-block {
+	margin-bottom:50px;
+	margin-top:50px;
+}
 
 #login-btn{
   float: right;

@@ -17,7 +17,7 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from '@shared/component';
@@ -30,26 +30,11 @@ declare var acp:string;
   templateUrl: './login-header.component.html',
   styleUrls: []
 })
-export class LoginHeaderComponent implements OnInit {
+export class LoginHeaderComponent {
   context:string;
   
-  oauthServer: any = null;
-
   constructor(private hubService: HubService) {
     this.context = acp;
-  }
-  
-  ngOnInit(): void {
-    this.hubService.oauthGetPublic(null).then(oauthServers => {
-      
-      if (oauthServers && oauthServers.length > 0)
-      {
-        this.oauthServer = oauthServers[0];
-      }
-      
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
   }
   
   public error(err: HttpErrorResponse): void {

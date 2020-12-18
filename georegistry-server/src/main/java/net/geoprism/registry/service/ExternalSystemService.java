@@ -106,6 +106,18 @@ public class ExternalSystemService
 
     ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
 
+    if (system instanceof DHIS2ExternalSystem)
+    {
+      DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
+      
+      if (dhis2Sys.getOauthServer() != null)
+      {
+        OauthServer dbServer = dhis2Sys.getOauthServer();
+        
+        dbServer.delete();
+      }
+    }
+    
     system.delete();
   }
 }
