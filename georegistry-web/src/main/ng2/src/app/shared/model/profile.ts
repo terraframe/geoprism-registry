@@ -32,5 +32,5 @@ export class Profile {
 	altPhoneNumber?: string;
 	position?: string;
 	department?: string;
-
+  externalSystemOid?: string;
 }

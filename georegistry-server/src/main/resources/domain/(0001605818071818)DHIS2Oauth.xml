@@ -29,6 +29,27 @@
           <attribute name="defaultLocale" value="External System" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.isOauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.profile.isOauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Logged in via oauth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.oauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.profile.oauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Oauth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.username">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.profile.username" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Username" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create>
       <mdUtil name="net.geoprism.session.RegistrySessionService" label="Session Service">
