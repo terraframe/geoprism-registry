@@ -12,6 +12,8 @@ import { LocalizationService } from '@shared/service';
 
 import Utils from '../../utility/Utils';
 
+import * as moment from 'moment';
+
 
 @Component({
 	selector: 'geometry-panel',
@@ -208,6 +210,12 @@ export class GeometryPanelComponent implements OnInit {
 		}
 
 		this.snapDates(val.values);
+	}
+	
+	formatDate(date: string) {
+		let localeData = moment.localeData(date);
+  		var format = localeData.longDateFormat('L');
+  		return moment().format(format);
 	}
 
 	onSubmit(): void {

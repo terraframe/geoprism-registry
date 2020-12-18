@@ -65,10 +65,7 @@
                       <li class="list-group-item" *ngFor="let localeValue of calculatedPostObject[attr.code].value.localeValues; let i = index">
                         <div class="panel panel-default">
                           <div class="panel-heading">
-                            <h5 *ngIf="localeValue.locale === 'defaultLocale'">
-                              <localize key="localization.defaultLocal"></localize>
-                            </h5>
-                            <h5 *ngIf="localeValue.locale !== 'defaultLocale'">{{localeValue.locale}}</h5>
+                            <h5><convert-key-label [key]="localeValue.locale"></convert-key-label></h5>
                           </div>
 
                           <div class="panel-body">

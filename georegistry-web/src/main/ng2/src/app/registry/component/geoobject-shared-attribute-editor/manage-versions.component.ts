@@ -14,6 +14,8 @@ import { LocalizationService } from '@shared/service';
 
 import Utils from '../../utility/Utils';
 
+import * as moment from 'moment';
+
 
 @Component({
 	selector: 'manage-versions',
@@ -269,6 +271,7 @@ export class ManageVersionsComponent implements OnInit {
 
 		for (let i = 0; i < val.values.length; i++) {
 			let vals = val.values[i];
+			
 
 			if (vals.startDate === version.startDate) {
 				val.values.splice(i, 1);
@@ -288,6 +291,14 @@ export class ManageVersionsComponent implements OnInit {
 		})
 
 		return isChangeOverTime;
+	}
+	
+	formatDate(date: string) {
+		let localeData = moment.localeData(date);
+  		var format = localeData.longDateFormat('L');
+		console.log(moment.localeData())
+		console.log(moment().format(format))
+  		return moment().format(format);
 	}
 
 	onSubmit(): void {

@@ -27,7 +27,7 @@
                                                 <localize key="data.property.label.code"></localize>
                                             </th>
                                             <th *ngFor="let localeValue of termOption.label.localeValues">
-                                                <localize key="data.property.label.label"></localize> ({{localeValue.locale}})
+                                                <localize key="data.property.label.label"></localize> (<convert-key-label [key]="localeValue.locale"></convert-key-label>)
                                             </th>
                                             <th class="button-column-header">
                                                 <localize key="data.property.label.actions"></localize>

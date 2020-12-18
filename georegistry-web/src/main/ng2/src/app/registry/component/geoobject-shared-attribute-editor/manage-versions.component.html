@@ -32,8 +32,7 @@
                               <table>
                                 <tr class="attribute-value-row" *ngFor="let loc of vAttribute.value.localeValues; let idx = index;">
                                   <td colspan="2">
-                                    <h5 *ngIf="loc.locale === 'defaultLocale'"><localize key="localization.defaultLocal"></localize></h5>
-                                    <h5 *ngIf="loc.locale !== 'defaultLocale'">{{loc.locale}}</h5>
+                                    <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
                                     
                                     <input type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="loc.value = $event" [required]="loc.locale === 'defaultLocale'">
                                     
@@ -61,7 +60,8 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                     </h5>
-                                    <p>{{vAttribute.endDate | date:'yyyy-MM-dd'}}</p>
+                                    <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" disabled>
+                                    <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
                                   </td>
                                 </tr>
                               </table>
@@ -123,7 +123,8 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                     </h5>
-                                    <p style="font-size: 14px;">{{vAttribute.endDate | date:'MM-dd-yyyy'}}</p>
+                                    <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+                                    <p *ngIf="vAttribute.endDate !== '5000-12-31'" style="font-size: 14px;">{{formatDate(vAttribute.endDate)}}</p>
                                   </td>
                                 </tr>
                               </table>
@@ -158,7 +159,8 @@
                             </td>
                             <td style="vertical-align: middle;"><input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required></td>
                             <td style="vertical-align: middle;">
-                              <p style="font-size: 14px;">{{vAttribute.endDate | date:'MM-dd-yyyy'}}</p>
+                              <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+                              <p *ngIf="vAttribute.endDate !== '5000-12-31'" style="font-size: 14px;">{{formatDate(vAttribute.endDate)}}</p>
                             </td>
                             <td style="vertical-align: middle;"><i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i></td>
                           </tr>
@@ -189,7 +191,7 @@
               <localize key="io.cancel"></localize>
             </button>
             <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!versionsform.valid">
-              <localize key="io.ok"></localize>
+              <localize key="modal.button.submit"></localize>
             </button>
           </div>
         </div>
