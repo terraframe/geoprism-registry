@@ -12,7 +12,7 @@
     <fieldset>
       <div class="row-holder" *ngFor="let localeValue of config.label.localeValues">
         <div class="label-holder">
-          <label> <localize key="synchronization.config.label"></localize> ({{localeValue.locale}})
+          <label> <localize key="synchronization.config.label"></localize> (<convert-key-label [key]="localeValue.locale"></convert-key-label>)
           </label>
         </div>
         <div class="holder">

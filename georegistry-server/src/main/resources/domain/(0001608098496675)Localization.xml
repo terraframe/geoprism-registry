@@ -1,0 +1,55 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  	
+  	  <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.remove.version">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.remove.version" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Remove version" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.no.versions.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.no.versions.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No versions have been created" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.infinity.endDate.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.infinity.endDate.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Present" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.id.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.id.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Request ID" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.newGeoObject">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.newGeoObject" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add Geo-Object" />
+        </attributeStruct>
+      </object>
+      
+      
+      
+  	
+  	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

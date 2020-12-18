@@ -62,7 +62,7 @@
             <h5><strong>{{req.oid}}</strong></h5>
           </td>
           <td class="col-md-2" style="vertical-align: middle; color:grey;">
-             {{req.createDate}}
+             <input class="text-display-input" type="date" [name]="'reqDate_' + req.oid" [(ngModel)]="req.createDate" disabled>
           </td>
           <td class="col-md-2">
             <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-rejected':req.approvalStatus === 'REJECTED'}">
@@ -94,23 +94,23 @@
 
                       <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
                         <li>Update <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ]</li>
-                        <li>on {{action.createActionDate}}</li>
+                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
                       </ul>
                       <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
                         <li>Create <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ] </li>
-                        <li>on {{action.createActionDate}}</li>
+                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
                       </ul>
                       <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.SetParentAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
                         <li>Set parents of <b>{{action.childCode}}</b>
-                        <li>on {{action.createActionDate}}</li>
+                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
                       </ul>
                       <ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
                         <li>Set <b>{{action.childTypeCode}}</b> as a child of <b>{{action.parentTypeCode}}</b> </li>
-                        <li>on {{action.createActionDate}}</li>
+                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
                       </ul>
                       <ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
                         <li>Remove <b>{{action.childTypeCode}}</b> from <b>{{action.parentTypeCode}}</b> </li>
-                        <li>on {{action.createActionDate}}</li>
+                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
                       </ul>
                     </div>
                     <div class="col-md-4" style="height: 50px;text-align: center;">

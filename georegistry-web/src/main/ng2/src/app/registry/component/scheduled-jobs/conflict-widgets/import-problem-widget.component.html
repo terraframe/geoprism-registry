@@ -27,7 +27,7 @@
                         Uploaded by: {{job.author}}
                     </span>
                     <span style="display: block;">
-                        Started: {{job.createDate}}
+                        Started: <input class="text-display-input" type="date" [name]="'jobCreateDate_' + job.oid" [(ngModel)]="job.createDate" disabled>
                     </span>
                 </p>
 

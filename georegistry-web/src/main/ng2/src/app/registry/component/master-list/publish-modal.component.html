@@ -17,7 +17,7 @@
             <div class="row-holder" *ngFor="let localeValue of master.displayLabel.localeValues">
                 <div class="label-holder">
                     <label> <localize key="masterlist.label"></localize> 
-                    <span style="color: #BABABA">({{localeValue.locale}})</span>
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">

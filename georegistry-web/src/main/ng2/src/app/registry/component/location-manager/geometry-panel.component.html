@@ -42,7 +42,8 @@
                                   <h5>
                                     <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                   </h5>
-                                  <p style="font-size: 14px;">{{vAttribute.endDate | date:'yyyy-MM-dd'}}</p>
+                                  <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" disabled>
+                                  <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
                                 </td>
                               </tr>
                             </table>
@@ -73,7 +74,7 @@
               <localize key="io.cancel"></localize>
             </button>
             <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!versionsform.valid">
-              <localize key="io.ok"></localize>
+              <localize key="modal.button.submit"></localize>
             </button>
           </div>
         </div>

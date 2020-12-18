@@ -21,8 +21,7 @@
       <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues">
         <label for="labelInput">
           <localize key="data.property.label.label"></localize> 
-          <span *ngIf="localeValue.locale === 'defaultLocale'" style="color: #BABABA">&nbsp;(<localize key="localization.default.label"></localize>)</span>
-          <span *ngIf="localeValue.locale !== 'defaultLocale'" style="color: #BABABA">&nbsp;({{localeValue.locale}})</span>
+          <span  style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
         </label>
         <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control"
           required>
@@ -30,8 +29,7 @@
       <div class="form-group" *ngFor="let localeValue of hierarchyType.description.localeValues">
         <label for="descriptionInput">
           <localize key="data.property.label.description"></localize> 
-          <span *ngIf="localeValue.locale === 'defaultLocale'" style="color: #BABABA">&nbsp;(<localize key="localization.default.label"></localize>)</span>
-          <span *ngIf="localeValue.locale !== 'defaultLocale'" style="color: #BABABA">&nbsp;({{localeValue.locale}})</span>
+          <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
         </label>
         <textarea [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" class="form-control"></textarea>
       </div>

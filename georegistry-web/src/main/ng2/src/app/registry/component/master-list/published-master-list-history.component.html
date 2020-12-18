@@ -42,8 +42,13 @@
                                 </button>  
                             </div>
                         </td>
-                        <td style="width: 15%" class="label-column">{{ version.forDate }}</td>
-                        <td style="width: 15%" class="label-column">{{ version.publishDate }}</td>
+                        <td style="width: 15%" class="label-column">
+                          <input class="text-display-input" type="date" [name]="'forDate_' + version.oid" [(ngModel)]="version.forDate" disabled>
+                        </td>
+                        <td style="width: 15%" class="label-column">
+                          <input class="text-display-input" type="date" [name]="'publishDate_' + version.oid" [(ngModel)]="version.publishDate" disabled>
+                        </td>
+                        
                     </tr>
                 </tbody>
             </table>
