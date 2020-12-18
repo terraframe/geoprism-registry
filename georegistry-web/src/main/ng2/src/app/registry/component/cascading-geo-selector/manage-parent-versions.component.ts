@@ -20,12 +20,14 @@ export class ManageParentVersionsComponent implements OnInit {
 
 	hasDuplicateDate: boolean = false;
 
+	loading: any = {};
+
 	constructor(private service: RegistryService) { }
 
 	ngOnInit(): void {
 
 		this.originalHierarchy = JSON.parse(JSON.stringify(this.hierarchy));
-		
+
 		this.hierarchy.entries.forEach(entry => {
 			for (let i = 0; i < this.hierarchy.types.length; i++) {
 				let current = this.hierarchy.types[i];
@@ -33,6 +35,8 @@ export class ManageParentVersionsComponent implements OnInit {
 				if (entry.parents[current.code] == null) {
 					entry.parents[current.code] = { text: '', geoObject: null };
 				}
+
+				entry.loading = {};
 			}
 		});
 	}
@@ -50,7 +54,8 @@ export class ManageParentVersionsComponent implements OnInit {
 		const entry = {
 			startDate: null,
 			endDate: null,
-			parents: parents
+			parents: parents,
+			loading: {}
 		}
 
 		this.hierarchy.entries.push(entry);
