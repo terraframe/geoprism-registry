@@ -219,7 +219,6 @@ export class GeometryPanelComponent implements OnInit {
 	}
 
 	onSubmit(): void {
-
 		this.onChange.emit(this.geoObjectOverTime);
 	}
 

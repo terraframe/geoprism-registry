@@ -505,6 +505,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 
 	onGeometryEdit(vot: ValueOverTime): void {
+		
 		this.clearGeometryEditing();
 
 		this.vot = vot;

@@ -29,7 +29,13 @@
           </div>
 
           <div *ngIf="preGeoObject">
-            <geoobject-shared-attribute-editor #attributeEditor (valid)="this.onValidChange($event)" [geoObjectType]="this.geoObjectType" [preGeoObject]="this.preGeoObject" [(postGeoObject)]="this.postGeoObject" [isGeometryInlined]="true">
+            <geoobject-shared-attribute-editor 
+            #attributeEditor (valid)="this.onValidChange($event)" 
+            [geoObjectType]="this.geoObjectType" 
+            [preGeoObject]="this.preGeoObject" 
+            [(postGeoObject)]="this.postGeoObject" 
+            [isGeometryInlined]="true"
+            [animate]=false>
             </geoobject-shared-attribute-editor>
           </div>
 

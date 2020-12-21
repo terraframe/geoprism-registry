@@ -24,10 +24,10 @@
                     
                       <table class="table table-striped">
                       
-                        <tbody class="attribute-element-wrapper" *ngIf="attribute.type === 'local'">
+                        <tbody class="attribute-element-wrapper" *ngIf="attribute.type === 'local'" >
                           <p class="message" *ngIf="geoObjectOverTime.attributes[attribute.code].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
                           
-                          <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" >
+                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" >
                             <td>
                               <table>
                                 <tr class="attribute-value-row" *ngFor="let loc of vAttribute.value.localeValues; let idx = index;">
@@ -77,7 +77,7 @@
                         <tbody class="attribute-element-wrapper" *ngIf="attribute.type !== 'local'">
                           <p class="message" *ngIf="geoObjectOverTime.attributes[attribute.code].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
                           
-                          <tr *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;">
+                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;">
                             <td>
                               <table>
                                 <tr class="attribute-value-row">
@@ -150,7 +150,7 @@
                           <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
                         </thead>
                         <tbody style="text-align: center;">
-                          <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
+                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
                             <td style="vertical-align: middle;">
                               <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button">
                                 <localize key="changeovertime.manageVersions.geometry.edit"></localize>

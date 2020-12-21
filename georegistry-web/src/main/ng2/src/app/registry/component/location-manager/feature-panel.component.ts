@@ -112,17 +112,12 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onEditGeometryVersion(vot: ValueOverTime): void {
-		//		const preGeometry = this.calculateGeometry(this.preGeoObject);
-		//		const postGeometry = this.calculateGeometry(this.postGeoObject);
-		//
 		this.geometryEdit.emit(vot);
 	}
 
 	updateGeometry(geometry: any): void {
 		// Check if the geometry has been updated
 		if (geometry != null && this.postGeoObject != null) {
-			console.log('Updating geometry');
-
 
 			let values = this.postGeoObject.attributes['geometry'].values;
 			const time = this.forDate.getTime();
