@@ -31,6 +31,26 @@ h1 {
   width: 200px;
 }
 
+.dhis2-login-button {
+	background-color:#1d5288;
+	border-radius:6px;
+	width:312px;
+	display:block;
+	margin-left:19%;
+	margin-bottom:5px;
+}
+
+.dhis2-login-button-text {
+	color:white;
+	font-size:26px;
+	vertical-align:middle;
+	padding-left:9px;
+}
+
+.dhis2-login-button-image {
+	margin:10px;
+}
+
 span.oauth-or-text {
 	font-size:30px;
 	color:darkgray;
