@@ -93,8 +93,8 @@
             </div>          
             <div class="holder" >
 	            <div>
-	              <input *ngIf="!editPassword" type="submit" value="Edit Password" class="btn btn-primary" (click)="editPassword = !editPassword" />
-	              <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="submit" value="Cancel" class="btn btn-default" (click)="editPassword = !editPassword" />
+	              <input *ngIf="!editPassword" type="submit" [value]="'external.system.editPassword' | localize" class="btn btn-primary" (click)="editPassword = !editPassword" />
+	              <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="submit" [value]="'external.system.editPasswordCancel' | localize" class="btn btn-default" (click)="editPassword = !editPassword" />
 	            </div>
               <span *ngIf="editPassword" class="text">
                 <input type="password" [(ngModel)]="system.password" name="password" required>
@@ -111,7 +111,7 @@
                 <input type="text" [(ngModel)]="system.url" name="url" required>
               </span>
             </div>
-          </div>     
+          </div>
 
           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
             <div class="label-holder">
@@ -127,12 +127,12 @@
           </div>
           
           <div class="heading">
-            <h3>OAuth</h3>
+            <h3><localize key="external.system.oauthHeader"></localize></h3>
           </div>
           <div class="row-holder">
 	          <div *ngIf="system.oAuthServer == null" class="holder">
 	            <div>
-	              <input type="submit" value="Enable OAuth Integration" class="btn btn-default" [disabled]="system.url == null" (click)="enableOAuth()" />
+	              <input type="submit" [value]="'external.system.enableOauth' | localize" class="btn btn-default" [disabled]="system.url == null" (click)="enableOAuth()" />
 	            </div>
 	          </div>
           </div>
@@ -146,7 +146,7 @@
 	          -->
 	          <div class="row-holder">
 	            <div class="label-holder">
-	              <label>Client Id</label>
+	              <label><localize key="external.system.oauth.clientId"></localize></label>
 	            </div>
 	            <div class="holder" >
 	              <span class="text">
@@ -156,7 +156,7 @@
 	          </div>
 	          <div class="row-holder">
 	            <div class="label-holder">
-	              <label>Secret Key</label>
+	              <label><localize key="external.system.oauth.secretKey"></localize></label>
 	            </div>
 	            <div class="holder" >
 	              <span class="text">
@@ -166,7 +166,7 @@
 	          </div>
 	          <div class="row-holder">
 	            <div class="label-holder">
-	              <label>Profile Location</label>
+	              <label><localize key="external.system.oauth.profileLocation"></localize></label>
 	            </div>
 	            <div class="holder" >
 	              <span class="text">
@@ -176,7 +176,7 @@
 	          </div>
 	          <div class="row-holder">
               <div class="label-holder">
-                <label>Token Location</label>
+                <label><localize key="external.system.oauth.tokenLocation"></localize></label>
               </div>
               <div class="holder" >
                 <span class="text">
@@ -186,7 +186,7 @@
             </div>
             <div class="row-holder">
               <div class="label-holder">
-                <label>Authorization Location</label>
+                <label><localize key="external.system.oauth.authorizationLocation"></localize></label>
               </div>
               <div class="holder" >
                 <span class="text">
@@ -194,14 +194,18 @@
                 </span>
               </div>
             </div>
+            
+            <div>
+              <input type="button" [value]="'external.system.oauth.removeOauth' | localize" class="btn btn-default" (click)="removeOauth()" />
+            </div>
 	        </div>
 
           <div class="heading">
-            <h3>DHIS2 Plugin</h3>
+            <h3><localize key="external.system.oauth.downloadDhis2PluginHeader"></localize></h3>
           </div>
           <div class="holder">
             <div>
-              <input type="submit" value="Download DHIS2 Plugin" class="btn btn-default" (click)="downloadDhis2Plugin()" />
+              <input type="submit" [value]="'external.system.oauth.downloadDhis2Plugin' | localize" class="btn btn-default" (click)="downloadDhis2Plugin()" />
               <!--
               <input type="submit" value="Push Plugin to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />
               -->

@@ -100,6 +100,10 @@ export class ExternalSystemModalComponent implements OnInit {
       serverType: "DHIS2"
     };
 	}
+	
+	removeOauth(): void {
+	  delete this.system.oAuthServer;
+	}
 
   downloadDhis2Plugin(): void {
     window.location.href = this.context + "/external-system/download-dhis2-plugin";

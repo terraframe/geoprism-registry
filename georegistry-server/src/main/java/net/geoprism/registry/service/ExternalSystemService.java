@@ -26,14 +26,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.json.RunwayJsonAdapters;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.account.OauthServer;
-import net.geoprism.account.OauthServerQuery;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -53,6 +51,12 @@ public class ExternalSystemService
 
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, String json) throws JSONException
+  {
+    return applyInTrans(json);
+  }
+  
+  @Transaction
+  private JsonObject applyInTrans(String json)
   {
     JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
 
@@ -84,6 +88,15 @@ public class ExternalSystemService
         
         dhis2Sys.setOauthServer(oauth);
         dhis2Sys.apply();
+      }
+      else if (dhis2Sys.getOauthServer() != null)
+      {
+        OauthServer existingOauth = dhis2Sys.getOauthServer();
+        
+        dhis2Sys.setOauthServerId(null);
+        dhis2Sys.apply();
+        
+        existingOauth.delete();
       }
     }
 
