@@ -10,10 +10,8 @@
                     </div> -->
         <div class="col-md-12">
           <span class="text"></span>
-<!--                     <div class="panel" style="box-shadow: none;"> -->
-<!--                       <div class="panel-body"> -->
           <ul class="list-group">
-            <li class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
+            <li [@slide]="slide" class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
 
               <div class="panel panel-default">
                 <div class="panel-heading">
@@ -22,10 +20,11 @@
                     <span *ngIf="attr.code === 'code'"> 
                       <localize key="geoobject.code.alternate.label"></localize>
                     </span> 
-                    <span *ngIf="attr.code === 'displayLabel'"> <localize key="geoobject.displayLabel.alternate.label"></localize>
+                    <span *ngIf="attr.code === 'displayLabel'"> 
+                      <localize key="geoobject.displayLabel.alternate.label"></localize>
                     </span> 
                     <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
-                    <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null"> 
+                    <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null" style="color:#BABABA;font-style:italic;"> 
                       ({{calculatedPostObject[attr.code].startDate}} - {{calculatedPostObject[attr.code].endDate}}) 
                     </span>
                   </h4>
@@ -198,8 +197,6 @@
               </div>
             </li>
           </ul>
-<!--                       </div> -->
-<!--                     </div> -->
         </div>
       </div>
       <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined">
@@ -208,12 +205,10 @@
                       <localize key="shared.attributes.attribute.geometry.label"></localize>
                      </label>
                    </div> -->
-        <div class="">
           <geoobject-editor-map #geometryEditor [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
             [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null" [bboxCode]="this.preGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" (onClickEdit)="this.onManageGeometryVersions()"
             [bboxDate]="this.forDate.toISOString().split('T')[0]"
           > </geoobject-editor-map>
-        </div>
       </div>
     </div>
     <!-- </div> -->

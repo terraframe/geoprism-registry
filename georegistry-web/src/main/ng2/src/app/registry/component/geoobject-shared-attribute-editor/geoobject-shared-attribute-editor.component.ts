@@ -2,6 +2,13 @@ import { Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges, S
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { DatePipe } from '@angular/common';
+import {
+	trigger,
+	style,
+	animate,
+	transition,
+	state
+} from '@angular/animations';
 
 import { LocalizedValue } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
@@ -17,7 +24,41 @@ import Utils from '../../utility/Utils';
 	selector: 'geoobject-shared-attribute-editor',
 	templateUrl: './geoobject-shared-attribute-editor.component.html',
 	styleUrls: ['./geoobject-shared-attribute-editor.css'],
-	providers: [DatePipe]
+	providers: [DatePipe],
+	animations: [
+		[
+			trigger('fadeInOut', [
+				transition(':enter', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				]),
+				transition(':leave', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				])
+			]),
+			trigger('slide', [
+//				transition(':enter', [
+//					style({
+//						left: '100%'
+//					}),
+//					animate('200ms')
+//				]),
+//				transition(':leave', [
+//					style({
+//						right: '100%'
+//					}),
+//					animate('200ms')
+//				])
+				state('left', style({ left: 0 })),
+      			state('right', style({ left: '100%' })),
+      			transition('* => *', animate(200))
+			])
+	]]
 })
 
 /**
@@ -29,8 +70,12 @@ import Utils from '../../utility/Utils';
  * Be wary of changing this component for one usecase and breaking other usecases!
  */
 export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChanges {
+	
+	slide: string = "";
 
 	private bsModalRef: BsModalRef;
+	
+	@Input() animate: boolean = false;
 
     /*
 	 * The current state of the GeoObject in the GeoRegistry
@@ -105,6 +150,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		if (geomAttr == null) {
 			let geometry: Attribute = new Attribute("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
 			this.geoObjectType.attributes.push(geometry);
+		}
+		
+		if(this.animate){
+			console.log(this.animate)
+			this.slide = "left"
 		}
 	}
 
@@ -334,7 +384,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	getTypeDefinition(key: string): string {
 		// let attrs = this.geoObjectType.attributes;
-
 
 		// attrs.attributes.forEach(attr => {
 		for (let i = 0; i < this.geoObjectType.attributes.length; i++) {

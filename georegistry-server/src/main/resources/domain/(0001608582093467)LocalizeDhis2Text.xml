@@ -1,0 +1,102 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.enableOauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.enableOauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Enable OAuth Integration" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.editPassword">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.editPassword" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit Password" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.editPasswordCancel">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.editPasswordCancel" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Cancel" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauthHeader">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauthHeader" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="OAuth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.clientId">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.clientId" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Client Id" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.secretKey">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.secretKey" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Secret Key" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.profileLocation">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.profileLocation" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Profile Location" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.tokenLocation">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.tokenLocation" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Token Location" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.authorizationLocation">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.authorizationLocation" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Authorization Location" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.downloadDhis2PluginHeader">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.downloadDhis2PluginHeader" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="DHIS2 Plugin" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.downloadDhis2PluginHeader">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.downloadDhis2PluginHeader" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="DHIS2 Plugin" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.downloadDhis2Plugin">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.downloadDhis2Plugin" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Download DHIS2 Plugin" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauth.removeOauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauth.removeOauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Remove OAuth Integration" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

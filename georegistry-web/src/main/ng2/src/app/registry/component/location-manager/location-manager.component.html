@@ -30,7 +30,7 @@
                 <div class="col-md-12">
                   <div class="location-management-widget-section">
                     <div class="input-group">
-                      <input type="text" class="form-control" [(ngModel)]="text" name="text" [disabled]="mode !== MODE.SEARCH">
+                      <input type="text" class="form-control" (keyup.enter)="search()" [(ngModel)]="text" name="text" [disabled]="mode !== MODE.SEARCH">
                       <span class="input-group-btn">
                         <button class="btn btn-primary" type="button" (click)="search()" [disabled]="mode !== MODE.SEARCH">
                           <span class="glyphicon glyphicon-search" aria-hidden="true"></span> 

@@ -12,7 +12,8 @@
       [customEvent]="true"
       (onManageVersion)="onManageAttributeVersion($event)" 
       (onChange)="onAttributeChange($event)" 
-      [readOnly]="!isEdit"> 
+      [readOnly]="!isEdit"
+      [animate]=true> 
     </geoobject-shared-attribute-editor>
 
     <div *ngIf="isEdit && type.isGeometryEditable" class="panel panel-default">

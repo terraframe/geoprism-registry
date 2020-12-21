@@ -1,13 +1,20 @@
-<div class="row-holder" *ngFor="let localeValue of value.localeValues">
-  <div class="label-holder">
-    <label>
-      <localize [key]="key"></localize>
-      <span style="color: #BABABA">(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
-    </label>
-  </div>
-  <div class="holder">
-    <span class="text">
-      <textarea class="form-control" [(ngModel)]="localeValue.value" [disabled]="disabled" [name]="'description-' + localeValue.locale"></textarea>
-    </span>
+
+<div *ngFor="let localeValue of value.localeValues">
+  <div [ngClass]="{'row' : inlinelayout, 'row-holder' : !inlinelayout}" >
+    <div [ngClass]="{'col-md-12' : inlinelayout}">
+      <div class="form-group">
+        <div [ngClass]="{'label-holder' : !inlinelayout}" >
+          <label>
+            <localize [key]="key"></localize>
+            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
+          </label>
+        </div>
+        <div [ngClass]="{'holder' : !inlinelayout}">
+          <span class="text">
+            <textarea [(ngModel)]="localeValue.value" [disabled]="disabled" [name]="'description-' + localeValue.locale"></textarea>
+          </span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
