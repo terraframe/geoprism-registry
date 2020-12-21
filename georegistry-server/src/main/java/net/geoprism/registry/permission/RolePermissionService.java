@@ -252,7 +252,7 @@ public class RolePermissionService extends UserPermissionService
       {
         String roleName = role.getRoleName();
 
-        if (RegistryRole.Type.isOrgRole(roleName))
+        if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
