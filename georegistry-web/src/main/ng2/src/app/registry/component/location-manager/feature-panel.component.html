@@ -12,10 +12,10 @@
       [customEvent]="true"
       (onManageVersion)="onManageAttributeVersion($event)" 
       (onChange)="onAttributeChange($event)" 
-      [readOnly]="readOnly"> 
+      [readOnly]="!isEdit"> 
     </geoobject-shared-attribute-editor>
 
-    <div *ngIf="!readOnly && type.isGeometryEditable" class="panel panel-default">
+    <div *ngIf="isEdit && type.isGeometryEditable" class="panel panel-default">
       <div class="panel-heading">
         <h4 style="margin:0;">
           <localize key="explorer.geometry.section"></localize>
@@ -31,19 +31,18 @@
     </div>
 
     <div *ngIf="hierarchies != null">
-      <tree-geo-selector *ngFor="let hierarchy of hierarchies" [hierarchy]="hierarchy" [readOnly]="readOnly" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
+      <tree-geo-selector *ngFor="let hierarchy of hierarchies" [hierarchy]="hierarchy" [readOnly]="!isEdit" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
     </div>
 
     <div class="button-holder text-right" style="margin-bottom: 20px;">
-<!-- 
-      <button *ngIf="readOnly" type="submit" (click)="onEditAttributes()" class="btn btn-primary" role="button">
+      <button *ngIf="!readOnly && !isEdit" type="submit" (click)="onEditAttributes()" class="btn btn-primary" role="button">
         <localize key="changeovertime.manageVersions.button.label"></localize>
       </button>
- -->    
-      <button *ngIf="!readOnly" type="button" class="btn btn-default" (click)="onCancel()">
+      
+      <button *ngIf="isEdit" type="button" class="btn btn-default" (click)="onCancel()">
         <localize key="modal.button.cancel"></localize>
       </button>
-      <button *ngIf="!readOnly" type="submit" style="" (click)="onSubmit()" class="btn btn-primary" role="button">
+      <button *ngIf="isEdit" type="submit" style="" (click)="onSubmit()" class="btn btn-primary" role="button">
         <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
       </button>
     </div>
