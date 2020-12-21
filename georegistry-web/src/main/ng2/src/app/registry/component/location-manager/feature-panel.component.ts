@@ -39,6 +39,7 @@ export class FeaturePanelComponent implements OnInit {
 
 	@Output() geometryEdit = new EventEmitter<ValueOverTime>();
 	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
+	@Output() modeChange = new EventEmitter<boolean>();
 
 	bsModalRef: BsModalRef;
 
@@ -54,8 +55,9 @@ export class FeaturePanelComponent implements OnInit {
 
 	attribute: Attribute = null;
 
-
 	isNew: boolean = false;
+
+	isEdit: boolean = false;
 
 	hierarchies: HierarchyOverTime[];
 
@@ -77,7 +79,7 @@ export class FeaturePanelComponent implements OnInit {
 		this.postGeoObject = null;
 		this.preGeoObject = null;
 		this.hierarchies = null;
-		//		this.isNew = false;
+		this.setEditMode(false);
 
 		if (code != null && this.type != null) {
 
@@ -105,6 +107,7 @@ export class FeaturePanelComponent implements OnInit {
 					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
 
 					this.hierarchies = retJson.hierarchies;
+					this.setEditMode(true);
 				});
 			}
 
@@ -155,7 +158,13 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onCancel(): void {
-		this.updateCode(this._code);
+
+		if (this._code === '__NEW__') {
+			this.updateCode(null);
+		}
+		else {
+			this.updateCode(this._code);
+		}
 	}
 
 	onSubmit(): void {
@@ -196,7 +205,13 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onEditAttributes(): void {
-//		this.readOnly = !this.readOnly;
+		this.setEditMode(!this.isEdit);
+	}
+
+	setEditMode(value: boolean): void {
+		this.isEdit = value;
+
+		this.modeChange.emit(this.isEdit)
 	}
 
 	public error(err: HttpErrorResponse): void {

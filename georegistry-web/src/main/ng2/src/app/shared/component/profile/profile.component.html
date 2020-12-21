@@ -137,7 +137,7 @@
       <div class="row-holder">
         <div class="label-holder">
           <label>
-            <localize key="profilename"></localize>
+            <localize key="account.profile.username"></localize>
           </label>
         </div>
         <div class="holder">
@@ -147,8 +147,22 @@
         </div>
       </div>
 
-
-      <div class="row-holder">
+      <div *ngIf="_profile.externalSystemOid != null && _profile.externalSystemOid !== ''" class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="account.profile.oauth"></localize>
+          </label>
+        </div>
+        <div class="holder" style="margin-top:10px;"> <!-- TODO : Total hack? -->
+         <span class="text">
+          <label>
+            <localize key="account.profile.isOauth"></localize>
+          </label>
+         </span>
+        </div>
+      </div>
+      
+      <div *ngIf="_profile.externalSystemOid == null || _profile.externalSystemOid === ''" class="row-holder">
         <div class="label-holder">
         </div>
         <div class="holder">

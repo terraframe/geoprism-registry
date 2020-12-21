@@ -24,6 +24,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
+import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
@@ -39,9 +42,13 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
@@ -50,6 +57,7 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
+import com.runwaysdk.json.RunwayJsonAdapters;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -67,10 +75,14 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 
+import net.geoprism.account.OauthServer;
+import net.geoprism.account.OauthServerIF;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
@@ -203,7 +215,99 @@ public class RegistryService
       // skip for now
     }
   }
+  
+  private String buildOauthServerUrl(OauthServer server)
+  {
+    try
+    {
+      String redirect = GeoregistryProperties.getRemoteServerUrl() + "cgrsession/ologin";
 
+      JSONObject state = new JSONObject();
+      state.put(OauthServerIF.SERVER_ID, server.getOid());
+
+      AuthenticationRequestBuilder builder = OAuthClientRequest.authorizationLocation(server.getAuthorizationLocation());
+      builder.setClientId(server.getClientId());
+      builder.setRedirectURI(redirect);
+      builder.setResponseType("code");
+      builder.setState(state.toString());
+
+      OAuthClientRequest request = builder.buildQueryMessage();
+
+      return request.getLocationUri();
+    }
+    catch (OAuthSystemException | JSONException e)
+    {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Request(RequestType.SESSION)
+  public String oauthGetAll(String sessionId, String id)
+  {
+    final JsonArray ja = new JsonArray();
+    
+    if (id == null || id.length() == 0)
+    {
+      OauthServer[] servers = OauthServer.getAll();
+      
+      for (OauthServer server : servers)
+      {
+        Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
+        JsonObject json = (JsonObject) gson2.toJsonTree(server);
+        
+        json.addProperty("url", buildOauthServerUrl(server));
+        
+        ja.add(json);
+      }
+    }
+    else
+    {
+      OauthServer server = OauthServer.get(id);
+      
+      Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
+      JsonObject json = (JsonObject) gson2.toJsonTree(server);
+      
+      json.addProperty("url", buildOauthServerUrl(server));
+      
+      ja.add(json);
+    }
+    
+    return ja.toString();
+  }
+  @Request(RequestType.SESSION)
+  public String oauthGetPublic(String sessionId, String id)
+  {
+    final JsonArray ja = new JsonArray();
+    
+    if (id == null || id.length() == 0)
+    {
+      OauthServer[] servers = OauthServer.getAll();
+      
+      for (OauthServer server : servers)
+      {
+        JsonObject json = new JsonObject();
+        
+        json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
+        json.addProperty("url", buildOauthServerUrl(server));
+        
+        ja.add(json);
+      }
+    }
+    else
+    {
+      OauthServer server = OauthServer.get(id);
+      
+      JsonObject json = new JsonObject();
+      
+      json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
+      json.addProperty("url", buildOauthServerUrl(server));
+      
+      ja.add(json);
+    }
+    
+    return ja.toString();
+  }
+  
   @Request(RequestType.SESSION)
   public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
   {

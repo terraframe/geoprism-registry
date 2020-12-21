@@ -18,13 +18,22 @@
  */
 package net.geoprism.registry.graph;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.runwaysdk.json.RunwayJsonAdapters;
 
+import net.geoprism.account.OauthServer;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 
 public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
 {
+  public static final String OAUTH_SERVER = "oAuthServer";
+  
+  public static final String[] OAUTH_SERVER_JSON_ATTRS = new String[] {OauthServer.SECRETKEY, OauthServer.CLIENTID, OauthServer.PROFILELOCATION, OauthServer.AUTHORIZATIONLOCATION, OauthServer.TOKENLOCATION, OauthServer.SERVERTYPE};
+  
   private static final long serialVersionUID = -1956421203;
 
   public DHIS2ExternalSystem()
@@ -61,6 +70,13 @@ public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
     object.addProperty(DHIS2ExternalSystem.USERNAME, this.getUsername());
     object.addProperty(DHIS2ExternalSystem.URL, this.getUrl());
     object.addProperty(DHIS2ExternalSystem.VERSION, this.getVersion());
+    
+    if (this.getOauthServer() != null)
+    {
+      Gson gson = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwaySerializer(OAUTH_SERVER_JSON_ATTRS)).create();
+      JsonElement oauthJson = gson.toJsonTree(this.getOauthServer());
+      object.add(OAUTH_SERVER, oauthJson);
+    }
 
     return object;
   }

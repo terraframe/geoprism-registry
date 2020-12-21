@@ -25,10 +25,15 @@ import com.runwaysdk.system.gis.geo.LocatedIn;
 
 import net.geoprism.ConfigurationIF;
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.ForgotPasswordRequest;
+import net.geoprism.GeoprismUser;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.session.ForgotPasswordOnOauthUser;
 
 public class RegistryConfiguration extends DefaultConfiguration implements ConfigurationIF
 {
+  
   @Override
   public String getGeoEntityRelationship(MdRelationshipDAOIF mdRelationshipDAOIF)
   {
@@ -47,6 +52,22 @@ public class RegistryConfiguration extends DefaultConfiguration implements Confi
     catch (Exception e)
     {
       return null;
+    }
+  }
+  
+  @Override
+  public void onInitiateForgotPasswordForUser(GeoprismUser user, ForgotPasswordRequest req)
+  {
+    UserInfo userInfo = UserInfo.getByUser(user);
+    
+    if (userInfo.getExternalSystemOid() != null && userInfo.getExternalSystemOid().length() > 0)
+    {
+      ExternalSystem system = ExternalSystem.get(userInfo.getExternalSystemOid());
+      
+      ForgotPasswordOnOauthUser ex = new ForgotPasswordOnOauthUser();
+      ex.setUsername(user.getUsername());
+      ex.setOauthServer(system.getDisplayLabel().getValue());
+      throw ex;
     }
   }
 

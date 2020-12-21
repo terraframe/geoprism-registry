@@ -25,7 +25,7 @@
 
                         </div>
                     </div>
-
+                    
                     <div class="row">
                         <div class="col-md-12">
 
@@ -46,6 +46,25 @@
                             </form>
 
                         </div>
+                    </div>
+                    
+                    <div *ngIf="oauthServers" class="row">
+                      <div class="oauth-or-line-block"><span class="oauth-or-line"></span><span class="oauth-or-text"> or </span><span class="oauth-or-line"></span></div>
+                    
+                      <div class="col-md-12">
+                        <a (click)="onClickDhis2()" class="dhis2-login-button">
+                          <span class="dhis2-login-button-text">Log in with </span>
+                          <img class="dhis2-login-button-image" src="../../../../images/dhis2-logo.png">
+                        </a>
+                        <div *ngIf="viewOauthServers">
+                          <select (change)="onClickDhis2($event.target.value)" style="float:none;" name=externalSystemOid>
+                            <option></option>
+                            <option *ngFor="let server of oauthServers" [value]="server.url">
+                              {{server.label.localizedValue}}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
                     </div>
                 </div>
                 <div class="col-md-3 col-sm-4 col-xs-2"></div>

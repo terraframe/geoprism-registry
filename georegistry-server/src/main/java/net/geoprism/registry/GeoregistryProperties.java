@@ -40,4 +40,9 @@ public class GeoregistryProperties
   {
     return Singleton.INSTANCE.props.getInteger("import.refreshSessionRecordCount", 10000);
   }
+  
+  public static String getRemoteServerUrl()
+  {
+    return Singleton.INSTANCE.props.getString("cgr.remote.url", "https://localhost:8443/georegistry/");
+  }
 }

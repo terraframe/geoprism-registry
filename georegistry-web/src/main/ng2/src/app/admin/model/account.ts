@@ -38,6 +38,7 @@ export class User {
   altPhoneNumber?: string;
   position?: string;
   department?: string;
+  externalSystemOid?: string;
 }
 
 // export class Role {
