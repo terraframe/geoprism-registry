@@ -55,6 +55,9 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
+import net.geoprism.account.OauthServerDTO;
+import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.RegistryService;
@@ -96,6 +99,38 @@ public class RegistryController
     new ChangeRequestService().submitChangeRequest(request.getSessionId(), actions);
 
     return new RestResponse();
+  }
+  
+  /**
+   * Returns an OauthServer configuration with the specified id. If an id is not provided, this endpoint will return all configurations (in your organization).
+   * 
+   * @param request
+   * @param id
+   * @return A json array of serialized OauthServer configurations.
+   * @throws JSONException
+   */
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "oauth/get")
+  public ResponseIF oauthGetAll(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
+  {
+    String json = this.registryService.oauthGetAll(request.getSessionId(), id);
+
+    return new RestBodyResponse(json);
+  }
+  
+  /**
+   * Returns information which is available to public users (without permissions) which will allow them to login as an oauth user.
+   * 
+   * @param request
+   * @param id
+   * @return A json array of OauthServer configurations with only publicly available information.
+   * @throws JSONException
+   */
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "oauth/get-public")
+  public ResponseIF oauthGetPublic(ClientRequestIF request, @RequestParamter(name = "id") String id) throws JSONException
+  {
+    String json = this.registryService.oauthGetPublic(request.getSessionId(), id);
+
+    return new RestBodyResponse(json);
   }
 
   /**

@@ -18,6 +18,10 @@
 ///
 
 import { Component } from '@angular/core';
+import { HttpErrorResponse } from "@angular/common/http";
+
+import { ErrorHandler } from '@shared/component';
+import { HubService } from '@core/service/hub.service';
 
 declare var acp:string;
 
@@ -28,8 +32,13 @@ declare var acp:string;
 })
 export class LoginHeaderComponent {
   context:string;
-
-  constructor() {
+  
+  constructor(private hubService: HubService) {
     this.context = acp;
+  }
+  
+  public error(err: HttpErrorResponse): void {
+    let msg = ErrorHandler.getMessageFromError(err);
+    console.log(msg, err);
   }
 }

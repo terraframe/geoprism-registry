@@ -2,12 +2,12 @@
   <loading-bar></loading-bar>
 
   <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-        <fieldset>            
+        <fieldset>
+          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+               
           <div class="heading">
             <h3><localize key="external.system.heading"></localize></h3>
-          </div>      
-          
-          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+          </div>
           
           <div class="row-holder">
             <div class="label-holder">
@@ -45,11 +45,11 @@
                 <input type="text" [(ngModel)]="system.id" name="id" [disabled]="system.oid != null" required>
               </span>
             </div>
-          </div>     
+          </div>
           <div class="row-holder">
             <div class="label-holder">
               <label><localize key="external.system.label"></localize></label>
-            </div>          
+            </div>
             <div class="holder" >
               <span class="text">
 
@@ -60,11 +60,11 @@
                 <!-- <input type="text" [(ngModel)]="external.system.label" name="name" required> -->
               </span>
             </div>
-          </div>  
+          </div>
           <div class="row-holder">
             <div class="label-holder">
               <label><localize key="external.system.description"></localize></label>
-            </div>          
+            </div>
             <div class="holder" >
               <span class="text">
                 <div class="form-group" *ngFor="let localeValue of system.description.localeValues">
@@ -85,18 +85,22 @@
                 <input type="text" [(ngModel)]="system.username" name="username" required>
               </span>
             </div>
-          </div>     
+          </div>
           
           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
             <div class="label-holder">
               <label><localize key="external.system.password"></localize></label>
             </div>          
             <div class="holder" >
-              <span class="text">
+	            <div>
+	              <input *ngIf="!editPassword" type="submit" value="Edit Password" class="btn btn-primary" (click)="editPassword = !editPassword" />
+	              <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="submit" value="Cancel" class="btn btn-default" (click)="editPassword = !editPassword" />
+	            </div>
+              <span *ngIf="editPassword" class="text">
                 <input type="password" [(ngModel)]="system.password" name="password" required>
               </span>
             </div>
-          </div>     
+          </div>
           
           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
             <div class="label-holder">
@@ -115,13 +119,94 @@
             </div>          
             <div class="holder" >
               <span class="select">
-                <select type="text" [(ngModel)]="system.version" name="version" required>
-                  <option></option>
-                  <option value="2.31.9">2.31.9</option>
+                <select type="text" [(ngModel)]="system.version" name="version" required disabled>
+                  <option value="2.31">2.31</option>
                 </select>
               </span>
             </div>
-          </div>     
+          </div>
+          
+          <div class="heading">
+            <h3>OAuth</h3>
+          </div>
+          <div class="row-holder">
+	          <div *ngIf="system.oAuthServer == null" class="holder">
+	            <div>
+	              <input type="submit" value="Enable OAuth Integration" class="btn btn-default" [disabled]="system.url == null" (click)="enableOAuth()" />
+	            </div>
+	          </div>
+          </div>
+          <div *ngIf="system.oAuthServer != null">
+            <!--
+	          <div class="holder">
+	            <div>
+	              <input type="submit" value="Push to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />              
+	            </div>
+	          </div>
+	          -->
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label>Client Id</label>
+	            </div>
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [(ngModel)]="system.oAuthServer.clientId" name="clientId" required>
+	              </span>
+	            </div>
+	          </div>
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label>Secret Key</label>
+	            </div>
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [(ngModel)]="system.oAuthServer.secretKey" name="secretKey" required>
+	              </span>
+	            </div>
+	          </div>
+	          <div class="row-holder">
+	            <div class="label-holder">
+	              <label>Profile Location</label>
+	            </div>
+	            <div class="holder" >
+	              <span class="text">
+	                <input type="text" [(ngModel)]="system.oAuthServer.profileLocation" name="profileLocation"  required>
+	              </span>
+	            </div>
+	          </div>
+	          <div class="row-holder">
+              <div class="label-holder">
+                <label>Token Location</label>
+              </div>
+              <div class="holder" >
+                <span class="text">
+                  <input type="text" [(ngModel)]="system.oAuthServer.tokenLocation" name="tokenLocation"  required>
+                </span>
+              </div>
+            </div>
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>Authorization Location</label>
+              </div>
+              <div class="holder" >
+                <span class="text">
+                  <input type="text" [(ngModel)]="system.oAuthServer.authorizationLocation" name="authorizationLocation"  required>
+                </span>
+              </div>
+            </div>
+	        </div>
+
+          <div class="heading">
+            <h3>DHIS2 Plugin</h3>
+          </div>
+          <div class="holder">
+            <div>
+              <input type="submit" value="Download DHIS2 Plugin" class="btn btn-default" (click)="downloadDhis2Plugin()" />
+              <!--
+              <input type="submit" value="Push Plugin to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />
+              -->
+            </div>
+          </div>
 
           <div class="row-holder">
             <div class="label-holder">

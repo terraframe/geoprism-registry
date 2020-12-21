@@ -22,13 +22,21 @@ import java.util.List;
 
 import org.json.JSONException;
 
-import com.google.gson.JsonElement;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.json.RunwayJsonAdapters;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.account.OauthServer;
+import net.geoprism.account.OauthServerQuery;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.Page;
 
@@ -46,10 +54,38 @@ public class ExternalSystemService
   @Request(RequestType.SESSION)
   public JsonObject apply(String sessionId, String json) throws JSONException
   {
-    JsonElement element = JsonParser.parseString(json);
+    JsonObject jo = JsonParser.parseString(json).getAsJsonObject();
 
-    ExternalSystem system = ExternalSystem.desieralize(element.getAsJsonObject());
+    ExternalSystem system = ExternalSystem.desieralize(jo);
     system.apply();
+    
+    if (system instanceof DHIS2ExternalSystem)
+    {
+      DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
+      
+      if (jo.has(DHIS2ExternalSystem.OAUTH_SERVER) && !jo.get(DHIS2ExternalSystem.OAUTH_SERVER).isJsonNull())
+      {
+        Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
+        OauthServer oauth = gson2.fromJson(jo.get(DHIS2ExternalSystem.OAUTH_SERVER), OauthServer.class);
+        
+        OauthServer dbServer = dhis2Sys.getOauthServer();
+        if (dbServer != null)
+        {
+          dbServer.lock();
+          dbServer.populate(oauth);
+          
+          oauth = dbServer;
+        }
+        
+        String systemLabel = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL)).getValue();
+        oauth.getDisplayLabel().setValue(systemLabel);
+        
+        oauth.apply();
+        
+        dhis2Sys.setOauthServer(oauth);
+        dhis2Sys.apply();
+      }
+    }
 
     return system.toJSON();
   }
@@ -70,6 +106,18 @@ public class ExternalSystemService
 
     ServiceFactory.getRolePermissionService().enforceRA(organization.getCode());
 
+    if (system instanceof DHIS2ExternalSystem)
+    {
+      DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
+      
+      if (dhis2Sys.getOauthServer() != null)
+      {
+        OauthServer dbServer = dhis2Sys.getOauthServer();
+        
+        dbServer.delete();
+      }
+    }
+    
     system.delete();
   }
 }

@@ -27,6 +27,7 @@ import { Subject } from 'rxjs';
 import { Account, User, Role } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
 import { LocalizationService, AuthService } from '@shared/service';
+import { ExternalSystem } from '@shared/model/core';
 
 import { ErrorHandler } from '@shared/component';
 
@@ -42,9 +43,14 @@ export class AccountComponent implements OnInit {
     account: Account;
     roles: Role[];
     roleIds: string[] = [];
+    externalSystems: ExternalSystem[];
 
     isSRA: boolean;
-	isRA: boolean;
+	  isRA: boolean;
+	  
+	  isAppliedAsOauth: boolean = false;
+	  editingOauth: boolean = false;
+	  systemHasOauth: boolean = false;
 
     @Input()
     set oid( oid: string ) {
@@ -63,12 +69,27 @@ export class AccountComponent implements OnInit {
         }
         else if ( oid ) {
             this.service.edit( oid ).then( data => {
+            
                 this.account = data;
+                
+                this.editingOauth = (this.account.user.externalSystemOid != null && this.account.user.externalSystemOid !== "");
+                this.isAppliedAsOauth = this.editingOauth;
 
             } ).catch(( err: HttpErrorResponse ) => {
                 this.error( err );
             } );
         }
+    }
+    
+    @Input()
+    set setExternalSystems( externalSystems: ExternalSystem[] ) {
+      this.externalSystems = externalSystems;
+    
+      this.externalSystems.forEach(system => {
+        if (system.oAuthServer != null) {
+          this.systemHasOauth = true;
+        }
+      });
     }
 
     public onEdit: Subject<Account>;
@@ -80,8 +101,8 @@ export class AccountComponent implements OnInit {
         private localizeService: LocalizationService
     ) {
 
-        this.isSRA = authService.isSRA();
-		this.isRA = authService.isRA();
+      this.isSRA = authService.isSRA();
+		  this.isRA = authService.isRA();
     }
 
     ngOnInit(): void {
@@ -92,6 +113,19 @@ export class AccountComponent implements OnInit {
         this.roleIds = event;
     }
 
+    toggleEditingOauth(): void {
+      if (this.editingOauth == false)
+      {
+        this.editingOauth = true;
+        delete this.account.user.password;
+        this.account.user.externalSystemOid = this.externalSystems[0].oid
+      }
+      else
+      {
+        this.editingOauth = false;
+        delete this.account.user.externalSystemOid;
+      }
+    }
 
     cancel(): void {
         if ( this.account.user.newInstance === true ) {
@@ -105,7 +139,7 @@ export class AccountComponent implements OnInit {
     }
 
     onChangePassword(): void {
-        this.account.changePassword = !this.account.changePassword;
+      this.account.changePassword = !this.account.changePassword;
     }
 
     onSubmit(): void {

@@ -21,6 +21,7 @@ package net.geoprism.registry;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -50,6 +51,7 @@ import net.geoprism.DefaultConfiguration;
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
+import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class UserInfo extends UserInfoBase
@@ -74,6 +76,13 @@ public class UserInfo extends UserInfoBase
   {
     List<Organization> organizations = Organization.getUserOrganizations();
     boolean isSRA = ServiceFactory.getRolePermissionService().isSRA();
+    
+    List<ExternalSystem> externalSystemList = ExternalSystem.getExternalSystemsForOrg(1, 100);
+    JSONArray externalSystems = new JSONArray();
+    for (ExternalSystem externalSystem : externalSystemList)
+    {
+      externalSystems.put(new JSONObject(externalSystem.toJSON().toString()));
+    }
 
     if (organizations.size() > 0 || isSRA)
     {
@@ -84,7 +93,8 @@ public class UserInfo extends UserInfoBase
 
       vQuery.SELECT(uQuery.getOid(), uQuery.getUsername(), uQuery.getFirstName(), uQuery.getLastName(), uQuery.getPhoneNumber(), uQuery.getEmail(), uQuery.getInactive());
       vQuery.SELECT(iQuery.getAltFirstName(), iQuery.getAltLastName(), iQuery.getAltPhoneNumber(), iQuery.getPosition());
-
+      vQuery.SELECT(iQuery.getExternalSystemOid());
+      
       vQuery.WHERE(new LeftJoinEq(uQuery.getOid(), iQuery.getGeoprismUser()));
 
       if (organizations.size() > 0)
@@ -126,6 +136,7 @@ public class UserInfo extends UserInfoBase
           result.put(UserInfo.ALTLASTNAME, vObject.getValue(UserInfo.ALTLASTNAME));
           result.put(UserInfo.ALTPHONENUMBER, vObject.getValue(UserInfo.ALTPHONENUMBER));
           result.put(UserInfo.POSITION, vObject.getValue(UserInfo.POSITION));
+          result.put(UserInfo.EXTERNALSYSTEMOID, vObject.getValue(UserInfo.EXTERNALSYSTEMOID));
 
           results.put(result);
         }
@@ -140,6 +151,7 @@ public class UserInfo extends UserInfoBase
       page.put("count", vQuery.getCount());
       page.put("pageNumber", pageNumber);
       page.put("pageSize", pageSize);
+      page.put("externalSystems", externalSystems);
 
       return page;
     }
@@ -149,6 +161,7 @@ public class UserInfo extends UserInfoBase
     page.put("count", 0);
     page.put("pageNumber", pageNumber);
     page.put("pageSize", pageSize);
+    page.put("externalSystems", externalSystems);
 
     return page;
   }
@@ -402,6 +415,15 @@ public class UserInfo extends UserInfoBase
     {
       info.setDepartment("");
     }
+    
+    if (account.has(UserInfo.EXTERNALSYSTEMOID))
+    {
+      info.setExternalSystemOid(account.getString(UserInfo.EXTERNALSYSTEMOID));
+    }
+    else
+    {
+      info.setExternalSystemOid("");
+    }
 
     info.apply();
 
@@ -426,6 +448,7 @@ public class UserInfo extends UserInfoBase
       result.put(UserInfo.ALTPHONENUMBER, info.getAltPhoneNumber());
       result.put(UserInfo.POSITION, info.getPosition());
       result.put(UserInfo.DEPARTMENT, info.getDepartment());
+      result.put(UserInfo.EXTERNALSYSTEMOID, info.getExternalSystemOid());
     }
 
     result.put("newInstance", user.isNew());
@@ -471,6 +494,9 @@ public class UserInfo extends UserInfoBase
       {
         user.setPassword(password);
       }
+    }
+    else if (account.has(UserInfo.EXTERNALSYSTEMOID)) {
+      user.setPassword(String.valueOf(new Random().nextLong()));
     }
 
     return user;

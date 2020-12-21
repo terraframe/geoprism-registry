@@ -1,0 +1,130 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.oauthTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.user.oauthTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Oauth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.enableOauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.user.enableOauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Enable Oauth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.disableOauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.user.disableOauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Disable Oauth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.oauthExternalSystem">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.user.oauthExternalSystem" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="External System" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.isOauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.profile.isOauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Logged in via oauth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.oauth">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.profile.oauth" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Oauth" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.username">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.profile.username" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Username" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdUtil name="net.geoprism.session.RegistrySessionService" label="Session Service">
+        <mdMethod name="ologin" static="true" label="oLogin" returnType="java.lang.String">
+          <mdParameter name="serverId" label="Server id" order="0" type="java.lang.String"/>
+          <mdParameter name="code" label="Code" order="1" type="java.lang.String"/>
+          <mdParameter name="locales" label="Locales" order="2" type="java.lang.String"/>
+          <mdParameter name="redirectBase" label="Redirect base" order="3" type="java.lang.String"/>
+        </mdMethod>
+      </mdUtil>
+      <mdException name="net.geoprism.registry.session.UserNotFoundException" message="User [{username}] does not exist in the GeoRegistry. You must first create this user (and assign roles to it) before you can login with it." >
+        <attributes>
+          <text name="username"/>
+        </attributes>
+      </mdException>
+      <mdException name="net.geoprism.registry.session.UserNotOuathEnabledException" message="User [{username}] is not configured to log in with this Oauth server ({oauthServer})." >
+        <attributes>
+          <text name="username"/>
+          <text name="oauthServer"/>
+        </attributes>
+      </mdException>
+    </create>
+    <update>
+      <mdVertex name="net.geoprism.registry.graph.DHIS2ExternalSystem">
+        <create>
+          <attributes>
+            <reference name="oauthServer" type="net.geoprism.account.OauthServer" label="OAuth Server" required="false" />
+          </attributes>
+        </create>
+      </mdVertex>
+      
+      <mdBusiness name="net.geoprism.registry.UserInfo">
+        <create>
+          <attributes>
+            <uuid name="externalSystemOid" ></uuid>
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.account.OauthServer">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.account.OauthServer">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="PUBLIC">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.session.RegistrySessionService">
+            <mdMethodPermission methodName="ologin">
+              <operation name="EXECUTE"/>
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <method methodName="login" type="net.geoprism.account.ExternalProfile">
+        <assignedRole roleName="Administrator"/>
+      </method>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.graph.DHIS2ExternalSystem.oauthServer" type="com.runwaysdk.system.metadata.MdAttribute"/>
+      <object key="net.geoprism.registry.UserInfo.externalSystemOid" type="com.runwaysdk.system.metadata.MdAttribute"/>
+      <object key="net.geoprism.registry.session.UserNotFoundException" type="com.runwaysdk.system.metadata.MdException" />
+      <object key="net.geoprism.session.RegistrySessionService" type="com.runwaysdk.system.metadata.MdUtil"></object>
+    </delete>
+  </undoIt>
+</version>

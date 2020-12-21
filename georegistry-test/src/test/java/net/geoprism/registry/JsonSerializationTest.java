@@ -27,12 +27,22 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
+import com.runwaysdk.json.RunwayJsonAdapters;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
+import junit.framework.Assert;
+import net.geoprism.account.OauthServer;
+import net.geoprism.account.OauthServerQuery;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.registry.etl.export.GeoObjectExportFormat;
 import net.geoprism.registry.etl.export.GeoObjectJsonExporter;
@@ -99,6 +109,7 @@ public class JsonSerializationTest
     }
 
     deleteExternalSystems();
+    deleteOauthServers();
   }
 
   @Request
@@ -116,6 +127,21 @@ public class JsonSerializationTest
     system.apply();
 
     return system;
+  }
+  
+  @Request
+  private OauthServer getOauthServer()
+  {
+    OauthServer oauth = new OauthServer();
+    oauth.setSecretKey("1e6db50c-0fee-11e5-98d0-3c15c2c6caf6");
+    oauth.setClientId("geoprism");
+    oauth.setProfileLocation("http://test-profile.example.net/profile");
+    oauth.setAuthorizationLocation("http://test-profile.example.net/authorization");
+    oauth.setTokenLocation("http://test-profile.example.net/token");
+    oauth.setServerType("DHIS2");
+    oauth.apply();
+    
+    return oauth;
   }
 
   @Request
@@ -149,6 +175,28 @@ public class JsonSerializationTest
       // Do nothing
     }
   }
+  
+  @Request
+  private void deleteOauthServers()
+  {
+    try
+    {
+      OauthServerQuery q = new OauthServerQuery(new QueryFactory());
+      
+      q.WHERE(q.getClientId().EQ("geoprism"));
+      
+      OIterator<? extends OauthServer> it = q.getIterator();
+      
+      while (it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+    catch (net.geoprism.registry.DataNotFoundException ex)
+    {
+      // Do nothing
+    }
+  }
 
   // @Test
   // @Request
@@ -163,6 +211,71 @@ public class JsonSerializationTest
   // System.out.println(IOUtils.toString(exporter.export()));
   // }
 
+  @Test
+  @Request
+  public void testSerializeExternalSystem()
+  {
+    DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
+    
+    JsonObject json = dhis2Sys.toJSON();
+    DHIS2ExternalSystem dhis2Sys2 = (DHIS2ExternalSystem) ExternalSystem.desieralize(json);
+    
+    Assert.assertEquals(dhis2Sys.getUrl(), dhis2Sys2.getUrl());
+    Assert.assertEquals(dhis2Sys.getUsername(), dhis2Sys2.getUsername());
+    Assert.assertEquals(dhis2Sys.getPassword(), dhis2Sys2.getPassword());
+  }
+  
+  @Test
+  @Request
+  public void testSerializeOauthServer()
+  {
+    OauthServer oauth = this.getOauthServer();
+    
+    Gson gson = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwaySerializer(DHIS2ExternalSystem.OAUTH_SERVER_JSON_ATTRS)).create();
+    JsonElement json = gson.toJsonTree(oauth);
+    
+    Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
+    OauthServer oauth2 = gson2.fromJson(json, OauthServer.class);
+    
+    Assert.assertEquals(oauth.getSecretKey(), oauth2.getSecretKey());
+    Assert.assertEquals(oauth.getClientId(), oauth2.getClientId());
+    Assert.assertEquals(oauth.getAuthorizationLocation(), oauth2.getAuthorizationLocation());
+    Assert.assertEquals(oauth.getProfileLocation(), oauth2.getProfileLocation());
+    Assert.assertEquals(oauth.getTokenLocation(), oauth2.getTokenLocation());
+    Assert.assertEquals(oauth.getServerType(), oauth2.getServerType());
+  }
+  
+  @Test
+  @Request
+  public void testSerializeOauthServerWithExternalSystem()
+  {
+    DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
+    OauthServer oauth = this.getOauthServer();
+    
+    dhis2Sys.setOauthServer(oauth);
+    
+//    Gson gson = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwaySerializer(DHIS2ExternalSystem.OAUTH_SERVER_JSON_ATTRS)).create();
+//    JsonObject json = gson.toJsonTree(oauth).getAsJsonObject();
+    JsonObject json = dhis2Sys.toJSON();
+    
+    Assert.assertTrue(json.has(DHIS2ExternalSystem.OAUTH_SERVER));
+    
+    Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
+    OauthServer oauth2 = gson2.fromJson(json.get(DHIS2ExternalSystem.OAUTH_SERVER), OauthServer.class);
+    
+    Assert.assertEquals(oauth.getSecretKey(), oauth2.getSecretKey());
+    Assert.assertEquals(oauth.getClientId(), oauth2.getClientId());
+    Assert.assertEquals(oauth.getAuthorizationLocation(), oauth2.getAuthorizationLocation());
+    Assert.assertEquals(oauth.getProfileLocation(), oauth2.getProfileLocation());
+    Assert.assertEquals(oauth.getTokenLocation(), oauth2.getTokenLocation());
+    
+    DHIS2ExternalSystem dhis2Sys2 = (DHIS2ExternalSystem) ExternalSystem.desieralize(json);
+    
+    Assert.assertEquals(dhis2Sys.getUrl(), dhis2Sys2.getUrl());
+    Assert.assertEquals(dhis2Sys.getUsername(), dhis2Sys2.getUsername());
+    Assert.assertEquals(dhis2Sys.getPassword(), dhis2Sys2.getPassword());
+  }
+  
   @Test
   @Request
   public void testRevealSerialize() throws IOException
