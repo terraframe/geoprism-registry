@@ -67,6 +67,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	type: GeoObjectType;
 
     /* 
+     * Flag denoting if an object is currently being editted
+     */
+	isEdit: boolean = false;
+
+    /* 
      * mapbox-gl map
      */
 	map: Map;
@@ -187,6 +192,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.vot = null;
 	}
 
+	onModeChange(value: boolean): void {
+		this.isEdit = value;
+	}
+
 	handleDateChange(): void {
 		this.forDate = new Date(Date.parse(this.dateStr));
 	}
@@ -203,14 +212,26 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.map.addControl(new NavigationControl({ 'visualizePitch': true }));
 		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
 
-		//		this.map.on('dblclick', 'children-points', (event: any) => {
-		//			this.handleMapClickEvent(event);
-		//		});
-		//
-		//		this.map.on('dblclick', 'children-polygon', (event: any) => {
-		//			this.handleMapClickEvent(event);
-		//		});
+		this.map.on('click', 'children-points', (event: any) => {
+			this.handleMapClickEvent(event);
+		});
+
+		this.map.on('click', 'children-polygon', (event: any) => {
+			this.handleMapClickEvent(event);
+		});
 	}
+
+	handleMapClickEvent(event: any): void {
+		if (!this.isEdit && event.features != null && event.features.length > 0) {
+			const feature = event.features[0];
+
+			if (feature.properties.code != null && (this.current == null || this.current.properties.code !== feature.properties.code)) {
+				this.select(feature, null);
+			}
+		}
+	}
+
+
 
 	addLayers(): void {
 
@@ -256,6 +277,38 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			]
 		});
 
+		//		// Selected layers
+		//		this.map.addLayer({
+		//			"id": source + "-points-selected",
+		//			"type": "circle",
+		//			"source": source,
+		//			"paint": {
+		//				"circle-radius": 10,
+		//				"circle-color": '#a6611a',
+		//				"circle-stroke-width": 2,
+		//				"circle-stroke-color": '#FFFFFF'
+		//			},
+		//			filter: ['all',
+		//				["==", ['get', 'code'], this.current != null ? this.current.properties.code : ''],
+		//				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+		//			]
+		//		});
+		//
+		//		this.map.addLayer({
+		//			'id': source + '-polygon-selected',
+		//			'type': 'fill',
+		//			'source': source,
+		//			'layout': {},
+		//			'paint': {
+		//				'fill-color': '#a6611a',
+		//				'fill-opacity': 0.8,
+		//				'fill-outline-color': 'black'
+		//			},
+		//			filter: ['all',
+		//				["==", ['get', 'code'], this.current != null ? this.current.properties.code : ''],
+		//				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+		//			]
+		//		});
 
 		// Label layer
 		this.map.addLayer({
@@ -358,33 +411,28 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.type = types[0];
 			this.current = node;
 			this.mode = this.MODE.VIEW;
+
+			//			const code = this.current.properties.code;
+			//
+			//			// Update the filter properties
+			//			this.map.setFilter('children-points-selected', ['all',
+			//				["==", ['get', 'code'], code != null ? code : ''],
+			//				["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+			//			]);
+			//
+			//			this.map.setFilter('children-polygon-selected', ['all',
+			//				["==", ['get', 'code'], code != null ? code : ''],
+			//				["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+			//			]);
+
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
-
-
-		//			this.preventSingleClick = true;
-		//			clearTimeout(this.timer);
-		//	
-		//			this.drillDown(node);
 	}
-	//
-	//	handleMapClickEvent(event: any): void {
-	//		if (event.features != null && event.features.length > 0) {
-	//			const feature = event.features[0];
-	//
-	//			const index = this.data.geojson.features.findIndex(node => { return node.properties.code === feature.properties.code });
-	//
-	//			if (index !== -1) {
-	//				this.drillDown(this.data.geojson.features[index]);
-	//			}
-	//		}
-	//	}
-	//
+
 	setData(data: GeoObject[]): void {
 		this.data = data;
 	}
-
 
 	onContextLayerChange(layer: ContextLayer): void {
 
@@ -416,7 +464,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		const index = this.vectorLayers.indexOf(source);
 
 		if (index === -1) {
-			const prevLayer = 'children-points';
+			const prevLayer = 'children-polygon';
 
 			var protocol = window.location.protocol;
 			var host = window.location.host;
