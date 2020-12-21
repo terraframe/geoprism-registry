@@ -242,9 +242,8 @@ public class HierarchyService
       while (rootIt.hasNext())
       {
         HierarchyNode hn = rootIt.next();
-        GeoObjectType rootGot = hn.getGeoObjectType();
         
-        if (!typePermServ.canRead(rootGot.getOrganizationCode(), rootGot.getCode(), rootGot.getIsPrivate()))
+        if (isRootPrivate(hn, typePermServ))
         {
           removed = true;
           rootIt.remove();
@@ -264,6 +263,35 @@ public class HierarchyService
     HierarchyType[] hierarchies = filteredHierarchyTypes.toArray(new HierarchyType[filteredHierarchyTypes.size()]);
 
     return hierarchies;
+  }
+  
+  private boolean isRootPrivate(HierarchyNode parent, GeoObjectTypePermissionServiceIF typePermServ)
+  {
+    if (parent.getInheritedHierarchyCode() == null || parent.getInheritedHierarchyCode() == "")
+    {
+      GeoObjectType rootGot = parent.getGeoObjectType();
+      
+      if (!typePermServ.canRead(rootGot.getOrganizationCode(), rootGot.getCode(), rootGot.getIsPrivate()))
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
+    }
+    else
+    {
+      for (HierarchyNode child : parent.getChildren())
+      {
+        if (this.isRootPrivate(child, typePermServ))
+        {
+          return true;
+        }
+      }
+      
+      return false;
+    }
   }
   
   private void filterOutPrivateNodes(HierarchyNode parent)
