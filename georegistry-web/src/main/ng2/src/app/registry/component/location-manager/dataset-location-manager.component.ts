@@ -32,6 +32,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	readOnly: boolean = false;
 
+	isEdit: boolean = false;
+
 	date: string;
 
 	code: string;
@@ -153,8 +155,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.map.addControl(this.simpleEditControl);
 	}
 
-	handleDateChange(): void {
-		//		this.back(null);
+	onModeChange(value: boolean): void {
+		this.isEdit = value;
 	}
 
 	initMap(): void {
@@ -181,6 +183,14 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.map.on('click', this.datasetId + '-polygon', (event: any) => {
 			this.handleMapClickEvent(event);
 		});
+
+
+		//		this.map.on('draw.selectionchange', (e: any) => {
+		//			if (this.vot != null && e.features.length === 0) {
+		//				const geometry = this.getDrawGeometry();
+		//				this.vot.value = geometry;
+		//			}
+		//		});
 
 		this.addVectorLayer(this.datasetId);
 	}
@@ -390,7 +400,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 
 	handleMapClickEvent(event: any): void {
-		if (event.features != null && event.features.length > 0) {
+		if (!this.isEdit && event.features != null && event.features.length > 0) {
 			const feature = event.features[0];
 
 			if (feature.properties.code != null && this.code !== feature.properties.code) {
