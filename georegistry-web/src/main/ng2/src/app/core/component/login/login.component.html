@@ -43,9 +43,11 @@
                                     <!-- <p class="login-submit"> -->
                                     <div class="row">
                                         <div class="col-md-12">
-                                          <button type="submit" id="login-btn" class="btn btn-primary" [disabled]="!(form.valid)">
-                                              <localize key="login.button"></localize>
-                                          </button>
+                                          <div class="btn-holder text-right">
+                                            <button type="submit" id="login-btn" class="btn btn-primary" [disabled]="!(form.valid)">
+                                                <localize key="login.button"></localize>
+                                            </button>
+                                          </div>
                                         </div>
                                     </div>
                                     <!-- </p> -->
@@ -56,16 +58,20 @@
                     </div>
                     
                     <div *ngIf="oauthServers" class="row">
-                      <div class="col-md-12">
-                        <div class="oauth-or-line-block"><span class="oauth-or-line"></span><span class="oauth-or-text"> or </span><span class="oauth-or-line"></span></div>
+                      <div class="col-md-12 text-center">
+                        <h4 class="oauth-or-line-block">
+                          <span class="oauth-or-text">&nbsp;<localize key="login.oauth.or.label"></localize>&nbsp;</span>
+                        </h4>
                     
-                        <a (click)="onClickDhis2()" class="dhis2-login-button">
+                        <button (click)="onClickDhis2()" class="dhis2-login-button">
                           <span class="dhis2-login-button-text">
                             <localize key="login.oauth.loginwith.label"></localize>
                           </span>
-                          <img class="dhis2-login-button-image" src="../../../../images/dhis2-logo.png">
-                        </a>
-                        <div *ngIf="viewOauthServers">
+                          <span>
+                            <img class="dhis2-login-button-image" src="../../../../images/dhis2-logo.png">
+                          </span>
+                        </button>
+                        <div *ngIf="viewOauthServers" style="margin-top: 20px;">
                           <select (change)="onClickDhis2($event.target.value)" name=externalSystemOid>
                             <option></option>
                             <option *ngFor="let server of oauthServers" [value]="server.url">
