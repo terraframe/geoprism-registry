@@ -93,8 +93,8 @@
             </div>          
             <div class="holder" >
 	            <div>
-	              <input *ngIf="!editPassword" type="submit" [value]="'external.system.editPassword' | localize" class="btn btn-primary" (click)="editPassword = !editPassword" />
-	              <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="submit" [value]="'external.system.editPasswordCancel' | localize" class="btn btn-default" (click)="editPassword = !editPassword" />
+	              <input *ngIf="!editPassword" type="button" [value]="'external.system.editPassword' | localize" class="btn btn-primary" (click)="editPassword = !editPassword" />
+	              <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="button" [value]="'external.system.editPasswordCancel' | localize" class="btn btn-default" (click)="editPassword = !editPassword" />
 	            </div>
               <span *ngIf="editPassword" class="text">
                 <input type="password" [(ngModel)]="system.password" name="password" required>
@@ -126,21 +126,21 @@
             </div>
           </div>
           
-          <div class="heading">
+          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="heading">
             <h3><localize key="external.system.oauthHeader"></localize></h3>
           </div>
-          <div class="row-holder">
-	          <div *ngIf="system.oAuthServer == null" class="holder">
-	            <div>
-	              <input type="submit" [value]="'external.system.enableOauth' | localize" class="btn btn-default" [disabled]="system.url == null" (click)="enableOAuth()" />
-	            </div>
-	          </div>
+          <div *ngIf="system.oAuthServer == null && system.type === 'DHIS2ExternalSystem'" class="row-holder">
+	          <div  class="label-holder">
+            </div>          
+            <div class="holder" >
+              <input type="button" [value]="'external.system.enableOauth' | localize" class="btn btn-primary" [disabled]="system.url == null" (click)="enableOAuth()" />
+            </div>
           </div>
-          <div *ngIf="system.oAuthServer != null">
+          <div *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'">
             <!--
 	          <div class="holder">
 	            <div>
-	              <input type="submit" value="Push to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />              
+	              <input type="button" value="Push to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />              
 	            </div>
 	          </div>
 	          -->
@@ -195,19 +195,25 @@
               </div>
             </div>
             
-            <div>
-              <input type="button" [value]="'external.system.oauth.removeOauth' | localize" class="btn btn-default" (click)="removeOauth()" />
+            <div class="row-holder">
+              <div  class="label-holder">
+	            </div> 
+	            <div class="holder" >
+	              <input type="button" [value]="'external.system.oauth.removeOauth' | localize" class="btn btn-danger" (click)="removeOauth()" />
+	            </div>
             </div>
 	        </div>
 
-          <div class="heading">
+          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="heading">
             <h3><localize key="external.system.oauth.downloadDhis2PluginHeader"></localize></h3>
           </div>
-          <div class="holder">
-            <div>
-              <input type="submit" [value]="'external.system.oauth.downloadDhis2Plugin' | localize" class="btn btn-default" (click)="downloadDhis2Plugin()" />
+          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
+            <div  class="label-holder">
+            </div> 
+            <div class="holder" >
+              <input type="button" [value]="'external.system.oauth.downloadDhis2Plugin' | localize" class="btn btn-primary" (click)="downloadDhis2Plugin()" />
               <!--
-              <input type="submit" value="Push Plugin to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />
+              <input type="button" value="Push Plugin to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />
               -->
             </div>
           </div>

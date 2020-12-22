@@ -1,6 +1,6 @@
 {
     "version": "0.1",
-    "name": "Geo Registry",
+    "name": "Common Geo-Registry",
     "description": "Open the Geo Registry to manage geographic hierarchies.",
     "launch_path": "/index.html",
     "appType": "APP",

@@ -55,7 +55,6 @@ export class NewLocaleModalComponent {
 	}
 
 	public error(err: HttpErrorResponse): void {
-		let modal = this.modalService.show(ErrorModalComponent, { backdrop: true });
-		modal.content.message = ErrorHandler.getMessageFromError(err);
+		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 }

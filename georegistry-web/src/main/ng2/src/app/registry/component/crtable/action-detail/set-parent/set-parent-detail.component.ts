@@ -192,9 +192,8 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 	//   });
 	// }
 
-	public error(err: HttpErrorResponse): void {
-		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-		this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
-	}
+    public error( err: HttpErrorResponse ): void {
+            this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+    }
 
 }

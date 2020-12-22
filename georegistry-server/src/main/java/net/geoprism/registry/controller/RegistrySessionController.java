@@ -64,9 +64,9 @@ public class RegistrySessionController
   {
     final SessionController geoprism = new SessionController();
     
-    URL url = new URL(req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath());
-
-    String redirect = url.toString();
+//    URL url = new URL(req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath());
+//
+//    String redirect = url.toString();
 
     JSONObject stateObject = new JSONObject(state);
     String serverId = stateObject.getString(OauthServerIF.SERVER_ID);
@@ -79,7 +79,7 @@ public class RegistrySessionController
     {
       ClientRequestIF clientRequest = clientSession.getRequest();
 
-      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), redirect);
+      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), null);
       
       JsonObject cgrSessionJson = (JsonObject) JsonParser.parseString(cgrSessionJsonString);
       final String sessionId = cgrSessionJson.get("sessionId").getAsString();
