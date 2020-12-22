@@ -28,14 +28,14 @@
                 </h4>
             </div>
         </div>
-        <div class="row">
-            <div *ngIf="list" class="col-md-12">
-              <a [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, (!isWritable || list.isAbstract), list.forDate]" routerLinkActive="active">
-                <localize key="masterlist.gotoMap"></localize>
-              </a>
+<!--         <div class="row"> -->
+<!--             <div *ngIf="list" class="col-md-12"> -->
+<!--               <a [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, (!isWritable || list.isAbstract), list.forDate]" routerLinkActive="active"> -->
+<!--                 <localize key="masterlist.gotoMap"></localize> -->
+<!--               </a> -->
                 
-            </div>
-        </div>
+<!--             </div> -->
+<!--         </div> -->
 
 
         <div *ngIf="filter.length > 0" class="row form-group">

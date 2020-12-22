@@ -32,14 +32,23 @@
                             <form id="login-form" class="login" #form="ngForm" (ngSubmit)="form.valid && onSubmit()">
                                 <div id="login-input-container">
                                     <div class="row">
-                                        <input [(ngModel)]="username" name="username" type="text" [placeholder]="'login.username' | localize" id="login" required /> <input [(ngModel)]="password" name="password" type="password" [placeholder]="'login.password' | localize" id="password" required /> <a routerLink="/forgotpassword" class="forgot-password"> <localize key="login.forgotPassword"></localize>
-                                        </a>
+                                        <div class="col-md-12">
+                                            <input [(ngModel)]="username" name="username" type="text" [placeholder]="'login.username' | localize" id="login" required /> 
+                                            <input [(ngModel)]="password" name="password" type="password" [placeholder]="'login.password' | localize" id="password" required /> 
+                                            <a routerLink="/forgotpassword" class="forgot-password"> 
+                                              <localize key="login.forgotPassword"></localize>
+                                            </a>
+                                        </div>
                                     </div>
                                     <!-- <p class="login-submit"> -->
                                     <div class="row">
-                                        <button type="submit" id="login-btn" class="btn btn-primary" [disabled]="!(form.valid)">
-                                            <localize key="login.button"></localize>
-                                        </button>
+                                        <div class="col-md-12">
+                                          <div class="btn-holder text-right">
+                                            <button type="submit" id="login-btn" class="btn btn-primary" [disabled]="!(form.valid)">
+                                                <localize key="login.button"></localize>
+                                            </button>
+                                          </div>
+                                        </div>
                                     </div>
                                     <!-- </p> -->
                                 </div>
@@ -49,14 +58,20 @@
                     </div>
                     
                     <div *ngIf="oauthServers" class="row">
-                      <div class="oauth-or-line-block"><span class="oauth-or-line"></span><span class="oauth-or-text"> or </span><span class="oauth-or-line"></span></div>
+                      <div class="col-md-12 text-center">
+                        <h4 class="oauth-or-line-block">
+                          <span class="oauth-or-text">&nbsp;<localize key="login.oauth.or.label"></localize>&nbsp;</span>
+                        </h4>
                     
-                      <div class="col-md-12">
-                        <a (click)="onClickDhis2()" class="dhis2-login-button">
-                          <span class="dhis2-login-button-text">Log in with </span>
-                          <img class="dhis2-login-button-image" src="../../../../images/dhis2-logo.png">
-                        </a>
-                        <div *ngIf="viewOauthServers">
+                        <button (click)="onClickDhis2()" class="dhis2-login-button">
+                          <span class="dhis2-login-button-text">
+                            <localize key="login.oauth.loginwith.label"></localize>
+                          </span>
+                          <span>
+                            <img class="dhis2-login-button-image" src="../../../../images/dhis2-logo.png">
+                          </span>
+                        </button>
+                        <div *ngIf="viewOauthServers" style="margin-top: 20px;">
                           <select (change)="onClickDhis2($event.target.value)" name=externalSystemOid>
                             <option></option>
                             <option *ngFor="let server of oauthServers" [value]="server.url">
