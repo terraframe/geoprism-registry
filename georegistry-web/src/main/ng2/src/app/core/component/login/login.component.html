@@ -66,7 +66,7 @@
                           <img class="dhis2-login-button-image" src="../../../../images/dhis2-logo.png">
                         </a>
                         <div *ngIf="viewOauthServers">
-                          <select (change)="onClickDhis2($event.target.value)" style="float:none;" name=externalSystemOid>
+                          <select (change)="onClickDhis2($event.target.value)" name=externalSystemOid>
                             <option></option>
                             <option *ngFor="let server of oauthServers" [value]="server.url">
                               {{server.label.localizedValue}}
