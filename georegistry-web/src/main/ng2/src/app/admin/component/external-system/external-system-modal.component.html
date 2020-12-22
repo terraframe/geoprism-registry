@@ -136,18 +136,23 @@
             </div>
           </div>
           
-
           
-          <div class="row-holder">
+<!--           <div class="row-holder"> -->
+<!-- 	        <div  class="label-holder"> -->
+<!--               <label><localize key="external.system.oauthHeader"></localize></label> -->
+<!--           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="heading"> -->
+<!--             <h3><localize key="external.system.oauthHeader"></localize></h3> -->
+<!--           </div> -->
+          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
 	        <div  class="label-holder">
               <label><localize key="external.system.oauthHeader"></localize></label>
             </div>          
             <div class="holder" >
-              <input *ngIf="system.oAuthServer == null" type="button" [value]="'external.system.enableOauth' | localize" class="btn btn-primary" [disabled]="system.url == null" (click)="enableOAuth()" />
-              <hr *ngIf="system.oAuthServer != null" style="border-color:lightgrey;">
+              <input *ngIf="system.oAuthServer == null && system.type === 'DHIS2ExternalSystem'" type="button" [value]="'external.system.enableOauth' | localize" class="btn btn-primary" [disabled]="system.url == null" (click)="enableOAuth()" />
+              <hr *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'" style="border-color:lightgrey;">
             </div>
           </div>
-          <div *ngIf="system.oAuthServer != null">
+          <div *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'">
             <!--
 	          <div class="holder">
 	            <div>
@@ -215,12 +220,9 @@
             </div>
 	      </div>
 
-<!--           <div class="heading"> -->
-<!--             <h3><localize key="external.system.oauth.downloadDhis2PluginHeader"></localize></h3> -->
-<!--           </div> -->
-          <div class="row-holder">
+          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
             <div  class="label-holder">
-              <localize key="external.system.oauth.downloadDhis2PluginHeader"></localize>
+              <label><localize key="external.system.oauth.downloadDhis2PluginHeader"></localize></label>
             </div> 
             <div class="holder" >
               <input type="button" [value]="'external.system.oauth.downloadDhis2Plugin' | localize" class="btn btn-primary" (click)="downloadDhis2Plugin()" />
