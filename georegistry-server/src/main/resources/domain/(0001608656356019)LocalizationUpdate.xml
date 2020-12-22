@@ -1,0 +1,86 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="accounts.none">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="accounts.none" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="None" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.email.configured">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.email.configured" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Configured" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.email.configure">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="settings.email.configure" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Configure" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.zoom.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.zoom.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Zoom to location" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="baselayer.satellite">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="baselayer.satellite" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Satellite" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.on">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.table.on" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="on" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.update">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.table.update" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Update &lt;b&gt;{0}&lt;/b&gt; [ {1} ]" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.create">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.table.create" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Create &lt;b&gt;{0}&lt;/b&gt; [ {1} ]" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.setparent">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.table.setparent" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Set parents of &lt;b&gt;{0}&lt;/b&gt;" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.setchild">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.table.setchild" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Set &lt;b&gt;{0}&lt;/b&gt; as a child of &lt;b&gt;{1}&lt;/b&gt;" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.table.removechild">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.table.removechild" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Remove &lt;b&gt;{0}&lt;/b&gt; from &lt;b&gt;{1}&lt;/b&gt;" />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

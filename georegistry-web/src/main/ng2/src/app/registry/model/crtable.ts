@@ -5,7 +5,7 @@ export class ChangeRequest {
 	createdBy: string;
 	createDate: Date;
 	approvalStatus: string;
-	statusCode: string;
+	statusLabel?: string;	
 	total: number;
 	pending: number;
 	phoneNumber?: string;

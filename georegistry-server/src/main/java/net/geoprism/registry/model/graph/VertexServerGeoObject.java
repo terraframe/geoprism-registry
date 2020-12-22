@@ -880,7 +880,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setParents(ServerParentTreeNodeOverTime parentsOverTime)
   {
-    parentsOverTime.enforceUserHasPermissionSetParents(this.getType().getCode());
+    parentsOverTime.enforceUserHasPermissionSetParents(this.getType().getCode(), false);
 
     final Collection<ServerHierarchyType> hierarchyTypes = parentsOverTime.getHierarchies();
 

@@ -26,7 +26,7 @@ export class LayerPanelComponent implements OnInit, OnChanges {
 	baseLayers: any[] = [
 		{
 			name: 'Satellite',
-			label: 'Satellite',
+			label: 'baselayer.satellite',
 			id: 'satellite-v9',
 			sprite: 'mapbox://sprites/mapbox/satellite-v9',
 			url: 'mapbox://mapbox.satellite',
