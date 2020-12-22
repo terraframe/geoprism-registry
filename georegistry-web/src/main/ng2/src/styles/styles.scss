@@ -924,7 +924,8 @@ td.clickable:focus {
 }
 
 .form-group input,
-select {
+select,
+textarea {
 	border-color: #aaa;
 }
 
@@ -935,6 +936,10 @@ select {
 	margin-right: 0;
 }
 
+.input-group input {
+	height: -webkit-fill-available;
+	height: 40px;
+}
 .input-group .input-group-addon {
 	background: #EDF4E8;
 /* 	border-color: #6BA542; */

@@ -1,0 +1,5 @@
+textarea {
+	width: 100%;
+    border-radius: 5px;
+    min-height: 70px;
+}

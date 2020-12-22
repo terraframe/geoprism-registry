@@ -30,7 +30,7 @@
         </div>
         <div class="row">
             <div *ngIf="list" class="col-md-12">
-              <a class="dropdown-item" [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, (!isWritable || list.isAbstract), list.forDate]" routerLinkActive="active">
+              <a [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, (!isWritable || list.isAbstract), list.forDate]" routerLinkActive="active">
                 <localize key="masterlist.gotoMap"></localize>
               </a>
                 
@@ -130,7 +130,7 @@
                     <tbody>
                         <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
                             <td style="width: 3%; text-align: center;" class="label-column">
-                              <a class="fa fa-map-marker" [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, (!isWritable || list.isAbstract), list.forDate, result.code]" routerLinkActive="active"></a>
+                              <a class="fa fa-pencil" [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, (!isWritable || list.isAbstract), list.forDate, result.code]" routerLinkActive="active"></a>
                             </td>
                             <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
                         </tr>

@@ -32,16 +32,30 @@
 
           <article class="base-layer-panel">
             <layer-panel (layerChange)="onContextLayerChange($event)" [filter]="[datasetId]"></layer-panel>
+            
+            <div class="layer-toggle" style="margin-top:10px;" (mouseenter)="toolsIconHover = true" (mouseleave)="toolsIconHover = false">
+             
+              <i class="fa fa-plus-square" *ngIf="!toolsIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
+              <div *ngIf="toolsIconHover" style="margin-top:10px;">
+            
+                <span *ngIf="!readOnly" (click)="onNewGeoObject()" role="button">
+                  <button class="btn btn-primary">
+                    <localize key="masterlist.newGeoObject"></localize>              
+                  </button>
+                </span>
+              </div>
+            
+            </div>
           </article>
 
           <div id="dataset-map" class="map-view-port"></div>     
           <simple-edit-control [visible]="editingControl != null" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
           
-          <span *ngIf="!readOnly" (click)="onNewGeoObject()" style="position: absolute; bottom: 70px; right: 10px" role="button">
-            <button class="btn btn-primary">
-              <localize key="masterlist.newGeoObject"></localize>              
-            </button>
-          </span>
+<!--           <span *ngIf="!readOnly" (click)="onNewGeoObject()" style="position: absolute; bottom: 70px; right: 10px" role="button"> -->
+<!--             <button class="btn btn-primary"> -->
+<!--               <localize key="masterlist.newGeoObject"></localize>               -->
+<!--             </button> -->
+<!--           </span> -->
                
         </div>
       </div>

@@ -30,6 +30,7 @@
 	background: #fff; 
 	padding: 8px; 
 	border-radius: 4px;
+	width: fit-content;
 }
 
 .layer-toggle input {

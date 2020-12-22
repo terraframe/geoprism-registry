@@ -216,7 +216,7 @@
               <span class="text">
                 <input type="password" [ngModel]="certainPassword" name="certainPassword" #certainPassword="ngModel" required />
               </span>
-              <div *ngIf="certainPassword.errors?.mustMatch" class="inline-error-message">
+              <div *ngIf="certainPassword.errors?.mustMatch" style="float:none;" class="inline-error-message">
                 <localize key="account.certainPassword.validation"></localize>
               </div>
             </div>

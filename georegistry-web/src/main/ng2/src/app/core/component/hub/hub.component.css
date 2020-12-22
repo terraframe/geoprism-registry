@@ -154,8 +154,9 @@ h1 {
   text-align: center;
   margin-top: 10px;
   color: #3E2A5A;
-	  font-size: 21px;
-	  display: inline-block;
+  font-size: 21px;
+  display: inline-block;
+  padding: 5px;
 }
 
 #dashboard-link{

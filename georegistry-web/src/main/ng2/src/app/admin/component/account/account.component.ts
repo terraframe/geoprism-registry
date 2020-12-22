@@ -31,139 +31,136 @@ import { ExternalSystem } from '@shared/model/core';
 
 import { ErrorHandler } from '@shared/component';
 
-@Component( {
-    selector: 'account',
-    templateUrl: './account.component.html',
-    styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
-    styleUrls: ['./account.css']
-} )
+@Component({
+	selector: 'account',
+	templateUrl: './account.component.html',
+	styles: ['.modal-form .check-block .chk-area { margin: 10px 0px 0 0;}'],
+	styleUrls: ['./account.css']
+})
 export class AccountComponent implements OnInit {
 
-    message: string = null;
-    account: Account;
-    roles: Role[];
-    roleIds: string[] = [];
-    externalSystems: ExternalSystem[];
+	message: string = null;
+	account: Account;
+	roles: Role[];
+	roleIds: string[] = [];
+	externalSystems: ExternalSystem[] = [];
 
-    isSRA: boolean;
-	  isRA: boolean;
-	  
-	  isAppliedAsOauth: boolean = false;
-	  editingOauth: boolean = false;
-	  systemHasOauth: boolean = false;
+	isSRA: boolean;
+	isRA: boolean;
 
-    @Input()
-    set oid( oid: string ) {
-        if ( oid === 'NEW' ) {
+	isAppliedAsOauth: boolean = false;
+	editingOauth: boolean = false;
+	systemHasOauth: boolean = false;
 
-            let orgCodes = [];
-            if(this.isRA){
-                orgCodes = this.authService.getMyOrganizations();
-            }
+	@Input()
+	set oid(oid: string) {
+		if (oid === 'NEW') {
 
-            this.service.newInstance(orgCodes).then( data => {
-                this.account = data;
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
-        }
-        else if ( oid ) {
-            this.service.edit( oid ).then( data => {
-            
-                this.account = data;
-                
-                this.editingOauth = (this.account.user.externalSystemOid != null && this.account.user.externalSystemOid !== "");
-                this.isAppliedAsOauth = this.editingOauth;
+			let orgCodes = [];
+			if (this.isRA) {
+				orgCodes = this.authService.getMyOrganizations();
+			}
 
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
-        }
-    }
-    
-    @Input()
-    set setExternalSystems( externalSystems: ExternalSystem[] ) {
-      this.externalSystems = externalSystems;
-    
-      this.externalSystems.forEach(system => {
-        if (system.oAuthServer != null) {
-          this.systemHasOauth = true;
-        }
-      });
-    }
+			this.service.newInstance(orgCodes).then(data => {
+				this.account = data;
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
+		else if (oid) {
+			this.service.edit(oid).then(data => {
 
-    public onEdit: Subject<Account>;
+				this.account = data;
 
-    constructor(
-        private service: AccountService,
-        private authService: AuthService,
-        public bsModalRef: BsModalRef,
-        private localizeService: LocalizationService
-    ) {
+				this.editingOauth = (this.account.user.externalSystemOid != null && this.account.user.externalSystemOid !== "");
+				this.isAppliedAsOauth = this.editingOauth;
 
-      this.isSRA = authService.isSRA();
-		  this.isRA = authService.isRA();
-    }
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
+	}
 
-    ngOnInit(): void {
-        this.onEdit = new Subject();
-    }
+	@Input()
+	set setExternalSystems(externalSystems: ExternalSystem[]) {
+		this.externalSystems = externalSystems;
 
-    onRoleIdsUpdate(event): void {
-        this.roleIds = event;
-    }
+		this.externalSystems.forEach(system => {
+			if (system.oAuthServer != null) {
+				this.systemHasOauth = true;
+			}
+		});
+	}
 
-    toggleEditingOauth(): void {
-      if (this.editingOauth == false)
-      {
-        this.editingOauth = true;
-        delete this.account.user.password;
-        this.account.user.externalSystemOid = this.externalSystems[0].oid
-      }
-      else
-      {
-        this.editingOauth = false;
-        delete this.account.user.externalSystemOid;
-      }
-    }
+	public onEdit: Subject<Account>;
 
-    cancel(): void {
-        if ( this.account.user.newInstance === true ) {
-            this.bsModalRef.hide();
-        }
-        else {
-            this.service.unlock( this.account.user.oid ).then( response => {
-                this.bsModalRef.hide();
-            } );
-        }
-    }
+	constructor(
+		private service: AccountService,
+		private authService: AuthService,
+		public bsModalRef: BsModalRef,
+		private localizeService: LocalizationService
+	) {
+		this.isSRA = authService.isSRA();
+		this.isRA = authService.isRA();
+	}
 
-    onChangePassword(): void {
-      this.account.changePassword = !this.account.changePassword;
-    }
+	ngOnInit(): void {
+		this.onEdit = new Subject();
+	}
 
-    onSubmit(): void {
+	onRoleIdsUpdate(event): void {
+		this.roleIds = event;
+	}
 
-        if ( !this.account.changePassword && !this.account.user.newInstance ) {
-            delete this.account.user.password;
-        }
+	toggleEditingOauth(): void {
+		if (this.editingOauth == false) {
+			this.editingOauth = true;
+			delete this.account.user.password;
+			this.account.user.externalSystemOid = this.externalSystems[0].oid
+		}
+		else {
+			this.editingOauth = false;
+			delete this.account.user.externalSystemOid;
+		}
+	}
 
-        if (this.roleIds.length > 0) {
-            this.service.apply(this.account.user, this.roleIds).then(data => {
-                this.onEdit.next(data);
-                this.bsModalRef.hide();
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
-            });
-        }
-        else{
-            this.message = this.localizeService.decode("account.role.management.roles.required.message");
-        }
-    }
+	cancel(): void {
+		if (this.account.user.newInstance === true) {
+			this.bsModalRef.hide();
+		}
+		else {
+			this.service.unlock(this.account.user.oid).then(response => {
+				this.bsModalRef.hide();
+			});
+		}
+	}
+
+	onChangePassword(): void {
+		this.account.changePassword = !this.account.changePassword;
+	}
+
+	onSubmit(): void {
+
+		if (!this.account.changePassword && !this.account.user.newInstance) {
+			delete this.account.user.password;
+		}
+
+		if (this.roleIds.length > 0) {
+			this.service.apply(this.account.user, this.roleIds).then(data => {
+				this.onEdit.next(data);
+				this.bsModalRef.hide();
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
+		else {
+			this.message = this.localizeService.decode("account.role.management.roles.required.message");
+		}
+	}
 
 
-    public error( err: HttpErrorResponse ): void {
-            this.message = ErrorHandler.getMessageFromError(err);
-    }
+	public error(err: HttpErrorResponse): void {
+		this.message = ErrorHandler.getMessageFromError(err);
+	}
 
 }

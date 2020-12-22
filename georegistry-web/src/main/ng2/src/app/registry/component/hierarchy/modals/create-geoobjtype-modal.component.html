@@ -39,22 +39,16 @@
 
     <div class="row">
       <div class="col-md-12">
-        <div class="form-group" *ngFor="let localeValue of geoObjectType.description.localeValues">
-          <div>
-            <label>
-              <localize key="data.property.label.description"></localize> 
-              <span style="color: #BABABA"> (<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
-            </label>
-            <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="input"
-              class="form-control">
-          </div>
-        </div>
+        <localized-text [(value)]="geoObjectType.description" key="data.property.label.description" [inlinelayout]="true"></localized-text>
       </div>
     </div>
     
     <div class="row" *ngIf="!geoObjectType.superTypeCode">
       <div class="col-md-12" style="margin-bottom: 15px;">
         <div class="form-group">
+          <label style="display: block;">
+            <localize key="attribute.group.label"></localize> 
+          </label>
           <div class="check-block">
             <boolean-field [disable]="true" [(value)]="geoObjectType.isAbstract" [localizeLabelKey]="'attribute.isAbstract.label'"></boolean-field>
           </div>
@@ -65,6 +59,10 @@
     <div class="row">
       <div class="col-md-12" style="margin-bottom: 15px;">
         <div class="form-group">
+        
+          <label style="display: block;">
+            <localize key="geoObjectType.attr.visibility.label"></localize> 
+          </label>
           <div class="check-block">
             <boolean-field [disable]="geoObjectType.superTypeCode != null" [(value)]="geoObjectType.isPrivate" [localizeLabelKey]="'geoObjectType.attr.isPrivate'"></boolean-field>
           </div>

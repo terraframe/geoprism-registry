@@ -14,8 +14,6 @@ import { LocalizationService } from '@shared/service';
 
 import Utils from '../../utility/Utils';
 
-import * as moment from 'moment';
-
 
 @Component({
 	selector: 'manage-versions',
@@ -29,13 +27,13 @@ import * as moment from 'moment';
 					style({
 						opacity: 0
 					}),
-					animate('1000ms')
+					animate('500ms')
 				]),
 				transition('* => void', [
 					style({
 						opacity: 0
 					}),
-					animate('1000ms')
+					animate('500ms')
 				])
 			])
 		]]
@@ -293,14 +291,6 @@ export class ManageVersionsComponent implements OnInit {
 		return isChangeOverTime;
 	}
 	
-	formatDate(date: string) {
-		let localeData = moment.localeData(date);
-  		var format = localeData.longDateFormat('L');
-		console.log(moment.localeData())
-		console.log(moment().format(format))
-  		return moment().format(format);
-	}
-
 	onSubmit(): void {
 
 		this.onChange.emit(this.geoObjectOverTime);

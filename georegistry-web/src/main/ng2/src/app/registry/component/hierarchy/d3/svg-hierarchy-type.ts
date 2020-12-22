@@ -343,7 +343,8 @@ export class SvgHierarchyType {
 				.attr("y", (d: any) => d.y + 5)
 				.style("font-family", "FontAwesome")
 				.style("cursor", "pointer")
-				.text('\uf0c1')
+				.style("fill", "#767676")
+				.text('\uf013')
 				.on('click', function(event, node) { that.getNodeByCode(node.data.geoObjectType).renderRelatedHierarchiesMenu(); });
 
 			headerg = this.renderHierarchyHeader(hg, "Selected Hierarchy");

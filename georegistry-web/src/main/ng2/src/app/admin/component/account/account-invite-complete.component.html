@@ -167,7 +167,7 @@
 	                <span class="text">
 	                  <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" [value]="password"/>
 	                </span>
-	                <div *ngIf="certainPassword.errors?.equalTo" class="inline-error-message">
+	                <div *ngIf="certainPassword.errors?.equalTo" style="float: none;" class="inline-error-message">
 	                  <localize key="account.certainPassword.validation"></localize>
 	                </div>                                                       
 	              </div>

@@ -25,6 +25,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		HIERARCHY: 'HIERARCHY'
 	}
 
+	toolsIconHover: boolean = false;
 
 	datasetId: string;
 
@@ -425,7 +426,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 		this.editingControl.deleteAll();
 		this.map.removeControl(this.editingControl);
-		//		this.geometryChange.next(geometry);
+				this.geometryChange.next(geometry);
 
 		this.vot.value = geometry;
 		this.vot = null;
