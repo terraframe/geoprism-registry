@@ -3,18 +3,30 @@ import { Input, Component, OnInit } from '@angular/core';
 import { LocalizationService } from '@shared/service';
 
 @Component({
-  
-  selector: 'localize',
-  templateUrl: './localize.component.html',
-  styleUrls: []
+
+	selector: 'localize',
+	templateUrl: './localize.component.html',
+	styleUrls: []
 })
 export class LocalizeComponent implements OnInit {
-  @Input() key: string;
-  text: string;
-    
-  constructor(private service: LocalizationService) { }
+	@Input() key: string;
+	@Input() params: { [key: string]: string } = null;
 
-  ngOnInit(): void {
-    this.text = this.service.decode(this.key);
-  }
+	text: string;
+
+	constructor(private service: LocalizationService) { }
+
+	ngOnInit(): void {
+		this.text = this.service.decode(this.key);
+
+		if (this.params != null) {
+			const keys = Object.keys(this.params);
+
+			keys.forEach((key) => {
+				if (this.params[key] != null) {
+					this.text = this.text.replace(key, this.params[key]);
+				}
+			});
+		}
+	}
 }

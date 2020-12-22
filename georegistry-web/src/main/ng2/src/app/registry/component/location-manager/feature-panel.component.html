@@ -32,7 +32,7 @@
     </div>
 
     <div *ngIf="hierarchies != null">
-      <tree-geo-selector *ngFor="let hierarchy of hierarchies" [hierarchy]="hierarchy" [readOnly]="!isEdit" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
+      <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="this.forDate" [hierarchy]="hierarchy" [readOnly]="!isEdit" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
     </div>
 
     <div class="button-holder text-right" style="margin-bottom: 20px;">
