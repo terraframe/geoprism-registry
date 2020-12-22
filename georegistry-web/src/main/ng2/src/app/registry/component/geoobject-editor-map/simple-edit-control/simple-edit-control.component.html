@@ -1,3 +1,3 @@
 <div class="mapboxgl-ctrl-group mapboxgl-ctrl">
-  <button *ngIf="visible" class="fa fa-save" style="color: black; font-size: 18px;" [title]="'changeovertime.manageVersions.button.label' | localize" (click)="this.onClick();"></button>
+  <button *ngIf="visible" class="fa" [ngClass]="{'fa-pencil-square-o':!save, 'fa-save':save}" style="color: black; font-size: 18px;" [title]="'changeovertime.manageVersions.button.label' | localize" (click)="this.onClick();"></button>
 </div>
