@@ -34,6 +34,7 @@ import com.runwaysdk.system.UsersQuery;
 import net.geoprism.GeoprismUser;
 import net.geoprism.account.LocaleSerializer;
 import net.geoprism.account.OauthServer;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.UserInfo;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -65,7 +66,12 @@ public class RegistrySessionService extends RegistrySessionServiceBase
   {
     try
     {
-      String redirect = redirectBase + "/cgrsession/ologin";
+      // We used to try to build this from the controller but it would include stuff (like the port :443) which then wouldn't match
+      // with the redirect url the client specified in DHIS2. Therefore this has to be something that the user can set (or, at least,
+      // in a properties file)
+      redirectBase = GeoregistryProperties.getRemoteServerUrl();
+      
+      String redirect = redirectBase + "cgrsession/ologin";
 
       OauthServer server = OauthServer.get(serverId);
       /*
