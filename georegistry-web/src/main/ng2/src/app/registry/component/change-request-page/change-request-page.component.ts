@@ -29,7 +29,8 @@ export class ChangeRequestPageComponent implements OnInit {
         this.isMaintainer = this.isAdmin || service.isMaintainer();
 		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
-		this.isMaintainer ? this.renderContent("MANAGE") : this.renderContent("SUBMIT");
+//		this.isMaintainer ? this.renderContent("MANAGE") : this.renderContent("SUBMIT");
+		this.renderContent("MANAGE");
 	}
 
     ngOnInit(): void {
