@@ -136,8 +136,7 @@ export class CascadingGeoSelector {
 	}
 
 	public error(err: HttpErrorResponse): void {
-		let bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-		bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 
 }

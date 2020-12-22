@@ -708,8 +708,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	error(err: HttpErrorResponse): void {
-		const bsModalRef: any = this.modalService.show(ErrorModalComponent, { backdrop: true });
-		bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 
 }

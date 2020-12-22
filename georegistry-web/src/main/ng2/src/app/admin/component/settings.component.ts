@@ -279,8 +279,6 @@ export class SettingsComponent implements OnInit {
 	/* ERROR HANDLING LOGIC */
 
 	public error(err: HttpErrorResponse): void {
-			// TODO: add error modal
-			this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-			this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+			this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 }
