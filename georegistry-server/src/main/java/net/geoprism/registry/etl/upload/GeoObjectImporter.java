@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -89,8 +89,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
@@ -125,9 +123,9 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   }
 
-  private static final Logger              logger            = LoggerFactory.getLogger(GeoObjectImporter.class);
+  private static final Logger              logger                     = LoggerFactory.getLogger(GeoObjectImporter.class);
 
-  protected static final String            ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
+  protected static final String            ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
   protected GeoObjectImportConfiguration   configuration;
 
@@ -135,20 +133,19 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected Map<String, ServerGeoObjectIF> parentCache;
 
-  protected static final String            parentConcatToken = "&";
+  protected static final String            parentConcatToken          = "&";
 
   protected ImportProgressListenerIF       progressListener;
 
   protected FormatSpecificImporterIF       formatImporter;
 
-  private GeoObjectPermissionServiceIF     geoObjectPermissionService = new GeoObjectPermissionService();
-  
-  private long lastValidateSessionRefresh = 0;
-  
-  private long lastImportSessionRefresh = 0;
-  
-  private static final long refreshSessionRecordCount = GeoregistryProperties.getRefreshSessionRecordCount(); // Refresh the user's session every X amount of records
-  
+  private long                             lastValidateSessionRefresh = 0;
+
+  private long                             lastImportSessionRefresh   = 0;
+
+  // Refresh the user's session every X amount of records
+  private static final long                refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
@@ -266,12 +263,12 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     // Refresh the session because it might expire on long imports
     final long curWorkProgress = this.progressListener.getWorkProgress();
-    if ( (this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount) <  curWorkProgress)
+    if ( ( this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
     {
       SessionFacade.renewSession(Session.getCurrentSession().getOid());
       this.lastValidateSessionRefresh = curWorkProgress;
     }
-    
+
     try
     {
       /*
@@ -414,12 +411,12 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
 
     this.progressListener.setWorkProgress(curWorkProgress + 1);
-    
+
     if (Thread.interrupted())
     {
       throw new InterruptedException();
     }
-    
+
     Thread.yield();
   }
 
@@ -427,7 +424,7 @@ public class GeoObjectImporter implements ObjectImporterIF
    * Imports a GeoObject based on the given SimpleFeature.
    * 
    * @param feature
-   * @throws InterruptedException 
+   * @throws InterruptedException
    * @throws Exception
    */
   public void importRow(FeatureRow row) throws InterruptedException
@@ -461,7 +458,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       throw new InterruptedException();
     }
-    
+
     Thread.yield();
   }
 
@@ -475,7 +472,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       obj.put("parents", parentBuilder.build());
     }
-    
+
     this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setImportedRecords(this.progressListener.getRawImportedRecords());
@@ -487,12 +484,12 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     // Refresh the session because it might expire on long imports
     final long curWorkProgress = this.progressListener.getWorkProgress();
-    if ( (this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount) <  curWorkProgress)
+    if ( ( this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
     {
       SessionFacade.renewSession(Session.getCurrentSession().getOid());
       this.lastImportSessionRefresh = curWorkProgress;
     }
-    
+
     GeoObjectOverTime go = null;
 
     String goJson = null;
