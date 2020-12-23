@@ -96,7 +96,7 @@
           <span class="text">
             <input type="text" [(ngModel)]="_profile.email" name="email" required #aemail="ngModel" email>
           </span>
-          <div *ngIf="aemail.errors?.email" class="inline-error-message">
+          <div *ngIf="aemail.errors?.email" style="float:none;" class="inline-error-message">
             <localize key="account.email.validation"></localize>
           </div>
         </div>
@@ -199,7 +199,7 @@
             <span class="text">
               <input type="password" ngModel name="certainPassword" #certainPassword="ngModel" />
             </span>
-            <div *ngIf="certainPassword.errors?.mustMatch" class="inline-error-message">
+            <div *ngIf="certainPassword.errors?.mustMatch" style="float:none;" class="inline-error-message">
               <localize key="account.certainPassword.validation"></localize>
             </div>
           </div>
