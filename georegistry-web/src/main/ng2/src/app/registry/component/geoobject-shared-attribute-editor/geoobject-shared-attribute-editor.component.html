@@ -181,9 +181,16 @@
                   </div>
 
                   <div *ngIf="attr.type === 'geometry' && this.isGeometryInlined">
-                    <geoobject-editor-map #geometryEditor [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
-                      [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null" [bboxCode]="this.preGeoObject.attributes.code" [bboxType]="this.geoObjectType.code"
-                      (onClickEdit)="this.onManageGeometryVersions()" [bboxDate]="this.forDate.toISOString().split('T')[0]"> 
+                    <geoobject-editor-map 
+                      #geometryEditor 
+                      [geometryType]="this.geoObjectType.geometryType" 
+                      [readOnly]="true"
+                      [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
+                      [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null" 
+                      [bboxCode]="this.preGeoObject.attributes.code"
+                      [bboxType]="this.geoObjectType.code"
+                      (onClickEdit)="this.onManageGeometryVersions()" 
+                      [bboxDate]="this.forDate.toISOString().split('T')[0]"> 
                     </geoobject-editor-map>
                   </div>
 
@@ -205,8 +212,15 @@
                       <localize key="shared.attributes.attribute.geometry.label"></localize>
                      </label>
                    </div> -->
-          <geoobject-editor-map #geometryEditor [geometryType]="this.geoObjectType.geometryType" [readOnly]="true" [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
-            [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null" [bboxCode]="this.preGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" (onClickEdit)="this.onManageGeometryVersions()"
+          <geoobject-editor-map 
+            #geometryEditor
+            [geometryType]="this.geoObjectType.geometryType"
+            [readOnly]="true" 
+            [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
+            [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null"
+            [bboxCode]="this.preGeoObject.attributes.code"
+            [bboxType]="this.geoObjectType.code"
+            (onClickEdit)="this.onManageGeometryVersions()"
             [bboxDate]="this.forDate.toISOString().split('T')[0]"
           > </geoobject-editor-map>
       </div>

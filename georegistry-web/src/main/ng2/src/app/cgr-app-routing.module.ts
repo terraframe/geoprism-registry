@@ -21,6 +21,11 @@ const routes: Routes = [
         data: { title: 'login.title' }
     },
     {
+        path: 'login/:errorMsg',
+        component: LoginComponent,
+        data: { title: 'login.title' }
+    },
+    {
         path: 'menu',
         component: HubComponent,
         canActivate: [AuthGuard],
