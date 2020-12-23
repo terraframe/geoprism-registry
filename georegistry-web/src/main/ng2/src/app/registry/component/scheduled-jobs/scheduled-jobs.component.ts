@@ -123,20 +123,20 @@ export class ScheduledJobsComponent implements OnInit {
 
 			let stepConfig = {
 				"steps": [
-					{ "label": "File Import", "status": "COMPLETE" },
+					{ "label": this.localizeService.decode("scheduler.step.fileImport"), "status": "COMPLETE" },
 
 					{
-						"label": "Staging",
+						"label": this.localizeService.decode("scheduler.step.staging"),
 						"status": job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
 					},
 
 					{
-						"label": "Validation",
+						"label": this.localizeService.decode("scheduler.step.validation"),
 						"status": job.stage === "VALIDATE" || job.stage === "VALIDATION_RESOLVE" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "VALIDATE")
 					},
 
 					{
-						"label": "Database Import",
+						"label": this.localizeService.decode("scheduler.step.databaseImport"),
 						"status": job.stage === "IMPORT" || job.stage === "IMPORT_RESOLVE" || job.stage === "RESUME_IMPORT" ? this.getJobStatus(job) : ""
 					}
 				]

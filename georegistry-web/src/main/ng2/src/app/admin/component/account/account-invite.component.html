@@ -1,46 +1,38 @@
-<div>
-  <!-- <header></header> -->
+<div class="modal-body">
   
   <message></message>
   <loading-bar></loading-bar>
 
-  <form #form="ngForm" style="height:calc(100vh - 144px);padding-bottom: 20px;overflow-y: auto;" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-    <!-- <div class="modal-dialog" style="height: 100%;"> -->
-      <!-- <div class="modal-content" style="height: 100%;overflow-y: auto;"> -->
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
         <fieldset>            
-          <div class="heading">
-            <h3>Invite a User</h3>
+          <div class="heading text-center">
+            <h1><localize key="account.invite.user.header"></localize></h1>
           </div>      
-          <hr>        
           
           <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
           
-          <div class="row-holder">
-            <div class="label-holder">
+          <div class="row">
+            <div class="col-md-12">
               <label><localize key="account.email"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="invite.email" name="email" required #aemail="ngModel" email>
-              </span>
+              <input type="text" [(ngModel)]="invite.email" name="email" required #aemail="ngModel" email>
               <div *ngIf="aemail.errors?.email && invite.email && invite.email.length > 0" class="inline-error-message">
                 <localize key="account.email.validation"></localize>
               </div>                                          
             </div>
           </div>   
           
-          <role-management *ngIf="invite.roles" [newInstance]="true" [roles]="invite.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
+          <div style="margin-top:30px;">
+            <role-management *ngIf="invite.roles" [newInstance]="true" [roles]="invite.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
+          </div>
 
           <div class="row">
             <div class="col-md-12">
               <div class="button-holder">
-                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid && roleIds.length > 0)" />
+                <input type="button" [value]="'io.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
+                <input type="submit" [value]="'io.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid && roleIds.length > 0)" />
               </div>
             </div>
           </div>
         </fieldset>
-      <!-- </div> -->
-    <!-- </div> -->
   </form>
 </div>
