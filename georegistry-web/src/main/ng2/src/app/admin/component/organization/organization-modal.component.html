@@ -1,16 +1,13 @@
 <div>
-  <!-- <header></header> -->
   
   <message></message>
 
   <loading-bar></loading-bar>
 
   <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-    <!-- <div class="modal-dialog" style="height: 100%;"> -->
-      <!-- <div *ngIf="account" class="modal-content" style="height: 100%;overflow-y: auto;"> -->
         <fieldset>            
-          <div class="heading">
-            <h3><localize key="organization.heading"></localize></h3>
+          <div class="heading text-center">
+            <h1><localize key="organization.heading"></localize></h1>
           </div>      
           
           <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
@@ -20,51 +17,32 @@
               <label><localize key="organization.code"></localize></label>
             </div>          
             <div class="holder" >
-              <span class="text">
                 <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
-              </span>
             </div>
           </div>     
           <div class="row-holder">
             <div class="label-holder">
               <label><localize key="organization.name"></localize></label>
             </div>          
-            <div class="holder" >
-              <span class="text">
-
+            <div class="holder" style="padding-top:10px;">
                 <div class="form-group" *ngFor="let localeValue of organization.label.localeValues">
                   <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
                   <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
                 </div>
-                <!-- <input type="text" [(ngModel)]="organization.label" name="name" required> -->
-              </span>
             </div>
           </div>  
           <div class="row-holder">
             <div class="label-holder">
               <label><localize key="organization.contact"></localize></label>
             </div>          
-            <div class="holder" >
-              <span class="text">
+            <div class="holder" style="padding-top:10px;">
                 <div class="form-group" *ngFor="let localeValue of organization.contactInfo.localeValues">
                   <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
                   <input  [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input" class="form-control">
                 </div>
-                <!-- <input type="text" [(ngModel)]="organization.contactInfo" name="contact" required> -->
-              </span>
             </div>
           </div>  
 
-          <!-- <div class="row-holder">
-            <div class="label-holder">
-              {{organization.label.localizedValue}} Registry Administrator
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="organization.code" name="code" [disabled]="!isNewOrganization" required>
-              </span>
-            </div>
-          </div>   -->
 
           <div class="row-holder">
             <div class="label-holder">
@@ -77,7 +55,5 @@
             </div>
           </div>
         </fieldset>
-      <!-- </div> -->
-    <!-- </div> -->
   </form>
 </div>
