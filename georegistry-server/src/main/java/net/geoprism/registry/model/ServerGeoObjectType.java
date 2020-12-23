@@ -872,7 +872,7 @@ public class ServerGeoObjectType
 
       if (superType != null)
       {
-        hierarchies.addAll(superType.getHierarchies(includeAllHierarchiesIfNone, includeFromSuperType));
+        hierarchies.addAll(superType.getHierarchies(false, includeFromSuperType));
       }
     }
 
