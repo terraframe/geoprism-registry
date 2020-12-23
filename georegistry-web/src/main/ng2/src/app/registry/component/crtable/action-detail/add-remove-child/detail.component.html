@@ -1,20 +1,23 @@
 <div class="crtable-detail-container">
-    <h3 class="action-detail-header">{{action.actionLabel}}</h3>
+    <div class="heading text-center">
+      <h1 class="action-detail-header">{{action.actionLabel}}</h1>
+    </div>
+    
     <div class="detail-content">
 
-        <label class="detail-label">Child UID : </label>
+        <label class="detail-label"><localize key="action.detail.childid.input"></localize> : </label>
         <input class="detail-value" type="text" [(ngModel)]="action.childId" [disabled]="readOnly">
 
-        <label class="detail-label">Child TypeCode : </label>
+        <label class="detail-label"><localize key="action.detail.childtype.input"></localize> : </label>
         <input class="detail-value" type="text" [(ngModel)]="action.childTypeCode" [disabled]="readOnly">
 
-        <label class="detail-label">Parent UID : </label>
+        <label class="detail-label"><localize key="action.detail.parentid.input"></localize> : </label>
         <input class="detail-value" type="text" [(ngModel)]="action.parentId"  [disabled]="readOnly">
 
-        <label class="detail-label">Parent TypeCode : </label>
+        <label class="detail-label"><localize key="action.detail.childtype.input"></localize> : </label>
         <input class="detail-value" type="text" [(ngModel)]="action.parentTypeCode"  [disabled]="readOnly">
 
-        <label class="detail-label">Hierarchy Code : </label>
+        <label class="detail-label"><localize key="action.detail.hierarchycode.input"></localize> : </label>
         <input class="detail-value" type="text" [(ngModel)]="action.hierarchyTypeCode"  [disabled]="readOnly">
 
         <label class="detail-label">

@@ -101,7 +101,7 @@
 	              <span class="text">
 	                <input type="text" [(ngModel)]="user.email" name="email" required #aemail="ngModel" email>
 	              </span>
-	              <div *ngIf="aemail.errors?.email && user.email && user.email.length > 0" class="inline-error-message">
+	              <div *ngIf="aemail.errors?.email && user.email && user.email.length > 0" style="float:none;" class="inline-error-message">
 	                <localize key="account.email.validation"></localize>
 	              </div>                                          
 	            </div>
