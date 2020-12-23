@@ -124,7 +124,7 @@
                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                     </h5>
                                     <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                                    <p *ngIf="vAttribute.endDate !== '5000-12-31'" style="font-size: 14px;">{{formatDate(vAttribute.endDate)}}</p>
+                                    <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" disabled>
                                   </td>
                                 </tr>
                               </table>
