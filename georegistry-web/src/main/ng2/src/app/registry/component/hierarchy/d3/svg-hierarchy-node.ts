@@ -138,12 +138,18 @@ export class SvgHierarchyNode {
 			const dividerColor = "#e4e4e4";
 			const fontFamily = "sans-serif";
 			const titleFontSize = 10;
+			
 			const titleLabel = this.hierarchyComponent.localize("hierarchy.content.relatedHierarchies");
+			const actionsTitle = this.hierarchyComponent.localize("hierarchy.content.actionsTitle");
 			const removeFromHierarchyLabel = this.hierarchyComponent.localize("hierarchy.content.removeFromHierarchy");
 			const noRelatedHierLabel = this.hierarchyComponent.localize("hierarchy.content.noRelatedHierarchies");
 			const hideRelatedHierarchyLabel = this.hierarchyComponent.localize("hierarchy.content.hideRelatedHierarchy");
+			const uninheritLabel = this.hierarchyComponent.localize("hierarchy.content.uninherit");
+			const inheritLabel = this.hierarchyComponent.localize("hierarchy.content.inherit");
 			
       let isSecondaryHierarchyRendered = (d3.select('.g-hierarchy[data-primary="false"]').node() != null);
+      
+      let numActions = (isSecondaryHierarchyRendered) ? 2 : 1;
 
 			// Calculate the width of our title
 			let width = calculateTextWidth(titleLabel, titleFontSize);
@@ -158,6 +164,31 @@ export class SvgHierarchyNode {
         let hideRelatedWidth = calculateTextWidth(hideRelatedHierarchyLabel, fontSize);
         width = hideRelatedWidth > width ? hideRelatedWidth : width;
       }
+      
+      if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode != null && this.treeNode.parent.data.inheritedHierarchyCode != "") {
+        let uninheritWidth = calculateTextWidth(uninheritLabel, fontSize);
+        width = uninheritWidth > width ? uninheritWidth : width;
+        numActions++;
+      }
+      else
+      {
+        let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
+        if (existingSecondary.node() != null) {
+          let existingSecondaryCode = existingSecondary.attr("data-code");
+          let secondaryHierarchy = this.hierarchyComponent.findHierarchyByCode(existingSecondaryCode);
+          
+          let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService);
+          let relatedGotHasParents = svgSecondaryHierarchy.getNodeByCode(this.getCode()).getTreeNode().parent != null;
+          
+          if (secondaryHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents)
+          {
+            let inheritWidth = calculateTextWidth(inheritLabel, fontSize);
+            width = inheritWidth > width ? inheritWidth : width;
+            numActions++;
+          }
+        }
+      }
+      
 			
 			// Calculate the width of our context menu, which is based on how long the text inside it will be.
 			// We don't know how long text is until we render it. So we'll need to loop over all the text and
@@ -187,7 +218,6 @@ export class SvgHierarchyNode {
 
 			width = width + widthPadding;
 
-      let numActions = (isSecondaryHierarchyRendered) ? 2 : 1;
 			let heightAdditions: number = relatedHierarchies.length > 0 ? (numActions + 2) : (numActions + 3);
 
 			// Background rectangle with border
@@ -296,7 +326,7 @@ export class SvgHierarchyNode {
 				.attr("font-size", titleFontSize)
 				.attr("font-family", fontFamily)
 				.attr("font-weight", "bold")
-				.text("Actions");
+				.text(actionsTitle);
 
 			y = y + height;
 
@@ -320,10 +350,69 @@ export class SvgHierarchyNode {
 				.text(removeFromHierarchyLabel)
 				.style("cursor", "pointer")
 				.on('click', function (event, node) { that.removeGotFromHierarchy(); });
+		  
+		  y = y + height;
+		  
+		  // Inherit / Uninherit buttons
+		  if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode != null && this.treeNode.parent.data.inheritedHierarchyCode != "") {
+        contextMenuGroup.append("line")
+          .classed("contextmenu-relatedhiers-divider", true)
+          .attr("x1", x)
+          .attr("y1", y)
+          .attr("x2", x + width)
+          .attr("y2", y)
+          .attr("stroke", borderColor)
+          .attr("stroke-width", .5);
+        
+        contextMenuGroup.append("text")
+          .classed("contextmenu-relatedhiers-text", true)
+          .attr("x", x + widthPadding / 2)
+          .attr("y", y + (height / 2) + (fontSize / 2))
+          .attr("font-size", fontSize)
+          .attr("font-family", fontFamily)
+          .text(uninheritLabel)
+          .style("cursor", "pointer")
+          .on('click', function (event, node) { that.onClickUninheritHierarchy(); });
+
+        y = y + height;
+      }
+      else
+      {
+        let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
+        if (existingSecondary.node() != null) {
+          let existingSecondaryCode = existingSecondary.attr("data-code");
+          let secondaryHierarchy = this.hierarchyComponent.findHierarchyByCode(existingSecondaryCode);
+          
+          let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService);
+          let relatedGotHasParents = svgSecondaryHierarchy.getNodeByCode(this.getCode()).getTreeNode().parent != null;
+          
+          if (secondaryHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents)
+          {
+            contextMenuGroup.append("line")
+              .classed("contextmenu-relatedhiers-divider", true)
+              .attr("x1", x)
+              .attr("y1", y)
+              .attr("x2", x + width)
+              .attr("y2", y)
+              .attr("stroke", borderColor)
+              .attr("stroke-width", .5);
+          
+            contextMenuGroup.append("text")
+              .classed("contextmenu-relatedhiers-text", true)
+              .attr("x", x + widthPadding / 2)
+              .attr("y", y + (height / 2) + (fontSize / 2))
+              .attr("font-size", fontSize)
+              .attr("font-family", fontFamily)
+              .text(inheritLabel)
+              .style("cursor", "pointer")
+              .on('click', function (event, node) { that.onClickInheritHierarchy(secondaryHierarchy); });
+    
+            y = y + height;
+          }
+        }
+      }
 			
       if (isSecondaryHierarchyRendered) {
-  			y = y + height;
-  			
   		  contextMenuGroup.append("line")
           .classed("contextmenu-relatedhiers-divider", true)
           .attr("x1", x)
@@ -435,86 +524,6 @@ export class SvgHierarchyNode {
 		let bbox = gHierarchy.getBBox();
 		let paddingLeft: number = primaryHierBbox.width + 40 + (primaryHierBbox.x - bbox.x);
 		gSecondary.attr("transform", "translate(" + paddingLeft + " 0)");
-
-		d3.select(".hierarchy-inherit-button").remove();
-		d3.select(".hierarchy-uninherit-button").remove();
-		let relatedGotHasParents = svgHt.getNodeByCode(this.getCode()).getTreeNode().parent != null;
-		if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents) {
-			// Add an inherit button
-			const height = 15;
-			const fontSize = 10;
-			const buttonLabelPadding = 3;
-
-			let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]')
-				.append("g")
-				.classed("hierarchy-inherit-button", true)
-				.attr("data-gotCode", this.getCode());
-
-			let inheritLabel = this.hierarchyComponent.localize("hierarchy.content.inherit");
-			const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding * 2;
-
-			group.append("rect")
-				.classed("hierarchy-inherit-bg-rect", true)
-				.attr("x", myBbox.x + myBbox.width - 25 - width)
-				.attr("y", myBbox.y + myBbox.height / 2 - height / 2)
-				.attr("rx", 5)
-				.attr("ry", 5)
-				.attr("width", width)
-				.attr("height", height)
-				.attr("fill", "#e0e0e0")
-				.attr("cursor", "pointer")
-				.attr("stroke", "#6BA542")
-				.attr("stroke-width", 1);
-
-			group.append("text")
-				.classed("hierarchy-inherit-bg-text", true)
-				.attr("x", myBbox.x + myBbox.width - 25 - width + buttonLabelPadding)
-				.attr("y", myBbox.y + myBbox.height / 2 + fontSize / 2 - 2)
-				.attr("fill", "#6BA542")
-				.attr("cursor", "pointer")
-				.attr("font-size", fontSize + "px")
-				.attr("line-height", fontSize + "px")
-				.text(inheritLabel)
-				.on('click', function(event, node) { that.onClickInheritHierarchy(relatedHierarchy); });
-		}
-		else if (relatedHierarchy.organizationCode === this.geoObjectType.organizationCode && (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode === relatedHierarchy.code)) {
-			// Add an uninherit button
-			const height = 15;
-			const fontSize = 10;
-			const buttonLabelPadding = 3;
-
-			let group = d3.select('.g-hierarchy[data-primary=true] .g-hierarchy-tree[data-code="' + this.svgHierarchyType.getCode() + '"]')
-				.append("g")
-				.classed("hierarchy-uninherit-button", true)
-				.attr("data-gotCode", this.getCode());
-
-			let inheritLabel = this.hierarchyComponent.localize("hierarchy.content.uninherit");
-			const width = calculateTextWidth(inheritLabel, fontSize) + buttonLabelPadding * 2;
-
-			group.append("rect")
-				.classed("hierarchy-uninherit-bg-rect", true)
-				.attr("x", myBbox.x + myBbox.width - 25 - width)
-				.attr("y", myBbox.y + myBbox.height / 2 - height / 2)
-				.attr("rx", 5)
-				.attr("ry", 5)
-				.attr("width", width)
-				.attr("height", height)
-				.attr("fill", "#e0e0e0")
-				.attr("cursor", "pointer")
-				.attr("stroke", "#6BA542")
-				.attr("stroke-width", 1);
-
-			group.append("text")
-				.classed("hierarchy-uninherit-bg-text", true)
-				.attr("x", myBbox.x + myBbox.width - 25 - width + buttonLabelPadding)
-				.attr("y", myBbox.y + myBbox.height / 2 + fontSize / 2 - 2)
-				.attr("fill", "#6BA542")
-				.attr("cursor", "pointer")
-				.attr("font-size", fontSize + "px")
-				.attr("line-height", fontSize + "px")
-				.text(inheritLabel)
-				.on('click', function(event, node) { that.onClickUninheritHierarchy(); });
-		}
 
 		// Draw dotted line between the shared node in the hierarchies
 		let secondaryGot = d3.select('.g-hierarchy[data-primary=false] .svg-got-body-rect[data-gotCode="' + this.getCode() + '"]');
