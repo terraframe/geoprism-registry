@@ -29,7 +29,7 @@
         <div class="form-group" *ngFor="let localeValue of geoObjectType.label.localeValues">
           <label>
             <localize key="data.property.label.label"></localize> 
-            <span style="color: #BABABA"> (<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
+            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
           </label>
           <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
             class="form-control" [required]="localeValue.locale === 'defaultLocale'">
