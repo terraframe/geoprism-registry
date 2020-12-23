@@ -3,10 +3,10 @@
 
   <form #form="ngForm" class="modal-form" style="background: none;border: none;" (ngSubmit)="form.valid && onSubmit()" [mustMatch]="['password', 'certainPassword']">
     <fieldset>
-      <div class="heading">
-        <h3>
+      <div class="heading text-center">
+        <h1>
           <localize key="profile.heading"></localize>
-        </h3>
+        </h1>
       </div>
 
       <div class="row-holder">
@@ -128,10 +128,10 @@
         </div>
             
 
-      <div class="heading">
-        <h3>
+      <div class="heading text-center">
+        <h1>
           <localize key="account.info.heading"></localize>
-        </h3>
+        </h1>
       </div>
 
       <div class="row-holder">
@@ -153,12 +153,10 @@
             <localize key="account.profile.oauth"></localize>
           </label>
         </div>
-        <div class="holder" style="margin-top:10px;"> <!-- TODO : Total hack? -->
-         <span class="text">
+        <div class="holder">
           <label>
             <localize key="account.profile.isOauth"></localize>
           </label>
-         </span>
         </div>
       </div>
       

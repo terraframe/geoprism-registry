@@ -1,0 +1,455 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  	<createOrUpdate>
+  	
+  	  <object type="com.runwaysdk.localization.LocalizedValueStore" key="login.oauth.loginwith.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="login.oauth.loginwith.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Log in with" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="login.oauth.or.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="login.oauth.or.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="or" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.invite.user.header">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.invite.user.header" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Invite a User" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.header">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.header" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Account" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.certainPassword">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.certainPassword" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Confirm new password" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.new.password">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.new.password" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New password" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.roles.section.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="account.user.roles.section.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Roles" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="system.image.uploadText">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="system.image.uploadText" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Upload a file" />
+        </attributeStruct>
+      </object>
+      
+       <object type="com.runwaysdk.localization.LocalizedValueStore" key="action-detail-header">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="action-detail-header" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Update Geo-Object" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.geoObjectType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="io.geoObjectType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Type" />
+        </attributeStruct>
+      </object>
+      
+       <object type="com.runwaysdk.localization.LocalizedValueStore" key="modal.step.indicator.manage.geoobjecttype">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="modal.step.indicator.manage.geoobjecttype" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Manage Geo-Object Type" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="dropdown.select.geoobjecttype.option.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="dropdown.select.geoobjecttype.option.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select a Geo-Object Type" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="dropdown.select.geoobjecttype.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="dropdown.select.geoobjecttype.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Type" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="dropdown.select.geoobject.label">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="dropdown.select.geoobject.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.newGeoObject">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.newGeoObject" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New Geo-Object" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.types.management.panel.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.types.management.panel.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Types" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.menu">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchies.menu" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Objects, Hierarchies" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject.code.alternate.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="geoobject.code.alternate.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Unique ID" />
+	        </attributeStruct>
+	      </object>
+	      
+	   <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject.displayLabel.alternate.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="geoobject.displayLabel.alternate.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Name" />
+	        </attributeStruct>
+	      </object>
+	      
+	    <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.newGeoObject">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.newGeoObject" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Add Geo-Object" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.menu">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchies.menu" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Objects and Hierarchies" />
+	        </attributeStruct>
+	      </object>
+      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.detail.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.detail.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Edit Geo-Object" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="etl.parentProblem.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="etl.parentProblem.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Your data contains references to a Geo-Object parent which cannot be found." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.editGeoObject">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.editGeoObject" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Edit Geo-Object" />
+	        </attributeStruct>
+	      </object>
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.management.option.label.geometryEditable">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchy.management.option.label.geometryEditable" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Editing" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="profile.roles.geoobjecttype.table.heading">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="profile.roles.geoobjecttype.table.heading" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="geoObjectType.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObject.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="geoObject.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchies.landing">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchies.landing" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Objects and Hierarchies" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.geoobjecttype.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.geoobjecttype.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="settings.external.synchronization.geoobjecttype.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="settings.external.synchronization.geoobjecttype.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.geoObjectTypes">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchy.sidebar.geoObjectTypes" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="GeoObject Types" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.geoObjectTypes">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchy.sidebar.geoObjectTypes" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Types" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.newGeoObjectType">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchy.sidebar.newGeoObjectType" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Add New Geo-Object Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.content.dragGotToHierarchy">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="hierarchy.content.dragGotToHierarchy" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Drag Geo-Object Type to Hierarchy" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="geoObjectType.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Geo-Object Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="action.detail.childid.input">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="action.detail.childid.input" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Child UID" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="action.detail.childtype.input">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="action.detail.childtype.input" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Child Type Code" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="action.detail.parentid.input">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="action.detail.parentid.input" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Parent UID" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="action.detail.parenttype.input">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="action.detail.parenttype.input" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Parent Type Code" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="action.detail.hierarchycode.input">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="action.detail.hierarchycode.input" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Hierarchy Code" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attribute.isAbstract.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="attribute.isAbstract.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Group Geo-Object Type" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      
+	      
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.subject">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="user.invite.email.subject" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Common Geo-Registry Account Invitation" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.body">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="user.invite.email.body" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Congratulations!\n\nYou have been invited to create an account with the Common Geo-Registry. To do so, click the link below:\n${link}\n\nThe above link will stop working in ${expireTime} hours.\nIf you did not request this, you can safely ignore this email." />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	      
+    </createOrUpdate>
+    
+    <create></create>
+    
+    <update>
+       <mdBusiness name="net.geoprism.registry.action.geoobject.UpdateGeoObjectAction" label="Update Geo-Object"></mdBusiness>
+       <mdBusiness name="net.geoprism.registry.action.geoobject.CreateGeoObjectAction" label="Create Geo-Object"></mdBusiness>
+       
+       <mdException name="net.geoprism.registry.NoChildForLeafGeoObjectType" 
+                   label="No Child for Leaf Geo-Object Type Exception" 
+                   description="Thrown when a child Geo-Object Type is added to a Parent Geo-Object Type that is a leaf" 
+                   message="You cannot add [{childGeoObjectTypeLabel}] to the hierarchy [{hierarchyTypeLabel}] as a child to [{parentGeoObjectTypeLabel}] because [{childGeoObjectTypeLabel}] is a leaf type.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.GeometryTypeException" 
+                   label="Geometry type exception" 
+                   description="Thrown when a geometry does not match the type specified in the Geo-Object Type" 
+                   message="You cannot add a Geo-Object with a geometry of type [{actualType}]. A geometry of type [{expectedType}] is expected.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.CannotDeleteGeoObjectTypeWithChildren" 
+                   label="Can not delete a Geo-Object Type with children" 
+                   description="Can not delete a Geo-Object Type with children" 
+                   message="You can not delete Geo-Object Type that has children. You must first delete the children.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.GeoObjectTypeHasDataException" message="Cannot modify the Geo-Object Type [{name}] because it has associated data." generateController="false" exported="false">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.DuplicateGeoObjectException"
+        message="A Geo-Object with the {attributeName} [{value}] already exists. Please choose a different value."
+      >
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.roles.GeoObjectAddChildPermissionException"
+        message="You do not have permissions to create relationships between Geo-Objects in the organization [{organization}]."
+      >
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.roles.GeoObjectRemoveChildPermissionException"
+        message="You do not have permissions to remove relationships between Geo-Objects in the organization [{organization}]."
+      >
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.roles.GeoObjectViewRelationshipPermissionException"
+        message="You do not have permissions to remove relationships between Geo-Objects in the organization [{organization}]."
+      >
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError" 
+      message="The Geo-Object [{geoObject}] cannot be exported because it is new. New Geo-Objects must be exported with 'Org Units and Relationships' synchronization type.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.DuplicateGeoObjectCodeException"
+        message="A Geo-Object with the code [{value}] already exists with Geo-Object Type [{geoObjectType}]. Geo-Object codes are globally unique. Please choose a different value."
+      >
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.TypeInUseException" 
+                   label="Type In Use Exception" 
+                   message="Cannot delete the Geo-Object Type because it is being used in a hierarchy.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException" 
+                   message="You cannot add the Geo-Object Type with code [{gotCode}] to this hierarchy because it is already part of the hierarchy.">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.graph.CantRemoveInheritedGOT" 
+                   label="Cannot Remove Inherited Geo-Object Type" 
+                   message="You cannot remove the Geo-Object Type with code [{gotCode}] from the hierarchy with code [{hierCode}] because it is inherited by the hierarchies [{inheritedHierarchyList}].">
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.geoobjecttype.TypeHasPrivateParents" label="Type Has Private Parents" message="The Geo-Object Type [{typeLabel}] has private parents and thus cannot be set to public." >
+      </mdException>
+    
+      <mdException name="net.geoprism.registry.geoobjecttype.PrivateTypeHasPublicChildren" label="Private Type Has Public Children" message="The Geo-Object Type [{typeLabel}] has public children and cannot be set to private." >
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.geoobjecttype.PrivateTypeIsReferencedInPublicMasterLists" label="Private Type Is Referenced In Master List" message="The Geo-Object Type [{typeLabel}] cannot be set to private because it is referenced in public master lists." >
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType" label="Assign Public Child Of Private Type" message="You cannot add a public Geo-Object Type as a child of a private Geo-Object Type. All children of private Geo-Object Types must also be private." >
+      </mdException>
+      
+	</update>
+	
+
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

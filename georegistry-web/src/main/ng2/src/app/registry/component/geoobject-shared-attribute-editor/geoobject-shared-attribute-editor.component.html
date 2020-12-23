@@ -11,7 +11,7 @@
         <div class="col-md-12">
           <span class="text"></span>
           <ul class="list-group">
-            <li [@slide]="slide" class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
+            <li class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
 
               <div class="panel panel-default">
                 <div class="panel-heading">
@@ -46,7 +46,7 @@
 
                   <div *ngIf="attr.type === 'character' && attr.code !== 'code'">
                     <div class="input-group">
-                      <input *ngIf="postGeoObject" type="text" [ngModel]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
+                      <input *ngIf="postGeoObject" [ngClass]="{'input-group-read-only': readOnly}" type="text" [ngModel]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
                       <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon">
                         <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
                       </span>
@@ -70,7 +70,7 @@
                           <div class="panel-body">
 
                             <div class="input-group">
-                              <input disabled [required]="localeValue.locale === 'defaultLocale'" type="text" [ngModel]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale" > 
+                              <input disabled [ngClass]="{'input-group-read-only': readOnly}" [required]="localeValue.locale === 'defaultLocale'" type="text" [ngModel]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale" > 
                               <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
                                   <i class="fa fa-pencil" aria-hidden="true"></i>
                               </span>
@@ -90,7 +90,7 @@
                   <div *ngIf="attr.type === 'date'">
 
                     <div class="input-group">
-                      <input type="date" [ngModel]="calculatedPostObject[attr.code].value | date:'yyyy-MM-dd'" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
+                      <input type="date" [ngClass]="{'input-group-read-only': readOnly}" [ngModel]="calculatedPostObject[attr.code].value | date:'yyyy-MM-dd'" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
                       <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
@@ -107,7 +107,7 @@
                   
 
                     <div class="input-group" >
-                      <div style="border: solid 1px #ccc;border-radius: 5px 0 0 5px;line-height: 40px;">
+                      <div [ngClass]="{'input-group-read-only': readOnly}" class="radio-group">
                         <label class="radio radio-inline" style="margin:0;"> 
                           <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code].value" disabled [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true"> 
                           <span><localize key="change.request.boolean.option.true"></localize></span>
@@ -132,7 +132,7 @@
                   <div *ngIf="attr.type === 'float'">
 
                     <div class="input-group">
-                      <input disabled type="number" [(ngModel)]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
+                      <input disabled [ngClass]="{'input-group-read-only': readOnly}" type="number" [(ngModel)]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
                       <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
@@ -148,7 +148,7 @@
                   <div *ngIf="attr.type === 'integer'">
                   
                     <div class="input-group">
-                      <input type="number" [(ngModel)]="calculatedPostObject[attr.code].value" disabled id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
+                      <input [ngClass]="{'input-group-read-only': readOnly}" type="number" [(ngModel)]="calculatedPostObject[attr.code].value" disabled id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
                       <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
                         <i class="fa fa-pencil" aria-hidden="true"></i>
                       </span>
@@ -164,7 +164,7 @@
                   <div *ngIf="attr.type === 'term'">
 
                     <div class="input-group">
-                      <select id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float: none;" disabled [(ngModel)]="calculatedPostObject[attr.code].value">
+                      <select [ngClass]="{'input-group-read-only': readOnly}" id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float: none;" disabled [(ngModel)]="calculatedPostObject[attr.code].value">
                         <option value=""></option>
                         <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code">{{option.label.localizedValue}}</option>
                       </select> 
