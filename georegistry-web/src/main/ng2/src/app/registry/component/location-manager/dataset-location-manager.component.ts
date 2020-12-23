@@ -33,6 +33,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	readOnly: boolean = false;
 
+	editOnly: boolean = false;
+
 	isEdit: boolean = false;
 
 	date: string;
@@ -96,11 +98,13 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.typeCode = this.route.snapshot.params["typeCode"];
 		this.date = this.route.snapshot.params["date"];
 		this.readOnly = this.route.snapshot.params["readOnly"] === 'true';
-		this.forDate = new Date(Date.parse(this.date));
-
+		this.editOnly = this.route.snapshot.params["editOnly"] === 'true';
+		
 		if (this.route.snapshot.params["code"] != null) {
 			this.code = this.route.snapshot.params["code"];
 		}
+		
+		this.forDate = new Date(Date.parse(this.date));
 
 		this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
 			this.type = types[0];
@@ -426,7 +430,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 		this.editingControl.deleteAll();
 		this.map.removeControl(this.editingControl);
-				this.geometryChange.next(geometry);
+		this.geometryChange.next(geometry);
 
 		this.vot.value = geometry;
 		this.vot = null;

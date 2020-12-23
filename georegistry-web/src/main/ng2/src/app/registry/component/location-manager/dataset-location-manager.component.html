@@ -38,7 +38,7 @@
               <i class="fa fa-plus-square" *ngIf="!toolsIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
               <div *ngIf="toolsIconHover" style="margin-top:10px;">
             
-                <span *ngIf="!readOnly" (click)="onNewGeoObject()" role="button">
+                <span *ngIf="!editOnly" (click)="onNewGeoObject()" role="button">
                   <button class="btn btn-primary">
                     <localize key="masterlist.newGeoObject"></localize>              
                   </button>
