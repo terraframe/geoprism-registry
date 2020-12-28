@@ -70,6 +70,8 @@ public class FastTestDataset extends TestDataSet
   
   public static final TestGeoObjectTypeInfo PROVINCE_PRIVATE      = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "ProvincePrivate", GeometryType.MULTIPOLYGON, true, ORG_CGOV, null);
   
+  public static final TestGeoObjectTypeInfo DISTRICT              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "District", GeometryType.MULTIPOLYGON, ORG_CGOV);
+  
   public static final TestGeoObjectTypeInfo HOSPITAL              = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "Hospital", GeometryType.MULTIPOLYGON, ORG_MOHA);
 
   public static final TestGeoObjectInfo     CAMBODIA              = new TestGeoObjectInfo(TEST_DATA_KEY + "Cambodia", COUNTRY);
@@ -77,6 +79,8 @@ public class FastTestDataset extends TestDataSet
   public static final TestGeoObjectInfo     PROV_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvince", PROVINCE);
   
   public static final TestGeoObjectInfo     PROV_CENTRAL_PRIVATE  = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralProvincePrivate", PROVINCE_PRIVATE);
+  
+  public static final TestGeoObjectInfo     DIST_CENTRAL          = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralDistrict", DISTRICT);
   
   public static final TestGeoObjectInfo     CENTRAL_HOSPITAL      = new TestGeoObjectInfo(TEST_DATA_KEY + "CentralHospital", HOSPITAL);
 
@@ -134,12 +138,14 @@ public class FastTestDataset extends TestDataSet
     managedGeoObjectTypeInfos.add(COUNTRY);
     managedGeoObjectTypeInfos.add(PROVINCE);
     managedGeoObjectTypeInfos.add(PROVINCE_PRIVATE);
+    managedGeoObjectTypeInfos.add(DISTRICT);
     managedGeoObjectTypeInfos.add(HOSPITAL);
 
     managedGeoObjectInfos.add(CAMBODIA);
     managedGeoObjectInfos.add(PROV_CENTRAL);
     managedGeoObjectInfos.add(PROV_CENTRAL_PRIVATE);
     managedGeoObjectInfos.add(CENTRAL_HOSPITAL);
+    managedGeoObjectInfos.add(DIST_CENTRAL);
 
     managedUsers.add(USER_CGOV_RA);
     managedUsers.add(USER_CGOV_RM);
@@ -171,10 +177,12 @@ public class FastTestDataset extends TestDataSet
       COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_ADMIN.getServerObject().getUniversalType());
       COUNTRY.addChild(PROVINCE, HIER_ADMIN);
       COUNTRY.addChild(PROVINCE_PRIVATE, HIER_ADMIN);
+      PROVINCE.addChild(DISTRICT, HIER_ADMIN);
       
       COUNTRY.getUniversal().addLink(Universal.getRoot(), HIER_HEALTH_ADMIN.getServerObject().getUniversalType());
       COUNTRY.addChild(PROVINCE, HIER_HEALTH_ADMIN);
       PROVINCE.addChild(HOSPITAL, HIER_HEALTH_ADMIN);
+      PROVINCE.addChild(DISTRICT, HIER_HEALTH_ADMIN);
     }
     catch (DuplicateGraphPathException ex)
     {
@@ -198,6 +206,7 @@ public class FastTestDataset extends TestDataSet
 
       CAMBODIA.addChild(PROV_CENTRAL, HIER_ADMIN);
       CAMBODIA.addChild(PROV_CENTRAL_PRIVATE, HIER_ADMIN);
+      PROV_CENTRAL.addChild(DIST_CENTRAL, HIER_ADMIN);
       
       CAMBODIA.addChild(PROV_CENTRAL, HIER_HEALTH_ADMIN);
       PROV_CENTRAL.addChild(CENTRAL_HOSPITAL, HIER_HEALTH_ADMIN);

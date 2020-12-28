@@ -48,6 +48,14 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerParentTreeNodeOverTime
 {
+  public static final String JSON_HIERARCHY_CODE = "code";
+  
+  public static final String JSON_HIERARCHY_LABEL = "label";
+  
+  public static final String JSON_HIERARCHY_TYPES = "types";
+  
+  public static final String JSON_HIERARCHY_ENTRIES = "entries";
+  
   private static class Hierarchy
   {
     private ServerHierarchyType        type;
@@ -205,8 +213,8 @@ public class ServerParentTreeNodeOverTime
 
       List<GeoObjectType> parentTypes = this.type.getTypeAncestors(ht, false);
 
+      // Populate a "types" array with all ancestors of the GOT they passed us
       JsonArray types = new JsonArray();
-
       for (GeoObjectType parent : parentTypes)
       {
         ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
@@ -264,10 +272,10 @@ public class ServerParentTreeNodeOverTime
       }
 
       JsonObject object = new JsonObject();
-      object.addProperty("code", ht.getCode());
-      object.addProperty("label", ht.getDisplayLabel().getValue());
-      object.add("types", types);
-      object.add("entries", entries);
+      object.addProperty(JSON_HIERARCHY_CODE, ht.getCode());
+      object.addProperty(JSON_HIERARCHY_LABEL, ht.getDisplayLabel().getValue());
+      object.add(JSON_HIERARCHY_TYPES, types);
+      object.add(JSON_HIERARCHY_ENTRIES, entries);
 
       response.add(object);
     }

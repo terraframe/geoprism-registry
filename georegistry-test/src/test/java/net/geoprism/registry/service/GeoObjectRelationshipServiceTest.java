@@ -25,7 +25,6 @@ import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -36,13 +35,14 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
+import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class GeoObjectRelationshipServiceTest
 {
@@ -97,18 +97,49 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetHierarchies()
   {
-    // TODO : This endpoint returns a response for which there is literally no "DTO" representation. For this reason, we cannot
-    // convert it to any sort of type-safe "ParentTreeNodeOverTime" object because one does not exist.
-    JsonArray ptn = testData.adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROVINCE.getCode());
+    JsonArray ptn = testData.adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
+    
+    System.out.println(ptn.toString());
     
     Assert.assertEquals(2, ptn.size());
     
+    boolean foundAdminHR = false;
+    boolean foundHealthHR = false;
+    
     for (int i = 0; i < ptn.size(); ++i)
     {
-      JsonObject hierarchy = ptn.get(0).getAsJsonObject();
+      JsonObject hierarchy = ptn.get(i).getAsJsonObject();
       
-      Assert.assertEquals(1, hierarchy.get("entries").getAsJsonArray().size());
+      String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
+      
+      String label = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_LABEL).getAsString();
+      
+      TestHierarchyTypeInfo testHt;
+      
+      if (code.equals(FastTestDataset.HIER_ADMIN.getCode()))
+      {
+        foundAdminHR = true;
+        
+        testHt = FastTestDataset.HIER_ADMIN;
+      }
+      else if (code.equals(FastTestDataset.HIER_HEALTH_ADMIN.getCode()))
+      {
+        foundHealthHR = true;
+        
+        testHt = FastTestDataset.HIER_HEALTH_ADMIN;
+      }
+      else
+      {
+        Assert.fail("Unexpected hierarchy code [" + code + "]");
+        return;
+      }
+      
+      Assert.assertEquals(testHt.getDisplayLabel(), label);
+      
+//      Assert.assertEquals(1, hierarchy.get("entries").getAsJsonArray().size());
     }
+    
+    Assert.assertTrue(foundHealthHR && foundAdminHR);
   }
   
   // TODO : Test permissions stuff including private GeoObjects
@@ -209,17 +240,17 @@ public class GeoObjectRelationshipServiceTest
       
       if (ht.getCode().equals(FastTestDataset.HIER_ADMIN.getCode()))
       {
-        Assert.assertEquals(0, hnProvince.getChildren().size());
+        Assert.assertEquals(1, hnProvince.getChildren().size());
       }
       else if (ht.getCode().equals(FastTestDataset.HIER_HEALTH_ADMIN.getCode()))
       {
-        List<HierarchyNode> hospitals = hnProvince.getChildren();
+        List<HierarchyNode> provChildren = hnProvince.getChildren();
         
-        Assert.assertEquals(1, hospitals.size());
+        Assert.assertEquals(2, provChildren.size());
         
-        HierarchyNode hnHospital = hospitals.get(0);
-        
-        Assert.assertEquals(FastTestDataset.HOSPITAL.getCode(), hnHospital.getGeoObjectType().getCode());
+//        HierarchyNode hnHospital = provChildren.get(0);
+//        
+//        Assert.assertEquals(FastTestDataset.HOSPITAL.getCode(), hnHospital.getGeoObjectType().getCode());
       }
       else
       {
