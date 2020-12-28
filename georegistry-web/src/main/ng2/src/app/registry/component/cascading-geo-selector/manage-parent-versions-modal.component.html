@@ -5,5 +5,5 @@
         </h2>
     </div>
     
-    <manage-parent-versions [hierarchy]="hierarchy" (onChange)="handleVersionChange($event)"></manage-parent-versions>
+    <manage-parent-versions *ngIf="hierarchy != null" [hierarchy]="hierarchy" (onChange)="handleVersionChange($event)"></manage-parent-versions>
 </div>

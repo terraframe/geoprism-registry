@@ -1,30 +1,24 @@
 <div class="crtable-detail-container">
 
-    <div class="heading">
-        <h3 class="action-detail-header">{{action.actionLabel}}</h3>
+    <div class="heading text-center">
+        <h1 class="action-detail-header">{{action.actionLabel}}</h1>
 	  </div>
     
     <div class="detail-content">
-      <div>
-        <label class="detail-label">GeoObjectType : </label>
-        <label class="detail-value">{{action.geoObjectType.code}}</label>
-      </div>
+      <h4>
+        <localize key="io.geoObjectType"></localize>: {{action.geoObjectType.code}}
+      </h4>
     
-      <div>
-        <localize key="changeOverTime.forDate"></localize>
+      <div style="margin: 20px 0;">
+        <span style="margin-right:10px;"><localize key="changeOverTime.forDate"></localize></span>
         <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
       </div>    
     
-        <!-- 
-	  <label class="detail-label">Label : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.displayLabel">
-	  
-	  <label class="detail-label">Code : </label><input class="detail-value" type="text" [(ngModel)]="action.geoObjectJson.properties.code">
-	  -->
 
         <geoobject-shared-attribute-editor 
           #attributeEditor
           *ngIf="preGeoObject"
-          [readOnly]="readOnly"
+          [readOnly]="true"
           [geoObjectType]="geoObjectType"
           [postGeoObject]="postGeoObject"
           [preGeoObject]="preGeoObject"
@@ -32,9 +26,6 @@
           [isGeometryInlined]="true">
         </geoobject-shared-attribute-editor>
 
-<!-- 
-	      <geoobject-editor-map #geometryEditor *ngIf="this.preGeoObject != null && this.postGeoObject != null && this.geoObjectType.isGeometryEditable" [readOnly]="readOnly || !geoObjectType.isGeometryEditable" [postGeoObject]="this.postGeoObject" [preGeoObject]="this.preGeoObject" [geoObjectType]="this.geoObjectType" [isNew]="isNew()"></geoobject-editor-map>
- -->
 
         <div>
             <label class="detail-label">

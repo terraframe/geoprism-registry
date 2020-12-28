@@ -18,10 +18,9 @@
  */
 package net.geoprism.registry.controller;
 
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,8 +33,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.RunwayException;
 import com.runwaysdk.constants.ClientConstants;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
@@ -64,9 +65,9 @@ public class RegistrySessionController
   {
     final SessionController geoprism = new SessionController();
     
-    URL url = new URL(req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath());
-
-    String redirect = url.toString();
+//    URL url = new URL(req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath());
+//
+//    String redirect = url.toString();
 
     JSONObject stateObject = new JSONObject(state);
     String serverId = stateObject.getString(OauthServerIF.SERVER_ID);
@@ -79,7 +80,7 @@ public class RegistrySessionController
     {
       ClientRequestIF clientRequest = clientSession.getRequest();
 
-      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), redirect);
+      String cgrSessionJsonString = RegistrySessionServiceDTO.ologin(clientRequest, serverId, code, LocaleSerializer.serialize(locales), null);
       
       JsonObject cgrSessionJson = (JsonObject) JsonParser.parseString(cgrSessionJsonString);
       final String sessionId = cgrSessionJson.get("sessionId").getAsString();
@@ -122,9 +123,28 @@ public class RegistrySessionController
       
       return response;
     }
-    catch (UnsupportedEncodingException e)
+    catch (Throwable t)
     {
-      throw new ProgrammingErrorException(e);
+      Locale locale = CommonProperties.getDefaultLocale();
+      
+      if (locales.length > 0)
+      {
+        locale = locales[0];
+      }
+      
+      String errorMessage = RunwayException.localizeThrowable(t, locale);
+      
+      try
+      {
+        errorMessage = URLEncoder.encode(errorMessage, StandardCharsets.UTF_8.name());
+      }
+      catch (Throwable t2)
+      {
+        throw new ProgrammingErrorException(t2);
+      }
+      
+      RedirectResponse response = new RedirectResponse("/cgr/manage#/login/" + errorMessage);
+      return response;
     }
     finally
     {

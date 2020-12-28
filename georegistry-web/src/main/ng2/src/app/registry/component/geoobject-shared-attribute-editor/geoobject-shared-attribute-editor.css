@@ -45,12 +45,29 @@ fieldset {
 	margin:0;
 }
 
+.input-group {
+	width: 100%;
+}
+
+.radio-group {
+	border: solid 1px #ccc;
+	border-radius: 5px 0 0 5px;
+	line-height: 40px;
+}
+
 .input-group input[type="text"],
 .input-group input[type="number"],
 .input-group input[type="date"],
 .input-group select {
 	border-radius: 5px 0 0 5px;
 	width: 100%;
+}
+.input-group input[type="text"].input-group-read-only,
+.input-group input[type="number"].input-group-read-only,
+.input-group input[type="date"].input-group-read-only,
+.input-group select.input-group-read-only,
+.input-group .radio-group.input-group-read-only {
+	border-radius: 5px; 
 }
 
 

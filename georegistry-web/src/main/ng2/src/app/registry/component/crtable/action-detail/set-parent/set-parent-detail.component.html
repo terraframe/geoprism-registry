@@ -1,17 +1,16 @@
 <div class="crtable-detail-container">
-    <h3 class="action-detail-header">{{action.actionLabel}}</h3>
+    <div class="heading text-center">
+      <h1 class="action-detail-header">{{action.actionLabel}}</h1>
+    </div>
     
     <div class="detail-content">
         <div>
           <localize key="changeOverTime.forDate"></localize>
           <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
         </div>    
-    
-        <cascading-geo-selector #parentSelector 
-          [hierarchies]="this.hierarchies"
-          [forDate]="this.forDate">
-        </cascading-geo-selector>
-
+        
+        <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="forDate" [hierarchy]="hierarchy" [readOnly]="true" (onManageVersion)="onManageVersions($event)"> </tree-geo-selector>
+            
         <div>
             <label class="detail-label">
                 <localize key="change.request.status"></localize> :

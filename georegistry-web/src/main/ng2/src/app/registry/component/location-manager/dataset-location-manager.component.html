@@ -38,7 +38,7 @@
               <i class="fa fa-plus-square" *ngIf="!toolsIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
               <div *ngIf="toolsIconHover" style="margin-top:10px;">
             
-                <span *ngIf="!readOnly" (click)="onNewGeoObject()" role="button">
+                <span *ngIf="!editOnly" (click)="onNewGeoObject()" role="button">
                   <button class="btn btn-primary">
                     <localize key="masterlist.newGeoObject"></localize>              
                   </button>
@@ -49,7 +49,7 @@
           </article>
 
           <div id="dataset-map" class="map-view-port"></div>     
-          <simple-edit-control [visible]="editingControl != null" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
+          <simple-edit-control [visible]="editingControl != null" [save]="true" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
           
 <!--           <span *ngIf="!readOnly" (click)="onNewGeoObject()" style="position: absolute; bottom: 70px; right: 10px" role="button"> -->
 <!--             <button class="btn btn-primary"> -->

@@ -2,30 +2,31 @@
 import { Component, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'simple-edit-control',
-  templateUrl: './simple-edit-control.component.html',
+	selector: 'simple-edit-control',
+	templateUrl: './simple-edit-control.component.html',
 })
 export class SimpleEditControl {
-  elRef: ElementRef
-  
-  @Output() editEmitter = new EventEmitter<void>();
+	elRef: ElementRef
 
-  @Input() visible:boolean = true;
-  
-  constructor(elRef: ElementRef) {
-    this.elRef = elRef;
-  }
+	@Output() editEmitter = new EventEmitter<void>();
 
-  onAdd(map): any {
-//    this.visible = true;
-    return this.elRef.nativeElement;
-  }
-  
-  onRemove(map): void {
-    this.elRef.nativeElement.remove();
-  }
-  
-  onClick(): void {
-    this.editEmitter.emit();
-  }
+	@Input() visible: boolean = true;
+	@Input() save: boolean = false;
+
+	constructor(elRef: ElementRef) {
+		this.elRef = elRef;
+	}
+
+	onAdd(map): any {
+		//    this.visible = true;
+		return this.elRef.nativeElement;
+	}
+
+	onRemove(map): void {
+		this.elRef.nativeElement.remove();
+	}
+
+	onClick(): void {
+		this.editEmitter.emit();
+	}
 }

@@ -215,8 +215,7 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	public error(err: HttpErrorResponse): void {
-		this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
-		this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 
 }

@@ -17,10 +17,11 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Subscription } from 'rxjs';
 
 import { Application } from '@shared/model/application';
 import { SessionService } from '@shared/service';
@@ -44,6 +45,8 @@ export class LoginComponent implements OnInit {
     
     oauthServers: any[] = null;
     viewOauthServers: boolean = false;
+    
+    sub: Subscription;
 
     /*
      * Reference to the modal current showing
@@ -61,9 +64,21 @@ export class LoginComponent implements OnInit {
       }).catch((err: HttpErrorResponse) => {
         this.error(err);
       });
+      
+      this.sub = this.route.params.subscribe(params => {
+        if (params['errorMsg'] != null)
+        {
+          this.bsModalRef = this.modalService.show(ErrorModalComponent, { backdrop: true });
+          
+          let encodedError = params['errorMsg'];
+          let decodedError = encodedError.replaceAll("+", " ");
+          
+          this.bsModalRef.content.message = decodedError;
+        }
+      });
     }
 
-    constructor( private service: SessionService, private hService: HubService, private modalService: BsModalService, private router: Router ) {
+    constructor( private service: SessionService, private hService: HubService, private modalService: BsModalService, private router: Router, private route: ActivatedRoute ) {
         this.context = acp as string;
     }
     
@@ -106,8 +121,7 @@ export class LoginComponent implements OnInit {
     }
 
     public error( err: HttpErrorResponse ): void {
-      this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-      this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+      this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }
 
 

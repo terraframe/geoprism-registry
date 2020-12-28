@@ -114,8 +114,9 @@ public class ChangeRequest extends ChangeRequestBase
     object.put(ChangeRequest.OID, this.getOid());
     object.put(ChangeRequest.CREATEDATE, format.format(this.getCreateDate()));
     object.put(ChangeRequest.CREATEDBY, user.getUsername());
-    object.put(ChangeRequest.APPROVALSTATUS, status.getDisplayLabel());
+    object.put(ChangeRequest.APPROVALSTATUS, status.getEnumName());
     object.put(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
+    object.put("statusLabel", status.getDisplayLabel());
 
     if (user instanceof GeoprismUser)
     {

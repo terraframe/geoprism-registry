@@ -29,7 +29,8 @@ export class ChangeRequestPageComponent implements OnInit {
         this.isMaintainer = this.isAdmin || service.isMaintainer();
 		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
-		this.isMaintainer ? this.renderContent("MANAGE") : this.renderContent("SUBMIT");
+//		this.isMaintainer ? this.renderContent("MANAGE") : this.renderContent("SUBMIT");
+		this.renderContent("MANAGE");
 	}
 
     ngOnInit(): void {
@@ -48,8 +49,7 @@ export class ChangeRequestPageComponent implements OnInit {
 
 
     public error( err: HttpErrorResponse ): void {
-            this.bsModalRef = this.modalService.show( ErrorModalComponent, { backdrop: true } );
-            this.bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+            this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }
 
 }

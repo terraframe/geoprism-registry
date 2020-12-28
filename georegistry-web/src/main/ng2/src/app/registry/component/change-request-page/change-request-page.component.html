@@ -14,12 +14,20 @@
 				</div>
 
 				<div>
-					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'MANAGE'}" (click)="renderContent('MANAGE')">Manage</a> 
-					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'SUBMIT'}" (click)="renderContent('SUBMIT')">Submit</a>
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'MANAGE'}" (click)="renderContent('MANAGE')">
+                      <localize key="hierarchy.current.management.panel.title"></localize>
+                    </a> 
+<!-- 
+					<a style="margin-right:10px;font-size:20px;" *ngIf="isContributor" [routerLink]="" [ngClass]="{'active': content === 'SUBMIT'}" (click)="renderContent('SUBMIT')">
+                      <localize key="modal.button.submit"></localize>
+                    </a>
+ -->                    
 				</div>
 
 				<div class="inner-col-content-wrapper" style="padding-top: 30px;margin-top: 10px;">
+<!-- 
 					<submit-change-request *ngIf="content === 'SUBMIT'"></submit-change-request>
+ -->        
 					<request-table *ngIf="content === 'MANAGE'"></request-table>
 				</div>
 				

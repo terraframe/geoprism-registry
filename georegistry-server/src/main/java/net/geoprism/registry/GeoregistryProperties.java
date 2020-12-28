@@ -43,6 +43,13 @@ public class GeoregistryProperties
   
   public static String getRemoteServerUrl()
   {
-    return Singleton.INSTANCE.props.getString("cgr.remote.url", "https://localhost:8443/georegistry/");
+    String url = Singleton.INSTANCE.props.getString("cgr.remote.url", "https://localhost:8443/georegistry/");
+    
+    if (!url.endsWith("/"))
+    {
+      url = url + "/";
+    }
+    
+    return url;
   }
 }

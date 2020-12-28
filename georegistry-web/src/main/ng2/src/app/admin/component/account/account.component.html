@@ -7,23 +7,27 @@
 
   <div class="heading text-center">
     <h1>
-      Account
+      <localize key="account.header"></localize>
     </h1>
   </div>
 
   <form *ngIf="account" #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()" [mustMatch]="['password', 'certainPassword']">
-    <!-- <div class="modal-dialog" style="height: 100%;"> -->
-    <!-- <div *ngIf="account" class="modal-content" style="height: 100%;overflow-y: auto;"> -->
     <fieldset>
 
       <div class="modal-body">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div class="heading">
-          <h4 class="modal-title">
-            <localize key="account.user.heading"></localize>
-          </h4>
-        </div>
+<!--         <div class="row-holder"> -->
+<!--           <div class="label-holder"> -->
+<!--             <label></label> -->
+<!--           </div> -->
+<!--           <div class="holder"> -->
+<!--             <h4 class="modal-title"> -->
+<!--               <localize key="account.user.heading"></localize> -->
+<!--             </h4> -->
+<!--           </div> -->
+<!--         </div> -->
+          
         <div class="row-holder">
           <div class="label-holder">
             <label>
@@ -106,7 +110,7 @@
             <span class="text">
               <input type="email" [(ngModel)]="account.user.email" name="email" required #aemail="ngModel" required email>
             </span>
-            <div *ngIf="aemail.errors?.email && account.user.email && account.user.email.length > 0" class="inline-error-message">
+            <div *ngIf="aemail.errors?.email && account.user.email && account.user.email.length > 0" style="float:none;" class="inline-error-message">
               <localize key="account.email.validation"></localize>
             </div>
           </div>
@@ -137,11 +141,6 @@
         </div>
 
 
-        <!-- <div class="heading">
-          <h4>
-            <localize key="account.info.heading"></localize>
-          </h4>
-        </div> -->
         <div class="row-holder">
           <div class="label-holder">
             <label>
@@ -155,96 +154,119 @@
           </div>
         </div>
 
-        <div *ngIf="!account.changePassword && externalSystems.length > 0 && systemHasOauth" class="heading">
-          <h4>
-            <localize key="account.user.oauthTitle"></localize>
-          </h4>
-        </div>
         <div *ngIf="!account.changePassword && externalSystems.length > 0 && systemHasOauth" class="row-holder">
-          <div class="button-holder" style="text-align: left;">
-            <input *ngIf="!editingOauth" type="button" [value]="'account.user.enableOauth' | localize" class="btn btn-primary" (click)="toggleEditingOauth()" />
-            <input *ngIf="editingOauth" type="button" [value]="'account.user.disableOauth' | localize" class="btn btn-default" (click)="toggleEditingOauth()" />
-          </div>
-          <div *ngIf="editingOauth" class="label-holder">
+          <div class="label-holder">
             <label>
-              <localize key="account.user.oauthExternalSystem"></localize>
+              <localize key="account.user.oauthTitle"></localize>
             </label>
           </div>
-          <div *ngIf="editingOauth" class="holder">
-	          <select style="float:none;" [(ngModel)]="account.user.externalSystemOid" name=externalSystemOid [disabled]="externalSystems.length == 1">
-	            <option *ngFor="let system of externalSystems" [value]="system.oid">
-	              {{system.label.localizedValue}}
-	            </option>
-	          </select>
-          </div>
-        </div>
-        <div *ngIf="!editingOauth" class="heading">
-          <h4>
-            <localize key="account.user.password"></localize>
-          </h4>
-        </div>
-        <div *ngIf="!editingOauth && (!account.user.newInstance && !this.isAppliedAsOauth)" class="row-holder">
-          <div class="button-holder" style="text-align: left;">
-            <input type="button" *ngIf="!account.changePassword" [value]="'account.user.change.password.button' | localize" class="btn btn-primary"
-              (click)="onChangePassword()" />
-            <input type="button" *ngIf="account.changePassword" [value]="'dataset.cancel' | localize" class="btn btn-default"
-              (click)="onChangePassword()" />
-          </div>
-        </div>
-        <div *ngIf="!editingOauth && (account.changePassword || account.user.newInstance || this.isAppliedAsOauth)">
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="account.password"></localize>
-              </label>
-            </div>
-            <div class="holder">
-              <span class="text">
-                <input type="password" [(ngModel)]="account.user.password" name="password" #password="ngModel" required
-                  minlength="5" maxlength="50">
-                <password-strength-bar [passwordToCheck]="account.user.password"></password-strength-bar>
-              </span>
+          <div class="holder">
+            <div *ngIf="!account.changePassword && externalSystems.length > 0 && systemHasOauth">
+              <div style="text-align: left;">
+                <input [disabled]="editingOauth" type="button" [value]="'account.user.enableOauth' | localize" class="btn btn-primary" (click)="toggleEditingOauth()" />
+                <input *ngIf="editingOauth" type="button" [value]="'account.user.disableOauth' | localize" class="btn btn-default" (click)="toggleEditingOauth()" />
+              </div>
+              <div *ngIf="editingOauth" style="margin-top: 10px;">
+                <label>
+                  <localize key="account.user.oauthExternalSystem"></localize>
+                </label>
+              </div>
+              <div *ngIf="editingOauth" >
+                <select style="float:none;" [(ngModel)]="account.user.externalSystemOid" name=externalSystemOid [disabled]="externalSystems.length == 1">
+                  <option *ngFor="let system of externalSystems" [value]="system.oid">
+                    {{system.label.localizedValue}}
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label>
-                <localize key="account.certainPassword"></localize>
-              </label>
+        </div>
+          
+        
+        <div class="row-holder" *ngIf="!editingOauth">
+          <div class="label-holder">
+            <label>
+              <localize key="account.user.password"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <div *ngIf="!editingOauth && (!account.user.newInstance && !this.isAppliedAsOauth)">
+              <div style="text-align: left;">
+                <input type="button" [disabled]="account.changePassword" [value]="'account.user.change.password.button' | localize" class="btn btn-primary"
+                  (click)="onChangePassword()" />
+                  <input type="button" *ngIf="account.changePassword" [value]="'io.cancel' | localize" class="btn btn-default"
+                  (click)="onChangePassword()" />
+              </div>
             </div>
-            <div class="holder">
-              <span class="text">
-                <input type="password" [ngModel]="certainPassword" name="certainPassword" #certainPassword="ngModel" required />
-              </span>
-              <div *ngIf="certainPassword.errors?.mustMatch" style="float:none;" class="inline-error-message">
-                <localize key="account.certainPassword.validation"></localize>
+            
+            <div *ngIf="!editingOauth && (account.changePassword || account.user.newInstance || this.isAppliedAsOauth)" style="margin-top: 10px;">
+              <div class="">
+                <div class="">
+                  <label>
+                    <localize key="account.new.password"></localize>
+                  </label>
+                </div>
+                <div class="">
+                  <span class="text">
+                    <input type="password" [(ngModel)]="account.user.password" name="password" #password="ngModel" required
+                      minlength="5" maxlength="50">
+                    <password-strength-bar [passwordToCheck]="account.user.password"></password-strength-bar>
+                  </span>
+                </div>
+              </div>
+              <div class="">
+                <div class="">
+                  <label>
+                    <localize key="account.certainPassword"></localize>
+                  </label>
+                </div>
+                <div class="">
+                  <span class="text">
+                    <input type="password" [ngModel]="certainPassword" name="certainPassword" #certainPassword="ngModel" required />
+                  </span>
+                  <div *ngIf="certainPassword.errors?.mustMatch" style="float:none;" class="inline-error-message">
+                    <localize key="account.certainPassword.validation"></localize>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.user.status"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <div *ngIf="!(!account.user.newInstance && account.user.username === 'admin')">
+              <div>
+                <label class="radio">
+                  <input type="radio" name="userActive" [value]="false" [(ngModel)]="account.user.inactive">
+                  <span><localize key="account.user.status.active"></localize></span>
+                </label>
+                <label class="radio">
+                  <input type="radio" name="userActive" [value]="true" [(ngModel)]="account.user.inactive">
+                  <span><localize key="account.user.status.inactive"></localize></span>
+                </label>
               </div>
             </div>
           </div>
         </div>
 
-
-        <div class="heading">
-          <h4>
-            <localize key="account.user.status"></localize>
-          </h4>
-        </div>
-        <div *ngIf="!(!account.user.newInstance && account.user.username === 'admin')">
-          <div class="row-holder">
-            <label class="radio radio-inline">
-              <input class="inline-radio-input" type="radio" name="userActive" [value]="false"
-                [(ngModel)]="account.user.inactive">
-              <span><localize key="account.user.status.active"></localize></span>
-            </label>
-            <label class="radio radio-inline">
-              <input class="inline-radio-input" type="radio" name="userActive" [value]="true"
-                [(ngModel)]="account.user.inactive">
-              <span><localize key="account.user.status.inactive"></localize></span>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="account.user.roles.section.label"></localize>
             </label>
           </div>
+          <div class="holder">
+            <div style="margin-top:5px;">
+              <role-management *ngIf="account.roles" [newInstance]="account.user.newInstance" [roles]="account.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
+            </div>
+          </div>
         </div>
-
-        <role-management *ngIf="account.roles" [newInstance]="account.user.newInstance" [roles]="account.roles" (onRoleIdsUpdate)="onRoleIdsUpdate($event)"></role-management>
         
         <div class="row">
             <div class="col-md-12">

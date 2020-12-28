@@ -117,16 +117,16 @@ export class SynchronizationConfigComponent implements OnInit {
 			job.stepConfig = {
 				"steps": [
 					{
-						"label": "Queued",
+						"label": this.lService.decode("synchronization.step.Queued"),
 						"status": job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
 					},
 
 					{
-						"label": "Connecting",
+						"label": this.lService.decode("synchronization.step.Connecting"),
 						"status": job.stage === "CONNECTING" || job.stage === "CONNECTION_FAILED" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "CONNECTION_FAILED")
 					},
 					{
-						"label": "Database Export",
+						"label": this.lService.decode("synchronization.step.DatabaseExport"),
 						"status": job.stage === "EXPORT" || job.stage === "EXPORT_RESOLVE" || job.stage === "RESUME_EXPORT" ? this.getJobStatus(job) : ""
 					}
 				]

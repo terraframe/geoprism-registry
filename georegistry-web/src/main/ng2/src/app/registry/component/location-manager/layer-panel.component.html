@@ -10,7 +10,7 @@
       </h4>
       <div class="row-form" *ngFor="let baseLayer of baseLayers">
         <input class="layer-toggle-input" type='radio' name='rtoggle' [value]='baseLayer.id' [checked]="baseLayer.selected">
-        <label class="layer-toggle-label">{{baseLayer.label}}</label>
+        <label class="layer-toggle-label"><localize [key]="baseLayer.label"></localize></label>
       </div>
     </div>
     <div>

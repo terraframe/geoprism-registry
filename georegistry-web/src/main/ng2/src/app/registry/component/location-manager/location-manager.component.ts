@@ -187,6 +187,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	changeMode(mode: number): void {
 		this.mode = mode;
 
+		if (this.mode === this.MODE.SEARCH) {
+			this.isEdit = false;
+		}
+
 		this.clearGeometryEditing();
 
 		this.vot = null;
@@ -553,7 +557,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 
 	onGeometryEdit(vot: ValueOverTime): void {
-		
+
 		this.clearGeometryEditing();
 
 		this.vot = vot;
@@ -708,8 +712,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	}
 
 	error(err: HttpErrorResponse): void {
-		const bsModalRef: any = this.modalService.show(ErrorModalComponent, { backdrop: true });
-		bsModalRef.content.message = ErrorHandler.getMessageFromError(err);
+		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 
 }

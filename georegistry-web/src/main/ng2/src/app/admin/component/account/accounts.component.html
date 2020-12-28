@@ -14,7 +14,7 @@
 
         <div class="row" *ngIf="isRA">
             <div class="col-md-12 text-right">
-                <input class="btn btn-primary" style="margin-top: 10px;" type="submit" value="Invite User" (click)="inviteUsers()">
+                <input class="btn btn-primary" style="margin-top: 10px;" type="submit" [value]="'accounts.inviteUser' | localize" (click)="inviteUsers()">
             </div>
         </div>
 

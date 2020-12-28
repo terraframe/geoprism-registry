@@ -9,7 +9,7 @@
       <div *ngIf="_roles">
 
         <!-- SRA -->
-        <div *ngIf="_roles.SRA" class="row" style="padding: 20px;">
+        <div *ngIf="_roles.SRA" class="row">
           <div class="col-sm-12">
             <boolean-field [(value)]="_roles.SRA.assigned" (change)="onToggleSRA($event, _roles.SRA)"
               [label]="_roles.SRA.label.localizedValue" [disable]="!isSRA"></boolean-field>
@@ -24,7 +24,7 @@
 
 
           <!-- Organization administrator -->
-          <div *ngIf="org.RA && isSRA" class="row" style="padding: 20px;">
+          <div *ngIf="org.RA && isSRA" class="row">
             <div class="col-sm-12">
               <boolean-field [(value)]="org.RA.assigned" (change)="onToggleOrgRA($event, org)"
                 [label]="org.RA.label.localizedValue" [disable]="_roles.SRA && _roles.SRA.assigned"></boolean-field>
@@ -51,7 +51,7 @@
                   <label class="radio">
                     <input type="checkbox" [value]="" [checked]="roleGroup.ENABLEDROLE === ''" (change)="setGroupRole(roleGroup, null, $event)"
                       [name]="roleGroup + '_none'" >
-                    <span style="font-weight: 400;">None</span>
+                    <span style="font-weight: 400;"><localize key="accounts.none"></localize></span>
                   </label>
               
                 </div>

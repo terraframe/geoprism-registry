@@ -66,7 +66,7 @@
           </td>
           <td class="col-md-2">
             <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-rejected':req.approvalStatus === 'REJECTED'}">
-               <strong>{{req.approvalStatus}}</strong>
+               <strong>{{req.statusLabel}}</strong>
             </h5>
           </td>
           <td class="col-md-1" style="vertical-align:middle;text-align:right;padding-right:25px;">
@@ -92,25 +92,42 @@
                       <i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="fa fa-link vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
                       <i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="fa fa-chain-broken vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i>
 
-                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-                        <li>Update <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ]</li>
-                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
-                      </ul>
-                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-                        <li>Create <b>{{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}</b> [ {{action.geoObjectType.label.localizedValue}} ] </li>
-                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
-                      </ul>
-                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.SetParentAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-                        <li>Set parents of <b>{{action.childCode}}</b>
-                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
-                      </ul>
-                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-                        <li>Set <b>{{action.childTypeCode}}</b> as a child of <b>{{action.parentTypeCode}}</b> </li>
-                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
-                      </ul>
-                      <ul *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
-                        <li>Remove <b>{{action.childTypeCode}}</b> from <b>{{action.parentTypeCode}}</b> </li>
-                        <li>on <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled></li>
+                      <ul class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;">
+                        <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'">
+                          <localize key="change.request.table.update"
+                           [params]="{
+                             '{0}':action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value,
+                             '{1}':action.geoObjectType.label.localizedValue
+                            }"></localize>
+                        </li>
+                        <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'">
+                          <localize key="change.request.table.create"
+                           [params]="{
+                             '{0}':action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value,
+                             '{1}':action.geoObjectType.label.localizedValue
+                            }"></localize>
+                        </li>
+                        <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.SetParentAction'">
+                          <localize key="change.request.table.setparent" [params]="{'{0}':action.childCode}"></localize>
+                        </li>        
+                        <li *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'">
+                          <localize key="change.request.table.setchild"
+                           [params]="{
+                             '{0}':action.childTypeCode,
+                             '{1}':action.parentTypeCode
+                            }"></localize>
+                        </li>
+                        <li *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'">
+                          <localize key="change.request.table.removechild"
+                           [params]="{
+                             '{0}':action.childTypeCode,
+                             '{1}':action.parentTypeCode
+                            }"></localize>
+                        </li>                                        
+                        <li>
+                          <localize key="change.request.table.on"></localize>
+                          <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled>
+                        </li>
                       </ul>
                     </div>
                     <div class="col-md-4" style="height: 50px;text-align: center;">

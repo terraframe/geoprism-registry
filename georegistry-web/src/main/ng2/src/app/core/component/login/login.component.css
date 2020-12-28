@@ -5,6 +5,15 @@
     overflow: hidden;
 }
 
+ #login-page {
+    background-size: 100%;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+ }
+
 .vertical-center {
     min-height: 100%;
     min-height: calc(100vh - 164px);
@@ -33,64 +42,50 @@ h1 {
 
 .dhis2-login-button {
 	background-color:#1d5288;
-	border-radius:6px;
-	width:312px;
-	display:block;
-	margin-left:19%;
+	border-color: #1c558e;
+	border-radius:5px;
 	margin-bottom:5px;
+	padding: 10px;
+}
+.dhis2-login-button:hover {
+	background-color: #2261a0;
 }
 
 .dhis2-login-button-text {
 	color:white;
-	font-size:26px;
+	font-size:18px;
 	vertical-align:middle;
-	padding-left:9px;
 }
 
 .dhis2-login-button-image {
-	margin:10px;
+	height: 30px;
+	margin-left: 10px;
 }
 
 span.oauth-or-text {
-	font-size:30px;
+	font-size:19px;
 	color:darkgray;
 }
 
 span.oauth-or-line {
-	width: 45%;
+  width: 45%;
   height: 47px;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid darkgray;
   display: inline-block;
   margin-bottom: 7px;
 }
 
-div.oauth-or-line-block {
+h4.oauth-or-line-block {
 	margin-bottom:50px;
 	margin-top:50px;
+	border-bottom: 1px solid #000; 
+   line-height: 0.1em;
+}
+h4.oauth-or-line-block span {
+	background:#fff; 
+    padding:0 10px; 
 }
 
-#login-btn{
-  float: right;
-  background: white;
-}
-#login-btn:hover,
-#login-btn:active{
-    border-color: #6BA542;
-}
-
-input[type=button].btn.btn-primary, 
-input[type=submit].btn.btn-primary,
-button.btn-primary, 
-button.btn.btn-primary {
-    color: #6BA542; /* IE fallback */
-    color: var(--theme-submit-button-color);
-
-    background: #EDF4E8; /* IE fallback */
-    background: var(--theme-submit-button-color-light);
-
-    border-color: #6BA542; /* IE fallback */
-    border-color: var(--theme-button-color-border);
-}
 
 /* unvisited link */
 a:link {
@@ -114,33 +109,6 @@ a:active {
     color: darkgrey;
 }
 
-#login-form{
-  /* float: right; */
-  /* width: 325px; */
-  /* height: 200px; */
-}
-
-#login-input-container{
-  /* position: absolute; */
-      /* top: 50%; */
-      /* transform: translateY(-50%); */
-}
-
-/* input {
-  height:56px;
-  padding:6px 10px;
-  font-size:20px;
-  line-height:18px;
-  color:#333;
-  border:1px solid #bbb;
-  border-radius: 8px;
-  background:white;
-  outline:none;
-}
-input:focus,
-input:active{
-    border-color:#6BA542;
-} */
 
 #login-form input[type="text"]{
   float:left;
