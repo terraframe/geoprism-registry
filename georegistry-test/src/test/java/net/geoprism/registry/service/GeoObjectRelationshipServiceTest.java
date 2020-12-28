@@ -18,11 +18,18 @@
  */
 package net.geoprism.registry.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.After;
@@ -95,7 +102,7 @@ public class GeoObjectRelationshipServiceTest
   }
   
   @Test
-  public void testGetHierarchies()
+  public void testGetHierarchies() throws ParseException
   {
     JsonArray ptn = testData.adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
     
@@ -108,6 +115,9 @@ public class GeoObjectRelationshipServiceTest
     
     for (int i = 0; i < ptn.size(); ++i)
     {
+      /*
+       * Assert hierarchy information
+       */
       JsonObject hierarchy = ptn.get(i).getAsJsonObject();
       
       String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
@@ -136,7 +146,75 @@ public class GeoObjectRelationshipServiceTest
       
       Assert.assertEquals(testHt.getDisplayLabel(), label);
       
-//      Assert.assertEquals(1, hierarchy.get("entries").getAsJsonArray().size());
+      JsonArray types = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_TYPES).getAsJsonArray();
+      Assert.assertEquals(2, types.size());
+      
+      /*
+       * Assert type information
+       */
+      String[] typeCodes = new String[types.size()];
+      String[] typeLabels = new String[types.size()];
+      for (int j = 0; j < types.size(); ++j)
+      {
+        typeCodes[j] = types.get(j).getAsJsonObject().get(ServerParentTreeNodeOverTime.JSON_TYPE_CODE).getAsString();
+        typeLabels[j] = types.get(j).getAsJsonObject().get(ServerParentTreeNodeOverTime.JSON_TYPE_LABEL).getAsString();
+      }
+      
+      Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.COUNTRY.getCode()));
+      Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.PROVINCE.getCode()));
+      
+      Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.COUNTRY.getDisplayLabel().getValue()));
+      Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.PROVINCE.getDisplayLabel().getValue()));
+      
+      /*
+       * Assert entry information
+       */
+      JsonArray entries = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_ENTRIES).getAsJsonArray();
+      
+      Assert.assertEquals(1, entries.size());
+      
+      SimpleDateFormat format = ServerParentTreeNodeOverTime.getDateFormat();
+      
+      for (int j = 0; j < entries.size(); ++j)
+      {
+        JsonObject entry = entries.get(j).getAsJsonObject();
+        
+        Date startDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_STARTDATE).getAsString());
+        Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, startDate);
+        
+        Date endDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_ENDDATE).getAsString());
+        Assert.assertEquals(ValueOverTimeDTO.INFINITY_END_DATE, endDate);
+        
+        JsonObject parents = entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENTS).getAsJsonObject();
+        
+        Assert.assertEquals(2, parents.keySet().size());
+        
+        String[] parentCodes = new String[2];
+        
+        int k = 0;
+        for (String parentCode : parents.keySet())
+        {
+          parentCodes[k++] = parentCode;
+          
+          JsonObject parent = parents.get(parentCode).getAsJsonObject();
+          
+          JsonObject geoObject = parent.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
+          
+          GeoObject go = GeoObject.fromJSON(testData.adapter, geoObject.toString());
+          
+          if (parentCode.equals(FastTestDataset.COUNTRY.getCode()))
+          {
+            Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), go.getCode());
+          }
+          else if (parentCode.equals(FastTestDataset.PROVINCE.getCode()))
+          {
+            Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), go.getCode());
+          }
+        }
+        
+        Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.COUNTRY.getCode()));
+        Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.PROVINCE.getCode()));
+      }
     }
     
     Assert.assertTrue(foundHealthHR && foundAdminHR);

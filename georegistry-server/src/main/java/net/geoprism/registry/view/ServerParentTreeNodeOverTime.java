@@ -56,6 +56,20 @@ public class ServerParentTreeNodeOverTime
   
   public static final String JSON_HIERARCHY_ENTRIES = "entries";
   
+  public static final String JSON_TYPE_CODE = "code";
+  
+  public static final String JSON_TYPE_LABEL = "label";
+  
+  public static final String JSON_ENTRY_STARTDATE = "startDate";
+  
+  public static final String JSON_ENTRY_ENDDATE = "endDate";
+  
+  public static final String JSON_ENTRY_PARENTS = "parents";
+  
+  public static final String JSON_ENTRY_PARENT_GEOOBJECT = "geoObject";
+  
+  public static final String JSON_ENTRY_PARENT_TEXT = "text";
+  
   private static class Hierarchy
   {
     private ServerHierarchyType        type;
@@ -197,8 +211,7 @@ public class ServerParentTreeNodeOverTime
 
   public JsonArray toJSON()
   {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    SimpleDateFormat format = getDateFormat();
 
     final JsonArray response = new JsonArray();
 
@@ -208,8 +221,6 @@ public class ServerParentTreeNodeOverTime
     {
       final Hierarchy hierarchy = entry.getValue();
       final ServerHierarchyType ht = hierarchy.getType();
-
-      final JsonArray entries = new JsonArray();
 
       List<GeoObjectType> parentTypes = this.type.getTypeAncestors(ht, false);
 
@@ -222,15 +233,16 @@ public class ServerParentTreeNodeOverTime
         if (!pType.getCode().equals(this.type.getCode()))
         {
           JsonObject pObject = new JsonObject();
-          pObject.addProperty("code", pType.getCode());
-          pObject.addProperty("label", pType.getLabel().getValue());
+          pObject.addProperty(JSON_TYPE_CODE, pType.getCode());
+          pObject.addProperty(JSON_TYPE_LABEL, pType.getLabel().getValue());
 
           types.add(pObject);
         }
       }
 
+      // Populate an "entries" array with all the parents per time period
+      final JsonArray entries = new JsonArray();
       final List<ServerParentTreeNode> nodes = hierarchy.getNodes();
-
       for (ServerParentTreeNode node : nodes)
       {
         JsonObject pArray = new JsonObject();
@@ -250,8 +262,8 @@ public class ServerParentTreeNodeOverTime
               geoObject.setGeometry(null);
 
               JsonObject pObject = new JsonObject();
-              pObject.add("geoObject", geoObject.toJSON());
-              pObject.addProperty("text", sGeoObject.getDisplayLabel().getValue() + " : " + sGeoObject.getCode());
+              pObject.add(JSON_ENTRY_PARENT_GEOOBJECT, geoObject.toJSON());
+              pObject.addProperty(JSON_ENTRY_PARENT_TEXT, sGeoObject.getDisplayLabel().getValue() + " : " + sGeoObject.getCode());
 
               pArray.add(pType.getCode(), pObject);
             }
@@ -259,14 +271,14 @@ public class ServerParentTreeNodeOverTime
         }
 
         JsonObject object = new JsonObject();
-        object.addProperty("startDate", format.format(node.getDate()));
+        object.addProperty(JSON_ENTRY_STARTDATE, format.format(node.getDate()));
 
         if (node.getEndDate() != null)
         {
-          object.addProperty("endDate", format.format(node.getEndDate()));
+          object.addProperty(JSON_ENTRY_ENDDATE, format.format(node.getEndDate()));
         }
 
-        object.add("parents", pArray);
+        object.add(JSON_ENTRY_PARENTS, pArray);
 
         entries.add(object);
       }
@@ -282,11 +294,18 @@ public class ServerParentTreeNodeOverTime
 
     return response;
   }
-
-  public static ServerParentTreeNodeOverTime fromJSON(ServerGeoObjectType type, String sPtn)
+  
+  public static SimpleDateFormat getDateFormat()
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    
+    return format;
+  }
+
+  public static ServerParentTreeNodeOverTime fromJSON(ServerGeoObjectType type, String sPtn)
+  {
+    SimpleDateFormat format = getDateFormat();
 
     final ServerParentTreeNodeOverTime node = new ServerParentTreeNodeOverTime(type);
 
@@ -295,17 +314,17 @@ public class ServerParentTreeNodeOverTime
     for (int i = 0; i < array.size(); i++)
     {
       final JsonObject hJSON = array.get(i).getAsJsonObject();
-      final String hierarchyCode = hJSON.get("code").getAsString();
-      final JsonArray types = hJSON.get("types").getAsJsonArray();
+      final String hierarchyCode = hJSON.get(JSON_HIERARCHY_CODE).getAsString();
+      final JsonArray types = hJSON.get(JSON_HIERARCHY_TYPES).getAsJsonArray();
       final ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
 
-      final JsonArray entries = hJSON.get("entries").getAsJsonArray();
+      final JsonArray entries = hJSON.get(JSON_HIERARCHY_ENTRIES).getAsJsonArray();
 
       for (int j = 0; j < entries.size(); j++)
       {
         final JsonObject entry = entries.get(j).getAsJsonObject();
-        final String startDate = entry.get("startDate").getAsString();
-        final JsonObject parents = entry.get("parents").getAsJsonObject();
+        final String startDate = entry.get(JSON_ENTRY_STARTDATE).getAsString();
+        final JsonObject parents = entry.get(JSON_ENTRY_PARENTS).getAsJsonObject();
 
         try
         {
@@ -333,12 +352,12 @@ public class ServerParentTreeNodeOverTime
     for (int k = ( types.size() - 1 ); k >= 0; k--)
     {
       final JsonObject type = types.get(k).getAsJsonObject();
-      final String code = type.get("code").getAsString();
+      final String code = type.get(JSON_TYPE_CODE).getAsString();
       final JsonObject parent = parents.get(code).getAsJsonObject();
 
-      if (parent.has("geoObject"))
+      if (parent.has(JSON_ENTRY_PARENT_GEOOBJECT))
       {
-        final JsonObject go = parent.get("geoObject").getAsJsonObject();
+        final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
 
         GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), go.toString());
         final ServerGeoObjectIF pSGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(geoObject.getCode(), code);

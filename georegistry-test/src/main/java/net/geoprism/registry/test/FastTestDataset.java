@@ -210,6 +210,7 @@ public class FastTestDataset extends TestDataSet
       
       CAMBODIA.addChild(PROV_CENTRAL, HIER_HEALTH_ADMIN);
       PROV_CENTRAL.addChild(CENTRAL_HOSPITAL, HIER_HEALTH_ADMIN);
+      PROV_CENTRAL.addChild(DIST_CENTRAL, HIER_HEALTH_ADMIN);
     }
     catch (DuplicateGraphPathException ex)
     {
