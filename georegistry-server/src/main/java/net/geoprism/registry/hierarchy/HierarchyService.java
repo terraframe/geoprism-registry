@@ -163,12 +163,15 @@ public class HierarchyService
 
     // Filter out hierarchies that they're not allowed to see
     Collection<ServerHierarchyType> hierarchies = pot.getHierarchies();
+    
+    Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
 
     for (ServerHierarchyType hierarchy : hierarchies)
     {
       Organization organization = hierarchy.getOrganization();
-
-      if (!service.canViewChild(organization.getCode(), null, geoObject.getType()))
+      
+      if ( (isCR && !service.canAddChildCR(organization.getCode(), null, geoObject.getType()))
+           || (!isCR && !service.canAddChild(organization.getCode(), null, geoObject.getType())))
       {
         pot.remove(hierarchy);
       }
