@@ -106,8 +106,6 @@ public class GeoObjectRelationshipServiceTest
   {
     JsonArray ptn = testData.adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
     
-    System.out.println(ptn.toString());
-    
     Assert.assertEquals(2, ptn.size());
     
     boolean foundAdminHR = false;
@@ -220,13 +218,37 @@ public class GeoObjectRelationshipServiceTest
     Assert.assertTrue(foundHealthHR && foundAdminHR);
   }
   
-  // TODO : Test permissions stuff including private GeoObjects
-  // It might be worth waiting until we have a DTO before we write this test.
-//  @Test
-//  public void testGetHierarchiesPrivate()
-//  {
-//    throw new UnsupportedOperationException();
-//  }
+  @Test
+  public void testGetHierarchiesPrivate()
+  {
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM_PRIVATE, FastTestDataset.USER_CGOV_RC_PRIVATE, FastTestDataset.USER_CGOV_AC_PRIVATE };
+    for (TestUserInfo user : allowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonArray ptn = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode());
+        
+        Assert.assertEquals(1, ptn.size());
+      });
+    }
+    
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC };
+    for (TestUserInfo user : disallowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        
+        try
+        {
+          adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode());
+          
+          Assert.fail("Expected a permission exception");
+        }
+        catch (SmartExceptionDTO ex)
+        {
+          Assert.assertEquals(ReadGeoObjectPermissionException.CLASS, ex.getType());
+        }
+      });
+    }
+  }
   
   @Test
   public void testGetHierarchyTypes()
