@@ -1,0 +1,50 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+	  <createOrUpdate>
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.oauthTitle">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.oauthTitle" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="OAuth" />
+	        </attributeStruct>
+	      </object>
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.enableOauth">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.enableOauth" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Enable OAuth" />
+	        </attributeStruct>
+	      </object>
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.user.disableOauth">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.user.disableOauth" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Disable OAuth" />
+	        </attributeStruct>
+	      </object>
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.isOauth">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.profile.isOauth" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Logged in via OAuth" />
+	        </attributeStruct>
+	      </object>
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="account.profile.oauth">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="account.profile.oauth" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="OAuth" />
+	        </attributeStruct>
+	      </object>
+	    </createOrUpdate>
+	    
+    <create></create>
+    <update>
+    	
+    </update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

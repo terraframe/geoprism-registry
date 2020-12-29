@@ -346,6 +346,7 @@ export class SvgHierarchyType {
 				.style("font-family", "FontAwesome")
 				.style("cursor", "pointer")
 				.style("fill", "#767676")
+				.style("font-size", "12px")
 				.text('\uf013')
 				.on('click', function(event, node) { that.getNodeByCode(node.data.geoObjectType).renderRelatedHierarchiesMenu(); });
 
