@@ -180,7 +180,7 @@ export class SvgHierarchyNode {
           let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService);
           let relatedGotHasParents = svgSecondaryHierarchy.getNodeByCode(this.getCode()).getTreeNode().parent != null;
           
-          if (secondaryHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents)
+          if (this.treeNode.parent == null && relatedGotHasParents)
           {
             let inheritWidth = calculateTextWidth(inheritLabel, fontSize);
             width = inheritWidth > width ? inheritWidth : width;
@@ -386,7 +386,7 @@ export class SvgHierarchyNode {
           let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService);
           let relatedGotHasParents = svgSecondaryHierarchy.getNodeByCode(this.getCode()).getTreeNode().parent != null;
           
-          if (secondaryHierarchy.organizationCode === this.geoObjectType.organizationCode && this.treeNode.parent == null && relatedGotHasParents)
+          if (this.treeNode.parent == null && relatedGotHasParents)
           {
             contextMenuGroup.append("line")
               .classed("contextmenu-relatedhiers-divider", true)

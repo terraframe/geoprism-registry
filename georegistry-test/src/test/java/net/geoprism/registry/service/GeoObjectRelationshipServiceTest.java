@@ -21,6 +21,7 @@ package net.geoprism.registry.service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -44,6 +45,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
+import net.geoprism.registry.test.CambodiaTestDataset;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -104,124 +106,126 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetHierarchies() throws ParseException
   {
-    JsonArray ptn = testData.adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
-    
-    Assert.assertEquals(2, ptn.size());
-    
-    boolean foundAdminHR = false;
-    boolean foundHealthHR = false;
-    
-    for (int i = 0; i < ptn.size(); ++i)
-    {
-      /*
-       * Assert hierarchy information
-       */
-      JsonObject hierarchy = ptn.get(i).getAsJsonObject();
+    TestDataSet.runAsUser(FastTestDataset.ADMIN_USER, (request, adapter) -> {
+      JsonArray ptn = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
       
-      String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
+      Assert.assertEquals(2, ptn.size());
       
-      String label = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_LABEL).getAsString();
+      boolean foundAdminHR = false;
+      boolean foundHealthHR = false;
       
-      TestHierarchyTypeInfo testHt;
-      
-      if (code.equals(FastTestDataset.HIER_ADMIN.getCode()))
+      for (int i = 0; i < ptn.size(); ++i)
       {
-        foundAdminHR = true;
+        /*
+         * Assert hierarchy information
+         */
+        JsonObject hierarchy = ptn.get(i).getAsJsonObject();
         
-        testHt = FastTestDataset.HIER_ADMIN;
-      }
-      else if (code.equals(FastTestDataset.HIER_HEALTH_ADMIN.getCode()))
-      {
-        foundHealthHR = true;
+        String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
         
-        testHt = FastTestDataset.HIER_HEALTH_ADMIN;
-      }
-      else
-      {
-        Assert.fail("Unexpected hierarchy code [" + code + "]");
-        return;
-      }
-      
-      Assert.assertEquals(testHt.getDisplayLabel(), label);
-      
-      JsonArray types = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_TYPES).getAsJsonArray();
-      Assert.assertEquals(2, types.size());
-      
-      /*
-       * Assert type information
-       */
-      String[] typeCodes = new String[types.size()];
-      String[] typeLabels = new String[types.size()];
-      for (int j = 0; j < types.size(); ++j)
-      {
-        typeCodes[j] = types.get(j).getAsJsonObject().get(ServerParentTreeNodeOverTime.JSON_TYPE_CODE).getAsString();
-        typeLabels[j] = types.get(j).getAsJsonObject().get(ServerParentTreeNodeOverTime.JSON_TYPE_LABEL).getAsString();
-      }
-      
-      Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.COUNTRY.getCode()));
-      Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.PROVINCE.getCode()));
-      
-      Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.COUNTRY.getDisplayLabel().getValue()));
-      Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.PROVINCE.getDisplayLabel().getValue()));
-      
-      /*
-       * Assert entry information
-       */
-      JsonArray entries = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_ENTRIES).getAsJsonArray();
-      
-      Assert.assertEquals(1, entries.size());
-      
-      SimpleDateFormat format = ServerParentTreeNodeOverTime.getDateFormat();
-      
-      for (int j = 0; j < entries.size(); ++j)
-      {
-        JsonObject entry = entries.get(j).getAsJsonObject();
+        String label = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_LABEL).getAsString();
         
-        Date startDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_STARTDATE).getAsString());
-        Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, startDate);
+        TestHierarchyTypeInfo testHt;
         
-        Date endDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_ENDDATE).getAsString());
-        Assert.assertEquals(ValueOverTimeDTO.INFINITY_END_DATE, endDate);
-        
-        JsonObject parents = entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENTS).getAsJsonObject();
-        
-        Assert.assertEquals(2, parents.keySet().size());
-        
-        String[] parentCodes = new String[2];
-        
-        int k = 0;
-        for (String parentCode : parents.keySet())
+        if (code.equals(FastTestDataset.HIER_ADMIN.getCode()))
         {
-          parentCodes[k++] = parentCode;
+          foundAdminHR = true;
           
-          JsonObject parent = parents.get(parentCode).getAsJsonObject();
+          testHt = FastTestDataset.HIER_ADMIN;
+        }
+        else if (code.equals(FastTestDataset.HIER_HEALTH_ADMIN.getCode()))
+        {
+          foundHealthHR = true;
           
-          JsonObject geoObject = parent.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
-          
-          GeoObject go = GeoObject.fromJSON(testData.adapter, geoObject.toString());
-          
-          if (parentCode.equals(FastTestDataset.COUNTRY.getCode()))
-          {
-            Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), go.getCode());
-          }
-          else if (parentCode.equals(FastTestDataset.PROVINCE.getCode()))
-          {
-            Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), go.getCode());
-          }
+          testHt = FastTestDataset.HIER_HEALTH_ADMIN;
+        }
+        else
+        {
+          Assert.fail("Unexpected hierarchy code [" + code + "]");
+          return;
         }
         
-        Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.COUNTRY.getCode()));
-        Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.PROVINCE.getCode()));
+        Assert.assertEquals(testHt.getDisplayLabel(), label);
+        
+        JsonArray types = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_TYPES).getAsJsonArray();
+        Assert.assertEquals(2, types.size());
+        
+        /*
+         * Assert type information
+         */
+        String[] typeCodes = new String[types.size()];
+        String[] typeLabels = new String[types.size()];
+        for (int j = 0; j < types.size(); ++j)
+        {
+          typeCodes[j] = types.get(j).getAsJsonObject().get(ServerParentTreeNodeOverTime.JSON_TYPE_CODE).getAsString();
+          typeLabels[j] = types.get(j).getAsJsonObject().get(ServerParentTreeNodeOverTime.JSON_TYPE_LABEL).getAsString();
+        }
+        
+        Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.COUNTRY.getCode()));
+        Assert.assertTrue(ArrayUtils.contains(typeCodes, FastTestDataset.PROVINCE.getCode()));
+        
+        Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.COUNTRY.getDisplayLabel().getValue()));
+        Assert.assertTrue(ArrayUtils.contains(typeLabels, FastTestDataset.PROVINCE.getDisplayLabel().getValue()));
+        
+        /*
+         * Assert entry information
+         */
+        JsonArray entries = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_ENTRIES).getAsJsonArray();
+        
+        Assert.assertEquals(1, entries.size());
+        
+        SimpleDateFormat format = ServerParentTreeNodeOverTime.getDateFormat();
+        
+        for (int j = 0; j < entries.size(); ++j)
+        {
+          JsonObject entry = entries.get(j).getAsJsonObject();
+          
+          Date startDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_STARTDATE).getAsString());
+          Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, startDate);
+          
+          Date endDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_ENDDATE).getAsString());
+          Assert.assertEquals(ValueOverTimeDTO.INFINITY_END_DATE, endDate);
+          
+          JsonObject parents = entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENTS).getAsJsonObject();
+          
+          Assert.assertEquals(2, parents.keySet().size());
+          
+          String[] parentCodes = new String[2];
+          
+          int k = 0;
+          for (String parentCode : parents.keySet())
+          {
+            parentCodes[k++] = parentCode;
+            
+            JsonObject parent = parents.get(parentCode).getAsJsonObject();
+            
+            JsonObject geoObject = parent.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
+            
+            GeoObject go = GeoObject.fromJSON(adapter, geoObject.toString());
+            
+            if (parentCode.equals(FastTestDataset.COUNTRY.getCode()))
+            {
+              Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), go.getCode());
+            }
+            else if (parentCode.equals(FastTestDataset.PROVINCE.getCode()))
+            {
+              Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), go.getCode());
+            }
+          }
+          
+          Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.COUNTRY.getCode()));
+          Assert.assertTrue(ArrayUtils.contains(parentCodes, FastTestDataset.PROVINCE.getCode()));
+        }
       }
-    }
-    
-    Assert.assertTrue(foundHealthHR && foundAdminHR);
+      
+      Assert.assertTrue(foundHealthHR && foundAdminHR);
+    });
   }
   
   @Test
   public void testGetHierarchiesPrivate()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM_PRIVATE, FastTestDataset.USER_CGOV_RC_PRIVATE, FastTestDataset.USER_CGOV_AC_PRIVATE };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM_PRIVATE };
     for (TestUserInfo user : allowedUsers)
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
@@ -246,6 +250,101 @@ public class GeoObjectRelationshipServiceTest
         {
           Assert.assertEquals(ReadGeoObjectPermissionException.CLASS, ex.getType());
         }
+      });
+    }
+  }
+  
+  /**
+   * The getHierarchies endpoint has the following characteristics:
+   * 
+   * 1. Users can view hierarchies for which they have EITHER addChild permissions, OR addChildCR
+   * 2. ACs should see nothing
+   * 
+   * The front-end will manage whether to submit a CR or an RA / RM edit
+   */
+  @Test
+  public void testGetHierarchiesRoleFiltering()
+  {
+    /*
+     * Test to ensure that cgov users only have access to the cgov hierarchy
+     */
+    TestUserInfo[] cgovUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC };
+    for (TestUserInfo user : cgovUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonArray hiers = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROVINCE.getCode());
+        
+        Assert.assertEquals(1, hiers.size());
+        
+        JsonObject hierarchy = hiers.get(0).getAsJsonObject();
+        
+        String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
+        
+        Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), code);
+      });
+    }
+    
+    /*
+     * Test to ensure that moha users only have access to the moha hierarchy.
+     */
+    TestUserInfo[] mohaUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC };
+    for (TestUserInfo user : mohaUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonArray hiers = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.CENTRAL_HOSPITAL.getCode(), FastTestDataset.HOSPITAL.getCode());
+        
+        Assert.assertEquals(1, hiers.size());
+        
+        JsonObject hierarchy = hiers.get(0).getAsJsonObject();
+        
+        String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
+        
+        Assert.assertEquals(FastTestDataset.HIER_HEALTH_ADMIN.getCode(), code);
+      });
+    }
+    
+    /*
+     * AC do not have any permission (whereas RC have permission only because of change requests)
+     */
+    TestUserInfo[] disallowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_AC };
+    for (TestUserInfo user : disallowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonArray hiers = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL.getCode(), FastTestDataset.PROVINCE.getCode());
+        
+        Assert.assertEquals(0, hiers.size());
+      });
+    }
+    
+    /*
+     * GeoObjectType specific allowed permissions
+     */
+    TestUserInfo[] cgovPrivateUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RM_PRIVATE };
+    for (TestUserInfo user : cgovPrivateUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonArray hiers = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode());
+        
+        Assert.assertEquals(1, hiers.size());
+        
+        JsonObject hierarchy = hiers.get(0).getAsJsonObject();
+        
+        String code = hierarchy.get(ServerParentTreeNodeOverTime.JSON_HIERARCHY_CODE).getAsString();
+        
+        Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), code);
+      });
+    }
+    
+    /*
+     * GeoObjectType specific not allowed permissions
+     */
+    TestUserInfo[] rmNotAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    for (TestUserInfo user : rmNotAllowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonArray hiers = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.CENTRAL_HOSPITAL.getCode(), FastTestDataset.HOSPITAL.getCode());
+        
+        Assert.assertEquals(0, hiers.size());
       });
     }
   }
@@ -296,6 +395,8 @@ public class GeoObjectRelationshipServiceTest
   
   private void checkHierarchyTypeResponse(HierarchyType[] hts, boolean hasPrivate)
   {
+    hts = Arrays.stream(hts).filter(ht -> !ArrayUtils.contains(new String[] {CambodiaTestDataset.HIER_ADMIN.getCode(), CambodiaTestDataset.HIER_MOH.getCode()}, ht.getCode())).toArray(HierarchyType[]::new);
+    
     Assert.assertEquals(2, hts.length);
     
     for (HierarchyType ht : hts)

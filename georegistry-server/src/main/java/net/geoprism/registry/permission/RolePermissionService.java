@@ -171,6 +171,11 @@ public class RolePermissionService extends UserPermissionService
 
     return false;
   }
+  
+  public boolean isRC()
+  {
+    return this.isRC(null);
+  }
 
   public boolean isRC(ServerGeoObjectType type)
   {
@@ -192,6 +197,48 @@ public class RolePermissionService extends UserPermissionService
         String roleTypeCode = RegistryRole.Type.parseGotCode(roleName);
 
         if (type != null && type.getCode().equals(roleTypeCode))
+        {
+          return true;
+        }
+        else if (type == null)
+        {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+  
+  public boolean isAC()
+  {
+    return this.isAC(null);
+  }
+
+  public boolean isAC(ServerGeoObjectType type)
+  {
+    if (!this.hasSessionUser())
+    {
+      return true;
+    }
+
+    SingleActorDAOIF actor = this.getSessionUser();
+
+    Set<RoleDAOIF> roles = actor.authorizedRoles();
+
+    for (RoleDAOIF role : roles)
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isAC_Role(roleName))
+      {
+        String roleTypeCode = RegistryRole.Type.parseGotCode(roleName);
+
+        if (type != null && type.getCode().equals(roleTypeCode))
+        {
+          return true;
+        }
+        else if (type == null)
         {
           return true;
         }
