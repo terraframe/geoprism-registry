@@ -137,7 +137,7 @@ export class SvgHierarchyNode {
 			const borderColor = "#aaaaaa";
 			const dividerColor = "#e4e4e4";
 			const fontFamily = "sans-serif";
-			const titleFontSize = 10;
+			const titleFontSize = 9;
 			
 			const titleLabel = this.hierarchyComponent.localize("hierarchy.content.relatedHierarchies");
 			const actionsTitle = this.hierarchyComponent.localize("hierarchy.content.actionsTitle");
