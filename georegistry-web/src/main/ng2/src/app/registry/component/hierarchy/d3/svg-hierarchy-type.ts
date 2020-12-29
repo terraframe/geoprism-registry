@@ -200,23 +200,35 @@ export class SvgHierarchyType {
 				d.data.inheritedHierarchyCode != null
 			);
 
-		// Write the name of the hierarchy on the header if its inherited
-		gHeader.selectAll("text")
+		// Write the name of the hierarchy on the header
+		gHeader.selectAll("foreignObject")
 			.data(descends)
-			.join("text")
+			.join("foreignObject")
 			.filter(function(d: any) { return d.data.geoObjectType !== "GhostNode"; })
 			.classed("svg-got-header-rect", true)
 			.attr("x", (d: any) => 
-			    d.x - calculateTextWidth(d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue, 7) / 2
+			    d.x - (SvgHierarchyType.gotHeaderW / 2)
 			  )
-			.attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 10)
+			.attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 3)
 			.attr("font-size", "8px")
-			.attr("font-weight", "bold")
-			.attr("fill", "white")
-			.text((d: any) => d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue)
 			.attr("cursor", (d: any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
 			.attr("data-gotCode", (d: any) => d.data.geoObjectType)
-			.attr("data-inherited", (d: any) => d.data.inheritedHierarchyCode != null);
+			.attr("data-inherited", (d: any) => d.data.inheritedHierarchyCode != null)
+			.attr("font-family", "sans-serif")
+			.attr("font-weight", "bold")
+      .attr("font-size", 8)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-width", 3)
+      .attr("width", SvgHierarchyType.gotHeaderW)
+      .attr("height", SvgHierarchyType.gotHeaderH)
+			.append("xhtml:p")
+      .attr("xmlns", "http://www.w3.org/1999/xhtml")
+      .attr("fill", "white")
+      .style("text-align", "center")
+      .style("vertical-align", "middle")
+      .style("display", "table-cell")
+      .style("color", "white")
+      .html((d: any) => d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue)
 
 		// GeoObjectType Body Square 
 		gtree.append("g").classed("g-got", true)
@@ -226,7 +238,7 @@ export class SvgHierarchyType {
 			.filter(function(d: any) { return d.data.geoObjectType !== "GhostNode"; })
 			.classed("svg-got-body-rect", true)
 			.attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
-			.attr("y", (d: any) => d.y - (SvgHierarchyType.gotRectH / 2))
+			.attr("y", (d: any) => d.y)
 			.attr("fill", (d: any) => d.data.inheritedHierarchyCode != null ? INHERITED_NODE_FILL : DEFAULT_NODE_FILL)
 			.attr("width", SvgHierarchyType.gotRectW)
 			.attr("height", SvgHierarchyType.gotRectH)
