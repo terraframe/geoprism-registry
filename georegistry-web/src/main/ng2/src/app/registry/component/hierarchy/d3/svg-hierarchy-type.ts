@@ -74,11 +74,22 @@ export class SvgHierarchyType {
 
 		let headerg = hg.append("g").classed("g-hierarchy-header", true);
 
-		const headerFontSize = 10;
-		const iconWidth = 20;
+		const headerFontSize: number = 10;
+		const iconWidth: number = 20;
+		const maxHierarchyLabelLength = 200;
+		
+		let hierarchyLabelW: number = calculateTextWidth(this.hierarchyType.label.localizedValue, headerFontSize);
+		let hierarchyLabelH:number = headerFontSize*1.4;
+		let hierarchyLabelY:number = bbox.y + headerFontSize*1.6;
+		if (hierarchyLabelW > maxHierarchyLabelLength)
+		{
+		  hierarchyLabelW = maxHierarchyLabelLength;
+		  hierarchyLabelH = headerFontSize*2.7;
+		  hierarchyLabelY = bbox.y + headerFontSize;
+		}
 
 		let lineWidth = bbox.width;
-		let textWidth = calculateTextWidth(this.hierarchyType.label.localizedValue, headerFontSize) + iconWidth;
+		let textWidth = hierarchyLabelW + iconWidth;
 
 		if (textWidth > lineWidth) {
 			lineWidth = textWidth;
@@ -94,14 +105,24 @@ export class SvgHierarchyType {
 			.text('\uf0e8');
 
 		// Hierarchy display label
-		headerg.append("text").classed("hierarchy-header-label", true)
-			.attr("font-size", headerFontSize)
-			.attr("stroke-linejoin", "round")
-			.attr("stroke-width", 3)
-			.attr("fill", "grey")
-			.attr("x", bbox.x + iconWidth)
-			.attr("y", bbox.y)
-			.text(this.hierarchyType.label.localizedValue);
+		colHeader.append("foreignObject").classed("hierarchy-header-label", true)
+      .attr("font-size", headerFontSize)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-width", 3)
+      .attr("x", bbox.x + iconWidth)
+      .attr("y", hierarchyLabelY)
+      .attr("width", hierarchyLabelW)
+      .attr("height", hierarchyLabelH)
+      .append("xhtml:p")
+      .attr("xmlns", "http://www.w3.org/1999/xhtml")
+      .attr("text-anchor", "start")
+      .attr("text-align", "left")
+      .style("vertical-align", "middle")
+      .style("display", "table-cell")
+      .style("color", "gray")
+      //.style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
+      .style("height", SvgHierarchyType.gotRectH - 4 + "px")
+      .html((d: any) => this.hierarchyType.label.localizedValue)
 
 		// Line underneath the header
 		headerg.append("line").classed("hierarchy-header-line", true)
@@ -125,8 +146,7 @@ export class SvgHierarchyType {
 			.attr("x", bbox.x)
 			.attr("y", bbox.y)
 			.text(colHeaderLabel);
-
-
+	  
 		colHeader.attr("transform", "translate(0 -" + headerGBbox.height * 2.5 + ")");
 
 		return headerg;
@@ -314,7 +334,7 @@ export class SvgHierarchyType {
 			.attr("stroke-width", "1")
 			.attr("stroke-dasharray", "5,5")
 			.attr("data-gotCode", (d: any) => d.data.geoObjectType)
-
+			
 		// GeoObjectType label
 		gtree.append("g").classed("g-got-codelabel", true)
 			.attr("font-family", "sans-serif")
