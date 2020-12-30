@@ -69,7 +69,9 @@ export class ManageVersionsComponent implements OnInit {
 	editingGeometry: number = -1;
 
 	hasDuplicateDate: boolean = false;
-	
+
+	hasConflict: boolean = false;
+
 	originalAttributeState: Attribute;
 
 	constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef) { }
@@ -88,20 +90,58 @@ export class ManageVersionsComponent implements OnInit {
 	}
 
 	onDateChange(event: any, vAttribute: ValueOverTime): any {
-
-		//        console.log( event.currentTarget.value );
+		this.hasConflict = false;
+		//		//        console.log( event.currentTarget.value );
+		//		//
+		//		//        let dt = new Date( event.currentTarget.value );
+		//		//let dt = new Date(event);
 		//
-		//        let dt = new Date( event.currentTarget.value );
-		//let dt = new Date(event);
-
 		let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
+		//
+		//		//        vAttribute.startDate = Utils.formatDateString( dt );
+		//
+		//		this.snapDates(vAttributes);
+		//
+		//		//        this.changeDetectorRef.detectChanges();
 
-		//        vAttribute.startDate = Utils.formatDateString( dt );
 
-		this.snapDates(vAttributes);
+		// check ranges
+		for (let j = 0; j < vAttributes.length; j++) {
+			const h1 = vAttributes[j];
+			h1.conflict = false;
 
-		//        this.changeDetectorRef.detectChanges();
+			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
+				let s1: any = new Date(h1.startDate);
+				let e1: any = new Date(h1.endDate);
+
+				for (let i = 0; i < vAttributes.length; i++) {
+
+					if (j !== i) {
+						const h2 = vAttributes[i];
+						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
+							let s2: any = new Date(h2.startDate);
+							let e2: any = new Date(h2.endDate);
+
+							// Determine if there is an overlap
+							if (this.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+								h1.conflict = true
+
+								this.hasConflict = true;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
+
+	dateRangeOverlaps(a_start: number, a_end: number, b_start: number, b_end: number): boolean {
+		if (a_start <= b_start && b_start <= a_end) return true; // b starts in a
+		if (a_start <= b_end && b_end <= a_end) return true; // b ends in a
+		if (b_start < a_start && a_end < b_end) return true; // a in b
+		return false;
+	}
+
 
 	snapDates(votArr: ValueOverTime[]): void {
 		var dateOffset = (24 * 60 * 60 * 1000) * 1; //1 days
@@ -202,7 +242,7 @@ export class ManageVersionsComponent implements OnInit {
 			this.editingGeometry = votArr.length - 1;
 		}
 
-		this.snapDates(votArr);
+		//		this.snapDates(votArr);
 
 		this.changeDetectorRef.detectChanges();
 	}
@@ -269,14 +309,14 @@ export class ManageVersionsComponent implements OnInit {
 
 		for (let i = 0; i < val.values.length; i++) {
 			let vals = val.values[i];
-			
+
 
 			if (vals.startDate === version.startDate) {
 				val.values.splice(i, 1);
 			}
 		}
 
-		this.snapDates(val.values);
+		//		this.snapDates(val.values);
 	}
 
 	isChangeOverTime(attr: Attribute): boolean {
@@ -290,7 +330,7 @@ export class ManageVersionsComponent implements OnInit {
 
 		return isChangeOverTime;
 	}
-	
+
 	onSubmit(): void {
 
 		this.onChange.emit(this.geoObjectOverTime);

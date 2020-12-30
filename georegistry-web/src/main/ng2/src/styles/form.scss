@@ -197,6 +197,12 @@ textarea.ng-invalid:required {
     margin: 5px 0 0 0;
 }
 
+.error-border {
+    border-color: #e30000;
+    border-style: dashed;
+    border-width: 2px;
+}
+
 input.inline-loading {    
     background-color: #ffffff;
 	background-image: url('../images/loading_spinner_splitring.gif');

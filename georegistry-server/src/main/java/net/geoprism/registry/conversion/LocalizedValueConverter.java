@@ -188,12 +188,7 @@ public class LocalizedValueConverter
 
   public static void populate(GraphObject graphObject, String attributeName, LocalizedValue value, Date startDate, Date endDate)
   {
-    graphObject.setEmbeddedValue(attributeName, MdAttributeLocalInfo.DEFAULT_LOCALE, value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), startDate);
-
-    if (endDate != null)
-    {
-      graphObject.setEmbeddedValue(attributeName, MdAttributeLocalInfo.DEFAULT_LOCALE, null, endDate);
-    }
+    graphObject.setEmbeddedValue(attributeName, MdAttributeLocalInfo.DEFAULT_LOCALE, value.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE), startDate, endDate);
 
     List<Locale> locales = SupportedLocaleCache.getLocales();
 
@@ -201,12 +196,7 @@ public class LocalizedValueConverter
     {
       if (value.contains(locale))
       {
-        graphObject.setEmbeddedValue(attributeName, locale.toString(), value.getValue(locale), startDate);
-
-        if (endDate != null)
-        {
-          graphObject.setEmbeddedValue(attributeName, locale.toString(), null, endDate);
-        }
+        graphObject.setEmbeddedValue(attributeName, locale.toString(), value.getValue(locale), startDate, endDate);
       }
     }
   }

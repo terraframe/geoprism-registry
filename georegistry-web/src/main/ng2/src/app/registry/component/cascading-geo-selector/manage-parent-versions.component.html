@@ -97,8 +97,7 @@
                                                     <h5>
                                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                                     </h5>
-                                                    <input *ngIf="entry.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="entry.endDate" disabled>
-                                                    <p *ngIf="entry.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+                                                    <input type="date" [name]="'endDate_' + i" [(ngModel)]="entry.endDate" required>
                                                   </td>
                                                 </tr>
                                               </table>
