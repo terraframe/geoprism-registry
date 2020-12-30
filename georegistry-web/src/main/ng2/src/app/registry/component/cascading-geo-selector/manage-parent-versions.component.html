@@ -57,7 +57,7 @@
                                             <localize key="changeovertime.manageVersions.no.versions.message"></localize>
                                           </p>
                   
-                                          <tr *ngFor="let entry of hierarchy.entries; let i = index;">
+                                          <tr *ngFor="let entry of hierarchy.entries; let i = index;" [ngClass]="{'error-border': entry.conflict}">
                                             <td>
                                               <table>
                                                 <tr class="attribute-value-row">
@@ -91,15 +91,20 @@
                                                     <h5>
                                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                                     </h5> 
-                                                    <input style="width: 100%;" type="date" name="startDate-{{i}}" [(ngModel)]="entry.startDate" (blur)="snapDates()" required />
+                                                    <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="entry.startDate" (blur)="onDateChange()" required />
                                                   </td>
                                                   <td>
                                                     <h5>
                                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                                     </h5>
-                                                    <input type="date" [name]="'endDate_' + i" [(ngModel)]="entry.endDate" required>
+                                                    <input type="date" [name]="'endDate_' + i" [(ngModel)]="entry.endDate" (blur)="onDateChange()" required>
                                                   </td>
                                                 </tr>
+                                                <tr *ngIf="entry.conflict">
+                                                  <p class="error-message">
+                                                    <localize key="manage.versions.overlap.message"></localize>
+                                                  </p>
+                                                </tr>                                                
                                               </table>
                                             </td>
                                             <td style="vertical-align: middle;" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize" (click)="remove(entry)">

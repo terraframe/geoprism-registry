@@ -48,7 +48,7 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                     </h5>
-                                    <input type="date" [name]="'startDate_' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
+                                    <input type="date" [name]="'startDate_' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" required>
                                     
                                     <div style="width:100%;" class="form-input-validation-error-message-wrapper">
                                       <p *ngIf="!vAttribute.startDate" class="error-message">
@@ -60,7 +60,7 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                     </h5>
-                                    <input type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange($event, vAttribute)" required>
+                                    <input type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange()" required>
                                     <div style="width:100%;" class="form-input-validation-error-message-wrapper">
                                       <p *ngIf="!vAttribute.endDate" class="error-message">
                                         <localize key="manage.versions.end.date.required.message"></localize>
@@ -68,11 +68,11 @@
                                     </div>
                                   </td>
                                 </tr>
-                                  <tr *ngIf="vAttribute.conflict">
-                                      <p class="error-message">
-                                        <localize key="manage.versions.overlap.message"></localize>
-                                      </p>
-                                  </tr>
+                                <tr *ngIf="vAttribute.conflict">
+                                  <p class="error-message">
+                                    <localize key="manage.versions.overlap.message"></localize>
+                                  </p>
+                                </tr>
                               </table>
                             </td>
                             
@@ -85,8 +85,8 @@
 
                         <tbody class="attribute-element-wrapper" *ngIf="attribute.type !== 'local'">
                           <p class="message" *ngIf="geoObjectOverTime.attributes[attribute.code].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
-                          
-                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[this.attribute.code].values; let i = index;">
+
+                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" [ngClass]="{'error-border': vAttribute.conflict}">
                             <td>
                               <table>
                                 <tr class="attribute-value-row">
@@ -126,16 +126,25 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                     </h5>
-                                    <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
+                                    <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" required>
                                   </td>
                                   <td>
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                     </h5>
-                                    <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                                    <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" disabled>
+                                    <input type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange()" required>
+                                    <div style="width:100%;" class="form-input-validation-error-message-wrapper">
+                                      <p *ngIf="!vAttribute.endDate" class="error-message">
+                                        <localize key="manage.versions.end.date.required.message"></localize>
+                                      </p>
+                                    </div>
                                   </td>
                                 </tr>
+                                <tr *ngIf="vAttribute.conflict">
+                                  <p class="error-message">
+                                    <localize key="manage.versions.overlap.message"></localize>
+                                  </p>
+                                </tr>                                
                               </table>
                             </td>
                             <td style="vertical-align: middle;" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize" (click)="remove(vAttribute)">
@@ -166,10 +175,14 @@
                               </button> 
                               <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" (geometryChange)="this.geometryChange(vAttribute, $event);" [readOnly]="!geoObjectType.isGeometryEditable" [postGeometry]="vAttribute.value" [bboxCode]="this.geoObjectOverTime.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="vAttribute.startDate"></geoobject-editor-map>
                             </td>
-                            <td style="vertical-align: middle;"><input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required></td>
+                            <td style="vertical-align: middle;"><input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" required></td>
                             <td style="vertical-align: middle;">
-                              <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                              <p *ngIf="vAttribute.endDate !== '5000-12-31'" style="font-size: 14px;">{{formatDate(vAttribute.endDate)}}</p>
+                              <input type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange()" required>
+                              <div style="width:100%;" class="form-input-validation-error-message-wrapper">
+                                <p *ngIf="!vAttribute.endDate" class="error-message">
+                                  <localize key="manage.versions.end.date.required.message"></localize>
+                                </p>
+                              </div>
                             </td>
                             <td style="vertical-align: middle;"><i class="fa fa-times clickable delete-btn" (click)="remove(vAttribute)"></i></td>
                           </tr>

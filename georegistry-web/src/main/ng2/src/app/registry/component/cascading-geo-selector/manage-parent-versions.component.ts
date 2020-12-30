@@ -7,6 +7,7 @@ import { HierarchyOverTime, PRESENT } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
 
 import * as moment from 'moment';
+import Utils from '@registry/utility/Utils';
 
 @Component({
 	selector: 'manage-parent-versions',
@@ -74,6 +75,7 @@ export class ManageParentVersionsComponent implements OnInit {
 		}
 
 		//		this.snapDates();
+		this.onDateChange();		
 	}
 
 	getTypeAheadObservable(date: string, type: any, entry: any, index: number): Observable<any> {
@@ -153,6 +155,7 @@ export class ManageParentVersionsComponent implements OnInit {
 		// check ranges
 		for (let j = 0; j < this.hierarchy.entries.length; j++) {
 			const h1 = this.hierarchy.entries[j];
+			h1.conflict = false;
 
 			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
 				let s1: any = new Date(h1.startDate);
@@ -163,25 +166,18 @@ export class ManageParentVersionsComponent implements OnInit {
 					if (j !== i) {
 						const h2 = this.hierarchy.entries[i];
 						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
-							let s2: any = new Date(h1.startDate);
-							let e2: any = new Date(h1.endDate);
+							let s2: any = new Date(h2.startDate);
+							let e2: any = new Date(h2.endDate);
 
 							// Determine if there is an overlap
-							if (this.dateRangeOverlaps(s1, e1, s2, e2)) {
-								console.log('Overlaps');
+							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+								h1.conflict = true;
 							}
 						}
 					}
 				}
 			}
 		}
-	}
-
-	dateRangeOverlaps(a_start: Date, a_end: Date, b_start: Date, b_end: Date): boolean {
-		if (a_start <= b_start && b_start <= a_end) return true; // b starts in a
-		if (a_start <= b_end && b_end <= a_end) return true; // b ends in a
-		if (b_start < a_start && a_end < b_end) return true; // a in b
-		return false;
 	}
 
 	snapDates() {

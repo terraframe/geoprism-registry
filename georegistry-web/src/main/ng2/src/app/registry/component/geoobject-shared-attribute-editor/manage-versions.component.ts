@@ -89,7 +89,7 @@ export class ManageVersionsComponent implements OnInit {
 		vAttribute.value = event;
 	}
 
-	onDateChange(event: any, vAttribute: ValueOverTime): any {
+	onDateChange(): any {
 		this.hasConflict = false;
 		//		//        console.log( event.currentTarget.value );
 		//		//
@@ -123,7 +123,7 @@ export class ManageVersionsComponent implements OnInit {
 							let e2: any = new Date(h2.endDate);
 
 							// Determine if there is an overlap
-							if (this.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
 								h1.conflict = true
 
 								this.hasConflict = true;
@@ -134,15 +134,7 @@ export class ManageVersionsComponent implements OnInit {
 			}
 		}
 	}
-
-	dateRangeOverlaps(a_start: number, a_end: number, b_start: number, b_end: number): boolean {
-		if (a_start <= b_start && b_start <= a_end) return true; // b starts in a
-		if (a_start <= b_end && b_end <= a_end) return true; // b ends in a
-		if (b_start < a_start && a_end < b_end) return true; // a in b
-		return false;
-	}
-
-
+	
 	snapDates(votArr: ValueOverTime[]): void {
 		var dateOffset = (24 * 60 * 60 * 1000) * 1; //1 days
 
@@ -315,6 +307,8 @@ export class ManageVersionsComponent implements OnInit {
 				val.values.splice(i, 1);
 			}
 		}
+		
+		this.onDateChange();
 
 		//		this.snapDates(val.values);
 	}
