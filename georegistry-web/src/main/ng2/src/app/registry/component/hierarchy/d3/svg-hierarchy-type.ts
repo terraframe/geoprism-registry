@@ -10,14 +10,19 @@ import { SvgController, INHERITED_NODE_BANNER_COLOR, DEFAULT_NODE_BANNER_COLOR, 
 import { LocalizationService } from '@shared/service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 
+import { TREE_SCALE_FACTOR_X, TREE_SCALE_FACTOR_Y } from '../hierarchy.component'; 
+
 export class SvgHierarchyType {
 
 	public static gotRectW: number = 150;
 	public static gotRectH: number = 25;
+	public static gotBodyFontSize: number = 8;
+	public static gotOptionsButtonFontSize: number = 12;
 
 	public static gotHeaderW: number = 150;
 	public static gotHeaderH: number = 14;
-
+	public static gotHeaderFontSize: number = 8;
+	
 	hierarchyComponent: SvgController;
 
 	hierarchyType: HierarchyType;
@@ -40,7 +45,7 @@ export class SvgHierarchyType {
 		this.d3Hierarchy = d3.hierarchy(hierarchyType.rootGeoObjectTypes[0]);
 		this.isPrimary = isPrimary;
 
-		this.d3Tree = d3.tree().nodeSize([300, 80]).separation((a, b) => 0.8)(this.d3Hierarchy);
+		this.d3Tree = d3.tree().nodeSize([ SvgHierarchyType.gotRectW*TREE_SCALE_FACTOR_X, (SvgHierarchyType.gotRectH + SvgHierarchyType.gotHeaderH)*TREE_SCALE_FACTOR_Y ]).separation((a, b) => 0.8)(this.d3Hierarchy);
 	}
 	
 	public getD3Tree() {
@@ -189,7 +194,7 @@ export class SvgHierarchyType {
 			.filter(function(d: any) { return d.data.geoObjectType !== "GhostNode"; })
 			.classed("svg-got-header-rect", true)
 			.attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
-			.attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 2)
+			.attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH/2 - SvgHierarchyType.gotHeaderH + 4)
 			.attr("fill", (d: any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? INHERITED_NODE_BANNER_COLOR : DEFAULT_NODE_BANNER_COLOR) : RELATED_NODE_BANNER_COLOR)
 			.attr("width", SvgHierarchyType.gotHeaderW)
 			.attr("height", SvgHierarchyType.gotHeaderH)
@@ -209,25 +214,28 @@ export class SvgHierarchyType {
 			.attr("x", (d: any) => 
 			    d.x - (SvgHierarchyType.gotHeaderW / 2)
 			  )
-			.attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH + 3)
-			.attr("font-size", "8px")
+			.attr("y", (d: any) => d.y - SvgHierarchyType.gotRectH/2 - SvgHierarchyType.gotHeaderH + 4)
+			.attr("font-size", SvgHierarchyType.gotHeaderFontSize + "px")
 			.attr("cursor", (d: any) => this.isPrimary ? (d.data.inheritedHierarchyCode != null ? null : "grab") : null)
 			.attr("data-gotCode", (d: any) => d.data.geoObjectType)
 			.attr("data-inherited", (d: any) => d.data.inheritedHierarchyCode != null)
 			.attr("font-family", "sans-serif")
 			.attr("font-weight", "bold")
-      .attr("font-size", 8)
+      .attr("font-size", SvgHierarchyType.gotHeaderFontSize)
       .attr("stroke-linejoin", "round")
       .attr("stroke-width", 3)
       .attr("width", SvgHierarchyType.gotHeaderW)
-      .attr("height", SvgHierarchyType.gotHeaderH)
+      .attr("height", SvgHierarchyType.gotHeaderH - 4)
 			.append("xhtml:p")
       .attr("xmlns", "http://www.w3.org/1999/xhtml")
       .attr("fill", "white")
+      .attr("height", SvgHierarchyType.gotHeaderH - 4)
       .style("text-align", "center")
       .style("vertical-align", "middle")
       .style("display", "table-cell")
       .style("color", "white")
+      .style("height", (SvgHierarchyType.gotHeaderH - 4) + "px")
+      .style("width", SvgHierarchyType.gotHeaderW + "px")
       .html((d: any) => d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue)
 
 		// GeoObjectType Body Square 
@@ -238,7 +246,7 @@ export class SvgHierarchyType {
 			.filter(function(d: any) { return d.data.geoObjectType !== "GhostNode"; })
 			.classed("svg-got-body-rect", true)
 			.attr("x", (d: any) => d.x - (SvgHierarchyType.gotRectW / 2))
-			.attr("y", (d: any) => d.y)
+			.attr("y", (d: any) => d.y - (SvgHierarchyType.gotRectH / 2))
 			.attr("fill", (d: any) => d.data.inheritedHierarchyCode != null ? INHERITED_NODE_FILL : DEFAULT_NODE_FILL)
 			.attr("width", SvgHierarchyType.gotRectW)
 			.attr("height", SvgHierarchyType.gotRectH)
@@ -310,7 +318,7 @@ export class SvgHierarchyType {
 		// GeoObjectType label
 		gtree.append("g").classed("g-got-codelabel", true)
 			.attr("font-family", "sans-serif")
-			.attr("font-size", 8)
+			.attr("font-size", SvgHierarchyType.gotBodyFontSize)
 			.attr("stroke-linejoin", "round")
 			.attr("stroke-width", 3)
 			.selectAll("foreignObject")
@@ -353,12 +361,12 @@ export class SvgHierarchyType {
 				})
 				.classed("svg-got-relatedhiers-button", true)
 				.attr("data-gotCode", (d: any) => d.data.geoObjectType)
-				.attr("x", (d: any) => d.x + (SvgHierarchyType.gotRectW / 2) - 20)
-				.attr("y", (d: any) => d.y + 5)
+				.attr("x", (d: any) => d.x + (SvgHierarchyType.gotRectW / 2) - (SvgHierarchyType.gotOptionsButtonFontSize) - 3)
+				.attr("y", (d: any) => d.y + (SvgHierarchyType.gotOptionsButtonFontSize*0.8) - SvgHierarchyType.gotOptionsButtonFontSize/2)
 				.style("font-family", "FontAwesome")
 				.style("cursor", "pointer")
 				.style("fill", "#767676")
-				.style("font-size", "12px")
+				.style("font-size", SvgHierarchyType.gotOptionsButtonFontSize + "px")
 				.text('\uf013')
 				.on('click', function(event, node) { that.getNodeByCode(node.data.geoObjectType).renderRelatedHierarchiesMenu(); });
 

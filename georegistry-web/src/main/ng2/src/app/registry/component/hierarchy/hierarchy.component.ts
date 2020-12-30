@@ -25,8 +25,8 @@ import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection } fro
 import { SvgHierarchyNode } from './d3/svg-hierarchy-node';
 import { SvgController, Instance, DropTarget } from './d3/svg-controller';
 
-const TREE_SCALE_FACTOR_X: number = 1.8;
-const TREE_SCALE_FACTOR_Y: number = 1.8;
+export const TREE_SCALE_FACTOR_X: number = 1.8;
+export const TREE_SCALE_FACTOR_Y: number = 1.8;
 
 @Component({
 
