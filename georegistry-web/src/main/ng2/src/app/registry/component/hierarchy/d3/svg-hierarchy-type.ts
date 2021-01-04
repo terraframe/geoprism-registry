@@ -319,7 +319,11 @@ export class SvgHierarchyType {
       .style("color", "white")
       .style("height", (SvgHierarchyType.gotHeaderH - 4) + "px")
       .style("width", SvgHierarchyType.gotHeaderW + "px")
-      .html((d: any) => d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue)
+      .html(function (d: any) {
+        let name = d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue;
+        name.length > 34 ? name = name.substring(0,34) + "..." : true;
+        return name;
+       })
       .on(SvgHierarchyType.MOUSE_HOVER_EVENT_ENTER, function(event: any, data: any) {that.nodeMouseover(event, this, data);})
       .on(SvgHierarchyType.MOUSE_HOVER_EVENT_MOVE, function(event: any, data: any) {that.nodeMousemove(event, this, data);})
       .on(SvgHierarchyType.MOUSE_HOVER_EVENT_EXIT, function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
