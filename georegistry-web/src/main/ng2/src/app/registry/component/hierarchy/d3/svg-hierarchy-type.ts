@@ -24,6 +24,12 @@ export class SvgHierarchyType {
 	public static gotHeaderH: number = 14;
 	public static gotHeaderFontSize: number = 8;
 	
+	public static MOUSE_HOVER_EVENT_ENTER = "mouseenter";
+	
+	public static MOUSE_HOVER_EVENT_MOVE = "mousemove";
+	
+	public static MOUSE_HOVER_EVENT_EXIT = "mouseleave";
+	
 	hierarchyComponent: HierarchyComponent;
 
 	hierarchyType: HierarchyType;
@@ -223,7 +229,9 @@ export class SvgHierarchyType {
 	private nodeMouseleave(d: any, element: any, data:any)
 	{
 	  d3.select("#NodeTooltip")
-      .style("opacity", 0);
+      .style("opacity", 0)
+      .style("left", "-10000px")
+      .style("top", "-10000px");
 	}
 
 	public render() {
@@ -275,9 +283,9 @@ export class SvgHierarchyType {
 			.attr("data-inherited", (d: any) =>
 				d.data.inheritedHierarchyCode != null
 			)
-			.on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
-      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
-      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
+			.on(SvgHierarchyType.MOUSE_HOVER_EVENT_ENTER, function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_MOVE, function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_EXIT, function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		// Write the name of the hierarchy on the header
 		gHeader.selectAll("foreignObject")
@@ -311,9 +319,9 @@ export class SvgHierarchyType {
       .style("height", (SvgHierarchyType.gotHeaderH - 4) + "px")
       .style("width", SvgHierarchyType.gotHeaderW + "px")
       .html((d: any) => d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue)
-      .on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
-      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
-      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_ENTER, function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_MOVE, function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_EXIT, function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		// GeoObjectType Body Square 
 		gtree.append("g").classed("g-got", true)
@@ -341,9 +349,9 @@ export class SvgHierarchyType {
 					}
 				}
 			})
-			.on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
-      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
-      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
+			.on(SvgHierarchyType.MOUSE_HOVER_EVENT_ENTER, function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_MOVE, function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_EXIT, function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		// Arrows on Edges
 		const arrowRectD = { height: 7, width: 10 };
@@ -425,9 +433,9 @@ export class SvgHierarchyType {
 			.style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
 			.style("height", SvgHierarchyType.gotRectH - 4 + "px")
 			.html((d: any) => d.data.label)
-			.on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
-      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
-      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
+			.on(SvgHierarchyType.MOUSE_HOVER_EVENT_ENTER, function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_MOVE, function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on(SvgHierarchyType.MOUSE_HOVER_EVENT_EXIT, function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		let headerg;
 		if (this.isPrimary) {
