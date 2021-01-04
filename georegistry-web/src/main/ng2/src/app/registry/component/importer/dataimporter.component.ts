@@ -83,6 +83,8 @@ export class DataImporterComponent implements OnInit {
 
 	isLoading: boolean = true;
 
+	copyBlank: boolean = true;
+
 	constructor(private service: IOService,
 		private eventService: EventService,
 		private modalService: BsModalService,
@@ -143,6 +145,7 @@ export class DataImporterComponent implements OnInit {
 
 		this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
 			form.append('type', this.code);
+			form.append('copyBlank', this.copyBlank);
 
 			if (this.startDate != null) {
 				form.append('startDate', this.startDate);
@@ -151,7 +154,7 @@ export class DataImporterComponent implements OnInit {
 				form.append('endDate', this.endDate);
 			}
 			if (this.importStrategy) {
-				form.append('strategy', this.importStrategy)
+				form.append('strategy', this.importStrategy);
 			}
 		};
 		this.uploader.onBeforeUploadItem = (fileItem: any) => {

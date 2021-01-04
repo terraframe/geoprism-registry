@@ -57,7 +57,7 @@ public class ExcelService
 {
 
   @Request(RequestType.SESSION)
-  public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy)
+  public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
     // Save the file to the file system
     try
@@ -89,6 +89,7 @@ public class ExcelService
         object.put(ImportConfiguration.IMPORT_STRATEGY, strategy.name());
         object.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
         object.put(ImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.GEO_OBJECT.name());
+        object.put(ImportConfiguration.COPY_BLANK, copyBlank);
 
         if (startDate != null)
         {

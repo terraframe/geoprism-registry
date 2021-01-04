@@ -297,6 +297,9 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         }
       }
     }
+    catch(Throwable t) {
+      t.printStackTrace();
+    }
     finally
     {
       myData.dispose();

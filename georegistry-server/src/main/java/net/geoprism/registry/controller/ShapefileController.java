@@ -53,7 +53,7 @@ public class ShapefileController
   }
 
   @Endpoint(url = "get-shapefile-configuration", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy) throws IOException, JSONException, ParseException
+  public ResponseIF getShapefileConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy, @RequestParamter(name = "copyBlank") Boolean copyBlank) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {
@@ -67,7 +67,7 @@ public class ShapefileController
 
       ImportStrategy strategy = ImportStrategy.valueOf(sStrategy);
 
-      JSONObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream, strategy);
+      JSONObject configuration = service.getShapefileConfiguration(request.getSessionId(), type, sDate, eDate, fileName, stream, strategy, copyBlank);
 
       // object.add("options", service.getOptions(request.getSessionId()));
       // object.put("classifiers", new

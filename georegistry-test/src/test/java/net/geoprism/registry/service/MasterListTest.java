@@ -544,7 +544,7 @@ public class MasterListTest
       final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
     }
     finally
     {
@@ -662,7 +662,7 @@ public class MasterListTest
       final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
 
       String versionId = json.get(0).getAsJsonObject().get("oid").getAsString();
 

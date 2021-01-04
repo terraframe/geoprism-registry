@@ -246,13 +246,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setStatus(GeoObjectStatus status)
   {
-    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), this.date, this.date);
+    if (status != null)
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), this.date, this.date);
+    }
+    else
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), null, this.date, this.date);
+    }
   }
 
   @Override
   public void setStatus(GeoObjectStatus status, Date startDate, Date endDate)
   {
-    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), startDate, endDate);
+    if (status != null)
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), startDate, endDate);
+    }
+    else
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), null, startDate, endDate);
+    }
   }
 
   @Override
