@@ -321,7 +321,7 @@ export class SvgHierarchyType {
       .style("width", SvgHierarchyType.gotHeaderW + "px")
       .html(function (d: any) {
         let name = d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue;
-        name.length > 34 ? name = name.substring(0,34) + "..." : true;
+        calculateTextWidth(name, SvgHierarchyType.gotHeaderFontSize) > (SvgHierarchyType.gotHeaderW - 5) ? name = name.substring(0,34) + "..." : true;
         return name;
        })
       .on(SvgHierarchyType.MOUSE_HOVER_EVENT_ENTER, function(event: any, data: any) {that.nodeMouseover(event, this, data);})
