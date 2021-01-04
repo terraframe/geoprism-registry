@@ -3,9 +3,10 @@ import * as d3 from 'd3';
 import { HierarchyType } from '@registry/model/hierarchy';
 import { GeoObjectType } from '@registry/model/registry';
 
+import { HierarchyComponent } from '../hierarchy.component';
 import { SvgHierarchyNode } from './svg-hierarchy-node';
-import { calculateTextWidth } from './svg-util';
-import { SvgController, INHERITED_NODE_BANNER_COLOR, DEFAULT_NODE_BANNER_COLOR, RELATED_NODE_BANNER_COLOR, DEFAULT_NODE_FILL, INHERITED_NODE_FILL } from './svg-controller';
+import { calculateTextWidth, svgPoint } from './svg-util';
+import { INHERITED_NODE_BANNER_COLOR, DEFAULT_NODE_BANNER_COLOR, RELATED_NODE_BANNER_COLOR, DEFAULT_NODE_FILL, INHERITED_NODE_FILL } from '../hierarchy.component';
 
 import { LocalizationService } from '@shared/service';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -23,7 +24,7 @@ export class SvgHierarchyType {
 	public static gotHeaderH: number = 14;
 	public static gotHeaderFontSize: number = 8;
 	
-	hierarchyComponent: SvgController;
+	hierarchyComponent: HierarchyComponent;
 
 	hierarchyType: HierarchyType;
 
@@ -34,8 +35,10 @@ export class SvgHierarchyType {
 	d3Tree: any;
 
 	isPrimary: boolean;
+	
+	tooltip: any;
 
-	public constructor(hierarchyComponent: SvgController, svgEl: any, ht: HierarchyType, isPrimary: boolean, public localizationService: LocalizationService, public modalService: BsModalService) {
+	public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, ht: HierarchyType, isPrimary: boolean, public localizationService: LocalizationService, public modalService: BsModalService) {
 		const hierarchyType = ht;
 
 		this.hierarchyComponent = hierarchyComponent;
@@ -174,6 +177,34 @@ export class SvgHierarchyType {
 
 		return relatedHiers;
 	}
+	
+	private nodeMouseover(d: any, element: any, data:any)
+	{
+	  d3.select("#NodeTooltip")
+      .style("opacity", 1);
+	}
+	
+	private nodeMousemove(event: any, element: any, data:any)
+	{
+	  d3.select("#NodeTooltip")
+      .style("left", (event.pageX) + "px")
+      .style("top", (event.pageY) + "px");
+    
+    d3.select("#hierarchyLabel").html(this.hierarchyType.label.localizedValue);
+    d3.select("#hierarchyCodeLabel").html(this.hierarchyType.code);
+    
+    d3.select("#geoObjectTypeLabel").html(data.data.label);
+    d3.select("#geoObjectTypeCodeLabel").html(data.data.geoObjectType);
+    
+    d3.select("#hierarchyOrganizationLabel").html(this.hierarchyComponent.findOrganizationByCode(this.hierarchyType.organizationCode).label.localizedValue);
+    d3.select("#geoObjectTypeOrganizationLabel").html(this.hierarchyComponent.findOrganizationByCode(this.hierarchyComponent.findGeoObjectTypeByCode(data.data.geoObjectType).organizationCode).label.localizedValue);
+	}
+	
+	private nodeMouseleave(d: any, element: any, data:any)
+	{
+	  d3.select("#NodeTooltip")
+      .style("opacity", 0);
+	}
 
 	public render() {
 		let that = this;
@@ -223,7 +254,10 @@ export class SvgHierarchyType {
 			.attr("data-gotCode", (d: any) => d.data.geoObjectType)
 			.attr("data-inherited", (d: any) =>
 				d.data.inheritedHierarchyCode != null
-			);
+			)
+			.on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		// Write the name of the hierarchy on the header
 		gHeader.selectAll("foreignObject")
@@ -257,6 +291,9 @@ export class SvgHierarchyType {
       .style("height", (SvgHierarchyType.gotHeaderH - 4) + "px")
       .style("width", SvgHierarchyType.gotHeaderW + "px")
       .html((d: any) => d.data.inheritedHierarchyCode != null ? that.hierarchyComponent.findHierarchyByCode(d.data.inheritedHierarchyCode).label.localizedValue : that.hierarchyType.label.localizedValue)
+      .on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		// GeoObjectType Body Square 
 		gtree.append("g").classed("g-got", true)
@@ -283,7 +320,10 @@ export class SvgHierarchyType {
 						d.data.dropZoneBbox = { x: d.x - SvgHierarchyType.gotRectW / 2, y: d.y - SvgHierarchyType.gotRectH / 2, width: SvgHierarchyType.gotRectW, height: SvgHierarchyType.gotRectH };
 					}
 				}
-			});
+			})
+			.on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		// Arrows on Edges
 		const arrowRectD = { height: 7, width: 10 };
@@ -365,10 +405,9 @@ export class SvgHierarchyType {
 			.style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
 			.style("height", SvgHierarchyType.gotRectH - 4 + "px")
 			.html((d: any) => d.data.label)
-			//.filter(function(d: any) {
-			//	return calculateTextWidth(d.data.label, 10) > SvgHierarchyType.gotRectW - 32 + 5;
-			//})
-			//.style("font-size", "8px");
+			.on("mouseover", function(event: any, data: any) {that.nodeMouseover(event, this, data);})
+      .on("mousemove", function(event: any, data: any) {that.nodeMousemove(event, this, data);})
+      .on("mouseleave", function(event: any, data: any) {that.nodeMouseleave(event, this, data);});
 
 		let headerg;
 		if (this.isPrimary) {

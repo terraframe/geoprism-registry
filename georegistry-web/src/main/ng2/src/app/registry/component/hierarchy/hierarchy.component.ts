@@ -23,10 +23,27 @@ import { RegistryService, HierarchyService } from '@registry/service';
 import { SvgHierarchyType } from './d3/svg-hierarchy-type';
 import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection } from './d3/svg-util';
 import { SvgHierarchyNode } from './d3/svg-hierarchy-node';
-import { SvgController, Instance, DropTarget } from './d3/svg-controller';
 
 export const TREE_SCALE_FACTOR_X: number = 1.8;
 export const TREE_SCALE_FACTOR_Y: number = 1.8;
+
+export const DEFAULT_NODE_FILL = '#e6e6e6';
+export const DEFAULT_NODE_BANNER_COLOR = '#A29BAB';
+export const INHERITED_NODE_FILL = '#d4d4d4';
+export const INHERITED_NODE_BANNER_COLOR = '#a0a0a0';
+export const RELATED_NODE_BANNER_COLOR = INHERITED_NODE_BANNER_COLOR;
+
+export class Instance {
+  active: boolean;
+  label: string;
+}
+
+export interface DropTarget {
+  dropSelector: string;
+  onDrag(dragEl: Element, dropEl: Element, event: any): void;
+  onDrop(dragEl: Element, event: any): void;
+  [others: string]: any;
+}
 
 @Component({
 
@@ -34,7 +51,7 @@ export const TREE_SCALE_FACTOR_Y: number = 1.8;
 	templateUrl: './hierarchy.component.html',
 	styleUrls: ['./hierarchy.css']
 })
-export class HierarchyComponent implements OnInit, SvgController {
+export class HierarchyComponent implements OnInit {
 
 	userOrganization: string = null;
 
@@ -760,6 +777,16 @@ export class HierarchyComponent implements OnInit, SvgController {
 			}
 		}
 	}
+	
+	public findOrganizationByCode(code: string): Organization {
+    for (let i = 0; i < this.organizations.length; ++i) {
+      let org: Organization = this.organizations[i];
+
+      if (org.code === code) {
+        return org;
+      }
+    }
+  }
 
 	private addChild(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): void {
 		this.hierarchyService.addChildToHierarchy(hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode).then((ht: HierarchyType) => {

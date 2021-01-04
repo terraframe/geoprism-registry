@@ -6,7 +6,7 @@ import { HierarchyType } from '@registry/model/hierarchy';
 
 import { SvgHierarchyType } from './svg-hierarchy-type';
 import { calculateTextWidth } from './svg-util';
-import { SvgController, RELATED_NODE_BANNER_COLOR } from './svg-controller';
+import { HierarchyComponent, RELATED_NODE_BANNER_COLOR } from '../hierarchy.component';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -16,7 +16,7 @@ import { LocalizationService } from '@shared/service';
 
 export class SvgHierarchyNode {
 
-	private hierarchyComponent: SvgController;
+	private hierarchyComponent: HierarchyComponent;
 
 	private svgHierarchyType: SvgHierarchyType;
 
@@ -29,7 +29,7 @@ export class SvgHierarchyNode {
     */
 	private bsModalRef: BsModalRef;
 
-	constructor(hierarchyComponent: SvgController, svgHierarchyType: SvgHierarchyType, geoObjectType: GeoObjectType, treeNode: any,
+	constructor(hierarchyComponent: HierarchyComponent, svgHierarchyType: SvgHierarchyType, geoObjectType: GeoObjectType, treeNode: any,
 		public localizeService: LocalizationService, public modalService: BsModalService) {
 		this.hierarchyComponent = hierarchyComponent;
 		this.svgHierarchyType = svgHierarchyType;

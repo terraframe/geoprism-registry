@@ -172,6 +172,27 @@ li.got-li-item.dragging {
   cursor: not-allowed;
 }
 
+#NodeTooltip {
+	opacity:0;
+	position:fixed;
+	width: 400px;
+	min-width: 400px;
+}
+#NodeTooltip .modal-form {
+	padding-top:10px;
+}
+#NodeTooltip .modal-form .holder {
+	padding-bottom: 0px;
+}
+#NodeTooltip .label-holder {
+	width: 40%;
+}
+#NodeTooltip .holder {
+	width: 60%;
+}
+#NodeTooltip .holder label {
+  line-height:2.8;
+}
 
 :host /deep/ .panel .panel-heading .accordion-toggle:after {
     /* symbol for "opening" panels */
