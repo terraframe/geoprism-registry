@@ -186,10 +186,6 @@ export class SvgHierarchyType {
 	
 	private nodeMousemove(event: any, element: any, data:any)
 	{
-	  d3.select("#NodeTooltip")
-      .style("left", (event.pageX) + "px")
-      .style("top", (event.pageY) + "px");
-    
     d3.select("#hierarchyLabel").html(this.hierarchyType.label.localizedValue);
     d3.select("#hierarchyCodeLabel").html(this.hierarchyType.code);
     
@@ -198,6 +194,30 @@ export class SvgHierarchyType {
     
     d3.select("#hierarchyOrganizationLabel").html(this.hierarchyComponent.findOrganizationByCode(this.hierarchyType.organizationCode).label.localizedValue);
     d3.select("#geoObjectTypeOrganizationLabel").html(this.hierarchyComponent.findOrganizationByCode(this.hierarchyComponent.findGeoObjectTypeByCode(data.data.geoObjectType).organizationCode).label.localizedValue);
+    
+    let nodeTooltip: any = d3.select("#NodeTooltip").node();
+    let nodeTooltipBbox: DOMRect = nodeTooltip.getBoundingClientRect();
+    
+    let pos = {x: event.pageX, y: event.pageY};
+    const pointerOffset: number = 50;
+    
+    // If overflow off bottom of page
+    if ((event.pageY + nodeTooltipBbox.height + pointerOffset) > document.documentElement.scrollHeight)
+    {
+      // render above mouse pointer
+      pos.y = event.pageY - nodeTooltipBbox.height - pointerOffset;
+    }
+    
+    // If overflow off right side of page
+    if ((event.pageX + nodeTooltipBbox.width + pointerOffset) > document.documentElement.scrollWidth)
+    {
+      // render to the left of the mouse pointer
+      pos.x = event.pageX - nodeTooltipBbox.width - pointerOffset;
+    }
+    
+    d3.select("#NodeTooltip")
+      .style("left", pos.x + "px")
+      .style("top", pos.y + "px");
 	}
 	
 	private nodeMouseleave(d: any, element: any, data:any)
