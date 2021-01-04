@@ -62,6 +62,8 @@ export class FeaturePanelComponent implements OnInit {
 	hierarchies: HierarchyOverTime[];
 
 	hierarchy: HierarchyOverTime = null;
+	
+	reason: string = "";
 
 	constructor(public service: RegistryService, private modalService: BsModalService, authService: AuthService) {
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
@@ -168,7 +170,7 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onSubmit(): void {
-		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, null).then(() => {
+		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then(() => {
 			this.featureChange.emit(this.postGeoObject);
 
 			this.updateCode(this._code);
@@ -210,6 +212,7 @@ export class FeaturePanelComponent implements OnInit {
 
 	setEditMode(value: boolean): void {
 		this.isEdit = value;
+		this.reason = null;
 
 		this.modeChange.emit(this.isEdit)
 	}

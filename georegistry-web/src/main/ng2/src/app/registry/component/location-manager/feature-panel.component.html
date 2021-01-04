@@ -15,7 +15,7 @@
       [readOnly]="!isEdit"
       [animate]=true> 
     </geoobject-shared-attribute-editor>
-
+    
     <div *ngIf="isEdit && type.isGeometryEditable" class="panel panel-default">
       <div class="panel-heading">
         <h4 style="margin:0;">
@@ -33,6 +33,13 @@
 
     <div *ngIf="hierarchies != null">
       <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="this.forDate" [hierarchy]="hierarchy" [readOnly]="!isEdit" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
+    </div>
+    
+    <div *ngIf="isEdit && !isMaintainer" class="form-group" style="z-index: 0;">
+      <label> 
+        <localize key="change.request.reason.label"></localize>
+      </label>
+      <textarea rows="4" cols="50" [(ngModel)]="reason" class="form-control" name="reason-input" required></textarea>
     </div>
 
     <div class="button-holder text-right" style="margin-bottom: 20px;">

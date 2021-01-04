@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -29,6 +30,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class SetParentAction extends SetParentActionBase
@@ -49,9 +51,9 @@ public class SetParentAction extends SetParentActionBase
     {
       try
       {
-        ServerGeoObjectService service = new ServerGeoObjectService();
-        ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
-        ServerGeoObjectType type = child.getType();
+        // Important to remember that the child may or may not exist at this point (so we can't fetch it from the DB here)
+        
+        ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(this.getChildTypeCode()).get();
 
         return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
       }
@@ -78,12 +80,13 @@ public class SetParentAction extends SetParentActionBase
   @Override
   public void apply()
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    ServerGeoObjectIF child = service.getGeoObjectByCode(this.getChildCode(), this.getChildTypeCode());
+    // Important to remember that the child may or may not exist at this point (so we can't fetch it from the DB here)
+    
+    ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(this.getChildTypeCode()).get();
 
-    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getJson());
+    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, this.getJson());
 
-    ptnOt.enforceUserHasPermissionSetParents(child.getType().getCode(), true);
+    ptnOt.enforceUserHasPermissionSetParents(this.getChildTypeCode(), true);
 
     super.apply();
   }

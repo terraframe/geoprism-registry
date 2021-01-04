@@ -110,7 +110,7 @@ public class GeoObjectEditorController
         request.addAction(action).apply();
       }
 
-      if (sPtn != null && this.hasChanged(timeGO, sPtn))
+      if (sPtn != null && (isNew || this.hasChanged(timeGO, sPtn)))
       {
         SetParentAction action = new SetParentAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
