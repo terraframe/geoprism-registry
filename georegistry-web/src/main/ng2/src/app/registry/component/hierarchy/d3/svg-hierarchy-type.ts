@@ -205,20 +205,21 @@ export class SvgHierarchyType {
     let nodeTooltipBbox: DOMRect = nodeTooltip.getBoundingClientRect();
     
     let pos = {x: event.pageX, y: event.pageY};
-    const pointerOffset: number = 50;
+    const yPointerOffset: number = 50;
+    const xPointerOffset: number = 0;
     
     // If overflow off bottom of page
-    if ((event.pageY + nodeTooltipBbox.height + pointerOffset) > document.documentElement.scrollHeight)
+    if ((event.pageY + nodeTooltipBbox.height + yPointerOffset) > document.documentElement.scrollHeight)
     {
       // render above mouse pointer
-      pos.y = event.pageY - nodeTooltipBbox.height - pointerOffset;
+      pos.y = event.pageY - nodeTooltipBbox.height - yPointerOffset;
     }
     
     // If overflow off right side of page
-    if ((event.pageX + nodeTooltipBbox.width + pointerOffset) > document.documentElement.scrollWidth)
+    if ((event.pageX + nodeTooltipBbox.width + xPointerOffset) > document.documentElement.scrollWidth)
     {
       // render to the left of the mouse pointer
-      pos.x = event.pageX - nodeTooltipBbox.width - pointerOffset;
+      pos.x = event.pageX - nodeTooltipBbox.width - xPointerOffset;
     }
     
     d3.select("#NodeTooltip")
