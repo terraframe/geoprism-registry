@@ -75,6 +75,7 @@ import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdEnumeration;
 
 import net.geoprism.registry.ChainInheritanceException;
+import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
 import net.geoprism.registry.HierarchyMetadata;
@@ -219,6 +220,13 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     {
       throw new InvalidMasterListCodeException("The geo object type code has an invalid character");
     }
+    if (geoObjectType.getCode().length() > 64)
+    {
+      // Setting the typename on the MdBusiness creates this limitation.
+      CodeLengthException ex = new CodeLengthException();
+      ex.setLength(64);
+      throw ex;
+    }
 
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(geoObjectType.getOrganizationCode(), geoObjectType.getCode(), geoObjectType.getIsPrivate());
 
@@ -264,6 +272,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     MdBusiness mdBusiness = new MdBusiness();
     mdBusiness.setPackageName(RegistryConstants.UNIVERSAL_MDBUSINESS_PACKAGE);
+    
     // The CODE name becomes the class name
     mdBusiness.setTypeName(universal.getUniversalId());
     mdBusiness.setGenerateSource(false);

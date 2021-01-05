@@ -40,6 +40,7 @@ import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.attributes.AttributeLengthCharacterException;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDateTimeDAO;
@@ -57,6 +58,7 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import com.runwaysdk.system.metadata.RelationshipCache;
 
 import net.geoprism.DefaultConfiguration;
+import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
@@ -75,6 +77,15 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     {
       // TODO : A better exception
       throw new AttributeValueException("Organization code cannot be null.", hierarchyType.getOrganizationCode());
+    }
+    
+    String addons = new String(RegistryConstants.UNIVERSAL_RELATIONSHIP_POST + "AllPathsTable");
+    if (hierarchyType.getCode().length() > (64 - addons.length()))
+    {
+      // Initializing the Universal allpaths strategy creates this limitation.
+      CodeLengthException ex = new CodeLengthException();
+      ex.setLength(64 - addons.length());
+      throw ex;
     }
 
     RoleDAO maintainer = RoleDAO.findRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE).getBusinessDAO();
@@ -177,7 +188,18 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
 
     MdTermRelationship mdTermRelationship = new MdTermRelationship();
 
-    mdTermRelationship.setTypeName(hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
+    // The Universal allpaths has a more restrictive limitation.
+//    try
+//    {
+      mdTermRelationship.setTypeName(hierarchyType.getCode() + RegistryConstants.UNIVERSAL_RELATIONSHIP_POST);
+//    }
+//    catch (AttributeLengthCharacterException e)
+//    {
+//      CodeLengthException ex = new CodeLengthException();
+//      ex.setLength(64 - RegistryConstants.UNIVERSAL_RELATIONSHIP_POST.length());
+//      throw ex;
+//    }
+    
     mdTermRelationship.setPackageName(GISConstants.GEO_PACKAGE);
     populate(mdTermRelationship.getDisplayLabel(), hierarchyType.getLabel());
     populate(mdTermRelationship.getDescription(), hierarchyType.getDescription());
