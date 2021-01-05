@@ -952,6 +952,7 @@ export class HierarchyComponent implements OnInit {
 
 		this.geoObjectTypes.forEach((got: GeoObjectType) => {
 			got.canDrag = this.calculateCanDrag(got);
+			got.relatedHierarchies = this.calculateRelatedHierarchies(got);
 		});
 
 		this.onFilterChange();
@@ -1224,7 +1225,7 @@ export class HierarchyComponent implements OnInit {
 
 			let pos = this.getGeoObjectTypePosition(code);
 			this.geoObjectTypes.splice(pos, 1);
-
+			
 			this.refreshAll(this.currentHierarchy);
 
 		}).catch((err: HttpErrorResponse) => {
