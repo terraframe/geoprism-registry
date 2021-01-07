@@ -51,8 +51,9 @@ public class TranslationsTest
   {
     String file = "{\"importParams\":{\"userOverrideMode\":\"NONE\",\"importMode\":\"VALIDATE\",\"identifier\":\"UID\",\"preheatMode\":\"REFERENCE\",\"importStrategy\":\"CREATE_AND_UPDATE\",\"atomicMode\":\"ALL\",\"mergeMode\":\"REPLACE\",\"flushMode\":\"AUTO\",\"skipSharing\":false,\"skipTranslation\":false,\"skipValidation\":false,\"metadataSyncImport\":false,\"username\":\"admin\"},\"status\":\"OK\",\"typeReports\":[{\"klass\":\"org.hisp.dhis.organisationunit.OrganisationUnit\",\"stats\":{\"created\":0,\"updated\":1,\"deleted\":0,\"ignored\":0,\"total\":1}}],\"stats\":{\"created\":0,\"updated\":1,\"deleted\":0,\"ignored\":0,\"total\":1}}";
     
-    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    DHIS2Bridge facade = TestBridgeBuilder.buildDefault(file, 200);
     
+    facade.initialize();
     
     // Change some localization of Sierra Leone using the meatadata api.
     final String payload = "{\n" + 

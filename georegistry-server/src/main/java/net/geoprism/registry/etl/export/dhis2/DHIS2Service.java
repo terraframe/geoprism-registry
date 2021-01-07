@@ -39,9 +39,9 @@ public class DHIS2Service implements DHIS2ServiceIF
 {
   private DHIS2Bridge dhis2;
   
-  public DHIS2Service(HTTPConnector connector, String version)
+  public DHIS2Service(HTTPConnector connector, Integer apiVersion)
   {
-    this.dhis2 = new DHIS2Bridge(connector, version);
+    this.dhis2 = new DHIS2Bridge(connector, apiVersion);
   }
 
   @Override

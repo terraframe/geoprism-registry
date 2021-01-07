@@ -16,15 +16,18 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl.export;
+package net.geoprism.registry.dhis2;
 
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.registry.etl.export.dhis2.DHIS2Service;
 import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
+import net.geoprism.registry.graph.DHIS2ExternalSystem;
 
-public class DataExportServiceFactory
+public class DHIS2ServiceFactory
 {
-  private static DataExportServiceFactory instance;
+  
+  
+  private static DHIS2ServiceFactory instance;
   
   private DHIS2ServiceIF dhis2;
   
@@ -32,30 +35,48 @@ public class DataExportServiceFactory
   {
   }
   
-  public static synchronized DataExportServiceFactory getInstance()
+  public static synchronized DHIS2ServiceFactory getInstance()
   {
     if (instance == null)
     {
-      instance = new DataExportServiceFactory();
+      instance = new DHIS2ServiceFactory();
       instance.initialize();
     }
     
     return instance;
   }
   
-  public synchronized DHIS2ServiceIF instanceGetDhis2Service(HTTPConnector connector, String version)
+  public synchronized DHIS2ServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system)
   {
     if (this.dhis2 == null)
     {
-      this.dhis2 = new DHIS2Service(connector, version);
+      HTTPConnector connector = new HTTPConnector();
+      connector.setServerUrl(system.getUrl());
+      connector.setCredentials(system.getUsername(), system.getPassword());
+      
+      this.dhis2 = new DHIS2Service(connector, getAPIVersion(system));
     }
     
     return this.dhis2;
   }
   
-  public static DHIS2ServiceIF getDhis2Service(HTTPConnector connector, String version)
+  public Integer getAPIVersion(DHIS2ExternalSystem system)
   {
-    return getInstance().instanceGetDhis2Service(connector, version);
+//    String in = system.getVersion();
+//
+//    if (in.startsWith("2.31"))
+//    {
+//      return "26";
+//    }
+//
+//    return "26"; // We currently only support API version 26 right now anyway
+    
+    return null;
+  }
+  
+  public static DHIS2ServiceIF getDhis2Service(DHIS2ExternalSystem system)
+  {
+    return getInstance().instanceGetDhis2Service(system);
   }
   
   public static void setDhis2Service(DHIS2ServiceIF dhis2)

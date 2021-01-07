@@ -18,6 +18,8 @@
  */
 package net.geoprism.dhis2.dhis2adapter.exception;
 
+import com.google.gson.JsonObject;
+
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 public class UnexpectedResponseException extends Exception
@@ -28,6 +30,20 @@ public class UnexpectedResponseException extends Exception
   private DHIS2Response response;
   
   private String errorMessage;
+  
+  public UnexpectedResponseException(DHIS2Response response)
+  {
+    super( response.getJsonObject() != null && response.getJsonObject().has("message") ? response.getJsonObject().get("message").getAsString() : null );
+    
+    this.setResponse(response);
+  }
+  
+  public UnexpectedResponseException(Throwable t, DHIS2Response response)
+  {
+    super( response.getJsonObject() != null && response.getJsonObject().has("message") ? response.getJsonObject().get("message").getAsString() : null );
+    
+    this.setResponse(response);
+  }
   
   public UnexpectedResponseException() {
     super();
@@ -59,16 +75,6 @@ public class UnexpectedResponseException extends Exception
   public void setResponse(DHIS2Response response)
   {
     this.response = response;
-  }
-
-  public String getErrorMessage()
-  {
-    return errorMessage;
-  }
-
-  public void setErrorMessage(String errorMessage)
-  {
-    this.errorMessage = errorMessage;
   }
   
 }

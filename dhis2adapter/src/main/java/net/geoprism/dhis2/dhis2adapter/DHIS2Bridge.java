@@ -20,12 +20,17 @@ package net.geoprism.dhis2.dhis2adapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import com.google.gson.JsonObject;
+
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
@@ -41,17 +46,24 @@ import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 
 public class DHIS2Bridge
 {
-  private String version;
+  private Integer remoteServerApiVersion;
+  
+  private Integer apiVersion;
   
   private ConnectorIF connector;
   
   Dhis2IdCache idCache;
   
-  public DHIS2Bridge(ConnectorIF connector, String version)
+  public DHIS2Bridge(ConnectorIF connector, Integer apiVersion)
   {
     this.connector = connector;
-    this.version = version;
     this.idCache = new Dhis2IdCache(this);
+    this.apiVersion = apiVersion;
+  }
+  
+  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  {
+    validateVersion();
   }
   
   public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
@@ -179,16 +191,79 @@ public class DHIS2Bridge
   
   private String buildApiEndpoint()
   {
-    if (version == null || version == "")
+    if (apiVersion == null || apiVersion == 0 || apiVersion == -1)
     {
       return "api/";
     }
     else
     {
-      return "api/" + version + "/";
+      return "api/" + String.valueOf(apiVersion) + "/";
     }
   }
   
+  public Integer getVersion()
+  {
+    return apiVersion;
+  }
+
+  public void setVersion(Integer apiVersion)
+  {
+    this.apiVersion = apiVersion;
+  }
+  
+  /**
+   * Checks to make sure that the selected version is compatible with the selected DHIS2 server.
+   * Also sets the remoteServerApiVersion.
+   * 
+   * @throws UnexpectedResponseException 
+   * @throws HTTPException 
+   * @throws InvalidLoginException 
+   * @throws IncompatibleServerVersionException 
+   */
+  public void validateVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  {
+    DHIS2Response resp = this.systemInfo();
+    
+    if (!resp.isSuccess())
+    {
+      throw new UnexpectedResponseException(resp);
+    }
+    
+    Matcher m = null;
+    try
+    {
+      JsonObject jo = resp.getJsonObject();
+      
+      String serverVersion = jo.get("version").getAsString();
+      
+      Pattern p = Pattern.compile("\\d+\\.(\\d+)\\.\\d+");
+      m = p.matcher(serverVersion);
+    }
+    catch (Throwable t)
+    {
+      throw new UnexpectedResponseException(t, resp);
+    }
+    
+    if (m.matches())
+    {
+      this.remoteServerApiVersion = Integer.parseInt(m.group(1));
+      
+      if (this.apiVersion < this.remoteServerApiVersion - 2 || this.apiVersion > this.remoteServerApiVersion)
+      {
+        throw new IncompatibleServerVersionException(this.apiVersion, this.remoteServerApiVersion);
+      }
+    }
+    else
+    {
+      throw new UnexpectedResponseException(resp);
+    }
+  }
+  
+  public Integer getRemoteServerAPIVersion()
+  {
+    return this.remoteServerApiVersion;
+  }
+
   public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     if (!url.contains("?") && !url.endsWith(".json"))

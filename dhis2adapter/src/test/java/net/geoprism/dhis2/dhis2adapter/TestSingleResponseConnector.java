@@ -27,27 +27,29 @@ import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
-public class TestConnector implements ConnectorIF
+public class TestSingleResponseConnector extends AbstractTestConnector
 {
   
   private String response;
   
   private int statusCode;
-
-  public TestConnector(String response, int statusCode)
+  
+  public TestSingleResponseConnector(String response, String versionResponse, int statusCode)
   {
+    super(versionResponse);
+    
     this.response = response;
     this.statusCode = statusCode;
   }
   
   @Override
-  public DHIS2Response httpGet(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpGetSubclass(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     return new DHIS2Response(this.response, this.statusCode);
   }
 
   @Override
-  public DHIS2Response httpPost(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     return new DHIS2Response(this.response, this.statusCode);
   }
@@ -57,5 +59,5 @@ public class TestConnector implements ConnectorIF
   {
     return new DHIS2Response(this.response, this.statusCode);
   }
-
+  
 }

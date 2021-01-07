@@ -67,6 +67,7 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
@@ -171,36 +172,6 @@ public class DataExportJob extends DataExportJobBase
     return record;
   }
 
-  /**
-   * We want the actual API version, which is different than the DHIS2 core
-   * version. This function will consume the DHIS2 version and return an API
-   * version.
-   * 
-   * @return
-   */
-  public static String getAPIVersion(DHIS2ExternalSystem system)
-  {
-//    String in = system.getVersion();
-//
-//    if (in.startsWith("2.31"))
-//    {
-//      return "26";
-//    }
-//
-//    return "26"; // We currently only support API version 26 right now anyway
-    
-    return null;
-  }
-  
-  public static DHIS2ServiceIF getDHIS2Service(DHIS2ExternalSystem system)
-  {
-    HTTPConnector connector = new HTTPConnector();
-    connector.setServerUrl(system.getUrl());
-    connector.setCredentials(system.getUsername(), system.getPassword());
-
-    return DataExportServiceFactory.getDhis2Service(connector, getAPIVersion(system));
-  }
-
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
@@ -208,7 +179,7 @@ public class DataExportJob extends DataExportJobBase
     
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
-    this.dhis2 = getDHIS2Service(this.dhis2Config.getSystem());
+    this.dhis2 = DHIS2ServiceFactory.getDhis2Service(this.dhis2Config.getSystem());
 
     this.setStage(history, ExportStage.EXPORT);
 

@@ -87,20 +87,7 @@ public class Dhis2IdCache
     }
     else
     {
-      UnexpectedResponseException ex = new UnexpectedResponseException();
-      
-      ex.setResponse(response);
-      
-      if (json.has("message"))
-      {
-        ex.setErrorMessage(json.get("message").getAsString());
-      }
-      else
-      {
-        ex.setErrorMessage(json.toString().substring(0, 500));
-      }
-      
-      throw ex;
+      throw new UnexpectedResponseException(response);
     }
     
     return response;

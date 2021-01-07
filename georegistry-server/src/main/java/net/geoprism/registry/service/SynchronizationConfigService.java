@@ -61,6 +61,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.DataExportJobQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -141,7 +142,7 @@ public class SynchronizationConfigService
 
     // Add DHIS2 OrgUnitGroups
     DHIS2ExternalSystem system = DHIS2ExternalSystem.get(externalSystemId);
-    DHIS2ServiceIF dhis2 = DataExportJob.getDHIS2Service(system);
+    DHIS2ServiceIF dhis2 = DHIS2ServiceFactory.getDhis2Service(system);
 
     try
     {
@@ -206,7 +207,7 @@ public class SynchronizationConfigService
         joAttr.addProperty("type", cgrAttr.getType());
         joAttr.addProperty("typeLabel", AttributeTypeMetadata.get().getTypeEnumDisplayLabel(cgrAttr.getType()));
 
-        DHIS2ServiceIF dhis2 = DataExportJob.getDHIS2Service(system);
+        DHIS2ServiceIF dhis2 = DHIS2ServiceFactory.getDhis2Service(system);
 
         if (dhis2Attrs == null)
         {

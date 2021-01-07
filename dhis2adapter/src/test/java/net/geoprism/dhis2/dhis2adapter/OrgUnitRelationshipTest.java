@@ -45,9 +45,11 @@ public class OrgUnitRelationshipTest
   @Test
   public void testMetadataPost() throws Exception
   {
-    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/2.31.9/metadataPost-OrgUnitChangeParent.json"), "UTF-8");
+    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/metadataPost-OrgUnitChangeParent.json"), "UTF-8");
     
-    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    DHIS2Bridge facade = TestBridgeBuilder.buildDefault(file, 200);
+    
+    facade.initialize();
     
     // This payload changes the parent of OU_559 (Ngelehun CHC) from Badjia (OU_539) to Baoma (OU_540)
     final String payload = "{\n" + 
