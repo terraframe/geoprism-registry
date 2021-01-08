@@ -15,7 +15,7 @@ export function calculateTextWidth(text: string, fontSize: number): number {
 
 	d3.select(".g-text-calc").remove();
 
-	return bbox.width;
+	return bbox.width + 2; // +2 is for padding. I caught this truncating just ever so slightly
 }
 
 export function svgPoint(x: number, y: number) {
