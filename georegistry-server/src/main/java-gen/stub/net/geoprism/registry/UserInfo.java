@@ -52,6 +52,7 @@ import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
 import net.geoprism.registry.conversion.RegistryRoleConverter;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class UserInfo extends UserInfoBase
@@ -74,8 +75,12 @@ public class UserInfo extends UserInfoBase
 
   public static JSONObject page(Integer pageSize, Integer pageNumber)
   {
+    final RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    
     List<Organization> organizations = Organization.getUserOrganizations();
-    boolean isSRA = ServiceFactory.getRolePermissionService().isSRA();
+    
+    boolean isSRA = perms.isSRA();
+    boolean isRMorRCorAC = (!isSRA && !perms.isRA()) && (perms.isRM() || perms.isRC() || perms.isAC());
     
     List<ExternalSystem> externalSystemList = ExternalSystem.getExternalSystemsForOrg(1, 100);
     JSONArray externalSystems = new JSONArray();
@@ -110,6 +115,11 @@ public class UserInfo extends UserInfoBase
 
         vQuery.WHERE(relQuery.parentOid().EQ(orgQuery.getOid()));
         vQuery.WHERE(uQuery.getOid().EQ(relQuery.childOid()));
+      }
+      
+      if (isRMorRCorAC)
+      {
+        vQuery.WHERE(uQuery.getInactive().EQ(false));
       }
 
       vQuery.ORDER_BY_ASC(uQuery.getUsername());
