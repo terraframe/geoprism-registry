@@ -18,19 +18,23 @@
  */
 package net.geoprism.registry.account;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 
+import net.geoprism.EmailSetting;
 import net.geoprism.GeoprismProperties;
 import net.geoprism.GeoprismUser;
 import net.geoprism.account.InvalidUserInviteToken;
@@ -47,6 +51,75 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
   public RegistryAccountUtil()
   {
     super();
+  }
+  
+  /**
+   * MdMethod
+   * 
+   * Initiates a user invite request. If the user already has one in progress,
+   * it will be invalidated and a new one will be issued. If the server's email
+   * settings have not been properly set up, or the user does not exist, an
+   * error will be thrown.
+   * 
+   * @param username
+   */
+  @Authenticate
+  public static void initiate(String invite, String roleIds, String serverExternalUrl)
+  {
+    initiateInTrans(invite, roleIds, serverExternalUrl);
+  }
+
+  @Transaction
+  public static void initiateInTrans(String sInvite, String roleIds, String serverExternalUrl)
+  {
+    JSONObject joInvite = new JSONObject(sInvite);
+
+    String email = joInvite.getString("email");
+
+    UserInvite invite = new UserInvite();
+    invite.setEmail(email);
+
+    UserInviteQuery query = new UserInviteQuery(new QueryFactory());
+    query.WHERE(query.getEmail().EQi(invite.getEmail()));
+    OIterator<? extends UserInvite> it = query.getIterator();
+
+    while (it.hasNext())
+    {
+      it.next().delete();
+    }
+
+    invite.setStartTime(new Date());
+    invite.setToken(UserInvite.generateEncryptedToken(invite.getEmail()));
+    invite.setRoleIds(roleIds);
+
+    invite.apply();
+
+    RegistryAccountUtil.sendEmail(invite, serverExternalUrl);
+  }
+  
+  public static void sendEmail(UserInvite invite, String serverExternalUrl)
+  {
+    final int expireTimeInHours = GeoprismProperties.getInviteUserTokenExpireTime();
+    
+    String address = invite.getEmail();
+    String link = serverExternalUrl + "/cgr/manage#/admin/invite-complete/" + invite.getToken();
+
+    String subject = LocalizationFacade.localize("user.invite.email.subject");
+    String body = LocalizationFacade.localize("user.invite.email.body");
+    body = body.replaceAll("\\\\n", "\n");
+    body = body.replace("${link}", link);
+    body = body.replace("${expireTime}", String.valueOf(expireTimeInHours));
+
+    EmailSetting.sendEmail(subject, body, new String[] { address });
+  }
+  
+  public static String generateEncryptedToken(String email)
+  {
+    String hashedTime = UUID.nameUUIDFromBytes(String.valueOf(System.currentTimeMillis()).getBytes()).toString();
+
+    String hashedEmail = UUID.nameUUIDFromBytes(email.getBytes()).toString();
+
+    return hashedTime + hashedEmail;
   }
 
   /**
