@@ -53,8 +53,8 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import junit.framework.Assert;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
-import net.geoprism.registry.etl.export.DataExportServiceFactory;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -106,7 +106,7 @@ public class DHIS2ExportTest
     testData.setUpInstanceData();
 
     this.dhis2 = new DHIS2TestService();
-    DataExportServiceFactory.setDhis2Service(this.dhis2);
+    DHIS2ServiceFactory.setDhis2TransportService(this.dhis2);
 
     system = createDhis2ExternalSystem();
 

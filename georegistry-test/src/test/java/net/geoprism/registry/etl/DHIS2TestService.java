@@ -42,9 +42,9 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
-import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 
-public class DHIS2TestService implements DHIS2ServiceIF
+public class DHIS2TestService implements DHIS2TransportServiceIF
 {
 
   private LinkedList<Dhis2Payload> payloads = new LinkedList<Dhis2Payload>();
@@ -223,6 +223,24 @@ public class DHIS2TestService implements DHIS2ServiceIF
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getVersionRemoteServer()
+  {
+    return "2.31.9";
+  }
+
+  @Override
+  public Integer getVersionRemoteServerApi()
+  {
+    return 31;
+  }
+
+  @Override
+  public Integer getVersionApiCompat()
+  {
+    return 31;
   }
 
 }

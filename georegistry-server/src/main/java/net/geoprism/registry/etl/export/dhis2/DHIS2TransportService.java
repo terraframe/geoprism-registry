@@ -121,4 +121,22 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   {
     return this.dhis2.apiPatch(url, params, body);
   }
+
+  @Override
+  public String getVersionRemoteServer()
+  {
+    return this.dhis2.getVersionRemoteServer();
+  }
+
+  @Override
+  public Integer getVersionRemoteServerApi()
+  {
+    return this.dhis2.getVersionRemoteServerApi();
+  }
+
+  @Override
+  public Integer getVersionApiCompat()
+  {
+    return this.dhis2.getVersionApiCompat();
+  }
 }
