@@ -73,7 +73,7 @@ import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
-import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
@@ -99,7 +99,7 @@ public class DataExportJob extends DataExportJobBase
 
   private DHIS2SyncConfig       dhis2Config;
 
-  private DHIS2ServiceIF           dhis2;
+  private DHIS2TransportServiceIF dhis2;
   
   private ExportHistory         history;
 
@@ -157,15 +157,7 @@ public class DataExportJob extends DataExportJobBase
   private JobHistoryRecord startInTrans(SynchronizationConfig configuration)
   {
     ExportHistory history = (ExportHistory) this.createNewHistory();
-
-    // TODO
-    // configuration.setHistoryId(history.getOid());
-    // configuration.setJobId(this.getOid());
-
-    // history.appLock();
-    // history.setConfig(configuration);
-    // history.apply();
-
+    
     JobHistoryRecord record = new JobHistoryRecord(this, history);
     record.apply();
 
@@ -179,7 +171,7 @@ public class DataExportJob extends DataExportJobBase
     
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
-    this.dhis2 = DHIS2ServiceFactory.getDhis2Service(this.dhis2Config.getSystem());
+    this.dhis2 = DHIS2ServiceFactory.getDhis2TransportService(this.dhis2Config.getSystem());
 
     this.setStage(history, ExportStage.EXPORT);
 
@@ -207,7 +199,7 @@ public class DataExportJob extends DataExportJobBase
   private long getCount(ServerGeoObjectType got)
   {
     MdVertexDAOIF mdVertex = got.getMdVertex();
-
+    
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT COUNT(*) FROM " + mdVertex.getDBClassName());
 

@@ -71,7 +71,7 @@ import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache.IntegratedOptionSet;
-import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -142,7 +142,7 @@ public class SynchronizationConfigService
 
     // Add DHIS2 OrgUnitGroups
     DHIS2ExternalSystem system = DHIS2ExternalSystem.get(externalSystemId);
-    DHIS2ServiceIF dhis2 = DHIS2ServiceFactory.getDhis2Service(system);
+    DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
 
     try
     {
@@ -207,7 +207,7 @@ public class SynchronizationConfigService
         joAttr.addProperty("type", cgrAttr.getType());
         joAttr.addProperty("typeLabel", AttributeTypeMetadata.get().getTypeEnumDisplayLabel(cgrAttr.getType()));
 
-        DHIS2ServiceIF dhis2 = DHIS2ServiceFactory.getDhis2Service(system);
+        DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
 
         if (dhis2Attrs == null)
         {
@@ -305,7 +305,7 @@ public class SynchronizationConfigService
     return response;
   }
 
-  private List<Attribute> getDHIS2Attributes(DHIS2ServiceIF dhis2)
+  private List<Attribute> getDHIS2Attributes(DHIS2TransportServiceIF dhis2)
   {
     try
     {

@@ -35,11 +35,11 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 
-public class DHIS2Service implements DHIS2ServiceIF
+public class DHIS2TransportService implements DHIS2TransportServiceIF
 {
   private DHIS2Bridge dhis2;
   
-  public DHIS2Service(HTTPConnector connector, Integer apiVersion)
+  public DHIS2TransportService(HTTPConnector connector, Integer apiVersion)
   {
     this.dhis2 = new DHIS2Bridge(connector, apiVersion);
   }

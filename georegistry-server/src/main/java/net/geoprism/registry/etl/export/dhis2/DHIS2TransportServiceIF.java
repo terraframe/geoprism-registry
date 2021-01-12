@@ -33,7 +33,7 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 
-public interface DHIS2ServiceIF
+public interface DHIS2TransportServiceIF
 {
   public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException;
 
@@ -60,4 +60,16 @@ public interface DHIS2ServiceIF
   public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
   
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
+  
+  public String getVersionRemoteServer();
+  
+  /**
+   * Returns the API version of the remote DHIS2 server.
+   */
+  public Integer getVersionRemoteServerApi();
+  
+  /**
+   * Returns the API version of the compatibility layer used for DHIS2 communication.
+   */
+  public Integer getVersionApiCompat();
 }

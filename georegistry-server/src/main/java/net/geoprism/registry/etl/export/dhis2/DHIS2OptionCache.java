@@ -76,9 +76,9 @@ public class DHIS2OptionCache
   
   private Map<String, IntegratedOptionSet> optionSets;
   
-  private DHIS2ServiceIF dhis2;
+  private DHIS2TransportServiceIF dhis2;
   
-  public DHIS2OptionCache(DHIS2ServiceIF dhis2)
+  public DHIS2OptionCache(DHIS2TransportServiceIF dhis2)
   {
     this.dhis2 = dhis2;
     

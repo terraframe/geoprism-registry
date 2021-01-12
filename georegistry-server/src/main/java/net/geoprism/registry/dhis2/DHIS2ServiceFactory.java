@@ -19,8 +19,8 @@
 package net.geoprism.registry.dhis2;
 
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
-import net.geoprism.registry.etl.export.dhis2.DHIS2Service;
-import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportService;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 
 public class DHIS2ServiceFactory
@@ -29,7 +29,7 @@ public class DHIS2ServiceFactory
   
   private static DHIS2ServiceFactory instance;
   
-  private DHIS2ServiceIF dhis2;
+  private DHIS2TransportServiceIF dhis2;
   
   private void initialize()
   {
@@ -46,7 +46,7 @@ public class DHIS2ServiceFactory
     return instance;
   }
   
-  public synchronized DHIS2ServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system)
+  public synchronized DHIS2TransportServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system)
   {
     if (this.dhis2 == null)
     {
@@ -54,7 +54,7 @@ public class DHIS2ServiceFactory
       connector.setServerUrl(system.getUrl());
       connector.setCredentials(system.getUsername(), system.getPassword());
       
-      this.dhis2 = new DHIS2Service(connector, getAPIVersion(system));
+      this.dhis2 = new DHIS2TransportService(connector, getAPIVersion(system));
     }
     
     return this.dhis2;
@@ -74,12 +74,12 @@ public class DHIS2ServiceFactory
     return null;
   }
   
-  public static DHIS2ServiceIF getDhis2Service(DHIS2ExternalSystem system)
+  public static DHIS2TransportServiceIF getDhis2TransportService(DHIS2ExternalSystem system)
   {
     return getInstance().instanceGetDhis2Service(system);
   }
   
-  public static void setDhis2Service(DHIS2ServiceIF dhis2)
+  public static void setDhis2TransportService(DHIS2TransportServiceIF dhis2)
   {
     getInstance().dhis2 = dhis2;
   }

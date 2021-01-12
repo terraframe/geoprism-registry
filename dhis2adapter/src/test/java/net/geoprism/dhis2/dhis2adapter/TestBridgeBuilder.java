@@ -25,11 +25,11 @@ public class TestBridgeBuilder
   
   public static DHIS2Bridge buildDefault(String response, int statusCode)
   {
-    return new DHIS2Bridge(new TestSingleResponseConnector(response, getVersionResponse(Constants.DHIS2_VERSION), statusCode), Constants.DHIS2_VERSION);
+    return new DHIS2Bridge(new TestSingleResponseConnector(response, getVersionResponse(Constants.DHIS2_API_VERSION), statusCode), Constants.DHIS2_API_VERSION);
   }
   
   public static DHIS2Bridge buildFakeId()
   {
-    return new DHIS2Bridge(new FakeIdConnector(getVersionResponse(Constants.DHIS2_VERSION)), Constants.DHIS2_VERSION);
+    return new DHIS2Bridge(new FakeIdConnector(getVersionResponse(Constants.DHIS2_API_VERSION)), Constants.DHIS2_API_VERSION);
   }
 }

@@ -20,7 +20,9 @@ package net.geoprism.dhis2.dhis2adapter;
 
 public class Constants
 {
-  public static final Integer DHIS2_VERSION = 31;
+  public static final Integer DHIS2_API_VERSION = 31;
+  
+  public static final String DHIS2_VERSION = "2.31.9";
   
   public static final String DHIS2_URL = "https://play.dhis2.org/2.31.9";
   

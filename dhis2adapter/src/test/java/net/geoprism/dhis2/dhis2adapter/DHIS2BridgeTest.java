@@ -53,11 +53,28 @@ public class DHIS2BridgeTest
   @Test(expected = IncompatibleServerVersionException.class)
   public void testBadApiVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
   {
-    String versionResponse = TestBridgeBuilder.getVersionResponse(Constants.DHIS2_VERSION);
+    String versionResponse = TestBridgeBuilder.getVersionResponse(Constants.DHIS2_API_VERSION);
     
-    DHIS2Bridge facade = new DHIS2Bridge(new TestSingleResponseConnector(null, versionResponse, 200), Constants.DHIS2_VERSION - 3);
+    DHIS2Bridge facade = new DHIS2Bridge(new TestSingleResponseConnector(null, versionResponse, 200), Constants.DHIS2_API_VERSION - 3);
     
     facade.initialize();
+  }
+  
+  public void testGetVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  {
+    final String versionRemote = Constants.DHIS2_VERSION;
+    final Integer versionApiRemote = Constants.DHIS2_API_VERSION;
+    final Integer versionApiCompat = versionApiRemote - 2;
+    
+    String versionResponse = TestBridgeBuilder.getVersionResponse(versionApiRemote);
+    
+    DHIS2Bridge facade = new DHIS2Bridge(new TestSingleResponseConnector(null, versionResponse, 200), versionApiCompat);
+    
+    facade.initialize();
+    
+    Assert.assertEquals(versionApiRemote, facade.getVersionRemoteServerApi());
+    Assert.assertEquals(versionApiCompat, facade.getVersionApiCompat());
+    Assert.assertEquals(versionRemote, facade.getVersionRemoteServer());
   }
   
   @Test
