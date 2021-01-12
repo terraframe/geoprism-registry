@@ -25,6 +25,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.scheduler.JobHistory;
 
 public class RowValidationProblem extends RowValidationProblemBase
 {
@@ -39,26 +40,7 @@ public class RowValidationProblem extends RowValidationProblemBase
   
   public RowValidationProblem(Throwable exception)
   {
-    this.setExceptionJson(RowValidationProblem.serializeException(exception).toString());
-  }
-  
-  public static JSONObject serializeException(Throwable exception)
-  {
-    JSONObject joException = new JSONObject();
-    
-    if (exception instanceof SmartException)
-    {
-      joException.put("type", ((SmartException)exception).getType());
-    }
-    else
-    {
-      joException.put("type", exception.getClass().getName());
-    }
-    
-    String message = RunwayException.localizeThrowable(exception, Session.getCurrentLocale());
-    joException.put("message", message);
-    
-    return joException;
+    this.setExceptionJson(JobHistory.exceptionToJson(exception).toString());
   }
 
   @Override
@@ -80,7 +62,13 @@ public class RowValidationProblem extends RowValidationProblemBase
   {
     JsonObject object = super.toJson();
     
-    object.add("exception", JsonParser.parseString(this.getExceptionJson()));
+    JsonObject errJson = JsonParser.parseString(this.getExceptionJson()).getAsJsonObject();
+    
+    JsonObject exception = new JsonObject();
+    exception.addProperty("type", errJson.get("type").getAsString());
+    exception.addProperty("message", JobHistory.readLocalizedException(new JSONObject(this.getExceptionJson()), Session.getCurrentLocale()));
+    
+    object.add("exception", exception);
 
     return object;
   }

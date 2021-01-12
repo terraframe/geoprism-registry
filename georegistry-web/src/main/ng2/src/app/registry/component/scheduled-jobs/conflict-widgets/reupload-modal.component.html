@@ -1,12 +1,12 @@
 <div class="modal-body">
 
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">{{errorMessage}}</div>
+
   <div class="heading">
     <h3>{{title}}</h3>
   </div>
 
-  <span *ngIf="errorMessage">{{errorMessage}}</span>
-
-  <span>{{message}}</span>
+  <div>{{message}}</div>
 
   <form *ngIf="job" style="margin-top: 30px;" #form="ngForm">
     <div class="form-group row">
