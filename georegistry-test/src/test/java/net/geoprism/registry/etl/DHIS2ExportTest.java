@@ -178,7 +178,7 @@ public class DHIS2ExportTest
     system.setUsername("mock");
     system.setPassword("mock");
     system.setUrl("mock");
-    system.setVersion("2.31.9");
+    system.setVersion(this.dhis2.getVersionRemoteServer());
     system.apply();
 
     return system;
@@ -586,5 +586,14 @@ public class DHIS2ExportTest
       Assert.assertNotNull(attr.get("typeLabel").getAsString());
       Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.fetchDTO().getType()), attr.get("typeLabel").getAsString());
     }
+  }
+  
+  @Test
+  @Request
+  public void testGetConfigForExternalSystem()
+  {
+    JsonObject jo = this.syncService.getConfigForExternalSystem(testData.clientSession.getSessionId(), this.system.getOid(), testData.HIER.getCode());
+    
+    System.out.println(jo.toString());
   }
 }
