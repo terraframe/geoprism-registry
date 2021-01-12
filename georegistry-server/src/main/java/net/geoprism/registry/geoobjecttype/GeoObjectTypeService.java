@@ -97,6 +97,7 @@ public class GeoObjectTypeService
         if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(serverGot.getOrganization().getCode(), serverGot.getCode(), serverGot.getIsPrivate()))
         {
           it.remove();
+          continue;
         }
       }
       else
@@ -104,6 +105,7 @@ public class GeoObjectTypeService
         if (!ServiceFactory.getGeoObjectTypePermissionService().canWrite(serverGot.getOrganization().getCode(), serverGot.getCode(), serverGot.getIsPrivate()))
         {
           it.remove();
+          continue;
         }
       }
 
@@ -127,6 +129,7 @@ public class GeoObjectTypeService
         if (!contains)
         {
           it.remove();
+          continue;
         }
       }
     }

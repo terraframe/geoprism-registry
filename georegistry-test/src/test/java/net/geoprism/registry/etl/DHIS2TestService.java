@@ -190,6 +190,14 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
         
         return new MetadataGetResponse<T>(resp, 200, objectNamePlural, dhis2Type);
       }
+      else if (objectNamePlural.equals(DHIS2Objects.ORGANISATION_UNIT_GROUPS))
+      {
+        InputStream data = Thread.currentThread().getContextClassLoader().getResourceAsStream("dhis2/default/organisationUnitGroups.json");
+        
+        String resp = IOUtils.toString(data, "UTF-8");
+        
+        return new MetadataGetResponse<T>(resp, 200, objectNamePlural, dhis2Type);
+      }
       else
       {
         throw new UnsupportedOperationException();

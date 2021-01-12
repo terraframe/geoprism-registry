@@ -48,6 +48,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.controller.RegistryController;
+import net.geoprism.registry.controller.SynchronizationConfigController;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -256,6 +257,11 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     {
       throw new RuntimeException(e);
     }
+  }
+  
+  public JsonObject getConfigForExternalSystem(String externalSystemId, String hierarchyTypeCode)
+  {
+    return JsonParser.parseString(responseToString(new SynchronizationConfigController().getConfigForExternalSystem(this.clientRequest, externalSystemId, hierarchyTypeCode))).getAsJsonObject();
   }
   
   public HierarchyType addToHierarchy(String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)

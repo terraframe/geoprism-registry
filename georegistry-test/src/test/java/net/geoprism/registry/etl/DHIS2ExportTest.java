@@ -63,13 +63,16 @@ import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestUserInfo;
 
 public class DHIS2ExportTest
 {
@@ -589,11 +592,25 @@ public class DHIS2ExportTest
   }
   
   @Test
-  @Request
   public void testGetConfigForExternalSystem()
   {
-    JsonObject jo = this.syncService.getConfigForExternalSystem(testData.clientSession.getSessionId(), this.system.getOid(), testData.HIER.getCode());
+    TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.ADMIN_USER, AllAttributesDataset.USER_ORG_RA };
     
-    System.out.println(jo.toString());
+    for (TestUserInfo user : users)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonObject jo = adapter.getConfigForExternalSystem(this.system.getOid(), AllAttributesDataset.HIER.getCode());
+        
+        Assert.assertTrue(jo.has("types"));
+        JsonArray types = jo.get("types").getAsJsonArray();
+        
+        Assert.assertTrue(types.size() == 7 || types.size() == 8);
+        
+        Assert.assertTrue(jo.has("orgUnitGroups"));
+        JsonArray orgUnitGroups = jo.get("orgUnitGroups").getAsJsonArray();
+        
+        Assert.assertEquals(18, orgUnitGroups.size());
+      });
+    }
   }
 }
