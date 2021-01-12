@@ -61,20 +61,20 @@ import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
-import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
+import net.geoprism.registry.test.USATestData;
 
-public class DHIS2ExportTest
+public class DHIS2ServiceTest
 {
   protected static AllAttributesDataset  testData;
 
@@ -427,8 +427,6 @@ public class DHIS2ExportTest
 
     JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.clientSession.getSessionId(), config.getSystem(), testData.GOT_ALL.getCode());
 
-    System.out.println(custConfig.toString());
-
     for (int i = 0; i < custConfig.size(); ++i)
     {
       JsonObject attr = custConfig.get(i).getAsJsonObject();
@@ -612,5 +610,39 @@ public class DHIS2ExportTest
         Assert.assertEquals(18, orgUnitGroups.size());
       });
     }
+  }
+  
+  @Request
+  @Test
+  public void testExportGeoObjects() throws InterruptedException
+  {
+    SynchronizationConfig config = createSyncConfig(null);
+    
+    SynchronizationConfigService service = new SynchronizationConfigService();
+
+    JsonObject joHist = service.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(joHist.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ExportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(1), hist.getWorkTotal());
+    Assert.assertEquals(new Long(1), hist.getWorkProgress());
+    Assert.assertEquals(ImportStage.COMPLETE.name(), hist.getStage().get(0).name());
+    
+    LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
+    Assert.assertEquals(1, payloads.size());
+    
+    Dhis2Payload payload = payloads.get(0);
+    
+    JsonObject data = JsonParser.parseString(payload.getData()).getAsJsonObject();
+    
+    JsonArray orgUnits = data.get("organisationUnits").getAsJsonArray();
+    
+    Assert.assertEquals(1, orgUnits.size());
+    
+    JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
+    
+    Assert.assertEquals("AllAttrGO_ALL", orgUnit.get("code").getAsString());
   }
 }
