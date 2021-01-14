@@ -80,6 +80,22 @@ export class ExternalSystemService {
 			.toPromise();
 	}
 	
+	getSystemCapabilities(system: ExternalSystem): Promise<{oauth:boolean}> {
+
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    this.eventService.start();
+
+    return this.http
+      .post<{oauth:boolean}>(acp + '/external-system/system-capabilities', JSON.stringify({ system: system }), { headers: headers })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
+	
 	removeExternalSystem(oid: string): Promise<void> {
 
 		let headers = new HttpHeaders({

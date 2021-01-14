@@ -34,6 +34,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
+import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2PluginZipManager;
 import net.geoprism.registry.service.ExternalSystemService;
 
@@ -45,6 +46,14 @@ public class ExternalSystemController
   public ExternalSystemController()
   {
     this.service = new ExternalSystemService();
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "system-capabilities")
+  public ResponseIF getSystemCapabilities(ClientRequestIF request, @RequestParamter(name = "system") String systemJSON)
+  {
+    JsonObject capabilities = new DHIS2FeatureService().getSystemCapabilities(request.getSessionId(), systemJSON);
+    
+    return new RestBodyResponse(capabilities);
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "download-dhis2-plugin")

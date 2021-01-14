@@ -31,8 +31,6 @@ import net.geoprism.registry.graph.DHIS2ExternalSystem;
 
 public class DHIS2ServiceFactory
 {
-  public static final int LAST_TESTED_DHIS2_API_VERSION = 35;
-  
   private static DHIS2ServiceFactory instance;
   
   private DHIS2TransportServiceIF dhis2 = null;
@@ -66,13 +64,13 @@ public class DHIS2ServiceFactory
       {
         dhis2.initialize();
         
-        if (dhis2.getVersionRemoteServerApi() > LAST_TESTED_DHIS2_API_VERSION)
+        if (dhis2.getVersionRemoteServerApi() > DHIS2FeatureService.LAST_TESTED_DHIS2_API_VERSION)
         {
           Integer compatLayerVersion = dhis2.getVersionRemoteServerApi() - 2;
           
-          if (compatLayerVersion < LAST_TESTED_DHIS2_API_VERSION)
+          if (compatLayerVersion < DHIS2FeatureService.LAST_TESTED_DHIS2_API_VERSION)
           {
-            compatLayerVersion = LAST_TESTED_DHIS2_API_VERSION;
+            compatLayerVersion = DHIS2FeatureService.LAST_TESTED_DHIS2_API_VERSION;
           }
           
           dhis2.setVersionApiCompat(compatLayerVersion);

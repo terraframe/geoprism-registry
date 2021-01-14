@@ -138,6 +138,9 @@
               <hr *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'" style="border-color:lightgrey;">
             </div>
           </div>
+          <div *ngIf="!oauthSupported">
+            <div class="alert alert-danger" role="alert"><localize key="external.system.oauthNotSupported"></localize></div>
+          </div>
           <div *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'">
             <!--
 	          <div class="holder">

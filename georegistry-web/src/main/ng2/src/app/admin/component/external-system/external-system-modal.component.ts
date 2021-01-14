@@ -57,6 +57,8 @@ export class ExternalSystemModalComponent implements OnInit {
 	};
 
 	organizations: Organization[] = [];
+	
+	oauthSupported: boolean = true;
 
 
 	public onSuccess: Subject<ExternalSystem>;
@@ -90,15 +92,29 @@ export class ExternalSystemModalComponent implements OnInit {
 	  {
 	    this.system.url = this.system.url + "/";
 	  }
-	
-	  this.system.oAuthServer = {
-      authorizationLocation: this.system.url + "uaa/oauth/authorize",
-      tokenLocation: this.system.url + "uaa/oauth/token",
-      profileLocation: this.system.url + "api/me",
-      clientId: "georegistry",
-      secretKey: "",
-      serverType: "DHIS2"
-    };
+	  
+	  this.oauthSupported = true;
+	  this.message = null;
+	  
+	  this.systemService.getSystemCapabilities(this.system).then(capabilities => {
+      if (capabilities.oauth)
+      {
+        this.system.oAuthServer = {
+          authorizationLocation: this.system.url + "uaa/oauth/authorize",
+          tokenLocation: this.system.url + "uaa/oauth/token",
+          profileLocation: this.system.url + "api/me",
+          clientId: "georegistry",
+          secretKey: "",
+          serverType: "DHIS2"
+        };
+      }
+      else
+      {
+        this.oauthSupported = false;
+      }
+    }).catch((err: HttpErrorResponse) => {
+      this.error(err);
+    });
 	}
 	
 	removeOauth(): void {

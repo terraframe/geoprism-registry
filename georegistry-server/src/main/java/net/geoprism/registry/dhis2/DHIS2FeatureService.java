@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -47,6 +48,8 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Request;
+import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
@@ -84,18 +87,15 @@ import net.geoprism.registry.ws.NotificationFacade;
 
 public class DHIS2FeatureService
 {
-  private static final Logger logger = LoggerFactory.getLogger(DHIS2FeatureService.class);
+  public static final String[] OAUTH_INCOMPATIBLE_VERSIONS = new String[] {"2.35.0", "2.35.1"};
   
-  private boolean debug = false;
+  public static final int LAST_TESTED_DHIS2_API_VERSION = 35;
+  
+  private static final Logger logger = LoggerFactory.getLogger(DHIS2FeatureService.class);
   
   public DHIS2FeatureService()
   {
     
-  }
-  
-  public DHIS2FeatureService(boolean debug)
-  {
-    this.debug = debug;
   }
   
   public static class DHIS2SyncError extends RunwayException
@@ -323,11 +323,6 @@ public class DHIS2FeatureService
                 
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 
-                if (this.debug)
-                {
-                  params.add(new BasicNameValuePair("importMode", "VALIDATE"));
-                }
-                
                 MetadataImportResponse resp2 = dhis2.metadataPost(params, new StringEntity(payload.toString(), Charset.forName("UTF-8")));
                 
                 if (!resp2.isSuccess())
@@ -508,11 +503,6 @@ public class DHIS2FeatureService
 
       if (!resp.isSuccess())
       {
-        if (debug)
-        {
-          logger.error(resp.getResponse());
-        }
-        
         if (resp.hasMessage())
         {
           ExportRemoteException ere = new ExportRemoteException();
@@ -533,7 +523,7 @@ public class DHIS2FeatureService
     }
   }
   
-  public void setExternalSystemDhis2Version(DHIS2ExternalSystem es)
+  public DHIS2TransportServiceIF getTransportService(DHIS2ExternalSystem es)
   {
     DHIS2TransportServiceIF dhis2;
     
@@ -552,12 +542,51 @@ public class DHIS2FeatureService
       throw cgrhttp;
     }
     
-    this.setExternalSystemDhis2Version(dhis2, es);
+    return dhis2;
+  }
+  
+  public void setExternalSystemDhis2Version(DHIS2ExternalSystem es)
+  {
+    this.setExternalSystemDhis2Version(getTransportService(es), es);
   }
   
   public void setExternalSystemDhis2Version(DHIS2TransportServiceIF dhis2, DHIS2ExternalSystem es)
   {
     es.setVersion(dhis2.getVersionRemoteServer());
     es.apply();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject getSystemCapabilities(String sessionId, String systemJSON)
+  {
+    JsonObject capabilities = new JsonObject();
+    
+    JsonObject jo = JsonParser.parseString(systemJSON).getAsJsonObject();
+
+    ExternalSystem system = ExternalSystem.desieralize(jo);
+    
+    if (system instanceof DHIS2ExternalSystem)
+    {
+      DHIS2ExternalSystem dhis2System = (DHIS2ExternalSystem) system;
+      
+      DHIS2TransportServiceIF dhis2 = getTransportService(dhis2System);
+      
+      String version = dhis2.getVersionRemoteServer();
+      
+      if (ArrayUtils.contains(DHIS2FeatureService.OAUTH_INCOMPATIBLE_VERSIONS, version))
+      {
+        capabilities.addProperty("oauth", false);
+      }
+      else
+      {
+        capabilities.addProperty("oauth", true);
+      }
+    }
+    else
+    {
+      capabilities.addProperty("oauth", false);
+    }
+    
+    return capabilities;
   }
 }
