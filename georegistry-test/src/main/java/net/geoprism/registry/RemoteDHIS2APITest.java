@@ -185,7 +185,7 @@ public class RemoteDHIS2APITest
     
     for (OrganisationUnit ou : orgUnits)
     {
-      if (ou.getCode().equals(code))
+      if (ou.getCode() != null && ou.getCode().equals(code))
       {
         orgUnit = ou;
       }
