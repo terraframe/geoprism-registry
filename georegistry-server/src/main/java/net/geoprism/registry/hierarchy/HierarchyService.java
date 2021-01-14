@@ -157,11 +157,18 @@ public class HierarchyService
   @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
   {
-    GeoObjectRelationshipPermissionServiceIF service = ServiceFactory.getGeoObjectRelationshipPermissionService();
     ServerGeoObjectIF geoObject = ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, typeCode);
     ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
 
-    // Filter out hierarchies that they're not allowed to see
+    filterHierarchiesFromPermissions(geoObject.getType(), pot);
+
+    return pot.toJSON();
+  }
+
+  public static void filterHierarchiesFromPermissions(ServerGeoObjectType type, ServerParentTreeNodeOverTime pot)
+  {
+    GeoObjectRelationshipPermissionServiceIF service = ServiceFactory.getGeoObjectRelationshipPermissionService();
+    
     Collection<ServerHierarchyType> hierarchies = pot.getHierarchies();
     
     Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
@@ -170,14 +177,12 @@ public class HierarchyService
     {
       Organization organization = hierarchy.getOrganization();
       
-      if ( (isCR && !service.canAddChildCR(organization.getCode(), null, geoObject.getType()))
-           || (!isCR && !service.canAddChild(organization.getCode(), null, geoObject.getType())))
+      if ( (isCR && !service.canAddChildCR(organization.getCode(), null, type))
+           || (!isCR && !service.canAddChild(organization.getCode(), null, type)))
       {
         pot.remove(hierarchy);
       }
     }
-
-    return pot.toJSON();
   }
 
   /**
