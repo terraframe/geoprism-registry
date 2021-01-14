@@ -74,6 +74,8 @@ public class RemoteDHIS2APITest
   @BeforeClass
   public static void setUpClass()
   {
+    System.out.println("Test will run against server [" + URL + "].");
+    
     TestDataSet.deleteExternalSystems("RemoteDHIS2Test");
     testData = AllAttributesDataset.newTestData();
     testData.setUpMetadata();

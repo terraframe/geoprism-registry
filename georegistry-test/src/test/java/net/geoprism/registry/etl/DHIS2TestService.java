@@ -264,4 +264,10 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
     // Do nothing
   }
 
+  @Override
+  public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException
+  {
+    // Do nothing
+  }
+
 }

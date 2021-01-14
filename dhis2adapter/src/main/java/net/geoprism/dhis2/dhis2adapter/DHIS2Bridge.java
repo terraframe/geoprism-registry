@@ -56,6 +56,13 @@ public class DHIS2Bridge
   
   Dhis2IdCache idCache;
   
+  public DHIS2Bridge(ConnectorIF connector)
+  {
+    this.connector = connector;
+    this.idCache = new Dhis2IdCache(this);
+    this.versionApiCompat = null;
+  }
+  
   public DHIS2Bridge(ConnectorIF connector, Integer apiVersion)
   {
     this.connector = connector;
@@ -65,7 +72,9 @@ public class DHIS2Bridge
   
   public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
   {
-    validateVersion();
+    fetchVersionRemoteServer();
+    
+    validateApiCompatVersion(this.versionApiCompat);
   }
   
   public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
@@ -233,21 +242,14 @@ public class DHIS2Bridge
     return versionApiCompat;
   }
 
-  public void setVersionApiCompat(Integer versionApiCompat)
+  public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException
   {
+    validateApiCompatVersion(versionApiCompat);
+    
     this.versionApiCompat = versionApiCompat;
   }
-
-  /**
-   * Checks to make sure that the selected version is compatible with the selected DHIS2 server.
-   * Also sets the remoteServerApiVersion.
-   * 
-   * @throws UnexpectedResponseException 
-   * @throws HTTPException 
-   * @throws InvalidLoginException 
-   * @throws IncompatibleServerVersionException 
-   */
-  public void validateVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  
+  private void fetchVersionRemoteServer() throws UnexpectedResponseException, InvalidLoginException, HTTPException
   {
     DHIS2Response resp = this.systemInfo();
     
@@ -274,15 +276,23 @@ public class DHIS2Bridge
     if (m.matches())
     {
       this.versionRemoteServerApi = Integer.parseInt(m.group(1));
-      
-      if (this.versionApiCompat != null && (this.versionApiCompat < this.versionRemoteServerApi - 2 || this.versionApiCompat > this.versionRemoteServerApi))
-      {
-        throw new IncompatibleServerVersionException(this.versionApiCompat, this.versionRemoteServerApi);
-      }
     }
     else
     {
       throw new UnexpectedResponseException(resp);
+    }
+  }
+
+  /**
+   * Checks to make sure that the selected version is compatible with the selected DHIS2 server.
+   * 
+   * @throws IncompatibleServerVersionException 
+   */
+  public void validateApiCompatVersion(Integer versionApiCompat) throws IncompatibleServerVersionException
+  {
+    if (versionApiCompat != null && (versionApiCompat < this.versionRemoteServerApi - 2 || versionApiCompat > this.versionRemoteServerApi))
+    {
+      throw new IncompatibleServerVersionException(this.versionApiCompat, this.versionRemoteServerApi);
     }
   }
 

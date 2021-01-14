@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.dhis2;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
+
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
@@ -29,7 +31,7 @@ import net.geoprism.registry.graph.DHIS2ExternalSystem;
 
 public class DHIS2ServiceFactory
 {
-  
+  public static final int LAST_TESTED_DHIS2_API_VERSION = 35;
   
   private static DHIS2ServiceFactory instance;
   
@@ -50,7 +52,7 @@ public class DHIS2ServiceFactory
     return instance;
   }
   
-  public synchronized DHIS2TransportServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public synchronized DHIS2TransportServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException
   {
     if (this.dhis2 == null)
     {
@@ -58,26 +60,31 @@ public class DHIS2ServiceFactory
       connector.setServerUrl(system.getUrl());
       connector.setCredentials(system.getUsername(), system.getPassword());
       
-      this.dhis2 = new DHIS2TransportService(connector, getAPIVersion(system));
+      this.dhis2 = new DHIS2TransportService(connector);
       
-      this.dhis2.initialize();
+      try
+      {
+        this.dhis2.initialize();
+        
+        if (this.dhis2.getVersionRemoteServerApi() > LAST_TESTED_DHIS2_API_VERSION)
+        {
+          Integer compatLayerVersion = this.dhis2.getVersionRemoteServerApi() - 2;
+          
+          if (compatLayerVersion < LAST_TESTED_DHIS2_API_VERSION)
+          {
+            compatLayerVersion = LAST_TESTED_DHIS2_API_VERSION;
+          }
+          
+          this.dhis2.setVersionApiCompat(compatLayerVersion);
+        }
+      }
+      catch (IncompatibleServerVersionException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
     }
     
     return this.dhis2;
-  }
-  
-  public Integer getAPIVersion(DHIS2ExternalSystem system)
-  {
-//    String in = system.getVersion();
-//
-//    if (in.startsWith("2.31"))
-//    {
-//      return "26";
-//    }
-//
-//    return "26"; // We currently only support API version 26 right now anyway
-    
-    return null;
   }
   
   public static DHIS2TransportServiceIF getDhis2TransportService(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException

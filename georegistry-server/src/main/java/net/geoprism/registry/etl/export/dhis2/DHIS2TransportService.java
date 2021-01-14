@@ -40,9 +40,9 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
 {
   private DHIS2Bridge dhis2;
   
-  public DHIS2TransportService(HTTPConnector connector, Integer apiVersion)
+  public DHIS2TransportService(HTTPConnector connector)
   {
-    this.dhis2 = new DHIS2Bridge(connector, apiVersion);
+    this.dhis2 = new DHIS2Bridge(connector);
   }
   
   public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
@@ -150,5 +150,11 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   public Integer getVersionApiCompat()
   {
     return this.dhis2.getVersionApiCompat();
+  }
+
+  @Override
+  public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException
+  {
+    this.dhis2.setVersionApiCompat(versionApiCompat);
   }
 }

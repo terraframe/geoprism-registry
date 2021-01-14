@@ -77,4 +77,12 @@ public interface DHIS2TransportServiceIF
    * Returns the API version of the compatibility layer used for DHIS2 communication.
    */
   public Integer getVersionApiCompat();
+  
+  /**
+   * Sets the version of the API compatibility layer used for DHIS2 communication.
+   * 
+   * @param versionApiCompat
+   * @throws IncompatibleServerVersionException If the version is not supported by the remote server.
+   */
+  public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException;
 }
