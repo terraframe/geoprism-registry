@@ -38,7 +38,7 @@ private String code;
   
   private String path;
   
-  private JsonArray coordinates;
+  private String coordinates;
   
   private String featureType;
 
@@ -122,12 +122,12 @@ private String code;
     this.path = path;
   }
 
-  public JsonArray getCoordinates()
+  public String getCoordinates()
   {
     return coordinates;
   }
 
-  public void setCoordinates(JsonArray coordinates)
+  public void setCoordinates(String coordinates)
   {
     this.coordinates = coordinates;
   }
