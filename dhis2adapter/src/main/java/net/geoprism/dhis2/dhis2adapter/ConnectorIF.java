@@ -31,6 +31,8 @@ public interface ConnectorIF
 {
 
   DHIS2Response httpGet(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
+  
+  DHIS2Response httpDelete(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
 
   DHIS2Response httpPost(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
 

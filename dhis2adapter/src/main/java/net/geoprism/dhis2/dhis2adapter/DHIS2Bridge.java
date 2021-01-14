@@ -100,6 +100,11 @@ public class DHIS2Bridge
     return this.apiGet(entityName + "/" + entityId, params);
   }
   
+  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    return this.apiDelete(entityName + "/" + entityId, params);
+  }
+  
   /**
    * Used to update an existing DHIS2 entity. May be used to submit a 'partial update'.
    * 
@@ -270,7 +275,7 @@ public class DHIS2Bridge
     {
       this.versionRemoteServerApi = Integer.parseInt(m.group(1));
       
-      if (this.versionApiCompat < this.versionRemoteServerApi - 2 || this.versionApiCompat > this.versionRemoteServerApi)
+      if (this.versionApiCompat != null && (this.versionApiCompat < this.versionRemoteServerApi - 2 || this.versionApiCompat > this.versionRemoteServerApi))
       {
         throw new IncompatibleServerVersionException(this.versionApiCompat, this.versionRemoteServerApi);
       }
@@ -281,6 +286,16 @@ public class DHIS2Bridge
     }
   }
 
+  public DHIS2Response apiDelete(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    if (!url.contains("?") && !url.endsWith(".json"))
+    {
+      url = url + ".json";
+    }
+    
+    return connector.httpDelete(this.buildApiEndpoint() + url, params);
+  }
+  
   public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     if (!url.contains("?") && !url.endsWith(".json"))

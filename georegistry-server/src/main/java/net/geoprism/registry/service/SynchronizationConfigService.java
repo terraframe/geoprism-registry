@@ -52,7 +52,9 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.Option;
@@ -142,10 +144,11 @@ public class SynchronizationConfigService
 
     // Add DHIS2 OrgUnitGroups
     DHIS2ExternalSystem system = DHIS2ExternalSystem.get(externalSystemId);
-    DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
 
     try
     {
+      DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
+      
       JsonArray jaGroups = new JsonArray();
 
       MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.<OrganisationUnitGroup> metadataGet(OrganisationUnitGroup.class);
@@ -170,12 +173,7 @@ public class SynchronizationConfigService
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
-    catch (IllegalArgumentException e)
-    {
-      HttpError cgrhttp = new HttpError(e);
-      throw cgrhttp;
-    }
-    catch (HTTPException e)
+    catch (HTTPException | UnexpectedResponseException | IncompatibleServerVersionException | IllegalArgumentException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;
@@ -207,7 +205,22 @@ public class SynchronizationConfigService
         joAttr.addProperty("type", cgrAttr.getType());
         joAttr.addProperty("typeLabel", AttributeTypeMetadata.get().getTypeEnumDisplayLabel(cgrAttr.getType()));
 
-        DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
+        DHIS2TransportServiceIF dhis2;
+        
+        try
+        {
+          dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
+        }
+        catch (InvalidLoginException e)
+        {
+          LoginException cgrlogin = new LoginException(e);
+          throw cgrlogin;
+        }
+        catch (HTTPException | UnexpectedResponseException | IncompatibleServerVersionException | IllegalArgumentException e)
+        {
+          HttpError cgrhttp = new HttpError(e);
+          throw cgrhttp;
+        }
 
         if (dhis2Attrs == null)
         {

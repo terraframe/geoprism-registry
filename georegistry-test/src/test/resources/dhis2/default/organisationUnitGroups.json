@@ -1,0 +1,82 @@
+{
+  "pager": {
+    "page": 1,
+    "pageCount": 1,
+    "total": 18,
+    "pageSize": 50
+  },
+  "organisationUnitGroups": [
+    {
+      "id": "CXw2yu5fodb",
+      "displayName": "CHC"
+    },
+    {
+      "id": "gzcv65VyaGq",
+      "displayName": "Chiefdom"
+    },
+    {
+      "id": "uYxK4wmcPqA",
+      "displayName": "CHP"
+    },
+    {
+      "id": "RXL3lPSK8oG",
+      "displayName": "Clinic"
+    },
+    {
+      "id": "RpbiCJpIYEj",
+      "displayName": "Country"
+    },
+    {
+      "id": "w1Atoz18PCL",
+      "displayName": "District"
+    },
+    {
+      "id": "nlX2VoouN63",
+      "displayName": "Eastern Area"
+    },
+    {
+      "id": "tDZVQ1WtwpA",
+      "displayName": "Hospital"
+    },
+    {
+      "id": "EYbopBOJWsW",
+      "displayName": "MCHP"
+    },
+    {
+      "id": "w0gFTTmsUcF",
+      "displayName": "Mission"
+    },
+    {
+      "id": "PVLOW4bCshG",
+      "displayName": "NGO"
+    },
+    {
+      "id": "J40PpdN4Wkk",
+      "displayName": "Northern Area"
+    },
+    {
+      "id": "MAs88nJc9nL",
+      "displayName": "Private Clinic"
+    },
+    {
+      "id": "oRVt7g429ZO",
+      "displayName": "Public facilities"
+    },
+    {
+      "id": "GGghZsfu7qV",
+      "displayName": "Rural"
+    },
+    {
+      "id": "jqBqIXoXpfy",
+      "displayName": "Southern Area"
+    },
+    {
+      "id": "f25dqv3Y7Z0",
+      "displayName": "Urban"
+    },
+    {
+      "id": "b0EsAxm8Nge",
+      "displayName": "Western Area"
+    }
+  ]
+}

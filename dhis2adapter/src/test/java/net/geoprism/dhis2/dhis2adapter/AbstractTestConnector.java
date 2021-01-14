@@ -48,5 +48,11 @@ abstract public class AbstractTestConnector implements ConnectorIF
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public DHIS2Response httpDelete(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    throw new UnsupportedOperationException();
+  }
 
 }

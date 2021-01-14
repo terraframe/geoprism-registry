@@ -19,6 +19,10 @@
 package net.geoprism.registry.dhis2;
 
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
+import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
+import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportService;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
@@ -46,7 +50,7 @@ public class DHIS2ServiceFactory
     return instance;
   }
   
-  public synchronized DHIS2TransportServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system)
+  public synchronized DHIS2TransportServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
   {
     if (this.dhis2 == null)
     {
@@ -55,6 +59,8 @@ public class DHIS2ServiceFactory
       connector.setCredentials(system.getUsername(), system.getPassword());
       
       this.dhis2 = new DHIS2TransportService(connector, getAPIVersion(system));
+      
+      this.dhis2.initialize();
     }
     
     return this.dhis2;
@@ -74,7 +80,7 @@ public class DHIS2ServiceFactory
     return null;
   }
   
-  public static DHIS2TransportServiceIF getDhis2TransportService(DHIS2ExternalSystem system)
+  public static DHIS2TransportServiceIF getDhis2TransportService(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
   {
     return getInstance().instanceGetDhis2Service(system);
   }

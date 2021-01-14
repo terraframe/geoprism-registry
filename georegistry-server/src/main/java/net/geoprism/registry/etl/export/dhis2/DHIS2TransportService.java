@@ -26,6 +26,7 @@ import org.apache.http.NameValuePair;
 import net.geoprism.dhis2.dhis2adapter.DHIS2Bridge;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
@@ -42,6 +43,11 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   public DHIS2TransportService(HTTPConnector connector, Integer apiVersion)
   {
     this.dhis2 = new DHIS2Bridge(connector, apiVersion);
+  }
+  
+  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  {
+    this.dhis2.initialize();
   }
 
   @Override
@@ -66,6 +72,12 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     return this.dhis2.entityIdGet(entityName, entityId, params);
+  }
+  
+  @Override
+  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    return this.dhis2.entityIdDelete(entityName, entityId, params);
   }
 
   @Override
@@ -121,7 +133,7 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   {
     return this.dhis2.apiPatch(url, params, body);
   }
-
+  
   @Override
   public String getVersionRemoteServer()
   {
