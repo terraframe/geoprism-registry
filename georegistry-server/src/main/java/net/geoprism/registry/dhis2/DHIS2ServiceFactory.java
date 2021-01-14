@@ -35,7 +35,7 @@ public class DHIS2ServiceFactory
   
   private static DHIS2ServiceFactory instance;
   
-  private DHIS2TransportServiceIF dhis2;
+  private DHIS2TransportServiceIF dhis2 = null;
   
   private void initialize()
   {
@@ -60,38 +60,45 @@ public class DHIS2ServiceFactory
       connector.setServerUrl(system.getUrl());
       connector.setCredentials(system.getUsername(), system.getPassword());
       
-      this.dhis2 = new DHIS2TransportService(connector);
+      DHIS2TransportService dhis2 = new DHIS2TransportService(connector);
       
       try
       {
-        this.dhis2.initialize();
+        dhis2.initialize();
         
-        if (this.dhis2.getVersionRemoteServerApi() > LAST_TESTED_DHIS2_API_VERSION)
+        if (dhis2.getVersionRemoteServerApi() > LAST_TESTED_DHIS2_API_VERSION)
         {
-          Integer compatLayerVersion = this.dhis2.getVersionRemoteServerApi() - 2;
+          Integer compatLayerVersion = dhis2.getVersionRemoteServerApi() - 2;
           
           if (compatLayerVersion < LAST_TESTED_DHIS2_API_VERSION)
           {
             compatLayerVersion = LAST_TESTED_DHIS2_API_VERSION;
           }
           
-          this.dhis2.setVersionApiCompat(compatLayerVersion);
+          dhis2.setVersionApiCompat(compatLayerVersion);
         }
       }
       catch (IncompatibleServerVersionException e)
       {
         throw new ProgrammingErrorException(e);
       }
+      
+      return dhis2;
     }
     
     return this.dhis2;
   }
   
-  public static DHIS2TransportServiceIF getDhis2TransportService(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public static DHIS2TransportServiceIF buildDhis2TransportService(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException
   {
     return getInstance().instanceGetDhis2Service(system);
   }
   
+  /**
+   * This should only be used for testing, since the CGR may have multiple DHIS2 external systems (which may require different transport services).
+   * 
+   * @param dhis2
+   */
   public static void setDhis2TransportService(DHIS2TransportServiceIF dhis2)
   {
     getInstance().dhis2 = dhis2;

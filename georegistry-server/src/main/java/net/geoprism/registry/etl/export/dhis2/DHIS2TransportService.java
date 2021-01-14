@@ -49,6 +49,12 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   {
     this.dhis2.initialize();
   }
+  
+  @Override
+  public String getRemoteServerUrl()
+  {
+    return this.dhis2.getRemoteServerUrl();
+  }
 
   @Override
   public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException

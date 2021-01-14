@@ -205,6 +205,11 @@ public class DHIS2Bridge
     return new MetadataGetResponse<T>(this.apiGet("metadata", params), objectNamePlural, dhis2Type);
   }
   
+  public String getRemoteServerUrl()
+  {
+    return this.connector.getServerUrl();
+  }
+  
   private String buildApiEndpoint()
   {
     if (versionApiCompat == null || versionApiCompat == 0 || versionApiCompat == -1)

@@ -93,7 +93,7 @@ public class RemoteDHIS2APITest
   }
 
   @Before
-  public void setUp() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void setUp() throws UnexpectedResponseException, InvalidLoginException, HTTPException
   {
     testData.setUpInstanceData();
 
@@ -101,7 +101,7 @@ public class RemoteDHIS2APITest
     
     syncService = new SynchronizationConfigService();
     
-    this.dhis2 = DHIS2ServiceFactory.getDhis2TransportService(this.system);
+    this.dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(this.system);
 
     testData.logIn(AllAttributesDataset.USER_ORG_RA);
   }

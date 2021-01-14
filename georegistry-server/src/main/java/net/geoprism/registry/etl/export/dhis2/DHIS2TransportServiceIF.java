@@ -66,6 +66,8 @@ public interface DHIS2TransportServiceIF
   
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
   
+  public String getRemoteServerUrl();
+  
   public String getVersionRemoteServer();
   
   /**

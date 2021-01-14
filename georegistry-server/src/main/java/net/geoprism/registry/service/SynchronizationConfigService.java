@@ -147,7 +147,7 @@ public class SynchronizationConfigService
 
     try
     {
-      DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
+      DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
       
       JsonArray jaGroups = new JsonArray();
 
@@ -173,7 +173,7 @@ public class SynchronizationConfigService
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
-    catch (HTTPException | UnexpectedResponseException | IncompatibleServerVersionException | IllegalArgumentException e)
+    catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;
@@ -209,14 +209,14 @@ public class SynchronizationConfigService
         
         try
         {
-          dhis2 = DHIS2ServiceFactory.getDhis2TransportService(system);
+          dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
         }
         catch (InvalidLoginException e)
         {
           LoginException cgrlogin = new LoginException(e);
           throw cgrlogin;
         }
-        catch (HTTPException | UnexpectedResponseException | IncompatibleServerVersionException | IllegalArgumentException e)
+        catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
         {
           HttpError cgrhttp = new HttpError(e);
           throw cgrhttp;

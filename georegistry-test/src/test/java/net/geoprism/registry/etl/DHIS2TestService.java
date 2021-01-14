@@ -270,4 +270,10 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
     // Do nothing
   }
 
+  @Override
+  public String getRemoteServerUrl()
+  {
+    return null;
+  }
+
 }

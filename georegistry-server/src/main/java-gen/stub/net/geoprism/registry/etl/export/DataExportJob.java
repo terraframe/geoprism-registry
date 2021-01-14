@@ -110,7 +110,9 @@ public class DataExportJob extends DataExportJobBase
     
     this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
 
-    this.dhis2 = DHIS2ServiceFactory.getDhis2TransportService(this.dhis2Config.getSystem());
+    this.dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(this.dhis2Config.getSystem());
+    
+    this.dhis2FeatureService.setExternalSystemDhis2Version(dhis2, dhis2Config.getSystem());
 
     this.setStage(history, ExportStage.EXPORT);
 

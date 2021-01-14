@@ -54,5 +54,11 @@ abstract public class AbstractTestConnector implements ConnectorIF
   {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public String getServerUrl()
+  {
+    throw new UnsupportedOperationException();
+  }
 
 }

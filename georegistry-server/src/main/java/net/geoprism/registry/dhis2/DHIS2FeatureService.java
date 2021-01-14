@@ -52,6 +52,7 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
@@ -72,6 +73,7 @@ import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
+import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -529,5 +531,33 @@ public class DHIS2FeatureService
       DHIS2SyncError er = new DHIS2SyncError(rowIndex, resp, orgUnitJson, t, serverGo.getCode());
       throw er;
     }
+  }
+  
+  public void setExternalSystemDhis2Version(DHIS2ExternalSystem es)
+  {
+    DHIS2TransportServiceIF dhis2;
+    
+    try
+    {
+      dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(es);
+    }
+    catch (InvalidLoginException e)
+    {
+      LoginException cgrlogin = new LoginException(e);
+      throw cgrlogin;
+    }
+    catch (HTTPException | UnexpectedResponseException e)
+    {
+      HttpError cgrhttp = new HttpError(e);
+      throw cgrhttp;
+    }
+    
+    this.setExternalSystemDhis2Version(dhis2, es);
+  }
+  
+  public void setExternalSystemDhis2Version(DHIS2TransportServiceIF dhis2, DHIS2ExternalSystem es)
+  {
+    es.setVersion(dhis2.getVersionRemoteServer());
+    es.apply();
   }
 }
