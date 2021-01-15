@@ -1,0 +1,34 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  		  <object type="com.runwaysdk.localization.LocalizedValueStore" key="io.attributes.description">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="io.attributes.description" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Match the Geo-Object Type attributes to the source file columns" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="importproblem.started.date.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="importproblem.started.date.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Started" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="importproblem.uploaded.by.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="importproblem.uploaded.by.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Uploaded by" />
+	        </attributeStruct>
+	      </object>
+  	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

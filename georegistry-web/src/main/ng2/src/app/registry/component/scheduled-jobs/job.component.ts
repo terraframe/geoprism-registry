@@ -280,6 +280,10 @@ export class JobComponent implements OnInit {
 
 		});
 	}
+	
+	formatDate(date: string): string {
+		return this.localizeService.formatDateForDisplay(date);
+	}
 
 	error(err: HttpErrorResponse): void {
 		this.message = ErrorHandler.getMessageFromError(err);

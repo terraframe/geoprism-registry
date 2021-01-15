@@ -15,43 +15,6 @@
                                     <table class="table table-striped">
                                     
                                         <tbody class="attribute-element-wrapper">
-<!--                                             <tr *ngFor="let entry of hierarchy.entries; let i = index;"> -->
-<!--                                                 <td> -->
-                                                
-<!--                                                   <div class="col-sm-12" style="float:left;width:150px;" *ngFor="let type of hierarchy.types; let j = index"> -->
-<!--                                                     {{type.label}} -->
-                                                    
-<!--                                                     <div class="input-group"> -->
-                                                    
-<!--                                                       <input  style="width:150px;" type="text" class="form-control" autocomplete="off" -->
-<!--                                                         name="{{type.code}}-{{i}}" -->
-<!--                                                         [disabled]="entry.startDate == null || entry.startDate === ''" -->
-<!--                                                         [(ngModel)]="entry.parents[type.code].text"  -->
-<!--                                                         [typeaheadAsync]="true" -->
-<!--                                                         [typeahead]="getTypeAheadObservable(entry.startDate, type, entry, j)" -->
-<!--                                                         (typeaheadOnSelect)="typeaheadOnSelect($event, type, entry, entry.startDate)"  -->
-<!--                                                         [typeaheadOptionsLimit]="7" -->
-<!--                                                         [typeaheadItemTemplate]="customItemTemplate"  -->
-<!--                                                         [typeaheadMinLength]="0" -->
-<!--                                                         [typeaheadWaitMs]="300"> -->
-                                                      
-<!--                                                       <span class="input-group-addon"> -->
-<!--                                                           <i class="fa fa-times delete-btn clickable" (click)="onRemove(type, entry)"></i> -->
-<!--                                                       </span> -->
-<!--                                                     </div> -->
-<!--                                                   </div> -->
-                                                
-<!--                                                 </td> -->
-<!--                                                 <td style="vertical-align: bottom;"> -->
-<!--                                                   <input style="width: 100%;" type="date" name="startDate-{{i}}" [(ngModel)]="entry.startDate" (blur)="snapDates()" required /> -->
-<!--                                                 </td>  -->
-<!--                                                 <td style="vertical-align: bottom;"> -->
-<!--                                                   <p *ngIf="entry.startDate != null && entry.startDate !== ''" style="font-size: 14px;"> {{entry.endDate | date:'yyyy-MM-dd'}} </p> -->
-<!--                                                 </td> -->
-<!--                                                 <td style="vertical-align: middle; width: 10%; padding: 5px; text-align: center;"> -->
-<!--                                                   <i class="fa fa-times delete-btn clickable" (click)="remove(entry)"></i> -->
-<!--                                                 </td> -->
-<!--                                             </tr> -->
 
                                           <p class="message" *ngIf="hierarchy.entries.length === 0">
                                             <localize key="changeovertime.manageVersions.no.versions.message"></localize>

@@ -24,7 +24,9 @@
 	              <label><localize key="tasks.taskMessage"></localize></label>
 	              <p style="margin-bottom:20px;">{{task.msg}}</p>
 	              <label style="margin-right:20px;"><localize key="tasks.createDateLabel"></localize></label>
-                  <span><input class="text-display-input" type="date" [name]="'taskCreateDate_' + task.oid" [(ngModel)]="task.createDate" disabled></span>
+                  <span class="date-string-display">
+                      {{formatDate(task.createDate)}}
+                  </span>
 	             </div>
 	             <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
                 <label class="radio-inline radio">
@@ -72,9 +74,13 @@
                 <label><localize key="tasks.taskMessage"></localize></label>
                 <p style="margin-bottom:20px;">{{task.msg}}</p>
                 <label style="margin-right:20px;"><localize key="tasks.createDateLabel"></localize></label>
-                <span style="margin-right:30px;"><input class="text-display-input" type="date" [name]="'taskCreateDate_' + task.oid" [(ngModel)]="task.createDate" disabled></span>
+                <span class="date-string-display" style="margin-right:30px;">
+                   {{formatDate(task.createDate)}}
+                </span>
                 <label style="margin-right:20px;"><localize key="tasks.completeDateLabel"></localize></label>
-                <span><input class="text-display-input" type="date" [name]="'taskCompletedDate_' + task.oid" [(ngModel)]="task.completedDate" disabled></span>
+                <span class="date-string-display" >
+                   {{formatDate(task.completedDate)}}
+                </span>
                </div>
                <div class="col-md-3" style="min-height: 90px; display: flex; align-items: center;">
 

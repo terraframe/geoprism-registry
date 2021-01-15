@@ -10,6 +10,8 @@ import {
 	state
 } from '@angular/animations';
 
+import * as moment from 'moment';
+
 import { LocalizedValue } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
 
@@ -266,11 +268,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	formatDate(date: string): string {
-		if (date === PRESENT) {
-			return this.lService.localize("changeovertime", "present");
-		}
-
-		return date;
+		return this.lService.formatDateForDisplay(date);
 	}
 
 	handleChangeCode(e: any): void {

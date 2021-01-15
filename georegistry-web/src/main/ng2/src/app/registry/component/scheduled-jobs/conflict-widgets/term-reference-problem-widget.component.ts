@@ -2,14 +2,11 @@ import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs';
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
-import { GeoObjectType, MasterList, ScheduledJob } from '@registry/model/registry';
+import { ScheduledJob } from '@registry/model/registry';
 import { RegistryService, IOService } from '@registry/service';
-import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
-import Utils from '../../../utility/Utils'
 
 import { LocalizationService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
@@ -98,6 +95,10 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     onCancel(): void {
       this.bsModalRef.hide()
     }
+
+	formatDate(date: string): string {
+		return this.lService.formatDateForDisplay(date);
+	}
 
     error( err: HttpErrorResponse ): void {
             this.message = ErrorHandler.getMessageFromError(err);

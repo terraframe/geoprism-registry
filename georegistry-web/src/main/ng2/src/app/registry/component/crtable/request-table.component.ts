@@ -36,7 +36,7 @@ export class RequestTableComponent {
 
 	isMaintainer: boolean = false;
 
-	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, localizationService: LocalizationService) {
+	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService) {
 
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
@@ -230,6 +230,10 @@ export class RequestTableComponent {
 		//   {
 		// action.onSelect(action);
 		//   }
+	}
+	
+	formatDate(date: string): string {
+		return this.localizationService.formatDateForDisplay(date);
 	}
 
 }

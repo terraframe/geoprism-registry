@@ -43,10 +43,14 @@
                             </div>
                         </td>
                         <td style="width: 15%" class="label-column">
-                          <input class="text-display-input" type="date" [name]="'forDate_' + version.oid" [(ngModel)]="version.forDate" disabled>
+                          <span class="date-string-display">
+                              {{formatDate(version.forDate)}}
+                          </span>
                         </td>
                         <td style="width: 15%" class="label-column">
-                          <input class="text-display-input" type="date" [name]="'publishDate_' + version.oid" [(ngModel)]="version.publishDate" disabled>
+                          <span class="date-string-display">
+                              {{formatDate(version.publishDate)}}
+                          </span>
                         </td>
                         
                     </tr>

@@ -86,6 +86,10 @@ export class MasterListHistoryComponent implements OnInit {
 			});
 		});
 	}
+	
+	formatDate(date: string): string {
+		return this.localizeService.formatDateForDisplay(date);
+	}
 
 
 	error(err: HttpErrorResponse): void {

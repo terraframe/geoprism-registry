@@ -29,7 +29,9 @@
                             </span>
                             <span style="display: block;">
                               <localize key="scheduledjobs.job.started.label"></localize>
-                              <input class="text-display-input" type="date" [name]="'createDate_' + job.oid" [(ngModel)]="job.createDate" disabled>
+                              <span class="date-string-display">
+                                    {{formatDate(job.createDate)}}
+                              </span>
                             </span>
                         </p>
 
