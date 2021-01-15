@@ -13,7 +13,9 @@
       (onManageVersion)="onManageAttributeVersion($event)" 
       (onChange)="onAttributeChange($event)" 
       [readOnly]="!isEdit"
-      [animate]=true> 
+      [animate]=true
+      (valid)="setValid($event)"
+      > 
     </geoobject-shared-attribute-editor>
     
     <div *ngIf="isEdit && type.isGeometryEditable" class="panel panel-default">
@@ -50,7 +52,7 @@
       <button *ngIf="isEdit" type="button" class="btn btn-default" (click)="onCancel()">
         <localize key="modal.button.cancel"></localize>
       </button>
-      <button *ngIf="isEdit" type="submit" style="" (click)="onSubmit()" class="btn btn-primary" role="button">
+      <button *ngIf="isEdit" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!isValid || !reason || (reason && reason.trim().length === 0)">
         <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
       </button>
     </div>

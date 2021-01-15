@@ -55,8 +55,9 @@ input.form-control {
   box-shadow:none;
 }
 input:focus,
-textarea:focus,
 input.form-control:focus,
+textarea:focus,
+textarea.form-control:focus,
 input:active,
 textarea:active
 input.form-control:active{

@@ -40,6 +40,8 @@ export class FeaturePanelComponent implements OnInit {
 	@Output() geometryEdit = new EventEmitter<ValueOverTime>();
 	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
 	@Output() modeChange = new EventEmitter<boolean>();
+	
+	isValid: boolean = true;
 
 	bsModalRef: BsModalRef;
 
@@ -74,6 +76,10 @@ export class FeaturePanelComponent implements OnInit {
 		this.geometryChange.subscribe(v => {
 			this.updateGeometry(v);
 		});
+	}
+	
+	setValid(valid: boolean): void {
+		this.isValid = valid;
 	}
 
 	updateCode(code: string): void {
@@ -115,6 +121,7 @@ export class FeaturePanelComponent implements OnInit {
 
 		}
 	}
+	
 
 	onEditGeometryVersion(vot: ValueOverTime): void {
 		this.geometryEdit.emit(vot);
