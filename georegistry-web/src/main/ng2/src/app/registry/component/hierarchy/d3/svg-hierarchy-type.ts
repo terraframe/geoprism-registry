@@ -88,12 +88,12 @@ export class SvgHierarchyType {
 		const maxHierarchyLabelLength = 200;
 		
 		let hierarchyLabelW: number = calculateTextWidth(this.hierarchyType.label.localizedValue, headerFontSize);
-		let hierarchyLabelH:number = headerFontSize*1.4;
+		let hierarchyLabelH:number = headerFontSize*2;
 		let hierarchyLabelY:number = bbox.y + headerFontSize*1.6;
 		if (hierarchyLabelW > maxHierarchyLabelLength)
 		{
 		  hierarchyLabelW = maxHierarchyLabelLength;
-		  hierarchyLabelH = headerFontSize*2.7;
+		  hierarchyLabelH = headerFontSize*3;
 		  hierarchyLabelY = bbox.y + headerFontSize;
 		}
 
