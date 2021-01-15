@@ -53,14 +53,15 @@ import com.runwaysdk.system.scheduler.SchedulerManager;
 import junit.framework.Assert;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
-import net.geoprism.registry.etl.export.DataExportServiceFactory;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.AttributeTypeMetadata;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.SynchronizationConfigService;
@@ -70,8 +71,10 @@ import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
+import net.geoprism.registry.test.TestUserInfo;
+import net.geoprism.registry.test.USATestData;
 
-public class DHIS2ExportTest
+public class DHIS2ServiceTest
 {
   protected static AllAttributesDataset  testData;
 
@@ -106,7 +109,7 @@ public class DHIS2ExportTest
     testData.setUpInstanceData();
 
     this.dhis2 = new DHIS2TestService();
-    DataExportServiceFactory.setDhis2Service(this.dhis2);
+    DHIS2ServiceFactory.setDhis2TransportService(this.dhis2);
 
     system = createDhis2ExternalSystem();
 
@@ -116,7 +119,7 @@ public class DHIS2ExportTest
 
     // createExternalIds();
 
-    testData.logIn(testData.USER_ORG_RA);
+    testData.logIn(AllAttributesDataset.USER_ORG_RA);
   }
 
   @After
@@ -172,24 +175,24 @@ public class DHIS2ExportTest
   {
     DHIS2ExternalSystem system = new DHIS2ExternalSystem();
     system.setId("DHIS2ExportTest");
-    system.setOrganization(testData.ORG.getServerObject());
+    system.setOrganization(AllAttributesDataset.ORG.getServerObject());
     system.getEmbeddedComponent(ExternalSystem.LABEL).setValue("defaultLocale", "Test");
     system.getEmbeddedComponent(ExternalSystem.DESCRIPTION).setValue("defaultLocale", "Test");
     system.setUsername("mock");
     system.setPassword("mock");
     system.setUrl("mock");
-    system.setVersion("2.31.9");
+    system.setVersion(this.dhis2.getVersionRemoteServer());
     system.apply();
 
     return system;
   }
 
   @Request
-  private SynchronizationConfig createSyncConfig(SyncLevel additionalLevel)
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, SyncLevel additionalLevel)
   {
     // Define reusable objects
-    final ServerHierarchyType ht = testData.HIER.getServerObject();
-    final Organization org = testData.ORG.getServerObject();
+    final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
+    final Organization org = AllAttributesDataset.ORG.getServerObject();
 
     // Create DHIS2 Sync Config
     DHIS2SyncConfig dhis2Config = new DHIS2SyncConfig();
@@ -201,7 +204,7 @@ public class DHIS2ExportTest
     SortedSet<SyncLevel> levels = new TreeSet<SyncLevel>();
 
     SyncLevel level = new SyncLevel();
-    level.setGeoObjectType(testData.GOT_ALL.getServerObject().getCode());
+    level.setGeoObjectType(AllAttributesDataset.GOT_ALL.getServerObject().getCode());
     level.setSyncType(SyncLevel.Type.ALL);
     level.setLevel(1);
     levels.add(level);
@@ -223,7 +226,7 @@ public class DHIS2ExportTest
     config.setConfiguration(dhis2JsonConfig);
     config.setOrganization(org);
     config.setHierarchy(ht.getUniversalRelationship());
-    config.setSystem(this.system.getOid());
+    config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
     config.apply();
 
@@ -253,7 +256,7 @@ public class DHIS2ExportTest
     terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getClassifierId(), "TEST_EXTERNAL_ID");
     mapping.setTerms(terms);
 
-    SynchronizationConfig config = createSyncConfig(level2);
+    SynchronizationConfig config = createSyncConfig(this.system, level2);
 
     JsonObject jo = syncService.run(testData.clientSession.getSessionId(), config.getOid());
     ExportHistory hist = ExportHistory.get(jo.get("historyId").getAsString());
@@ -281,7 +284,7 @@ public class DHIS2ExportTest
 
       if (level == 0)
       {
-        Assert.assertEquals(testData.GO_ALL.getCode(), orgUnit.get("code").getAsString());
+        Assert.assertEquals(AllAttributesDataset.GO_ALL.getCode(), orgUnit.get("code").getAsString());
       }
       else
       {
@@ -378,53 +381,51 @@ public class DHIS2ExportTest
   @Request
   public void testExportCharacterAttr() throws Exception
   {
-    exportCustomAttribute(testData.GOT_CHAR, testData.GO_CHAR, testData.AT_GO_CHAR);
+    exportCustomAttribute(AllAttributesDataset.GOT_CHAR, AllAttributesDataset.GO_CHAR, testData.AT_GO_CHAR);
   }
 
   @Test
   @Request
   public void testExportIntegerAttr() throws Exception
   {
-    exportCustomAttribute(testData.GOT_INT, testData.GO_INT, testData.AT_GO_INT);
+    exportCustomAttribute(AllAttributesDataset.GOT_INT, AllAttributesDataset.GO_INT, testData.AT_GO_INT);
   }
 
   @Test
   @Request
   public void testExportFloatAttr() throws Exception
   {
-    exportCustomAttribute(testData.GOT_FLOAT, testData.GO_FLOAT, testData.AT_GO_FLOAT);
+    exportCustomAttribute(AllAttributesDataset.GOT_FLOAT, AllAttributesDataset.GO_FLOAT, testData.AT_GO_FLOAT);
   }
 
   @Test
   @Request
   public void testExportDateAttr() throws Exception
   {
-    exportCustomAttribute(testData.GOT_DATE, testData.GO_DATE, testData.AT_GO_DATE);
+    exportCustomAttribute(AllAttributesDataset.GOT_DATE, AllAttributesDataset.GO_DATE, testData.AT_GO_DATE);
   }
 
   @Test
   @Request
   public void testExportBoolAttr() throws Exception
   {
-    exportCustomAttribute(testData.GOT_BOOL, testData.GO_BOOL, testData.AT_GO_BOOL);
+    exportCustomAttribute(AllAttributesDataset.GOT_BOOL, AllAttributesDataset.GO_BOOL, testData.AT_GO_BOOL);
   }
 
   @Test
   @Request
   public void testExportTermAttr() throws Exception
   {
-    exportCustomAttribute(testData.GOT_TERM, testData.GO_TERM, testData.AT_GO_TERM);
+    exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM);
   }
 
   @Test
   @Request
   public void testGetCustomAttributeConfiguration() throws Exception
   {
-    SynchronizationConfig config = createSyncConfig(null);
+    SynchronizationConfig config = createSyncConfig(this.system, null);
 
-    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.clientSession.getSessionId(), config.getSystem(), testData.GOT_ALL.getCode());
-
-    System.out.println(custConfig.toString());
+    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.clientSession.getSessionId(), config.getSystem(), AllAttributesDataset.GOT_ALL.getCode());
 
     for (int i = 0; i < custConfig.size(); ++i)
     {
@@ -586,5 +587,62 @@ public class DHIS2ExportTest
       Assert.assertNotNull(attr.get("typeLabel").getAsString());
       Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.fetchDTO().getType()), attr.get("typeLabel").getAsString());
     }
+  }
+  
+  @Test
+  public void testGetConfigForExternalSystem()
+  {
+    TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.ADMIN_USER, AllAttributesDataset.USER_ORG_RA };
+    
+    for (TestUserInfo user : users)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        JsonObject jo = adapter.getConfigForExternalSystem(this.system.getOid(), AllAttributesDataset.HIER.getCode());
+        
+        Assert.assertTrue(jo.has("types"));
+        JsonArray types = jo.get("types").getAsJsonArray();
+        
+        Assert.assertTrue(types.size() == 7 || types.size() == 8);
+        
+        Assert.assertTrue(jo.has("orgUnitGroups"));
+        JsonArray orgUnitGroups = jo.get("orgUnitGroups").getAsJsonArray();
+        
+        Assert.assertEquals(18, orgUnitGroups.size());
+      });
+    }
+  }
+  
+  @Request
+  @Test
+  public void testExportGeoObjects() throws InterruptedException
+  {
+    SynchronizationConfig config = createSyncConfig(this.system, null);
+    
+    SynchronizationConfigService service = new SynchronizationConfigService();
+
+    JsonObject joHist = service.run(testData.clientSession.getSessionId(), config.getOid());
+    ExportHistory hist = ExportHistory.get(joHist.get("historyId").getAsString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ExportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(1), hist.getWorkTotal());
+    Assert.assertEquals(new Long(1), hist.getWorkProgress());
+    Assert.assertEquals(ImportStage.COMPLETE.name(), hist.getStage().get(0).name());
+    
+    LinkedList<Dhis2Payload> payloads = this.dhis2.getPayloads();
+    Assert.assertEquals(1, payloads.size());
+    
+    Dhis2Payload payload = payloads.get(0);
+    
+    JsonObject data = JsonParser.parseString(payload.getData()).getAsJsonObject();
+    
+    JsonArray orgUnits = data.get("organisationUnits").getAsJsonArray();
+    
+    Assert.assertEquals(1, orgUnits.size());
+    
+    JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
+    
+    Assert.assertEquals("AllAttrGO_ALL", orgUnit.get("code").getAsString());
   }
 }

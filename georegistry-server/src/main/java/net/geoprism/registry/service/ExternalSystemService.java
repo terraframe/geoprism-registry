@@ -34,6 +34,7 @@ import com.runwaysdk.session.RequestType;
 import net.geoprism.account.OauthServer;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.Page;
@@ -98,6 +99,9 @@ public class ExternalSystemService
         
         existingOauth.delete();
       }
+      
+      // Test the DHIS2 connection information
+      new DHIS2FeatureService().setExternalSystemDhis2Version(dhis2Sys);
     }
 
     return system.toJSON();

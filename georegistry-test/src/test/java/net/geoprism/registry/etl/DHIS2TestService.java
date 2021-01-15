@@ -34,6 +34,7 @@ import com.runwaysdk.util.IDGenerator;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
@@ -42,9 +43,9 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
-import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 
-public class DHIS2TestService implements DHIS2ServiceIF
+public class DHIS2TestService implements DHIS2TransportServiceIF
 {
 
   private LinkedList<Dhis2Payload> payloads = new LinkedList<Dhis2Payload>();
@@ -190,6 +191,14 @@ public class DHIS2TestService implements DHIS2ServiceIF
         
         return new MetadataGetResponse<T>(resp, 200, objectNamePlural, dhis2Type);
       }
+      else if (objectNamePlural.equals(DHIS2Objects.ORGANISATION_UNIT_GROUPS))
+      {
+        InputStream data = Thread.currentThread().getContextClassLoader().getResourceAsStream("dhis2/default/organisationUnitGroups.json");
+        
+        String resp = IOUtils.toString(data, "UTF-8");
+        
+        return new MetadataGetResponse<T>(resp, 200, objectNamePlural, dhis2Type);
+      }
       else
       {
         throw new UnsupportedOperationException();
@@ -223,6 +232,48 @@ public class DHIS2TestService implements DHIS2ServiceIF
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getVersionRemoteServer()
+  {
+    return "2.31.9";
+  }
+
+  @Override
+  public Integer getVersionRemoteServerApi()
+  {
+    return 31;
+  }
+
+  @Override
+  public Integer getVersionApiCompat()
+  {
+    return 31;
+  }
+
+  @Override
+  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  {
+    // Do nothing
+  }
+
+  @Override
+  public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException
+  {
+    // Do nothing
+  }
+
+  @Override
+  public String getRemoteServerUrl()
+  {
+    return null;
   }
 
 }

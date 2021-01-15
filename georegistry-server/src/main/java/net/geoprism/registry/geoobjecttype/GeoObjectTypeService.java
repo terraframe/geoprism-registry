@@ -97,6 +97,7 @@ public class GeoObjectTypeService
         if (!ServiceFactory.getGeoObjectTypePermissionService().canRead(serverGot.getOrganization().getCode(), serverGot.getCode(), serverGot.getIsPrivate()))
         {
           it.remove();
+          continue; // If we don't have continue here, then it could invoke it.remove twice which throws an error.
         }
       }
       else
@@ -104,6 +105,7 @@ public class GeoObjectTypeService
         if (!ServiceFactory.getGeoObjectTypePermissionService().canWrite(serverGot.getOrganization().getCode(), serverGot.getCode(), serverGot.getIsPrivate()))
         {
           it.remove();
+          continue; // If we don't have continue here, then it could invoke it.remove twice which throws an error.
         }
       }
 
@@ -127,6 +129,7 @@ public class GeoObjectTypeService
         if (!contains)
         {
           it.remove();
+          continue;
         }
       }
     }

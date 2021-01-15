@@ -30,10 +30,14 @@ import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 public interface ConnectorIF
 {
 
-  DHIS2Response httpGet(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
+  public String getServerUrl();
+  
+  public DHIS2Response httpGet(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
+  
+  public DHIS2Response httpDelete(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
 
-  DHIS2Response httpPost(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
+  public DHIS2Response httpPost(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
 
-  DHIS2Response httpPatch(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
+  public DHIS2Response httpPatch(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
   
 }

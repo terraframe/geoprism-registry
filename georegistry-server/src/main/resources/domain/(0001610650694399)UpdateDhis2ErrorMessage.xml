@@ -1,0 +1,23 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.oauthNotSupported">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.oauthNotSupported" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="OAuth is not supported on this version of DHIS2" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update>
+      <mdException name="net.geoprism.registry.etl.export.HttpError" message="The CGR encountered an error while communicating with the external system. Check to make sure that your connection information is correct and that the remote server is up and responding.">
+      </mdException>
+      <mdException name="net.geoprism.registry.etl.export.LoginException" message="We were unable to login to the remote external system using the provided authentication credentials. Check that your username and password is correct for the external system.">
+      </mdException>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

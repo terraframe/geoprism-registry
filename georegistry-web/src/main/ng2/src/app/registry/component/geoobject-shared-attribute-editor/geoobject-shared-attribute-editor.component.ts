@@ -153,7 +153,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		}
 		
 		if(this.animate){
-			console.log(this.animate)
 			this.slide = "left"
 		}
 	}

@@ -18,7 +18,127 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response.model;
 
+import com.google.gson.JsonArray;
+
 public class OrganisationUnit
 {
+private String code;
+  
+  private String created;
+  
+  private String lastUpdated;
+  
+  private String name;
+  
+  private String id;
+  
+  private String shortName;
+  
+  private Integer level;
+  
+  private String path;
+  
+  private String coordinates;
+  
+  private String featureType;
 
+  public String getCode()
+  {
+    return code;
+  }
+
+  public void setCode(String code)
+  {
+    this.code = code;
+  }
+
+  public String getCreated()
+  {
+    return created;
+  }
+
+  public void setCreated(String created)
+  {
+    this.created = created;
+  }
+
+  public String getLastUpdated()
+  {
+    return lastUpdated;
+  }
+
+  public void setLastUpdated(String lastUpdated)
+  {
+    this.lastUpdated = lastUpdated;
+  }
+
+  public String getName()
+  {
+    return name;
+  }
+
+  public void setName(String name)
+  {
+    this.name = name;
+  }
+
+  public String getId()
+  {
+    return id;
+  }
+
+  public void setId(String id)
+  {
+    this.id = id;
+  }
+
+  public String getShortName()
+  {
+    return shortName;
+  }
+
+  public void setShortName(String shortName)
+  {
+    this.shortName = shortName;
+  }
+
+  public Integer getLevel()
+  {
+    return level;
+  }
+
+  public void setLevel(Integer level)
+  {
+    this.level = level;
+  }
+
+  public String getPath()
+  {
+    return path;
+  }
+
+  public void setPath(String path)
+  {
+    this.path = path;
+  }
+
+  public String getCoordinates()
+  {
+    return coordinates;
+  }
+
+  public void setCoordinates(String coordinates)
+  {
+    this.coordinates = coordinates;
+  }
+
+  public String getFeatureType()
+  {
+    return featureType;
+  }
+
+  public void setFeatureType(String featureType)
+  {
+    this.featureType = featureType;
+  }
 }

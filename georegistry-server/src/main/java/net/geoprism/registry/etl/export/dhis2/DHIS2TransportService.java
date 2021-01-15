@@ -26,6 +26,7 @@ import org.apache.http.NameValuePair;
 import net.geoprism.dhis2.dhis2adapter.DHIS2Bridge;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
@@ -35,13 +36,24 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 
-public class DHIS2Service implements DHIS2ServiceIF
+public class DHIS2TransportService implements DHIS2TransportServiceIF
 {
   private DHIS2Bridge dhis2;
   
-  public DHIS2Service(HTTPConnector connector, String version)
+  public DHIS2TransportService(HTTPConnector connector)
   {
-    this.dhis2 = new DHIS2Bridge(connector, version);
+    this.dhis2 = new DHIS2Bridge(connector);
+  }
+  
+  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  {
+    this.dhis2.initialize();
+  }
+  
+  @Override
+  public String getRemoteServerUrl()
+  {
+    return this.dhis2.getRemoteServerUrl();
   }
 
   @Override
@@ -66,6 +78,12 @@ public class DHIS2Service implements DHIS2ServiceIF
   public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
   {
     return this.dhis2.entityIdGet(entityName, entityId, params);
+  }
+  
+  @Override
+  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    return this.dhis2.entityIdDelete(entityName, entityId, params);
   }
 
   @Override
@@ -120,5 +138,29 @@ public class DHIS2Service implements DHIS2ServiceIF
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
   {
     return this.dhis2.apiPatch(url, params, body);
+  }
+  
+  @Override
+  public String getVersionRemoteServer()
+  {
+    return this.dhis2.getVersionRemoteServer();
+  }
+
+  @Override
+  public Integer getVersionRemoteServerApi()
+  {
+    return this.dhis2.getVersionRemoteServerApi();
+  }
+
+  @Override
+  public Integer getVersionApiCompat()
+  {
+    return this.dhis2.getVersionApiCompat();
+  }
+
+  @Override
+  public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException
+  {
+    this.dhis2.setVersionApiCompat(versionApiCompat);
   }
 }

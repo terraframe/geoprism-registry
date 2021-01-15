@@ -51,6 +51,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
@@ -319,6 +320,31 @@ public class HTTPConnector implements ConnectorIF
       }
     }
     catch (IOException | URISyntaxException e)
+    {
+      throw new HTTPException(e);
+    }
+  }
+
+  @Override
+  public DHIS2Response httpDelete(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  {
+    try
+    {
+      if (!isInitialized())
+      {
+        initialize();
+      }
+      
+      HttpDelete delete = new HttpDelete(this.buildUri(url, params));
+      
+      delete.addHeader("Content-Type", "application/json");
+      
+      try (CloseableHttpResponse response = client.execute(delete, getContext()))
+      {
+        return this.convertResponse(response);
+      }
+    }
+    catch (URISyntaxException | IOException e)
     {
       throw new HTTPException(e);
     }

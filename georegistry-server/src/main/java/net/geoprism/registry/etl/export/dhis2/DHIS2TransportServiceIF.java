@@ -24,6 +24,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
@@ -33,8 +34,10 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.ObjectReportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.TypeReportResponse;
 
-public interface DHIS2ServiceIF
+public interface DHIS2TransportServiceIF
 {
+  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException;
+  
   public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException;
 
   public DHIS2Response systemInfo() throws InvalidLoginException, HTTPException;
@@ -42,6 +45,8 @@ public interface DHIS2ServiceIF
   public ObjectReportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException;
 
   public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
+  
+  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
 
   public ObjectReportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException;
 
@@ -60,4 +65,26 @@ public interface DHIS2ServiceIF
   public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
   
   public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
+  
+  public String getRemoteServerUrl();
+  
+  public String getVersionRemoteServer();
+  
+  /**
+   * Returns the API version of the remote DHIS2 server.
+   */
+  public Integer getVersionRemoteServerApi();
+  
+  /**
+   * Returns the API version of the compatibility layer used for DHIS2 communication.
+   */
+  public Integer getVersionApiCompat();
+  
+  /**
+   * Sets the version of the API compatibility layer used for DHIS2 communication.
+   * 
+   * @param versionApiCompat
+   * @throws IncompatibleServerVersionException If the version is not supported by the remote server.
+   */
+  public void setVersionApiCompat(Integer versionApiCompat) throws IncompatibleServerVersionException;
 }

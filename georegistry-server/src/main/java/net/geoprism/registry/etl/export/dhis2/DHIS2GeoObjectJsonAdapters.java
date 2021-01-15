@@ -82,13 +82,13 @@ public class DHIS2GeoObjectJsonAdapters
 
     private ExternalSystem      ex;
 
-    private DHIS2ServiceIF      dhis2;
+    private DHIS2TransportServiceIF      dhis2;
 
     private SyncLevel           syncLevel;
 
     private DHIS2SyncConfig     dhis2Config;
 
-    public DHIS2Serializer(DHIS2ServiceIF dhis2, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
+    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
     {
       this.got = got;
       this.hierarchyType = hierarchyType;

@@ -122,20 +122,6 @@
               </span>
             </div>
           </div>
-
-          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.version"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="select">
-                <select type="text" [(ngModel)]="system.version" name="version" required disabled>
-                  <option value="2.31">2.31</option>
-                </select>
-              </span>
-            </div>
-          </div>
-          
           
 <!--           <div class="row-holder"> -->
 <!-- 	        <div  class="label-holder"> -->
@@ -151,6 +137,9 @@
               <input *ngIf="system.oAuthServer == null && system.type === 'DHIS2ExternalSystem'" type="button" [value]="'external.system.enableOauth' | localize" class="btn btn-primary" [disabled]="system.url == null" (click)="enableOAuth()" />
               <hr *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'" style="border-color:lightgrey;">
             </div>
+          </div>
+          <div *ngIf="!oauthSupported">
+            <div class="alert alert-danger" role="alert"><localize key="external.system.oauthNotSupported"></localize></div>
           </div>
           <div *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'">
             <!--

@@ -52,7 +52,9 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
+import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.Option;
@@ -61,6 +63,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.DataExportJobQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -70,7 +73,7 @@ import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.UnexpectedRemoteResponse;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache.IntegratedOptionSet;
-import net.geoprism.registry.etl.export.dhis2.DHIS2ServiceIF;
+import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -141,10 +144,11 @@ public class SynchronizationConfigService
 
     // Add DHIS2 OrgUnitGroups
     DHIS2ExternalSystem system = DHIS2ExternalSystem.get(externalSystemId);
-    DHIS2ServiceIF dhis2 = DataExportJob.getDHIS2Service(system);
 
     try
     {
+      DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
+      
       JsonArray jaGroups = new JsonArray();
 
       MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.<OrganisationUnitGroup> metadataGet(OrganisationUnitGroup.class);
@@ -169,12 +173,7 @@ public class SynchronizationConfigService
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
-    catch (IllegalArgumentException e)
-    {
-      HttpError cgrhttp = new HttpError(e);
-      throw cgrhttp;
-    }
-    catch (HTTPException e)
+    catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;
@@ -206,7 +205,22 @@ public class SynchronizationConfigService
         joAttr.addProperty("type", cgrAttr.getType());
         joAttr.addProperty("typeLabel", AttributeTypeMetadata.get().getTypeEnumDisplayLabel(cgrAttr.getType()));
 
-        DHIS2ServiceIF dhis2 = DataExportJob.getDHIS2Service(system);
+        DHIS2TransportServiceIF dhis2;
+        
+        try
+        {
+          dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
+        }
+        catch (InvalidLoginException e)
+        {
+          LoginException cgrlogin = new LoginException(e);
+          throw cgrlogin;
+        }
+        catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
+        {
+          HttpError cgrhttp = new HttpError(e);
+          throw cgrhttp;
+        }
 
         if (dhis2Attrs == null)
         {
@@ -304,7 +318,7 @@ public class SynchronizationConfigService
     return response;
   }
 
-  private List<Attribute> getDHIS2Attributes(DHIS2ServiceIF dhis2)
+  private List<Attribute> getDHIS2Attributes(DHIS2TransportServiceIF dhis2)
   {
     try
     {

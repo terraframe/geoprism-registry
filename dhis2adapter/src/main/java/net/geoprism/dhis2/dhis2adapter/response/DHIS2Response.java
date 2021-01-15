@@ -18,8 +18,6 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response;
 
-import java.util.Arrays;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -39,11 +37,13 @@ public class DHIS2Response
   
   public boolean isSuccess()
   {
-    final int[] successCodes = new int[] {200, 201, 202, 203, 204, 205, 206, 207, 208, 226};
+//    final int[] successCodes = new int[] {200, 201, 202, 203, 204, 205, 206, 207, 208, 226};
+//    
+//    boolean isSuccessCode = Arrays.stream(successCodes).anyMatch(new Integer(this.getStatusCode())::equals);
+//    
+//    return isSuccessCode;
     
-    boolean isSuccessCode = Arrays.stream(successCodes).anyMatch(new Integer(this.getStatusCode())::equals);
-    
-    return isSuccessCode;
+    return this.getStatusCode() < 300;
   }
 
   public JsonObject getJsonObject()

@@ -90,6 +90,7 @@ import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
+import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
@@ -985,6 +986,8 @@ public class RegistryService
 
     final GeoObjectOverTime goot = go.toGeoObjectOverTime();
     ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true);
+    
+    HierarchyService.filterHierarchiesFromPermissions(type, pot);
 
     /**
      * Serialize the GeoObject and add it to the response

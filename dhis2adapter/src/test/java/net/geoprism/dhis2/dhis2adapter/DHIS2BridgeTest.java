@@ -35,6 +35,7 @@ import org.junit.Test;
 import com.google.gson.JsonObject;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
+import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
@@ -49,12 +50,41 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 public class DHIS2BridgeTest
 {
   
-  @Test
-  public void testSystemInfo() throws InvalidLoginException, HTTPException, IOException
+  @Test(expected = IncompatibleServerVersionException.class)
+  public void testBadApiVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
   {
-    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/2.31.9/system-info.json"), "UTF-8");
+    String versionResponse = TestBridgeBuilder.getVersionResponse(Constants.DHIS2_API_VERSION);
     
-    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    DHIS2Bridge facade = new DHIS2Bridge(new TestSingleResponseConnector(null, versionResponse, 200), Constants.DHIS2_API_VERSION - 3);
+    
+    facade.initialize();
+  }
+  
+  public void testGetVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  {
+    final String versionRemote = Constants.DHIS2_VERSION;
+    final Integer versionApiRemote = Constants.DHIS2_API_VERSION;
+    final Integer versionApiCompat = versionApiRemote - 2;
+    
+    String versionResponse = TestBridgeBuilder.getVersionResponse(versionApiRemote);
+    
+    DHIS2Bridge facade = new DHIS2Bridge(new TestSingleResponseConnector(null, versionResponse, 200), versionApiCompat);
+    
+    facade.initialize();
+    
+    Assert.assertEquals(versionApiRemote, facade.getVersionRemoteServerApi());
+    Assert.assertEquals(versionApiCompat, facade.getVersionApiCompat());
+    Assert.assertEquals(versionRemote, facade.getVersionRemoteServer());
+  }
+  
+  @Test
+  public void testSystemInfo() throws InvalidLoginException, HTTPException, IOException, UnexpectedResponseException, IncompatibleServerVersionException
+  {
+    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/system-info.json"), "UTF-8");
+    
+    DHIS2Bridge facade = TestBridgeBuilder.buildDefault(file, 200);
+    
+    facade.initialize();
     
     DHIS2Response resp = facade.systemInfo();
     
@@ -62,7 +92,7 @@ public class DHIS2BridgeTest
     
     JsonObject jo = resp.getJsonObject();
     
-    Assert.assertEquals(Constants.DHIS2_VERSION, jo.get("version").getAsString());
+    Assert.assertEquals("2.31.9", jo.get("version").getAsString());
     Assert.assertEquals(Constants.DHIS2_URL, jo.get("contextPath").getAsString());
   }
   
@@ -81,9 +111,11 @@ public class DHIS2BridgeTest
   @Test
   public void testEntityIdGet() throws Exception
   {
-    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/2.31.9/entityId-organisationUnit.json"), "UTF-8");
+    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/entityId-organisationUnit.json"), "UTF-8");
     
-    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    DHIS2Bridge facade = TestBridgeBuilder.buildDefault(file, 200);
+    
+    facade.initialize();
     
     List<NameValuePair> params = new ArrayList<NameValuePair>();
 //    params.add(new BasicNameValuePair("organisationUnits", "true"));
@@ -95,11 +127,13 @@ public class DHIS2BridgeTest
   }
   
   @Test
-  public void testMetadataPost() throws InvalidLoginException, HTTPException, IOException
+  public void testMetadataPost() throws InvalidLoginException, HTTPException, IOException, UnexpectedResponseException, IncompatibleServerVersionException
   {
-    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/2.31.9/metadataPost-dataElement.json"), "UTF-8");
+    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/metadataPost-dataElement.json"), "UTF-8");
     
-    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    DHIS2Bridge facade = TestBridgeBuilder.buildDefault(file, 200);
+    
+    facade.initialize();
     
     // Payload taken from https://docs.dhis2.org/2.34/en/dhis2_developer_manual/web-api.html#metadata-import
     final String payload = "{\n" + 
@@ -127,9 +161,11 @@ public class DHIS2BridgeTest
   }
   
   @Test
-  public void testGetDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  public void testGetDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException, IncompatibleServerVersionException
   {
-    DHIS2Bridge facade = new DHIS2Bridge(new FakeIdConnector(), Constants.DHIS2_VERSION);
+    DHIS2Bridge facade = TestBridgeBuilder.buildFakeId();
+    
+    facade.initialize();
     
     Set<String> set = new HashSet<String>();
     
@@ -150,11 +186,13 @@ public class DHIS2BridgeTest
   }
   
   @Test
-  public void testMetadataGetAttributes() throws HTTPException, InvalidLoginException, UnexpectedResponseException, IOException
+  public void testMetadataGetAttributes() throws HTTPException, InvalidLoginException, UnexpectedResponseException, IOException, IncompatibleServerVersionException
   {
-    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/2.31.9/metadataGet-attributes.json"), "UTF-8");
+    String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/metadataGet-attributes.json"), "UTF-8");
     
-    DHIS2Bridge facade = new DHIS2Bridge(new TestConnector(file, 200), Constants.DHIS2_VERSION);
+    DHIS2Bridge facade = TestBridgeBuilder.buildDefault(file, 200);
+    
+    facade.initialize();
     
     MetadataGetResponse<Attribute> metadataGetResp = facade.<Attribute>metadataGet(Attribute.class);
     
@@ -196,6 +234,8 @@ public class DHIS2BridgeTest
 //    connector.setServerUrl(Constants.DHIS2_URL);
 //    
 //    DHIS2Bridge facade = new DHIS2Bridge(connector, Constants.API_VERSION);
+//  
+//    facade.initialize();
 //    
 //    final String sierraLeoneId = "ImspTQPwCqd";
 //    
@@ -238,6 +278,8 @@ public class DHIS2BridgeTest
 //    connector.setServerUrl(Constants.DHIS2_URL);
 //    
 //    DHIS2Bridge facade = new DHIS2Bridge(connector, Constants.API_VERSION);
+//  
+//    facade.initialize();
 //    
 //    final String sierraLeoneId = "ImspTQPwCqd";
 //    
