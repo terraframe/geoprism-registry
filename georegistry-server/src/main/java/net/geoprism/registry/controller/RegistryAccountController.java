@@ -189,7 +189,9 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF inviteUser(ClientRequestIF request, ServletRequestIF sr, @RequestParamter(name = "invite") String sInvite, @RequestParamter(name = "roleIds") String roleIds) throws JSONException
   {
-    return new AccountController().inviteUser(request, sr, sInvite, roleIds);
+    RegistryAccountUtilDTO.initiate(request, sInvite, roleIds, null);
+
+    return new RestResponse();
   }
 
   /**
@@ -237,8 +239,6 @@ public class RegistryAccountController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF inviteComplete(ClientRequestIF request, @RequestParamter(name = "user") String user, @RequestParamter(name = "token") String token) throws JSONException
   {
-    // this.accountService.inviteComplete(request.getSessionId(), token, user);
-
     RegistryAccountUtilDTO.inviteComplete(request, token, user);
 
     return new RestResponse();

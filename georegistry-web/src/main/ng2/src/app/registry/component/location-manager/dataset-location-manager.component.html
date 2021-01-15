@@ -33,12 +33,12 @@
           <article class="base-layer-panel">
             <layer-panel (layerChange)="onContextLayerChange($event)" [filter]="[datasetId]"></layer-panel>
             
-            <div class="layer-toggle" style="margin-top:10px;" (mouseenter)="toolsIconHover = true" (mouseleave)="toolsIconHover = false">
+            <div *ngIf="!editOnly" class="layer-toggle" style="margin-top:10px;" (mouseenter)="toolsIconHover = true" (mouseleave)="toolsIconHover = false">
              
               <i class="fa fa-plus-square" *ngIf="!toolsIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
               <div *ngIf="toolsIconHover" style="margin-top:10px;">
             
-                <span *ngIf="!editOnly" (click)="onNewGeoObject()" role="button">
+                <span (click)="onNewGeoObject()" role="button">
                   <button class="btn btn-primary">
                     <localize key="masterlist.newGeoObject"></localize>              
                   </button>

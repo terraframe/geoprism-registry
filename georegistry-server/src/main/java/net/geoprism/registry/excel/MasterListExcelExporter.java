@@ -154,11 +154,11 @@ public class MasterListExcelExporter
     MdBusinessDAOIF metadata = MdBusinessDAO.getMdBusinessDAO(MasterList.CLASS);
 
     int rowNumber = 0;
-
+    
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CODE, this.list.getCode());
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), this.version.getForDate());
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), this.version.getPublishDate());
+    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), this.version.getPublishDate());
+    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), this.version.getForDate());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.LISTABSTRACT, this.list.getListAbstract());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROCESS, this.list.getProcess());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROGRESS, this.list.getProgress());

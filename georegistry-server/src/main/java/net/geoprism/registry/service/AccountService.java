@@ -32,6 +32,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.query.OIterator;
@@ -67,7 +69,7 @@ public class AccountService
   @Request(RequestType.SESSION)
   public JSONObject apply(String sessionId, String json, String[] roleNameArray)
   {
-    JSONObject account = new JSONObject(json);
+    JsonObject account = JsonParser.parseString(json).getAsJsonObject();
 
     return UserInfo.applyUserWithRoles(account, roleNameArray, false);
   }

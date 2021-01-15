@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
@@ -220,7 +221,7 @@ public class UserInfo extends UserInfoBase
   }
 
   @Transaction
-  public static JSONObject applyUserWithRoles(JSONObject account, String[] roleNameArray, boolean isUserInvite)
+  public static JSONObject applyUserWithRoles(JsonObject account, String[] roleNameArray, boolean isUserInvite)
   {
     GeoprismUser geoprismUser = deserialize(account);
 
@@ -428,7 +429,7 @@ public class UserInfo extends UserInfoBase
     
     if (account.has(UserInfo.EXTERNALSYSTEMOID))
     {
-      info.setExternalSystemOid(account.getString(UserInfo.EXTERNALSYSTEMOID));
+      info.setExternalSystemOid(account.get(UserInfo.EXTERNALSYSTEMOID).getAsString());
     }
     else
     {
@@ -466,13 +467,13 @@ public class UserInfo extends UserInfoBase
     return result;
   }
 
-  public static GeoprismUser deserialize(JSONObject account)
+  public static GeoprismUser deserialize(JsonObject account)
   {
     GeoprismUser user = null;
 
     if (account.has(GeoprismUser.OID))
     {
-      String userId = account.getString(GeoprismUser.OID);
+      String userId = account.get(GeoprismUser.OID).getAsString();
 
       user = GeoprismUser.get(userId);
     }
@@ -481,24 +482,24 @@ public class UserInfo extends UserInfoBase
       user = new GeoprismUser();
     }
 
-    user.setUsername(account.getString(GeoprismUser.USERNAME));
-    user.setFirstName(account.getString(GeoprismUser.FIRSTNAME));
-    user.setLastName(account.getString(GeoprismUser.LASTNAME));
-    user.setEmail(account.getString(GeoprismUser.EMAIL));
+    user.setUsername(account.get(GeoprismUser.USERNAME).getAsString());
+    user.setFirstName(account.get(GeoprismUser.FIRSTNAME).getAsString());
+    user.setLastName(account.get(GeoprismUser.LASTNAME).getAsString());
+    user.setEmail(account.get(GeoprismUser.EMAIL).getAsString());
 
     if (account.has(GeoprismUser.PHONENUMBER))
     {
-      user.setPhoneNumber(account.getString(GeoprismUser.PHONENUMBER));
+      user.setPhoneNumber(account.get(GeoprismUser.PHONENUMBER).getAsString());
     }
 
     if (account.has(GeoprismUser.INACTIVE))
     {
-      user.setInactive(account.getBoolean(GeoprismUser.INACTIVE));
+      user.setInactive(account.get(GeoprismUser.INACTIVE).getAsBoolean());
     }
 
     if (account.has(GeoprismUser.PASSWORD))
     {
-      String password = account.getString(GeoprismUser.PASSWORD);
+      String password = account.get(GeoprismUser.PASSWORD).getAsString();
 
       if (password != null && password.length() > 0)
       {
