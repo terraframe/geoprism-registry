@@ -23,16 +23,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import org.json.JSONArray;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.rbac.Authenticate;
+import com.runwaysdk.dataaccess.attributes.AttributeValueException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.system.Roles;
 
 import net.geoprism.EmailSetting;
 import net.geoprism.GeoprismProperties;
@@ -40,7 +45,10 @@ import net.geoprism.GeoprismUser;
 import net.geoprism.account.InvalidUserInviteToken;
 import net.geoprism.account.UserInvite;
 import net.geoprism.account.UserInviteQuery;
+import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.UserInfo;
+import net.geoprism.registry.conversion.RegistryRoleConverter;
 
 public class RegistryAccountUtil extends RegistryAccountUtilBase
 {
@@ -66,12 +74,18 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
   @Authenticate
   public static void initiate(String invite, String roleIds, String serverExternalUrl)
   {
-    initiateInTrans(invite, roleIds, serverExternalUrl);
+    initiateInTrans(invite, roleIds);
   }
 
   @Transaction
-  public static void initiateInTrans(String sInvite, String roleIds, String serverExternalUrl)
+  public static void initiateInTrans(String sInvite, String roleIds)
   {
+    if (roleIds == null || roleIds.length() == 0 || JsonParser.parseString(roleIds).getAsJsonArray().size() == 0)
+    {
+      // TODO : Better Error
+      throw new AttributeValueException("You're attempting to invite a user with zero roles?", "");
+    }
+    
     JSONObject joInvite = new JSONObject(sInvite);
 
     String email = joInvite.getString("email");
@@ -89,28 +103,81 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
     }
 
     invite.setStartTime(new Date());
-    invite.setToken(UserInvite.generateEncryptedToken(invite.getEmail()));
+    invite.setToken(generateEncryptedToken(invite.getEmail()));
     invite.setRoleIds(roleIds);
 
     invite.apply();
 
-    RegistryAccountUtil.sendEmail(invite, serverExternalUrl);
+    RegistryAccountUtil.sendEmail(invite, roleIds);
   }
   
-  public static void sendEmail(UserInvite invite, String serverExternalUrl)
+  public static void sendEmail(UserInvite invite, String roleIds)
   {
+    final String serverExternalUrl = GeoregistryProperties.getRemoteServerUrl();
     final int expireTimeInHours = GeoprismProperties.getInviteUserTokenExpireTime();
     
     String address = invite.getEmail();
-    String link = serverExternalUrl + "/cgr/manage#/admin/invite-complete/" + invite.getToken();
+    String link = serverExternalUrl + "cgr/manage#/admin/invite-complete/" + invite.getToken();
 
     String subject = LocalizationFacade.localize("user.invite.email.subject");
+    
     String body = LocalizationFacade.localize("user.invite.email.body");
     body = body.replaceAll("\\\\n", "\n");
     body = body.replace("${link}", link);
     body = body.replace("${expireTime}", String.valueOf(expireTimeInHours));
+    
+    String[] roleLabels = getRoleLabels(roleIds);
+    body = body.replace("${roleName}", roleLabels[0]);
+    
+    if (roleLabels[1] != null)
+    {
+      String orgMsg =  LocalizationFacade.localize("user.invite.email.optionalOrgMsg");
+      
+      orgMsg = orgMsg.replace("${organization}", roleLabels[1]);
+      
+      body = body.replace("${user.invite.email.optionalOrgMsg}", orgMsg);
+    }
+    else
+    {
+      body = body.replace("${user.invite.email.optionalOrgMsg}", "");
+    }
 
     EmailSetting.sendEmail(subject, body, new String[] { address });
+  }
+  
+  private static String[] getRoleLabels(String roleIds)
+  {
+    JsonArray roleNameArray = JsonParser.parseString(roleIds).getAsJsonArray();
+    
+    for (int i = 0; i < roleNameArray.size(); ++i)
+    {
+      String roleName = roleNameArray.get(i).getAsString();
+      
+      Roles role = Roles.findRoleByName(roleName);
+      
+      RegistryRole registryRole = new RegistryRoleConverter().build(role);
+      
+      String orgLabel = null;
+      String orgCode = registryRole.getOrganizationCode();
+      if (orgCode != null && orgCode.length() > 0)
+      {
+        orgLabel = Organization.getByCode(orgCode).getDisplayLabel().getValue().trim();
+      }
+      
+      String roleLabel;
+      if (RegistryRole.Type.isRA_Role(roleName))
+      {
+        roleLabel = Roles.findRoleByName("cgr.RegistryAdministrator").getDisplayLabel().getValue().trim();
+      }
+      else
+      {
+        roleLabel = role.getDisplayLabel().getValue().trim();
+      }
+      
+      return new String[] {roleLabel, orgLabel};
+    }
+    
+    return new String[]{"???","???"};
   }
   
   public static String generateEncryptedToken(String email)
@@ -161,16 +228,16 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
       throw new InvalidUserInviteToken();
     }
 
-    JSONObject account = new JSONObject(json);
+    JsonObject account = JsonParser.parseString(json).getAsJsonObject();
 
     if (invite.getRoleIds().length() > 0)
     {
-      JSONArray array = new JSONArray(invite.getRoleIds());
+      JsonArray array = JsonParser.parseString(invite.getRoleIds()).getAsJsonArray();
       List<String> list = new LinkedList<String>();
 
-      for (int i = 0; i < array.length(); i++)
+      for (int i = 0; i < array.size(); i++)
       {
-        list.add(array.getString(i));
+        list.add(array.get(i).getAsString());
       }
 
       UserInfo.applyUserWithRoles(account, list.toArray(new String[list.size()]), true);

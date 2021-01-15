@@ -1,11 +1,18 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.optionalOrgMsg">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="user.invite.email.optionalOrgMsg" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value=" for the ${organization} Organization" />
+        </attributeStruct>
+      </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.body">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="user.invite.email.body" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Congratulations!\n\nYou have been invited to create an account with the Common Geo-Registry.\n\nTo do so, click the link below:\n${link}\n\nThe above link will stop working in ${expireTime} hours.\nIf you did not request this, you can safely ignore this email." />
+          <attribute name="defaultLocale" value="Congratulations!\n\nYou have been invited to create an account as Common Geo-Registry ${roleName}${user.invite.email.optionalOrgMsg}.\n\nTo do so, click the link below:\n${link}\n\nThe above link will stop working in ${expireTime} hours.\nIf you did not request this, you can safely ignore this email." />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.hours">
