@@ -18,28 +18,30 @@ export class ErrorHandler {
         console.log("An error has occurred: ", err);
       }
       
-      let errJson = err;
+      let msg = null;
       
       if (err.error != null && (typeof err.error === 'object'))
       {
-        errJson = err.error;
+        msg = err.error.localizedMessage || err.error.message;
       }
-    
-      var msg = errJson.localizedMessage || errJson.message;
       
       if (msg == null)
       {
-        return unspecified;
+        msg = err.message || err.msg || err.localizedMessage;
       }
-      else if (msg.includes("##tferrormsg##"))
+      
+      if (msg != null && msg.includes("##tferrormsg##"))
       {
         var split = msg.split("##tferrormsg##");
         return split[2];
       }
-      else
+      
+      if (msg == null)
       {
-        return msg;
+        msg = unspecified;
       }
+      
+      return msg;
     }
     
     static showErrorAsDialog(err: any, modalService: BsModalService): BsModalRef {
