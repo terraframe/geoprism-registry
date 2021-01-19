@@ -159,6 +159,10 @@ export class PublishedMasterListHistoryComponent implements OnInit, OnDestroy {
 	onDownloadShapefile(version: MasterListVersion): void {
 		window.location.href = acp + '/master-list/download-shapefile?oid=' + version.oid;
 	}
+	
+	formatDate(date: string): string {
+		return this.localizeService.formatDateForDisplay(date);
+	}
 
 	error(err: HttpErrorResponse): void {
 		this.message = ErrorHandler.getMessageFromError(err);

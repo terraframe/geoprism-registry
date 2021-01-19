@@ -5,8 +5,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { HierarchyOverTime, PRESENT } from '@registry/model/registry';
 
 import { RegistryService } from '@registry/service';
-
-import * as moment from 'moment';
+import { LocalizationService } from '@shared/service';
 
 @Component({
 	selector: 'manage-parent-versions',
@@ -24,7 +23,7 @@ export class ManageParentVersionsComponent implements OnInit {
 
 	loading: any = {};
 
-	constructor(private service: RegistryService) { }
+	constructor(private service: RegistryService, private localizeService: LocalizationService) { }
 
 	ngOnInit(): void {
 
@@ -194,12 +193,10 @@ export class ManageParentVersionsComponent implements OnInit {
 		return dateObj.getUTCFullYear() + "-" + (dateObj.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
 	}
 	
-	formatDate(date: string) {
-		let localeData = moment.localeData(date);
-  		var format = localeData.longDateFormat('L');
-  		return moment().format(format);
+	formatDate(date: string): string {
+		return this.localizeService.formatDateForDisplay(date);
 	}
-
+	
 	onSubmit(): void {
 		this.onChange.emit(this.hierarchy);
 	}

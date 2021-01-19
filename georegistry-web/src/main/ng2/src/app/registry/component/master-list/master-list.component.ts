@@ -289,6 +289,10 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	changeTypeaheadLoading(attribute: any, loading: boolean): void {
 		attribute.loading = loading;
 	}
+	
+	formatDate(date: string): string {
+		return this.localizeService.formatDateForDisplay(date);
+	}
 
 	error(err: HttpErrorResponse): void {
 		this.message = ErrorHandler.getMessageFromError(err);

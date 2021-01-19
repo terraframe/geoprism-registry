@@ -33,7 +33,9 @@
                                                     {{job.fileName}}
                                                 </span>
                                                 <span style="display: block;">
-                                                    <input class="text-display-input" type="date" [name]="'job_' + job.oid" [(ngModel)]="job.createDate" disabled>
+                                                    <span class="date-string-display">
+                                                        {{formatDate(job.createDate)}}
+                                                    </span>
                                                 </span>
                                                 <span style="display: block;">
                                                     {{formatJobStatus(job)}}
@@ -114,10 +116,14 @@
                             <p style="padding-left: 0px;margin: 0;">{{job.importedRecords}}</p>
                           </td>
                           <td style="width:15%; vertical-align: middle;">
-                              <input class="text-display-input" type="date" [name]="'jobCreateDate_' + job.oid" [(ngModel)]="job.createDate" disabled>
+                              <span class="date-string-display">
+                                {{formatDate(job.createDate)}}
+                              </span>
                           </td>
                           <td style="width:15%; vertical-align: middle;">
-                            <input class="text-display-input" type="date" [name]="'jobLasteUpdateDate_' + job.oid" [(ngModel)]="job.lastUpdateDate" disabled>
+                            <span class="date-string-display">
+                                {{formatDate(job.lastUpdateDate)}}
+                            </span>
                           </td>
 	                        <td *ngIf="isAdmin || isMaintainer" style="width:15%;text-align: right;vertical-align: middle;">                                
 	                           <!-- 

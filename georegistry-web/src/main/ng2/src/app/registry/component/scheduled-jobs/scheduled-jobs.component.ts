@@ -6,7 +6,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { interval } from 'rxjs';
 
 
-import { RegistryService, IOService  } from '@registry/service';
+import { RegistryService, IOService } from '@registry/service';
 import { ScheduledJob, ScheduledJobOverview, PaginationPage } from '@registry/model/registry';
 
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
@@ -223,7 +223,7 @@ export class ScheduledJobsComponent implements OnInit {
 
 		this.bsModalRef.content.message = this.localizeService.decode("etl.import.cancel.modal.description");
 		this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.cancel.modal.button");
-		
+
 		this.bsModalRef.content.type = ModalTypes.danger;
 
 		this.bsModalRef.content.onConfirm.subscribe(data => {
@@ -249,45 +249,48 @@ export class ScheduledJobsComponent implements OnInit {
 		});
 	}
 
-  onResolveScheduledJob(historyId: string, job: ScheduledJob): void {
-    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
-      animated: true,
-      backdrop: true,
-      ignoreBackdropClick: true,
-    });
+	onResolveScheduledJob(historyId: string, job: ScheduledJob): void {
+		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
 
-    this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.importDescription");
-    this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.importButton");
+		this.bsModalRef.content.message = this.localizeService.decode("etl.import.resume.modal.importDescription");
+		this.bsModalRef.content.submitText = this.localizeService.decode("etl.import.resume.modal.importButton");
 
-    this.bsModalRef.content.type = ModalTypes.danger;
+		this.bsModalRef.content.type = ModalTypes.danger;
 
-    this.bsModalRef.content.onConfirm.subscribe(data => {
+		this.bsModalRef.content.onConfirm.subscribe(data => {
 
-      this.service.resolveScheduledJob(historyId).then(response => {
+			this.service.resolveScheduledJob(historyId).then(response => {
 
-        this.bsModalRef.hide()
+				this.bsModalRef.hide()
 
-        for (let i = 0; i < this.activeJobsPage.results.length; ++i) {
-          let activeJob = this.activeJobsPage.results[i];
+				for (let i = 0; i < this.activeJobsPage.results.length; ++i) {
+					let activeJob = this.activeJobsPage.results[i];
 
-          if (activeJob.jobId === job.jobId) {
-            this.activeJobsPage.results.splice(i, 1);
-            break;
-          }
-        }
+					if (activeJob.jobId === job.jobId) {
+						this.activeJobsPage.results.splice(i, 1);
+						break;
+					}
+				}
 
-        this.onViewAllCompleteJobs();
+				this.onViewAllCompleteJobs();
 
-      }).catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
 
-    });
-  }
+		});
+	}
 
+	formatDate(date: string): string {
+		return this.localizeService.formatDateForDisplay(date);
+	}
 
 	error(err: HttpErrorResponse): void {
-			this.message = ErrorHandler.getMessageFromError(err);
+		this.message = ErrorHandler.getMessageFromError(err);
 	}
 
 }

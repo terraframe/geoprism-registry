@@ -62,7 +62,9 @@
             <h5><strong>{{req.oid}}</strong></h5>
           </td>
           <td class="col-md-2" style="vertical-align: middle; color:grey;">
-             <input class="text-display-input" type="date" [name]="'reqDate_' + req.oid" [(ngModel)]="req.createDate" disabled>
+             <span class="date-string-display">
+                {{formatDate(req.createDate)}}
+             </span>
           </td>
           <td class="col-md-2">
             <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-rejected':req.approvalStatus === 'REJECTED'}">
@@ -126,7 +128,9 @@
                         </li>                                        
                         <li>
                           <localize key="change.request.table.on"></localize>
-                          <input class="text-display-input" type="date" [name]="'createActionDate_' + action.oid" [(ngModel)]="action.createActionDate" disabled>
+                          <span class="date-string-display" style="margin-left:5px;">
+                              {{formatDate(action.createActionDate)}}
+                          </span>
                         </li>
                       </ul>
                     </div>

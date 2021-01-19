@@ -11,7 +11,7 @@
         <div class="col-md-12">
           <span class="text"></span>
           <ul class="list-group">
-            <li class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes">
+            <li class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index">
 
               <div class="panel panel-default">
                 <div class="panel-heading">
@@ -25,7 +25,17 @@
                     </span> 
                     <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
                     <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null" style="color:#BABABA;font-style:italic;"> 
-                      ({{calculatedPostObject[attr.code].startDate}} - {{calculatedPostObject[attr.code].endDate}}) 
+                      ( <p style="font-size:14px;display:inline-block;">
+                          {{calculatedPostObject[attr.code].startDate}}
+                        </p>
+                      -
+                      <p *ngIf="calculatedPostObject[attr.code].endDate !== 'Present'" style="font-size:14px;display:inline-block;">
+                        {{calculatedPostObject[attr.code].endDate}}
+                      </p>
+                      <p *ngIf="calculatedPostObject[attr.code].endDate === 'Present'" style="font-size:14px;display:inline-block;">
+                        <localize key="changeovertime.manageVersions.infinity.endDate.label"></localize>
+                      </p>
+                      )
                     </span>
                   </h4>
 

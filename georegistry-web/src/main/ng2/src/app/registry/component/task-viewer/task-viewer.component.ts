@@ -4,6 +4,8 @@ import { DatePipe } from '@angular/common';
 import { TaskService } from '@registry/service';
 import { GeoObjectType, PaginationPage } from '@registry/model/registry';
 
+import { LocalizationService } from '@shared/service';
+
 @Component({
 	selector: 'task-viewer',
 	templateUrl: './task-viewer.component.html',
@@ -36,49 +38,10 @@ export class TaskViewerComponent implements OnInit {
 
 	pollingData: any;
 
-	constructor(private taskService: TaskService) {
-		//const day = this.forDate.getUTCDate();
-		//this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
-	}
+	constructor(private taskService: TaskService, private localizeService: LocalizationService) { }
 
 	ngOnInit(): void {
 		this.onInProgressTasksPageChange(1);
-
-		////
-		//
-		// We don't need polling on this page. It's better to save bandwidth for low resource environments.
-		//
-		////
-
-		// this.pollingData = Observable.interval(1000).subscribe(() => {
-		//   this.activeTimeCounter++
-		//   this.completeTimeCounter++
-
-		//   if (this.isViewAllOpen)
-		//   {
-		//     if (this.activeTimeCounter >= 4)
-		//     {
-		//       this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
-
-		//       this.activeTimeCounter = 0;
-		//     }
-		//     if (this.completeTimeCounter >= 7)
-		//     {
-		//       this.onCompletedTasksPageChange(this.completedTasks.pageNumber);
-
-		//       this.completeTimeCounter = 0;
-		//     }
-		//   }
-		//   else
-		//   {
-		//     if (this.activeTimeCounter >= 2)
-		//     {
-		//       this.onInProgressTasksPageChange(this.inProgressTasks.pageNumber);
-
-		//       this.activeTimeCounter = 0;
-		//     }
-		//   }
-		// });
 	}
 
 	upper(str: string): string {
@@ -139,5 +102,9 @@ export class TaskViewerComponent implements OnInit {
 		this.isViewAllOpen = true;
 
 		this.onCompletedTasksPageChange(1);
+	}
+	
+	formatDate(date: string): string {
+		return this.localizeService.formatDateForDisplay(date);
 	}
 }

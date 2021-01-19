@@ -105,6 +105,10 @@ export class ImportProblemWidgetComponent implements OnInit {
       this.bsModalRef.hide();
     }
 
+	formatDate(date: string): string {
+		return this.lService.formatDateForDisplay(date);
+	}
+
     error( err: HttpErrorResponse ): void {
             this.message = ErrorHandler.getMessageFromError(err);
     }

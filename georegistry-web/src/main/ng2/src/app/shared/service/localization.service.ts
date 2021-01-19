@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { LocalizedValue } from '@shared/model/core';
 
+import { PRESENT } from '@registry/model/registry';
+
 declare var Globalize: any;
 declare var com: any
 declare var registry: any
@@ -78,6 +80,14 @@ export class LocalizationService {
 		}
 
 		return null;
+	}
+	
+	public formatDateForDisplay(date: string): string {
+		if (date === PRESENT) {
+			return this.localize("changeovertime", "present");
+		}
+		
+		return new Date(date).toLocaleDateString(window.navigator.language);
 	}
 
 	public localize(bundle: string, key: string): string {
