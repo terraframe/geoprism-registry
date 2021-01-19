@@ -66,7 +66,7 @@ export class MasterListManagerComponent implements OnInit {
 		this.router.navigate(['/registry/master-list-view/', code])
 	}
 
-	onEdit(pair: { label: string, oid: string }): void {
+	onEdit(pair: { label: string, oid: string, visibility: string }): void {
 		this.service.getMasterList(pair.oid).then(list => {
 
 			this.bsModalRef = this.modalService.show(PublishModalComponent, {
@@ -81,6 +81,7 @@ export class MasterListManagerComponent implements OnInit {
 
 			this.bsModalRef.content.onMasterListChange.subscribe(ret => {
 				pair.label = ret.displayLabel.localizedValue;
+				pair.visibility = ret.visibility;
 			});
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
