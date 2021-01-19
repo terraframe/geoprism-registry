@@ -40,23 +40,3 @@
     </delete>
   </undoIt>
 </version>
-
-<!--  
-
-      <mdException name="gov.geoplatform.uasdm.bus.InvalidUasComponentNameException" 
-                   label="Invalid Name" 
-                   description="Thrown when a user enters an invalid name for a Project, Mission, etc." 
-                   message="Invalid name. No spaces or special characters such as &lt;, &gt;, -, +, =, !, @, #, $, %, ^, &amp;, *, ?,/, \ or apostrophes are allowed.">
-      </mdException>
-
-      <mdException name="gov.geoplatform.uasdm.bus.DuplicateComponentException" 
-                   label="Empty Layer Information" 
-                   description="Thrown when someone tries to create a child item whose name conflicts with an existing child name." 
-                   message="[{parentName}] already has a [{childComponentLabel}] with the name [{childName}].">
-        <attributes>
-          <text name="parentName" label="Parent Name" />
-          <text name="childComponentLabel" label="Child Component Label" />
-          <text name="childName" label="Child Name" />
-        </attributes>
-      </mdException>
--->

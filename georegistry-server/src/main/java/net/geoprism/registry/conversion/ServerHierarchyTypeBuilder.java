@@ -38,9 +38,9 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdBusinessInfo;
 import com.runwaysdk.constants.graph.MdEdgeInfo;
 import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.attributes.AttributeLengthCharacterException;
 import com.runwaysdk.dataaccess.attributes.AttributeValueException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDateTimeDAO;
@@ -59,6 +59,7 @@ import com.runwaysdk.system.metadata.RelationshipCache;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.registry.CodeLengthException;
+import net.geoprism.registry.DuplicateHierarchyTypeException;
 import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
@@ -128,7 +129,17 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     };
 
     MdTermRelationship mdTermRelUniversal = this.newHierarchyToMdTermRelForUniversals(hierarchyType);
-    mdTermRelUniversal.apply();
+    
+    try
+    {
+      mdTermRelUniversal.apply();
+    }
+    catch (DuplicateDataException ex)
+    {
+      DuplicateHierarchyTypeException ex2 = new DuplicateHierarchyTypeException();
+      ex2.setDuplicateValue(hierarchyType.getCode());
+      throw ex2;
+    }
 
     this.grantWritePermissionsOnMdTermRel(mdTermRelUniversal);
     this.grantWritePermissionsOnMdTermRel(maintainer, mdTermRelUniversal);

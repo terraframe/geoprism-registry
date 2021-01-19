@@ -42,6 +42,7 @@ import com.runwaysdk.constants.MdAttributeLocalCharacterEmbeddedInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
 import com.runwaysdk.dataaccess.AttributeDoesNotExistException;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeBlobDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeEncryptionDAOIF;
@@ -76,9 +77,9 @@ import com.runwaysdk.system.metadata.MdEnumeration;
 
 import net.geoprism.registry.ChainInheritanceException;
 import net.geoprism.registry.CodeLengthException;
+import net.geoprism.registry.DuplicateGeoObjectTypeException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
-import net.geoprism.registry.HierarchyMetadata;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
@@ -289,22 +290,33 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
       mdBusiness.setPublish(false);
     }
 
-    mdBusiness.apply();
-
-    // Add the default attributes.
-    if (superType == null)
+    try
     {
-      this.createDefaultAttributes(universal, mdBusiness);
+      // The DuplicateDataException on code was found to be thrown here.
+      // I've created a larger try/catch here just in case.
+      mdBusiness.apply();
+  
+      // Add the default attributes.
+      if (superType == null)
+      {
+        this.createDefaultAttributes(universal, mdBusiness);
+      }
+  
+      universal.setMdBusiness(mdBusiness);
+  
+      universal.apply();
+  
+      GeoObjectTypeMetadata metadata = new GeoObjectTypeMetadata();
+      metadata.setIsPrivate(geoObjectType.getIsPrivate());
+      metadata.setUniversal(universal);
+      metadata.apply();
     }
-
-    universal.setMdBusiness(mdBusiness);
-
-    universal.apply();
-
-    GeoObjectTypeMetadata metadata = new GeoObjectTypeMetadata();
-    metadata.setIsPrivate(geoObjectType.getIsPrivate());
-    metadata.setUniversal(universal);
-    metadata.apply();
+    catch (DuplicateDataException ex)
+    {
+      DuplicateGeoObjectTypeException ex2 = new DuplicateGeoObjectTypeException();
+      ex2.setDuplicateValue(geoObjectType.getCode());
+      throw ex2;
+    }
 
     // Create the MdGeoVertexClass
     MdGeoVertexDAO mdVertex = GeoVertexType.create(universal.getUniversalId(), universal.getOwnerOid(), isAbstract, superType);

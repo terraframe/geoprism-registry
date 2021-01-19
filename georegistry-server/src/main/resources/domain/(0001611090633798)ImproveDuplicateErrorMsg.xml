@@ -1,0 +1,28 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.DuplicateGeoObjectTypeException"
+        message="A Geo-Object Type with the Code [{duplicateValue}] already exists. Please choose a different value."
+      >
+        <attributes>
+          <text name="duplicateValue" required="true" label="duplicateValue"/>
+        </attributes>
+      </mdException>
+      
+      <mdException name="net.geoprism.registry.DuplicateHierarchyTypeException"
+        message="A Hierarchy Type with the Code [{duplicateValue}] already exists. Please choose a different value."
+      >
+        <attributes>
+          <text name="duplicateValue" required="true" label="duplicateValue"/>
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.DuplicateGeoObjectTypeException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.DuplicateHierarchyTypeException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>
