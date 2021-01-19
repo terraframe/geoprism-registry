@@ -7,7 +7,7 @@ import { ErrorModalComponent } from '@shared/component';
 export class ErrorHandler {
     static getMessageFromError(err: any): string {
     
-      var unspecified = "An unspecified error has occurred. Please contact your technical support team.";
+      var unspecified = "An unspecified error has occurred.  Please try your operation again.  If the problem continues, alert your technical support staff.";
     
       if (err == null)
       {
