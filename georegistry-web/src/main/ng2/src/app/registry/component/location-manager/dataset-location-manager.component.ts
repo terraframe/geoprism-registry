@@ -165,11 +165,18 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 
 	initMap(): void {
-		this.service.getDatasetBounds(this.datasetId).then(bounds => {
-			let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+		//this.service.getDatasetBounds(this.datasetId).then(bounds => {
+		//	let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-			this.map.fitBounds(llb, { padding: 50 });
-		})
+		//	this.map.fitBounds(llb, { padding: 50 });
+		//});
+    
+    this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
+      let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+
+      this.map.fitBounds(llb, { padding: 50 });
+    });
+    
 
 		this.map.on('style.load', () => {
 			this.addLayers();
