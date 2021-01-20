@@ -51,7 +51,7 @@
                 <div class="panel-body">
 
                   <div *ngIf="attr.code === 'code'">
-                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="calculatedPostObject['code']" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" name="mod-{{attr.code}}" [disabled]="!isNew" required>
+                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="calculatedPostObject[attr.code]" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" name="mod-{{attr.code}}" [readonly]="!isNew" required>
                   </div>
 
                   <div *ngIf="attr.type === 'character' && attr.code !== 'code'">
