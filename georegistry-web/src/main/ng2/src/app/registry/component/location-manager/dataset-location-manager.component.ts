@@ -165,16 +165,20 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 
 	initMap(): void {
-		//this.service.getDatasetBounds(this.datasetId).then(bounds => {
-		//	let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-
-		//	this.map.fitBounds(llb, { padding: 50 });
-		//});
-    
     this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
       let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-      this.map.fitBounds(llb, { padding: 50 });
+      let padding = 50;
+      let maxZoom = 20;
+      
+      // Zoom level was requested to be reduced when displaying point types as per #420
+      if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT")
+      {
+        padding = 100;
+        maxZoom = 9;
+      }
+      
+      this.map.fitBounds(llb, { padding: padding, animate:false, maxZoom: maxZoom });
     });
     
 
