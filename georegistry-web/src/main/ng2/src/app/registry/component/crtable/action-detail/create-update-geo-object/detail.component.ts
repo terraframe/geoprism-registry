@@ -193,43 +193,6 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
             async: false
         } );
     }
-    // https://www.tivix.com/blog/making-promises-in-a-synchronous-manner
-    // unlockActionSync()
-    // {
-    //   console.log("UnlockActionSync", "Checkpoint 1");
-    //
-    //   let makeMeLookSync = fn => {
-    //     console.log("UnlockActionSync", "Checkpoint 2");
-    //
-    //     let iterator = fn();
-    //     let loop = result => {
-    //       console.log("UnlockActionSync", "Checkpoint OuterSnycLoop", result.done, result.value);
-    //
-    //       !result.done && result.value.then(res => {
-    //         console.log("UnlockActionSync", "Checkpoint InnerSnycLoop");
-    //         loop(iterator.next(res));
-    //       })
-    //     };
-    //
-    //     console.log("UnlockActionSync", "Checkpoint Loop Start", iterator);
-    //     loop(iterator.next());
-    //   };
-    //
-    //   var crs = this.changeRequestService;
-    //   var actionOid = this.action.oid;
-    //
-    //   makeMeLookSync(function* () {
-    //     console.log("UnlockActionSync Checkpoint", "Start MakeMeLookSync");
-    //
-    //     yield crs.unlockAction(actionOid).then( response => {
-    //       this.readOnly = true;
-    //     } ).catch(( err: HttpErrorResponse ) => {
-    //       this.error( err );
-    //     } );
-    //
-    //     console.log("UnlockActionSync Checkpoint", "End MakeMeLookSync");
-    //   });
-    // }
 
     public error( err: HttpErrorResponse ): void {
             this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

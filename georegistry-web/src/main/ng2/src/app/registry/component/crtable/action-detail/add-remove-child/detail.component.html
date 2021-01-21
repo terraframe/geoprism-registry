@@ -39,7 +39,7 @@
             <label class="detail-label">
                 <localize key="change.request.action.detail.contributorNotes"></localize> :
             </label>
-            <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.contributorNotes"  [disabled]="readOnly"></textarea>
+            <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.contributorNotes"  disabled></textarea>
         </div>
 
         <div>
@@ -49,15 +49,15 @@
             <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.maintainerNotes"  [disabled]="readOnly"></textarea>
         </div>
         
-        <div class="button-holder">
+        <div class="button-holder text-right" style="margin:40px 0 20px 0;">
           <button *ngIf="readOnly" (click)="startEdit()" class="btn btn-primary detail-accept">
             <localize key="modal.button.edit"></localize>
           </button>
-          <button *ngIf="!readOnly" (click)="applyAction()" class="btn btn-primary detail-accept">
-            <localize key="modal.button.submit"></localize>
-          </button>
           <button *ngIf="!readOnly" (click)="endEdit()" class="btn btn-default detail-reject">
             <localize key="modal.button.cancel"></localize>
+          </button>
+          <button *ngIf="!readOnly" (click)="applyAction()" class="btn btn-primary detail-accept">
+            <localize key="modal.button.submit"></localize>
           </button>
         </div>
         
