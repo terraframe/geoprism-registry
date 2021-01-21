@@ -30,15 +30,17 @@
             </div>
             <input type="file" #uploadEl ng2FileSelect #fileInput [uploader]="uploader" id="uploader-input" style="display: none" />
           </div>
+          
+          <div class="row">
+				    <div class="col-md-12">
+				      <div class="button-holder text-right" style="margin-top: 20px;">
+				        <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" /> <input type="submit" [value]="'category.icon.ok' | localize" class="btn btn-primary" (disabled)="form.invalid" />
+				      </div>
+				    </div>
+				  </div>
         </fieldset>
       </form>
     </div>
   </div>
-  <div class="row">
-    <div class="col-md-12">
-      <div class="button-holder text-right" style="margin-top: 20px;">
-        <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" /> <input type="submit" [value]="'category.icon.ok' | localize" class="btn btn-primary" (disabled)="form.invalid" />
-      </div>
-    </div>
-  </div>
+  
 </div>
