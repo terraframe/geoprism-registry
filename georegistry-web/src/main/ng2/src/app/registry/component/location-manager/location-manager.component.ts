@@ -406,7 +406,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
           if (node.geometry.type === "Point" || node.geometry.type === "MultiPoint")
           {
             padding = 100;
-            maxZoom = 9;
+            maxZoom = 12;
           }
 
           this.map.fitBounds(bounds, { padding: padding, animate:true, maxZoom: maxZoom });

@@ -175,7 +175,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
       if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT")
       {
         padding = 100;
-        maxZoom = 9;
+        maxZoom = 12;
       }
       
       this.map.fitBounds(llb, { padding: padding, animate:false, maxZoom: maxZoom });
