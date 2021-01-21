@@ -80,7 +80,7 @@
                           <div class="panel-body">
 
                             <div class="input-group">
-                              <input disabled [ngClass]="{'input-group-read-only': readOnly}" [required]="localeValue.locale === 'defaultLocale'" type="text" [ngModel]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale" > 
+                              <input readonly [ngClass]="{'input-group-read-only': readOnly}" style="color:#999" [required]="localeValue.locale === 'defaultLocale'" type="text" [ngModel]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale" > 
                               <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
                                   <i class="fa fa-pencil" aria-hidden="true"></i>
                               </span>
