@@ -13,6 +13,9 @@ import { Subject } from 'rxjs';
 
 declare var acp: string;
 
+const DEFAULT_COLOR = "#80cdc1";
+const SELECTED_COLOR = "#800000";
+
 @Component({
 	selector: 'dataset-location-manager',
 	templateUrl: './dataset-location-manager.component.html',
@@ -303,7 +306,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 				"source-layer": 'context',
 				"paint": {
 					"circle-radius": 10,
-					"circle-color": '#800000',
+					"circle-color": DEFAULT_COLOR,
 					"circle-stroke-width": 2,
 					"circle-stroke-color": '#FFFFFF'
 				},
@@ -320,7 +323,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 				"source-layer": 'context',
 				'layout': {},
 				'paint': {
-					'fill-color': '#80cdc1',
+					'fill-color': DEFAULT_COLOR,
 					'fill-opacity': 0.8,
 					'fill-outline-color': 'black'
 				},
@@ -338,7 +341,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 					"source-layer": 'context',
 					"paint": {
 						"circle-radius": 10,
-						"circle-color": '#a6611a',
+						"circle-color": SELECTED_COLOR,
 						"circle-stroke-width": 2,
 						"circle-stroke-color": '#FFFFFF'
 					},
@@ -355,7 +358,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 					"source-layer": 'context',
 					'layout': {},
 					'paint': {
-						'fill-color': '#a6611a',
+						'fill-color': SELECTED_COLOR,
 						'fill-opacity': 0.8,
 						'fill-outline-color': 'black'
 					},

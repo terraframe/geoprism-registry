@@ -19,6 +19,9 @@ import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 declare var acp: string;
 
+const DEFAULT_COLOR = "#80cdc1";
+const SELECTED_COLOR = "#800000";
+
 @Component({
   selector: 'location-manager',
   templateUrl: './location-manager.component.html',
@@ -256,7 +259,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
       'source': source,
       'layout': {},
       'paint': {
-        'fill-color': '#a6611a',
+        'fill-color': DEFAULT_COLOR,
         'fill-opacity': 0.8,
         'fill-outline-color': 'black'
       },
@@ -272,7 +275,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
       "source": source,
       "paint": {
         "circle-radius": 10,
-        "circle-color": '#a6611a',
+        "circle-color": DEFAULT_COLOR,
         "circle-stroke-width": 2,
         "circle-stroke-color": '#FFFFFF'
       },
@@ -288,7 +291,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     //      "source": source,
     //      "paint": {
     //        "circle-radius": 10,
-    //        "circle-color": '#a6611a',
+    //        "circle-color": DEFAULT_COLOR,
     //        "circle-stroke-width": 2,
     //        "circle-stroke-color": '#FFFFFF'
     //      },
@@ -304,7 +307,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     //      'source': source,
     //      'layout': {},
     //      'paint': {
-    //        'fill-color': '#a6611a',
+    //        'fill-color': DEFAULT_COLOR,
     //        'fill-opacity': 0.8,
     //        'fill-outline-color': 'black'
     //      },
@@ -496,7 +499,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         "source-layer": 'context',
         "paint": {
           "circle-radius": 10,
-          "circle-color": '#800000',
+          "circle-color": SELECTED_COLOR,
           "circle-stroke-width": 2,
           "circle-stroke-color": '#FFFFFF'
         },
@@ -513,7 +516,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         "source-layer": 'context',
         'layout': {},
         'paint': {
-          'fill-color': '#80cdc1',
+          'fill-color': SELECTED_COLOR,
           'fill-opacity': 0.8,
           'fill-outline-color': 'black'
         },
