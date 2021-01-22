@@ -317,7 +317,7 @@ export class RegistryService {
 			.toPromise()
 	}
 
-	getGeoObjectSuggestions(text: string, type: string, parent: string, hierarchy: string, date: string): Promise<GeoObject> {
+	getGeoObjectSuggestions(text: string, type: string, parent: string, parentTypeCode: string, hierarchy: string, date: string): Promise<GeoObject> {
 
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
@@ -331,6 +331,10 @@ export class RegistryService {
 		if (parent != null && hierarchy != null) {
 			params.parent = parent;
 			params.hierarchy = hierarchy;
+		}
+		
+		if (parentTypeCode != null) {
+		  params.parentTypeCode = parentTypeCode;
 		}
 
 		if (date != null) {

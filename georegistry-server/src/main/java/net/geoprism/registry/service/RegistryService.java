@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,10 +49,11 @@ import org.json.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
@@ -97,7 +99,7 @@ import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
@@ -858,24 +860,51 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String hierarchyCode, Date date)
+  public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date date)
   {
     if (date == null)
     {
       date = ValueOverTime.INFINITY_END_DATE;
     }
 
-    // if (date != null)
-    // {
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-
+    
     ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
 
-    final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, date);
-    query.setRestriction(new ServerLookupRestriction(text, date, parentCode, ht));
-    query.setLimit(10);
-
-    final List<ServerGeoObjectIF> results = query.getResults();
+    final List<ServerGeoObjectIF> results;
+    if (parentTypeCode == null || parentTypeCode.length() == 0)
+    {
+      final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, date);
+      query.setRestriction(new ServerLookupRestriction(text, date, parentCode, ht));
+      query.setLimit(10);
+  
+      results = query.getResults();
+    }
+    else
+    {
+      final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
+    
+      StringBuilder statement = new StringBuilder();
+      statement.append("select from " + type.getMdVertex().getDBClassName() + " where ");
+      statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
+      statement.append("AND displayLabel_cot CONTAINS (");
+      statement.append("  :date BETWEEN startDate AND endDate");
+      statement.append("  AND COALESCE(value.defaultLocale).toLowerCase() LIKE '%' + :text + '%'");
+      statement.append(") ORDER BY location.code ASC LIMIT 10");
+      
+      GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+      query.setParameter("date", date);
+      query.setParameter("text", text);
+      
+      List<VertexObject> voResults = query.getResults();
+      
+      results = new ArrayList<ServerGeoObjectIF>();
+      for (VertexObject result : voResults)
+      {
+        results.add(new VertexServerGeoObject(type, result, date));
+      }
+    }
+    
 
     JsonArray array = new JsonArray();
 
@@ -894,42 +923,6 @@ public class RegistryService
     }
 
     return array;
-
-    // }
-    // else
-    // {
-    // GeoObjectQuery query =
-    // ServiceFactory.getRegistryService().createQuery(typeCode);
-    // query.setRestriction(new LookupRestriction(text, parentCode,
-    // hierarchyCode));
-    // query.setLimit(10);
-    //
-    // GeoObjectIterator it = query.getIterator();
-    //
-    // try
-    // {
-    // JsonArray results = new JsonArray();
-    //
-    // while (it.hasNext())
-    // {
-    // GeoObject object = it.next();
-    //
-    // JsonObject result = new JsonObject();
-    // result.addProperty("id", it.currentOid());
-    // result.addProperty("name", object.getLocalizedDisplayLabel());
-    // result.addProperty(GeoObject.CODE, object.getCode());
-    // result.addProperty(GeoObject.UID, object.getUid());
-    //
-    // results.add(result);
-    // }
-    //
-    // return results;
-    // }
-    // finally
-    // {
-    // it.close();
-    // }
-    // }
   }
 
   @Request(RequestType.SESSION)

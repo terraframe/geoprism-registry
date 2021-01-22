@@ -902,7 +902,7 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "geoobject/suggestions", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "date") String date)
+  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "parentTypeCode") String parentTypeCode, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "date") String date)
   {
     Date forDate = null;
 
@@ -921,7 +921,7 @@ public class RegistryController
       }
     }
 
-    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, hierarchy, forDate);
+    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, parentTypeCode, hierarchy, forDate);
 
     return new RestBodyResponse(response);
   }

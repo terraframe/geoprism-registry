@@ -80,6 +80,7 @@ export class ManageParentVersionsComponent implements OnInit {
 		let geoObjectTypeCode = type.code;
 
 		let parentCode = null;
+		let parentTypeCode = null;
 		let hierarchyCode = null;
 
 		if (index > 0) {
@@ -89,11 +90,12 @@ export class ManageParentVersionsComponent implements OnInit {
 			if (parent.geoObject != null && parent.geoObject.properties.code != null) {
 				hierarchyCode = this.hierarchy.code;
 				parentCode = parent.geoObject.properties.code;
+				parentTypeCode = parent.geoObject.properties.type;
 			}
 		}
 
 		return Observable.create((observer: any) => {
-			this.service.getGeoObjectSuggestions(entry.parents[type.code].text, geoObjectTypeCode, parentCode, hierarchyCode, date).then(results => {
+			this.service.getGeoObjectSuggestions(entry.parents[type.code].text, geoObjectTypeCode, parentCode, parentTypeCode, hierarchyCode, date).then(results => {
 				observer.next(results);
 			});
 		});
