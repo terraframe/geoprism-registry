@@ -95,6 +95,25 @@ export class ManageParentVersionsComponent implements OnInit {
 		}
 
 		return Observable.create((observer: any) => {
+		  if (parentCode == null)
+		  {
+		    let loopI = index;
+		  
+		    while (parentCode == null && loopI > 0)
+		    {
+		      loopI = loopI - 1;
+		      
+		      let parent = entry.parents[this.hierarchy.types[loopI].code];
+		      
+		      if (parent != null && parent.geoObject != null && parent.geoObject.properties.code != null)
+		      {
+		        hierarchyCode = this.hierarchy.code;
+            parentCode = parent.geoObject.properties.code;
+            parentTypeCode = parent.geoObject.properties.type;
+		      }
+		    }
+		  }
+		
 			this.service.getGeoObjectSuggestions(entry.parents[type.code].text, geoObjectTypeCode, parentCode, parentTypeCode, hierarchyCode, date).then(results => {
 				observer.next(results);
 			});
