@@ -104,6 +104,8 @@ export class ManageParentVersionsComponent implements OnInit {
 	typeaheadOnSelect(e: TypeaheadMatch, type: any, entry: any, date: string): void {
 		//        let ptn: ParentTreeNode = parent.ptn;
 
+                entry.parents[type.code].text = e.item.name + " : " + e.item.code;
+
 		let parentTypes = [];
 
 		for (let i = 0; i < this.hierarchy.types.length; i++) {
