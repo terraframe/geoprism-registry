@@ -894,7 +894,15 @@ public class RegistryService
       
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
       query.setParameter("date", date);
-      query.setParameter("text", text);
+      
+      if (text != null)
+      {
+        query.setParameter("text", text.toLowerCase().trim());
+      }
+      else
+      {
+        query.setParameter("text", text);
+      }
       
       List<VertexObject> voResults = query.getResults();
       
