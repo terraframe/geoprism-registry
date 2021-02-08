@@ -250,7 +250,7 @@ public class ServerGeoObjectType
   @Transaction
   private void deleteInTransaction()
   {
-    List<ServerHierarchyType> hierarchies = this.getHierarchies(false, true);
+    List<ServerHierarchyType> hierarchies = this.getHierarchies(true);
 
     if (hierarchies.size() > 0)
     {
@@ -823,7 +823,7 @@ public class ServerGeoObjectType
 
     for (ServerGeoObjectType type : subtypes)
     {
-      hierarchyTypes.addAll(type.getHierarchies(false, false));
+      hierarchyTypes.addAll(type.getHierarchies(false));
     }
 
     return hierarchyTypes;
@@ -831,10 +831,10 @@ public class ServerGeoObjectType
 
   public List<ServerHierarchyType> getHierarchies()
   {
-    return getHierarchies(true, true);
+    return getHierarchies(true);
   }
 
-  public List<ServerHierarchyType> getHierarchies(boolean includeAllHierarchiesIfNone, boolean includeFromSuperType)
+  public List<ServerHierarchyType> getHierarchies(boolean includeFromSuperType)
   {
     List<ServerHierarchyType> hierarchies = new LinkedList<ServerHierarchyType>();
 
@@ -872,24 +872,7 @@ public class ServerGeoObjectType
 
       if (superType != null)
       {
-        hierarchies.addAll(superType.getHierarchies(false, includeFromSuperType));
-      }
-    }
-
-    if (includeAllHierarchiesIfNone && hierarchies.size() == 0)
-    {
-      /*
-       * This is a root type so include all hierarchies
-       */
-
-      for (ServerHierarchyType hierarchyType : hierarchyTypes)
-      {
-        Organization org = hierarchyType.getOrganization();
-
-        if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
-        {
-          hierarchies.add(hierarchyType);
-        }
+        hierarchies.addAll(superType.getHierarchies(includeFromSuperType));
       }
     }
 

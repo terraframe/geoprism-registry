@@ -71,16 +71,16 @@ public class RegistryLocationController
    * @throws JSONException
    * @throws ParseException
    */
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF select(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "date") String date, @RequestParamter(name = "childTypeCode") String childTypeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
-  {
-    // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
-
-    LocationInformation information = service.getLocationInformation(request.getSessionId(), code, typeCode, parseDate(date), childTypeCode, hierarchyCode);
-    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());
-
-    return new RestBodyResponse(information.toJson(serializer));
-  }
+//  @Endpoint(error = ErrorSerialization.JSON)
+//  public ResponseIF select(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "date") String date, @RequestParamter(name = "childTypeCode") String childTypeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException
+//  {
+//    // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
+//
+//    LocationInformation information = service.getLocationInformation(request.getSessionId(), code, typeCode, parseDate(date), childTypeCode, hierarchyCode);
+//    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());
+//
+//    return new RestBodyResponse(information.toJson(serializer));
+//  }
 
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF roots(ClientRequestIF request, @RequestParamter(name = "date") String date, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "hierarchyCode") String hierarchyCode) throws JSONException, ParseException

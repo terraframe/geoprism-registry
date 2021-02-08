@@ -46,32 +46,34 @@ export class MapService {
 			.toPromise();
 	}
 
+/*
 	select(code: string, typeCode: string, childTypeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
-		let params: HttpParams = new HttpParams();
-		params = params.set('code', code);
-		params = params.set('typeCode', typeCode);
+    let params: HttpParams = new HttpParams();
+    params = params.set('code', code);
+    params = params.set('typeCode', typeCode);
 
-		if (date != null) {
-			params = params.set('date', date);
-		}
+    if (date != null) {
+      params = params.set('date', date);
+    }
 
-		if (childTypeCode != null) {
-			params = params.set('childTypeCode', childTypeCode);
-		}
+    if (childTypeCode != null) {
+      params = params.set('childTypeCode', childTypeCode);
+    }
 
-		if (hierarchyCode != null) {
-			params = params.set('hierarchyCode', hierarchyCode);
-		}
+    if (hierarchyCode != null) {
+      params = params.set('hierarchyCode', hierarchyCode);
+    }
 
-		this.eventService.start();
+    this.eventService.start();
 
-		return this.http
-			.get<LocationInformation>(acp + '/registrylocation/select', { params: params })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+    return this.http
+      .get<LocationInformation>(acp + '/registrylocation/select', { params: params })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
+	*/
 
 	search(text: string, date: string): Promise<{ type: string, features: GeoObject[] }> {
 		let params: HttpParams = new HttpParams();

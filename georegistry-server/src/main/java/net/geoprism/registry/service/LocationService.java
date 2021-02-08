@@ -127,70 +127,70 @@ public class LocationService
     return information;
   }
 
-  @Request(RequestType.SESSION)
-  public LocationInformation getLocationInformation(String sessionId, String code, String typeCode, Date date, String childTypeCode, String hierarchyCode)
-  {
-    LocationInformation information = new LocationInformation();
-
-    ServerGeoObjectIF go = this.service.getGeoObjectByCode(code, typeCode);
-    go.setDate(date);
-
-    ServerGeoObjectType type = go.getType();
-    List<ServerHierarchyType> hierarchies = type.getHierarchies();
-
-    ServerHierarchyType hierarchy = null;
-
-    if (hierarchyCode == null || hierarchyCode.length() == 0)
-    {
-      hierarchy = hierarchies.get(0);
-    }
-    else
-    {
-      hierarchy = ServerHierarchyType.get(hierarchyCode);
-    }
-
-    List<ServerGeoObjectType> childTypes = type.getChildren(hierarchy);
-    ServerGeoObjectType childType = null;
-
-    if (childTypes.size() > 0)
-    {
-      /*
-       * If a typeCode is given and it is an option based on the hierarchy than
-       * use that type otherwise use the first type code
-       */
-      childType = childTypes.get(0);
-
-      if (childTypeCode != null && childTypeCode.length() > 0)
-      {
-        for (ServerGeoObjectType child : childTypes)
-        {
-          if (child.getCode().equals(childTypeCode))
-          {
-            childType = child;
-          }
-        }
-      }
-    }
-
-    if (childType != null)
-    {
-      information.setChildType(childType.getType());
-
-      List<VertexServerGeoObject> children = this.getGeoObjects(go.getCode(), childType.getCode(), hierarchy.getCode(), date);
-
-      for (VertexServerGeoObject child : children)
-      {
-        information.addChild(child.toGeoObject());
-      }
-    }
-
-    information.setChildTypes(childTypes);
-    information.setHierarchies(hierarchies);
-    information.setHierarchy(hierarchy.getCode());
-    information.setEntity(go.toGeoObject());
-
-    return information;
-  }
+//  @Request(RequestType.SESSION)
+//  public LocationInformation getLocationInformation(String sessionId, String code, String typeCode, Date date, String childTypeCode, String hierarchyCode)
+//  {
+//    LocationInformation information = new LocationInformation();
+//
+//    ServerGeoObjectIF go = this.service.getGeoObjectByCode(code, typeCode);
+//    go.setDate(date);
+//
+//    ServerGeoObjectType type = go.getType();
+//    List<ServerHierarchyType> hierarchies = type.getHierarchies();
+//
+//    ServerHierarchyType hierarchy = null;
+//
+//    if (hierarchyCode == null || hierarchyCode.length() == 0)
+//    {
+//      hierarchy = hierarchies.get(0);
+//    }
+//    else
+//    {
+//      hierarchy = ServerHierarchyType.get(hierarchyCode);
+//    }
+//
+//    List<ServerGeoObjectType> childTypes = type.getChildren(hierarchy);
+//    ServerGeoObjectType childType = null;
+//
+//    if (childTypes.size() > 0)
+//    {
+//      /*
+//       * If a typeCode is given and it is an option based on the hierarchy than
+//       * use that type otherwise use the first type code
+//       */
+//      childType = childTypes.get(0);
+//
+//      if (childTypeCode != null && childTypeCode.length() > 0)
+//      {
+//        for (ServerGeoObjectType child : childTypes)
+//        {
+//          if (child.getCode().equals(childTypeCode))
+//          {
+//            childType = child;
+//          }
+//        }
+//      }
+//    }
+//
+//    if (childType != null)
+//    {
+//      information.setChildType(childType.getType());
+//
+//      List<VertexServerGeoObject> children = this.getGeoObjects(go.getCode(), childType.getCode(), hierarchy.getCode(), date);
+//
+//      for (VertexServerGeoObject child : children)
+//      {
+//        information.addChild(child.toGeoObject());
+//      }
+//    }
+//
+//    information.setChildTypes(childTypes);
+//    information.setHierarchies(hierarchies);
+//    information.setHierarchy(hierarchy.getCode());
+//    information.setEntity(go.toGeoObject());
+//
+//    return information;
+//  }
 
   // @Request(RequestType.SESSION)
   // public JsonObject getChildrenGeoJson(String sessionId, String typeCode,

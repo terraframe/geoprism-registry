@@ -300,7 +300,7 @@ public class ServerHierarchyType
     }
 
     // Check to see if the child type is already in the hierarchy
-    List<ServerHierarchyType> hierarchies = childType.getHierarchies(false, true);
+    List<ServerHierarchyType> hierarchies = childType.getHierarchies(true);
 
     if (hierarchies.contains(this))
     {
