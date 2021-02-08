@@ -190,7 +190,7 @@ public class RegistrySessionService extends RegistrySessionServiceBase
     }
     finally
     {
-
+      it.close();
     }
   }
 
