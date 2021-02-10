@@ -96,6 +96,7 @@ import net.geoprism.registry.DuplicateGeoObjectMultipleException;
 import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.RequiredAttributeException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -104,6 +105,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.AbstractServerGeoObject;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -759,6 +761,74 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     // Do nothing?
   }
+  
+  private void validateCOTAttr(String attrName)
+  {
+    ValueOverTimeCollection votc = this.vertex.getValuesOverTime(attrName);
+    
+    if (votc == null || votc.size() == 0)
+    {
+      RequiredAttributeException ex = new RequiredAttributeException();
+      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(attrName));
+      throw ex;
+    }
+    else if (votc != null && votc.size() > 0)
+    {
+      boolean hasValue = false;
+      
+      for (int i = 0; i < votc.size(); ++i)
+      {
+        ValueOverTime vot = votc.get(i);
+        
+        if (vot.getValue() != null)
+        {
+          if (vot.getValue() instanceof String && ((String)vot.getValue()).length() > 0)
+          {
+            hasValue = true;
+            break;
+          }
+          else if (vot.getValue() instanceof Collection)
+          {
+            Collection<?> val = (Collection<?>) vot.getValue();
+            
+            if (val.size() > 0)
+            {
+              hasValue = true;
+              break;
+            }
+          }
+          else
+          {
+            hasValue = true;
+            break;
+          }
+        }
+      }
+      
+      if (!hasValue)
+      {
+        RequiredAttributeException ex = new RequiredAttributeException();
+        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(attrName));
+        throw ex;
+      }
+    }
+  }
+  
+  private void validate()
+  {
+    this.validateCOTAttr(DefaultAttribute.STATUS.getName());
+    
+    this.validateCOTAttr(DefaultAttribute.DISPLAY_LABEL.getName());
+    
+    String code = this.getCode();
+    
+    if (code == null || code.length() == 0)
+    {
+      RequiredAttributeException ex = new RequiredAttributeException();
+      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+      throw ex;
+    }
+  }
 
   @Override
   public void apply(boolean isImport)
@@ -774,6 +844,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     this.vertex.setValue(GeoVertex.LASTUPDATEDATE, new Date());
+    
+    this.validate();
 
     try
     {

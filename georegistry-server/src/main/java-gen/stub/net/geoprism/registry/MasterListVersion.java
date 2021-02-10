@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -132,6 +133,8 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
+import net.geoprism.registry.query.ServerStatusRestriction;
+import net.geoprism.registry.query.ServerStatusRestriction.JoinOp;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
@@ -797,6 +800,13 @@ public class MasterListVersion extends MasterListVersionBase
           query = new VertexGeoObjectQuery(type, this.getForDate());
           query.setLimit(pageSize);
           query.setSkip(skip);
+          
+          List<GeoObjectStatus> validStats = new ArrayList<GeoObjectStatus>();
+          validStats.add(GeoObjectStatus.ACTIVE);
+          validStats.add(GeoObjectStatus.INACTIVE);
+          validStats.add(GeoObjectStatus.PENDING);
+          validStats.add(GeoObjectStatus.NEW);
+          query.setRestriction(new ServerStatusRestriction(validStats, this.getForDate(), JoinOp.OR));
 
           List<ServerGeoObjectIF> results = query.getResults();
 
