@@ -24,7 +24,7 @@
   <parent>
     <groupId>net.geoprism</groupId>
     <artifactId>georegistry</artifactId>
-    <version>0.13.3-SNAPSHOT</version>
+    <version>0.13.4-SNAPSHOT</version>
   </parent>
   <artifactId>dhis2adapter</artifactId>
   <packaging>jar</packaging>
