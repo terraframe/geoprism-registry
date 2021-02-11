@@ -1,0 +1,24 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.RequiredAttributeException" label="Required Attribute Exception" description="Thrown when the user performs an operation where an attribute is required." message="The attribute [{attributeLabel}] is required.">
+        <attributes>
+          <text name="attributeLabel" label="Attribute Label" required="true" />
+        </attributes>
+      </mdException>
+      <mdException name="net.geoprism.registry.RequiredAttributeAtDateException" label="Required Attribute At Date Exception" description="Thrown when the user performs an operation where an attribute requires a value at a particular date." message="The attribute [{attributeLabel}] must have a value at the date [{dateLabel}].">
+        <attributes>
+          <text name="dateLabel" label="Date Label" required="true" />
+          <text name="attributeLabel" label="Attribute Label" required="true" />
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.RequiredAttributeException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.RequiredAttributeAtDateException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>

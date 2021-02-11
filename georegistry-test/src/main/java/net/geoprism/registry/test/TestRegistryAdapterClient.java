@@ -122,9 +122,9 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return set;
   }
 
-  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, String hierarchy, String date)
+  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, String parentTypeCode, String hierarchy, String date)
   {
-    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, hierarchy, date))).getAsJsonArray();
+    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, date))).getAsJsonArray();
   }
   
   public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
