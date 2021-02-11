@@ -264,7 +264,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return GeoObjectStatus.get(value.iterator().next());
     }
 
-    return GeoObjectStatus.INACTIVE;
+//    return GeoObjectStatus.INACTIVE;
+    return null; // Null status is assumed to be "does not exist", which is different than inactive.
   }
 
   public GeoObjectStatus getStatus(Date date)
@@ -816,9 +817,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   
   private void validate()
   {
-    this.validateCOTAttr(DefaultAttribute.STATUS.getName());
+//    this.validateCOTAttr(DefaultAttribute.STATUS.getName());
     
-    this.validateCOTAttr(DefaultAttribute.DISPLAY_LABEL.getName());
+//    this.validateCOTAttr(DefaultAttribute.DISPLAY_LABEL.getName());
     
     String code = this.getCode();
     

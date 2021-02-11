@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
@@ -32,6 +33,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -83,17 +85,24 @@ public class RevealGeoObjectJsonAdapters
 
         JsonObject props = new JsonObject();
         {
-          props.addProperty("status", serverGo.getStatus().getDisplayLabel());
+          GeoObjectStatus status = serverGo.getStatus();
+          if (status != null)
+          {
+            props.addProperty("status", serverGo.getStatus().getDisplayLabel());
+          }
 
-          props.addProperty("name", serverGo.getDisplayLabel().getValue());
+          LocalizedValue dl = serverGo.getDisplayLabel();
+          if (dl != null)
+          {
+            props.addProperty("name", dl.getValue());
+            props.addProperty("name_en", dl.getValue(Locale.ENGLISH.toString()));
+          }
 
           props.addProperty("version", 0);
 
           props.addProperty("OpenMRS_Id", 0);
 
           props.addProperty("externalId", serverGo.getCode());
-
-          props.addProperty("name_en", serverGo.getDisplayLabel().getValue(Locale.ENGLISH.toString()));
 
           props.addProperty("createDate", formatDate(serverGo.getCreateDate()));
 

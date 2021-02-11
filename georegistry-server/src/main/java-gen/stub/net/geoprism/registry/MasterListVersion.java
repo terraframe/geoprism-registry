@@ -801,12 +801,12 @@ public class MasterListVersion extends MasterListVersionBase
           query.setLimit(pageSize);
           query.setSkip(skip);
           
-          List<GeoObjectStatus> validStats = new ArrayList<GeoObjectStatus>();
-          validStats.add(GeoObjectStatus.ACTIVE);
-          validStats.add(GeoObjectStatus.INACTIVE);
-          validStats.add(GeoObjectStatus.PENDING);
-          validStats.add(GeoObjectStatus.NEW);
-          query.setRestriction(new ServerStatusRestriction(validStats, this.getForDate(), JoinOp.OR));
+//          List<GeoObjectStatus> validStats = new ArrayList<GeoObjectStatus>();
+//          validStats.add(GeoObjectStatus.ACTIVE);
+//          validStats.add(GeoObjectStatus.INACTIVE);
+//          validStats.add(GeoObjectStatus.PENDING);
+//          validStats.add(GeoObjectStatus.NEW);
+//          query.setRestriction(new ServerStatusRestriction(validStats, this.getForDate(), JoinOp.OR));
 
           List<ServerGeoObjectIF> results = query.getResults();
 
@@ -839,23 +839,30 @@ public class MasterListVersion extends MasterListVersionBase
       this.unlock();
     }
   }
-
-  private void publish(ServerGeoObjectIF object, Business business, Collection<AttributeType> attributes, Map<HierarchyType, List<GeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, List<Locale> locales)
+  
+  private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<HierarchyType, List<GeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, List<Locale> locales)
   {
-    business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, object.getGeometry());
+    boolean hasData = false;
+    
+    business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, go.getGeometry());
 
     for (AttributeType attribute : attributes)
     {
       String name = attribute.getName();
 
-      business.setValue(ORIGINAL_OID, object.getRunwayId());
+      business.setValue(ORIGINAL_OID, go.getRunwayId());
 
       if (this.isValid(attribute))
       {
-        Object value = object.getValue(name);
+        Object value = go.getValue(name);
 
         if (value != null)
         {
+          if (!name.equals(DefaultAttribute.CODE.getName()))
+          {
+            hasData = true;
+          }
+          
           if (name.equals(DefaultAttribute.STATUS.getName()))
           {
             GeoObjectStatus status = (GeoObjectStatus) value;
@@ -918,61 +925,64 @@ public class MasterListVersion extends MasterListVersionBase
       }
     }
 
-    Set<Entry<HierarchyType, List<GeoObjectType>>> entries = ancestorMap.entrySet();
-
-    for (Entry<HierarchyType, List<GeoObjectType>> entry : entries)
+    if (hasData)
     {
-      ServerHierarchyType hierarchy = ServerHierarchyType.get(entry.getKey());
-
-      // List<GeoObjectType> parents = entry.getValue();
-      Map<String, LocationInfo> map = object.getAncestorMap(hierarchy, true);
-
-      Set<Entry<String, LocationInfo>> locations = map.entrySet();
-
-      for (Entry<String, LocationInfo> location : locations)
+      Set<Entry<HierarchyType, List<GeoObjectType>>> entries = ancestorMap.entrySet();
+  
+      for (Entry<HierarchyType, List<GeoObjectType>> entry : entries)
       {
-        String pCode = location.getKey();
-        LocationInfo vObject = location.getValue();
-
-        if (vObject != null)
+        ServerHierarchyType hierarchy = ServerHierarchyType.get(entry.getKey());
+  
+        // List<GeoObjectType> parents = entry.getValue();
+        Map<String, LocationInfo> map = go.getAncestorMap(hierarchy, true);
+  
+        Set<Entry<String, LocationInfo>> locations = map.entrySet();
+  
+        for (Entry<String, LocationInfo> location : locations)
         {
-          String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
-
-          this.setValue(business, attributeName, vObject.getCode());
-          this.setValue(business, attributeName + DEFAULT_LOCALE, vObject.getLabel());
-
-          for (Locale locale : locales)
+          String pCode = location.getKey();
+          LocationInfo vObject = location.getValue();
+  
+          if (vObject != null)
           {
-            this.setValue(business, attributeName + locale.toString(), vObject.getLabel(locale));
+            String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
+  
+            this.setValue(business, attributeName, vObject.getCode());
+            this.setValue(business, attributeName + DEFAULT_LOCALE, vObject.getLabel());
+  
+            for (Locale locale : locales)
+            {
+              this.setValue(business, attributeName + locale.toString(), vObject.getLabel(locale));
+            }
           }
         }
       }
-    }
-
-    for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
-    {
-      ServerParentTreeNode node = object.getParentsForHierarchy(hierarchy, false);
-      List<ServerParentTreeNode> parents = node.getParents();
-
-      if (parents.size() > 0)
+  
+      for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
       {
-        ServerParentTreeNode parent = parents.get(0);
-
-        String attributeName = hierarchy.getCode().toLowerCase();
-        ServerGeoObjectIF geoObject = parent.getGeoObject();
-        LocalizedValue label = geoObject.getDisplayLabel();
-
-        this.setValue(business, attributeName, geoObject.getCode());
-        this.setValue(business, attributeName + DEFAULT_LOCALE, label.getValue(DEFAULT_LOCALE));
-
-        for (Locale locale : locales)
+        ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false);
+        List<ServerParentTreeNode> parents = node.getParents();
+  
+        if (parents.size() > 0)
         {
-          this.setValue(business, attributeName + locale.toString(), label.getValue(locale));
+          ServerParentTreeNode parent = parents.get(0);
+  
+          String attributeName = hierarchy.getCode().toLowerCase();
+          ServerGeoObjectIF geoObject = parent.getGeoObject();
+          LocalizedValue label = geoObject.getDisplayLabel();
+  
+          this.setValue(business, attributeName, geoObject.getCode());
+          this.setValue(business, attributeName + DEFAULT_LOCALE, label.getValue(DEFAULT_LOCALE));
+  
+          for (Locale locale : locales)
+          {
+            this.setValue(business, attributeName + locale.toString(), label.getValue(locale));
+          }
         }
       }
+  
+      business.apply();
     }
-
-    business.apply();
   }
 
   private void setValue(Business business, String name, Object value)

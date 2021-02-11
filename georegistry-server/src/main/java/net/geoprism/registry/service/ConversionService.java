@@ -73,6 +73,11 @@ public class ConversionService
 
   public Term getTerm(String code)
   {
+    if (code == null)
+    {
+      return null;  
+    }
+    
     return ServiceFactory.getMetadataCache().getTerm(code).get();
   }
 
@@ -98,6 +103,11 @@ public class ConversionService
 
   public GeoObjectStatus termToGeoObjectStatus(String termCode)
   {
+    if (termCode == null)
+    {
+      return null;
+    }
+    
     if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code))
     {
       return GeoObjectStatus.ACTIVE;
@@ -122,11 +132,21 @@ public class ConversionService
 
   public Term geoObjectStatusToTerm(GeoObjectStatus gos)
   {
+    if (gos == null)
+    {
+      return null;
+    }
+    
     return geoObjectStatusToTerm(gos.getEnumName());
   }
 
   public Term geoObjectStatusToTerm(String termCode)
   {
+    if (termCode == null)
+    {
+      return null;
+    }
+    
     if (termCode.equals(GeoObjectStatus.ACTIVE.getEnumName()))
     {
       return getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code);
