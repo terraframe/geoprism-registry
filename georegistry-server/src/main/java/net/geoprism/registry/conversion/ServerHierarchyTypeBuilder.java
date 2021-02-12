@@ -343,13 +343,18 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
     role.grantPermission(Operation.READ, mdTermRelationship.getOid());
     role.grantPermission(Operation.READ_ALL, mdTermRelationship.getOid());
   }
+  
+  public ServerHierarchyType get(MdTermRelationship universalRelationship)
+  {
+    return this.get(universalRelationship, true);
+  }
 
   /**
    * 
    * @param universalRelationship
    * @return
    */
-  public ServerHierarchyType get(MdTermRelationship universalRelationship)
+  public ServerHierarchyType get(MdTermRelationship universalRelationship, boolean buildHierarchyNodes)
   {
     String hierarchyKey = ServerHierarchyType.buildHierarchyKeyFromMdTermRelUniversal(universalRelationship.getKey());
     String geoEntityKey = ServerHierarchyType.buildMdTermRelGeoEntityKey(hierarchyKey);
@@ -389,85 +394,14 @@ public class ServerHierarchyTypeBuilder extends LocalizedValueConverter
       ht.setUseConstraints("");
     }
 
-    Universal rootUniversal = Universal.getByKey(Universal.ROOT);
-
-    // Copy all of the children to a list so as not to have recursion with open
-    // database cursors.
-    List<Universal> childUniversals = new LinkedList<Universal>();
-
-    OIterator<? extends Business> i = rootUniversal.getChildren(universalRelationship.definesType());
-    try
+    ServerHierarchyType sht =  new ServerHierarchyType(ht, universalRelationship, entityRelationship, mdEdge);
+    
+    if (buildHierarchyNodes)
     {
-      i.forEach(u -> childUniversals.add((Universal) u));
+      sht.buildHierarchyNodes();
     }
-    finally
-    {
-      i.close();
-    }
-
-    for (Universal childUniversal : childUniversals)
-    {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
-      ServerHierarchyType inheritedHierarchy = geoObjectType.getInheritedHierarchy(universalRelationship);
-
-      if (inheritedHierarchy != null)
-      {
-        HierarchyNode child = new HierarchyNode(geoObjectType.getType(), null);
-        HierarchyNode root = child;
-
-        List<GeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
-        Collections.reverse(ancestors);
-
-        for (GeoObjectType ancestor : ancestors)
-        {
-          HierarchyNode cNode = new HierarchyNode(ancestor, inheritedHierarchy.getCode());
-          cNode.addChild(root);
-
-          root = cNode;
-        }
-
-        buildHierarchy(child, childUniversal, universalRelationship);
-        ht.addRootGeoObjects(root);
-      }
-      else
-      {
-        HierarchyNode node = new HierarchyNode(geoObjectType.getType());
-        node = buildHierarchy(node, childUniversal, universalRelationship);
-        ht.addRootGeoObjects(node);
-      }
-
-    }
-
-    return new ServerHierarchyType(ht, universalRelationship, entityRelationship, mdEdge);
-  }
-
-  private HierarchyNode buildHierarchy(HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
-  {
-    List<Universal> childUniversals = new LinkedList<Universal>();
-
-    OIterator<? extends Business> i = parentUniversal.getChildren(mdTermRel.definesType());
-    try
-    {
-      i.forEach(u -> childUniversals.add((Universal) u));
-    }
-    finally
-    {
-      i.close();
-    }
-
-    for (Universal childUniversal : childUniversals)
-    {
-      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
-
-      HierarchyNode node = new HierarchyNode(geoObjectType.getType());
-
-      node = buildHierarchy(node, childUniversal, mdTermRel);
-
-      parentNode.addChild(node);
-    }
-
-    return parentNode;
-
+    
+    return sht;
   }
 
 }

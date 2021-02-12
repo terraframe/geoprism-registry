@@ -31,6 +31,7 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
@@ -263,7 +264,16 @@ public class ServerParentTreeNodeOverTime
 
               JsonObject pObject = new JsonObject();
               pObject.add(JSON_ENTRY_PARENT_GEOOBJECT, geoObject.toJSON());
-              pObject.addProperty(JSON_ENTRY_PARENT_TEXT, sGeoObject.getDisplayLabel().getValue() + " : " + sGeoObject.getCode());
+              
+              LocalizedValue label = sGeoObject.getDisplayLabel();
+              if (label != null)
+              {
+                pObject.addProperty(JSON_ENTRY_PARENT_TEXT, label.getValue() + " : " + sGeoObject.getCode());
+              }
+              else
+              {
+                pObject.addProperty(JSON_ENTRY_PARENT_TEXT, "null" + " : " + sGeoObject.getCode());
+              }
 
               pArray.add(pType.getCode(), pObject);
             }

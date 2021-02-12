@@ -473,6 +473,17 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         }
       }
     }
+    
+    // If the hierarchy is inherited, we need to resolve the hierarchy inheritance chain and set them properly on the Location objects
+    // To do this, we must start from the bottom and resolve upwards
+    ServerHierarchyType ht = this.hierarchy;
+    for (int i = this.locations.size()-1; i >= 0; --i)
+    {
+      Location loc = this.locations.get(i);
+      
+      ht = got.findHierarchy(ht, loc.getType());
+      loc.setHierarchy(ht);
+    }
 
     return this;
   }

@@ -734,13 +734,18 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     return null;
   }
-
+  
   /**
    * Returns the entity as defined by the 'parent' and 'parentType' attributes
    * of the given feature. If an entity is not found then Earth is returned by
    * default. The 'parent' value of the feature must define an entity name or a
    * geo oid. The 'parentType' value of the feature must define the localized
    * display label of the universal.
+   * 
+   * This algorithm resolves parent contexts starting at the top of the hierarchy
+   * and traversing downward, resolving hierarchy inheritance as needed. If at any
+   * point a location cannot be found, a SmartException will be thrown which varies
+   * depending on the ParentMatchStrategy.
    *
    * @param feature
    *          Shapefile feature used to determine the parent
@@ -827,81 +832,88 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
         else
         {
-          query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), parent, this.configuration.getHierarchy()));
+          query.setRestriction(new ServerSynonymRestriction(label.toString(), this.configuration.getStartDate(), parent, location.getHierarchy()));
         }
 
-        try
+        List<ServerGeoObjectIF> results = query.getResults();
+
+        if (results != null && results.size() > 0)
         {
-
-          ServerGeoObjectIF result = query.getSingleResult();
-
-          if (result != null)
+          ServerGeoObjectIF result = null;
+          
+          // There may be multiple results because our query doesn't filter out relationships that don't fit the date criteria
+          // You can't really add a date filter on a match query. Look at RegistryService.getGeoObjectSuggestions for an example
+          // of how this date filter could maybe be rewritten to be included into the query SQL.
+          for (ServerGeoObjectIF loop : results)
           {
-            parent = result;
+            if (result != null && !result.getCode().equals(loop.getCode()))
+            {
+              AmbiguousParentException ex = new AmbiguousParentException();
+              ex.setParentLabel(label.toString());
+              ex.setContext(context.toString());
+              throw ex;
+            }
+            
+            result = loop;
+          }
+          
+          
+          parent = result;
 
-            JSONObject element = new JSONObject();
-            element.put("label", label.toString());
-            element.put("type", location.getType().getLabel().getValue());
+          JSONObject element = new JSONObject();
+          element.put("label", label.toString());
+          element.put("type", location.getType().getLabel().getValue());
 
-            context.put(element);
+          context.put(element);
 
-            this.parentCache.put(parentChainKey, parent);
+          this.parentCache.put(parentChainKey, parent);
+        }
+        else
+        {
+          if (context.length() == 0)
+          {
+            GeoObject root = this.configuration.getRoot();
+
+            if (root != null)
+            {
+              JSONObject element = new JSONObject();
+              element.put("label", root.getLocalizedDisplayLabel());
+              element.put("type", root.getType().getLabel().getValue());
+
+              context.put(element);
+            }
+          }
+
+          if (ms.equals(ParentMatchStrategy.CODE))
+          {
+            final ParentCodeException ex = new ParentCodeException();
+            ex.setParentCode(label.toString());
+            ex.setParentType(location.getType().getLabel().getValue());
+            ex.setContext(context.toString());
+
+            throw ex;
+          }
+          else if (ms.equals(ParentMatchStrategy.EXTERNAL))
+          {
+            final ExternalParentReferenceException ex = new ExternalParentReferenceException();
+            ex.setExternalId(label.toString());
+            ex.setParentType(location.getType().getLabel().getValue());
+            ex.setContext(context.toString());
+
+            throw ex;
           }
           else
           {
-            if (context.length() == 0)
-            {
-              GeoObject root = this.configuration.getRoot();
+            String parentCode = ( parent == null ) ? null : parent.getCode();
 
-              if (root != null)
-              {
-                JSONObject element = new JSONObject();
-                element.put("label", root.getLocalizedDisplayLabel());
-                element.put("type", root.getType().getLabel().getValue());
+            ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
+            prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+            prp.setHistoryId(this.configuration.historyId);
 
-                context.put(element);
-              }
-            }
-
-            if (ms.equals(ParentMatchStrategy.CODE))
-            {
-              final ParentCodeException ex = new ParentCodeException();
-              ex.setParentCode(label.toString());
-              ex.setParentType(location.getType().getLabel().getValue());
-              ex.setContext(context.toString());
-
-              throw ex;
-            }
-            else if (ms.equals(ParentMatchStrategy.EXTERNAL))
-            {
-              final ExternalParentReferenceException ex = new ExternalParentReferenceException();
-              ex.setExternalId(label.toString());
-              ex.setParentType(location.getType().getLabel().getValue());
-              ex.setContext(context.toString());
-
-              throw ex;
-            }
-            else
-            {
-              String parentCode = ( parent == null ) ? null : parent.getCode();
-
-              ParentReferenceProblem prp = new ParentReferenceProblem(location.getType().getCode(), label.toString(), parentCode, context.toString());
-              prp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
-              prp.setHistoryId(this.configuration.historyId);
-
-              this.progressListener.addReferenceProblem(prp);
-            }
-
-            return null;
+            this.progressListener.addReferenceProblem(prp);
           }
-        }
-        catch (ProgrammingErrorException e)
-        {
-          AmbiguousParentException ex = new AmbiguousParentException();
-          ex.setParentLabel(label.toString());
-          ex.setContext(context.toString());
 
-          throw ex;
+          return null;
         }
       }
     }

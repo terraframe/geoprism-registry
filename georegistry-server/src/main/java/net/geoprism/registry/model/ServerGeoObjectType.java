@@ -1103,6 +1103,12 @@ public class ServerGeoObjectType
   {
     this.type.setIsPrivate(isPrivate);
   }
+  
+  @Override
+  public String toString()
+  {
+    return GeoObjectTypeMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
+  }
 
   // public String buildRMRoleName()
   // {

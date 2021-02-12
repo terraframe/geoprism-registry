@@ -46,7 +46,9 @@ public class GeoVertexSynonym extends GeoVertexSynonymBase
 
     JSONObject jObject = new JSONObject();
     jObject.put("synonymId", oid);
+    
     jObject.put("label", object.getDisplayLabel().getValue());
+    
     // jObject.put("ancestors", object.getA new
     // JSONArray(GeoEntityUtil.getAncestorsAsJSON(code)));
 

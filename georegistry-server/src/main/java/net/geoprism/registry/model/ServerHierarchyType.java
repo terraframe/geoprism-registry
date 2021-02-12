@@ -19,6 +19,7 @@
 package net.geoprism.registry.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +27,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -96,6 +99,89 @@ public class ServerHierarchyType
     this.universalRelationship = universalRelationship;
     this.entityRelationship = entityRelationship;
     this.mdEdge = mdEdge;
+  }
+  
+  private HierarchyNode buildHierarchy(HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
+  {
+    List<Universal> childUniversals = new LinkedList<Universal>();
+
+    OIterator<? extends Business> i = parentUniversal.getChildren(mdTermRel.definesType());
+    try
+    {
+      i.forEach(u -> childUniversals.add((Universal) u));
+    }
+    finally
+    {
+      i.close();
+    }
+
+    for (Universal childUniversal : childUniversals)
+    {
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
+
+      HierarchyNode node = new HierarchyNode(geoObjectType.getType());
+
+      node = buildHierarchy(node, childUniversal, mdTermRel);
+
+      parentNode.addChild(node);
+    }
+
+    return parentNode;
+
+  }
+  
+  public void buildHierarchyNodes()
+  {
+    this.type.clearRootGeoObjectTypes();
+    
+    Universal rootUniversal = Universal.getByKey(Universal.ROOT);
+
+    // Copy all of the children to a list so as not to have recursion with open
+    // database cursors.
+    List<Universal> childUniversals = new LinkedList<Universal>();
+
+    OIterator<? extends Business> i = rootUniversal.getChildren(universalRelationship.definesType());
+    try
+    {
+      i.forEach(u -> childUniversals.add((Universal) u));
+    }
+    finally
+    {
+      i.close();
+    }
+    
+    for (Universal childUniversal : childUniversals)
+    {
+      ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
+      ServerHierarchyType inheritedHierarchy = geoObjectType.getInheritedHierarchy(universalRelationship);
+
+      if (inheritedHierarchy != null)
+      {
+        HierarchyNode child = new HierarchyNode(geoObjectType.getType(), null);
+        HierarchyNode root = child;
+
+        List<GeoObjectType> ancestors = geoObjectType.getTypeAncestors(inheritedHierarchy, true);
+        Collections.reverse(ancestors);
+
+        for (GeoObjectType ancestor : ancestors)
+        {
+          HierarchyNode cNode = new HierarchyNode(ancestor, inheritedHierarchy.getCode());
+          cNode.addChild(root);
+
+          root = cNode;
+        }
+
+        buildHierarchy(child, childUniversal, universalRelationship);
+        this.type.addRootGeoObjects(root);
+      }
+      else
+      {
+        HierarchyNode node = new HierarchyNode(geoObjectType.getType());
+        node = buildHierarchy(node, childUniversal, universalRelationship);
+        this.type.addRootGeoObjects(node);
+      }
+
+    }
   }
 
   public MdTermRelationship getEntityRelationship()
@@ -830,5 +916,11 @@ public class ServerHierarchyType
   public static List<ServerHierarchyType> getAll()
   {
     return ServiceFactory.getMetadataCache().getAllHierarchyTypes();
+  }
+  
+  @Override
+  public String toString()
+  {
+    return HierarchyMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
   }
 }

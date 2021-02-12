@@ -180,7 +180,7 @@ public class RegistryService
           continue;
         }
 
-        ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdTermRel);
+        ServerHierarchyType ht = new ServerHierarchyTypeBuilder().get(mdTermRel, false);
 
         ServiceFactory.getMetadataCache().addHierarchyType(ht);
       }
@@ -188,6 +188,12 @@ public class RegistryService
     finally
     {
       it2.close();
+    }
+    
+    // Due to inherited hierarchy references, this has to wait until all types exist in the cache.
+    for (ServerHierarchyType type : ServiceFactory.getMetadataCache().getAllHierarchyTypes())
+    {
+      type.buildHierarchyNodes();
     }
 
     try

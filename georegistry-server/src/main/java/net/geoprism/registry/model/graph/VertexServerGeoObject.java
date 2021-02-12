@@ -105,6 +105,7 @@ import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.AbstractServerGeoObject;
+import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerChildTreeNode;
@@ -1260,7 +1261,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     if (graphObject == null)
     {
-      return null;
+      return new LocalizedValue(null, new HashMap<String, String>());
     }
 
     return LocalizedValueConverter.convert(graphObject);
@@ -1857,6 +1858,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     return attr.getDisplayLabel(Session.getCurrentLocale());
+  }
+  
+  @Override
+  public String toString()
+  {
+    return GeoObjectMetadata.get().getClassDisplayLabel() + " : " + this.getCode();
   }
 
 }

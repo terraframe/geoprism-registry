@@ -72,6 +72,21 @@ public class Location
   {
     this.matchStrategy = matchStrategy;
   }
+  
+  public ServerHierarchyType getHierarchy()
+  {
+    return hierarchy;
+  }
+
+  public void setHierarchy(ServerHierarchyType hierarchy)
+  {
+    this.hierarchy = hierarchy;
+  }
+
+  public void setFunction(ShapefileFunction function)
+  {
+    this.function = function;
+  }
 
   public JSONObject toJSON()
   {
