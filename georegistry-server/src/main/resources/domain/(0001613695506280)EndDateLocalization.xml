@@ -1,0 +1,59 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.startdate.later.enddate.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="manage.versions.startdate.later.enddate.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Start date is later than the end date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.enddate.set.current.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="manage.versions.enddate.set.current.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Set as most current" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.enddate.set.date.button">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="manage.versions.enddate.set.date.button" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Set date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="map.button.info.hint">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="map.button.info.hint" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Save edits" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="baselayer.sreets">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="baselayer.streets" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Streets" />
+	        </attributeStruct>
+	      </object> 
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.view.column">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.view.column" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Action" />
+	        </attributeStruct>
+	      </object>
+  	</createOrUpdate>
+  
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
