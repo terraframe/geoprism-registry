@@ -24,19 +24,19 @@
                       <localize key="geoobject.displayLabel.alternate.label"></localize>
                     </span> 
                     <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
-                    <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null" style="color:#BABABA;font-style:italic;"> 
-                      ( <p style="font-size:14px;display:inline-block;">
-                          {{calculatedPostObject[attr.code].startDate}}
-                        </p>
-                      -
-                      <p *ngIf="calculatedPostObject[attr.code].endDate !== 'Present'" style="font-size:14px;display:inline-block;">
-                        {{calculatedPostObject[attr.code].endDate}}
-                      </p>
-                      <p *ngIf="calculatedPostObject[attr.code].endDate === 'Present'" style="font-size:14px;display:inline-block;">
-                        <localize key="changeovertime.manageVersions.infinity.endDate.label"></localize>
-                      </p>
-                      )
-                    </span>
+<!--                     <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] && calculatedPostObject[attr.code].startDate" style="color:#BABABA;font-style:italic;">  -->
+<!--                       ( <p style="font-size:14px;display:inline-block;"> -->
+<!--                           {{calculatedPostObject[attr.code].startDate}} -->
+<!--                         </p> -->
+<!--                       - -->
+<!--                       <p *ngIf="calculatedPostObject[attr.code].endDate !== 'Present'" style="font-size:14px;display:inline-block;"> -->
+<!--                         {{calculatedPostObject[attr.code].endDate}} -->
+<!--                       </p> -->
+<!--                       <p *ngIf="calculatedPostObject[attr.code].endDate === 'Present'" style="font-size:14px;display:inline-block;"> -->
+<!--                         <localize key="changeovertime.manageVersions.infinity.endDate.label"></localize> -->
+<!--                       </p> -->
+<!--                       ) -->
+<!--                     </span> -->
                   </h4>
 
                   <h5 *ngIf="attr.code === 'geometry'">

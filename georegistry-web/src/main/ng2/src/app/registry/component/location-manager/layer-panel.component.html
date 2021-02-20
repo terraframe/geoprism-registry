@@ -2,14 +2,14 @@
 <div class="layer-toggle" (mouseenter)="baselayerIconHover = true" (mouseleave)="baselayerIconHover = false">
 
   <i class="fa fa-bars" *ngIf="!baselayerIconHover" style="vertical-align: middle; font-size: 18px; color: black;"></i>
-  <div *ngIf="baselayerIconHover">
+  <div [hidden]="!baselayerIconHover">
 
     <div style="margin-bottom: 10px;">
       <h4>
         <localize key="explorer.base.layers.label"></localize>
       </h4>
       <div class="row-form" *ngFor="let baseLayer of baseLayers">
-        <input class="layer-toggle-input" type='radio' name='rtoggle' [value]='baseLayer.id' [checked]="baseLayer.selected">
+        <input class="layer-toggle-input" type='radio' name='baselayers' [value]='baseLayer.id' [checked]="baseLayer.selected" (change)="toggleBaseLayer(baseLayer)">
         <label class="layer-toggle-label"><localize [key]="baseLayer.label"></localize></label>
       </div>
     </div>

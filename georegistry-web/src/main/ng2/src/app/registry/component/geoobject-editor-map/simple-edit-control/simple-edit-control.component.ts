@@ -4,6 +4,7 @@ import { Component, ElementRef, Input, Output, EventEmitter } from '@angular/cor
 @Component({
 	selector: 'simple-edit-control',
 	templateUrl: './simple-edit-control.component.html',
+	styleUrls: ['./simple-edit-control.css']
 })
 export class SimpleEditControl {
 	elRef: ElementRef
@@ -11,6 +12,7 @@ export class SimpleEditControl {
 	@Output() editEmitter = new EventEmitter<void>();
 
 	@Input() visible: boolean = true;
+	@Input() editSessionEnabled: boolean = false;
 	@Input() save: boolean = false;
 
 	constructor(elRef: ElementRef) {
@@ -18,7 +20,6 @@ export class SimpleEditControl {
 	}
 
 	onAdd(map): any {
-		//    this.visible = true;
 		return this.elRef.nativeElement;
 	}
 

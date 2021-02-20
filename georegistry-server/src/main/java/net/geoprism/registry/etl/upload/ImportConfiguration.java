@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -52,6 +52,8 @@ abstract public class ImportConfiguration
 
   public static final String                   EXTERNAL_ID_ATTRIBUTE_TARGET = "externalIdAttributeTarget";
 
+  public static final String                   COPY_BLANK                   = "copyBlank";
+
   protected String                             formatType;
 
   protected String                             objectType;
@@ -65,6 +67,8 @@ abstract public class ImportConfiguration
   protected String                             fileName;
 
   protected Boolean                            isExternal                   = false;
+
+  protected Boolean                            copyBlank                    = true;
 
   protected String                             externalSystemId             = null;
 
@@ -180,6 +184,16 @@ abstract public class ImportConfiguration
     this.objectType = objectType;
   }
 
+  public Boolean getCopyBlank()
+  {
+    return copyBlank;
+  }
+
+  public void setCopyBlank(Boolean copyBlank)
+  {
+    this.copyBlank = copyBlank;
+  }
+
   public Boolean isExternalImport()
   {
     return this.isExternal;
@@ -244,6 +258,11 @@ abstract public class ImportConfiguration
       this.isExternal = jo.getBoolean(IS_EXTERNAL);
     }
 
+    if (jo.has(COPY_BLANK))
+    {
+      this.copyBlank = jo.getBoolean(COPY_BLANK);
+    }
+
     if (jo.has(EXTERNAL_ID_ATTRIBUTE_TARGET))
     {
       this.externalIdFunction = new BasicColumnFunction(jo.getString(EXTERNAL_ID_ATTRIBUTE_TARGET));
@@ -261,6 +280,7 @@ abstract public class ImportConfiguration
     jo.put(FILE_NAME, this.fileName);
     jo.put(EXTERNAL_SYSTEM_ID, this.externalSystemId);
     jo.put(IS_EXTERNAL, this.isExternal);
+    jo.put(COPY_BLANK, this.copyBlank);
 
     if (this.externalIdFunction != null)
     {

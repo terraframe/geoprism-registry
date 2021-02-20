@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -89,8 +89,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerExternalIdRestriction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
@@ -125,9 +123,9 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   }
 
-  private static final Logger              logger            = LoggerFactory.getLogger(GeoObjectImporter.class);
+  private static final Logger              logger                     = LoggerFactory.getLogger(GeoObjectImporter.class);
 
-  protected static final String            ERROR_OBJECT_TYPE = GeoObjectOverTime.class.getName();
+  protected static final String            ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
   protected GeoObjectImportConfiguration   configuration;
 
@@ -135,20 +133,19 @@ public class GeoObjectImporter implements ObjectImporterIF
 
   protected Map<String, ServerGeoObjectIF> parentCache;
 
-  protected static final String            parentConcatToken = "&";
+  protected static final String            parentConcatToken          = "&";
 
   protected ImportProgressListenerIF       progressListener;
 
   protected FormatSpecificImporterIF       formatImporter;
 
-  private GeoObjectPermissionServiceIF     geoObjectPermissionService = new GeoObjectPermissionService();
-  
-  private long lastValidateSessionRefresh = 0;
-  
-  private long lastImportSessionRefresh = 0;
-  
-  private static final long refreshSessionRecordCount = GeoregistryProperties.getRefreshSessionRecordCount(); // Refresh the user's session every X amount of records
-  
+  private long                             lastValidateSessionRefresh = 0;
+
+  private long                             lastImportSessionRefresh   = 0;
+
+  // Refresh the user's session every X amount of records
+  private static final long                refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+
   public GeoObjectImporter(GeoObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
     this.configuration = configuration;
@@ -264,170 +261,177 @@ public class GeoObjectImporter implements ObjectImporterIF
   @Transaction
   public void validateRow(FeatureRow row) throws InterruptedException
   {
-    // Refresh the session because it might expire on long imports
-    final long curWorkProgress = this.progressListener.getWorkProgress();
-    if ( (this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount) <  curWorkProgress)
-    {
-      SessionFacade.renewSession(Session.getCurrentSession().getOid());
-      this.lastValidateSessionRefresh = curWorkProgress;
-    }
-    
     try
     {
-      /*
-       * 1. Check for location problems
-       */
-      if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+      // Refresh the session because it might expire on long imports
+      final long curWorkProgress = this.progressListener.getWorkProgress();
+      if ( ( this.lastValidateSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
       {
-        // Skip location synonym check
-      }
-      else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-      {
-        this.getParent(row);
+        SessionFacade.renewSession(Session.getCurrentSession().getOid());
+        this.lastValidateSessionRefresh = curWorkProgress;
       }
 
-      /*
-       * 2. Check for serialization and term problems
-       */
-      String geoId = this.getCode(row);
-
-      ServerGeoObjectIF entity;
-
-      if (geoId != null && geoId.length() > 0)
+      try
       {
-        entity = service.newInstance(this.configuration.getType());
-        entity.setCode(geoId);
-
-        try
+        /*
+         * 1. Check for location problems
+         */
+        if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
         {
-          entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
+          // Skip location synonym check
+        }
+        else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+        {
+          this.getParent(row);
+        }
 
-          Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
-          LocalizedValue entityName = this.getName(row);
+        /*
+         * 2. Check for serialization and term problems
+         */
+        String geoId = this.getCode(row);
 
-          if (entityName != null && this.hasValue(entityName))
+        ServerGeoObjectIF entity;
+
+        if (geoId != null && geoId.length() > 0)
+        {
+          entity = service.newInstance(this.configuration.getType());
+          entity.setCode(geoId);
+
+          try
           {
-            entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+            entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
 
-            if (geometry != null)
+            Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
+            LocalizedValue entityName = this.getName(row);
+
+            if (entityName != null && this.hasValue(entityName))
             {
-              // TODO : We should be able to check the CRS here and throw a
-              // specific invalid CRS error if it's not what we expect.
-              // For some reason JTS always returns 0 when we call
-              // geometry.getSRID().
-              if (geometry.isValid())
+              entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+
+              if (geometry != null)
               {
-                entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
-              }
-              else
-              {
-                InvalidGeometryException geomEx = new InvalidGeometryException();
-                throw geomEx;
-              }
-            }
-
-            Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-            Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-
-            for (Entry<String, AttributeType> entry : entries)
-            {
-              String attributeName = entry.getKey();
-
-              if (!attributeName.equals(GeoObject.CODE))
-              {
-                ShapefileFunction function = this.configuration.getFunction(attributeName);
-
-                if (function != null)
+                // TODO : We should be able to check the CRS here and throw a
+                // specific invalid CRS error if it's not what we expect.
+                // For some reason JTS always returns 0 when we call
+                // geometry.getSRID().
+                if (geometry.isValid())
                 {
-                  Object value = function.getValue(row);
+                  entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
+                }
+                else
+                {
+                  InvalidGeometryException geomEx = new InvalidGeometryException();
+                  throw geomEx;
+                }
+              }
 
-                  if (value != null)
+              Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+              Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+              for (Entry<String, AttributeType> entry : entries)
+              {
+                String attributeName = entry.getKey();
+
+                if (!attributeName.equals(GeoObject.CODE))
+                {
+                  ShapefileFunction function = this.configuration.getFunction(attributeName);
+
+                  if (function != null)
                   {
-                    AttributeType attributeType = entry.getValue();
+                    Object value = function.getValue(row);
 
-                    this.setValue(entity, attributeType, attributeName, value);
+                    if (value != null)
+                    {
+                      AttributeType attributeType = entry.getValue();
+
+                      this.setValue(entity, attributeType, attributeName, value);
+                    }
                   }
                 }
               }
-            }
 
-            GeoObjectOverTime go = entity.toGeoObjectOverTime(false);
-            go.toJSON().toString();
+              GeoObjectOverTime go = entity.toGeoObjectOverTime(false);
+              go.toJSON().toString();
 
-            if (this.configuration.isExternalImport())
-            {
-              ShapefileFunction function = this.configuration.getExternalIdFunction();
-
-              Object value = function.getValue(row);
-
-              if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
+              if (this.configuration.isExternalImport())
               {
-                throw new InvalidExternalIdException();
-              }
-            }
+                ShapefileFunction function = this.configuration.getExternalIdFunction();
 
-            // We must ensure that any problems created during the transaction
-            // are
-            // logged now instead of when the request returns. As such, if any
-            // problems exist immediately throw a ProblemException so that
-            // normal
-            // exception handling can occur.
-            // List<ProblemIF> problems =
-            // RequestState.getProblemsInCurrentRequest();
-            //
-            // List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
-            // for (ProblemIF problem : problems)
-            // {
-            // problems2.add(problem);
-            // }
-            //
-            // if (problems.size() != 0)
-            // {
-            // throw new ProblemException(null, problems2);
-            // }
+                Object value = function.getValue(row);
+
+                if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
+                {
+                  throw new InvalidExternalIdException();
+                }
+              }
+
+              // We must ensure that any problems created during the transaction
+              // are
+              // logged now instead of when the request returns. As such, if any
+              // problems exist immediately throw a ProblemException so that
+              // normal
+              // exception handling can occur.
+              // List<ProblemIF> problems =
+              // RequestState.getProblemsInCurrentRequest();
+              //
+              // List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
+              // for (ProblemIF problem : problems)
+              // {
+              // problems2.add(problem);
+              // }
+              //
+              // if (problems.size() != 0)
+              // {
+              // throw new ProblemException(null, problems2);
+              // }
+            }
+          }
+          finally
+          {
+            entity.unlock();
           }
         }
-        finally
-        {
-          entity.unlock();
-        }
+
+        // if (beforeProbCount ==
+        // this.progressListener.getValidationProblems().size())
+        // {
+        // this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()
+        // + 1);
+        // }
+      }
+      catch (IgnoreRowException e)
+      {
+        // Do nothing
+      }
+      catch (Throwable t)
+      {
+        RowValidationProblem problem = new RowValidationProblem(t);
+        problem.addAffectedRowNumber(curWorkProgress + 1);
+        problem.setHistoryId(this.configuration.historyId);
+
+        this.progressListener.addRowValidationProblem(problem);
       }
 
-      // if (beforeProbCount ==
-      // this.progressListener.getValidationProblems().size())
-      // {
-      // this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()
-      // + 1);
-      // }
-    }
-    catch (IgnoreRowException e)
-    {
-      // Do nothing
-    }
-    catch (Throwable t)
-    {
-      RowValidationProblem problem = new RowValidationProblem(t);
-      problem.addAffectedRowNumber(curWorkProgress + 1);
-      problem.setHistoryId(this.configuration.historyId);
+      this.progressListener.setWorkProgress(curWorkProgress + 1);
 
-      this.progressListener.addRowValidationProblem(problem);
-    }
+      if (Thread.interrupted())
+      {
+        throw new InterruptedException();
+      }
 
-    this.progressListener.setWorkProgress(curWorkProgress + 1);
-    
-    if (Thread.interrupted())
-    {
-      throw new InterruptedException();
+      Thread.yield();
     }
-    
-    Thread.yield();
+    catch(Throwable e)
+    {
+      e.printStackTrace();
+    }
   }
 
   /**
    * Imports a GeoObject based on the given SimpleFeature.
    * 
    * @param feature
-   * @throws InterruptedException 
+   * @throws InterruptedException
    * @throws Exception
    */
   public void importRow(FeatureRow row) throws InterruptedException
@@ -461,7 +465,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       throw new InterruptedException();
     }
-    
+
     Thread.yield();
   }
 
@@ -475,7 +479,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       obj.put("parents", parentBuilder.build());
     }
-    
+
     this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setImportedRecords(this.progressListener.getRawImportedRecords());
@@ -487,12 +491,12 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     // Refresh the session because it might expire on long imports
     final long curWorkProgress = this.progressListener.getWorkProgress();
-    if ( (this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount) <  curWorkProgress)
+    if ( ( this.lastImportSessionRefresh + GeoObjectImporter.refreshSessionRecordCount ) < curWorkProgress)
     {
       SessionFacade.renewSession(Session.getCurrentSession().getOid());
       this.lastImportSessionRefresh = curWorkProgress;
     }
-    
+
     GeoObjectOverTime go = null;
 
     String goJson = null;
@@ -585,11 +589,15 @@ public class GeoObjectImporter implements ObjectImporterIF
               {
                 Object value = function.getValue(row);
 
+                AttributeType attributeType = entry.getValue();
+
                 if (value != null)
                 {
-                  AttributeType attributeType = entry.getValue();
-
                   this.setValue(serverGo, attributeType, attributeName, value);
+                }
+                else if (this.configuration.getCopyBlank())
+                {
+                  this.setValue(serverGo, attributeType, attributeName, null);
                 }
               }
             }
@@ -1032,15 +1040,22 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     else if (attributeName.equals(DefaultAttribute.STATUS.getName()))
     {
-      try
+      if (value != null)
       {
-        GeoObjectStatus status = GeoObjectStatus.valueOf((String) value);
+        try
+        {
+          GeoObjectStatus status = GeoObjectStatus.valueOf((String) value);
 
-        entity.setStatus(status, this.configuration.getStartDate(), this.configuration.getEndDate());
+          entity.setStatus(status, this.configuration.getStartDate(), this.configuration.getEndDate());
+        }
+        catch (IllegalArgumentException e)
+        {
+          throw new StatusValueException(e);
+        }
       }
-      catch (IllegalArgumentException e)
+      else
       {
-        throw new StatusValueException(e);
+        entity.setStatus(null, this.configuration.getStartDate(), this.configuration.getEndDate());
       }
     }
     else if (attributeType instanceof AttributeTermType)
@@ -1049,7 +1064,11 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     else if (attributeType instanceof AttributeIntegerType)
     {
-      if (value instanceof String)
+      if (value == null)
+      {
+        entity.setValue(attributeName, null, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else if (value instanceof String)
       {
         entity.setValue(attributeName, new Long((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
       }
@@ -1064,7 +1083,11 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     else if (attributeType instanceof AttributeFloatType)
     {
-      if (value instanceof String)
+      if (value == null)
+      {
+        entity.setValue(attributeName, null, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else if (value instanceof String)
       {
         entity.setValue(attributeName, new Double((String) value), this.configuration.getStartDate(), this.configuration.getEndDate());
       }
@@ -1079,7 +1102,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     else if (attributeType instanceof AttributeCharacterType)
     {
-      entity.setValue(attributeName, value.toString(), this.configuration.getStartDate(), this.configuration.getEndDate());
+      if (value == null)
+      {
+        entity.setValue(attributeName, null, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else
+      {
+        entity.setValue(attributeName, value.toString(), this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
     }
     else if (attributeType instanceof AttributeBooleanType)
     {

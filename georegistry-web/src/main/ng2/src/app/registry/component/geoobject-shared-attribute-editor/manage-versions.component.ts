@@ -40,6 +40,8 @@ import Utils from '../../utility/Utils';
 })
 export class ManageVersionsComponent implements OnInit {
 	message: string = null;
+	
+	currentDate : Date =new Date();
 
 	readonly: boolean = false;
 
@@ -69,7 +71,9 @@ export class ManageVersionsComponent implements OnInit {
 	editingGeometry: number = -1;
 
 	hasDuplicateDate: boolean = false;
-	
+
+	hasConflict: boolean = false;
+
 	originalAttributeState: Attribute;
 
 	constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef) { }
@@ -87,63 +91,53 @@ export class ManageVersionsComponent implements OnInit {
 		vAttribute.value = event;
 	}
 
-	onDateChange(event: any, vAttribute: ValueOverTime): any {
-
-		//        console.log( event.currentTarget.value );
-		//
-		//        let dt = new Date( event.currentTarget.value );
-		//let dt = new Date(event);
-
+	onDateChange(): any {
+		this.hasConflict = false;
+	
 		let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
-		//        vAttribute.startDate = Utils.formatDateString( dt );
 
-		this.snapDates(vAttributes);
+		// check ranges
+		for (let j = 0; j < vAttributes.length; j++) {
+			const h1 = vAttributes[j];
+			h1.conflict = false;
+			h1.conflictMessage = [];
 
-		//        this.changeDetectorRef.detectChanges();
-	}
+			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
+				let s1: any = new Date(h1.startDate);
+				let e1: any = new Date(h1.endDate);
+				
+				if (Utils.dateEndBeforeStart(s1, e1)) {
+					h1.conflict = true;		
+					h1.conflictMessage.push(this.lService.decode("manage.versions.startdate.later.enddate.message")); 
+					this.hasConflict = true;
+				}
 
-	snapDates(votArr: ValueOverTime[]): void {
-		var dateOffset = (24 * 60 * 60 * 1000) * 1; //1 days
+				for (let i = 0; i < vAttributes.length; i++) {
 
-		this.hasDuplicateDate = false;
+					if (j !== i) {
+						const h2 = vAttributes[i];
+						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
+							let s2: any = new Date(h2.startDate);
+							let e2: any = new Date(h2.endDate);
 
-		// Sort the data by start date 
-		votArr.sort(function(a, b) {
+							// Determine if there is an overlap
+							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+								h1.conflict = true
+								h1.conflictMessage.push(this.lService.decode("manage.versions.overlap.message"));
 
-			if (a.startDate == null || a.startDate === '') {
-				return 1;
-			}
-			else if (b.startDate == null || b.startDate === '') {
-				return -1;
-			}
-
-			let first: any = new Date(a.startDate);
-			let next: any = new Date(b.startDate);
-			return first - next;
-		});
-
-		for (let i = 1; i < votArr.length; i++) {
-			let prev = votArr[i - 1];
-			let current = votArr[i];
-
-			if (current.startDate) {
-				prev.endDate = Utils.formatDateString(new Date(new Date(current.startDate).getTime() - dateOffset));
-			}
-			else {
-				prev.endDate = PRESENT;
-			}
-
-			if (prev.startDate === current.startDate) {
-				this.hasDuplicateDate = true;
+								this.hasConflict = true;
+							}
+							
+						}
+					}
+				}
 			}
 		}
-
-		if (votArr.length > 0) {
-			votArr[votArr.length - 1].endDate = PRESENT;
-		}
+		
+		this.sort(vAttributes);
 	}
-
+	
 	onAddNewVersion(): void {
 		let votArr: ValueOverTime[] = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
@@ -201,8 +195,6 @@ export class ManageVersionsComponent implements OnInit {
 		if (this.attribute.code === 'geometry') {
 			this.editingGeometry = votArr.length - 1;
 		}
-
-		this.snapDates(votArr);
 
 		this.changeDetectorRef.detectChanges();
 	}
@@ -267,16 +259,19 @@ export class ManageVersionsComponent implements OnInit {
 
 		let val = this.geoObjectOverTime.attributes[this.attribute.code];
 
+		let position = -1;
 		for (let i = 0; i < val.values.length; i++) {
 			let vals = val.values[i];
-			
+
 
 			if (vals.startDate === version.startDate) {
-				val.values.splice(i, 1);
+				position = i
 			}
 		}
-
-		this.snapDates(val.values);
+		
+		if(position > -1){
+			val.values.splice(position, 1);
+		}
 	}
 
 	isChangeOverTime(attr: Attribute): boolean {
@@ -289,6 +284,38 @@ export class ManageVersionsComponent implements OnInit {
 		})
 
 		return isChangeOverTime;
+	}
+	
+	setInfinity(vAttribute, attributes): void {
+		
+		if(vAttribute.endDate === PRESENT){
+			vAttribute.endDate = new Date();
+		}
+		else{
+			vAttribute.endDate = PRESENT
+		}
+		
+		this.onDateChange();
+		
+		this.sort(attributes)
+	}
+	
+	sort(votArr: ValueOverTime[]): void {
+
+		// Sort the data by start date 
+		votArr.sort(function(a, b) {
+
+			if (a.startDate == null || a.startDate === '') {
+				return 1;
+			}
+			else if (b.startDate == null || b.startDate === '') {
+				return -1;
+			}
+
+			let first: any = new Date(a.startDate);
+			let next: any = new Date(b.startDate);
+			return first - next;
+		});
 	}
 	
 	onSubmit(): void {

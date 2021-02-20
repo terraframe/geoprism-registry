@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
@@ -35,7 +35,6 @@ import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -150,6 +149,10 @@ abstract public class TestDataSet
 
   public static Date                         DEFAULT_OVER_TIME_DATE;
 
+  public static Date                         DEFAULT_END_TIME_DATE;
+
+  public static int                          DEFAULT_TIME_YEAR_DIFF;
+
   static
   {
     Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -157,6 +160,17 @@ abstract public class TestDataSet
     cal.set(2020, Calendar.APRIL, 4);
 
     DEFAULT_OVER_TIME_DATE = cal.getTime();
+
+    cal.clear();
+    cal.set(2021, Calendar.APRIL, 4);
+
+    DEFAULT_END_TIME_DATE = cal.getTime();
+
+    Calendar a = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    a.setTime(TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    Calendar b = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    DEFAULT_TIME_YEAR_DIFF = ( b.get(Calendar.YEAR) - a.get(Calendar.YEAR) ) + 1;
   }
 
   abstract public String getTestDataKey();
@@ -1071,7 +1085,7 @@ abstract public class TestDataSet
         throw new RuntimeException(e);
       }
     }
-    
+
     return isRAorRM;
   }
 }

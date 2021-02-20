@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -62,19 +63,12 @@ import org.opengis.filter.sort.SortOrder;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.VaultProperties;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Synonym;
-import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
-import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
-import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -83,8 +77,10 @@ import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
+import net.geoprism.registry.etl.upload.GeoObjectImporter;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.excel.MapFeatureRow;
 import net.geoprism.registry.etl.upload.ShapefileImporter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.ConstantShapefileFunction;
@@ -218,7 +214,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -302,7 +298,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(istream);
 
     ShapefileService service = new ShapefileService();
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
@@ -321,7 +317,7 @@ public class ShapefileServiceTest
     /*
      * Build Config
      */
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "ntd_zam_operational_28082020.zip", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), USATestData.STATE.getCode(), null, null, "ntd_zam_operational_28082020.zip", istream, ImportStrategy.NEW_AND_UPDATE, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
@@ -481,6 +477,94 @@ public class ShapefileServiceTest
 
   @Test
   @Request
+  public void testImportShapefileNullInteger() throws InterruptedException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+
+    Assert.assertNotNull(istream);
+
+    ShapefileService service = new ShapefileService();
+
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+
+    config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
+    config.setHierarchy(hierarchyType);
+
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+
+    config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
+    config.setCopyBlank(true);
+
+    HashMap<String, Object> row = new HashMap<String, Object>();
+    row.put("ALAND", null);
+    row.put("NAME", "Alabama2");
+    row.put("GEOID", "01");
+
+    GeoObjectImporter importer = new GeoObjectImporter(config, new NullImportProgressListener());
+    importer.setFormatSpecificImporter(new NullFormatSpecificImporter());
+    importer.importRow(new MapFeatureRow(row));
+
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode());
+
+    Assert.assertNotNull(object);
+    Assert.assertNotNull(object.getGeometry());
+    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+    Assert.assertNull(object.getValue(testInteger.getName()));
+  }
+
+  @Test
+  @Request
+  public void testImportShapefileNullInteger_Ignore() throws InterruptedException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+    
+    Assert.assertNotNull(istream);
+    
+    ShapefileService service = new ShapefileService();
+    
+    GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+    
+    config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
+    config.setHierarchy(hierarchyType);
+    
+    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
+    
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    
+    istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
+    
+    config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
+    config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
+    config.setCopyBlank(false);
+    
+    HashMap<String, Object> row = new HashMap<String, Object>();
+    row.put("ALAND", null);
+    row.put("NAME", "Alabama2");
+    row.put("GEOID", "01");
+    
+    GeoObjectImporter importer = new GeoObjectImporter(config, new NullImportProgressListener());
+    importer.setFormatSpecificImporter(new NullFormatSpecificImporter());
+    importer.importRow(new MapFeatureRow(row));
+    
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "01", USATestData.STATE.getCode());
+    
+    Assert.assertNotNull(object);
+    Assert.assertNotNull(object.getGeometry());
+    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+    Assert.assertEquals(131174431216L, object.getValue(testInteger.getName()));
+  }
+  
+  @Test
+  @Request
   public void testImportShapefileWithParent() throws InterruptedException
   {
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
@@ -519,7 +603,7 @@ public class ShapefileServiceTest
 
     Assert.assertEquals("01", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, new Date());
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -574,7 +658,7 @@ public class ShapefileServiceTest
 
     Assert.assertEquals("01", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, new Date());
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -938,7 +1022,7 @@ public class ShapefileServiceTest
 
     Assert.assertEquals("01", go.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, go.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, new Date());
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, go.getUid(), config.getType().getCode(), new String[] { USATestData.COUNTRY.getCode() }, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -1136,7 +1220,7 @@ public class ShapefileServiceTest
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ShapefileService service, AttributeTermType testTerm, ImportStrategy strategy, TestGeoObjectTypeInfo info)
   {
-    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), null, null, "cb_2017_us_state_500k.zip", istream, strategy);
+    JSONObject result = service.getShapefileConfiguration(testData.clientRequest.getSessionId(), info.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "cb_2017_us_state_500k.zip", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
@@ -1166,8 +1250,8 @@ public class ShapefileServiceTest
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
 
-    config.setStartDate(new Date());
-    config.setEndDate(new Date());
+    config.setStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
+    config.setEndDate(USATestData.DEFAULT_END_TIME_DATE);
     config.setImportStrategy(strategy);
 
     return config;

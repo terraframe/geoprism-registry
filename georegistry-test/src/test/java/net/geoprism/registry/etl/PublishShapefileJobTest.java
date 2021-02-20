@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -48,7 +48,7 @@ import net.geoprism.registry.service.MasterListService;
 import net.geoprism.registry.service.MasterListTest;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
-import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.test.TestDataSet;
 
 public class PublishShapefileJobTest
 {
@@ -78,15 +78,15 @@ public class PublishShapefileJobTest
     testData.setUpInstanceData();
 
     clearData();
-    
-    testData.logIn(testData.USER_CGOV_RA);
+
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
   public void tearDown() throws IOException
   {
     testData.logOut();
-    
+
     testData.tearDownInstanceData();
 
     FileUtils.deleteDirectory(new File(VaultProperties.getPath("vault.default"), "files"));
@@ -113,11 +113,11 @@ public class PublishShapefileJobTest
       }
     }
   }
-  
+
   @Test
   public void testCreate() throws InterruptedException
   {
-    JsonObject listJson = MasterListTest.getJson(testData.ORG_CGOV.getServerObject(), testData.HIER_ADMIN, testData.PROVINCE, MasterList.PUBLIC, false, testData.COUNTRY);
+    JsonObject listJson = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
     MasterListService service = new MasterListService();
     JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
@@ -132,7 +132,7 @@ public class PublishShapefileJobTest
       final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(TestDataSet.DEFAULT_TIME_YEAR_DIFF, json.size());
 
       final JsonObject version = json.get(0).getAsJsonObject();
 

@@ -44,9 +44,14 @@ export class DataImporterComponent implements OnInit {
 	code: string = null;
 
     /*
-     * Currently start date
+     * Start date
      */
 	startDate: string = null;
+
+    /*
+     * End date
+     */
+	endDate: string = null;
 
     /*
      * Reference to the modal current showing
@@ -77,6 +82,8 @@ export class DataImporterComponent implements OnInit {
 	externalSystemId: string;
 
 	isLoading: boolean = true;
+
+	copyBlank: boolean = true;
 
 	constructor(private service: IOService,
 		private eventService: EventService,
@@ -138,12 +145,16 @@ export class DataImporterComponent implements OnInit {
 
 		this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
 			form.append('type', this.code);
+			form.append('copyBlank', this.copyBlank);
 
 			if (this.startDate != null) {
 				form.append('startDate', this.startDate);
 			}
+			if (this.endDate != null) {
+				form.append('endDate', this.endDate);
+			}
 			if (this.importStrategy) {
-				form.append('strategy', this.importStrategy)
+				form.append('strategy', this.importStrategy);
 			}
 		};
 		this.uploader.onBeforeUploadItem = (fileItem: any) => {

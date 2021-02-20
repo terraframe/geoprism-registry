@@ -52,17 +52,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.query.OIterator;
-import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.gis.geo.Synonym;
-import com.runwaysdk.system.gis.geo.SynonymQuery;
 import com.runwaysdk.system.scheduler.AllJobStatus;
-import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
-import com.runwaysdk.system.scheduler.JobHistoryRecordQuery;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -119,10 +112,10 @@ public class ExcelServiceTest
     testData = USATestData.newTestData();
     testData.setUpMetadata();
 
-    testTerm = (AttributeTermType) TestDataSet.createTermAttribute("testTerm", "testTermLocalName", testData.DISTRICT, null).fetchDTO();
-    testBoolean = (AttributeBooleanType) TestDataSet.createAttribute("testBoolean", "testBooleanLocalName", testData.DISTRICT, AttributeBooleanType.TYPE).fetchDTO();
-    testDate = (AttributeDateType) TestDataSet.createAttribute("testDate", "testDateLocalName", testData.DISTRICT, AttributeDateType.TYPE).fetchDTO();
-    testInteger = (AttributeIntegerType) TestDataSet.createAttribute("testInteger", "testIntegerLocalName", testData.DISTRICT, AttributeIntegerType.TYPE).fetchDTO();
+    testTerm = (AttributeTermType) TestDataSet.createTermAttribute("testTerm", "testTermLocalName", USATestData.DISTRICT, null).fetchDTO();
+    testBoolean = (AttributeBooleanType) TestDataSet.createAttribute("testBoolean", "testBooleanLocalName", USATestData.DISTRICT, AttributeBooleanType.TYPE).fetchDTO();
+    testDate = (AttributeDateType) TestDataSet.createAttribute("testDate", "testDateLocalName", USATestData.DISTRICT, AttributeDateType.TYPE).fetchDTO();
+    testInteger = (AttributeIntegerType) TestDataSet.createAttribute("testInteger", "testIntegerLocalName", USATestData.DISTRICT, AttributeIntegerType.TYPE).fetchDTO();
 
     if (!SchedulerManager.initialized())
     {
@@ -142,7 +135,7 @@ public class ExcelServiceTest
   {
     clearData();
 
-    testData.logIn(testData.USER_NPS_RA);
+    testData.logIn(USATestData.USER_NPS_RA);
   }
 
   @After
@@ -165,14 +158,14 @@ public class ExcelServiceTest
   @Request
   public void testGetAttributeInformation()
   {
-    PostalCodeFactory.remove(testData.DISTRICT.getServerObject());
+    PostalCodeFactory.remove(USATestData.DISTRICT.getServerObject());
 
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
@@ -211,7 +204,7 @@ public class ExcelServiceTest
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
 
-    ServerGeoObjectType type = testData.DISTRICT.getServerObject();
+    ServerGeoObjectType type = USATestData.DISTRICT.getServerObject();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
@@ -225,7 +218,7 @@ public class ExcelServiceTest
     Assert.assertNotNull(istream);
 
     ExcelService service = new ExcelService();
-    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, ImportStrategy.NEW_AND_UPDATE, false);
 
     Assert.assertTrue(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
   }
@@ -254,7 +247,7 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
@@ -269,7 +262,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
     Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
@@ -298,10 +291,10 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-    configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
+    configuration.setFunction(testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
@@ -314,10 +307,10 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
-    Assert.assertEquals(new Long(123), object.getValue(this.testInteger.getName()));
+    Assert.assertEquals(new Long(123), object.getValue(testInteger.getName()));
   }
 
   @Test
@@ -331,10 +324,10 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-    configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
+    configuration.setFunction(testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
@@ -366,10 +359,10 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-    configuration.setFunction(this.testInteger.getName(), new BasicColumnFunction("Test Integer"));
+    configuration.setFunction(testInteger.getName(), new BasicColumnFunction("Test Integer"));
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
@@ -401,10 +394,10 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-    configuration.setFunction(this.testDate.getName(), new BasicColumnFunction("Test Date"));
+    configuration.setFunction(testDate.getName(), new BasicColumnFunction("Test Date"));
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
@@ -417,7 +410,7 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode());
 
     Calendar calendar = Calendar.getInstance();
     calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -425,7 +418,7 @@ public class ExcelServiceTest
     calendar.set(2018, Calendar.FEBRUARY, 12, 0, 0, 0);
 
     Assert.assertNotNull(object);
-    Assert.assertEquals(calendar.getTime(), object.getValue(this.testDate.getName()));
+    Assert.assertEquals(calendar.getTime(), object.getValue(testDate.getName()));
   }
 
   @Test
@@ -439,10 +432,10 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-    configuration.setFunction(this.testBoolean.getName(), new BasicColumnFunction("Test Boolean"));
+    configuration.setFunction(testBoolean.getName(), new BasicColumnFunction("Test Boolean"));
     configuration.setHierarchy(hierarchyType);
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
@@ -455,10 +448,10 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(this.testData.clientRequest.getSessionId(), "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertNotNull(object);
-    Assert.assertEquals(new Boolean(true), object.getValue(this.testBoolean.getName()));
+    Assert.assertEquals(new Boolean(true), object.getValue(testBoolean.getName()));
   }
 
   @Test
@@ -472,7 +465,7 @@ public class ExcelServiceTest
     ExcelService service = new ExcelService();
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
@@ -520,15 +513,15 @@ public class ExcelServiceTest
       GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory();
       Point point = geometryFactory.createPoint(new Coordinate(-104.991531, 39.742043));
 
-      GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.DISTRICT.getCode());
+      GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode());
       geoObj.setCode("00");
       geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
       geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
       geoObj.setGeometry(point);
-      geoObj.setValue(this.testTerm.getName(), term.getCode());
-      geoObj.setValue(this.testInteger.getName(), 23L);
-      geoObj.setValue(this.testDate.getName(), calendar.getTime());
-      geoObj.setValue(this.testBoolean.getName(), true);
+      geoObj.setValue(testTerm.getName(), term.getCode());
+      geoObj.setValue(testInteger.getName(), 23L);
+      geoObj.setValue(testDate.getName(), calendar.getTime());
+      geoObj.setValue(testBoolean.getName(), true);
 
       ServerGeoObjectIF serverGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).apply(geoObj, true, false);
       geoObj = RegistryService.getInstance().getGeoObjectByCode(Session.getCurrentSession().getOid(), serverGO.getCode(), serverGO.getType().getCode());
@@ -562,7 +555,7 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithParent() throws InterruptedException
   {
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), testData.STATE.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -578,14 +571,14 @@ public class ExcelServiceTest
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-    configuration.setStartDate(new Date());
-    configuration.setEndDate(new Date());
+    configuration.setStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
+    configuration.setEndDate(USATestData.DEFAULT_OVER_TIME_DATE);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(testData.STATE.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
+    configuration.addParent(new Location(USATestData.STATE.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
 
@@ -598,11 +591,11 @@ public class ExcelServiceTest
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
     String sessionId = testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
 
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { testData.STATE.getCode() }, false, new Date());
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -613,14 +606,14 @@ public class ExcelServiceTest
   @Request
   public void testImportExcelWithPostalCode() throws InterruptedException
   {
-    ServerGeoObjectType type = testData.DISTRICT.getServerObject();
+    ServerGeoObjectType type = USATestData.DISTRICT.getServerObject();
 
     PostalCodeFactory.addPostalCode(type, new LocationBuilder()
     {
       @Override
       public Location build(ShapefileFunction function)
       {
-        ServerGeoObjectType type = testData.STATE.getServerObject();
+        ServerGeoObjectType type = USATestData.STATE.getServerObject();
 
         DelegateShapefileFunction delegate = new DelegateShapefileFunction(function)
         {
@@ -633,11 +626,11 @@ public class ExcelServiceTest
           }
         };
 
-        return new Location(type, testData.HIER_ADMIN.getServerObject(), delegate, ParentMatchStrategy.ALL);
+        return new Location(type, USATestData.HIER_ADMIN.getServerObject(), delegate, ParentMatchStrategy.ALL);
       }
     });
 
-    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(this.testData.clientRequest.getSessionId(), this.testData.STATE.getCode());
+    GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
     geoObj.setCode("00");
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, "Test Label");
     geoObj.setUid(ServiceFactory.getIdService().getUids(1)[0]);
@@ -653,14 +646,14 @@ public class ExcelServiceTest
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
-    configuration.setStartDate(new Date());
-    configuration.setEndDate(new Date());
+    configuration.setStartDate(USATestData.DEFAULT_OVER_TIME_DATE);
+    configuration.setEndDate(USATestData.DEFAULT_END_TIME_DATE);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.STATE.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
+    configuration.addParent(new Location(USATestData.STATE.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
 
@@ -672,12 +665,12 @@ public class ExcelServiceTest
     Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    String sessionId = this.testData.clientRequest.getSessionId();
-    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
+    String sessionId = testData.clientRequest.getSessionId();
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
-
-    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { this.testData.STATE.getCode() }, false, new Date());
+    
+    ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), configuration.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
 
@@ -696,12 +689,12 @@ public class ExcelServiceTest
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
+    configuration.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
     configuration.addExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, "00");
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
@@ -733,12 +726,12 @@ public class ExcelServiceTest
 
     JSONObject json = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
 
-    configuration.addParent(new Location(this.testData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
+    configuration.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("Parent"), ParentMatchStrategy.ALL));
 
     ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
 
@@ -779,7 +772,7 @@ public class ExcelServiceTest
 
       JSONObject json = this.getTestConfiguration(istream, service, testTerm, ImportStrategy.NEW_AND_UPDATE);
 
-      ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+      ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
       GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
       configuration.setHierarchy(hierarchyType);
@@ -794,8 +787,8 @@ public class ExcelServiceTest
       Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-      String sessionId = this.testData.clientRequest.getSessionId();
-      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", testData.DISTRICT.getCode());
+      String sessionId = testData.clientRequest.getSessionId();
+      GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode());
 
       Assert.assertEquals("0001", object.getCode());
     }
@@ -819,7 +812,7 @@ public class ExcelServiceTest
 
     JSONObject json = this.getTestConfiguration(istream, service, testTerm, ImportStrategy.NEW_AND_UPDATE);
 
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(testData.HIER_ADMIN.getCode());
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
     configuration.setHierarchy(hierarchyType);
@@ -842,9 +835,9 @@ public class ExcelServiceTest
     JSONObject problem = results.getJSONObject(0);
 
     Assert.assertEquals("Test Term", problem.getString("label"));
-    Assert.assertEquals(this.testTerm.getRootTerm().getCode(), problem.getString("parentCode"));
-    Assert.assertEquals(this.testTerm.getName(), problem.getString("attributeCode"));
-    Assert.assertEquals(this.testTerm.getLabel().getValue(), problem.getString("attributeLabel"));
+    Assert.assertEquals(testTerm.getRootTerm().getCode(), problem.getString("parentCode"));
+    Assert.assertEquals(testTerm.getName(), problem.getString("attributeCode"));
+    Assert.assertEquals(testTerm.getLabel().getValue(), problem.getString("attributeLabel"));
 
     // Ensure the geo objects were not created
     ServerGeoObjectQuery query = new ServerGeoObjectService().createQuery(USATestData.DISTRICT.getServerObject(), configuration.getStartDate());
@@ -936,7 +929,7 @@ public class ExcelServiceTest
 
   private JSONObject getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)
   {
-    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, strategy);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "test-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

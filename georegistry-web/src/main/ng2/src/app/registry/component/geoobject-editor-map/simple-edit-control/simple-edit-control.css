@@ -1,0 +1,54 @@
+
+.mapboxgl-ctrl-group.mapboxgl-ctrl > button:hover {
+	cursor: pointer;
+}
+
+.map-button-info-hint-wrapper {
+	animation: fadeIn ease 2s;
+	-webkit-animation: fadeIn ease 2s;
+	-moz-animation: fadeIn ease 2s;
+	-o-animation: fadeIn ease 2s;
+	-ms-animation: fadeIn ease 2s;
+}
+
+@keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-moz-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-webkit-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-o-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-ms-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+
+.map-button-info-hint {
+	position: absolute;
+	top: 0;
+	right: 45px;
+	background: rgba(255,255,255,.9);
+	padding: 5px;
+	white-space: nowrap;
+}
+
+.map-button-pointer {
+	border: solid 15px transparent;
+    border-left-color: rgba(255,255,255,.9);
+    position: absolute;
+    margin: -29px 0 0 -16px;
+}

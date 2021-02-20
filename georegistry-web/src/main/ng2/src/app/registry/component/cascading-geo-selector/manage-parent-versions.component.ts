@@ -1,18 +1,48 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {
+	trigger,
+	style,
+	animate,
+	transition,
+} from '@angular/animations';
+
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
-import { HierarchyOverTime, PRESENT } from '@registry/model/registry';
+import { HierarchyOverTime, PRESENT, ValueOverTime } from '@registry/model/registry';
 
 import { RegistryService } from '@registry/service';
 import { LocalizationService } from '@shared/service';
 
+import * as moment from 'moment';
+import Utils from '@registry/utility/Utils';
+
 @Component({
 	selector: 'manage-parent-versions',
 	templateUrl: './manage-parent-versions.component.html',
-	styleUrls: []
+	styleUrls: [],
+	host: { '[@fadeInOut]': 'true' },
+	animations: [
+		[
+			trigger('fadeInOut', [
+				transition('void => *', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				]),
+				transition('* => void', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				])
+			])
+		]]
 })
 export class ManageParentVersionsComponent implements OnInit {
+	
+	currentDate : Date =new Date();
 
 	originalHierarchy: HierarchyOverTime;
 	@Input() hierarchy: HierarchyOverTime = null;
@@ -72,7 +102,7 @@ export class ManageParentVersionsComponent implements OnInit {
 			}
 		}
 
-		this.snapDates();
+		this.onDateChange();		
 	}
 
 	getTypeAheadObservable(date: string, type: any, entry: any, index: number): Observable<any> {
@@ -170,16 +200,74 @@ export class ManageParentVersionsComponent implements OnInit {
 	}
 
 	onDateChange(): any {
-		this.snapDates();
+
+		// check ranges
+		for (let j = 0; j < this.hierarchy.entries.length; j++) {
+			const h1 = this.hierarchy.entries[j];
+			h1.conflict = false;
+			h1.conflictMessage = [];
+
+			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
+				let s1: any = new Date(h1.startDate);
+				let e1: any = new Date(h1.endDate);
+				
+				if (Utils.dateEndBeforeStart(s1, e1)) {
+					h1.conflict = true;		
+					h1.conflictMessage.push(this.localizeService.decode("manage.versions.startdate.later.enddate.message")); 
+				}
+
+				for (let i = 0; i < this.hierarchy.entries.length; i++) {
+
+					if (j !== i) {
+						const h2 = this.hierarchy.entries[i];
+						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
+							let s2: any = new Date(h2.startDate);
+							let e2: any = new Date(h2.endDate);
+
+							// Determine if there is an overlap
+							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+								h1.conflict = true;
+								h1.conflictMessage.push(this.localizeService.decode("manage.versions.overlap.message"));
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		this.sort(this.hierarchy);
 	}
 
-	snapDates() {
-		var dateOffset = (24 * 60 * 60 * 1000) * 1; //1 days
+	formatDateString(dateObj: Date): string {
+		const day = dateObj.getUTCDate();
 
-		this.hasDuplicateDate = false;
+		return dateObj.getUTCFullYear() + "-" + (dateObj.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
+	}
 
-		// Sort the data
-		this.hierarchy.entries.sort(function(a, b) {
+	formatDate(date: string) {
+		let localeData = moment.localeData(date);
+		var format = localeData.longDateFormat('L');
+		return moment().format(format);
+		
+//		return this.localizeService.formatDateForDisplay(date);
+	}
+	
+	setInfinity(vAttribute, hierarchyOverTime: HierarchyOverTime): void {
+		
+		if(vAttribute.endDate === PRESENT){
+			vAttribute.endDate = new Date();
+		}
+		else{
+			vAttribute.endDate = PRESENT
+		}
+		
+		this.onDateChange();
+	}
+	
+	sort(hierarchyOverTime: HierarchyOverTime): void {
+		
+		// Sort the data by start date 
+		hierarchyOverTime.entries.sort(function(a, b) {
 
 			if (a.startDate == null || a.startDate === '') {
 				return 1;
@@ -192,32 +280,6 @@ export class ManageParentVersionsComponent implements OnInit {
 			let next: any = new Date(b.startDate);
 			return first - next;
 		});
-
-
-		for (let i = 1; i < this.hierarchy.entries.length; i++) {
-			let prev = this.hierarchy.entries[i - 1];
-			let current = this.hierarchy.entries[i];
-
-			prev.endDate = this.formatDateString(new Date(new Date(current.startDate).getTime() - dateOffset));
-
-			if (prev.startDate === current.startDate) {
-				this.hasDuplicateDate = true;
-			}
-		}
-
-		if (this.hierarchy.entries.length > 0) {
-			this.hierarchy.entries[this.hierarchy.entries.length - 1].endDate = PRESENT;
-		}
-	}
-
-	formatDateString(dateObj: Date): string {
-		const day = dateObj.getUTCDate();
-
-		return dateObj.getUTCFullYear() + "-" + (dateObj.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
-	}
-	
-	formatDate(date: string): string {
-		return this.localizeService.formatDateForDisplay(date);
 	}
 	
 	onSubmit(): void {

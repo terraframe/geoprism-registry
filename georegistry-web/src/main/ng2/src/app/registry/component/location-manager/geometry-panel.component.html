@@ -22,7 +22,7 @@
                           <localize key="changeovertime.manageVersions.no.versions.message"></localize>
                         </p>
 
-                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
+                        <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;" [ngClass]="{'error-border': vAttribute.conflict}">
                           <td>
                             <table>
                               <tr class="attribute-value-row">
@@ -39,13 +39,35 @@
                                   </h5> <input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange($event, vAttribute)" required>
                                 </td>
                                 <td>
-                                  <h5>
-                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
-                                  </h5>
-                                  <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" disabled>
-                                  <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+                                  <div class="version-edit-date-container">
+                                      <h5>
+                                        <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
+                                      </h5>
+                                      
+                                      <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange()" required>
+                                      <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+                                    
+                                      <p class="text-right">
+                                        <a *ngIf="vAttribute.endDate === '5000-12-31'" (click)="setInfinity(vAttribute, geoObjectOverTime.attributes['geometry'].values)"><localize key="manage.versions.enddate.set.date.button"></localize></a>
+                                        <a *ngIf="vAttribute.endDate !== '5000-12-31'" (click)="setInfinity(vAttribute, geoObjectOverTime.attributes['geometry'].values)"><localize key="manage.versions.enddate.set.current.button"></localize></a>
+                                      </p>
+                                      
+                                      <div class="form-input-validation-error-message-wrapper">
+                                        <p *ngIf="!vAttribute.endDate" class="error-message">
+                                          <localize key="manage.versions.end.date.required.message"></localize>
+                                        </p>
+                                      </div>
+                                    </div>
                                 </td>
                               </tr>
+                              <tr *ngIf="vAttribute.conflict">
+<!--                                   <p class="error-message"> -->
+<!--                                     <localize key="manage.versions.overlap.message"></localize> -->
+<!--                                   </p> -->
+                                  <p *ngFor="let msg of vAttribute.conflictMessage" class="error-message">
+                                    {{msg}}
+                                  </p>
+                              </tr>    
                             </table>
                           </td>
                           <td style="vertical-align: middle;" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize" (click)="remove(vAttribute)">

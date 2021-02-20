@@ -6,7 +6,7 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-      <div id="navigator-left-sidebar" class="col-md-3 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
+      <div id="navigator-left-sidebar" class="col-md-5 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
         <div>
           <div class="row">
             <div class="col-md-12">
@@ -87,7 +87,7 @@
         </div>            
       </div>
 
-      <div class="col-md-9" id="site-explorer-map">
+      <div class="col-md-7" id="site-explorer-map">
         <div class="row">
           
           <article class="base-layer-panel">
@@ -95,7 +95,7 @@
           </article>
 
           <div id="map" class="map-view-port"></div>
-          <simple-edit-control [visible]="editingControl != null" [save]="true" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control>
+          <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control>
           
         </div>
       </div>

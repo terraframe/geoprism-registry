@@ -122,6 +122,10 @@ input[type="text"]:disabled:-webkit-autofill:focus {
     border-color: var(--theme-input-text-border-disabled);
 }
 
+input[type="date"]:hover {
+	cursor: pointer;
+}
+
 input[type=search] {
 	background-color: white !important;
 }
@@ -196,6 +200,12 @@ textarea.ng-invalid:required {
     color: var(--theme-alert-color);
     font-size: 14px;
     margin: 5px 0 0 0;
+}
+
+.error-border {
+    border-color: #e30000;
+    border-style: dashed;
+    border-width: 2px;
 }
 
 input.inline-loading {    

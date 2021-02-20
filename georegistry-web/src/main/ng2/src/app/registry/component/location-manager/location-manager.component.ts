@@ -34,6 +34,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     VIEW: 1,
   }
 
+  editSessionEnabled: boolean = false;
+
   bsModalRef: BsModalRef;
 
     /* 
@@ -226,6 +228,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     this.map.on('click', 'children-polygon', (event: any) => {
       this.handleMapClickEvent(event);
     });
+
+	this.map.on('draw.selectionchange', (e: any) => {
+			if(e.features.length > 0 || e.points.length > 0) {
+				this.editSessionEnabled = true;
+			}
+			else {
+				this.editSessionEnabled = false;
+			}
+	});
   }
 
   handleMapClickEvent(event: any): void {

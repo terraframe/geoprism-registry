@@ -8,8 +8,10 @@ import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import { ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
 import { MapService, RegistryService } from '@registry/service';
 import { AuthService } from '@shared/service';
-import { ErrorModalComponent, ErrorHandler } from '@shared/component';
+import { ErrorHandler } from '@shared/component';
 import { Subject } from 'rxjs';
+
+import { LocalizationService } from '@shared/service';
 
 declare var acp: string;
 
@@ -27,6 +29,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		ATTRIBUTES: 'ATTRIBUTES',
 		HIERARCHY: 'HIERARCHY'
 	}
+	
+	editSessionEnabled: boolean = false;
 
 	toolsIconHover: boolean = false;
 
@@ -67,13 +71,13 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 			url: 'mapbox://mapbox.satellite',
 			selected: true
 		},
-		// {
-		// 	name: 'Streets',
-		// 	label: 'Streets',
-		// 	id: 'streets-v9',
-		// 	sprite: 'mapbox://sprites/mapbox/basic-v9',
-		// 	url: 'mapbox://mapbox.basic-v9'
-		// }
+//		 {
+//		 	name: 'Streets',
+//		 	label: 'Streets',
+//		 	id: 'streets-v11',
+//		 	sprite: 'mapbox://sprites/mapbox/basic-v11',
+//		 	url: 'mapbox://styles/mapbox/streets-v11'
+//		 }
 	];
 
 
@@ -90,23 +94,22 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	vot: ValueOverTime;
 
-	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, authService: AuthService) {
+	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, authService: AuthService, private lService: LocalizationService) {
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 	}
 
 	ngOnInit(): void {
-		this.mapService.init();
 
 		this.datasetId = this.route.snapshot.params["datasetId"];
 		this.typeCode = this.route.snapshot.params["typeCode"];
 		this.date = this.route.snapshot.params["date"];
 		this.readOnly = this.route.snapshot.params["readOnly"] === 'true';
 		this.editOnly = this.route.snapshot.params["editOnly"] === 'true';
-		
+
 		if (this.route.snapshot.params["code"] != null) {
 			this.code = this.route.snapshot.params["code"];
 		}
-		
+
 		this.forDate = new Date(Date.parse(this.date));
 
 		this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
@@ -134,7 +137,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 					"mapbox:autocomposite": true
 				},
 				"sources": {
-					"mapbox": {
+					"mapbox-satellite": {
 						"type": "raster",
 						"url": layer.url,
 						"tileSize": 256
@@ -143,12 +146,11 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 				"sprite": layer.sprite,
 				"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
 				"layers": [
-					{
-						"id": layer.id,
-						"type": 'raster',
-						"source": 'mapbox',
-						// "source-layer": "mapbox_satellite_full"
-					}
+//					{
+//						"id": layer.id,
+//						"type": 'raster',
+//						"source": 'mapbox-satellite',
+//					}
 				]
 			},
 			zoom: 2,
@@ -168,22 +170,21 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 
 	initMap(): void {
-    this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
-      let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+		this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
+			let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-      let padding = 50;
-      let maxZoom = 20;
-      
-      // Zoom level was requested to be reduced when displaying point types as per #420
-      if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT")
-      {
-        padding = 100;
-        maxZoom = 12;
-      }
-      
-      this.map.fitBounds(llb, { padding: padding, animate:false, maxZoom: maxZoom });
-    });
-    
+			let padding = 50;
+			let maxZoom = 20;
+
+			// Zoom level was requested to be reduced when displaying point types as per #420
+			if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
+				padding = 100;
+				maxZoom = 12;
+			}
+
+			this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
+		});
+
 
 		this.map.on('style.load', () => {
 			this.addLayers();
@@ -204,56 +205,61 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		});
 
 
-		//		this.map.on('draw.selectionchange', (e: any) => {
-		//			if (this.vot != null && e.features.length === 0) {
-		//				const geometry = this.getDrawGeometry();
-		//				this.vot.value = geometry;
-		//			}
-		//		});
+		this.map.on('draw.selectionchange', (e: any) => {
+			if(e.features.length > 0 || e.points.length > 0) {
+				this.editSessionEnabled = true;
+			}
+			else {
+				this.editSessionEnabled = false;
+			}
+		});
 
 		this.addVectorLayer(this.datasetId);
 	}
 
 	addLayers(): void {
-
+			
+		this.map.addLayer({
+			"type": "raster",
+			"id": 'satellite-map',
+			"source": "mapbox-satellite"
+		});
+			
 		this.vectorLayers.forEach(vLayer => {
 			this.addVectorLayer(vLayer);
 		});
 	}
 
 	handleBasemapStyle(layer: any): void {
-		// this.map.setStyle('mapbox://styles/mapbox/' + layer.id);
 
-		this.baseLayers.forEach(baseLayer => {
-			baseLayer.selected = false;
-		});
-
-		layer.selected = true;
-
-		this.map.setStyle({
-			"version": 8,
-			"name": layer.name,
-			"metadata": {
-				"mapbox:autocomposite": true
-			},
-			"sources": {
-				"mapbox": {
-					"type": "raster",
-					"url": layer.url,
-					"tileSize": 256
+		if(layer.id === "streets-v11"){
+			this.map.setStyle(layer.url);
+		}
+		else if(layer.id === "satellite-v9"){
+			this.map.setStyle({
+				"version": 8,
+				"name": layer.name,
+				"metadata": {
+					"mapbox:autocomposite": true
 				},
-			},
-			"sprite": layer.sprite,
-			"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
-			"layers": [
-				{
-					"id": layer.id,
-					"type": 'raster',
-					"source": 'mapbox',
-					// "source-layer": "mapbox_satellite_full"
-				}
-			]
-		});
+				"sources": {
+					"mapbox-satellite": {
+						"type": "raster",
+						"url": layer.url,
+						"tileSize": 256
+					},
+				},
+				"sprite": layer.sprite,
+				"glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
+				"layers": [
+					{
+						"id": layer.id,
+						"type": 'raster',
+						"source": 'mapbox-satellite',
+					}
+				]
+			});
+		}
 	}
 
 	onContextLayerChange(layer: ContextLayer): void {
@@ -601,6 +607,10 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	onNewGeoObject(): void {
 		this.code = '__NEW__';
+	}
+	
+	formatDate(date: string): string {
+		return this.lService.formatDateForDisplay(date);
 	}
 
 

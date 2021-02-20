@@ -6,11 +6,14 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-      <div *ngIf="type != null && code != null" id="navigator-left-sidebar" class="col-md-3 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
+      <div *ngIf="type != null && code != null" id="navigator-left-sidebar" class="col-md-5 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
         <div class="row">
           <div class="col-md-12">
             
-            <h3></h3>
+            <div id="attributes-header">
+              <h3 *ngIf="type">{{type.label.localizedValue}}</h3>
+              <h4>Vallid on: {{formatDate(forDate)}}</h4>
+            </div>
             
             <feature-panel
               [type]="type"
@@ -27,11 +30,11 @@
         </div>
       </div>
 
-      <div [ngClass]="{'col-md-9':code != null, 'col-md-12':code == null}" id="site-explorer-map">
+      <div [ngClass]="{'col-md-7':code != null, 'col-md-12':code == null}" id="site-explorer-map">
         <div class="row">
 
           <article class="base-layer-panel">
-            <layer-panel (layerChange)="onContextLayerChange($event)" [filter]="[datasetId]"></layer-panel>
+            <layer-panel (layerChange)="onContextLayerChange($event)" (baseLayerChange)="handleBasemapStyle($event)" [filter]="[datasetId]"></layer-panel>
             
             <div *ngIf="!editOnly" class="layer-toggle" style="margin-top:10px;" (mouseenter)="toolsIconHover = true" (mouseleave)="toolsIconHover = false">
              
@@ -49,7 +52,7 @@
           </article>
 
           <div id="dataset-map" class="map-view-port"></div>     
-          <simple-edit-control [visible]="editingControl != null" [save]="true" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
+          <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
           
 <!--           <span *ngIf="!readOnly" (click)="onNewGeoObject()" style="position: absolute; bottom: 70px; right: 10px" role="button"> -->
 <!--             <button class="btn btn-primary"> -->

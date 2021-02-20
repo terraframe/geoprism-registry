@@ -14,6 +14,7 @@ export class LayerPanelComponent implements OnInit, OnChanges {
 
 	@Input() filter: string[] = [];
 	@Output() layerChange = new EventEmitter<ContextLayer>();
+	@Output() baseLayerChange = new EventEmitter<any>();
 
 	baselayerIconHover = false;
 
@@ -32,6 +33,13 @@ export class LayerPanelComponent implements OnInit, OnChanges {
 			url: 'mapbox://mapbox.satellite',
 			selected: true
 		},
+//		 {
+//		 	name: 'Streets',
+//		 	label: 'baselayer.streets',
+//		 	id: 'streets-v11',
+//		 	sprite: 'mapbox://sprites/mapbox/streets-v11',
+//		 	url: 'mapbox://styles/mapbox/streets-v11'
+//		 }
 	];
 
 	contextLayerGroups: ContextLayerGroup[] = [];
@@ -144,5 +152,14 @@ export class LayerPanelComponent implements OnInit, OnChanges {
 	}
 
 
+	toggleBaseLayer(layer: any): void {
+		this.baseLayers.forEach(bl => {
+			bl.active = false;
+		})
+		
+		layer.active = true;
+
+		this.baseLayerChange.emit(layer);
+	}
 
 }

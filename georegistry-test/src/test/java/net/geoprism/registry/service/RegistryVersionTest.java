@@ -101,7 +101,7 @@ public class RegistryVersionTest
       Assert.assertEquals("1990-02-01", dateFormat.format(allStatus.get(1).getStartDate()));
       Assert.assertEquals("1990-02-28", dateFormat.format(allStatus.get(1).getEndDate()));
       Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
-      Assert.assertEquals(dateFormat.format(ValueOverTime.INFINITY_END_DATE), dateFormat.format(allStatus.get(2).getEndDate()));
+      Assert.assertEquals("1990-03-31", dateFormat.format(allStatus.get(2).getEndDate()));
       
       Geometry expectedGeom = testData.PROV_CENTRAL.fetchGeoObject().getGeometry();
       Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
@@ -169,13 +169,13 @@ public class RegistryVersionTest
       ServerGeoObjectIF serverObj = geoObj.getServerObject();
       serverObj.getValuesOverTime("status").clear();
       
-      serverObj.setStatus(GeoObjectStatus.INACTIVE, dateFormat.parse("01-01-1990"), null);
+      serverObj.setStatus(GeoObjectStatus.INACTIVE, dateFormat.parse("01-01-1990"), dateFormat.parse("01-31-1990"));
       Assert.assertEquals(GeoObjectStatus.INACTIVE.getOid(), ((Set<String>)serverObj.getValue("status", dateFormat.parse("01-01-1990"))).iterator().next());
       
-      serverObj.setStatus(GeoObjectStatus.NEW, dateFormat.parse("02-01-1990"), null);
+      serverObj.setStatus(GeoObjectStatus.NEW, dateFormat.parse("02-01-1990"), dateFormat.parse("02-28-1990"));
       Assert.assertEquals(GeoObjectStatus.INACTIVE.getOid(), ((Set<String>)serverObj.getValue("status", dateFormat.parse("01-01-1990"))).iterator().next());
       
-      serverObj.setStatus(GeoObjectStatus.PENDING, dateFormat.parse("03-01-1990"), null);
+      serverObj.setStatus(GeoObjectStatus.PENDING, dateFormat.parse("03-01-1990"), dateFormat.parse("03-31-1990"));
       
       Assert.assertEquals(GeoObjectStatus.INACTIVE.getOid(), ((Set<String>)serverObj.getValue("status", dateFormat.parse("01-01-1990"))).iterator().next());
       

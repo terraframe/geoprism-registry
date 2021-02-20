@@ -39,3 +39,11 @@
 .layer-toggle label {
 	margin-left: 5px;
 }
+
+#attributes-header {
+	background: #676767;
+    padding: 2px 15px;
+    margin: 10px 0;
+    color: white;
+    border-radius: 3px;
+}

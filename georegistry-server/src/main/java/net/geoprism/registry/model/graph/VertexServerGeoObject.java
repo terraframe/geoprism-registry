@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.model.graph;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -222,7 +225,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     // Populate the correct geom field
     String geometryAttribute = this.getGeometryAttributeName();
 
-    this.getVertex().setValue(geometryAttribute, geometry, this.date, null);
+    this.getVertex().setValue(geometryAttribute, geometry, this.date, this.date);
   }
 
   @Override
@@ -246,13 +249,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setStatus(GeoObjectStatus status)
   {
-    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), this.date, null);
+    if (status != null)
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), this.date, this.date);
+    }
+    else
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), null, this.date, this.date);
+    }
   }
 
   @Override
   public void setStatus(GeoObjectStatus status, Date startDate, Date endDate)
   {
-    this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), startDate, endDate);
+    if (status != null)
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), status.getOid(), startDate, endDate);
+    }
+    else
+    {
+      this.vertex.setValue(DefaultAttribute.STATUS.getName(), null, startDate, endDate);
+    }
   }
 
   @Override
@@ -284,7 +301,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setUid(String uid)
   {
-    this.vertex.setValue(RegistryConstants.UUID, uid, this.date, null);
+    this.vertex.setValue(RegistryConstants.UUID, uid, this.date, this.date);
   }
 
   @Override
@@ -334,7 +351,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
     else
     {
-      this.vertex.setValue(attributeName, value, null, null);
+      this.vertex.setValue(attributeName, value, this.date, this.date);
     }
   }
 
@@ -379,11 +396,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
             String classifierKey = Classifier.buildKey(parent, code);
             Classifier classifier = Classifier.getByKey(classifierKey);
 
-            this.vertex.setValue(attributeName, classifier.getOid(), this.date, null);
+            this.vertex.setValue(attributeName, classifier.getOid(), this.date, this.date);
           }
           else
           {
-            this.vertex.setValue(attributeName, (String) null, this.date, null);
+            this.vertex.setValue(attributeName, (String) null, this.date, this.date);
           }
         }
         else
@@ -392,11 +409,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
           if (value != null)
           {
-            this.vertex.setValue(attributeName, value, this.date, null);
+            this.vertex.setValue(attributeName, value, this.date, this.date);
           }
           else
           {
-            this.vertex.setValue(attributeName, (String) null, this.date, null);
+            this.vertex.setValue(attributeName, (String) null, this.date, this.date);
           }
         }
       }
@@ -1031,18 +1048,113 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     edges.add(newEdge);
 
-    // // An entry already exists at the given start time
-    this.calculateEndDates(edges);
+    // An entry already exists at the given start time
+    // this.calculateEndDates(edges);
+    this.calculateStartDates(edges, startDate, endDate);
 
     for (EdgeObject e : edges)
     {
       e.apply();
     }
 
+    newEdge.apply();
+
     ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, startDate);
     node.addParent(new ServerParentTreeNode(parent, hierarchyType, startDate));
 
     return node;
+  }
+
+  private void calculateStartDates(SortedSet<EdgeObject> edges, Date startDate, Date endDate)
+  {
+    if (startDate != null && endDate != null)
+    {
+      Iterator<EdgeObject> it = edges.iterator();
+      LocalDate iStartDate = startDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+      LocalDate iEndDate = endDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+
+      List<EdgeObject> segments = new LinkedList<EdgeObject>();
+
+      while (it.hasNext())
+      {
+        EdgeObject vot = it.next();
+
+        Date vSDate = vot.getObjectValue(GeoVertex.START_DATE);
+        Date vEDate = vot.getObjectValue(GeoVertex.END_DATE);
+
+        LocalDate vStartDate = vSDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+        LocalDate vEndDate = vEDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+
+        // Remove the entry completely if its a subset of the startDate and
+        // endDate range
+        if (isAfterOrEqual(vStartDate, iStartDate) && isBeforeOrEqual(vEndDate, iEndDate))
+        {
+          it.remove();
+
+          vot.delete();
+        }
+        // If the entry is extends after the end date then move the start
+        // date of the entry to the end of the clear range
+        else if (isAfterOrEqual(vStartDate, iStartDate) && vEndDate.isAfter(iEndDate) && isAfterOrEqual(iEndDate, vStartDate))
+        {
+          vot.setValue(GeoVertex.START_DATE, this.calculateDatePlusOneDay(endDate));
+        }
+        // If the entry is extends before the start date then move the end
+        // date of the entry to the start of the clear range
+        else if (vStartDate.isBefore(iStartDate) && isBeforeOrEqual(vEndDate, iEndDate) && isBeforeOrEqual(iStartDate, vEndDate))
+        {
+          vot.setValue(GeoVertex.END_DATE, this.calculateDateMinusOneDay(startDate));
+        }
+        else if (vStartDate.isBefore(iStartDate) && vEndDate.isAfter(iEndDate))
+        {
+          it.remove();
+
+          vot.delete();
+
+          EdgeObject startSegment = vot.getChild().addParent(vot.getParent(), (MdEdgeDAOIF) vot.getMdClass());
+          startSegment.setValue(GeoVertex.START_DATE, vSDate);
+          startSegment.setValue(GeoVertex.END_DATE, this.calculateDateMinusOneDay(startDate));
+
+          EdgeObject endSegment = vot.getChild().addParent(vot.getParent(), (MdEdgeDAOIF) vot.getMdClass());
+          endSegment.setValue(GeoVertex.START_DATE, this.calculateDatePlusOneDay(endDate));
+          endSegment.setValue(GeoVertex.END_DATE, vEDate);
+
+          segments.add(startSegment);
+          segments.add(endSegment);
+        }
+      }
+
+      for (EdgeObject segment : segments)
+      {
+        edges.add(segment);
+      }
+    }
+  }
+
+  protected Date calculateDateMinusOneDay(Date source)
+  {
+    LocalDate localEnd = source.toInstant().atZone(ZoneId.of("Z")).toLocalDate().minusDays(1);
+    Instant instant = localEnd.atStartOfDay().atZone(ZoneId.of("Z")).toInstant();
+
+    return Date.from(instant);
+  }
+
+  protected Date calculateDatePlusOneDay(Date source)
+  {
+    LocalDate localEnd = source.toInstant().atZone(ZoneId.of("Z")).toLocalDate().plusDays(1);
+    Instant instant = localEnd.atStartOfDay().atZone(ZoneId.of("Z")).toInstant();
+
+    return Date.from(instant);
+  }
+
+  private boolean isAfterOrEqual(LocalDate date1, LocalDate date2)
+  {
+    return date1.isAfter(date2) || date2.isEqual(date1);
+  }
+
+  private boolean isBeforeOrEqual(LocalDate date1, LocalDate date2)
+  {
+    return date1.isBefore(date2) || date2.isEqual(date1);
   }
 
   @Override

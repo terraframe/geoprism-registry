@@ -54,6 +54,7 @@ import net.geoprism.registry.service.MasterListTest;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestUserInfo;
+import net.geoprism.registry.test.USATestData;
 
 public class PublishMasterListJobTest
 {
@@ -137,7 +138,7 @@ public class PublishMasterListJobTest
       final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
     }
     finally
     {
@@ -222,7 +223,7 @@ public class PublishMasterListJobTest
       final JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       final JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
     }
     finally
     {
@@ -249,7 +250,7 @@ public class PublishMasterListJobTest
       JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
 
       result.addProperty(MasterList.FREQUENCY, ChangeFrequency.QUARTER.name());
 
@@ -284,14 +285,14 @@ public class PublishMasterListJobTest
       JsonObject object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       JsonArray json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
 
       service.create(testData.clientRequest.getSessionId(), result);
 
       object = service.getVersions(testData.clientRequest.getSessionId(), oid, MasterListVersion.PUBLISHED);
       json = object.get(MasterList.VERSIONS).getAsJsonArray();
 
-      Assert.assertEquals(1, json.size());
+      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
     }
     finally
     {
