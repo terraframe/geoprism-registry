@@ -43,13 +43,12 @@
         </div>
 
         <div class="button-holder text-right" style="margin:40px 0 20px 0;">
-<!--           Removed ability to edit to meet requirements of no Sys Admin, RA, or RM to be able to edit -->
-<!--           <button *ngIf="readOnly" (click)="startEdit()" class="btn btn-primary detail-accept"> -->
-<!--             <localize key="modal.button.edit"></localize> -->
-<!--           </button> -->
-<!--           <button *ngIf="!readOnly" (click)="endEdit()" class="btn btn-default detail-reject"> -->
-<!--             <localize key="modal.button.cancel"></localize> -->
-<!--           </button> -->
+          <button *ngIf="readOnly && action.createdBy === getUsername()" (click)="startEdit()" class="btn btn-primary detail-accept">
+            <localize key="modal.button.edit"></localize>
+          </button>
+          <button *ngIf="!readOnly && action.createdBy === getUsername()" (click)="endEdit()" class="btn btn-default detail-reject">
+            <localize key="modal.button.cancel"></localize>
+          </button>
           <button *ngIf="!readOnly" (click)="applyAction()" class="btn btn-primary detail-accept">
             <localize key="modal.button.submit"></localize>
           </button>

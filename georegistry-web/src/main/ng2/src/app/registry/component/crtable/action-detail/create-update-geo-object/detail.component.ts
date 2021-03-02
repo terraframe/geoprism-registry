@@ -1,5 +1,5 @@
-import { Input, Component, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, ViewEncapsulation, HostListener } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Input, Component, ViewChild, ViewEncapsulation, HostListener } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -10,9 +10,9 @@ import { AbstractAction } from '@registry/model/crtable';
 
 import { RegistryService, ChangeRequestService } from '@registry/service';
 
-import { ComponentCanDeactivate } from "@shared/service";
+import { ComponentCanDeactivate, AuthService } from "@shared/service";
 
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler } from '@shared/component';
 
 import { ActionDetailComponent } from '../action-detail-modal.component';
 
@@ -55,7 +55,8 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     forDate: Date = null;
 
 
-    constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService ) {
+    constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, 
+				private registryService: RegistryService, private authService: AuthService ) {
 
         this.forDate = new Date();
 
@@ -125,7 +126,6 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
                 this.preGeoObject = geoObject;
 
             } ).catch(( err: HttpErrorResponse ) => {
-                console.log( "Error", err );
                 this.error( err );
             } );
         }
@@ -193,6 +193,10 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
             async: false
         } );
     }
+
+	getUsername(): string {
+		return this.authService.getUsername();
+	}
 
     public error( err: HttpErrorResponse ): void {
             this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

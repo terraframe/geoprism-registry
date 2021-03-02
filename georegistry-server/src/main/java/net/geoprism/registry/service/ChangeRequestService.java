@@ -274,6 +274,15 @@ public class ChangeRequestService
 
     return request.getDetails();
   }
+  
+  @Request(RequestType.SESSION)
+  public JSONObject deleteChangeRequest(String sessionId, String requestId)
+  {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    request.delete();
+
+    return request.getDetails();
+  }
 
   @Request(RequestType.SESSION)
   public String lockAction(String sessionId, String actionId)

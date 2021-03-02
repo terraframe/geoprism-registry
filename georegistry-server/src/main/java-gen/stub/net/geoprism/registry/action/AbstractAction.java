@@ -95,6 +95,7 @@ public abstract class AbstractAction extends AbstractActionBase
     jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0).getEnumName());
     jo.put("statusLabel", status.getDisplayLabel());
     jo.put(AbstractAction.CREATEACTIONDATE, format.format(this.getCreateActionDate()));
+    jo.put(AbstractAction.CREATEDBY, this.getCreatedBy());
 
     SingleActor decisionMaker = this.getDecisionMaker();
 

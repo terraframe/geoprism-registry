@@ -87,6 +87,31 @@ export class RequestTableComponent {
 			});
 		}
 	}
+	
+	onDelete(changeRequest: ChangeRequest): void {
+
+		if (changeRequest != null) {
+			const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
+			});
+			
+			bsModalRef.content.type = "DANGER";
+			bsModalRef.content.submitText = this.localizationService.decode('change.request.delete.request.confirm.btn');
+			bsModalRef.content.message = this.localizationService.decode('change.request.delete.request.message');
+
+			bsModalRef.content.onConfirm.subscribe(data => {
+				this.service.delete(changeRequest.oid).then(request => {
+					changeRequest = request;
+	
+					this.refresh();
+				}).catch((response: HttpErrorResponse) => {
+					this.error(response);
+				});
+			});
+		}
+	}
 
 	// onConfirmChangeRequest(request: any): void {
 
@@ -234,6 +259,10 @@ export class RequestTableComponent {
 	
 	formatDate(date: string): string {
 		return this.localizationService.formatDateForDisplay(date);
+	}
+	
+	getUsername(): string {
+		return this.authService.getUsername();
 	}
 
 }
