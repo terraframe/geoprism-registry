@@ -37,7 +37,7 @@ public class MetadataGetResponse<T> extends DHIS2Response
 
   private System system;
   
-  private List<T> objects;
+  private List<T> objects = new ArrayList<T>();
   
   private String objectNamePlural;
   
