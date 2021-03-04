@@ -38,7 +38,7 @@ public class MetadataImportResponse extends DHIS2ImportResponse
   
   private Stats stats;
   
-  private List<TypeReport> typeReports;
+  private List<TypeReport> typeReports = new ArrayList<TypeReport>();
   
   public MetadataImportResponse(String response, int statusCode)
   {
