@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl } from 'mapbox-gl';
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
@@ -33,6 +34,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     SEARCH: 0,
     VIEW: 1,
   }
+
+  urlSubscriber: any;
 
   editSessionEnabled: boolean = false;
 
@@ -136,15 +139,29 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   editingControl: any;
 
 
-  constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService) {
+  constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService, private route: ActivatedRoute) {
     mapService.init();
   }
 
   ngOnInit(): void {
+	this.urlSubscriber = this.route.params.subscribe(params => {
+       let geoObjectCode = params['geoobjectcode'];
+	   let geoObjectTypeCode = params['geoobjecttypecode'];
+
+		if(geoObjectCode && geoObjectTypeCode){
+			this.service.getGeoObject(geoObjectCode, geoObjectTypeCode).then(geoObj => {
+				this.setData([geoObj]);
+				this.select(geoObj, null);
+			}).catch((err: HttpErrorResponse) => {
+				this.error(err);
+			});
+		}
+	});
   }
 
   ngOnDestroy(): void {
     this.map.remove();
+	this.urlSubscriber.unsubscribe();
   }
 
   ngAfterViewInit() {
@@ -237,6 +254,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 				this.editSessionEnabled = false;
 			}
 	});
+	
+	// Set map data on page load with URL params (single Geo-Object)
+	if(this.data){
+		let fc = {"type":"FeatureCollection", "features":this.data};
+		(<any>this.map.getSource('children')).setData(fc);
+		
+		this.zoomToFeature(this.data[0], null);
+	}
   }
 
   handleMapClickEvent(event: any): void {
