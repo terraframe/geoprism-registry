@@ -384,7 +384,7 @@ public class UserInfo extends UserInfoBase
 
     if (account.has(UserInfo.ALTFIRSTNAME))
     {
-      info.setAltFirstName(account.get(UserInfo.ALTFIRSTNAME).toString());
+      info.setAltFirstName(account.get(UserInfo.ALTFIRSTNAME).getAsString());
     }
     else
     {
@@ -393,7 +393,7 @@ public class UserInfo extends UserInfoBase
 
     if (account.has(UserInfo.ALTLASTNAME))
     {
-      info.setAltLastName(account.get(UserInfo.ALTLASTNAME).toString());
+      info.setAltLastName(account.get(UserInfo.ALTLASTNAME).getAsString());
     }
     else
     {
@@ -402,7 +402,7 @@ public class UserInfo extends UserInfoBase
 
     if (account.has(UserInfo.ALTPHONENUMBER))
     {
-      info.setAltPhoneNumber(account.get(UserInfo.ALTPHONENUMBER).toString());
+      info.setAltPhoneNumber(account.get(UserInfo.ALTPHONENUMBER).getAsString());
     }
     else
     {
@@ -411,7 +411,7 @@ public class UserInfo extends UserInfoBase
 
     if (account.has(UserInfo.POSITION))
     {
-      info.setPosition(account.get(UserInfo.POSITION).toString());
+      info.setPosition(account.get(UserInfo.POSITION).getAsString());
     }
     else
     {
@@ -420,7 +420,7 @@ public class UserInfo extends UserInfoBase
 
     if (account.has(UserInfo.DEPARTMENT))
     {
-      info.setDepartment(account.get(UserInfo.DEPARTMENT).toString());
+      info.setDepartment(account.get(UserInfo.DEPARTMENT).getAsString());
     }
     else
     {

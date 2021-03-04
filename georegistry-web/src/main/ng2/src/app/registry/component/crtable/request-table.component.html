@@ -167,7 +167,7 @@
                         <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
                       </div>  
                       
-                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default " style="float:right;margin:0;" role="button">
+                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default pull-right" style="margin:0;" role="button">
                         <localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
                       </button>
                       
@@ -184,6 +184,7 @@
                           </span>
                           <label>{{req.phoneNumber}}</label>
                       </div>
+                      
                     </div>
                     
                     <div class="col-md-4" >
@@ -206,6 +207,10 @@
                         <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
                         <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
                       </div>  
+                      
+                      <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" style="width:100%;" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
+                          <localize key="change.request.modify.geoobject.link.btn"></localize> ({{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}})
+                      </a>
                     </div>
                   </div>
                 </div> <!-- END action-card -->
