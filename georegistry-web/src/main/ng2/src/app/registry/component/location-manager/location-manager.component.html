@@ -10,16 +10,10 @@
         <div>
           <div class="row">
             <div class="col-md-12">
-  <!--             <div *ngIf="current != null && type != null"> -->
-  <!--               <i class="fa fa-arrow-right clickable" aria-hidden="true" (click)="this.mode = this.MODE.VIEW"></i>               -->
-  <!--             </div> -->
   
               <div class="row">
                 <div class="col-md-12">
                   <div class="location-management-widget-section">
-<!--                     <label> -->
-<!--                       <localize key="explorer.date.label"></localize> -->
-<!--                     </label> -->
                     <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" [disabled]="mode !== MODE.SEARCH"/>
                   </div>
                 </div>
@@ -38,9 +32,9 @@
                         </button>
                       </span>
                     </div>
-                       <div *ngIf="mode === MODE.VIEW && current != null" style="padding: 20px 0;">
-              <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>              
-            </div>
+                    <div *ngIf="mode === MODE.VIEW && current != null" style="padding: 20px 0;">
+                      <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>              
+                    </div>
                     
                   </div>
                 </div>
