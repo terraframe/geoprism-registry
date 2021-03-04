@@ -91,6 +91,11 @@ const routes: Routes = [
         component: LocationManagerComponent,
         canActivate: [AuthGuard]
     },
+	{
+        path: 'location-manager/:geoobjectcode/:geoobjecttypecode',
+        component: LocationManagerComponent,
+        canActivate: [AuthGuard]
+    },
     {
         path: 'dataset-location-manager/:datasetId/:typeCode/:readOnly/:date',
         component: DatasetLocationManagerComponent,

@@ -232,6 +232,10 @@ export class RequestTableComponent {
 		//   }
 	}
 	
+	editGeoObject(action: any): void {
+		
+	}
+	
 	formatDate(date: string): string {
 		return this.localizationService.formatDateForDisplay(date);
 	}

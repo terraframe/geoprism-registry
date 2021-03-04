@@ -100,6 +100,8 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
+import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
@@ -331,9 +333,15 @@ public class RegistryService
       throw ex;
     }
 
-    ServiceFactory.getGeoObjectPermissionService().enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
+    final GeoObjectPermissionServiceIF pService = ServiceFactory.getGeoObjectPermissionService();
+    pService.enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
+    
+    ServerGeoObjectType type = object.getType();
+    
+    GeoObject geoObject = object.toGeoObject();
+    geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
 
-    return object.toGeoObject();
+    return geoObject;
   }
 
   @Request(RequestType.SESSION)
