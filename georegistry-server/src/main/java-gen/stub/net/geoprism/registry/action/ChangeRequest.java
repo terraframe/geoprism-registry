@@ -38,6 +38,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
+import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
@@ -98,6 +99,14 @@ public class ChangeRequest extends ChangeRequestBase
     for (AbstractAction action : actions)
     {
       action.delete();
+    }
+    
+    OIterator<? extends ChangeRequestHasDocument> it = this.getAllDocumentRel();
+    for (ChangeRequestHasDocument rel : it)
+    {
+      VaultFile vf = rel.getChild();
+      rel.delete();
+      vf.delete();
     }
 
     super.delete();

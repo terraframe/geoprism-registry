@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = -1059429190)
+@com.runwaysdk.business.ClassSignature(hash = 1040278248)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -534,6 +516,122 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   }
 
 
+  public com.runwaysdk.query.Condition document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.getBusinessQuery().isParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.getBusinessQuery().isParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.getBusinessQuery().isParentIn_SUBSELECT(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.getBusinessQuery().isParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.getBusinessQuery().isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.getBusinessQuery().isParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.getBusinessQuery().isParentIn_SUBSELECT(changeRequestHasDocumentQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.getBusinessQuery().isNotParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.getBusinessQuery().isNotParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.getBusinessQuery().isNotParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.getBusinessQuery().isNotParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.getBusinessQuery().isNotParentIn_SUBSELECT(changeRequestHasDocumentQuery);
+  }
+
+
 /**
  * Interface that masks all type unsafe query methods and defines all type safe methods.
  * This type is used when a join is performed on this class as a reference.
@@ -606,6 +704,20 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.Condition SUBSELECT_action(net.geoprism.registry.action.AbstractActionQuery abstractActionQuery, net.geoprism.registry.action.HasActionRelationshipQuery hasActionRelationshipQuery);
 
 
+  public com.runwaysdk.query.Condition document();
+
+  public com.runwaysdk.query.Condition document(com.runwaysdk.system.VaultFileQuery vaultFileQuery);
+
+  public com.runwaysdk.query.Condition document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_document();
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery);
+
+
   public com.runwaysdk.query.Condition NOT_IN_action();
 
   public com.runwaysdk.query.Condition NOT_IN_action(net.geoprism.registry.action.AbstractActionQuery abstractActionQuery);
@@ -618,6 +730,20 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_action(net.geoprism.registry.action.AbstractActionQuery abstractActionQuery);
 
   public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_action(net.geoprism.registry.action.AbstractActionQuery abstractActionQuery, net.geoprism.registry.action.HasActionRelationshipQuery hasActionRelationshipQuery);
+
+
+  public com.runwaysdk.query.Condition NOT_IN_document();
+
+  public com.runwaysdk.query.Condition NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery);
+
+  public com.runwaysdk.query.Condition NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery);
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document();
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery);
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery);
 
   }
 
@@ -963,6 +1089,64 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   }
 
 
+  public com.runwaysdk.query.Condition document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.isParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.isParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.isParentIn_SUBSELECT(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.isParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.isParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.isParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.isParentIn_SUBSELECT(changeRequestHasDocumentQuery);
+  }
+
+
   public com.runwaysdk.query.Condition NOT_IN_action()
   {
     com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
@@ -1018,6 +1202,64 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   {
     hasActionRelationshipQuery.AND(hasActionRelationshipQuery.hasChild(abstractActionQuery));
     return this.isNotParentIn_SUBSELECT(hasActionRelationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition NOT_IN_document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.isNotParentIn(relationshipQuery);
+  }
+
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document()
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+
+    return this.isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.isNotParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    return this.isNotParentIn_SUBSELECT(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.isNotParentIn(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery)
+  {
+    com.runwaysdk.query.QueryFactory queryFactory = this.getQueryFactory();
+    com.runwaysdk.business.RelationshipQuery relationshipQuery = queryFactory.relationshipQuery(net.geoprism.registry.action.ChangeRequestHasDocument.CLASS);
+    relationshipQuery.AND(relationshipQuery.hasChild(vaultFileQuery));
+
+    return this.isNotParentIn_SUBSELECT(relationshipQuery);
+  }
+
+  public com.runwaysdk.query.Condition NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.isNotParentIn(changeRequestHasDocumentQuery);
+  }
+
+  public com.runwaysdk.query.Condition SUBSELECT_NOT_IN_document(com.runwaysdk.system.VaultFileQuery vaultFileQuery, net.geoprism.registry.action.ChangeRequestHasDocumentQuery changeRequestHasDocumentQuery)
+  {
+    changeRequestHasDocumentQuery.AND(changeRequestHasDocumentQuery.hasChild(vaultFileQuery));
+    return this.isNotParentIn_SUBSELECT(changeRequestHasDocumentQuery);
   }
 
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)

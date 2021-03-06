@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,14 +26,18 @@ import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.GeoprismUser;
+import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.AllGovernanceStatus;
@@ -41,6 +46,107 @@ import net.geoprism.registry.action.ChangeRequestQuery;
 
 public class ChangeRequestService
 {
+  @Request(RequestType.SESSION)
+  public void deleteDocument(String sessionId, String crOid, String vfOid)
+  {
+    this.deleteDocument(crOid, vfOid);
+  }
+  
+  void deleteDocument(String crOid, String vfOid)
+  {
+    ChangeRequest request = ChangeRequest.get(crOid);
+    
+    if (!request.isVisible())
+    {
+      throw new CGRPermissionException();
+    }
+    
+    VaultFile vf = VaultFile.get(vfOid);
+    
+    vf.delete();
+  }
+  
+  @Request(RequestType.SESSION)
+  public InputStream downloadDocument(String sessionId, String crOid, String vfOid)
+  {
+    return this.downloadDocument(crOid, vfOid);
+  }
+  
+  InputStream downloadDocument(String crOid, String vfOid)
+  {
+    ChangeRequest request = ChangeRequest.get(crOid);
+    
+    if (!request.isVisible())
+    {
+      throw new CGRPermissionException();
+    }
+    
+    VaultFile vf = VaultFile.get(vfOid);
+    
+    return vf.getFileStream();
+  }
+  
+  @Request(RequestType.SESSION)
+  public String listDocuments(String sessionId, String requestId)
+  {
+    return this.listDocuments(requestId);
+  }
+  
+  String listDocuments(String requestId)
+  {
+    JsonArray ja = new JsonArray();
+    
+    ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!request.isVisible())
+    {
+      throw new CGRPermissionException();
+    }
+    
+    OIterator<? extends VaultFile> it = request.getAllDocument();
+    try
+    {
+      for (VaultFile vf : it)
+      {
+        JsonObject jo = new JsonObject();
+        
+        jo.addProperty("fileName", vf.getName());
+        jo.addProperty("oid", vf.getOid());
+        
+        ja.add(jo);
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+    
+    return ja.toString();
+  }
+  
+  @Request(RequestType.SESSION)
+  public String uploadFile(String sessionId, String requestId, String fileName, InputStream fileStream)
+  {
+    return uploadFileInTransaction(requestId, fileName, fileStream);
+  }
+  
+  @Transaction
+  String uploadFileInTransaction(String requestId, String fileName, InputStream fileStream)
+  {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!request.isVisible())
+    {
+      throw new CGRPermissionException();
+    }
+    
+    VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
+    
+    request.addDocument(vf).apply();
+    
+    return vf.getOid();
+  }
+  
   @Request(RequestType.SESSION)
   public void applyAction(String sessionId, String sAction)
   {
