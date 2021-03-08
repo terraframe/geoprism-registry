@@ -52,7 +52,6 @@ import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
-import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
@@ -507,7 +506,7 @@ public class SynchronizationConfigService
   public static String formatDate(Date date)
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT, Session.getCurrentLocale());
-    // format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    // format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     return format.format(date);
   }

@@ -23,7 +23,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
@@ -40,6 +39,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.LocationService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.LocationInformation;
@@ -114,7 +114,7 @@ public class RegistryLocationController
     if (date != null && date.length() > 0)
     {
       DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-      dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+      dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       return dateFormat.parse(date);
     }

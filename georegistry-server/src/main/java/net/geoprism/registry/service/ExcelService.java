@@ -21,7 +21,6 @@ package net.geoprism.registry.service;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -69,7 +68,7 @@ public class ExcelService
       try (InputStream is = vf.openNewStream())
       {
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
         ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
         ExcelDataFormatter formatter = new ExcelDataFormatter();

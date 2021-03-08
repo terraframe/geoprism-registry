@@ -26,7 +26,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -50,6 +49,7 @@ import com.runwaysdk.session.Session;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -261,7 +261,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     super.toJSON(config);
 
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, true, SupportedLocaleCache.getLocales())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
@@ -350,7 +350,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     super.fromJSON(json);
 
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JSONObject config = new JSONObject(json);
     JSONObject type = config.getJSONObject(TYPE);

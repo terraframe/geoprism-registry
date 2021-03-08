@@ -34,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -97,6 +96,7 @@ import net.geoprism.registry.DuplicateGeoObjectCodeException;
 import net.geoprism.registry.DuplicateGeoObjectException;
 import net.geoprism.registry.DuplicateGeoObjectMultipleException;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
@@ -1498,7 +1498,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       if (prev != null)
       {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
         cal.setTime(current.getObjectValue(GeoVertex.START_DATE));
         cal.add(Calendar.DAY_OF_YEAR, -1);
 

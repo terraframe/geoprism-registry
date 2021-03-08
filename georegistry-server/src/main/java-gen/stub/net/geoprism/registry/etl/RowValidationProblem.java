@@ -22,8 +22,6 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.RunwayException;
-import com.runwaysdk.business.SmartException;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.JobHistory;
 

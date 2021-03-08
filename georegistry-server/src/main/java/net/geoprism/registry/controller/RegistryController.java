@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.RegistryUrls;
@@ -35,8 +34,8 @@ import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,9 +54,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
-import net.geoprism.account.OauthServerDTO;
-import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.RegistryService;
@@ -201,7 +198,7 @@ public class RegistryController
     if (date != null && date.length() > 0)
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       forDate = format.parse(date);
     }
@@ -494,7 +491,7 @@ public class RegistryController
     if (date != null && date.length() > 0)
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       forDate = format.parse(date);
     }
@@ -909,7 +906,7 @@ public class RegistryController
     if (date != null && date.length() > 0)
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       try
       {
@@ -1088,7 +1085,7 @@ public class RegistryController
     if (date != null && date.length() > 0)
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       forDate = format.parse(date);
     }

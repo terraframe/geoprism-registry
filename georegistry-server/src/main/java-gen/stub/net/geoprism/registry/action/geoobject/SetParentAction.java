@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.action.geoobject;
 
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
