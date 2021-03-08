@@ -32,6 +32,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.VaultFile;
@@ -67,12 +68,12 @@ public class ChangeRequestService
   }
   
   @Request(RequestType.SESSION)
-  public InputStream downloadDocument(String sessionId, String crOid, String vfOid)
+  public ApplicationResource downloadDocument(String sessionId, String crOid, String vfOid)
   {
     return this.downloadDocument(crOid, vfOid);
   }
   
-  InputStream downloadDocument(String crOid, String vfOid)
+  ApplicationResource downloadDocument(String crOid, String vfOid)
   {
     ChangeRequest request = ChangeRequest.get(crOid);
     
@@ -83,7 +84,7 @@ public class ChangeRequestService
     
     VaultFile vf = VaultFile.get(vfOid);
     
-    return vf.getFileStream();
+    return vf;
   }
   
   @Request(RequestType.SESSION)
@@ -226,7 +227,7 @@ public class ChangeRequestService
    *         request to persist both the change request and actions.
    */
   @Request(RequestType.SESSION)
-  public JSONObject confirmChangeRequest(String sessionId, String requestId)
+  public JsonObject confirmChangeRequest(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
@@ -365,7 +366,7 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject getRequestDetails(String sessionId, String requestId)
+  public JsonObject getRequestDetails(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
 
@@ -373,7 +374,7 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject executeActions(String sessionId, String requestId)
+  public JsonObject executeActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     request.execute(true);

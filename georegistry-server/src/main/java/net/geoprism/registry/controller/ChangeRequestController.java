@@ -18,19 +18,25 @@
  */
 package net.geoprism.registry.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
+import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
+import com.runwaysdk.resource.ApplicationResource;
 
 import net.geoprism.registry.service.ChangeRequestService;
 
@@ -51,7 +57,44 @@ public class ChangeRequestController
   }
   
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF unlockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId) throws JSONException
+  public ResponseIF uploadFile(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
+  {
+    try (InputStream stream = file.getInputStream())
+    {
+      String fileName = file.getFilename();
+      
+      String vfOid = service.uploadFile(request.getSessionId(), crOid, fileName, stream);
+  
+      return new RestBodyResponse(vfOid);
+    }
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF listDocuments(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid)
+  {
+    String json = service.listDocuments(request.getSessionId(), crOid);
+
+    return new RestBodyResponse(json);
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF downloadDocument(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  {
+    ApplicationResource res = service.downloadDocument(request.getSessionId(), crOid, vfOid);
+
+    return new InputStreamResponse(res.openNewStream(), "application/octet-stream", res.getName());
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF deleteDocument(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  {
+    service.deleteDocument(request.getSessionId(), crOid, vfOid);
+
+    return new RestResponse();
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF unlockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId)
   {
     String sAction = service.unlockAction(request.getSessionId(), actionId);
 
@@ -59,7 +102,7 @@ public class ChangeRequestController
   }
   
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF lockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId) throws JSONException
+  public ResponseIF lockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId)
   {
     String sResponse = service.lockAction(request.getSessionId(), actionId);
     
@@ -79,7 +122,7 @@ public class ChangeRequestController
    * @throws JSONException
    */
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF applyAction(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  public ResponseIF applyAction(ClientRequestIF request, @RequestParamter(name = "action") String action)
   {
     service.applyAction(request.getSessionId(), action);
 
@@ -87,7 +130,7 @@ public class ChangeRequestController
   }
   
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF applyActionStatusProperties(ClientRequestIF request, @RequestParamter(name = "action") String action) throws JSONException
+  public ResponseIF applyActionStatusProperties(ClientRequestIF request, @RequestParamter(name = "action") String action)
   {
     service.applyActionStatusProperties(request.getSessionId(), action);
 
@@ -104,7 +147,7 @@ public class ChangeRequestController
    * @throws JSONException
    */
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF getAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF getAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
   {
     String json = service.getAllActions(request.getSessionId(), requestId);
 
@@ -112,7 +155,7 @@ public class ChangeRequestController
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
-  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "filter") String filter) throws JSONException
+  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "filter") String filter)
   {
     JSONArray requests = service.getAllRequests(request.getSessionId(), filter);
 
@@ -120,31 +163,31 @@ public class ChangeRequestController
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "get-request-details", method = ServletMethod.GET)
-  public ResponseIF getRequestDetails(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF getRequestDetails(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
   {
-    JSONObject response = service.getRequestDetails(request.getSessionId(), requestId);
+    JsonObject response = service.getRequestDetails(request.getSessionId(), requestId);
 
     return new RestBodyResponse(response);
   }
   
   @Endpoint(error = ErrorSerialization.JSON, url = "execute-actions", method = ServletMethod.POST)
-  public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
   {
-    JSONObject response = service.executeActions(request.getSessionId(), requestId);
+    JsonObject response = service.executeActions(request.getSessionId(), requestId);
 
     return new RestBodyResponse(response);
   }
   
   @Endpoint(error = ErrorSerialization.JSON, url = "confirm-change-request", method = ServletMethod.POST)
-  public ResponseIF confirmChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  public ResponseIF confirmChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
   {
-    JSONObject response = service.confirmChangeRequest(request.getSessionId(), requestId);
+    JsonObject response = service.confirmChangeRequest(request.getSessionId(), requestId);
 
     return new RestBodyResponse(response);
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "approve-all-actions", method = ServletMethod.POST)
-  public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions) throws JSONException
+  public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions)
   {
     String response = service.approveAllActions(request.getSessionId(), requestId, actions);
 
@@ -152,7 +195,7 @@ public class ChangeRequestController
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "reject-all-actions", method = ServletMethod.POST)
-  public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions) throws JSONException
+  public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions)
   {
     String response = service.rejectAllActions(request.getSessionId(), requestId, actions);
 

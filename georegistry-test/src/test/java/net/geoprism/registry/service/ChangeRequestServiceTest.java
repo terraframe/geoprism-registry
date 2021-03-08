@@ -1,7 +1,6 @@
 package net.geoprism.registry.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.junit.Test;
 
@@ -9,6 +8,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
+import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.VaultFile;
 
@@ -148,9 +148,11 @@ public class ChangeRequestServiceTest
     {
       String vfOid = service.uploadFileInTransaction(cr.getOid(), "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
       
-      try (InputStream is = service.downloadDocument(cr.getOid(), vfOid))
+      try (ApplicationResource res = service.downloadDocument(cr.getOid(), vfOid))
       {
-        
+        Assert.assertEquals("parent-test.xlsx", res.getName());
+        Assert.assertNotNull(res.getUnderlyingFile());
+        res.delete();
       }
     }
     finally
