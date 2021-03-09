@@ -28,11 +28,11 @@ public class ImportParams
   
   private String preheatMode;
   
-  private String importStrategy;
+  private ImportStrategy importStrategy;
   
   private String atomicMode;
   
-  private String mergeMode;
+  private MergeMode mergeMode;
   
   private String flushMode;
   
@@ -86,12 +86,12 @@ public class ImportParams
     this.preheatMode = preheatMode;
   }
 
-  public String getImportStrategy()
+  public ImportStrategy getImportStrategy()
   {
     return importStrategy;
   }
 
-  public void setImportStrategy(String importStrategy)
+  public void setImportStrategy(ImportStrategy importStrategy)
   {
     this.importStrategy = importStrategy;
   }
@@ -106,12 +106,12 @@ public class ImportParams
     this.atomicMode = atomicMode;
   }
 
-  public String getMergeMode()
+  public MergeMode getMergeMode()
   {
     return mergeMode;
   }
 
-  public void setMergeMode(String mergeMode)
+  public void setMergeMode(MergeMode mergeMode)
   {
     this.mergeMode = mergeMode;
   }

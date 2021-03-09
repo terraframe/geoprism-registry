@@ -1,0 +1,15 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.MultipleLevelOneOrgUnitException"
+        message="This Organisation Unit cannot be created in DHIS2 because it would create multiple Organisation Units at level 1. DHIS2 only supports one level one Organisation Unit."
+        exported="false" publish="false" >
+        
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
