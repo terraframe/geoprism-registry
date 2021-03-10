@@ -2,6 +2,8 @@ package net.geoprism.registry.dhis2;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,6 +28,8 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
@@ -39,8 +43,10 @@ import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ImportStrategy;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.dhis2.DHIS2FeatureService.DHIS2SyncError;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.ETLService;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
 import net.geoprism.registry.etl.SyncLevel;
@@ -69,9 +75,31 @@ public class DHIS2SynchronizationManager
   
   private List<OrganisationUnit> ouLevel1 = null;
   
-  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2)
+  private DHIS2SyncConfig dhis2Config;
+  
+  private ExportHistory history;
+  
+  private Date date;
+  
+  public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history)
   {
     this.dhis2 = dhis2;
+    this.date = todaysDate();
+    this.history = history;
+    this.dhis2Config = dhis2Config;
+  }
+  
+  private Date todaysDate()
+  {
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    cal.setTime(new Date());
+    cal.set(Calendar.HOUR_OF_DAY, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    
+    return cal.getTime();
   }
   
   // https://play.dhis2.org/2.35.1/api/metadata.xml?organisationUnits=true&filter=level:eq:1
@@ -107,7 +135,7 @@ public class DHIS2SynchronizationManager
     }
   }
   
-  public void synchronize(DHIS2SyncConfig dhis2Config, ExportHistory history)
+  public void synchronize()
   {
     this.init();
     
@@ -136,7 +164,7 @@ public class DHIS2SynchronizationManager
         for (VertexServerGeoObject go : objects) {
           try
           {
-            this.exportGeoObject(dhis2Config, level, rowIndex, go, includeTranslations);
+            this.exportGeoObject(dhis2Config, level, levels, rowIndex, go, includeTranslations);
             
             exportCount++;
             
@@ -256,6 +284,11 @@ public class DHIS2SynchronizationManager
     
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
 
+    handleExportErrors();
+  }
+  
+  private void handleExportErrors()
+  {
     ExportErrorQuery query = new ExportErrorQuery(new QueryFactory());
     query.WHERE(query.getHistory().EQ(history));
     Boolean hasErrors = query.getCount() > 0;
@@ -285,7 +318,7 @@ public class DHIS2SynchronizationManager
    * @throws ExportError
    */
   @Transaction
-  private void exportGeoObject(DHIS2SyncConfig dhis2Config, SyncLevel level, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws DHIS2SyncError
+  private void exportGeoObject(DHIS2SyncConfig dhis2Config, SyncLevel level, SortedSet<SyncLevel> levels, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws DHIS2SyncError
   {
     DHIS2ImportResponse resp = null;
     
@@ -306,13 +339,13 @@ public class DHIS2SynchronizationManager
         throw err;
       }
       
-      if (isNew && level.getLevel() == 1 && this.ouLevel1.size() > 0)
+      if (isNew && level.getLevel() == 0 && this.ouLevel1.size() > 0)
       {
         throw new MultipleLevelOneOrgUnitException();
       }
 
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level, level.getGeoObjectType(), dhis2Config.getHierarchy(), dhis2Config.getSystem()));
+      builder.registerTypeAdapter(VertexServerGeoObject.class, new DHIS2GeoObjectJsonAdapters.DHIS2Serializer(dhis2, dhis2Config, level, this.date));
       
       orgUnitJsonTree = builder.create().toJsonTree(serverGo, serverGo.getClass()).getAsJsonObject();
       orgUnitJson = orgUnitJsonTree.toString();
@@ -438,7 +471,7 @@ public class DHIS2SynchronizationManager
     for (VertexObject vObject : vObjects)
     {
       VertexServerGeoObject vSGO = new VertexServerGeoObject(got, vObject);
-      vSGO.setDate(ValueOverTime.INFINITY_END_DATE);
+      vSGO.setDate(this.date);
 
       response.add(vSGO);
     }

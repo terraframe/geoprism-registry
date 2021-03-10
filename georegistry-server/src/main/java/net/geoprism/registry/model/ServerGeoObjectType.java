@@ -1102,6 +1102,21 @@ public class ServerGeoObjectType
   }
   
   @Override
+  public boolean equals(Object obj)
+  {
+    if (obj instanceof ServerGeoObjectType)
+    {
+      return ((ServerGeoObjectType)obj).getCode().equals(this.getCode());
+    }
+    else if (obj instanceof GeoObjectType)
+    {
+      return ((GeoObjectType)obj).getCode().equals(this.getCode());
+    }
+    
+    return false;
+  }
+  
+  @Override
   public String toString()
   {
     return GeoObjectTypeMetadata.sGetClassDisplayLabel() + " : " + this.getCode();

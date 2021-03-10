@@ -603,6 +603,8 @@ public class TestGeoObjectInfo
     geoObj.setGeometry(geometry, date, ValueOverTime.INFINITY_END_DATE);
     geoObj.setCode(this.getCode());
     geoObj.setDisplayLabel(label, date, ValueOverTime.INFINITY_END_DATE);
+    
+    geoObj.getAllValues(DefaultAttribute.STATUS.getName()).clear();
     geoObj.setStatus(this.statusCode, date, ValueOverTime.INFINITY_END_DATE);
 
     if (registryId != null)

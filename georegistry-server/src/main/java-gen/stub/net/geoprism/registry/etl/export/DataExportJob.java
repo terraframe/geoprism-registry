@@ -117,7 +117,7 @@ public class DataExportJob extends DataExportJobBase
 
     this.setStage(history, ExportStage.EXPORT);
 
-    new DHIS2SynchronizationManager(dhis2).synchronize(dhis2Config, history);
+    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
   }
   
   @Override

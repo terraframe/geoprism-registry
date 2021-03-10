@@ -28,6 +28,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.util.IDGenerator;
@@ -201,7 +202,19 @@ public class DHIS2TestService implements DHIS2TransportServiceIF
       }
       else
       {
-        throw new UnsupportedOperationException();
+        JsonObject jo = new JsonObject();
+        
+        JsonObject system = new JsonObject();
+        system.addProperty("id", "eed3d451-4ff5-4193-b951-ffcc68954299");
+        system.addProperty("rev", "86fbbf7");
+        system.addProperty("version", "2.31.9");
+        system.addProperty("date", "2020-07-17T23:03:46.853");
+        
+        jo.add("system", system);
+        
+        jo.add(objectNamePlural, new JsonArray());
+        
+        return new MetadataGetResponse<T>(jo.toString(), 200, objectNamePlural, dhis2Type);
       }
     }
     catch (IOException e)
