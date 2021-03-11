@@ -135,11 +135,20 @@ export class ManageParentVersionsComponent implements OnInit {
 		      
 		      let parent = entry.parents[this.hierarchy.types[loopI].code];
 		      
-		      if (parent != null && parent.geoObject != null && parent.geoObject.properties.code != null)
+		      if (parent != null)
 		      {
-		        hierarchyCode = this.hierarchy.code;
-            parentCode = parent.geoObject.properties.code;
-            parentTypeCode = parent.geoObject.properties.type;
+		        if (parent.geoObject != null && parent.geoObject.properties.code != null)
+		        {
+              parentCode = parent.geoObject.properties.code;
+              hierarchyCode = this.hierarchy.code;
+              parentTypeCode = this.hierarchy.types[loopI].code;
+            }
+            else if (parent.goCode != null)
+            {
+              parentCode = parent.goCode;
+              hierarchyCode = this.hierarchy.code;
+              parentTypeCode = this.hierarchy.types[loopI].code;
+            }
 		      }
 		    }
 		  }
@@ -153,7 +162,8 @@ export class ManageParentVersionsComponent implements OnInit {
 	typeaheadOnSelect(e: TypeaheadMatch, type: any, entry: any, date: string): void {
 		//        let ptn: ParentTreeNode = parent.ptn;
 
-                entry.parents[type.code].text = e.item.name + " : " + e.item.code;
+    entry.parents[type.code].text = e.item.name + " : " + e.item.code;
+    entry.parents[type.code].goCode = e.item.code;
 
 		let parentTypes = [];
 
@@ -169,6 +179,7 @@ export class ManageParentVersionsComponent implements OnInit {
 
 		this.service.getParentGeoObjects(e.item.uid, type.code, parentTypes, true, date).then(ancestors => {
 
+      delete entry.parents[type.code].goCode;
 			entry.parents[type.code].geoObject = ancestors.geoObject;
 			entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue + ' : ' + ancestors.geoObject.properties.code;
 
@@ -197,6 +208,7 @@ export class ManageParentVersionsComponent implements OnInit {
 	onRemove(type: any, entry: any): void {
 		entry.parents[type.code].text = '';
 		delete entry.parents[type.code].geoObject;
+		delete entry.parents[type.code].goCode;
 	}
 
 	onDateChange(): any {
