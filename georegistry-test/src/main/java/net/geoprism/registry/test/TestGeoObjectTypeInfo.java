@@ -149,7 +149,8 @@ public class TestGeoObjectTypeInfo
     }
     else
     {
-      return Universal.getByKey(this.getCode());
+//      return Universal.getByKey(this.getCode());
+      return TestDataSet.getUniversalIfExist(this.getCode());
     }
   }
 

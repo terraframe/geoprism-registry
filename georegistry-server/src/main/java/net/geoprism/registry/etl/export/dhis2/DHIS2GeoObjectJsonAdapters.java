@@ -467,37 +467,30 @@ public class DHIS2GeoObjectJsonAdapters
       {
         SyncLevel parentSyncLevel = this.getLevelAtIndex(parentLevel);
         
-        if (parentSyncLevel != null)
+        for (VertexServerGeoObject ancestor : ancestors)
         {
-          for (VertexServerGeoObject ancestor : ancestors)
+          if (parentSyncLevel.getGeoObjectType().equals(ancestor.getType()))
           {
-            if (parentSyncLevel.getGeoObjectType().equals(ancestor.getType()))
+            String externalId = this.getExternalId(ancestor);
+            
+            ancestorExternalIds.add(externalId);
+            
+            if (parentLevel == this.syncLevel.getLevel() - 1)
             {
-              String externalId = this.getExternalId(ancestor);
-              
-              ancestorExternalIds.add(externalId);
-              
-              if (parentLevel == this.syncLevel.getLevel() - 1)
-              {
-                directParentId = externalId;
-              }
-              
-              parentLevel--;
-              continue ParentLoop;
+              directParentId = externalId;
             }
+            
+            parentLevel--;
+            continue ParentLoop;
           }
-          
-          NoParentException ex = new NoParentException();
-          ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()));
-          ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
-          ex.setHierarchyCode(this.hierarchyType.getCode());
-          ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.date, false));
-          throw ex;
         }
-        else
-        {
-          throw new ProgrammingErrorException("Unable to find sync level at index [" + parentLevel + "].");
-        }
+        
+        NoParentException ex = new NoParentException();
+        ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
+        ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
+        ex.setHierarchyCode(this.hierarchyType.getCode());
+        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.date, false));
+        throw ex;
       }
       
       if (directParentId == null)
@@ -505,7 +498,7 @@ public class DHIS2GeoObjectJsonAdapters
         SyncLevel parentSyncLevel = this.getLevelAtIndex(this.syncLevel.getLevel() - 1);
         
         NoParentException ex = new NoParentException();
-        ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()));
+        ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
         ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
         ex.setHierarchyCode(this.hierarchyType.getCode());
         ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.date, false));
@@ -552,7 +545,7 @@ public class DHIS2GeoObjectJsonAdapters
         j++;
       }
       
-      return null;
+      throw new ProgrammingErrorException("Unable to find sync level at index [" + i + "].");
     }
   }
 }
