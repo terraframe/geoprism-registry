@@ -1,12 +1,10 @@
 import { Component, OnInit, ViewChild, SimpleChanges, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { RegistryService, MapService } from '@registry/service';
+import { RegistryService} from '@registry/service';
 
 import { Map, LngLatBounds, NavigationControl } from 'mapbox-gl';
-import * as MapboxDraw from '@mapbox/mapbox-gl-draw';
-import * as StaticMode from '@mapbox/mapbox-gl-draw-static-mode';
-import * as mapboxgl from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 declare var acp: string;
 
@@ -73,18 +71,16 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
 	editingControl: any;
 
-	constructor(private registryService: RegistryService, private mapService: MapService) {
+	constructor(private registryService: RegistryService) {
 
 	}
 
 	ngOnInit(): void {
-		this.mapService.init();
+		
 	}
 
 	ngAfterViewInit() {
 		setTimeout(() => {
-			//this.registryService.getGeoObjectOverTime( "22", "Province" )
-			//.then( geoObject => {
 
 			this.mapDiv.nativeElement.id = Math.floor(Math.random() * (899999)) + 100000;
 
@@ -108,11 +104,8 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 			this.map.on('draw.update', () => {
 				this.onValidChange();
 			});
-
-			//} ).catch(( err: HttpErrorResponse ) => {
-			//    this.error( err );
-			//} );
-		}, 10);
+			
+		}, 0);
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
@@ -269,6 +262,8 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
 	renderGeometryAsLayer(geometry: any, prefix: string, color: string) {
 		let sourceName: string = prefix + "-geoobject";
+		
+		console.log("test")
 
 		this.map.addSource(sourceName, {
 			type: 'geojson',

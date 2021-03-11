@@ -35,13 +35,11 @@
 									<div *ngIf="isSRA || typeByOrg.org.code === userOrganization" style="text-align: center;padding: 10px 0;">
 										<button (click)="createGeoObjectType(null, false, typeByOrg.org)" type="button" class="btn btn-primary"
 											style="margin-bottom:20px;min-width:45%;">
-											<i style="color:#6BA542;" class="fa fa-plus"></i>
 											<localize key="hierarchy.sidebar.newGeoObjectType"></localize>
 										</button>
                                         
                                         <button (click)="createGeoObjectType(null, true, typeByOrg.org)" type="button" class="btn btn-primary"
                                             style="margin-bottom:20px;margin-left:10px;min-width:45%;">
-                                            <i style="color:#6BA542;" class="fa fa-plus"></i>
                                             <localize key="hierarchies.add.group.button.label"></localize>
                                         </button>
 									</div>
@@ -100,7 +98,6 @@
 									<div *ngIf="isSRA || hierarchyByOrg.org.code === userOrganization" style="text-align: center;padding: 10px 0;">
 										<button (click)="createHierarchy()" type="button" class="btn btn-primary"
 											style="margin-bottom:20px;min-width:45%;">
-											<i style="color:#369c00;" class="fa fa-plus"></i>
 											<localize key="hierarchy.sidebar.newHierarchy"></localize>
 										</button>
 									</div>

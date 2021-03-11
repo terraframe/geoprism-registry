@@ -15,10 +15,11 @@
       </div>    
     
 
+        <!-- readOnly should be false unless it's the rc who created the request -->
         <geoobject-shared-attribute-editor 
           #attributeEditor
           *ngIf="preGeoObject"
-          [readOnly]="true"
+          [readOnly]="readOnly"  
           [geoObjectType]="geoObjectType"
           [postGeoObject]="postGeoObject"
           [preGeoObject]="preGeoObject"

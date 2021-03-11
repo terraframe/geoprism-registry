@@ -10,8 +10,6 @@ import {
 	state
 } from '@angular/animations';
 
-import * as moment from 'moment';
-
 import { LocalizedValue } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
 
@@ -44,18 +42,6 @@ import Utils from '../../utility/Utils';
 				])
 			]),
 			trigger('slide', [
-//				transition(':enter', [
-//					style({
-//						left: '100%'
-//					}),
-//					animate('200ms')
-//				]),
-//				transition(':leave', [
-//					style({
-//						right: '100%'
-//					}),
-//					animate('200ms')
-//				])
 				state('left', style({ left: 0 })),
       			state('right', style({ left: '100%' })),
       			transition('* => *', animate(200))
@@ -85,8 +71,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	@Input() preGeoObject: GeoObjectOverTime = null;
 
 	/*
- * The state of the GeoObject being modified
- */
+ 	* The state of the GeoObject being modified
+ 	*/
 	@Input() postGeoObject: GeoObjectOverTime = null;
 
 
@@ -275,9 +261,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		this.postGeoObject.attributes.code = this.calculatedPostObject['code'];
 		
 		this.onChange.emit(this.postGeoObject);
-		//        
-		//        console.log(this.calculatedPostObject['code'])
-		//        console.log(e)
 	}
 
 	onManageAttributeVersions(attribute: Attribute): void {
@@ -300,7 +283,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			this.bsModalRef.content.onAttributeVersionChange.subscribe(versionObj => {
 				this.calculate();
 			});
-			this.bsModalRef.content.tfInit();
+//			this.bsModalRef.content.tfInit();
 		}
 	}
 
@@ -380,9 +363,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	getTypeDefinition(key: string): string {
-		// let attrs = this.geoObjectType.attributes;
 
-		// attrs.attributes.forEach(attr => {
 		for (let i = 0; i < this.geoObjectType.attributes.length; i++) {
 			let attr = this.geoObjectType.attributes[i];
 
@@ -400,20 +381,5 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	public getGeoObject(): any {
 		return this.postGeoObject;
-
-		//        // The front-end uses the 'yyyy-mm-dd' date format. Our backend expects dates in epoch format.
-		//        var submitGO = JSON.parse( JSON.stringify( this.postGeoObject ) );
-		//        for ( var i = 0; i < this.geoObjectType.attributes.length; ++i ) {
-		//            var attr = this.geoObjectType.attributes[i];
-		//
-		//            if ( attr.type === "date" && this.postGeoObject.properties[attr.code] != null ) {
-		//                var parts = this.postGeoObject.properties[attr.code].split( '-' );
-		//                var date = new Date( parts[0], parts[1] - 1, parts[2] );
-		//
-		//                submitGO.properties[attr.code] = date.getTime();
-		//            }
-		//        }
-		//
-		//        return submitGO;
 	}
 }

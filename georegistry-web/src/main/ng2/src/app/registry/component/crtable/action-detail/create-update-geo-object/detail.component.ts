@@ -27,6 +27,8 @@ declare var $: any;
     encapsulation: ViewEncapsulation.None
 } )
 export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
+	
+	isMaintainer: boolean = false;
 
     @Input() action: any;
 
@@ -57,6 +59,8 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
     constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, 
 				private registryService: RegistryService, private authService: AuthService ) {
+					
+		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
         this.forDate = new Date();
 

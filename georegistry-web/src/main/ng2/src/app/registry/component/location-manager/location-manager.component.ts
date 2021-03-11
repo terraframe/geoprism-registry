@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl } from 'mapbox-gl';
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -140,7 +140,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 
   constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService, private route: ActivatedRoute) {
-    mapService.init();
+  
   }
 
   ngOnInit(): void {
@@ -435,7 +435,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     this.timer = setTimeout(() => {
       if (!this.preventSingleClick) {
-        if (node.geometry != null) {
+        if (node && node.geometry != null) {
           const bounds = bbox(node as AllGeoJSON) as LngLatBoundsLike;
           
           let padding = 50;
