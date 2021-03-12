@@ -24,11 +24,14 @@ import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -39,6 +42,8 @@ import net.geoprism.registry.service.ServiceFactory;
 public class AddChildAction extends AddChildActionBase
 {
   private static final long serialVersionUID = -325315873;
+  
+  private static final Logger logger = LoggerFactory.getLogger(AddChildAction.class);
 
   @Override
   public void execute()
@@ -59,6 +64,11 @@ public class AddChildAction extends AddChildActionBase
     {
       try
       {
+        if (!this.doesGOTExist(this.getParentTypeCode()) || !this.doesGOTExist(this.getChildTypeCode()))
+        {
+          return true;
+        }
+        
         ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
         ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
         ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
@@ -67,12 +77,18 @@ public class AddChildAction extends AddChildActionBase
       }
       catch (Exception e)
       {
-
+        logger.error("error", e);
       }
 
     }
 
     return false;
+  }
+  
+  @Override
+  public boolean referencesType(ServerGeoObjectType type)
+  {
+    return this.getChildTypeCode().equals(type.getCode()) || this.getParentTypeCode().equals(type);
   }
 
   @Override

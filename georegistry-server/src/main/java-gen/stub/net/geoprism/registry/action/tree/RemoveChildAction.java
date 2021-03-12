@@ -21,13 +21,17 @@ package net.geoprism.registry.action.tree;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -38,6 +42,8 @@ import net.geoprism.registry.service.ServiceFactory;
 public class RemoveChildAction extends RemoveChildActionBase
 {
   private static final long serialVersionUID = -165581118;
+  
+  private static final Logger logger = LoggerFactory.getLogger(RemoveChildAction.class);
 
   @Override
   public void execute()
@@ -58,6 +64,11 @@ public class RemoveChildAction extends RemoveChildActionBase
     {
       try
       {
+        if (!this.doesGOTExist(this.getParentTypeCode()) || !this.doesGOTExist(this.getChildTypeCode()))
+        {
+          return true;
+        }
+        
         ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
         ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
         ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
@@ -66,11 +77,17 @@ public class RemoveChildAction extends RemoveChildActionBase
       }
       catch (Exception e)
       {
-
+        logger.error("error", e);
       }
     }
 
     return false;
+  }
+  
+  @Override
+  public boolean referencesType(ServerGeoObjectType type)
+  {
+    return this.getChildTypeCode().equals(type.getCode()) || this.getParentTypeCode().equals(type.getCode());
   }
 
   @Override

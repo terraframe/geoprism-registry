@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.view;
 
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
@@ -31,11 +32,17 @@ import java.util.TimeZone;
 import java.util.TreeMap;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
@@ -313,69 +320,97 @@ public class ServerParentTreeNodeOverTime
     return format;
   }
 
-  public static ServerParentTreeNodeOverTime fromJSON(ServerGeoObjectType type, String sPtn)
+  public static ServerParentTreeNodeOverTime fromJSON(ServerGeoObjectType type, String sJson)
   {
-    SimpleDateFormat format = getDateFormat();
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(GeoObject.class, new GeoObjectJsonAdapters.GeoObjectDeserializer(ServiceFactory.getAdapter()));
+    builder.registerTypeAdapter(ServerParentTreeNodeOverTime.class, new ServerParentTreeNodeOverTimeDeserializer(type));
 
-    final ServerParentTreeNodeOverTime node = new ServerParentTreeNodeOverTime(type);
-
-    final JsonArray array = JsonParser.parseString(sPtn).getAsJsonArray();
-
-    for (int i = 0; i < array.size(); i++)
-    {
-      final JsonObject hJSON = array.get(i).getAsJsonObject();
-      final String hierarchyCode = hJSON.get(JSON_HIERARCHY_CODE).getAsString();
-      final JsonArray types = hJSON.get(JSON_HIERARCHY_TYPES).getAsJsonArray();
-      final ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
-
-      final JsonArray entries = hJSON.get(JSON_HIERARCHY_ENTRIES).getAsJsonArray();
-
-      for (int j = 0; j < entries.size(); j++)
-      {
-        final JsonObject entry = entries.get(j).getAsJsonObject();
-        final String startDate = entry.get(JSON_ENTRY_STARTDATE).getAsString();
-        final JsonObject parents = entry.get(JSON_ENTRY_PARENTS).getAsJsonObject();
-
-        try
-        {
-          Date date = format.parse(startDate);
-
-          final ServerParentTreeNode parent = parseParent(ht, types, parents, date);
-
-          if (parent != null)
-          {
-            node.add(ht, parent);
-          }
-        }
-        catch (ParseException e)
-        {
-          throw new ProgrammingErrorException(e);
-        }
-      }
-    }
-
-    return node;
+    return builder.create().fromJson(sJson, ServerParentTreeNodeOverTime.class);
   }
 
-  private static ServerParentTreeNode parseParent(final ServerHierarchyType ht, final JsonArray types, final JsonObject parents, final Date date)
+  public static class ServerParentTreeNodeOverTimeDeserializer implements JsonDeserializer<ServerParentTreeNodeOverTime>
   {
-    for (int k = ( types.size() - 1 ); k >= 0; k--)
+    protected ServerGeoObjectType type;
+
+    public ServerParentTreeNodeOverTimeDeserializer(ServerGeoObjectType type)
     {
-      final JsonObject type = types.get(k).getAsJsonObject();
-      final String code = type.get(JSON_TYPE_CODE).getAsString();
-      final JsonObject parent = parents.get(code).getAsJsonObject();
-
-      if (parent.has(JSON_ENTRY_PARENT_GEOOBJECT))
-      {
-        final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
-
-        GeoObject geoObject = GeoObject.fromJSON(ServiceFactory.getAdapter(), go.toString());
-        final ServerGeoObjectIF pSGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(geoObject.getCode(), code);
-
-        return new ServerParentTreeNode(pSGO, ht, date);
-      }
+      this.type = type;
     }
+    
+    @Override
+    public ServerParentTreeNodeOverTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    {
+      JsonArray array = json.getAsJsonArray();
+      
+      SimpleDateFormat format = getDateFormat();
 
-    return null;
+      final ServerParentTreeNodeOverTime node = new ServerParentTreeNodeOverTime(type);
+
+      for (int i = 0; i < array.size(); i++)
+      {
+        final JsonObject hJSON = array.get(i).getAsJsonObject();
+        final String hierarchyCode = hJSON.get(JSON_HIERARCHY_CODE).getAsString();
+        final JsonArray types = hJSON.get(JSON_HIERARCHY_TYPES).getAsJsonArray();
+        final ServerHierarchyType ht = ServerHierarchyType.get(hierarchyCode);
+
+        final JsonArray entries = hJSON.get(JSON_HIERARCHY_ENTRIES).getAsJsonArray();
+
+        for (int j = 0; j < entries.size(); j++)
+        {
+          final JsonObject entry = entries.get(j).getAsJsonObject();
+          final String startDate = entry.get(JSON_ENTRY_STARTDATE).getAsString();
+          final JsonObject parents = entry.get(JSON_ENTRY_PARENTS).getAsJsonObject();
+
+          try
+          {
+            Date date = format.parse(startDate);
+
+            final ServerParentTreeNode parent = parseParent(ht, types, parents, date, context);
+
+            if (parent != null)
+            {
+              node.add(ht, parent);
+            }
+          }
+          catch (ParseException e)
+          {
+            throw new ProgrammingErrorException(e);
+          }
+        }
+      }
+
+      return node;
+    }
+    
+    protected ServerParentTreeNode parseParent(final ServerHierarchyType ht, final JsonArray types, final JsonObject parents, final Date date, final JsonDeserializationContext context)
+    {
+      for (int k = ( types.size() - 1 ); k >= 0; k--)
+      {
+        final JsonObject type = types.get(k).getAsJsonObject();
+        final String code = type.get(JSON_TYPE_CODE).getAsString();
+        final JsonObject parent = parents.get(code).getAsJsonObject();
+
+        if (parent.has(JSON_ENTRY_PARENT_GEOOBJECT))
+        {
+          final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
+
+          ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
+
+          return new ServerParentTreeNode(pSGO, ht, date);
+        }
+      }
+
+      return null;
+    }
+    
+    protected ServerGeoObjectIF deserializeGeoObject(JsonObject go, String goTypeCode, final JsonDeserializationContext context)
+    {
+      GeoObject geoObject = context.deserialize(go, GeoObject.class);
+      
+      final ServerGeoObjectIF pSGO = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObjectByCode(geoObject.getCode(), goTypeCode);
+      
+      return pSGO;
+    }
   }
 }
