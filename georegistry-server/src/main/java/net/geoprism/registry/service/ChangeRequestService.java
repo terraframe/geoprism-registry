@@ -28,6 +28,8 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -44,6 +46,7 @@ import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ChangeRequestService
 {
@@ -381,6 +384,22 @@ public class ChangeRequestService
 
     return request.getDetails();
   }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject deleteChangeRequest(String sessionId, String requestId)
+  {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!request.isVisible())
+    {
+      // TODO : I want to throw CGRPermissionException but can't because it's in a different branch...
+      throw new ProgrammingErrorException("No permissions");
+    }
+    
+    request.delete();
+
+    return request.getDetails();
+  }
 
   @Request(RequestType.SESSION)
   public String lockAction(String sessionId, String actionId)
@@ -400,5 +419,26 @@ public class ChangeRequestService
     action.unlock();
 
     return action.serialize().toString();
+  }
+  
+  @Transaction
+  public void markAllAsInvalid(ServerGeoObjectType type)
+  {
+    String reason = LocalizationFacade.localize("changeRequest.invalidate.deleteReferencedGeoObjectType");
+    
+    ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
+    
+    crq.WHERE(crq.getApprovalStatus().containsExactly(AllGovernanceStatus.PENDING));
+    
+    try (OIterator<? extends ChangeRequest> it = crq.getIterator())
+    {
+      for (ChangeRequest cr : it)
+      {
+        if (cr.referencesType(type))
+        {
+          cr.invalidate(reason);
+        }
+      }
+    }
   }
 }

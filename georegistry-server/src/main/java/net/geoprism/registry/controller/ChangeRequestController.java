@@ -21,6 +21,8 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.json.JSONException;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -198,5 +200,13 @@ public class ChangeRequestController
     String response = service.rejectAllActions(request.getSessionId(), requestId, actions);
 
     return new RestBodyResponse(response);
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON, url = "delete", method = ServletMethod.POST)
+  public ResponseIF deleteChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
+  {
+    service.deleteChangeRequest(request.getSessionId(), requestId);
+
+    return new RestResponse();
   }
 }

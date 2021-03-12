@@ -166,6 +166,20 @@ export class ChangeRequestService {
             .toPromise();
     }
 
+    delete( requestId: string ): Promise<ChangeRequest> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http.post<ChangeRequest>( acp + '/changerequest/delete', JSON.stringify( { requestId: requestId } ), { headers: headers } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+            .toPromise();
+    }
+
     rejectAllActions( requestId: string, actions:any ): Promise<AbstractAction[]> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'

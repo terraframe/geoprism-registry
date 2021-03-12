@@ -45,6 +45,7 @@ import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ChangeRequest extends ChangeRequestBase
 {
@@ -103,6 +104,7 @@ public class ChangeRequest extends ChangeRequestBase
       action.delete();
     }
     
+
     OIterator<? extends ChangeRequestHasDocument> it = this.getAllDocumentRel();
     for (ChangeRequestHasDocument rel : it)
     {
@@ -113,7 +115,7 @@ public class ChangeRequest extends ChangeRequestBase
 
     super.delete();
   }
-
+  
   public JsonObject toJSON()
   {
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
@@ -322,6 +324,59 @@ public class ChangeRequest extends ChangeRequestBase
     }
 
     return true;
+  }
+  
+  public boolean referencesType(ServerGeoObjectType type)
+  {
+    List<AbstractAction> actions = this.getOrderedActions();
+    
+    for (AbstractAction action : actions)
+    {
+      if (action.referencesType(type))
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  @Transaction
+  public void invalidate(String localizedReason)
+  {
+    this.lock();
+    
+    this.clearApprovalStatus();
+    this.addApprovalStatus(AllGovernanceStatus.REJECTED);
+    
+    if (this.getMaintainerNotes() != null && this.getMaintainerNotes().length() > 0)
+    {
+      this.setMaintainerNotes(this.getMaintainerNotes() + " " + localizedReason);
+    }
+    else
+    {
+      this.setMaintainerNotes(localizedReason);
+    }
+    
+    List<AbstractAction> actions = this.getOrderedActions();
+    
+    for (AbstractAction action : actions)
+    {
+      action.lock();
+      
+      if (action.getMaintainerNotes() != null && action.getMaintainerNotes().length() > 0)
+      {
+        action.setMaintainerNotes(action.getMaintainerNotes() + " " + localizedReason);
+      }
+      else
+      {
+        action.setMaintainerNotes(localizedReason);
+      }
+      
+      action.apply();
+    }
+    
+    this.apply();
   }
 
 }

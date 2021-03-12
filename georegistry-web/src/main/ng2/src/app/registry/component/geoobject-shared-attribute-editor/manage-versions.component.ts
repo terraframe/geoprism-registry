@@ -41,7 +41,7 @@ import Utils from '../../utility/Utils';
 export class ManageVersionsComponent implements OnInit {
 	message: string = null;
 	
-	currentDate : Date =new Date();
+	currentDate : Date = new Date();
 
 	readonly: boolean = false;
 
@@ -80,8 +80,8 @@ export class ManageVersionsComponent implements OnInit {
 
 	ngOnInit(): void {
 	}
-
-	tfInit(): void {
+	
+	ngAfterViewInit() {
 		if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length === 1) {
 			this.editingGeometry = 0;
 		}

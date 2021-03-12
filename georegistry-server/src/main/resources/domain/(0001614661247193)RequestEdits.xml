@@ -1,0 +1,38 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  <createOrUpdate>
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.delete.request.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.delete.request.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Delete" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.delete.request.confirm.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.delete.request.confirm.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Permanently Delete" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.delete.request.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.delete.request.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Are you sure you want to delete this change request? This can not be undone." />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+  </createOrUpdate>
+  
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

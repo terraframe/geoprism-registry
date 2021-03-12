@@ -76,15 +76,24 @@
             <div class="form-group row">
                 <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
                 <div class="col-md-8">
-                    <input name="startDate" [(ngModel)]="startDate" type="date" required />
+                    <input name="startDate" [(ngModel)]="startDate" type="date" max="{{currentDate|date:'yyyy-MM-dd'}}" required />
                 </div>
                 <div class="col-md-2"></div>
             </div>
             <div class="form-group row">
                 <label class="col-md-2 text-right" for="endDate"><localize key="io.endDate"></localize></label>
                 <div class="col-md-8">
-                    <input name="endDate" [(ngModel)]="endDate" type="date" required />
+<!--                     <input name="endDate" [(ngModel)]="endDate" type="date" required /> -->
+                
+                  <input *ngIf="endDate !== '5000-12-31'" name="endDate" type="date" [(ngModel)]="endDate" required>
+                  <p *ngIf="endDate === '5000-12-31'" style="font-size: 14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+                                      
+                  <p class="text-right">
+                    <a *ngIf="endDate === '5000-12-31'" (click)="setInfinity(endDate)"><localize key="manage.versions.enddate.set.date.button"></localize></a>
+                    <a *ngIf="endDate !== '5000-12-31'" (click)="setInfinity(endDate)"><localize key="manage.versions.enddate.set.current.button"></localize></a>
+                  </p>
                 </div>
+                                      
                 <div class="col-md-2"></div>
             </div>
             <div class="form-group row">

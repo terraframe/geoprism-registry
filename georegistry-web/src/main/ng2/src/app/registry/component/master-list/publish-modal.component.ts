@@ -15,6 +15,7 @@ import { LocalizationService, AuthService } from '@shared/service';
 	styleUrls: []
 })
 export class PublishModalComponent implements OnInit {
+	currentDate : Date = new Date();
 	message: string = null;
 	master: any;
 

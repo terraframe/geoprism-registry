@@ -38,6 +38,7 @@ export class AddChildAction extends AbstractAction {
 	hierarchyTypeCode: string;
 	contributorNotes: string;
 	maintainerNotes: string;
+	createdBy: string;
 }
 
 export class RemoveChildAction extends AbstractAction {

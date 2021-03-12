@@ -1,5 +1,5 @@
-import { Input, Component, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, ViewEncapsulation, HostListener } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Input, Component, HostListener } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -8,9 +8,9 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { AddChildAction } from '@registry/model/crtable';
 import { ChangeRequestService } from '@registry/service';
-import { ComponentCanDeactivate } from "@shared/service";
+import { ComponentCanDeactivate, AuthService } from "@shared/service";
 
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler } from '@shared/component';
 import { ActionDetailComponent } from '../action-detail-modal.component';
 
 declare var acp: any;
@@ -33,7 +33,7 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
 
     private bsModalRef: BsModalRef;
 
-    constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService ) {
+    constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private authService: AuthService ) {
 
     }
 
@@ -113,6 +113,10 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
     onSelect( action: AddChildAction ) {
         this.action = action;
     }
+
+	getUsername(): string {
+		return this.authService.getUsername();
+	}
 
     public error( err: HttpErrorResponse ): void {
             this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
