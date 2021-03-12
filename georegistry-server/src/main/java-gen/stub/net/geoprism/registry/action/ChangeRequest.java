@@ -302,12 +302,17 @@ public class ChangeRequest extends ChangeRequestBase
     // this.apply();
     // }
   }
+  
+  public boolean isCurrentUserOwner()
+  {
+    return this.getOwnerId().equals(Session.getCurrentSession().getUser().getOid());
+  }
 
   public boolean isVisible()
   {
     if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
     {
-      if (this.getOwnerId().equals(Session.getCurrentSession().getUser().getOid()))
+      if (isCurrentUserOwner())
       {
         return true;
       }
