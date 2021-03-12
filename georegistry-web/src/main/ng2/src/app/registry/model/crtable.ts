@@ -8,8 +8,14 @@ export class ChangeRequest {
 	statusLabel?: string;	
 	total: number;
 	pending: number;
+	documents: Document[];
 	phoneNumber?: string;
 	email?: string;
+}
+
+export class Document {
+	fileName: string;
+	oid: string;
 }
 
 export class AbstractAction {
@@ -38,6 +44,7 @@ export class AddChildAction extends AbstractAction {
 	hierarchyTypeCode: string;
 	contributorNotes: string;
 	maintainerNotes: string;
+	createdBy: string;
 }
 
 export class RemoveChildAction extends AbstractAction {

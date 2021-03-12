@@ -18,11 +18,17 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.CreateGeoObjectActionDTO;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.session.Session;
 
@@ -36,6 +42,8 @@ import net.geoprism.registry.service.ServiceFactory;
 public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 {
   private static final long            serialVersionUID           = 154658500;
+  
+  private static final Logger logger = LoggerFactory.getLogger(CreateGeoObjectAction.class);
 
   private GeoObjectPermissionServiceIF geoObjectPermissionService = new GeoObjectPermissionService();
 
@@ -63,19 +71,32 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
       try
       {
         String sJson = this.getGeoObjectJson();
-        GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
+        
+        String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
+        if (!this.doesGOTExist(typeCode))
+        {
+          return true;
+        }
 
-        ServerGeoObjectType type = ServerGeoObjectType.get(geoObject.getType());
+        ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
         return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
       }
       catch (Exception e)
       {
-
+        logger.error("error", e);
       }
     }
 
     return false;
+  }
+  
+  @Override
+  public boolean referencesType(ServerGeoObjectType type)
+  {
+    String sJson = this.getGeoObjectJson();
+
+    return GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson).equals(type.getCode());
   }
 
   @Override
@@ -113,9 +134,22 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
   private void addGeoObjectType(JSONObject object)
   {
-    GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), this.getGeoObjectJson());
-    GeoObjectType got = go.getType();
+    String sJson = this.getGeoObjectJson();
+    
+    String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
+    
+    Optional<GeoObjectType> op = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode);
 
+    GeoObjectType got;
+    if (op.isPresent())
+    {
+      got = op.get();
+    }
+    else
+    {
+      got = new GeoObjectType(typeCode, GeometryType.POLYGON, new LocalizedValue(typeCode), new LocalizedValue(""), false, "", ServiceFactory.getAdapter());
+    }
+    
     object.put("geoObjectType", new JSONObject(got.toJSON().toString()));
   }
 

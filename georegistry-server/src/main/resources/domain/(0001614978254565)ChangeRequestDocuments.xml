@@ -1,0 +1,20 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdRelationship name="net.geoprism.registry.action.ChangeRequestHasDocument" label="Has Document Relationship" generateController="false" exported="false" publish="false">
+        <parent cardinality="1" name="net.geoprism.registry.action.ChangeRequest" method="ChangeRequest" />
+        <child cardinality="*" name="com.runwaysdk.system.VaultFile" method="Document" />
+      </mdRelationship>
+      <mdException name="net.geoprism.registry.CGRPermissionException" label="CGRPermissionException" message="You do not have permission to perform this action. If this action is associated with an Organization or Geo-ObjectType, check to make sure that you have the relevant permissions." publish="false" exported="false">
+        
+      </mdException>
+    </create>
+    <update>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.action.ChangeRequestHasDocument" type="com.runwaysdk.system.metadata.MdRelationship"/>
+    </delete>
+  </undoIt>
+</version>

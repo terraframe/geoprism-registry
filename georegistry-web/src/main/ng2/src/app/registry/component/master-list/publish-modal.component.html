@@ -75,7 +75,7 @@
                     </label>
                 </div>
                 <div class="holder">
-                    <input [(ngModel)]="master.publishingStartDate" name="publishingStartDate" type="date" class="form-control" [disabled]="readonly" />
+                    <input [(ngModel)]="master.publishingStartDate" name="publishingStartDate" type="date" class="form-control" [disabled]="readonly" max="{{currentDate|date:'yyyy-MM-dd'}}" />
                 </div>
             </div>
             

@@ -1,15 +1,19 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
+import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
+
 import { ChangeRequest, AbstractAction, AddChildAction, SetParentAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from '@registry/model/crtable';
 
 import { ChangeRequestService } from '@registry/service';
-import { LocalizationService, AuthService } from '@shared/service';
+import { LocalizationService, AuthService, EventService, ExternalSystemService  } from '@shared/service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
 import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent } from '@shared/component';
+
+declare var acp: string;
 
 @Component({
 
@@ -35,8 +39,19 @@ export class RequestTableComponent {
 	filterCriteria: string = 'ALL';
 
 	isMaintainer: boolean = false;
+	
+	hasBaseDropZoneOver:boolean = false;
+	
+	/*
+     * File uploader
+     */
+	uploader: FileUploader;
+	
+	@ViewChild('myFile')
+	fileRef: ElementRef;
 
-	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService) {
+	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
+				private eventService: EventService) {
 
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
@@ -48,11 +63,103 @@ export class RequestTableComponent {
 
 		this.refresh();
 	}
+	
+	ngOnInit(): void{
+		var getUrl = acp + '/changerequest/upload-file';
+
+		let options: FileUploaderOptions = {
+			queueLimit: 1,
+			removeAfterUpload: true,
+			url: getUrl
+		};
+
+		this.uploader = new FileUploader(options);
+
+		this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+			form.append('crOid', this.toggleId);
+		};
+		this.uploader.onBeforeUploadItem = (fileItem: any) => {
+			this.eventService.start();
+		};
+		this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+			this.fileRef.nativeElement.value = "";
+			this.eventService.complete();
+		};
+		this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {
+//			const configuration = JSON.parse(response);
+			
+			for(let i=0; i<this.requests.length; i++){
+				let req = this.requests[i];
+				if(req.oid === this.toggleId){
+					
+					req.documents.push(JSON.parse(response));
+					
+					break;
+				}
+			}
+			
+		};
+		this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+			const error = JSON.parse(response)
+
+			this.error({ error: error });
+		}
+	}
+	
+	onUpload(): void {
+
+		if (this.uploader.queue != null && this.uploader.queue.length > 0) {
+			this.uploader.uploadAll();
+		}
+		else {
+			this.error({
+				message: this.localizationService.decode('io.missing.file'),
+				error: {},
+			});
+		}
+	}
+	
+	onDownloadFile(requestOid: string, fileOid: string): void {
+		window.location.href = acp + '/changerequest/download-file?crOid=' + requestOid + '&' + 'vfOid=' + fileOid;
+	}
+	
+	onDeleteFile(requestOid: string, fileOid: string): void {
+		this.service.deleteFile(requestOid, fileOid).then(response => {
+			
+			let docPos = -1;
+			for(let i=0; i<this.requests.length; i++){
+				let req = this.requests[i];
+				if(req.oid === this.toggleId){
+					
+					for(let index=0; index<req.documents.length; index++){
+						let doc = req.documents[index];
+						if(doc.oid === fileOid){
+							docPos = index;
+							break;
+						}
+					}
+					
+					if(docPos > -1){
+						req.documents.splice(docPos, 1)
+					}
+					
+					break;
+				}
+			}
+
+		}).catch((response: HttpErrorResponse) => {
+			this.error(response);
+		})
+	}
+	
+	public fileOverBase(e:any):void {
+	    this.hasBaseDropZoneOver = e;
+	}
 
 	refresh(): void {
 
 		this.service.getAllRequests("ALL").then(requests => {
-
+			
 			this.requests = requests;
 
 		}).catch((response: HttpErrorResponse) => {
@@ -84,6 +191,31 @@ export class RequestTableComponent {
 				this.refresh();
 			}).catch((response: HttpErrorResponse) => {
 				this.error(response);
+			});
+		}
+	}
+	
+	onDelete(changeRequest: ChangeRequest): void {
+
+		if (changeRequest != null) {
+			const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+				animated: true,
+				backdrop: true,
+				ignoreBackdropClick: true,
+			});
+			
+			bsModalRef.content.type = "DANGER";
+			bsModalRef.content.submitText = this.localizationService.decode('change.request.delete.request.confirm.btn');
+			bsModalRef.content.message = this.localizationService.decode('change.request.delete.request.message');
+
+			bsModalRef.content.onConfirm.subscribe(data => {
+				this.service.delete(changeRequest.oid).then(request => {
+					changeRequest = request;
+	
+					this.refresh();
+				}).catch((response: HttpErrorResponse) => {
+					this.error(response);
+				});
 			});
 		}
 	}
@@ -157,7 +289,7 @@ export class RequestTableComponent {
 		}
 	}
 
-	public error(err: HttpErrorResponse): void {
+	public error(err: any): void {
 		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 
@@ -238,6 +370,10 @@ export class RequestTableComponent {
 	
 	formatDate(date: string): string {
 		return this.localizationService.formatDateForDisplay(date);
+	}
+	
+	getUsername(): string {
+		return this.authService.getUsername();
 	}
 
 }

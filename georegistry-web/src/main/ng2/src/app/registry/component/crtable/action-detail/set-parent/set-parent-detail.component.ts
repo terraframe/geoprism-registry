@@ -1,5 +1,5 @@
-import { Input, Component, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef, ViewEncapsulation, HostListener } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Input, Component, ViewEncapsulation, HostListener } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -10,9 +10,9 @@ import { AbstractAction } from '@registry/model/crtable';
 
 import { RegistryService, ChangeRequestService } from '@registry/service';
 
-import { ComponentCanDeactivate } from "@shared/service";
+import { ComponentCanDeactivate, AuthService } from "@shared/service";
 
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler } from '@shared/component';
 
 import { ActionDetailComponent } from '../action-detail-modal.component';
 import { ManageParentVersionsModalComponent } from '@registry/component/cascading-geo-selector/manage-parent-versions-modal.component';
@@ -46,7 +46,7 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
      */
 	forDate: Date = null;
 
-	constructor(private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService) {
+	constructor(private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, private authService: AuthService) {
 		this.forDate = new Date();
 
 		const day = this.forDate.getUTCDate();
@@ -154,6 +154,9 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 		});
 	}
 
+	getUsername(): string {
+		return this.authService.getUsername();
+	}
 
     public error( err: HttpErrorResponse ): void {
             this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

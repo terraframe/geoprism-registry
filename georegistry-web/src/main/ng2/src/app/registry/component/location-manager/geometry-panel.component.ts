@@ -39,6 +39,9 @@ import * as moment from 'moment';
 		]]
 })
 export class GeometryPanelComponent implements OnInit {
+	
+	currentDate : Date = new Date();
+	
 	message: string = null;
 
 	readonly: boolean = false;

@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.json.JSONObject;
-
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.RelationshipQuery;
@@ -38,10 +39,13 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
+import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class ChangeRequest extends ChangeRequestBase
 {
@@ -99,35 +103,48 @@ public class ChangeRequest extends ChangeRequestBase
     {
       action.delete();
     }
+    
+
+    OIterator<? extends ChangeRequestHasDocument> it = this.getAllDocumentRel();
+    for (ChangeRequestHasDocument rel : it)
+    {
+      VaultFile vf = rel.getChild();
+      rel.delete();
+      vf.delete();
+    }
 
     super.delete();
   }
-
-  public JSONObject toJSON()
+  
+  public JsonObject toJSON()
   {
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
 
     Users user = (Users) this.getCreatedBy();
     AllGovernanceStatus status = this.getApprovalStatus().get(0);
+    
+    JsonArray ja = JsonParser.parseString(new ChangeRequestService().listDocuments(Session.getCurrentSession().getOid(), this.getOid())).getAsJsonArray();
 
-    JSONObject object = new JSONObject();
-    object.put(ChangeRequest.OID, this.getOid());
-    object.put(ChangeRequest.CREATEDATE, format.format(this.getCreateDate()));
-    object.put(ChangeRequest.CREATEDBY, user.getUsername());
-    object.put(ChangeRequest.APPROVALSTATUS, status.getEnumName());
-    object.put(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
-    object.put("statusLabel", status.getDisplayLabel());
+    JsonObject object = new JsonObject();
+    object.addProperty(ChangeRequest.OID, this.getOid());
+    object.addProperty(ChangeRequest.CREATEDATE, format.format(this.getCreateDate()));
+    object.addProperty(ChangeRequest.CREATEDBY, user.getUsername());
+    object.addProperty(ChangeRequest.APPROVALSTATUS, status.getEnumName());
+    object.addProperty(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
+    object.addProperty("statusLabel", status.getDisplayLabel());
 
     if (user instanceof GeoprismUser)
     {
-      object.put("email", ( (GeoprismUser) user ).getEmail());
-      object.put("phoneNumber", ( (GeoprismUser) user ).getPhoneNumber());
+      object.addProperty("email", ( (GeoprismUser) user ).getEmail());
+      object.addProperty("phoneNumber", ( (GeoprismUser) user ).getPhoneNumber());
     }
+    
+    object.add("documents", ja);
 
     return object;
   }
 
-  public JSONObject getDetails()
+  public JsonObject getDetails()
   {
     int total = 0;
     int pending = 0;
@@ -154,11 +171,11 @@ public class ChangeRequest extends ChangeRequestBase
     }
     AllGovernanceStatus status = this.getApprovalStatus().get(0);
 
-    JSONObject object = this.toJSON();
-    object.put("total", total);
-    object.put("pending", pending);
-    object.put("statusCode", status.getEnumName());
-    object.put(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
+    JsonObject object = this.toJSON();
+    object.addProperty("total", total);
+    object.addProperty("pending", pending);
+    object.addProperty("statusCode", status.getEnumName());
+    object.addProperty(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
 
     return object;
   }
@@ -307,6 +324,59 @@ public class ChangeRequest extends ChangeRequestBase
     }
 
     return true;
+  }
+  
+  public boolean referencesType(ServerGeoObjectType type)
+  {
+    List<AbstractAction> actions = this.getOrderedActions();
+    
+    for (AbstractAction action : actions)
+    {
+      if (action.referencesType(type))
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  @Transaction
+  public void invalidate(String localizedReason)
+  {
+    this.lock();
+    
+    this.clearApprovalStatus();
+    this.addApprovalStatus(AllGovernanceStatus.REJECTED);
+    
+    if (this.getMaintainerNotes() != null && this.getMaintainerNotes().length() > 0)
+    {
+      this.setMaintainerNotes(this.getMaintainerNotes() + " " + localizedReason);
+    }
+    else
+    {
+      this.setMaintainerNotes(localizedReason);
+    }
+    
+    List<AbstractAction> actions = this.getOrderedActions();
+    
+    for (AbstractAction action : actions)
+    {
+      action.lock();
+      
+      if (action.getMaintainerNotes() != null && action.getMaintainerNotes().length() > 0)
+      {
+        action.setMaintainerNotes(action.getMaintainerNotes() + " " + localizedReason);
+      }
+      else
+      {
+        action.setMaintainerNotes(localizedReason);
+      }
+      
+      action.apply();
+    }
+    
+    this.apply();
   }
 
 }

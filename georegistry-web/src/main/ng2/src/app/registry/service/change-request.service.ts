@@ -6,6 +6,8 @@ import { ChangeRequest, AbstractAction } from '@registry/model/crtable';
 import { EventService } from '@shared/service';
 import { GeoObject } from '@registry/model/registry';
 
+import { ImportConfiguration } from '@registry/model/io';
+
 declare var acp: any;
 
 @Injectable()
@@ -164,6 +166,20 @@ export class ChangeRequestService {
             .toPromise();
     }
 
+    delete( requestId: string ): Promise<ChangeRequest> {
+        let headers = new HttpHeaders( {
+            'Content-Type': 'application/json'
+        } );
+
+        this.eventService.start();
+
+        return this.http.post<ChangeRequest>( acp + '/changerequest/delete', JSON.stringify( { requestId: requestId } ), { headers: headers } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+            .toPromise();
+    }
+
     rejectAllActions( requestId: string, actions:any ): Promise<AbstractAction[]> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -208,5 +224,20 @@ export class ChangeRequestService {
 			}))
             .toPromise();
     }
+
+	deleteFile(requestId: string, fileId: string): Promise<ImportConfiguration> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
+
+		this.eventService.start();
+
+		return this.http
+			.post<ImportConfiguration>(acp + '/changerequest/delete-file', JSON.stringify({ crOid: requestId, vfOid: fileId }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
 }

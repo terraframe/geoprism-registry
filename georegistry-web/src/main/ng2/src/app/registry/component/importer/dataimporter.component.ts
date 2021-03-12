@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
+import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
@@ -12,7 +12,7 @@ import { ExternalSystem } from '@shared/model/core';
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 import { ShapefileModalComponent } from './modals/shapefile-modal.component';
 import { IOService } from '@registry/service';
-import { ImportStrategy } from '@registry/model/registry';
+import { ImportStrategy, PRESENT } from '@registry/model/registry';
 
 declare var acp: string;
 
@@ -23,6 +23,8 @@ declare var acp: string;
 	styleUrls: ['./dataimporter.css']
 })
 export class DataImporterComponent implements OnInit {
+	
+	currentDate : Date = new Date();
 
 	showImportConfig: boolean = false;
 
@@ -46,12 +48,12 @@ export class DataImporterComponent implements OnInit {
     /*
      * Start date
      */
-	startDate: string = null;
+	startDate: Date = null;
 
     /*
      * End date
      */
-	endDate: string = null;
+	endDate: Date | string = null;
 
     /*
      * Reference to the modal current showing
@@ -182,7 +184,7 @@ export class DataImporterComponent implements OnInit {
 			configuration.externalSystem = externalSystem;
 
 			if (this.format === "SHAPEFILE") {
-				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true });
+				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
 			}
 			else {
 				this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
@@ -225,6 +227,16 @@ export class DataImporterComponent implements OnInit {
 
 	onBack(): void {
 		this.showImportConfig = false;
+	}
+	
+	setInfinity(endDate: any): void {
+
+		if(endDate === PRESENT){
+			this.endDate = null;
+		}
+		else{
+			this.endDate = PRESENT;
+		}
 	}
 
 

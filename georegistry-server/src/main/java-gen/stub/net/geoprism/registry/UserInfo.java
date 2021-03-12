@@ -487,7 +487,7 @@ public class UserInfo extends UserInfoBase
     user.setLastName(account.get(GeoprismUser.LASTNAME).getAsString());
     user.setEmail(account.get(GeoprismUser.EMAIL).getAsString());
 
-    if (account.has(GeoprismUser.PHONENUMBER))
+    if (account.has(GeoprismUser.PHONENUMBER) && account.get(GeoprismUser.PHONENUMBER).getAsString().length() > 0)
     {
       user.setPhoneNumber(account.get(GeoprismUser.PHONENUMBER).getAsString());
     }
@@ -497,7 +497,7 @@ public class UserInfo extends UserInfoBase
       user.setInactive(account.get(GeoprismUser.INACTIVE).getAsBoolean());
     }
 
-    if (account.has(GeoprismUser.PASSWORD))
+    if (account.has(GeoprismUser.PASSWORD) && account.get(GeoprismUser.PASSWORD).getAsString().length() > 0)
     {
       String password = account.get(GeoprismUser.PASSWORD).getAsString();
 
@@ -506,7 +506,7 @@ public class UserInfo extends UserInfoBase
         user.setPassword(password);
       }
     }
-    else if (account.has(UserInfo.EXTERNALSYSTEMOID)) {
+    else if (account.has(UserInfo.EXTERNALSYSTEMOID) && account.get(UserInfo.EXTERNALSYSTEMOID).getAsString().length() > 0) {
       user.setPassword(String.valueOf(new Random().nextLong()));
     }
 

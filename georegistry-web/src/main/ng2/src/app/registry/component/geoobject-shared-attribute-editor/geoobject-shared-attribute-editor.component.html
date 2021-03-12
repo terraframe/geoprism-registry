@@ -16,7 +16,6 @@
               <div class="panel panel-default">
                 <div class="panel-heading">
                   <h4 *ngIf="attr.code !== 'geometry'" style="margin:0;">
-
                     <span *ngIf="attr.code === 'code'"> 
                       <localize key="geoobject.code.alternate.label"></localize>
                     </span> 
@@ -24,19 +23,6 @@
                       <localize key="geoobject.displayLabel.alternate.label"></localize>
                     </span> 
                     <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
-<!--                     <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] && calculatedPostObject[attr.code].startDate" style="color:#BABABA;font-style:italic;">  -->
-<!--                       ( <p style="font-size:14px;display:inline-block;"> -->
-<!--                           {{calculatedPostObject[attr.code].startDate}} -->
-<!--                         </p> -->
-<!--                       - -->
-<!--                       <p *ngIf="calculatedPostObject[attr.code].endDate !== 'Present'" style="font-size:14px;display:inline-block;"> -->
-<!--                         {{calculatedPostObject[attr.code].endDate}} -->
-<!--                       </p> -->
-<!--                       <p *ngIf="calculatedPostObject[attr.code].endDate === 'Present'" style="font-size:14px;display:inline-block;"> -->
-<!--                         <localize key="changeovertime.manageVersions.infinity.endDate.label"></localize> -->
-<!--                       </p> -->
-<!--                       ) -->
-<!--                     </span> -->
                   </h4>
 
                   <h5 *ngIf="attr.code === 'geometry'">
@@ -190,19 +176,19 @@
 
                   </div>
 
-                  <div *ngIf="attr.type === 'geometry' && this.isGeometryInlined">
-                    <geoobject-editor-map 
-                      #geometryEditor 
-                      [geometryType]="this.geoObjectType.geometryType" 
-                      [readOnly]="true"
-                      [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
-                      [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null" 
-                      [bboxCode]="this.preGeoObject.attributes.code"
-                      [bboxType]="this.geoObjectType.code"
-                      (onClickEdit)="this.onManageGeometryVersions()" 
-                      [bboxDate]="this.forDate.toISOString().split('T')[0]"> 
-                    </geoobject-editor-map>
-                  </div>
+<!--                   <div *ngIf="attr.type === 'geometry' && this.isGeometryInlined"> -->
+<!--                     <geoobject-editor-map  -->
+<!--                       #geometryEditor  -->
+<!--                       [geometryType]="this.geoObjectType.geometryType"  -->
+<!--                       [readOnly]="readOnly" -->
+<!--                       [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null" -->
+<!--                       [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null"  -->
+<!--                       [bboxCode]="this.preGeoObject.attributes.code" -->
+<!--                       [bboxType]="this.geoObjectType.code" -->
+<!--                       (onClickEdit)="this.onManageGeometryVersions()"  -->
+<!--                       [bboxDate]="this.forDate.toISOString().split('T')[0]">  -->
+<!--                     </geoobject-editor-map> -->
+<!--                   </div> -->
 
                   <!--                   <div *ngIf="attr.isChangeOverTime && !readOnly" class="button-holder" > -->
                   <!--                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button"> -->
@@ -216,24 +202,19 @@
           </ul>
         </div>
       </div>
-      <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined">
-        <!-- <div class="label-holder">
-                     <label>
-                      <localize key="shared.attributes.attribute.geometry.label"></localize>
-                     </label>
-                   </div> -->
-          <geoobject-editor-map 
-            #geometryEditor
-            [geometryType]="this.geoObjectType.geometryType"
-            [readOnly]="true" 
-            [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
-            [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null"
-            [bboxCode]="this.preGeoObject.attributes.code"
-            [bboxType]="this.geoObjectType.code"
-            (onClickEdit)="this.onManageGeometryVersions()"
-            [bboxDate]="this.forDate.toISOString().split('T')[0]"
-          > </geoobject-editor-map>
-      </div>
+<!--       <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined"> -->
+<!--           <geoobject-editor-map  -->
+<!--             #geometryEditor -->
+<!--             [geometryType]="this.geoObjectType.geometryType" -->
+<!--             [readOnly]="readOnly"  -->
+<!--             [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null" -->
+<!--             [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null" -->
+<!--             [bboxCode]="this.preGeoObject.attributes.code" -->
+<!--             [bboxType]="this.geoObjectType.code" -->
+<!--             (onClickEdit)="this.onManageGeometryVersions()" -->
+<!--             [bboxDate]="this.forDate.toISOString().split('T')[0]" -->
+<!--           > </geoobject-editor-map> -->
+<!--       </div> -->
     </div>
     <!-- </div> -->
   </fieldset>

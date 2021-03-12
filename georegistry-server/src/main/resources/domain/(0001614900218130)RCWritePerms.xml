@@ -1,0 +1,71 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update></update>
+    <permissions>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.action.GovernanceStatus">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.ChangeRequest">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.action.HasActionRelationship">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.AbstractAction">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.CreateGeoObjectAction">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.UpdateGeoObjectAction">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.AddChildAction">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.RemoveChildAction">
+            <operation name="READ" />
+            <operation name="READ_ALL_ATTRIBUTES" />
+            <operation name="WRITE" />
+            <operation name="WRITE_ALL_ATTRIBUTES" />
+            <operation name="CREATE" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

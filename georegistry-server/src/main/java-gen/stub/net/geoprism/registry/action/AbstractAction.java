@@ -29,6 +29,7 @@ import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -49,12 +50,19 @@ public abstract class AbstractAction extends AbstractActionBase
   abstract public void execute();
 
   public abstract boolean isVisible();
+  
+  public abstract boolean referencesType(ServerGeoObjectType type);
 
   protected abstract String getMessage();
 
   public AbstractAction(RegistryService registry)
   {
     this.registry = registry;
+  }
+  
+  protected boolean doesGOTExist(String code)
+  {
+    return ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(code).isPresent();
   }
 
   public static AbstractAction dtoToRegistry(AbstractActionDTO actionDTO)
@@ -95,6 +103,7 @@ public abstract class AbstractAction extends AbstractActionBase
     jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0).getEnumName());
     jo.put("statusLabel", status.getDisplayLabel());
     jo.put(AbstractAction.CREATEACTIONDATE, format.format(this.getCreateActionDate()));
+    jo.put(AbstractAction.CREATEDBY, this.getCreatedBy());
 
     SingleActor decisionMaker = this.getDecisionMaker();
 

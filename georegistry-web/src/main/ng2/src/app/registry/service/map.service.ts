@@ -16,9 +16,6 @@ export class MapService {
 		(mapboxgl as any).accessToken = 'pk.eyJ1IjoidGVycmFmcmFtZSIsImEiOiJjanZxNWE5bWkwazYwNGFtb3loOGxsbjR1In0.ZNEwT-pBnGookEb-BF_jQQ';
 	}
 
-	init(): void {
-		// Initialize the mapbox-gl settings
-	}
 
 	roots(typeCode: string, hierarchyCode: string, date: string): Promise<LocationInformation> {
 

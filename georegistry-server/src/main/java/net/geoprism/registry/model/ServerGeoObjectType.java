@@ -93,6 +93,7 @@ import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -344,6 +345,8 @@ public class ServerGeoObjectType
     MasterList.markAllAsInvalid(null, this);
 
     new SearchService().clear(this.getCode());
+    
+    new ChangeRequestService().markAllAsInvalid(this);;
   }
 
   public void update(GeoObjectType geoObjectTypeNew)
