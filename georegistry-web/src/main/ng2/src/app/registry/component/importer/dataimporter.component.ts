@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
-import { FileSelectDirective, FileDropDirective, FileUploader, FileUploaderOptions } from 'ng2-file-upload';
+import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
@@ -182,7 +182,7 @@ export class DataImporterComponent implements OnInit {
 			configuration.externalSystem = externalSystem;
 
 			if (this.format === "SHAPEFILE") {
-				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true });
+				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
 			}
 			else {
 				this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });

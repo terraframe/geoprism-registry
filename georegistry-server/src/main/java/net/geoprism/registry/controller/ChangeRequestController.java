@@ -21,10 +21,8 @@ package net.geoprism.registry.controller;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import com.google.gson.JsonObject;
+import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
@@ -56,7 +54,7 @@ public class ChangeRequestController
     this.service = new ChangeRequestService();
   }
   
-  @Endpoint(error = ErrorSerialization.JSON)
+  @Endpoint(url = "upload-file", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF uploadFile(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
   {
     try (InputStream stream = file.getInputStream())
@@ -157,7 +155,7 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
   public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "filter") String filter)
   {
-    JSONArray requests = service.getAllRequests(request.getSessionId(), filter);
+    JsonArray requests = service.getAllRequests(request.getSessionId(), filter);
 
     return new RestBodyResponse(requests);
   }

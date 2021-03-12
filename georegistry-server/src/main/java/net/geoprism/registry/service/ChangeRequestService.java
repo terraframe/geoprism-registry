@@ -292,7 +292,7 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JSONArray getAllRequests(String sessionId, String filter)
+  public JsonArray getAllRequests(String sessionId, String filter)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getCreateDate());
@@ -314,7 +314,7 @@ public class ChangeRequestService
 
     try
     {
-      JSONArray requests = new JSONArray();
+      JsonArray requests = new JsonArray();
 
       while (it.hasNext())
       {
@@ -322,7 +322,7 @@ public class ChangeRequestService
 
         if (request.isVisible())
         {
-          requests.put(request.toJSON());
+          requests.add(request.toJSON());
         }
       }
 

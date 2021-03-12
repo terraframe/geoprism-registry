@@ -6,6 +6,8 @@ import { ChangeRequest, AbstractAction } from '@registry/model/crtable';
 import { EventService } from '@shared/service';
 import { GeoObject } from '@registry/model/registry';
 
+import { ImportConfiguration } from '@registry/model/io';
+
 declare var acp: any;
 
 @Injectable()
@@ -208,5 +210,20 @@ export class ChangeRequestService {
 			}))
             .toPromise();
     }
+
+//	importFile(configuration: ImportConfiguration, requestId: string): Promise<ImportConfiguration> {
+//		let headers = new HttpHeaders({
+//			'Content-Type': 'application/json'
+//		});
+//
+//		this.eventService.start();
+//
+//		return this.http
+//			.post<ImportConfiguration>(acp + '/changerequest/upload-file', JSON.stringify({ json: configuration, crOid: requestId }), { headers: headers })
+//			.pipe(finalize(() => {
+//				this.eventService.complete();
+//			}))
+//			.toPromise();
+//	}
 
 }

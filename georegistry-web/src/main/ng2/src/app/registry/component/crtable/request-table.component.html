@@ -203,17 +203,40 @@
                             </span>
                             <label> {{action.decisionMaker}} </label>
                         </div>
+                        
+                         <div class="form-group">
+                            <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
+                            <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                          </div>  
+                          
+                          <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" style="width:100%;" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
+                              <localize key="change.request.modify.geoobject.link.btn"></localize> ({{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}})
+                          </a>
                     </div>
                     
                     <div class="col-md-4" >
-                      <div class="form-group">
-                        <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
-                        <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
-                      </div>  
+<!--                       <div class="form-group"> -->
+<!--                         <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label> -->
+<!--                         <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea> -->
+<!--                       </div>   -->
                       
-                      <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" style="width:100%;" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
-                          <localize key="change.request.modify.geoobject.link.btn"></localize> ({{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}})
-                      </a>
+<!--                       <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" style="width:100%;" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]"> -->
+<!--                           <localize key="change.request.modify.geoobject.link.btn"></localize> ({{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}) -->
+<!--                       </a> -->
+                      
+                      <!-- Limit file types with: accept=".xls, .xlsx, .pdf, .doc" -->
+                      <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" required />
+                      
+                      <button class="btn btn-primary" (click)="onUpload(req.oid)">Upload</button>
+                      
+<!--                        <div ng2FileDrop -->
+<!--                  [ngClass]="{'nv-file-over': hasBaseDropZoneOver}" -->
+<!--                  (fileOver)="fileOverBase($event)" -->
+<!--                  [uploader]="uploader" -->
+<!--                  class="well my-drop-zone"> -->
+<!--                 Base drop zone -->
+<!--             </div> -->
+                        
                     </div>
                   </div>
                 </div> <!-- END action-card -->
@@ -235,9 +258,9 @@
             </div>
 
           </td>
-            </tr>
+        </tr>
       </ng-template>
-        </tbody>
+    </tbody>
   </table>
   </div>   
 </div>

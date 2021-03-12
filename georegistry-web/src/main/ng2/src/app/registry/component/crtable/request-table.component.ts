@@ -1,15 +1,19 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
+import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
+
 import { ChangeRequest, AbstractAction, AddChildAction, SetParentAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from '@registry/model/crtable';
 
 import { ChangeRequestService } from '@registry/service';
-import { LocalizationService, AuthService } from '@shared/service';
+import { LocalizationService, AuthService, EventService, ExternalSystemService  } from '@shared/service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
 import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent } from '@shared/component';
+
+declare var acp: string;
 
 @Component({
 
@@ -35,8 +39,19 @@ export class RequestTableComponent {
 	filterCriteria: string = 'ALL';
 
 	isMaintainer: boolean = false;
+	
+	hasBaseDropZoneOver:boolean = false;
+	
+	/*
+     * File uploader
+     */
+	uploader: FileUploader;
+	
+	@ViewChild('myFile')
+	fileRef: ElementRef;
 
-	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService) {
+	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
+				private eventService: EventService) {
 
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
@@ -48,11 +63,68 @@ export class RequestTableComponent {
 
 		this.refresh();
 	}
+	
+	ngOnInit(): void{
+		var getUrl = acp + '/changerequest/upload-file';
+
+		let options: FileUploaderOptions = {
+			queueLimit: 1,
+			removeAfterUpload: true,
+			url: getUrl
+		};
+
+		this.uploader = new FileUploader(options);
+
+		this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
+			form.append('crOid', this.toggleId);
+		};
+		this.uploader.onBeforeUploadItem = (fileItem: any) => {
+			this.eventService.start();
+		};
+		this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
+			this.fileRef.nativeElement.value = "";
+			this.eventService.complete();
+		};
+		this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+			const configuration = JSON.parse(response);
+
+//			if (this.format === "SHAPEFILE") {
+//				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
+//			}
+//			else {
+//				this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
+//			}
+//
+//			this.bsModalRef.content.configuration = configuration;
+		};
+		this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
+			const error = JSON.parse(response)
+
+			this.error({ error: error });
+		}
+	}
+	
+	onUpload(requestId: string): void {
+
+		if (this.uploader.queue != null && this.uploader.queue.length > 0) {
+			this.uploader.uploadAll();
+		}
+		else {
+			this.error({
+				message: this.localizationService.decode('io.missing.file'),
+				error: {},
+			});
+		}
+	}
+	
+	public fileOverBase(e:any):void {
+	    this.hasBaseDropZoneOver = e;
+	}
 
 	refresh(): void {
 
 		this.service.getAllRequests("ALL").then(requests => {
-
+			
 			this.requests = requests;
 
 		}).catch((response: HttpErrorResponse) => {
@@ -157,7 +229,7 @@ export class RequestTableComponent {
 		}
 	}
 
-	public error(err: HttpErrorResponse): void {
+	public error(err: any): void {
 		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 
