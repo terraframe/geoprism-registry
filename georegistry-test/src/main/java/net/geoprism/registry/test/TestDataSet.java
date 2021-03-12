@@ -27,7 +27,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -82,6 +81,7 @@ import net.geoprism.gis.geoserver.NullGeoserverService;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.ontology.ClassifierQuery;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.IdRecord;
 import net.geoprism.registry.IdRecordQuery;
 import net.geoprism.registry.MasterList;
@@ -155,7 +155,7 @@ abstract public class TestDataSet
 
   static
   {
-    Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar cal = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     cal.clear();
     cal.set(2020, Calendar.APRIL, 4);
 
@@ -166,10 +166,10 @@ abstract public class TestDataSet
 
     DEFAULT_END_TIME_DATE = cal.getTime();
 
-    Calendar a = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar a = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     a.setTime(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Calendar b = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar b = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     DEFAULT_TIME_YEAR_DIFF = ( b.get(Calendar.YEAR) - a.get(Calendar.YEAR) ) + 1;
   }
 

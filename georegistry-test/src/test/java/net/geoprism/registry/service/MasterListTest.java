@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -49,6 +48,7 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.DuplicateMasterListException;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
@@ -701,7 +701,7 @@ public class MasterListTest
     final MasterList list = new MasterList();
     list.addFrequency(ChangeFrequency.ANNUAL);
 
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.clear();
     calendar.set(2012, Calendar.MARCH, 3);
 
@@ -731,7 +731,7 @@ public class MasterListTest
     final MasterList list = new MasterList();
     list.addFrequency(ChangeFrequency.QUARTER);
 
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.clear();
     calendar.set(2012, Calendar.MARCH, 3);
 
@@ -753,7 +753,7 @@ public class MasterListTest
     final MasterList list = new MasterList();
     list.addFrequency(ChangeFrequency.BIANNUAL);
 
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.clear();
     calendar.set(2012, Calendar.MARCH, 3);
 
@@ -775,7 +775,7 @@ public class MasterListTest
     final MasterList list = new MasterList();
     list.addFrequency(ChangeFrequency.MONTHLY);
 
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.clear();
     calendar.set(2012, Calendar.MARCH, 3);
 

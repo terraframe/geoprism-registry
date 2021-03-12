@@ -19,7 +19,6 @@
 package net.geoprism.registry.etl;
 
 import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +28,7 @@ import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.GeoprismUser;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -63,7 +63,7 @@ public class PublishShapefileJob extends PublishShapefileJobBase
   public JSONObject toJSON()
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     final MasterListVersion version = this.getVersion();
     final MasterList masterlist = version.getMasterlist();

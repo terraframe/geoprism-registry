@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -76,7 +75,7 @@ public class ShapefileService
       try (CloseableFile dbf = ShapefileImporter.getShapefileFromResource(vf, "dbf"))
       {
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
         JSONArray hierarchies = new JSONArray(ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, geoObjectType.getCode(), false).toString());
 

@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -42,11 +41,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
-import com.runwaysdk.configuration.CommonsConfigurationResolver;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
@@ -57,7 +54,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.registry.DataNotFoundException;
 import net.geoprism.registry.DuplicateGeoObjectCodeException;
-import net.geoprism.registry.GeoregistryProperties;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
@@ -585,7 +582,7 @@ public class GeoObjectImporterTest
     JSONObject jo = new JSONObject(new ETLService().getImportDetails(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
 
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     Assert.assertEquals(format.format(startDate), jo.getJSONObject("configuration").getString("startDate"));
     Assert.assertEquals(format.format(endDate), jo.getJSONObject("configuration").getString("endDate"));
 

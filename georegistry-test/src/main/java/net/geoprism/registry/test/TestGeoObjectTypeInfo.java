@@ -35,7 +35,6 @@ import com.runwaysdk.system.metadata.MdClass;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class TestGeoObjectTypeInfo
@@ -150,7 +149,8 @@ public class TestGeoObjectTypeInfo
     }
     else
     {
-      return Universal.getByKey(this.getCode());
+//      return Universal.getByKey(this.getCode());
+      return TestDataSet.getUniversalIfExist(this.getCode());
     }
   }
 

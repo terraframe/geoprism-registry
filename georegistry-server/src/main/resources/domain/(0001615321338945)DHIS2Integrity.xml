@@ -1,0 +1,35 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.MultipleLevelOneOrgUnitException"
+        message="This Organisation Unit cannot be created in DHIS2 because it would create multiple Organisation Units at level 1. DHIS2 only supports one level one Organisation Unit."
+        exported="false" publish="false" >
+      </mdException>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.ParentExternalIdException"
+        message="This Geo-Object cannot be exported because it contains a parent [{parentLabel}] which does not have an external id. Parents must exist in DHIS2 unless the Geo-Object is exported at level 1."
+        exported="false" publish="false" >
+        <attributes>
+          <text name="parentLabel" required="true" />
+        </attributes>
+      </mdException>
+      <mdException name="net.geoprism.registry.etl.export.dhis2.NoParentException"
+        message="Could not find a parent at SyncLevel [{syncLevel}] of Geo-Object Type [{typeCode}] in hierarchy [{hierarchyCode}] at date [{dateLabel}]"
+        exported="false" publish="false" >
+        <attributes>
+          <text name="syncLevel" required="true" />
+          <text name="typeCode" required="true" />
+          <text name="hierarchyCode" required="true" />
+          <text name="dateLabel" required="true" />
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.export.dhis2.MultipleLevelOneOrgUnitException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.etl.export.dhis2.ParentExternalIdException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.etl.export.dhis2.NoParentException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>

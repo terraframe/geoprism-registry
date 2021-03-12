@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
@@ -47,6 +46,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.controller.RegistryController;
 import net.geoprism.registry.controller.SynchronizationConfigController;
 import net.geoprism.registry.permission.PermissionContext;
@@ -296,7 +296,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   protected String dateToString(Date date)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     String sDate = format.format(date);
 
     return sDate;

@@ -18,12 +18,9 @@
  */
 package net.geoprism.registry.action.geoobject;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -39,8 +36,6 @@ import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;

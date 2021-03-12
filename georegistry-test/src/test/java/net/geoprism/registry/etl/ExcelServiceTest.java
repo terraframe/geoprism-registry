@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -66,6 +65,7 @@ import com.vividsolutions.jts.geom.PrecisionModel;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory.ObjectImportType;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -413,7 +413,7 @@ public class ExcelServiceTest
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "0001", USATestData.DISTRICT.getCode());
 
     Calendar calendar = Calendar.getInstance();
-    calendar.setTimeZone(TimeZone.getTimeZone("GMT"));
+    calendar.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.clear();
     calendar.set(2018, Calendar.FEBRUARY, 12, 0, 0, 0);
 

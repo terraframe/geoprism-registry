@@ -18,17 +18,10 @@
  */
 package net.geoprism.registry.conversion;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.runwaysdk.ComponentIF;
-import com.runwaysdk.business.Business;
 import com.runwaysdk.business.ontology.InitializationStrategyIF;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -49,7 +42,6 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.GISConstants;
-import com.runwaysdk.query.OIterator;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.metadata.AssociationType;
@@ -66,7 +58,6 @@ import net.geoprism.registry.MasterList;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.graph.GeoVertex;
-import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class ServerHierarchyTypeBuilder extends LocalizedValueConverter

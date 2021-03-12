@@ -37,6 +37,7 @@ import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
+import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
@@ -116,7 +117,7 @@ public class DataExportJob extends DataExportJobBase
 
     this.setStage(history, ExportStage.EXPORT);
 
-    this.dhis2FeatureService.synchronize(dhis2, dhis2Config, history);
+    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
   }
   
   @Override

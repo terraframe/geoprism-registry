@@ -28,7 +28,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,7 +39,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -133,8 +131,6 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
-import net.geoprism.registry.query.ServerStatusRestriction;
-import net.geoprism.registry.query.ServerStatusRestriction.JoinOp;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
@@ -1064,7 +1060,7 @@ public class MasterListVersion extends MasterListVersionBase
   public JsonObject toJSON(boolean includeAttribute)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     String filename = this.getOid() + ".zip";
     MasterList masterlist = this.getMasterlist();
@@ -1115,14 +1111,14 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (frequency.contains(ChangeFrequency.ANNUAL))
     {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(this.getForDate());
 
       return Integer.toString(calendar.get(Calendar.YEAR));
     }
     else if (frequency.contains(ChangeFrequency.BIANNUAL))
     {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(this.getForDate());
 
       int halfYear = ( calendar.get(Calendar.MONTH) / 6 ) + 1;
@@ -1131,7 +1127,7 @@ public class MasterListVersion extends MasterListVersionBase
     }
     else if (frequency.contains(ChangeFrequency.QUARTER))
     {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(this.getForDate());
 
       int quarter = ( calendar.get(Calendar.MONTH) / 3 ) + 1;
@@ -1140,7 +1136,7 @@ public class MasterListVersion extends MasterListVersionBase
     }
     else if (frequency.contains(ChangeFrequency.MONTHLY))
     {
-      Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+      Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
       calendar.setTime(this.getForDate());
       calendar.set(Calendar.DAY_OF_MONTH, 1);
 
@@ -1381,7 +1377,7 @@ public class MasterListVersion extends MasterListVersionBase
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
 
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     if (filterJson != null && filterJson.length() > 0)
     {
@@ -1465,7 +1461,7 @@ public class MasterListVersion extends MasterListVersionBase
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    filterFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JsonArray results = new JsonArray();
 
@@ -1562,7 +1558,7 @@ public class MasterListVersion extends MasterListVersionBase
   public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
 

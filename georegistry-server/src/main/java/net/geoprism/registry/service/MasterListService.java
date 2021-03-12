@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.apache.commons.io.input.NullInputStream;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

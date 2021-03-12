@@ -22,19 +22,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
-import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.util.LocaleUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.slf4j.Logger;
@@ -51,6 +54,7 @@ import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
@@ -96,8 +100,10 @@ public class MasterListExcelExporter
 
   public Workbook createWorkbook() throws IOException
   {
+    LocaleUtil.setUserTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    
     Workbook workbook = new XSSFWorkbook();
-
+    
     CreationHelper createHelper = workbook.getCreationHelper();
     Font font = workbook.createFont();
     font.setBold(true);
@@ -106,7 +112,9 @@ public class MasterListExcelExporter
     this.boldStyle.setFont(font);
 
     this.dateStyle = workbook.createCellStyle();
-    this.dateStyle.setDataFormat(createHelper.createDataFormat().getFormat(BuiltinFormats.getBuiltinFormat(14)));
+    
+    DataFormat df = createHelper.createDataFormat();
+    this.dateStyle.setDataFormat(df.getFormat("yyyy-mm-dd"));
 
     this.createDataSheet(workbook);
     this.createMetadataSheet(workbook);
@@ -157,8 +165,8 @@ public class MasterListExcelExporter
     
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISPLAYLABEL, this.list.getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CODE, this.list.getCode());
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), this.version.getPublishDate());
-    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), this.version.getForDate());
+    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
+    this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), stripTime(this.version.getForDate()));
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.LISTABSTRACT, this.list.getListAbstract());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROCESS, this.list.getProcess());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROGRESS, this.list.getProgress());
@@ -173,6 +181,18 @@ public class MasterListExcelExporter
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ORGANIZATION, this.list.getOrganization().getDisplayLabel().getValue());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.TELEPHONENUMBER, this.list.getTelephoneNumber());
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.EMAIL, this.list.getEmail());
+  }
+  
+  private Date stripTime(Date date)
+  {
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    cal.setTime(date);
+    cal.set(Calendar.HOUR, 0);
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 0);
+    cal.set(Calendar.MILLISECOND, 0);
+    return cal.getTime();
   }
 
   private void createRow(Sheet sheet, Locale locale, MdBusinessDAOIF metadata, int rowNum, String attributeName, Object value)
@@ -202,10 +222,10 @@ public class MasterListExcelExporter
     {
       Cell valueCell = row.createCell(1);
       valueCell.setCellStyle(this.dateStyle);
-      valueCell.setCellValue((Date) value);
+      valueCell.setCellValue((Date)value);
     }
   }
-
+  
   private void createDataSheet(Workbook workbook)
   {
     Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.getList().getDisplayLabel().getValue()));
