@@ -229,9 +229,13 @@
                     </button>
                   </span>
                   
-                  <button type="submit" (click)="onDelete(req)" class="btn btn-danger pull-right" role="button">
+                  <a [disabled]="req.createdBy !== getUsername()" (click)="onDelete(req)" class="pull-right" style="line-height:40px; color:#ac2925;" role="button">
                     <localize key="change.request.delete.request.btn"></localize>
-                  </button> 
+                  </a>
+                  
+<!--                   <button type="submit" (click)="onDelete(req)" class="btn btn-danger pull-right" role="button"> -->
+<!--                     <localize key="change.request.delete.request.btn"></localize> -->
+<!--                   </button>  -->
                 </div>
               </div>
               <!-- <div class="col-md-1"></div> -->
