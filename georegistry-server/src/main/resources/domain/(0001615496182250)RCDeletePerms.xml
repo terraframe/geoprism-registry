@@ -1,0 +1,45 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeRequest.invalidate.deleteReferencedGeoObjectType">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeRequest.invalidate.deleteReferencedGeoObjectType" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The system has automatically rejected this change request because it was referencing a Geo-Object Type which was deleted." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+    <permissions>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.action.ChangeRequest">
+            <operation name="DELETE" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.action.HasActionRelationship">
+            <operation name="DELETE" />
+          </mdRelationshipPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.AbstractAction">
+            <operation name="DELETE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.CreateGeoObjectAction">
+            <operation name="DELETE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.geoobject.UpdateGeoObjectAction">
+            <operation name="DELETE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.AddChildAction">
+            <operation name="DELETE" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.action.tree.RemoveChildAction">
+            <operation name="DELETE" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
