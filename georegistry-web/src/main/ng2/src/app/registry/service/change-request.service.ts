@@ -225,7 +225,7 @@ export class ChangeRequestService {
             .toPromise();
     }
 
-//	importFile(configuration: ImportConfiguration, requestId: string): Promise<ImportConfiguration> {
+//	downloadFile(configuration: ImportConfiguration, requestId: string): Promise<ImportConfiguration> {
 //		let headers = new HttpHeaders({
 //			'Content-Type': 'application/json'
 //		});

@@ -86,7 +86,10 @@ export class RequestTableComponent {
 			this.eventService.complete();
 		};
 		this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-			const configuration = JSON.parse(response);
+//			const configuration = JSON.parse(response);
+			
+			console.log(item)
+			console.log(response)
 
 //			if (this.format === "SHAPEFILE") {
 //				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
@@ -115,6 +118,10 @@ export class RequestTableComponent {
 				error: {},
 			});
 		}
+	}
+	
+	onDownloadFile(requestOid: string, fileOid: string): void {
+		window.location.href = acp + '/changerequest/download-file?crOid=' + requestOid + '&' + 'vfOid=' + fileOid;
 	}
 	
 	public fileOverBase(e:any):void {

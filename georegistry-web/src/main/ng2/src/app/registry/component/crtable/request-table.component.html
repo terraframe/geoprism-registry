@@ -75,6 +75,8 @@
             <i class="arrow arrow-right" aria-hidden="true"></i>
           </td>
         </tr>
+        
+        <!-- Action panel only shows when activated with click -->
         <tr *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;">
           <td colspan="5" >
 
@@ -220,6 +222,12 @@
 <!--                       <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" style="width:100%;" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]"> -->
 <!--                           <localize key="change.request.modify.geoobject.link.btn"></localize> ({{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}) -->
 <!--                       </a> -->
+
+                      <ul>
+                          <li *ngFor="let doc of req.documents">
+                            <button (click)="onDownloadFile(req.oid, doc.oid)" >{{doc.fileName}}</button>
+                          </li>
+                      </ul>
                       
                       <!-- Limit file types with: accept=".xls, .xlsx, .pdf, .doc" -->
                       <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" required />
@@ -233,10 +241,11 @@
 <!--                  class="well my-drop-zone"> -->
 <!--                 Base drop zone -->
 <!--             </div> -->
+
                         
                     </div>
                   </div>
-                </div> <!-- END action-card -->
+                </div> 
 
 
                 <div *ngIf="isMaintainer || req.createdBy === getUsername()" class="button-holder">
@@ -256,16 +265,14 @@
                     <localize key="change.request.delete.request.btn"></localize>
                   </a>
                   
-<!--                   <button type="submit" (click)="onDelete(req)" class="btn btn-danger pull-right" role="button"> -->
-<!--                     <localize key="change.request.delete.request.btn"></localize> -->
-<!--                   </button>  -->
                 </div>
               </div>
               <!-- <div class="col-md-1"></div> -->
             </div>
 
           </td>
-        </tr>
+        </tr> <!-- END Action panel -->
+        
       </ng-template>
     </tbody>
   </table>

@@ -77,7 +77,7 @@ public class ChangeRequestController
     return new RestBodyResponse(json);
   }
   
-  @Endpoint(error = ErrorSerialization.JSON)
+  @Endpoint(url = "download-file", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF downloadDocument(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
   {
     ApplicationResource res = service.downloadDocument(request.getSessionId(), crOid, vfOid);
@@ -85,7 +85,7 @@ public class ChangeRequestController
     return new InputStreamResponse(res.openNewStream(), "application/octet-stream", res.getName());
   }
   
-  @Endpoint(error = ErrorSerialization.JSON)
+  @Endpoint(url = "delete-file", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF deleteDocument(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
   {
     service.deleteDocument(request.getSessionId(), crOid, vfOid);
