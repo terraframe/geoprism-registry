@@ -225,19 +225,19 @@ export class ChangeRequestService {
             .toPromise();
     }
 
-//	downloadFile(configuration: ImportConfiguration, requestId: string): Promise<ImportConfiguration> {
-//		let headers = new HttpHeaders({
-//			'Content-Type': 'application/json'
-//		});
-//
-//		this.eventService.start();
-//
-//		return this.http
-//			.post<ImportConfiguration>(acp + '/changerequest/upload-file', JSON.stringify({ json: configuration, crOid: requestId }), { headers: headers })
-//			.pipe(finalize(() => {
-//				this.eventService.complete();
-//			}))
-//			.toPromise();
-//	}
+	deleteFile(requestId: string, fileId: string): Promise<ImportConfiguration> {
+		let headers = new HttpHeaders({
+			'Content-Type': 'application/json'
+		});
+
+		this.eventService.start();
+
+		return this.http
+			.post<ImportConfiguration>(acp + '/changerequest/delete-file', JSON.stringify({ crOid: requestId, vfOid: fileId }), { headers: headers })
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
 
 }

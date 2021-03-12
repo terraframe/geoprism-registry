@@ -148,7 +148,12 @@ public class ChangeRequestService
     
     request.addDocument(vf).apply();
     
-    return vf.getOid();
+    JsonObject jo = new JsonObject();
+    
+    jo.addProperty("fileName", vf.getName());
+    jo.addProperty("oid", vf.getOid());
+    
+    return jo.toString();
   }
   
   @Request(RequestType.SESSION)

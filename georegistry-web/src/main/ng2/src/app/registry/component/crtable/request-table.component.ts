@@ -85,20 +85,19 @@ export class RequestTableComponent {
 			this.fileRef.nativeElement.value = "";
 			this.eventService.complete();
 		};
-		this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
+		this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {
 //			const configuration = JSON.parse(response);
 			
-			console.log(item)
-			console.log(response)
-
-//			if (this.format === "SHAPEFILE") {
-//				this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
-//			}
-//			else {
-//				this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-//			}
-//
-//			this.bsModalRef.content.configuration = configuration;
+			for(let i=0; i<this.requests.length; i++){
+				let req = this.requests[i];
+				if(req.oid === this.toggleId){
+					
+					req.documents.push(JSON.parse(response));
+					
+					break;
+				}
+			}
+			
 		};
 		this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
 			const error = JSON.parse(response)
@@ -107,7 +106,7 @@ export class RequestTableComponent {
 		}
 	}
 	
-	onUpload(requestId: string): void {
+	onUpload(): void {
 
 		if (this.uploader.queue != null && this.uploader.queue.length > 0) {
 			this.uploader.uploadAll();
@@ -122,6 +121,35 @@ export class RequestTableComponent {
 	
 	onDownloadFile(requestOid: string, fileOid: string): void {
 		window.location.href = acp + '/changerequest/download-file?crOid=' + requestOid + '&' + 'vfOid=' + fileOid;
+	}
+	
+	onDeleteFile(requestOid: string, fileOid: string): void {
+		this.service.deleteFile(requestOid, fileOid).then(response => {
+			
+			let docPos = -1;
+			for(let i=0; i<this.requests.length; i++){
+				let req = this.requests[i];
+				if(req.oid === this.toggleId){
+					
+					for(let index=0; index<req.documents.length; index++){
+						let doc = req.documents[index];
+						if(doc.oid === fileOid){
+							docPos = index;
+							break;
+						}
+					}
+					
+					if(docPos > -1){
+						req.documents.splice(docPos, 1)
+					}
+					
+					break;
+				}
+			}
+
+		}).catch((response: HttpErrorResponse) => {
+			this.error(response);
+		})
 	}
 	
 	public fileOverBase(e:any):void {
