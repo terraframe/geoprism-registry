@@ -86,7 +86,6 @@ export class RequestTableComponent {
 			this.eventService.complete();
 		};
 		this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {
-//			const configuration = JSON.parse(response);
 			
 			for(let i=0; i<this.requests.length; i++){
 				let req = this.requests[i];
@@ -209,8 +208,20 @@ export class RequestTableComponent {
 			bsModalRef.content.message = this.localizationService.decode('change.request.delete.request.message');
 
 			bsModalRef.content.onConfirm.subscribe(data => {
-				this.service.delete(changeRequest.oid).then(request => {
-					changeRequest = request;
+				this.service.delete(changeRequest.oid).then(deletedRequestId => {
+
+					let pos = -1;
+					for(let i=0; i<this.requests.length; i++){
+						let req = this.requests[i];
+						if(req.oid === deletedRequestId){
+							pos = i;
+							break;
+						}
+					}
+					
+					if(pos > -1){
+						this.requests.splice(pos, 1);
+					}
 	
 					this.refresh();
 				}).catch((response: HttpErrorResponse) => {

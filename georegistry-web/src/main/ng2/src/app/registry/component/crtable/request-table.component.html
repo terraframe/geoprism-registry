@@ -152,15 +152,6 @@
                     </div>
                   </div>
 
-<!--                   <div class="row" style="border-top: 1px grey solid;margin:0;margin-bottom:20px" *ngIf="action.approvalStatus !== 'PENDING'"> -->
-<!--                     <div class="col-md-5" *ngIf="action.decisionMaker !== ''"> -->
-<!--                         <label>  -->
-<!--                           <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize> -->
-<!--                           <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize> -->
-<!--                         </label> {{action.decisionMaker}} -->
-<!--                     </div> -->
-<!--                   </div> -->
-                  
                   <div class="row" style="border-top: 1px grey solid;margin:0;padding: 10px 0;">
                     
                     <div class="col-md-4" >
@@ -187,6 +178,10 @@
                           <label>{{req.phoneNumber}}</label>
                       </div>
                       
+                      <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
+                          <localize key="change.request.modify.geoobject.link.btn"></localize>
+                      </a>
+                      
                     </div>
                     
                     <div class="col-md-4" >
@@ -195,34 +190,22 @@
                         <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
                       </div>  
                       
-                        <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
+                      <div class="form-group">
+                            <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
+                            <input type="text" id="additionalNotes-{{req.oid}}" class="form-control" style="width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'">
+                      </div>  
+                          
+                      <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
                             <span style="font-style: italic;">
                                 <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize>
                                 <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize>:
                             </span>
                             <label> {{action.decisionMaker}} </label>
-                        </div>
-                        
-                         <div class="form-group">
-                            <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
-                            <input type="text" id="additionalNotes-{{req.oid}}" class="form-control" style="width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'">
-                          </div>  
+                       </div>
                           
-                          <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" style="width:100%;" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
-                              <localize key="change.request.modify.geoobject.link.btn"></localize> ({{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}})
-                          </a>
                     </div>
                     
                     <div class="col-md-4" >
-<!--                       <div class="form-group"> -->
-<!--                         <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label> -->
-<!--                         <textarea id="additionalNotes-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea> -->
-<!--                       </div>   -->
-                      
-<!--                       <a *ngIf="action.approvalStatus === 'ACCEPTED'" class="pull-right" style="width:100%;" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]"> -->
-<!--                           <localize key="change.request.modify.geoobject.link.btn"></localize> ({{action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value}}) -->
-<!--                       </a> -->
-
                       <div>
                         <label><localize key="change.request.reference.documents.label"></localize></label>
                         <div style="border:1px solid #ccc;border-radius: 4px;">

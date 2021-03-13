@@ -166,14 +166,14 @@ export class ChangeRequestService {
             .toPromise();
     }
 
-    delete( requestId: string ): Promise<ChangeRequest> {
+    delete( requestId: string ): Promise<string> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
         } );
 
         this.eventService.start();
 
-        return this.http.post<ChangeRequest>( acp + '/changerequest/delete', JSON.stringify( { requestId: requestId } ), { headers: headers } )
+        return this.http.post<string>( acp + '/changerequest/delete', JSON.stringify( { requestId: requestId } ), { headers: headers } )
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

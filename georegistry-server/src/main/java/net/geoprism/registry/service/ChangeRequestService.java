@@ -391,7 +391,7 @@ public class ChangeRequestService
   }
   
   @Request(RequestType.SESSION)
-  public JsonObject deleteChangeRequest(String sessionId, String requestId)
+  public String deleteChangeRequest(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
@@ -403,7 +403,7 @@ public class ChangeRequestService
     
     request.delete();
 
-    return request.getDetails();
+    return requestId;
   }
 
   @Request(RequestType.SESSION)
