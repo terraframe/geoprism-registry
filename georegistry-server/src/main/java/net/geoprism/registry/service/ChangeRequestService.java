@@ -29,7 +29,6 @@ import org.json.JSONObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.LocalizationFacade;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
@@ -47,6 +46,7 @@ import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.RolePermissionService;
 
 public class ChangeRequestService
 {
@@ -385,6 +385,12 @@ public class ChangeRequestService
   public JsonObject executeActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!request.isVisible())
+    {
+      throw new CGRPermissionException();
+    }
+    
     request.execute(true);
 
     return request.getDetails();
@@ -395,10 +401,11 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible())
+    RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    
+    if (!(perms.isRC() && request.isCurrentUserOwner()))
     {
-      // TODO : I want to throw CGRPermissionException but can't because it's in a different branch...
-      throw new ProgrammingErrorException("No permissions");
+      throw new CGRPermissionException();
     }
     
     request.delete();
