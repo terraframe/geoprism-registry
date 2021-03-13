@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +38,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ExcelService;
@@ -61,7 +61,7 @@ public class ExcelImportController
       String fileName = file.getFilename();
 
       SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       Date sDate = startDate != null ? format.parse(startDate) : null;
       Date eDate = endDate != null ? format.parse(endDate) : null;

@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.json.JSONArray;
@@ -52,6 +51,7 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.system.Roles;
 
 import junit.framework.Assert;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.task.Task.TaskStatus;
@@ -225,7 +225,7 @@ public class TaskTest
   private Date parseDate(String sDate)
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     
     try
     {

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +38,6 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wololo.jts2geojson.GeoJSONWriter;
@@ -49,12 +49,14 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.SyncLevel;
@@ -85,22 +87,42 @@ public class DHIS2GeoObjectJsonAdapters
     private DHIS2TransportServiceIF      dhis2;
 
     private SyncLevel           syncLevel;
+    
+    private SortedSet<SyncLevel> levels;
 
     private DHIS2SyncConfig     dhis2Config;
+    
+    private Date                date;
 
-    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, ServerGeoObjectType got, ServerHierarchyType hierarchyType, ExternalSystem ex)
+    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, Date date)
     {
-      this.got = got;
-      this.hierarchyType = hierarchyType;
+      this.got = syncLevel.getGeoObjectType();
+      this.hierarchyType = dhis2Config.getHierarchy();
       this.dhis2 = dhis2;
-      this.ex = ex;
+      this.ex = dhis2Config.getSystem();
       this.syncLevel = syncLevel;
+      this.levels = dhis2Config.getLevels();
       this.dhis2Config = dhis2Config;
+      this.date = date;
 
       this.calculateDepth();
     }
+    
+    private String getExternalId(ServerGeoObjectIF serverGo)
+    {
+      String externalId = serverGo.getExternalId(this.ex);
+      
+      if (externalId == null)
+      {
+        ParentExternalIdException ex = new ParentExternalIdException();
+        ex.setParentLabel(serverGo.getCode());
+        throw ex;
+      }
+      
+      return externalId;
+    }
 
-    private synchronized String getExternalId(ServerGeoObjectIF serverGo)
+    private synchronized String getOrCreateExternalId(ServerGeoObjectIF serverGo)
     {
       String externalId = serverGo.getExternalId(this.ex);
 
@@ -164,26 +186,44 @@ public class DHIS2GeoObjectJsonAdapters
       return translations;
     }
 
-    private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
-    {
-      // if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL ||
-      // this.syncLevel.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
-      // {
-      ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
-      if (goParent != null)
-      {
-        JsonObject parent = new JsonObject();
-        parent.addProperty("id", this.getExternalId(goParent)); // TODO : Is
-                                                                // this the
-                                                                // correct id?
-        jo.add("parent", parent);
-      }
-
-      jo.addProperty("path", calculatePath(serverGo));
-
-      jo.addProperty("level", this.depth);
-      // }
-    }
+//    private void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
+//    {
+//      if (this.depth > 1)
+//      {
+//        ServerGeoObjectIF goParent = getParent(serverGo, this.hierarchyType.getCode());
+//        
+//        if (goParent == null)
+//        {
+//          
+//        }
+//        
+//        String parentId = this.getExternalId(goParent);
+//        
+//        if (parentId != null)
+//        {
+//          
+//        }
+//        
+//        JsonObject parent = new JsonObject();
+//        parent.addProperty("id", parentId);
+//        jo.add("parent", parent);
+//        
+//        if (!jo.has("parent") && this.depth > 1)
+//        {
+//          UnknownParentException ex = new UnknownParentException();
+//          ex.setParentLabel(goParent != null ? goParent.getCode() : serverGo.getCode());
+//          throw ex;
+//        }
+//  
+//        jo.addProperty("path", calculatePath(serverGo));
+//      }
+//      else
+//      {
+//        jo.addProperty("path", "/");
+//      }
+//
+//      jo.addProperty("level", this.depth);
+//    }
 
     private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
@@ -192,7 +232,7 @@ public class DHIS2GeoObjectJsonAdapters
       // {
       jo.addProperty("code", serverGo.getCode());
 
-      jo.addProperty("id", this.getExternalId(serverGo));
+      jo.addProperty("id", this.getOrCreateExternalId(serverGo));
 
       jo.addProperty("created", formatDate(serverGo.getCreateDate()));
 
@@ -202,10 +242,7 @@ public class DHIS2GeoObjectJsonAdapters
 
       jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
 
-      jo.addProperty("openingDate", formatDate(serverGo.getCreateDate())); // TODO
-                                                                           // :
-                                                                           // Correct
-                                                                           // value?
+      jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
 
       writeGeometry(jo, serverGo);
 
@@ -374,22 +411,22 @@ public class DHIS2GeoObjectJsonAdapters
       return out;
     }
 
-    public static ServerGeoObjectIF getParent(VertexServerGeoObject serverGo, String hierarchyCode)
-    {
-      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(null, false);
-
-      List<ServerParentTreeNode> parents = sptn.getParents();
-
-      for (ServerParentTreeNode parent : parents)
-      {
-        if (hierarchyCode == null || parent.getHierarchyType().getCode().equals(hierarchyCode))
-        {
-          return parent.getGeoObject();
-        }
-      }
-
-      return null;
-    }
+//    public static ServerGeoObjectIF getParent(VertexServerGeoObject serverGo, String hierarchyCode)
+//    {
+//      ServerParentTreeNode sptn = serverGo.getParentGeoObjects(null, false); // TODO : What if we don't have parents (at this date + hierarchy)?. Or what if the parents we have doesn't match the depth we expected?
+//
+//      List<ServerParentTreeNode> parents = sptn.getParents();
+//
+//      for (ServerParentTreeNode parent : parents)
+//      {
+//        if (hierarchyCode == null || parent.getHierarchyType().getCode().equals(hierarchyCode))
+//        {
+//          return parent.getGeoObject();
+//        }
+//      }
+//
+//      return null;
+//    }
 
     public static String formatDate(Date date)
     {
@@ -406,32 +443,109 @@ public class DHIS2GeoObjectJsonAdapters
       }
     }
 
-    public String calculatePath(VertexServerGeoObject serverGo)
+    public void writeParents(VertexServerGeoObject serverGo, JsonObject jo)
     {
+      if (this.syncLevel.getLevel() == 0)
+      {
+        jo.addProperty("path", "/");
+        jo.addProperty("level", this.depth);
+        return;
+      }
+      
+      String directParentId = null;
+      
       List<String> ancestorExternalIds = new ArrayList<String>();
 
       List<VertexServerGeoObject> ancestors = serverGo.getAncestors(this.hierarchyType);
 
       Collections.reverse(ancestors);
+      
+      int parentLevel = this.syncLevel.getLevel() - 1;
 
-      for (VertexServerGeoObject ancestor : ancestors)
+      ParentLoop:
+      while (parentLevel >= 0)
       {
-        ancestorExternalIds.add(this.getExternalId(ancestor));
+        SyncLevel parentSyncLevel = this.getLevelAtIndex(parentLevel);
+        
+        for (VertexServerGeoObject ancestor : ancestors)
+        {
+          if (parentSyncLevel.getGeoObjectType().equals(ancestor.getType()))
+          {
+            String externalId = this.getExternalId(ancestor);
+            
+            ancestorExternalIds.add(externalId);
+            
+            if (parentLevel == this.syncLevel.getLevel() - 1)
+            {
+              directParentId = externalId;
+            }
+            
+            parentLevel--;
+            continue ParentLoop;
+          }
+        }
+        
+        NoParentException ex = new NoParentException();
+        ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
+        ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
+        ex.setHierarchyCode(this.hierarchyType.getCode());
+        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.date, false));
+        throw ex;
+      }
+      
+      if (directParentId == null)
+      {
+        SyncLevel parentSyncLevel = this.getLevelAtIndex(this.syncLevel.getLevel() - 1);
+        
+        NoParentException ex = new NoParentException();
+        ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
+        ex.setTypeCode(parentSyncLevel.getGeoObjectType().getCode());
+        ex.setHierarchyCode(this.hierarchyType.getCode());
+        ex.setDateLabel(GeoRegistryUtil.formatIso8601(this.date, false));
+        throw ex;
       }
 
-      return "/" + StringUtils.join(ancestorExternalIds, "/");
+      JsonObject parent = new JsonObject();
+      parent.addProperty("id", directParentId);
+      jo.add("parent", parent);
+      
+      
+      String path = "/" + StringUtils.join(ancestorExternalIds, "/");
+      jo.addProperty("path", path);
+      
+      
+      jo.addProperty("level", this.depth);
     }
 
     public void calculateDepth()
     {
-      if (got.getUniversal().getParents(hierarchyType.getUniversalType()).getAll().size() > 1)
+      this.depth = this.syncLevel.getLevel();
+      
+//      if (got.getUniversal().getParents(hierarchyType.getUniversalType()).getAll().size() > 1)
+//      {
+//        throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported.");
+//      }
+//
+//      List<GeoObjectType> ancestors = this.got.getTypeAncestors(this.hierarchyType, true);
+//
+//      this.depth = ancestors.size() + 1;
+    }
+    
+    private SyncLevel getLevelAtIndex(int i)
+    {
+      int j = 0;
+      
+      for (SyncLevel level : this.levels)
       {
-        throw new UnsupportedOperationException("Multiple GeoObjectType parents not supported.");
+        if (j == i)
+        {
+          return level;
+        }
+        
+        j++;
       }
-
-      List<GeoObjectType> ancestors = this.got.getTypeAncestors(this.hierarchyType, true);
-
-      this.depth = ancestors.size() + 1;
+      
+      throw new ProgrammingErrorException("Unable to find sync level at index [" + i + "].");
     }
   }
 }

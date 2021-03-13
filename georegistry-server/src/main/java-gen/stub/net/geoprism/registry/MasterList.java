@@ -29,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
@@ -336,7 +335,7 @@ public class MasterList extends MasterListBase
 
   private Calendar getEndOfYear(Date date)
   {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.setTime(date);
     calendar.set(Calendar.MONTH, Calendar.DECEMBER);
     calendar.set(Calendar.DAY_OF_MONTH, 31);
@@ -346,7 +345,7 @@ public class MasterList extends MasterListBase
 
   private Calendar getEndOfHalfYear(Date date)
   {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.setTime(date);
 
     moveToEndOfHalfYear(calendar);
@@ -356,7 +355,7 @@ public class MasterList extends MasterListBase
 
   private Calendar getEndOfQuarter(Date date)
   {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.setTime(date);
 
     moveToEndOfQuarter(calendar);
@@ -366,7 +365,7 @@ public class MasterList extends MasterListBase
 
   private Calendar getEndOfMonth(Date date)
   {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+    Calendar calendar = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
     calendar.setTime(date);
 
     moveToEndOfMonth(calendar);

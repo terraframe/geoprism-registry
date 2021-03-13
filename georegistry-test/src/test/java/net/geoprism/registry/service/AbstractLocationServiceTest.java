@@ -20,17 +20,9 @@ package net.geoprism.registry.service;
 
 import java.util.Date;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.metadata.DefaultSerializer;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.LocationInformation;

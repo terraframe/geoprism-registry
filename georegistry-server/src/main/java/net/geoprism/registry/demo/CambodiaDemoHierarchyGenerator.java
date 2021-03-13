@@ -18,10 +18,6 @@
  */
 package net.geoprism.registry.demo;
 
-import net.geoprism.registry.service.RegistryIdService;
-import net.geoprism.registry.service.RegistryService;
-import net.geoprism.registry.service.ServiceFactory;
-
 import org.commongeoregistry.adapter.RegistryAdapterServer;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
@@ -29,6 +25,9 @@ import org.commongeoregistry.adapter.metadata.MetadataFactory;
 
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
+
+import net.geoprism.registry.service.RegistryIdService;
+import net.geoprism.registry.service.ServiceFactory;
 
 
 public class CambodiaDemoHierarchyGenerator

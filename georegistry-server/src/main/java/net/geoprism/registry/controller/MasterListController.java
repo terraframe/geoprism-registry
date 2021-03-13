@@ -20,7 +20,6 @@ package net.geoprism.registry.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +38,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.service.MasterListService;
@@ -93,7 +93,7 @@ public class MasterListController
   public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "forDate") String forDate) throws ParseException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JsonObject response = this.service.createExploratoryVersion(request.getSessionId(), oid, format.parse(forDate));
 
@@ -104,7 +104,7 @@ public class MasterListController
   public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     JsonObject response = this.service.publish(request.getSessionId(), oid);
 
@@ -115,7 +115,7 @@ public class MasterListController
   public ResponseIF publishVersions(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     final String jobId = this.service.createPublishedVersionsJob(request.getSessionId(), oid);
 

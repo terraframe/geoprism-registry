@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -604,6 +603,8 @@ public class TestGeoObjectInfo
     geoObj.setGeometry(geometry, date, ValueOverTime.INFINITY_END_DATE);
     geoObj.setCode(this.getCode());
     geoObj.setDisplayLabel(label, date, ValueOverTime.INFINITY_END_DATE);
+    
+    geoObj.getAllValues(DefaultAttribute.STATUS.getName()).clear();
     geoObj.setStatus(this.statusCode, date, ValueOverTime.INFINITY_END_DATE);
 
     if (registryId != null)

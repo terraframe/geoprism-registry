@@ -22,7 +22,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
@@ -35,12 +34,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
 
 import junit.framework.Assert;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -86,7 +85,7 @@ public class RegistryVersionTest
     GeoObjectOverTime goTime = testData.adapter.getGeoObjectOverTimeByCode(testData.PROV_CENTRAL.getCode(), testData.PROV_CENTRAL.getGeoObjectType().getCode());
     
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     
     try
     {
@@ -133,7 +132,7 @@ public class RegistryVersionTest
 //  private void assertVersionData(ValueOverTimeCollectionDTO dto)
 //  {
 //    SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-//    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+//    dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 //    
 //    Assert.assertEquals(3, dto.size());
 //   
@@ -162,7 +161,7 @@ public class RegistryVersionTest
   private void addVersionData(TestGeoObjectInfo geoObj)
   {
     SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     
     try
     {
@@ -192,7 +191,7 @@ public class RegistryVersionTest
 //  private ValueOverTimeCollectionDTO buildVersionDTO(AttributeType type)
 //  {
 //    SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy");
-//    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+//    dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 //    
 //    ValueOverTimeCollectionDTO dto = new ValueOverTimeCollectionDTO();
 //    

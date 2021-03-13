@@ -97,4 +97,25 @@ public class DHIS2Response
   public void setStatusCode(int statusCode) {
     this.statusCode = statusCode;
   }
+  
+  public String getMessage()
+  {
+//    {"httpStatus":"Conflict","httpStatusCode":409,"status":"ERROR","message":"Unexpected end-of-input: expected close marker for Array (start marker at [Source: (BufferedInputStream); line: 1, column: 22])\n at [Source: (BufferedInputStream); line: 1, column: 45]"}
+
+    if (this.hasMessage())
+    {
+      return this.getJsonObject().get("message").getAsString();
+    }
+    else
+    {
+      return "";
+    }
+  }
+  
+  public boolean hasMessage()
+  {
+    JsonObject jo = this.getJsonObject();
+    
+    return jo != null && jo.has("message") && jo.get("message").getAsString().length() > 0;
+  }
 }

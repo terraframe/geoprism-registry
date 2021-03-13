@@ -22,7 +22,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.apache.poi.ss.util.CellReference;
 import org.slf4j.Logger;
@@ -36,6 +35,7 @@ import net.geoprism.data.etl.excel.ExcelObjectException;
 import net.geoprism.data.etl.excel.ExcelValueException;
 import net.geoprism.data.etl.excel.InvalidHeaderRowException;
 import net.geoprism.data.etl.excel.SheetHandler;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.ImportStage;
 import net.geoprism.registry.excel.MapFeatureRow;
 
@@ -92,7 +92,7 @@ public class ExcelContentHandler implements SheetHandler
     this.map = new HashMap<Integer, String>();
 
     this.dateTimeFormat = new SimpleDateFormat(ExcelDataFormatter.DATE_TIME_FORMAT);
-    this.dateTimeFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    this.dateTimeFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
   }
 
   @Override

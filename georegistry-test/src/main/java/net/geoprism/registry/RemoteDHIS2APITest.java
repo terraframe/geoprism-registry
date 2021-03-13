@@ -51,6 +51,7 @@ import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
+import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2ServiceTest;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
@@ -71,9 +72,9 @@ import net.geoprism.registry.test.TestUserInfo;
 
 public class RemoteDHIS2APITest
 {
-  private static final Integer API_VERSION = 35;
+  private static final Integer API_VERSION = 33;
   
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".1";
+  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".8";
   
   private static final String URL = "https://play.dhis2.org/" + VERSION + "/";
   
@@ -256,15 +257,13 @@ public class RemoteDHIS2APITest
     SynchronizationConfig config = DHIS2ServiceTest.createSyncConfig(system, level2);
     DHIS2SyncConfig dhis2Config = (DHIS2SyncConfig) config.buildConfiguration();
     
-    DHIS2FeatureService dhis2Features = new DHIS2FeatureService();
-    
     ExportHistory history = new ExportHistory();
     history.setStartTime(new Date());
     history.addStatus(AllJobStatus.NEW);
     history.addStage(ExportStage.CONNECTING);
     history.apply();
     
-    dhis2Features.synchronize(dhis2, dhis2Config, history);
+    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
     
     history = ExportHistory.get(history.getOid());
     

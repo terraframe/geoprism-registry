@@ -20,7 +20,13 @@ package net.geoprism.registry;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -42,10 +48,37 @@ import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 public class GeoRegistryUtil extends GeoRegistryUtilBase
 {
   private static final long serialVersionUID = 2034796376;
+  
+  public static final TimeZone SYSTEM_TIMEZONE = TimeZone.getTimeZone("UTC");
 
   public GeoRegistryUtil()
   {
     super();
+  }
+  
+  public static String formatIso8601(Date date, boolean includeTime)
+  {
+    if (!includeTime)
+    {
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+      formatter.setTimeZone(SYSTEM_TIMEZONE);
+      return formatter.format(date);
+    }
+    else
+    {
+      SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+      formatter.setTimeZone(SYSTEM_TIMEZONE);
+      return formatter.format(date);
+    }
+  }
+  
+  public static Date parseIso8601(String date)
+  {
+    String s = "2020-02-13T18:51:09.840Z";
+    TemporalAccessor ta = DateTimeFormatter.ISO_INSTANT.parse(s);
+    Instant i = Instant.from(ta);
+    Date d = Date.from(i);
+    return d;
   }
 
   @Authenticate

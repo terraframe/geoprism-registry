@@ -25,7 +25,6 @@ import org.commongeoregistry.adapter.GeoObjectTypeNotFoundException;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.geotools.geometry.jts.GeometryBuilder;
 import org.junit.After;
 import org.junit.AfterClass;

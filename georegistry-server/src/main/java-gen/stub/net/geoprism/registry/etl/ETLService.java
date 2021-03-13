@@ -341,7 +341,7 @@ public class ETLService
   public static String formatDate(Date date)
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT, Session.getCurrentLocale());
-    // format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    // format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     return format.format(date);
   }

@@ -21,7 +21,6 @@ package net.geoprism.registry;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.commongeoregistry.adapter.Term;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -39,7 +38,6 @@ import net.geoprism.registry.query.ServerCodeRestriction;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.USATestData;
 
 public class GeoObjectQueryTest
