@@ -25,12 +25,13 @@ import { GeoObjectType, Attribute, GeoObjectOverTime } from '@registry/model/reg
 					}),
 					animate('1000ms')
 				]),
-				transition('* => void', [
-					style({
-						opacity: 0
-					}),
-					animate('1000ms')
-				])
+				transition(':leave',
+					animate('500ms', 
+						style({
+							opacity: 0
+						})
+					)
+				)
 			])
 		]]
 })

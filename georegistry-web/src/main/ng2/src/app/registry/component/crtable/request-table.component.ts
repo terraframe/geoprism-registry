@@ -2,6 +2,16 @@ import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/co
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
+import {
+	trigger,
+	style,
+	animate,
+	transition,
+	state,
+	group,
+	query,
+	stagger
+} from '@angular/animations';
 
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 
@@ -20,7 +30,41 @@ declare var acp: string;
 	selector: 'request-table',
 	templateUrl: './request-table.component.html',
 	styleUrls: ['./request-table.css'],
-	encapsulation: ViewEncapsulation.None
+	encapsulation: ViewEncapsulation.None,
+	animations: [
+		[
+			trigger('fadeInOut', [
+				transition(':enter', [
+					style({
+						opacity: 0
+					}),
+					animate('300ms')
+				]),
+				transition(':leave',
+					animate('100ms', 
+						style({
+							opacity: 0
+						})
+					)
+				)
+			]),
+			trigger('fadeIn', [
+				transition(':enter', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				])
+			]),
+			trigger('slideInOut', [
+			    state('in', style({height: '*'})),
+			    transition('* => void', [
+			      style({height: '*'}),
+			      animate(250, style({height: 0}))
+			    ])
+			])
+		]
+	]
 })
 export class RequestTableComponent {
 
@@ -230,20 +274,6 @@ export class RequestTableComponent {
 			});
 		}
 	}
-
-	// onConfirmChangeRequest(request: any): void {
-
-	//     if ( request != null ) {
-	//         this.service.confirmChangeRequest( request.oid ).then( request => {
-	//             this.request = request;
-
-	//             // TODO: Determine if there is a way to update an individual record
-	//             this.refresh();
-	//         } ).catch(( response: HttpErrorResponse ) => {
-	//             this.error( response );
-	//         } );
-	//     }
-	// }
 
 	applyActionStatusProperties(action: any): void {
 		// var action = JSON.parse(JSON.stringify(this.action));

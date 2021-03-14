@@ -1,58 +1,52 @@
-<!-- <div class="new-admin-design-main" style="height: 100vh;">
-    <cgr-header></cgr-header> -->
-<loading-bar></loading-bar>
-
 <div class="row">
-  <div class="col-md-2"></div>
-  <div class="col-md-8">
-    <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
-      <fieldset>
-        <div style="min-height: 50vh;">
+  <div class="col-md-12">
+    <div style="margin-top:50px;background:#f7f7f7;width:100%;padding:10px;">
+      <h3 style="margin-bottom: 20px;"><localize key="change.request.search.for.geoobject.header"></localize></h3>
+      <div class="row">
 
-          <div class="form-group">
-              <label> 
-                <localize key="dropdown.select.geoobjecttype.label"></localize>
-              </label>
-                <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="form-control select-area" [(ngModel)]="geoObjectType" required>
-                  <!-- <option> <localize key="dropdown.select.geoobjecttype.option.label"></localize> </option> -->
-                  <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.label.localizedValue}}</option>
-                </select>
-          </div>
-
-          <div class="form-group" style="overflow: visible;">
-              <label> 
-                <localize key="dropdown.select.geoobject.label"></localize>
-              </label>
-              <input type="text" [ngClass]="{'inline-loading':loading}" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId" [typeaheadAsync]="true" [typeahead]="dataSource"
-                (typeaheadOnSelect)="typeaheadOnSelect($event)" [typeaheadOptionsLimit]="7" typeaheadOptionField="name" (typeaheadLoading)="changeTypeaheadLoading($event)" [placeholder]="('masterlist.search' | localize) + '...'" class="form-control"
-                autocomplete="off" required>
-          </div>
-
-          <div *ngIf="preGeoObject">
-            <geoobject-shared-attribute-editor 
-            #attributeEditor (valid)="this.onValidChange($event)" 
-            [geoObjectType]="this.geoObjectType" 
-            [preGeoObject]="this.preGeoObject" 
-            [(postGeoObject)]="this.postGeoObject" 
-            [isGeometryInlined]="true"
-            [animate]=false>
-            </geoobject-shared-attribute-editor>
-          </div>
-
-          <div class="form-group">
-              <div class="button-holder">
-                <button type="button" class="btn btn-default" (click)="cancel()">
-                  <localize key="modal.button.cancel"></localize>
-                </button>
-                <button type="submit" class="btn btn-primary" (click)="submit()" [disabled]="!attributeForm.valid">
-                  <localize key="modal.button.submit"></localize>
-                </button>
-              </div>
-          </div>
-
+        <div class="col-md-3">
+          <localize key="dropdown.select.geoobjecttype.option.label"></localize>
+          <select id="geoObjectTypeSelect" name="geoObjectTypeSelect" class="select-area" [(ngModel)]="geoObjectType" required>
+            <option>  </option>
+            <option *ngFor="let got of geoObjectTypes" [ngValue]="got">{{got.label.localizedValue}}</option>
+          </select>
         </div>
-      </fieldset>
-    </form>
+        
+        <div class="col-md-5">
+          <localize key="change.request.search.for.geoobject.search.label"></localize>
+          <input type="text" [ngClass]="{'inline-loading':loading}" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)"
+            [typeaheadOptionsLimit]="7" typeaheadOptionField="name" (typeaheadLoading)="changeTypeaheadLoading($event)" [placeholder]="('masterlist.search' | localize) + '...'" class="form-control" autocomplete="off">
+        
+            <span *ngIf="preGeoObject" class="pull-right">
+            > <a (click)="showGeoObjectDetails = !showGeoObjectDetails">
+                <localize *ngIf="!showGeoObjectDetails" key="change.request.create.request.show.details.btn"></localize>
+                <localize *ngIf="showGeoObjectDetails" key="change.request.create.request.hide.details.btn"></localize>
+              </a>
+            </span>
+            
+            <div *ngIf="showGeoObjectDetails">
+              <geoobject-shared-attribute-editor 
+              #attributeEditor (valid)="this.onValidChange($event)" 
+              [geoObjectType]="this.geoObjectType" 
+              [preGeoObject]="this.preGeoObject" 
+              [(postGeoObject)]="this.postGeoObject" 
+              [isGeometryInlined]="false"
+              [readOnly]="true"
+              [animate]=false>
+              </geoobject-shared-attribute-editor>
+           </div>
+        </div>
+        
+        <div *ngIf="preGeoObject" class="col-md-4">
+          <label></label>
+          <a [routerLink]="['/registry/location-manager', preGeoObject.attributes.uid, preGeoObject.attributes.type]" 
+                target="_blank">
+            <button class="btn btn-primary" style="width:100%;"><localize key="change.request.open.geoobject.in.editor.link.btn"></localize></button>
+          </a>
+        </div>
+
+      </div>
+      
+    </div>
   </div>
-  <div class="col-md-2"></div>
 </div>

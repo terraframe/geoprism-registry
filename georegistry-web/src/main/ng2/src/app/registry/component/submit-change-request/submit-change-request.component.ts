@@ -14,7 +14,7 @@ import { GeoObjectType, GeoObjectOverTime } from '@registry/model/registry';
 @Component({
 	selector: 'submit-change-request',
 	templateUrl: './submit-change-request.component.html',
-	styleUrls: []
+	styleUrls: ['./submit-change-request.css']
 })
 export class SubmitChangeRequestComponent implements OnInit {
 
@@ -46,6 +46,8 @@ export class SubmitChangeRequestComponent implements OnInit {
 	 * The state of the GeoObject after our Change Request has been approved 
 	 */
 	postGeoObject: GeoObjectOverTime = null;
+	
+	showGeoObjectDetails: boolean = false;
 
 	isValid: boolean = false;
 

@@ -29,12 +29,13 @@ import Utils from '../../utility/Utils';
 					}),
 					animate('500ms')
 				]),
-				transition('* => void', [
-					style({
-						opacity: 0
-					}),
-					animate('500ms')
-				])
+				transition(':leave',
+					animate('500ms', 
+						style({
+							opacity: 0
+						})
+					)
+				)
 			])
 		]]
 })

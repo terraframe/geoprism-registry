@@ -94,10 +94,22 @@ a:active{
 	background-color:transparent;
 	color: #23527c;
 }
-
 a.link-active {
 	color: #00bfff;
 }
+
+a.disabled {
+	color: lightgrey !important;
+}
+
+a.alert {
+	color:#ac2925;
+}
+
+//a[target="_blank"]::after {
+//  content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAQElEQVR42qXKwQkAIAxDUUdxtO6/RBQkQZvSi8I/pL4BoGw/XPkh4XigPmsUgh0626AjRsgxHTkUThsG2T/sIlzdTsp52kSS1wAAAABJRU5ErkJggg==);
+//  margin: 0px 3px 0px 5px;
+//}
 
 .hidden,
 form legend{

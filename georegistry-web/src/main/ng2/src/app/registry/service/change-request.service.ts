@@ -22,39 +22,16 @@ export class ChangeRequestService {
             params = params.set( 'requestId', requestId );
 		}
 		
-        this.eventService.start();
+//        this.eventService.start();
 
         return this.http
             .get<AbstractAction[]>( acp + '/changerequest/getAllActions', { params: params } )
 			.pipe(finalize(() => {
-				this.eventService.complete();
+//				this.eventService.complete();
 			}))
             .toPromise();
 	}
 	
-
-//    fetchData( cb: any, requestId: string ): Promise<HttpResponse> {
-//        let params: HttpParams = new HttpParams();
-//
-//        if ( requestId != null ) {
-//            params = params.set( 'requestId', requestId );
-//        }
-//
-//        this.eventService.start();
-//
-//        return this.http
-//            .get( acp + '/changerequest/getAllActions', { params: params } )
-//            .finally(() => {
-//                this.eventService.complete();
-//            } )
-//            .toPromise()
-//            .then( response => {
-//                cb( response.json() );
-//
-//                return response;
-//            } )
-//    }
-
     applyAction( action: any ): Promise<void> {
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
