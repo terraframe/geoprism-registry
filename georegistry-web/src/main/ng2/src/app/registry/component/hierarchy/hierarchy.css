@@ -30,7 +30,7 @@ li.list-group-item.got-li-item.got-group-child:before {
 
 li.list-group-item.hier-li-item {
 	background: #6e6775;
-    border: 2px solid white;
+    border: 2px solid #3E2A5A;
     color: white;
 }
 li.list-group-item.hier-li-item i.fa {
@@ -39,7 +39,7 @@ li.list-group-item.hier-li-item i.fa {
 
 li.list-group-item.hier-li-item.primary
 {
-	background: #6BA542;
+	background: #3E2A5A;
 }
 
 
@@ -91,8 +91,8 @@ ul li:last-child:before {
 
 .hierarchy-sidebar {
     z-index: 999;
-    background: #6e6775;
-    color: #fff;
+    background: #f1f1f1;
+/*     color: #fff; */
 	transition: all 0.3s;
   	padding:0;
     vertical-align: top;
@@ -116,16 +116,16 @@ ul li:last-child:before {
 }
 
 .sidebar-section {
-	background: #505050;
+/* 	background: #505050; */
 	text-align: left;
-  color:#fff;
+/*   color:#fff; */
 }
 
 
 
 .hierarchy-sidebar-content .panel-body {
-	color: #6e6775;
-	background-color: #6e6775;
+/* 	color: #6e6775; */
+	background-color: #f1f1f1;
 	max-height: 500px;
     overflow: auto;
 }
@@ -137,7 +137,7 @@ ul li:last-child:before {
 
 
 accordion-group.panel {
-	background-color: #505050;
+/* 	background-color: #505050; */
 }
 
 li.list-group-item {
@@ -201,7 +201,7 @@ li.got-li-item.dragging {
     font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
     content: "\e080";    /* adjust as needed, taken from bootstrap.css */
     float: right;        /* adjust as needed */
-    color: #c8c8c8;         /* adjust as needed */
+/*     color: white;         adjust as needed */
     margin-top: -30px;
 }
 :host /deep/ .panel.panel-open .panel-heading .accordion-toggle:after {

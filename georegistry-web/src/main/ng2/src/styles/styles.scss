@@ -443,8 +443,6 @@ li.list-group-item.active {
 ** page specific overrides must be added to other css files to maintain this as a generic element
 */
 .list-table-wrapper{
-	max-height: 400px;
-    overflow-y: auto;
     margin-bottom: 10px;
     margin-top: 10px;
 }
@@ -871,11 +869,11 @@ tree-loading-component {
  * Hierarchy Styling (which can't be put in the compnent because it touches other components)
  */
 .hierarchy-sidebar .hierarchy-sidebar-content .panel-body {
-	background-color: #6e6775;
+	background-color: #f1f1f1;
 }
 
 .hierarchy-sidebar .hierarchy-sidebar-content {
-  background-color: #505050;
+  background-color: #ddd;
 }
 
 .hierarchy-sidebar .panel-group .panel-heading+.panel-collapse>.list-group, .panel-group .hierarchy-sidebar-content .panel-heading+.panel-collapse>.panel-body {
