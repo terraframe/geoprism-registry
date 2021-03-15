@@ -1,0 +1,109 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+  	  <createOrUpdate>
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.delete.request.hover">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.delete.request.hover" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Permanantly delete this change request." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.details.btn.hover">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.details.btn.hover" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Show change request details." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.upload.document.btn.hover">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.upload.document.btn.hover" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Upload document to this change request." />
+	        </attributeStruct>
+	      </object>
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.accept.all.btn.hover">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.accept.all.btn.hover" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Accept all actions in this change request. Be sure to implement these changes to save all actions to the database." />
+	        </attributeStruct>
+	      </object>
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.reject.all.btn.hover">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.reject.all.btn.hover" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Reject all actions in this change request. Be sure to implement these changes to save all actions to the database." />
+	        </attributeStruct>
+	      </object>
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.implement.decisions.btn.hover">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.implement.decisions.btn.hover" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Save the accepted actions in this request to the database." />
+	        </attributeStruct>
+	      </object>
+	      
+	       <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.open.geoobject.in.editor.link.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.open.geoobject.in.editor.link.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Open Geo-Object in editor" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.create.request.show.details.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.create.request.show.details.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Show details" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.create.request.hide.details.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.create.request.hide.details.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Hide details" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.search.for.geoobject.header">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.search.for.geoobject.header" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Submit a new change request" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.search.for.geoobject.search.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.search.for.geoobject.search.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Search for a Geo-Object" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.no.documents.label">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.no.documents.label" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="No uploaded documents." />
+	        </attributeStruct>
+	      </object>
+	      
+	</createOrUpdate>
+	
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
