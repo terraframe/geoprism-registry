@@ -69,20 +69,6 @@ export class Task {
 	completedDate: number;
 }
 
-// export class Attribute {
-
-//   name: string;
-//   type: string;
-//   label: string;
-//   description: string;
-//   isDefault: boolean;
-// }
-
-// export class AttributeTerm extends Attribute {
-//     descendants: Attribute[];
-//     rootTerm: string;
-// }
-
 export class GeoObjectOverTime {
 
 	geoObjectType: GeoObjectType;

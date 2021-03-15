@@ -549,21 +549,27 @@ div.row-holder .rad-area {
 }
 
 .radio input+span:before {
-	background: #D1D7E3;
+	background: #a6a6a6;
 	/* -webkit-transition: background 0.2s ease, -webkit-transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2);
 	transition: background 0.2s ease, -webkit-transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2); */
 	/* transition: background 0.2s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2);
 	transition: background 0.2s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2), -webkit-transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 2); */
 }
+.radio.disabled input+span:before{
+	background: #d4d4d4;
+}
 
 .radio input+span:after {
-	background: #fff;
-	-webkit-transform: scale(0.78);
-	transform: scale(0.78);
+	background: white;
+	-webkit-transform: scale(0.85);
+	transform: scale(0.85);
 	/* -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 	transition: -webkit-transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4); */
 	/* transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4);
 	transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4), -webkit-transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.4); */
+}
+.radio.disabled input+span:after {
+	background: #eee;
 }
 
 .radio input:checked+span:before {
@@ -581,6 +587,13 @@ div.row-holder .rad-area {
 	transition: transform .3s ease, -webkit-transform .3s ease; */
 }
 
+.radio.disabled {
+	cursor: not-allowed;
+}
+.radio.disabled input:checked + span:before {
+	background: #cccccc;
+	cursor: not-allowed;
+}
 
 .radio input[type="radio"]:disabled + span {
   color: lightgrey;
@@ -613,16 +626,19 @@ div.row-holder .rad-area {
 }
 .chk-area,
 .rad-area{
-	border:1px solid #a6a6a6;
+	border:2px solid #a6a6a6;
 	// margin:7px 11px 0 0;
 	float:left;
 	width:20px;
 	height:20px;
-	background:#eee;
 }
 .chk-area:hover,
 .rad-area:hover{
 	cursor: pointer;
+}
+.chk-area.disabled{
+	border-color: #d4d4d4;
+	background:#eee;
 }
 .chk-checked{
     border-color:#598a37;

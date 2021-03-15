@@ -41,12 +41,6 @@ export class User {
   externalSystemOid?: string;
 }
 
-// export class Role {
-//   roleId:string;
-//   displayLabel:string;
-//   assigned:boolean;
-// }
-
 export class Group {
   name:string;
   assigned:string;
@@ -79,6 +73,7 @@ export class FormattedOrganization {
   ORGANIZATIONLABEL: any;
   RA: Role;
   GEOOBJECTTYPEROLES: FormattedGeoObjectTypeRoleGroup[];
+  CODE: string;
 }
 
 export class FormattedGeoObjectTypeRoleGroup {

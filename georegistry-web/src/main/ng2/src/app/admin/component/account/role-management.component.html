@@ -11,7 +11,7 @@
         <!-- SRA -->
         <div *ngIf="_roles.SRA" class="row">
           <div class="col-sm-12">
-            <boolean-field [(value)]="_roles.SRA.assigned" (change)="onToggleSRA($event, _roles.SRA)"
+            <boolean-field [(value)]="_roles.SRA.assigned" (change)="onToggleSRA($event)"
               [label]="_roles.SRA.label.localizedValue" [disable]="!isSRA"></boolean-field>
           </div>
         </div>
@@ -27,7 +27,7 @@
           <div *ngIf="org.RA && isSRA" class="row">
             <div class="col-sm-12">
               <boolean-field [(value)]="org.RA.assigned" (change)="onToggleOrgRA($event, org)"
-                [label]="org.RA.label.localizedValue" [disable]="_roles.SRA && _roles.SRA.assigned"></boolean-field>
+                [label]="org.RA.label.localizedValue" [disable]="(_roles.SRA && _roles.SRA.assigned) || (_raAssigned && !org.RA.assigned) || (_activeOrganization && _activeOrganization !== org.CODE)"></boolean-field>
             </div>
           </div>
 
@@ -35,22 +35,22 @@
           <div class="row">
             <div class="col-sm-12 org-container" style="padding-left:50px;padding-right:50px;">
 
-              <fieldset [disabled]="(org.RA && org.RA.assigned) || (_roles.SRA && _roles.SRA.assigned)">
+              <fieldset [disabled]="(org.RA && org.RA.assigned) || (_roles.SRA && _roles.SRA.assigned) || _raAssigned || (_activeOrganization && _activeOrganization !== org.CODE)">
                 <div *ngFor="let roleGroup of org.GEOOBJECTTYPEROLES; let i = index">
               
                   <div class="heading">
                     <h4>{{roleGroup.GEOOBJECTTYPELABEL}}</h4>
                   </div>
               
-                  <label class="radio" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
-                    <input type="checkbox" [value]="role.name" [checked]="roleGroup.ENABLEDROLE === role.name" (change)="setGroupRole(roleGroup, role, $event)"
+                  <label class="radio" [ngClass]="{'disabled' : (org.RA && org.RA.assigned) || (_roles.SRA && _roles.SRA.assigned) || _raAssigned || (_activeOrganization && _activeOrganization !== org.CODE) }" *ngFor="let role of roleGroup.GEOOBJECTTYPEROLESGROUP">
+                    <input type="checkbox" [value]="role.name" [checked]="roleGroup.ENABLEDROLE === role.name" (change)="setGroupRole($event, roleGroup, role, org)" 
                       [name]="role.orgCode + role.geoObjectTypeCode" >
                     <span style="font-weight: 400;">{{role.label.localizedValue}}</span>
                   </label>
 
-                  <label class="radio">
-                    <input type="checkbox" [value]="" [checked]="roleGroup.ENABLEDROLE === ''" (change)="setGroupRole(roleGroup, null, $event)"
-                      [name]="roleGroup + '_none'" >
+                  <label class="radio" [ngClass]="{'disabled' : (org.RA && org.RA.assigned) || (_roles.SRA && _roles.SRA.assigned) || _raAssigned || (_activeOrganization && _activeOrganization !== org.CODE)}">
+                    <input type="checkbox" [value]="" [checked]="roleGroup.ENABLEDROLE === ''" (change)="setGroupRole($event, roleGroup, null, org)" 
+                      [name]="roleGroup + '_none'"  >
                     <span style="font-weight: 400;"><localize key="accounts.none"></localize></span>
                   </label>
               
