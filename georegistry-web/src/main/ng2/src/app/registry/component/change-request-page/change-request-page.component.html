@@ -13,9 +13,9 @@
 
           <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
 
-            <request-table *ngIf="content === 'MANAGE'"></request-table>
+            <request-table></request-table>
 
-            <submit-change-request></submit-change-request>
+            <submit-change-request *ngIf="isContributorOnly"></submit-change-request>
           </div>
         </div>
 

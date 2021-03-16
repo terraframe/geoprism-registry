@@ -5,6 +5,7 @@
             <localize key="changeovertime.manageVersions.widget.title"></localize>
         </h2>
     </div>
+    
     <manage-versions
       *ngIf="attribute != null"
       [attribute]="attribute"
@@ -12,5 +13,6 @@
       [geoObjectOverTimeInput]="geoObjectOverTime"
       [isNewGeoObject]="isNewGeoObject"
       (onChange)="onVersionChange($event)"
+      [readonly]="readonly"
     ></manage-versions>
 </div>

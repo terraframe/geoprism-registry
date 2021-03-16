@@ -77,7 +77,11 @@ export class AuthService {
 	}
 
 	isContributer(): boolean {
-		return this.isSRA() || this.isRC();
+		return this.isSRA() || this.isRC(false);
+	}
+	
+	isContributerOnly(): boolean {
+		return this.isRC(true);
 	}
 
 	// Used to exactly identify a role. I.e. if we say we need RC, SRA doesn't count.
@@ -195,8 +199,8 @@ export class AuthService {
 		return this.isGeoObjectTypeRM(orgCode, gotCode);
 	}
 
-	isRC(): boolean {
-		if (this.isSRA()) {
+	isRC(isRCOnly: boolean): boolean {
+		if (this.isSRA() && !isRCOnly) {
 			return true;
 		}
 
@@ -215,7 +219,7 @@ export class AuthService {
 
 		return false;
 	}
-
+	
 	// Returns all organization codes that the current user participates in.
 	// If the user is an SRA then this method will return an empty string array.
 	getMyOrganizations(): string[] {
