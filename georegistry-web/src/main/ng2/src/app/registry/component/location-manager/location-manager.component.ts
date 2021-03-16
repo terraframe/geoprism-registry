@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl } from 'mapbox-gl';
-import * as MapboxDraw from "@mapbox/mapbox-gl-draw";
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
