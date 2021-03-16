@@ -18,7 +18,7 @@ import * as moment from 'moment';
 @Component({
 	selector: 'geometry-panel',
 	templateUrl: './geometry-panel.component.html',
-	styleUrls: [],
+	styleUrls: ['./geometry-panel.css'],
 	host: { '[@fadeInOut]': 'true' },
 	animations: [
 		[
@@ -42,6 +42,8 @@ import * as moment from 'moment';
 export class GeometryPanelComponent implements OnInit {
 	
 	currentDate : Date = new Date();
+	
+	isVersionForHighlight: number;
 	
 	message: string = null;
 
@@ -126,8 +128,10 @@ export class GeometryPanelComponent implements OnInit {
 		this.sort(vAttributes);
 	}
 
-	edit(vot: ValueOverTime): void {
+	edit(vot: ValueOverTime, isVersionForHighlight: number): void {
 		this.onEdit.emit(vot);
+		
+		this.isVersionForHighlight = isVersionForHighlight;
 	}
 
 	onAddNewVersion(): void {

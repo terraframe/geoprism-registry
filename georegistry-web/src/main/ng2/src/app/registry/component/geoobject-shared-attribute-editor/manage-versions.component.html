@@ -194,7 +194,7 @@
                           <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
                         </thead>
                         <tbody style="text-align: center;">
-                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
+                          <tr @fadeInOut [ngClass]="{'active' : i === editingGeometry}" *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
                             <td style="vertical-align: middle;">
                               <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button">
                                 <localize key="changeovertime.manageVersions.geometry.edit"></localize>

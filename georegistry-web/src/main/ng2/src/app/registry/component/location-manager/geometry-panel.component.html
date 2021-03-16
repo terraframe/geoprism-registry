@@ -23,11 +23,11 @@
                         </p>
 
                         <tr *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;" [ngClass]="{'error-border': vAttribute.conflict}">
-                          <td>
+                          <td [ngClass]="{'active' : i === isVersionForHighlight}">
                             <table>
                               <tr class="attribute-value-row">
                                 <td colspan="2">
-                                  <button class="btn btn-primary" (click)="edit(vAttribute)" role="button">
+                                  <button class="btn btn-primary" (click)="edit(vAttribute, i)" role="button">
                                     <localize key="changeovertime.manageVersions.geometry.edit"></localize>
                                   </button>
                                 </td>

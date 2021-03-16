@@ -602,6 +602,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     this.editingControl = null;
+	this.map.addControl(this.simpleEditControl);
   }
 
 
@@ -677,6 +678,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     this.vot = null;
 
     this.editingControl = null;
+
+	this.editSessionEnabled = false;
   }
 
   getDrawGeometry(): any {
