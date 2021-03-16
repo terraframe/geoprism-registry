@@ -67,11 +67,11 @@ export class FeaturePanelComponent implements OnInit {
 	
 	reason: string = "";
 
-	constructor(public service: RegistryService, private modalService: BsModalService, authService: AuthService) {
-		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
+	constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService) {
 	}
 
 	ngOnInit(): void {
+	  this.isMaintainer = this.authService.isAdmin() || this.authService.isGeoObjectTypeRM(this.type.organizationCode, this.type.code);
 		this.mode = 'ATTRIBUTES';
 		this.geometryChange.subscribe(v => {
 			this.updateGeometry(v);
