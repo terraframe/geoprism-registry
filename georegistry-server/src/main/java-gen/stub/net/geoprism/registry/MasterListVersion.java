@@ -854,6 +854,11 @@ public class MasterListVersion extends MasterListVersionBase
 
         if (value != null)
         {
+          if (value instanceof LocalizedValue && ((LocalizedValue)value).isNull())
+          {
+            continue;
+          }
+          
           if (!name.equals(DefaultAttribute.CODE.getName()))
           {
             hasData = true;
