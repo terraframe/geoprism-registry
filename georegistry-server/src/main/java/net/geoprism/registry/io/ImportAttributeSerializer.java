@@ -106,7 +106,7 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     JsonObject attribute = displayLabel.toJSON(this);
     attribute.addProperty("locale", key);
     attribute.addProperty(AttributeType.JSON_CODE, displayLabel.getName());
-    attribute.addProperty(AttributeType.JSON_REQUIRED, key.equals(LocalizedValue.DEFAULT_LOCALE));
+//    attribute.addProperty(AttributeType.JSON_REQUIRED, key.equals(LocalizedValue.DEFAULT_LOCALE));
 
     JsonObject label = attribute.get(AttributeType.JSON_LOCALIZED_LABEL).getAsJsonObject();
     String value = label.get(LocalizedValue.LOCALIZED_VALUE).getAsString();

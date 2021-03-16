@@ -188,19 +188,19 @@ public class ServerParentTreeNodeOverTime
 
   public boolean isSame(ServerParentTreeNodeOverTime other, ServerGeoObjectIF exclude)
   {
-    Set<Entry<String, Hierarchy>> entries = this.hierarchies.entrySet();
-
+    Set<Entry<String, Hierarchy>> entries = other.hierarchies.entrySet();
+    
     for (Entry<String, Hierarchy> entry : entries)
     {
       Hierarchy hierarchy = entry.getValue();
       ServerHierarchyType ht = hierarchy.getType();
 
-      if (other.hasEntries(ht) && hierarchy.nodes.size() == other.getEntries(ht).size())
+      if (this.hasEntries(ht) && hierarchy.nodes.size() == this.getEntries(ht).size())
       {
         for (int i = 0; i < hierarchy.nodes.size(); i++)
         {
           ServerParentTreeNode node = hierarchy.nodes.get(i);
-          ServerParentTreeNode oNode = other.getEntries(ht).get(i);
+          ServerParentTreeNode oNode = this.getEntries(ht).get(i);
 
           if (!node.isSame(oNode, exclude))
           {
