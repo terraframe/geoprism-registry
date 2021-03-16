@@ -203,7 +203,7 @@ public class TestGeoObjectInfo
     return date;
   }
 
-  private Geometry getGeometry()
+  public Geometry getGeometry()
   {
     try
     {

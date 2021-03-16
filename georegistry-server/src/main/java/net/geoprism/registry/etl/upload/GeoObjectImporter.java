@@ -83,6 +83,7 @@ import net.geoprism.registry.io.PostalCodeLocationException;
 import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -291,112 +292,88 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         ServerGeoObjectIF entity;
 
-        if (geoId != null && geoId.length() > 0)
+        if (geoId == null || geoId.length() <= 0)
         {
-          entity = service.newInstance(this.configuration.getType());
-          entity.setCode(geoId);
+          RequiredMappingException ex = new RequiredMappingException();
+          ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+          throw ex;
+        }
+        
+        entity = service.newInstance(this.configuration.getType());
+        entity.setCode(geoId);
 
-          try
+        try
+        {
+          entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
+
+          LocalizedValue entityName = this.getName(row);
+          if (entityName != null && this.hasValue(entityName))
           {
-            entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
+            entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+          }
 
-            Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
-            LocalizedValue entityName = this.getName(row);
-
-            if (entityName != null && this.hasValue(entityName))
+          Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
+          if (geometry != null)
+          {
+            // TODO : We should be able to check the CRS here and throw a
+            // specific invalid CRS error if it's not what we expect.
+            // For some reason JTS always returns 0 when we call
+            // geometry.getSRID().
+            if (geometry.isValid())
             {
-              entity.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
-
-              if (geometry != null)
-              {
-                // TODO : We should be able to check the CRS here and throw a
-                // specific invalid CRS error if it's not what we expect.
-                // For some reason JTS always returns 0 when we call
-                // geometry.getSRID().
-                if (geometry.isValid())
-                {
-                  entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
-                }
-                else
-                {
-                  InvalidGeometryException geomEx = new InvalidGeometryException();
-                  throw geomEx;
-                }
-              }
-
-              Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-              Set<Entry<String, AttributeType>> entries = attributes.entrySet();
-
-              for (Entry<String, AttributeType> entry : entries)
-              {
-                String attributeName = entry.getKey();
-
-                if (!attributeName.equals(GeoObject.CODE))
-                {
-                  ShapefileFunction function = this.configuration.getFunction(attributeName);
-
-                  if (function != null)
-                  {
-                    Object value = function.getValue(row);
-
-                    if (value != null)
-                    {
-                      AttributeType attributeType = entry.getValue();
-
-                      this.setValue(entity, attributeType, attributeName, value);
-                    }
-                  }
-                }
-              }
-
-              GeoObjectOverTime go = entity.toGeoObjectOverTime(false);
-              go.toJSON().toString();
-
-              if (this.configuration.isExternalImport())
-              {
-                ShapefileFunction function = this.configuration.getExternalIdFunction();
-
-                Object value = function.getValue(row);
-
-                if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
-                {
-                  throw new InvalidExternalIdException();
-                }
-              }
-
-              // We must ensure that any problems created during the transaction
-              // are
-              // logged now instead of when the request returns. As such, if any
-              // problems exist immediately throw a ProblemException so that
-              // normal
-              // exception handling can occur.
-              // List<ProblemIF> problems =
-              // RequestState.getProblemsInCurrentRequest();
-              //
-              // List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
-              // for (ProblemIF problem : problems)
-              // {
-              // problems2.add(problem);
-              // }
-              //
-              // if (problems.size() != 0)
-              // {
-              // throw new ProblemException(null, problems2);
-              // }
+              entity.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
+            }
+            else
+            {
+              InvalidGeometryException geomEx = new InvalidGeometryException();
+              throw geomEx;
             }
           }
-          finally
+
+          Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+          Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+          for (Entry<String, AttributeType> entry : entries)
           {
-            entity.unlock();
+            String attributeName = entry.getKey();
+
+            if (!attributeName.equals(GeoObject.CODE))
+            {
+              ShapefileFunction function = this.configuration.getFunction(attributeName);
+
+              if (function != null)
+              {
+                Object value = function.getValue(row);
+
+                if (value != null)
+                {
+                  AttributeType attributeType = entry.getValue();
+
+                  this.setValue(entity, attributeType, attributeName, value);
+                }
+              }
+            }
+          }
+
+          GeoObjectOverTime go = entity.toGeoObjectOverTime(false);
+          go.toJSON().toString();
+
+          if (this.configuration.isExternalImport())
+          {
+            ShapefileFunction function = this.configuration.getExternalIdFunction();
+
+            Object value = function.getValue(row);
+
+            if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
+            {
+              throw new InvalidExternalIdException();
+            }
           }
         }
-
-        // if (beforeProbCount ==
-        // this.progressListener.getValidationProblems().size())
-        // {
-        // this.progressListener.setImportedRecords(this.progressListener.getImportedRecords()
-        // + 1);
-        // }
+        finally
+        {
+          entity.unlock();
+        }
       }
       catch (IgnoreRowException e)
       {
@@ -512,169 +489,183 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       String geoId = this.getCode(row);
 
-      if (geoId != null && geoId.length() > 0)
+      if (geoId == null || geoId.length() <= 0)
       {
-        if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
+        RequiredMappingException ex = new RequiredMappingException();
+        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+        throw ex;
+      }
+      
+      if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
+      {
+        serverGo = service.getGeoObjectByCode(geoId, this.configuration.getType());
+      }
+
+      if (serverGo == null)
+      {
+        if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY))
         {
-          serverGo = service.getGeoObjectByCode(geoId, this.configuration.getType());
+          net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
+          ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
+          ex.setDataIdentifier(geoId);
+          ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+          throw ex;
         }
 
-        if (serverGo == null)
-        {
-          if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY))
-          {
-            net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
-            ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
-            ex.setDataIdentifier(geoId);
-            ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-            throw ex;
-          }
+        isNew = true;
 
-          isNew = true;
+        serverGo = service.newInstance(this.configuration.getType());
+        serverGo.setCode(geoId);
+      }
+      else
+      {
+        serverGo.lock();
+      }
 
-          serverGo = service.newInstance(this.configuration.getType());
-          serverGo.setCode(geoId);
-        }
-        else
-        {
-          serverGo.lock();
-        }
-
+      try
+      {
         parentBuilder.setServerGO(serverGo);
 
-        serverGo.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
+        if (isNew && this.configuration.getFunction(DefaultAttribute.STATUS.getName()) == null)
+        {
+          serverGo.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
+        }
 
-        Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
         LocalizedValue entityName = this.getName(row);
-
         if (entityName != null && this.hasValue(entityName))
         {
           serverGo.setDisplayLabel(entityName, this.configuration.getStartDate(), this.configuration.getEndDate());
+        }
 
-          if (geometry != null)
+        Geometry geometry = (Geometry) this.getFormatSpecificImporter().getGeometry(row);
+        if (geometry != null)
+        {
+          // TODO : We should be able to check the CRS here and throw a
+          // specific invalid CRS error if it's not what we expect.
+          // For some reason JTS always returns 0 when we call
+          // geometry.getSRID().
+          if (geometry.isValid())
           {
-            // TODO : We should be able to check the CRS here and throw a
-            // specific invalid CRS error if it's not what we expect.
-            // For some reason JTS always returns 0 when we call
-            // geometry.getSRID().
-            if (geometry.isValid())
-            {
-              serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
-            }
-            else
-            {
-              // throw new SridException();
-              throw new InvalidGeometryException();
-            }
+            serverGo.setGeometry(geometry, this.configuration.getStartDate(), this.configuration.getEndDate());
           }
-
-          if (isNew)
+          else
           {
-            serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+            // throw new SridException();
+            throw new InvalidGeometryException();
           }
+        }
 
-          Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
-          Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+        if (isNew)
+        {
+          serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
+        }
 
-          for (Entry<String, AttributeType> entry : entries)
+        Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
+        Set<Entry<String, AttributeType>> entries = attributes.entrySet();
+
+        for (Entry<String, AttributeType> entry : entries)
+        {
+          String attributeName = entry.getKey();
+
+          if (!attributeName.equals(GeoObject.CODE))
           {
-            String attributeName = entry.getKey();
+            ShapefileFunction function = this.configuration.getFunction(attributeName);
 
-            if (!attributeName.equals(GeoObject.CODE))
+            if (function != null)
             {
-              ShapefileFunction function = this.configuration.getFunction(attributeName);
+              Object value = function.getValue(row);
 
-              if (function != null)
+              AttributeType attributeType = entry.getValue();
+
+              if (value != null)
               {
-                Object value = function.getValue(row);
-
-                AttributeType attributeType = entry.getValue();
-
-                if (value != null)
-                {
-                  this.setValue(serverGo, attributeType, attributeName, value);
-                }
-                else if (this.configuration.getCopyBlank())
-                {
-                  this.setValue(serverGo, attributeType, attributeName, null);
-                }
+                this.setValue(serverGo, attributeType, attributeName, value);
+              }
+              else if (this.configuration.getCopyBlank())
+              {
+                this.setValue(serverGo, attributeType, attributeName, null);
               }
             }
           }
+        }
 
-          go = serverGo.toGeoObjectOverTime(false);
-          goJson = go.toJSON().toString();
+        go = serverGo.toGeoObjectOverTime(false);
+        goJson = go.toJSON().toString();
 
-          /*
-           * Try to get the parent and ensure that this row is not ignored. The
-           * getParent method will throw a IgnoreRowException if the parent is
-           * configured to be ignored.
-           */
-          if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
-          {
-            parent = this.parsePostalCode(row);
-          }
-          else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
-          {
-            parent = this.getParent(row);
-          }
-          parentBuilder.setParent(parent);
+        /*
+         * Try to get the parent and ensure that this row is not ignored. The
+         * getParent method will throw a IgnoreRowException if the parent is
+         * configured to be ignored.
+         */
+        if (this.configuration.isPostalCode() && PostalCodeFactory.isAvailable(this.configuration.getType()))
+        {
+          parent = this.parsePostalCode(row);
+        }
+        else if (this.configuration.getHierarchy() != null && this.configuration.getLocations().size() > 0)
+        {
+          parent = this.getParent(row);
+        }
+        parentBuilder.setParent(parent);
 
-          if (this.progressListener.hasValidationProblems())
-          {
-            throw new RuntimeException("Did not expect to encounter validation problems during import."); // TODO
-                                                                                                          // :
-                                                                                                          // SmartException?
-          }
+        if (this.progressListener.hasValidationProblems())
+        {
+          throw new RuntimeException("Did not expect to encounter validation problems during import.");
+        }
 
-          data.setGoJson(goJson);
-          data.setNew(isNew);
-          data.setParentBuilder(parentBuilder);
+        data.setGoJson(goJson);
+        data.setNew(isNew);
+        data.setParentBuilder(parentBuilder);
 
-          serverGo.apply(true);
-
-          if (this.configuration.isExternalImport())
-          {
-            ShapefileFunction function = this.configuration.getExternalIdFunction();
-
-            Object value = function.getValue(row);
-
-            serverGo.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
-          }
-
-          if (parent != null)
-          {
-            parent.addChild(serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
-          }
-          else if (isNew)
-          {
-            // GeoEntity child = GeoEntity.getByKey(serverGo.getCode());
-            // GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
-            //
-            // child.addLink(root,
-            // this.configuration.getHierarchy().getEntityType());
-          }
-
-          // We must ensure that any problems created during the transaction are
-          // logged now instead of when the request returns. As such, if any
-          // problems exist immediately throw a ProblemException so that normal
-          // exception handling can occur.
-          List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
-
-          List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
-          for (ProblemIF problem : problems)
-          {
-            problems2.add(problem);
-          }
-
-          if (problems.size() != 0)
-          {
-            throw new ProblemException(null, problems2);
-          }
-
-          this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
+        serverGo.apply(true);
+      }
+      finally
+      {
+        if (serverGo != null)
+        {
+          serverGo.unlock();
         }
       }
+
+      if (this.configuration.isExternalImport())
+      {
+        ShapefileFunction function = this.configuration.getExternalIdFunction();
+
+        Object value = function.getValue(row);
+
+        serverGo.createExternalId(this.configuration.getExternalSystem(), String.valueOf(value), this.configuration.getImportStrategy());
+      }
+
+      if (parent != null)
+      {
+        parent.addChild(serverGo, this.configuration.getHierarchy(), this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else if (isNew)
+      {
+        // GeoEntity child = GeoEntity.getByKey(serverGo.getCode());
+        // GeoEntity root = GeoEntity.getByKey(GeoEntity.ROOT);
+        //
+        // child.addLink(root,
+        // this.configuration.getHierarchy().getEntityType());
+      }
+
+      // We must ensure that any problems created during the transaction are
+      // logged now instead of when the request returns. As such, if any
+      // problems exist immediately throw a ProblemException so that normal
+      // exception handling can occur.
+      List<ProblemIF> problems = RequestState.getProblemsInCurrentRequest();
+
+      List<ProblemIF> problems2 = new LinkedList<ProblemIF>();
+      for (ProblemIF problem : problems)
+      {
+        problems2.add(problem);
+      }
+
+      if (problems.size() != 0)
+      {
+        throw new ProblemException(null, problems2);
+      }
+
+      this.progressListener.setImportedRecords(this.progressListener.getImportedRecords() + 1);
     }
     catch (IgnoreRowException e)
     {
@@ -979,9 +970,11 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     if (function == null)
     {
-      RequiredMappingException ex = new RequiredMappingException();
-      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel().getValue());
-      throw ex;
+//      RequiredMappingException ex = new RequiredMappingException();
+//      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel().getValue());
+//      throw ex;
+      
+      return null;
     }
 
     Object attribute = function.getValue(row);

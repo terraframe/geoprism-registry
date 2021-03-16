@@ -36,6 +36,7 @@ import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
@@ -150,6 +151,25 @@ public class LocalizedValueConverter
         struct.setValue(locale, label.getValue(locale) + suffix);
       }
     }
+  }
+  
+  public static LocalizedValue convert(VertexObjectDAO graphObject)
+  {
+    String attributeName = Session.getCurrentLocale().toString();
+    String defaultLocale = (String) graphObject.getObjectValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
+    String value = (String) ( graphObject.hasAttribute(attributeName) && graphObject.getObjectValue(attributeName) != null ? graphObject.getObjectValue(attributeName) : defaultLocale );
+
+    LocalizedValue localizedValue = new LocalizedValue(value);
+    localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, defaultLocale);
+
+    List<Locale> locales = SupportedLocaleCache.getLocales();
+
+    for (Locale locale : locales)
+    {
+      localizedValue.setValue(locale, (String) graphObject.getObjectValue(locale.toString()));
+    }
+
+    return localizedValue;
   }
 
   public static LocalizedValue convert(GraphObject graphObject)

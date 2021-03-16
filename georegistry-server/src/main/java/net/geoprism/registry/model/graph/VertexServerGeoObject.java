@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -50,6 +51,10 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
@@ -100,6 +105,7 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
+import net.geoprism.registry.StatusValueException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -313,6 +319,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setDisplayLabel(LocalizedValue value, Date startDate, Date endDate)
   {
+    if (this.isRedundantVOTAdd(DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate, this.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName())))
+    {
+      return;
+    }
+    
     LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
   }
 
@@ -358,6 +369,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setValue(String attributeName, Object value, Date startDate, Date endDate)
   {
+    if (this.isRedundantVOTAdd(attributeName, value, startDate, endDate, this.getValuesOverTime(attributeName)))
+    {
+      return;
+    }
+    
     if (attributeName.contentEquals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       this.setDisplayLabel((LocalizedValue) value, startDate, endDate);
@@ -781,57 +797,57 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     // Do nothing?
   }
   
-  private void validateCOTAttr(String attrName)
-  {
-    ValueOverTimeCollection votc = this.vertex.getValuesOverTime(attrName);
-    
-    if (votc == null || votc.size() == 0)
-    {
-      RequiredAttributeException ex = new RequiredAttributeException();
-      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(attrName));
-      throw ex;
-    }
-    else if (votc != null && votc.size() > 0)
-    {
-      boolean hasValue = false;
-      
-      for (int i = 0; i < votc.size(); ++i)
-      {
-        ValueOverTime vot = votc.get(i);
-        
-        if (vot.getValue() != null)
-        {
-          if (vot.getValue() instanceof String && ((String)vot.getValue()).length() > 0)
-          {
-            hasValue = true;
-            break;
-          }
-          else if (vot.getValue() instanceof Collection)
-          {
-            Collection<?> val = (Collection<?>) vot.getValue();
-            
-            if (val.size() > 0)
-            {
-              hasValue = true;
-              break;
-            }
-          }
-          else
-          {
-            hasValue = true;
-            break;
-          }
-        }
-      }
-      
-      if (!hasValue)
-      {
-        RequiredAttributeException ex = new RequiredAttributeException();
-        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(attrName));
-        throw ex;
-      }
-    }
-  }
+//  private void validateCOTAttr(String attrName)
+//  {
+//    ValueOverTimeCollection votc = this.vertex.getValuesOverTime(attrName);
+//    
+//    if (votc == null || votc.size() == 0)
+//    {
+//      RequiredAttributeException ex = new RequiredAttributeException();
+//      ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(attrName));
+//      throw ex;
+//    }
+//    else if (votc != null && votc.size() > 0)
+//    {
+//      boolean hasValue = false;
+//      
+//      for (int i = 0; i < votc.size(); ++i)
+//      {
+//        ValueOverTime vot = votc.get(i);
+//        
+//        if (vot.getValue() != null)
+//        {
+//          if (vot.getValue() instanceof String && ((String)vot.getValue()).length() > 0)
+//          {
+//            hasValue = true;
+//            break;
+//          }
+//          else if (vot.getValue() instanceof Collection)
+//          {
+//            Collection<?> val = (Collection<?>) vot.getValue();
+//            
+//            if (val.size() > 0)
+//            {
+//              hasValue = true;
+//              break;
+//            }
+//          }
+//          else
+//          {
+//            hasValue = true;
+//            break;
+//          }
+//        }
+//      }
+//      
+//      if (!hasValue)
+//      {
+//        RequiredAttributeException ex = new RequiredAttributeException();
+//        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(attrName));
+//        throw ex;
+//      }
+//    }
+//  }
   
   private void validate()
   {
@@ -1046,26 +1062,141 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     newEdge.setValue(GeoVertex.START_DATE, startDate);
     newEdge.setValue(GeoVertex.END_DATE, endDate);
 
-    edges.add(newEdge);
+//    edges.add(newEdge);
 
     // An entry already exists at the given start time
     // this.calculateEndDates(edges);
-    this.calculateStartDates(edges, startDate, endDate);
+    boolean redundant = this.calculateStartDates(edges, parent, startDate, endDate);
 
-    for (EdgeObject e : edges)
+    if (!redundant)
     {
-      e.apply();
+      for (EdgeObject e : edges)
+      {
+        e.apply();
+      }
+
+      newEdge.apply();
     }
-
-    newEdge.apply();
-
+    
     ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, startDate);
     node.addParent(new ServerParentTreeNode(parent, hierarchyType, startDate));
 
     return node;
   }
+  
+  private boolean isRedundantVOTAdd(String attributeName, Object value, Date startDate, Date endDate, ValueOverTimeCollection existingVotc)
+  {
+    if (startDate != null && endDate != null)
+    {
+      Iterator<ValueOverTime> it = existingVotc.iterator();
+      LocalDate iStartDate = startDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+      LocalDate iEndDate = endDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
 
-  private void calculateStartDates(SortedSet<EdgeObject> edges, Date startDate, Date endDate)
+      while (it.hasNext())
+      {
+        ValueOverTime vot = it.next();
+
+        Date vSDate = vot.getStartDate();
+        Date vEDate = vot.getEndDate();
+
+        LocalDate vStartDate = vSDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+        LocalDate vEndDate = vEDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+        
+        if (vStartDate.isBefore(iStartDate) && vEndDate.isAfter(iEndDate))
+        {
+          if (areValuesEqual(attributeName, vot.getValue(), value))
+          {
+            return true;
+          }
+        }
+      }
+    }
+    
+    return false;
+  
+  }
+  
+  @SuppressWarnings("unchecked")
+  private boolean areValuesEqual(String attributeName, Object val1, Object val2)
+  {
+    if (val1 == null && val2 == null)
+    {
+      return true;
+    }
+    else if ( val1 == null || val2 == null )
+    {
+      return false;
+    }
+
+    if (attributeName.equals(DefaultAttribute.STATUS.getName()))
+    {
+      List<Object> val1s = toList(((Set<String>) val1).iterator());
+      List<Object> val2s = toList(((Set<String>) val2).iterator());
+
+      if (val1s.size() != val2s.size())
+      {
+         return false;
+      }
+      
+      for (int i = 0; i < val1s.size(); ++i)
+      {
+        if (!areValuesEqual(attributeName, val1s.get(i), val2s.get(i)))
+        {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
+    {
+      return false;
+    }
+    else if (val1 instanceof Iterator<?> && val2 instanceof Iterator<?>)
+    {
+      ArrayList<Object> val1s = toList((Iterator<?>) val1);
+      ArrayList<Object> val2s = toList((Iterator<?>) val2);
+      
+      if (val1s.size() != val2s.size())
+      {
+         return false;
+      }
+      
+      for (int i = 0; i < val1s.size(); ++i)
+      {
+        if (!areValuesEqual(attributeName, val1s.get(i), val2s.get(i)))
+        {
+          return false;
+        }
+      }
+      
+      return true;
+    }
+    else if (val1 instanceof VertexObjectDAO && ((VertexObjectDAO)val1).getType().equals("com.runwaysdk.graph.EmbeddedLocalValue") && val2 instanceof LocalizedValue)
+    {
+      return areValuesEqual(attributeName, LocalizedValueConverter.convert((VertexObjectDAO)val1), val2);
+    }
+    else
+    {
+      return val1.equals(val2);
+    }
+  }
+  
+  private ArrayList<Object> toList(Iterator<?> iter)
+  {
+    ArrayList<Object> al = new ArrayList<Object>();
+    
+    while (iter.hasNext())
+    {
+      Object next = iter.next();
+      
+      al.add(next);
+    }
+    
+    return al;
+  }
+
+  private boolean calculateStartDates(SortedSet<EdgeObject> edges, ServerGeoObjectIF parent, Date startDate, Date endDate)
   {
     if (startDate != null && endDate != null)
     {
@@ -1107,20 +1238,32 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
         else if (vStartDate.isBefore(iStartDate) && vEndDate.isAfter(iEndDate))
         {
-          it.remove();
-
-          vot.delete();
-
-          EdgeObject startSegment = vot.getChild().addParent(vot.getParent(), (MdEdgeDAOIF) vot.getMdClass());
-          startSegment.setValue(GeoVertex.START_DATE, vSDate);
-          startSegment.setValue(GeoVertex.END_DATE, this.calculateDateMinusOneDay(startDate));
-
-          EdgeObject endSegment = vot.getChild().addParent(vot.getParent(), (MdEdgeDAOIF) vot.getMdClass());
-          endSegment.setValue(GeoVertex.START_DATE, this.calculateDatePlusOneDay(endDate));
-          endSegment.setValue(GeoVertex.END_DATE, vEDate);
-
-          segments.add(startSegment);
-          segments.add(endSegment);
+          boolean parentEq = (parent != null && vot.getParent() != null && parent.getCode().equals(vot.getParent().getObjectValue(DefaultAttribute.CODE.getName()))
+              || (parent == null && vot.getParent() == null) 
+              );
+          boolean childEq = (vot.getChild() != null && this.getCode().equals(vot.getChild().getObjectValue(DefaultAttribute.CODE.getName())));
+          
+          if (parentEq && childEq)
+          {
+            return true;
+          }
+          else
+          {
+            it.remove();
+  
+            vot.delete();
+  
+            EdgeObject startSegment = vot.getChild().addParent(vot.getParent(), (MdEdgeDAOIF) vot.getMdClass());
+            startSegment.setValue(GeoVertex.START_DATE, vSDate);
+            startSegment.setValue(GeoVertex.END_DATE, this.calculateDateMinusOneDay(startDate));
+  
+            EdgeObject endSegment = vot.getChild().addParent(vot.getParent(), (MdEdgeDAOIF) vot.getMdClass());
+            endSegment.setValue(GeoVertex.START_DATE, this.calculateDatePlusOneDay(endDate));
+            endSegment.setValue(GeoVertex.END_DATE, vEDate);
+  
+            segments.add(startSegment);
+            segments.add(endSegment);
+          }
         }
       }
 
@@ -1129,6 +1272,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         edges.add(segment);
       }
     }
+    
+    return false;
   }
 
   protected Date calculateDateMinusOneDay(Date source)
