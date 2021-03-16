@@ -94,8 +94,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	vot: ValueOverTime;
 
-	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, authService: AuthService, private lService: LocalizationService) {
-		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
+	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
+		authService: AuthService, private lService: LocalizationService) {
+			this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 	}
 
 	ngOnInit(): void {
@@ -456,7 +457,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.geometryChange.next(geometry);
 
 		this.vot.value = geometry;
-		this.vot = null;
+//		this.vot = null;
 
 		this.editingControl = null;
 	}

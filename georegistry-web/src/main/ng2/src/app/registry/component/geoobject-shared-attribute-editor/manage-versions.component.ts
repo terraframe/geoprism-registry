@@ -44,7 +44,7 @@ export class ManageVersionsComponent implements OnInit {
 	
 	currentDate : Date = new Date();
 
-	readonly: boolean = false;
+	@Input() readonly: boolean = false;
 
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
@@ -84,7 +84,10 @@ export class ManageVersionsComponent implements OnInit {
 	
 	ngAfterViewInit() {
 		if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length === 1) {
-			this.editingGeometry = 0;
+			
+			setTimeout(() => {
+				this.editingGeometry = 0;
+			}, 0);
 		}
 	}
 

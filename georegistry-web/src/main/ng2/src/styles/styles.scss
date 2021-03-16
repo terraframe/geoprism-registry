@@ -330,6 +330,13 @@ button.btn.btn-default:hover {
 .btn-danger:hover{
 	background-color: #f3aca9;
 }
+input[type=button].btn.btn-danger:disabled,
+input[type=submit].btn.btn-danger:disabled,
+button.btn-danger:disabled,
+button.btn.btn-danger:disabled  {
+    background: #f18d8a; /* IE fallback */
+	cursor: not-allowed;
+}
 
 // .delete-btn{
 //   font-size: 20px;

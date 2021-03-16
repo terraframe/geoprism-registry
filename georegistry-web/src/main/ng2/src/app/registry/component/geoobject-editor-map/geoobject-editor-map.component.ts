@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, SimpleChanges, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { RegistryService} from '@registry/service';
+import { RegistryService, MapService} from '@registry/service';
 
 import { Map, LngLatBounds, NavigationControl } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -71,7 +71,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
 	editingControl: any;
 
-	constructor(private registryService: RegistryService) {
+	constructor(private registryService: RegistryService, private mapService: MapService) {
 
 	}
 
@@ -256,7 +256,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 			this.renderGeometryAsLayer(this.preGeometry, "pre", "#EFA22E")
 		}
 		if (this.readOnly && this.postGeometry != null && this.postGeometry !== "") {
-			this.renderGeometryAsLayer(this.postGeometry, "post", "#3368EF");
+			this.renderGeometryAsLayer(this.postGeometry, "post", "#800000");
 		}
 	}
 

@@ -17,35 +17,23 @@ declare var acp: string;
 } )
 export class ChangeRequestPageComponent implements OnInit {
 
-	content: string = "SUBMIT";
 	pageTitle: string;
 	bsModalRef: BsModalRef;
 	isAdmin: boolean;
     isMaintainer: boolean;
     isContributor: boolean;
+	isContributorOnly: boolean;
     
     constructor( private localizationService: LocalizationService, private modalService: BsModalService, private service: AuthService ) {
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
 		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
-
-		this.renderContent("MANAGE");
+		this.isContributorOnly = service.isContributerOnly();
 	}
 
     ngOnInit(): void {
 	}
 	
-	renderContent(content: string): void {
-		this.content = content;
-
-		if(content === "SUBMIT"){
-			this.pageTitle = this.localizationService.decode("change.request.page.title");
-		}
-		else if(content === "MANAGE"){
-			this.pageTitle = this.localizationService.decode("change.request.table.title");
-		}
-	}
-
 
     public error( err: HttpErrorResponse ): void {
             this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

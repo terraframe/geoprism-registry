@@ -1,4 +1,5 @@
 import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
+import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -56,13 +57,6 @@ declare var acp: string;
 					animate('500ms')
 				])
 			]),
-			trigger('slideInOut', [
-			    state('in', style({height: '*'})),
-			    transition('* => void', [
-			      style({height: '*'}),
-			      animate(250, style({height: 0}))
-			    ])
-			])
 		]
 	]
 })
@@ -95,7 +89,7 @@ export class RequestTableComponent {
 	fileRef: ElementRef;
 
 	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-				private eventService: EventService) {
+				private eventService: EventService, private router: Router) {
 
 		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
@@ -219,6 +213,7 @@ export class RequestTableComponent {
 		this.service.getAllActions(selected.selected[0].oid).then(actions => {
 
 			this.actions = actions;
+			
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -227,14 +222,30 @@ export class RequestTableComponent {
 	onExecute(changeRequest: ChangeRequest): void {
 
 		if (changeRequest != null) {
+			
 			this.service.execute(changeRequest.oid).then(request => {
 				changeRequest = request;
-
+	
 				// TODO: Determine if there is a way to update an individual record
 				this.refresh();
+				
+				const bsModalRef = this.modalService.show(ConfirmModalComponent, {
+					animated: true,
+					backdrop: true,
+					ignoreBackdropClick: true,
+				});
+				
+				bsModalRef.content.submitText = this.localizationService.decode('change.requests.more.geoobject.updates.submit.btn');
+				bsModalRef.content.submitText = this.localizationService.decode('change.requests.more.geoobject.updates.cancel.btn');
+				bsModalRef.content.message = this.localizationService.decode('change.requests.more.geoobject.updates.message');
+	
+				bsModalRef.content.onConfirm.subscribe(data => {
+					this.router.navigate(['/registry/location-manager']);
+				});
+			
 			}).catch((response: HttpErrorResponse) => {
-				this.error(response);
-			});
+					this.error(response);
+				});
 		}
 	}
 	
@@ -247,7 +258,7 @@ export class RequestTableComponent {
 				ignoreBackdropClick: true,
 			});
 			
-			bsModalRef.content.type = "DANGER";
+			bsModalRef.content.type = "danger";
 			bsModalRef.content.submitText = this.localizationService.decode('change.request.delete.request.confirm.btn');
 			bsModalRef.content.message = this.localizationService.decode('change.request.delete.request.message');
 
@@ -368,6 +379,8 @@ export class RequestTableComponent {
 			backdrop: true,
 			ignoreBackdropClick: true,
 		});
+		
+		
 
 		bsModalRef.content.onConfirm.subscribe(data => {
 			action.approvalStatus = status;
@@ -403,10 +416,6 @@ export class RequestTableComponent {
 		//   {
 		// action.onSelect(action);
 		//   }
-	}
-	
-	editGeoObject(action: any): void {
-		
 	}
 	
 	formatDate(date: string): string {

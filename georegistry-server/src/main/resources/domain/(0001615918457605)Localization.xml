@@ -1,0 +1,60 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  <createOrUpdate>
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.forDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="masterlist.forDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="List Valid On" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.importStartDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.importStartDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Job Start Date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.importEndDate">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="scheduledjobs.importEndDate" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Job End Date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.requests.more.geoobject.updates.submit.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.requests.more.geoobject.updates.submit.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Job End Date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.requests.more.geoobject.updates.cancel.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.requests.more.geoobject.updates.cancel.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Job End Date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.requests.more.geoobject.updates.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.requests.more.geoobject.updates.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="These changes have been saved and implemented. To quickly access the Geo-Objects changed in this change request click the link in each action of the request. You can also make further Geo-Object changes from the Explorer." />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	</createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

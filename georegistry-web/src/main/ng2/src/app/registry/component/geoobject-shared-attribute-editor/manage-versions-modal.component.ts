@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import {
@@ -36,7 +36,8 @@ import { GeoObjectType, Attribute, GeoObjectOverTime } from '@registry/model/reg
 		]]
 })
 export class ManageVersionsModalComponent implements OnInit {
-	readonly: boolean = false;
+	
+	@Input() readonly: boolean;
 
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
