@@ -420,6 +420,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		}
 
 		this.editingControl = null;
+		
+		this.editSessionEnabled = false;
 	}
 
 	onFeatureChange(): void {
@@ -460,6 +462,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 //		this.vot = null;
 
 		this.editingControl = null;
+		
+		this.editSessionEnabled = false;
 	}
 
 	onGeometryEdit(vot: ValueOverTime): void {

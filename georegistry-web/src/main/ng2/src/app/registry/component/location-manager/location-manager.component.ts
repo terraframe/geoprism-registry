@@ -603,6 +603,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     this.editingControl = null;
 	this.map.addControl(this.simpleEditControl);
+	
+	this.editSessionEnabled = false;
   }
 
 
