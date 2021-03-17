@@ -57,7 +57,11 @@ public class ChangeRequestServiceTest
     
     try
     {
-      String vfOid = service.uploadFileInTransaction(cr.getOid(), "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+      String sJson = service.uploadFileInTransaction(cr.getOid(), "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+      
+      JsonObject jsonVF = JsonParser.parseString(sJson).getAsJsonObject();
+      
+      final String vfOid = jsonVF.get("oid").getAsString();
       
       service.deleteDocument(cr.getOid(), vfOid);
       
@@ -146,7 +150,13 @@ public class ChangeRequestServiceTest
     
     try
     {
-      String vfOid = service.uploadFileInTransaction(cr.getOid(), "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+      String sJson = service.uploadFileInTransaction(cr.getOid(), "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+      
+      JsonObject jsonVF = JsonParser.parseString(sJson).getAsJsonObject();
+      
+      Assert.assertEquals("parent-test.xlsx", jsonVF.get("fileName").getAsString());
+      
+      final String vfOid = jsonVF.get("oid").getAsString();
       
       try (ApplicationResource res = service.downloadDocument(cr.getOid(), vfOid))
       {

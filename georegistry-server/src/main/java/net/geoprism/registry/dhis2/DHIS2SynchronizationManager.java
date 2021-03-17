@@ -24,6 +24,7 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -149,8 +150,14 @@ public class DHIS2SynchronizationManager
     
     Boolean includeTranslations = LocalizationFacade.getInstalledLocales().size() > 0;
 
+    int expectedLevel = 0;
     for (SyncLevel level : levels)
     {
+      if (level.getLevel() != expectedLevel)
+      {
+        throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
+      }
+      
       long skip = 0;
       long pageSize = 1000;
 
@@ -272,6 +279,8 @@ public class DHIS2SynchronizationManager
         
         NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
       }
+      
+      expectedLevel++;
     }
     
     history.appLock();
