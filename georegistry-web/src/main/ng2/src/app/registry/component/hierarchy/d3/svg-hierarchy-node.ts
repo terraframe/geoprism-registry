@@ -12,7 +12,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { ErrorHandler, ConfirmModalComponent, ErrorModalComponent } from '@shared/component';
-import { LocalizationService } from '@shared/service';
+import { LocalizationService, AuthService } from '@shared/service';
 
 export class SvgHierarchyNode {
 
@@ -30,7 +30,7 @@ export class SvgHierarchyNode {
 	private bsModalRef: BsModalRef;
 
 	constructor(hierarchyComponent: HierarchyComponent, svgHierarchyType: SvgHierarchyType, geoObjectType: GeoObjectType, treeNode: any,
-		public localizeService: LocalizationService, public modalService: BsModalService) {
+		public localizeService: LocalizationService, public modalService: BsModalService, public authService: AuthService) {
 		this.hierarchyComponent = hierarchyComponent;
 		this.svgHierarchyType = svgHierarchyType;
 		this.geoObjectType = geoObjectType;
@@ -127,6 +127,9 @@ export class SvgHierarchyNode {
 			let contextMenuGroup = parent.append("g").classed("g-context-menu", true);
 
 			let relatedHierarchies = this.svgHierarchyType.getRelatedHierarchies(this.getCode());
+			
+			const hasActionsPermissions = this.authService.isSRA() || this.authService.isOrganizationRA(this.geoObjectType.organizationCode)
+          || this.authService.isGeoObjectTypeRM(this.svgHierarchyType.hierarchyType.organizationCode, this.geoObjectType.code)
 
 			let bbox = this.getBbox();
 			let x = bbox.x + bbox.width - 5;
@@ -149,7 +152,7 @@ export class SvgHierarchyNode {
 			
       let isSecondaryHierarchyRendered = (d3.select('.g-hierarchy[data-primary="false"]').node() != null);
       
-      let numActions = (isSecondaryHierarchyRendered) ? 2 : 1;
+      let numActions = hasActionsPermissions ? (isSecondaryHierarchyRendered ? 2 : 1) : 0;
 
 			// Calculate the width of our title
 			let width = calculateTextWidth(titleLabel, titleFontSize);
@@ -177,7 +180,7 @@ export class SvgHierarchyNode {
           let existingSecondaryCode = existingSecondary.attr("data-code");
           let secondaryHierarchy = this.hierarchyComponent.findHierarchyByCode(existingSecondaryCode);
           
-          let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService);
+          let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService, this.authService);
           let relatedGotHasParents = svgSecondaryHierarchy.getNodeByCode(this.getCode()).getTreeNode().parent != null;
           
           if (this.treeNode.parent == null && relatedGotHasParents)
@@ -318,96 +321,101 @@ export class SvgHierarchyNode {
 
 			}
 
-			// Actions Title
-			contextMenuGroup.append("text")
-				.classed("contextmenu-relatedhiers-title", true)
-				.attr("x", x + widthPadding / 2)
-				.attr("y", y + (height / 2) + (titleFontSize / 2))
-				.attr("font-size", titleFontSize)
-				.attr("font-family", fontFamily)
-				.attr("font-weight", "bold")
-				.text(actionsTitle);
-
-			y = y + height;
-
-			// Dividing line at the bottom
-			contextMenuGroup.append("line")
-				.classed("contextmenu-relatedhiers-divider", true)
-				.attr("x1", x)
-				.attr("y1", y)
-				.attr("x2", x + width)
-				.attr("y2", y)
-				.attr("stroke", borderColor)
-				.attr("stroke-width", .5);
-
-			contextMenuGroup.append("text")
-				.classed("contextmenu-relatedhiers-text", true)
-				.attr("data-remove", "REPLACE---gotCode")
-				.attr("x", x + widthPadding / 2)
-				.attr("y", y + (height / 2) + (fontSize / 2))
-				.attr("font-size", fontSize) 
-				.attr("font-family", fontFamily)
-				.text(removeFromHierarchyLabel)
-				.style("cursor", "pointer")
-				.on('click', function (event, node) { that.removeGotFromHierarchy(); });
-		  
-		  y = y + height;
-		  
-		  // Inherit / Uninherit buttons
-		  if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode != null && this.treeNode.parent.data.inheritedHierarchyCode != "") {
-        contextMenuGroup.append("line")
-          .classed("contextmenu-relatedhiers-divider", true)
-          .attr("x1", x)
-          .attr("y1", y)
-          .attr("x2", x + width)
-          .attr("y2", y)
-          .attr("stroke", borderColor)
-          .attr("stroke-width", .5);
-        
-        contextMenuGroup.append("text")
-          .classed("contextmenu-relatedhiers-text", true)
-          .attr("x", x + widthPadding / 2)
-          .attr("y", y + (height / 2) + (fontSize / 2))
-          .attr("font-size", fontSize)
-          .attr("font-family", fontFamily)
-          .text(uninheritLabel)
-          .style("cursor", "pointer")
-          .on('click', function (event, node) { that.onClickUninheritHierarchy(); });
-
-        y = y + height;
-      }
-      else
+      // Actions Section
+      if (hasActionsPermissions)
       {
-        let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
-        if (existingSecondary.node() != null) {
-          let existingSecondaryCode = existingSecondary.attr("data-code");
-          let secondaryHierarchy = this.hierarchyComponent.findHierarchyByCode(existingSecondaryCode);
+  			// Actions Title
+  			contextMenuGroup.append("text")
+  				.classed("contextmenu-relatedhiers-title", true)
+  				.attr("x", x + widthPadding / 2)
+  				.attr("y", y + (height / 2) + (titleFontSize / 2))
+  				.attr("font-size", titleFontSize)
+  				.attr("font-family", fontFamily)
+  				.attr("font-weight", "bold")
+  				.text(actionsTitle);
+  
+  			y = y + height;
+  
+  			// Dividing line at the bottom
+  			contextMenuGroup.append("line")
+  				.classed("contextmenu-relatedhiers-divider", true)
+  				.attr("x1", x)
+  				.attr("y1", y)
+  				.attr("x2", x + width)
+  				.attr("y2", y)
+  				.attr("stroke", borderColor)
+  				.attr("stroke-width", .5);
+  
+        // "Remove from hierarchy" button
+        contextMenuGroup.append("text")
+        .classed("contextmenu-relatedhiers-text", true)
+        .attr("data-remove", "REPLACE---gotCode")
+        .attr("x", x + widthPadding / 2)
+        .attr("y", y + (height / 2) + (fontSize / 2))
+        .attr("font-size", fontSize) 
+        .attr("font-family", fontFamily)
+        .text(removeFromHierarchyLabel)
+        .style("cursor", "pointer")
+        .on('click', function (event, node) { that.removeGotFromHierarchy(); });
+      
+        y = y + height;
+  		  
+  		  // Inherit / Uninherit buttons
+  		  if (this.treeNode.parent != null && this.treeNode.parent.data.inheritedHierarchyCode != null && this.treeNode.parent.data.inheritedHierarchyCode != "") {
+          contextMenuGroup.append("line")
+            .classed("contextmenu-relatedhiers-divider", true)
+            .attr("x1", x)
+            .attr("y1", y)
+            .attr("x2", x + width)
+            .attr("y2", y)
+            .attr("stroke", borderColor)
+            .attr("stroke-width", .5);
           
-          let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService);
-          let relatedGotHasParents = svgSecondaryHierarchy.getNodeByCode(this.getCode()).getTreeNode().parent != null;
-          
-          if (this.treeNode.parent == null && relatedGotHasParents)
-          {
-            contextMenuGroup.append("line")
-              .classed("contextmenu-relatedhiers-divider", true)
-              .attr("x1", x)
-              .attr("y1", y)
-              .attr("x2", x + width)
-              .attr("y2", y)
-              .attr("stroke", borderColor)
-              .attr("stroke-width", .5);
-          
-            contextMenuGroup.append("text")
-              .classed("contextmenu-relatedhiers-text", true)
-              .attr("x", x + widthPadding / 2)
-              .attr("y", y + (height / 2) + (fontSize / 2))
-              .attr("font-size", fontSize)
-              .attr("font-family", fontFamily)
-              .text(inheritLabel)
-              .style("cursor", "pointer")
-              .on('click', function (event, node) { that.onClickInheritHierarchy(secondaryHierarchy); });
-    
-            y = y + height;
+          contextMenuGroup.append("text")
+            .classed("contextmenu-relatedhiers-text", true)
+            .attr("x", x + widthPadding / 2)
+            .attr("y", y + (height / 2) + (fontSize / 2))
+            .attr("font-size", fontSize)
+            .attr("font-family", fontFamily)
+            .text(uninheritLabel)
+            .style("cursor", "pointer")
+            .on('click', function (event, node) { that.onClickUninheritHierarchy(); });
+  
+          y = y + height;
+        }
+        else
+        {
+          let existingSecondary = d3.select('.g-hierarchy[data-primary="false"]');
+          if (existingSecondary.node() != null) {
+            let existingSecondaryCode = existingSecondary.attr("data-code");
+            let secondaryHierarchy = this.hierarchyComponent.findHierarchyByCode(existingSecondaryCode);
+            
+            let svgSecondaryHierarchy = new SvgHierarchyType(this.hierarchyComponent, d3.select("#svg"), secondaryHierarchy, true, this.localizeService, this.modalService, this.authService);
+            let relatedGotHasParents = svgSecondaryHierarchy.getNodeByCode(this.getCode()).getTreeNode().parent != null;
+            
+            if (this.treeNode.parent == null && relatedGotHasParents)
+            {
+              contextMenuGroup.append("line")
+                .classed("contextmenu-relatedhiers-divider", true)
+                .attr("x1", x)
+                .attr("y1", y)
+                .attr("x2", x + width)
+                .attr("y2", y)
+                .attr("stroke", borderColor)
+                .attr("stroke-width", .5);
+            
+              contextMenuGroup.append("text")
+                .classed("contextmenu-relatedhiers-text", true)
+                .attr("x", x + widthPadding / 2)
+                .attr("y", y + (height / 2) + (fontSize / 2))
+                .attr("font-size", fontSize)
+                .attr("font-family", fontFamily)
+                .text(inheritLabel)
+                .style("cursor", "pointer")
+                .on('click', function (event, node) { that.onClickInheritHierarchy(secondaryHierarchy); });
+      
+              y = y + height;
+            }
           }
         }
       }
@@ -515,7 +523,7 @@ export class SvgHierarchyNode {
 		let primaryHierBbox = (d3.select(".g-hierarchy[data-primary=true]").node() as any).getBBox();
 
 		// Render the secondary hierarchy
-		let svgHt: SvgHierarchyType = new SvgHierarchyType(this.hierarchyComponent, svg, relatedHierarchy, false, this.localizeService, this.modalService);
+		let svgHt: SvgHierarchyType = new SvgHierarchyType(this.hierarchyComponent, svg, relatedHierarchy, false, this.localizeService, this.modalService, this.authService);
 		svgHt.render();
 		let gSecondary = d3.select('.g-hierarchy[data-primary="false"]')
 

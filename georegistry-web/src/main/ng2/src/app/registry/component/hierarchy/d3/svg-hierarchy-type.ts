@@ -8,7 +8,7 @@ import { SvgHierarchyNode } from './svg-hierarchy-node';
 import { calculateTextWidth, svgPoint } from './svg-util';
 import { INHERITED_NODE_BANNER_COLOR, DEFAULT_NODE_BANNER_COLOR, RELATED_NODE_BANNER_COLOR, DEFAULT_NODE_FILL, INHERITED_NODE_FILL } from '../hierarchy.component';
 
-import { LocalizationService } from '@shared/service';
+import { LocalizationService, AuthService } from '@shared/service';
 import { BsModalService } from 'ngx-bootstrap/modal';
 
 import { TREE_SCALE_FACTOR_X, TREE_SCALE_FACTOR_Y } from '../hierarchy.component'; 
@@ -44,7 +44,7 @@ export class SvgHierarchyType {
 	
 	tooltip: any;
 
-	public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, ht: HierarchyType, isPrimary: boolean, public localizationService: LocalizationService, public modalService: BsModalService) {
+	public constructor(hierarchyComponent: HierarchyComponent, svgEl: any, ht: HierarchyType, isPrimary: boolean, public localizationService: LocalizationService, public modalService: BsModalService, public authService: AuthService) {
 		const hierarchyType = ht;
 
 		this.hierarchyComponent = hierarchyComponent;
@@ -73,7 +73,7 @@ export class SvgHierarchyType {
 		  return null;
 		}
 		
-		return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode, this.localizationService, this.modalService);
+		return new SvgHierarchyNode(this.hierarchyComponent, this, this.hierarchyComponent.findGeoObjectTypeByCode(gotCode), treeNode, this.localizationService, this.modalService, this.authService);
 	}
 
 	public renderHierarchyHeader(hg: any, colHeaderLabel: string) {

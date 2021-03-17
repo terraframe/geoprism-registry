@@ -184,7 +184,7 @@ export class HierarchyComponent implements OnInit {
       svg.attr("id", "svg");
     }
 
-    this.primarySvgHierarchy = new SvgHierarchyType(this, svg, this.currentHierarchy, true, this.localizeService, this.modalService);
+    this.primarySvgHierarchy = new SvgHierarchyType(this, svg, this.currentHierarchy, true, this.localizeService, this.modalService, this.authService);
     this.primarySvgHierarchy.render();
 
     this.calculateSvgViewBox();
