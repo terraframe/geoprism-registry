@@ -212,6 +212,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setCode(String code)
   {
+    code = code.trim();
+    
     this.vertex.setValue(GeoVertex.GEOID, code);
     this.vertex.setValue(DefaultAttribute.CODE.getName(), code);
   }

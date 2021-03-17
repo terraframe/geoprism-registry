@@ -41,6 +41,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.registry.GeometryTypeException;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
@@ -159,6 +160,21 @@ public class GeoObjectServiceTest
         Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
       });
     }
+  }
+  
+  @Test
+  @Request
+  public void testCodeStripWhitespace()
+  {
+    TEST_GO.apply();
+    
+    ServerGeoObjectIF serverGo = TEST_GO.getServerObject();
+    
+    serverGo.setCode("\t" + serverGo.getCode() + " ");
+    
+    serverGo.apply(false);
+    
+    Assert.assertEquals(TEST_GO.getCode(), TEST_GO.getServerObject().getCode());
   }
   
   @Test
