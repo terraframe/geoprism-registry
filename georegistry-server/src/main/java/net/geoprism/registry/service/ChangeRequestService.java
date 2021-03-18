@@ -168,6 +168,11 @@ public class ChangeRequestService
     JSONObject joAction = new JSONObject(sAction);
 
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
+    
+    if (!action.isVisible())
+    {
+      throw new CGRPermissionException();
+    }
 
     action.buildFromJson(joAction);
 
@@ -186,6 +191,11 @@ public class ChangeRequestService
     JSONObject joAction = new JSONObject(sAction);
 
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
+    
+    if (!action.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    {
+      throw new CGRPermissionException();
+    }
 
     action.lock();
     action.buildFromJson(joAction);
@@ -237,7 +247,19 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public JsonObject confirmChangeRequest(String sessionId, String requestId)
   {
+    return confirmChangeRequestTransaction(sessionId, requestId);
+  }
+
+  @Transaction
+  private JsonObject confirmChangeRequestTransaction(String sessionId, String requestId)
+  {
     ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    {
+      throw new CGRPermissionException();
+    }
+    
     request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
 
     this.executeActions(sessionId, requestId);
@@ -254,6 +276,13 @@ public class ChangeRequestService
   @Transaction
   public String approveAllActionsInTransaction(String sessionId, String requestId, String sActions)
   {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    {
+      throw new CGRPermissionException();
+    }
+    
     if (sActions != null && sActions.length() > 0)
     {
       JSONArray jaActions = new JSONArray(sActions);
@@ -266,7 +295,6 @@ public class ChangeRequestService
       }
     }
 
-    ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
 
     return this.getAllActions(sessionId, requestId);
@@ -281,6 +309,13 @@ public class ChangeRequestService
   @Transaction
   public String rejectAllActionsInTransaction(String sessionId, String requestId, String sActions)
   {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    {
+      throw new CGRPermissionException();
+    }
+    
     if (sActions != null && sActions.length() > 0)
     {
       JSONArray jaActions = new JSONArray(sActions);
@@ -293,7 +328,6 @@ public class ChangeRequestService
       }
     }
 
-    ChangeRequest request = ChangeRequest.get(requestId);
     request.setAllActionsStatus(AllGovernanceStatus.REJECTED);
 
     return this.getAllActions(sessionId, requestId);
@@ -386,7 +420,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible())
+    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
     {
       throw new CGRPermissionException();
     }

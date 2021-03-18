@@ -780,7 +780,7 @@ public class MasterList extends MasterListBase
   {
     ServerGeoObjectType type = this.getGeoObjectType();
 
-    if (new RolePermissionService().isRC(type))
+    if (new RolePermissionService().isRC(type.getOrganization().getCode(), type.getCode()))
     {
       return ServiceFactory.getGeoObjectPermissionService().canRead(type.getOrganization().getCode(), type);
     }

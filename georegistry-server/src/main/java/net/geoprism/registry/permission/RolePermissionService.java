@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -91,11 +93,11 @@ public class RolePermissionService extends UserPermissionService
       {
         String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-        if (orgCode != null)
+        if (orgCode != null && orgCode.equals(roleOrgCode))
         {
-          return orgCode.equals(roleOrgCode);
+          return true;
         }
-        else
+        else if (orgCode == null)
         {
           return true;
         }
@@ -136,10 +138,15 @@ public class RolePermissionService extends UserPermissionService
 
   public boolean isRM()
   {
-    return isRM(null);
+    return isRM(null, null);
+  }
+  
+  public boolean isRM(String orgCode)
+  {
+    return isRM(orgCode, null);
   }
 
-  public boolean isRM(String orgCode)
+  public boolean isRM(String orgCode, String gotCode)
   {
     if (!this.hasSessionUser())
     {
@@ -157,12 +164,17 @@ public class RolePermissionService extends UserPermissionService
       if (RegistryRole.Type.isRM_Role(roleName))
       {
         String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+        String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
 
-        if (orgCode != null)
+        if (orgCode != null && gotCode != null && orgCode.equals(roleOrgCode) && gotCode.equals(roleGotCode))
         {
-          return orgCode.equals(roleOrgCode);
+          return true;
         }
-        else
+        else if (gotCode == null && orgCode != null && orgCode.equals(roleOrgCode))
+        {
+          return true;
+        }
+        else if (gotCode == null && orgCode == null)
         {
           return true;
         }
@@ -174,10 +186,15 @@ public class RolePermissionService extends UserPermissionService
   
   public boolean isRC()
   {
-    return this.isRC(null);
+    return this.isRC(null, null);
+  }
+  
+  public boolean isRC(String orgCode)
+  {
+    return this.isRC(orgCode, null);
   }
 
-  public boolean isRC(ServerGeoObjectType type)
+  public boolean isRC(String orgCode, String gotCode)
   {
     if (!this.hasSessionUser())
     {
@@ -194,13 +211,18 @@ public class RolePermissionService extends UserPermissionService
 
       if (RegistryRole.Type.isRC_Role(roleName))
       {
-        String roleTypeCode = RegistryRole.Type.parseGotCode(roleName);
+        String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+        String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
 
-        if (type != null && type.getCode().equals(roleTypeCode))
+        if (orgCode != null && gotCode != null && (orgCode.equals(roleOrgCode) && gotCode.equals(roleGotCode)))
         {
           return true;
         }
-        else if (type == null)
+        else if (gotCode == null && orgCode != null && orgCode.equals(roleOrgCode))
+        {
+          return true;
+        }
+        else if (gotCode == null && orgCode == null)
         {
           return true;
         }
@@ -212,10 +234,15 @@ public class RolePermissionService extends UserPermissionService
   
   public boolean isAC()
   {
-    return this.isAC(null);
+    return this.isAC(null, null);
+  }
+  
+  public boolean isAC(String orgCode)
+  {
+    return this.isRC(orgCode, null);
   }
 
-  public boolean isAC(ServerGeoObjectType type)
+  public boolean isAC(String orgCode, String gotCode)
   {
     if (!this.hasSessionUser())
     {
@@ -232,13 +259,18 @@ public class RolePermissionService extends UserPermissionService
 
       if (RegistryRole.Type.isAC_Role(roleName))
       {
-        String roleTypeCode = RegistryRole.Type.parseGotCode(roleName);
+        String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+        String roleGotCode = RegistryRole.Type.parseGotCode(roleName);
 
-        if (type != null && type.getCode().equals(roleTypeCode))
+        if (orgCode != null && gotCode != null && (orgCode.equals(roleOrgCode) && gotCode.equals(roleGotCode)))
         {
           return true;
         }
-        else if (type == null)
+        else if (gotCode == null && orgCode != null && orgCode.equals(roleOrgCode))
+        {
+          return true;
+        }
+        else if (gotCode == null && orgCode == null)
         {
           return true;
         }
@@ -255,7 +287,7 @@ public class RolePermissionService extends UserPermissionService
 
   public void enforceRM(String orgCode, String gotCode)
   {
-    if (!isRM(orgCode))
+    if (!isRM(orgCode, gotCode))
     {
       if (gotCode != null && orgCode != null && orgCode != "" && gotCode != "")
       {
@@ -315,8 +347,10 @@ public class RolePermissionService extends UserPermissionService
    * If the session user is a role, this method will return the user's
    * GeoObjectType. Otherwise this method will return null.
    */
-  public String getRMGeoObjectType()
+  public List<String> getRMGeoObjectTypes()
   {
+    List<String> types = new ArrayList<String>();
+    
     SingleActorDAOIF actor = this.getSessionUser();
 
     Set<RoleDAOIF> roles = actor.authorizedRoles();
@@ -327,12 +361,12 @@ public class RolePermissionService extends UserPermissionService
 
       if (RegistryRole.Type.isOrgRole(roleName) && RegistryRole.Type.isRM_Role(roleName))
       {
-        String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+        String gotCode = RegistryRole.Type.parseGotCode(roleName);
 
-        return roleOrgCode;
+        types.add(gotCode);
       }
     }
 
-    return null;
+    return types;
   }
 }

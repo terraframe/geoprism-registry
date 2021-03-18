@@ -36,9 +36,9 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.InvalidRegistryIdException;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
@@ -56,6 +56,7 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
@@ -341,7 +342,41 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     
     ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
 
-    if (ServiceFactory.getRolePermissionService().isRC(serverGOT))
+    RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    
+    final String orgCode = serverGOT.getOrganization().getCode();
+    final String gotCode = serverGOT.getCode();
+    
+    if (perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, gotCode))
+    {
+      ServerGeoObjectService service = new ServerGeoObjectService();
+
+      ServerGeoObjectIF serverGO = service.apply(timeGO, isNew, false);
+      final ServerGeoObjectType type = serverGO.getType();
+
+      if (sPtn != null)
+      {
+        ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
+
+        serverGO.setParents(ptnOt);
+      }
+
+      // Update the master list record
+      if (masterListId != null)
+      {
+        if (!isNew)
+        {
+          MasterListVersion.get(masterListId).updateRecord(serverGO);
+        }
+        else
+        {
+          MasterListVersion.get(masterListId).publishRecord(serverGO);
+        }
+      }
+
+      return serverGO.toGeoObjectOverTime();
+    }
+    else if (ServiceFactory.getRolePermissionService().isRC(orgCode, gotCode))
     {
       Instant base = Instant.now();
       int sequence = 0;
@@ -392,32 +427,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     }
     else
     {
-      ServerGeoObjectService service = new ServerGeoObjectService();
-
-      ServerGeoObjectIF serverGO = service.apply(timeGO, isNew, false);
-      final ServerGeoObjectType type = serverGO.getType();
-
-      if (sPtn != null)
-      {
-        ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
-
-        serverGO.setParents(ptnOt);
-      }
-
-      // Update the master list record
-      if (masterListId != null)
-      {
-        if (!isNew)
-        {
-          MasterListVersion.get(masterListId).updateRecord(serverGO);
-        }
-        else
-        {
-          MasterListVersion.get(masterListId).publishRecord(serverGO);
-        }
-      }
-
-      return serverGO.toGeoObjectOverTime();
+      throw new CGRPermissionException();
     }
 
     return null;
