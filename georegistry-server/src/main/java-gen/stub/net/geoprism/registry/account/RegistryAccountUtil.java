@@ -19,10 +19,13 @@
 package net.geoprism.registry.account;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -114,7 +117,6 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
   public static void sendEmail(UserInvite invite, String roleIds)
   {
     final String serverExternalUrl = GeoregistryProperties.getRemoteServerUrl();
-    final int expireTimeInHours = GeoprismProperties.getInviteUserTokenExpireTime();
     
     String address = invite.getEmail();
     String link = serverExternalUrl + "cgr/manage#/admin/invite-complete/" + invite.getToken();
@@ -124,30 +126,12 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
     String body = LocalizationFacade.localize("user.invite.email.body");
     body = body.replaceAll("\\\\n", "\n");
     body = body.replace("${link}", link);
-    body = body.replace("${expireTime}", String.valueOf(expireTimeInHours));
+    body = body.replace("${expireTime}", getLocalizedExpireTime());
     
-    String[] roleLabels = getRoleLabels(roleIds);
-    body = body.replace("${roleName}", roleLabels[0]);
-    
-    if (roleLabels[1] != null)
-    {
-      String orgMsg =  LocalizationFacade.localize("user.invite.email.optionalOrgMsg");
-      
-      orgMsg = orgMsg.replace("${organization}", roleLabels[1]);
-      
-      body = body.replace("${user.invite.email.optionalOrgMsg}", orgMsg);
-    }
-    else
-    {
-      body = body.replace("${user.invite.email.optionalOrgMsg}", "");
-    }
-
-    EmailSetting.sendEmail(subject, body, new String[] { address });
-  }
-  
-  private static String[] getRoleLabels(String roleIds)
-  {
     JsonArray roleNameArray = JsonParser.parseString(roleIds).getAsJsonArray();
+    
+    String orgLabel = "??";
+    Set<String> roleLabels = new HashSet<String>();
     
     for (int i = 0; i < roleNameArray.size(); ++i)
     {
@@ -157,11 +141,13 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
       
       RegistryRole registryRole = new RegistryRoleConverter().build(role);
       
-      String orgLabel = null;
-      String orgCode = registryRole.getOrganizationCode();
-      if (orgCode != null && orgCode.length() > 0)
+      if (orgLabel.equals("??"))
       {
-        orgLabel = Organization.getByCode(orgCode).getDisplayLabel().getValue().trim();
+        String orgCode = registryRole.getOrganizationCode();
+        if (orgCode != null && orgCode.length() > 0)
+        {
+          orgLabel = Organization.getByCode(orgCode).getDisplayLabel().getValue().trim();
+        }
       }
       
       String roleLabel;
@@ -174,10 +160,35 @@ public class RegistryAccountUtil extends RegistryAccountUtilBase
         roleLabel = role.getDisplayLabel().getValue().trim();
       }
       
-      return new String[] {roleLabel, orgLabel};
+      roleLabels.add(roleLabel);
     }
     
-    return new String[]{"???","???"};
+    body = body.replace("${roles}", StringUtils.join(roleLabels, ", "));
+    body = body.replace("${organization}", orgLabel);
+
+    EmailSetting.sendEmail(subject, body, new String[] { address });
+  }
+  
+  private static String getLocalizedExpireTime()
+  {
+    final int expireTimeInHours = GeoprismProperties.getInviteUserTokenExpireTime();
+    
+    final String hours = LocalizationFacade.localize("user.invite.email.hours");
+    final String days = LocalizationFacade.localize("user.invite.email.days");
+    final String hoursAndDays = LocalizationFacade.localize("user.invite.email.hoursAndDays");
+    
+    if (expireTimeInHours < 24)
+    {
+      return hours.replace("${hours}", String.valueOf(expireTimeInHours));
+    }
+    else if (expireTimeInHours % 24 == 0)
+    {
+      return days.replace("${days}", String.valueOf(expireTimeInHours/24));
+    }
+    else
+    {
+      return hoursAndDays.replace("${days}", String.valueOf(expireTimeInHours/24)).replace("${hours}", String.valueOf(expireTimeInHours - (24 * (expireTimeInHours/24))));
+    }
   }
   
   public static String generateEncryptedToken(String email)
