@@ -19,9 +19,12 @@
 package net.geoprism.registry.geoobject;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 
+import org.commongeoregistry.adapter.constants.CGRAdapterProperties;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -34,6 +37,13 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.InvalidRegistryIdException;
+import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.action.geoobject.SetParentAction;
+import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
@@ -50,6 +60,7 @@ import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.GeoObjectSplitView;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
@@ -315,5 +326,111 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public void removeAllEdges(ServerHierarchyType hierarchyType, ServerGeoObjectType childType)
   {
     VertexServerGeoObject.removeAllEdges(hierarchyType, childType);
+  }
+  
+  @Request(RequestType.SESSION)
+  public GeoObjectOverTime masterListEdit(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId, String notes)
+  {
+    return this.masterListEditTrans(sessionId, ptn, sGO, isNew, masterListId, notes);
+  }
+  
+  @Transaction
+  public GeoObjectOverTime masterListEditTrans(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId, String notes)
+  {
+    GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
+    
+    ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
+
+    if (ServiceFactory.getRolePermissionService().isRC(serverGOT))
+    {
+      Instant base = Instant.now();
+      int sequence = 0;
+
+      ChangeRequest request = new ChangeRequest();
+      request.addApprovalStatus(AllGovernanceStatus.PENDING);
+      request.setContributorNotes(notes);
+      request.apply();
+
+      if (!isNew)
+      {
+        UpdateGeoObjectAction action = new UpdateGeoObjectAction();
+        action.addApprovalStatus(AllGovernanceStatus.PENDING);
+        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+        action.setGeoObjectJson(sGO);
+        action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
+        action.apply();
+        request.addAction(action).apply();
+      }
+      else
+      {
+        CreateGeoObjectAction action = new CreateGeoObjectAction();
+        action.addApprovalStatus(AllGovernanceStatus.PENDING);
+        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+        action.setGeoObjectJson(sGO);
+        action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
+        action.apply();
+
+        request.addAction(action).apply();
+      }
+
+      if (sPtn != null && (isNew || this.hasChanged(timeGO, sPtn)))
+      {
+        SetParentAction action = new SetParentAction();
+        action.addApprovalStatus(AllGovernanceStatus.PENDING);
+        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+        action.setChildCode(timeGO.getCode());
+        action.setChildTypeCode(timeGO.getType().getCode());
+        action.setJson(sPtn);
+        action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
+        action.apply();
+
+        request.addAction(action).apply();
+      }
+    }
+    else
+    {
+      ServerGeoObjectService service = new ServerGeoObjectService();
+
+      ServerGeoObjectIF serverGO = service.apply(timeGO, isNew, false);
+      final ServerGeoObjectType type = serverGO.getType();
+
+      if (sPtn != null)
+      {
+        ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, sPtn);
+
+        serverGO.setParents(ptnOt);
+      }
+
+      // Update the master list record
+      if (masterListId != null)
+      {
+        if (!isNew)
+        {
+          MasterListVersion.get(masterListId).updateRecord(serverGO);
+        }
+        else
+        {
+          MasterListVersion.get(masterListId).publishRecord(serverGO);
+        }
+      }
+
+      return serverGO.toGeoObjectOverTime();
+    }
+
+    return null;
+  }
+  
+  private boolean hasChanged(GeoObjectOverTime timeGO, String sPtn)
+  {
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    ServerGeoObjectIF sGO = service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
+
+    ServerParentTreeNodeOverTime sPto = ServerParentTreeNodeOverTime.fromJSON(sGO.getType(), sPtn);
+    ServerParentTreeNodeOverTime ePto = sGO.getParentsOverTime(null, false);
+
+    return !ePto.isSame(sPto, sGO);
   }
 }

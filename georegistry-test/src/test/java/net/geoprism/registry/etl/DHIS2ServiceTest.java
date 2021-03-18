@@ -204,7 +204,7 @@ public class DHIS2ServiceTest
     SyncLevel level = new SyncLevel();
     level.setGeoObjectType(AllAttributesDataset.GOT_ALL.getServerObject().getCode());
     level.setSyncType(SyncLevel.Type.ALL);
-    level.setLevel(1);
+    level.setLevel(0);
     levels.add(level);
 
     // Populate Attribute Mappings
@@ -236,7 +236,7 @@ public class DHIS2ServiceTest
     SyncLevel level2 = new SyncLevel();
     level2.setGeoObjectType(got.getServerObject().getCode());
     level2.setSyncType(SyncLevel.Type.ALL);
-    level2.setLevel(2);
+    level2.setLevel(1);
 
     Map<String, DHIS2AttributeMapping> mappings = new HashMap<String, DHIS2AttributeMapping>();
 
@@ -276,7 +276,7 @@ public class DHIS2ServiceTest
 
       JsonObject orgUnit = orgUnits.get(0).getAsJsonObject();
 
-      Assert.assertEquals(level + 1, orgUnit.get("level").getAsInt());
+      Assert.assertEquals(level, orgUnit.get("level").getAsInt());
 
       Assert.assertEquals("MULTI_POLYGON", orgUnit.get("featureType").getAsString());
 
@@ -355,7 +355,7 @@ public class DHIS2ServiceTest
   // SyncLevel level2 = new SyncLevel();
   // level2.setGeoObjectType(testData.GOT_CHAR.getServerObject().getCode());
   // level2.setSyncType(SyncLevel.Type.ALL);
-  // level2.setLevel(2);
+  // level2.setLevel(1);
   //
   // SynchronizationConfig config = createSyncConfig(level2);
   //

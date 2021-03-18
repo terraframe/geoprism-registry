@@ -23,17 +23,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.StringEntity;
+import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
@@ -60,8 +66,10 @@ import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.SynchronizationConfigService;
 import net.geoprism.registry.test.AllAttributesDataset;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
@@ -72,23 +80,73 @@ import net.geoprism.registry.test.TestUserInfo;
 
 public class RemoteDHIS2APITest
 {
-  private static final Integer API_VERSION = 33;
+  public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
   
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".8";
+  private static final Integer API_VERSION = 35;
   
-  private static final String URL = "https://play.dhis2.org/" + VERSION + "/";
+  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".2";
+  
+  private static final String URL = "http://localhost:8095/";
   
   private static final String USERNAME = "admin";
   
   private static final String PASSWORD = "district";
   
-  protected static AllAttributesDataset  testData;
-
+  protected static RemoteDHIS2Dataset  testData;
+  
   protected SynchronizationConfigService syncService;
 
   protected DHIS2ExternalSystem          system;
 
   protected DHIS2TransportServiceIF      dhis2;
+  
+  public static class RemoteDHIS2Dataset extends AllAttributesDataset
+  {
+    public static final String TEST_DATA_KEY = "RemoteDHIS2";
+    
+    public static final TestGeoObjectTypeInfo REMOTE_GOT_PARENT = new TestGeoObjectTypeInfo(TEST_DATA_KEY + "RemoteGotParent", GeometryType.MULTIPOLYGON, AllAttributesDataset.ORG);
+    
+    public static final TestGeoObjectInfo     REMOTE_GO_PARENT  = new TestGeoObjectInfo(TEST_DATA_KEY + "RemoteGoParent", REMOTE_GOT_PARENT);
+    
+    {
+      managedGeoObjectTypeInfos.add(REMOTE_GOT_PARENT);
+      managedGeoObjectInfos.add(REMOTE_GO_PARENT);
+    }
+    
+    @Transaction
+    @Override
+    public void setUpClassRelationships()
+    {
+      HIER.setRoot(REMOTE_GOT_PARENT);
+
+      REMOTE_GOT_PARENT.addChild(GOT_ALL, HIER);
+      GOT_ALL.addChild(GOT_CHAR, HIER);
+      GOT_ALL.addChild(GOT_INT, HIER);
+      GOT_ALL.addChild(GOT_FLOAT, HIER);
+      GOT_ALL.addChild(GOT_BOOL, HIER);
+      GOT_ALL.addChild(GOT_DATE, HIER);
+      GOT_ALL.addChild(GOT_TERM, HIER);
+    }
+
+    @Transaction
+    @Override
+    public void setUpRelationships()
+    {
+      REMOTE_GO_PARENT.addChild(GO_ALL, HIER);
+      GO_ALL.addChild(GO_CHAR, HIER);
+      GO_ALL.addChild(GO_INT, HIER);
+      GO_ALL.addChild(GO_FLOAT, HIER);
+      GO_ALL.addChild(GO_BOOL, HIER);
+      GO_ALL.addChild(GO_DATE, HIER);
+      GO_ALL.addChild(GO_TERM, HIER);
+    }
+
+    @Override
+    public String getTestDataKey()
+    {
+      return TEST_DATA_KEY;
+    }
+  }
 
   @BeforeClass
   public static void setUpClass()
@@ -96,15 +154,15 @@ public class RemoteDHIS2APITest
     System.out.println("Test will run against server [" + URL + "].");
     
     TestDataSet.deleteExternalSystems("RemoteDHIS2Test");
-    testData = AllAttributesDataset.newTestData();
+    testData = new RemoteDHIS2Dataset();
     testData.setUpMetadata();
-
+    
     if (!SchedulerManager.initialized())
     {
       SchedulerManager.start();
     }
   }
-
+  
   @AfterClass
   public static void cleanUpClass()
   {
@@ -112,7 +170,7 @@ public class RemoteDHIS2APITest
   }
 
   @Before
-  public void setUp() throws UnexpectedResponseException, InvalidLoginException, HTTPException
+  public void setUp() throws Exception
   {
     testData.setUpInstanceData();
 
@@ -121,8 +179,19 @@ public class RemoteDHIS2APITest
     syncService = new SynchronizationConfigService();
     
     this.dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(this.system);
+    
+    setRootExternalId();
 
     testData.logIn(AllAttributesDataset.USER_ORG_RA);
+    
+    // Delete any data from a previous run
+    removeRemoteOrgUnitByCode(AllAttributesDataset.GO_BOOL.getCode());
+    removeRemoteOrgUnitByCode(AllAttributesDataset.GO_CHAR.getCode());
+    removeRemoteOrgUnitByCode(AllAttributesDataset.GO_INT.getCode());
+    removeRemoteOrgUnitByCode(AllAttributesDataset.GO_FLOAT.getCode());
+    removeRemoteOrgUnitByCode(AllAttributesDataset.GO_TERM.getCode());
+    removeRemoteOrgUnitByCode(AllAttributesDataset.GO_DATE.getCode());
+    removeRemoteOrgUnitByCode(AllAttributesDataset.GO_ALL.getCode());
   }
 
   @After
@@ -150,6 +219,13 @@ public class RemoteDHIS2APITest
     system.apply();
 
     return system;
+  }
+  
+  @Request
+  private void setRootExternalId() throws Exception
+  {
+    OrganisationUnit ou = this.getRemoteOrgUnitByCode("OU_525");
+    RemoteDHIS2Dataset.REMOTE_GO_PARENT.getServerObject().createExternalId(this.system, ou.getId(), ImportStrategy.NEW_ONLY);
   }
   
   @Test
@@ -194,11 +270,11 @@ public class RemoteDHIS2APITest
     exportCustomAttribute(AllAttributesDataset.GOT_TERM, AllAttributesDataset.GO_TERM, testData.AT_GO_TERM, "Bp9g0VvC1fK");
   }
   
-  private void removeOrgUnitByCode(String code) throws InvalidLoginException, HTTPException
+  private OrganisationUnit getRemoteOrgUnitByCode(String code) throws Exception
   {
-    OrganisationUnit orgUnit = null;
-    
     MetadataGetResponse<OrganisationUnit> resp = dhis2.metadataGet(OrganisationUnit.class);
+    
+    Assert.assertTrue(resp.isSuccess());
     
     List<OrganisationUnit> orgUnits = resp.getObjects();
     
@@ -206,55 +282,103 @@ public class RemoteDHIS2APITest
     {
       if (ou.getCode() != null && ou.getCode().equals(code))
       {
-        orgUnit = ou;
+        return ou;
       }
     }
+    
+    return null;
+  }
+  
+  private void removeRemoteOrgUnitByCode(String code) throws Exception
+  {
+    OrganisationUnit orgUnit = getRemoteOrgUnitByCode(code);
     
     if (orgUnit != null)
     {
       DHIS2Response resp2 = this.dhis2.entityIdDelete(DHIS2Objects.ORGANISATION_UNITS, orgUnit.getId(), null);
-      System.out.println(resp2.getResponse());
+      
+      if (!resp2.isSuccess())
+      {
+        System.out.println(resp2.getResponse());
+      }
+      
+      Assert.assertTrue(resp2.isSuccess());
     }
   }
   
-  public void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, String externalAttrId) throws Exception
+  @Request
+  public SynchronizationConfig createSyncConfig(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, String externalAttrId)
   {
-    // Delete any data from a previous run
-    removeOrgUnitByCode(AllAttributesDataset.GO_BOOL.getCode());
-    removeOrgUnitByCode(AllAttributesDataset.GO_CHAR.getCode());
-    removeOrgUnitByCode(AllAttributesDataset.GO_INT.getCode());
-    removeOrgUnitByCode(AllAttributesDataset.GO_FLOAT.getCode());
-    removeOrgUnitByCode(AllAttributesDataset.GO_TERM.getCode());
-    removeOrgUnitByCode(AllAttributesDataset.GO_DATE.getCode());
-    this.removeOrgUnitByCode(AllAttributesDataset.GO_ALL.getCode());
+    // Define reusable objects
+    final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
+    final Organization org = AllAttributesDataset.ORG.getServerObject();
+
+    // Create DHIS2 Sync Config
+    DHIS2SyncConfig dhis2Config = new DHIS2SyncConfig();
+    dhis2Config.setHierarchy(ht);
+    dhis2Config.setLabel(new LocalizedValue("DHIS2 Export Test Data"));
+    dhis2Config.setOrganization(org);
+
+    // Populate Levels
+    SortedSet<SyncLevel> levels = new TreeSet<SyncLevel>();
     
-    // Make sure our prerequsite data exists on the server
-    String attrPayload = IOUtils.toString(RemoteDHIS2APITest.class.getClassLoader().getResourceAsStream("remote-dhis2-api-test-attrs.json"), "UTF-8");
-    MetadataImportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
-    Assert.assertTrue(attrImportResponse.isSuccess());
-    
+    SyncLevel level1 = new SyncLevel();
+    level1.setGeoObjectType(RemoteDHIS2Dataset.REMOTE_GOT_PARENT.getServerObject().getCode());
+    level1.setSyncType(SyncLevel.Type.RELATIONSHIPS);
+    level1.setLevel(0);
+    levels.add(level1);
+
     SyncLevel level2 = new SyncLevel();
-    level2.setGeoObjectType(got.getServerObject().getCode());
+    level2.setGeoObjectType(AllAttributesDataset.GOT_ALL.getServerObject().getCode());
     level2.setSyncType(SyncLevel.Type.ALL);
-    level2.setLevel(2);
+    level2.setLevel(1);
+    levels.add(level2);
 
+    SyncLevel level3 = new SyncLevel();
+    level3.setGeoObjectType(got.getServerObject().getCode());
+    level3.setSyncType(SyncLevel.Type.ALL);
+    level3.setLevel(2);
+    levels.add(level3);
+    
     Map<String, DHIS2AttributeMapping> mappings = new HashMap<String, DHIS2AttributeMapping>();
-
     DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
-
     mapping.setName(attr.getAttributeName());
     mapping.setExternalId(externalAttrId);
     mappings.put(attr.getAttributeName(), mapping);
-
-    level2.setAttributes(mappings);
+    level3.setAttributes(mappings);
     
     Map<String, String> terms = new HashMap<String, String>();
     terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getClassifierId(), "HNaxl8GKadp");
     terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getClassifierId(), "HNaxl8GKadp");
     terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getClassifierId(), "fSdvGdkbjH2");
     mapping.setTerms(terms);
+
+    dhis2Config.setLevels(levels);
+
+    // Serialize the DHIS2 Config
+    GsonBuilder builder = new GsonBuilder();
+    String dhis2JsonConfig = builder.create().toJson(dhis2Config);
+
+    // Create a SynchronizationConfig
+    SynchronizationConfig config = new SynchronizationConfig();
+    config.setConfiguration(dhis2JsonConfig);
+    config.setOrganization(org);
+    config.setHierarchy(ht.getUniversalRelationship());
+    config.setSystem(system.getOid());
+    config.getLabel().setValue("DHIS2 Export Test");
+    config.apply();
+
+    return config;
+  }
+  
+  public void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, String externalAttrId) throws Exception
+  {
+    // Make sure our prerequsite data exists on the server
+    String attrPayload = IOUtils.toString(RemoteDHIS2APITest.class.getClassLoader().getResourceAsStream("remote-dhis2-api-test-attrs.json"), "UTF-8");
+    MetadataImportResponse attrImportResponse = this.dhis2.metadataPost(null, new StringEntity(attrPayload.toString(), Charset.forName("UTF-8")));
+    Assert.assertTrue(attrImportResponse.isSuccess());
     
-    SynchronizationConfig config = DHIS2ServiceTest.createSyncConfig(system, level2);
+    SynchronizationConfig config = createSyncConfig(got, go, attr, externalAttrId);
     DHIS2SyncConfig dhis2Config = (DHIS2SyncConfig) config.buildConfiguration();
     
     ExportHistory history = new ExportHistory();
