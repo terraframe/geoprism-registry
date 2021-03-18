@@ -52,4 +52,11 @@ public class GeoregistryProperties
     
     return url;
   }
+  
+  public static String getGoogleAnalyticsToken()
+  {
+    String token = Singleton.INSTANCE.props.getString("cgr.google.analytics.token", "");
+    
+    return token;
+  }
 }

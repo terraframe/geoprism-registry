@@ -19,6 +19,7 @@
 
 --%>
 <%@page import="net.geoprism.registry.service.RegistryService"%>
+<%@ page import="net.geoprism.registry.GeoregistryProperties"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/tlds/geoprism.tld" prefix="gdb"%>
@@ -55,6 +56,7 @@
     window.acp = "<%=request.getContextPath()%>"; 
     window.registry = {locale:'<%=request.getAttribute("locale")%>', locales:<%=request.getAttribute("ilocales")%>}; 
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
+    window.googleanalyticstoken = "<%=GeoregistryProperties.getGoogleAnalyticsToken()%>";
   </script>
   
    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
@@ -72,6 +74,18 @@
   <jwr:script src="/bundles/localization.js" useRandomParam="false"/>
     
   <script type="text/javascript" src="${pageContext.request.contextPath}/net/geoprism/Localized.js.jsp"></script>
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-BZ81VQJG2N"></script>
+  <script>
+  	if(googleanalyticstoken && googleanalyticstoken.length > 0){
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    
+      gtag('config', googleanalyticstoken);
+  	}
+  </script>
   
 </head>
 
@@ -129,16 +143,16 @@
 
 
   <!-- IE required polyfills, in this exact order -->    
-<%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-polyfills.js"></script> --%>
-<%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/vendor.chunk.js"></script> --%>
-<%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-vendor.js"></script> --%>
-<%--   <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-app.js"></script> --%>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-polyfills.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/dist/vendor.chunk.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-vendor.js"></script>
+  <script type="text/javascript" src="${pageContext.request.contextPath}/dist/cgr-app.js"></script>
   
 
-  <script type="text/javascript" src="$local.host$/dist/cgr-polyfills.js"></script>  
-  <script type="text/javascript" src="$local.host$/dist/vendor.chunk.js"></script>  
-  <script type="text/javascript" src="$local.host$/dist/cgr-vendor.js"></script>    
-  <script type="text/javascript" src="$local.host$/dist/cgr-app.js"></script>
+<!--   <script type="text/javascript" src="$local.host$/dist/cgr-polyfills.js"></script>   -->
+<!--   <script type="text/javascript" src="$local.host$/dist/vendor.chunk.js"></script>   -->
+<!--   <script type="text/javascript" src="$local.host$/dist/cgr-vendor.js"></script>     -->
+<!--   <script type="text/javascript" src="$local.host$/dist/cgr-app.js"></script> -->
 
 </body>
   
