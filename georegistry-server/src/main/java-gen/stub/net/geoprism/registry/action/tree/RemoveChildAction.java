@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.action.tree;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
@@ -88,6 +91,12 @@ public class RemoveChildAction extends RemoveChildActionBase
   public boolean referencesType(ServerGeoObjectType type)
   {
     return this.getChildTypeCode().equals(type.getCode()) || this.getParentTypeCode().equals(type.getCode());
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    return this.getChildTypeCode();
   }
 
   @Override

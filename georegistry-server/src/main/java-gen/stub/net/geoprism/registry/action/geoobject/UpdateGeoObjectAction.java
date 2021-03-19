@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
@@ -86,6 +89,12 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
     String sJson = this.getGeoObjectJson();
 
     return GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson).equals(type.getCode());
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    return this.getType();
   }
 
   @Override

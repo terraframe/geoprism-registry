@@ -21,8 +21,12 @@ package net.geoprism.registry.action;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import org.commongeoregistry.adapter.Optional;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -44,10 +48,11 @@ import com.runwaysdk.system.VaultFile;
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.service.ServiceFactory;
 
-public class ChangeRequest extends ChangeRequestBase
+public class ChangeRequest extends ChangeRequestBase implements GovernancePermissionEntity
 {
   private static final long serialVersionUID = 763209854;
 
@@ -329,6 +334,39 @@ public class ChangeRequest extends ChangeRequestBase
     }
 
     return true;
+  }
+  
+  public String getOrganization()
+  {
+    String gotCode = this.getGeoObjectType();
+    
+    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+    
+    if (optional.isPresent())
+    {
+      return optional.get().getCode();
+    }
+    else
+    {
+      return null;
+    }
+  }
+  
+  public AllGovernanceStatus getGovernanceStatus()
+  {
+    return this.getApprovalStatus().get(0);
+  }
+  
+  public String getGeoObjectType()
+  {
+    List<AbstractAction> actions = this.getOrderedActions();
+    
+    for (AbstractAction action : actions)
+    {
+      return action.getGeoObjectType();
+    }
+    
+    return null;
   }
   
   public boolean referencesType(ServerGeoObjectType type)

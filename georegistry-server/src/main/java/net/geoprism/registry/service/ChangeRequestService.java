@@ -19,6 +19,7 @@
 package net.geoprism.registry.service;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,12 +45,16 @@ import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestPermissionService;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 
 public class ChangeRequestService
 {
+  public ChangeRequestPermissionService permService = new ChangeRequestPermissionService();
+  
   @Request(RequestType.SESSION)
   public void deleteDocument(String sessionId, String crOid, String vfOid)
   {
@@ -60,7 +65,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(crOid);
     
-    if (!request.isVisible())
+    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -80,7 +85,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(crOid);
     
-    if (!request.isVisible())
+    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -102,7 +107,7 @@ public class ChangeRequestService
     
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible())
+    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -139,7 +144,7 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible())
+    if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -170,6 +175,13 @@ public class ChangeRequestService
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
     
     if (!action.isVisible())
+    {
+      throw new CGRPermissionException();
+    }
+    
+    if (!this.permService.getPermissions(action).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS
+      )))
     {
       throw new CGRPermissionException();
     }
@@ -278,10 +290,10 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
-    {
-      throw new CGRPermissionException();
-    }
+//    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+//    {
+//      throw new CGRPermissionException();
+//    }
     
     if (sActions != null && sActions.length() > 0)
     {

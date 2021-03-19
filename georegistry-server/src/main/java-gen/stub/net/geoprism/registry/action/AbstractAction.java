@@ -20,7 +20,9 @@ package net.geoprism.registry.action;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Set;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
@@ -33,7 +35,7 @@ import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public abstract class AbstractAction extends AbstractActionBase
+public abstract class AbstractAction extends AbstractActionBase implements GovernancePermissionEntity
 {
 
   private static final long serialVersionUID = 1324056554;
@@ -52,7 +54,28 @@ public abstract class AbstractAction extends AbstractActionBase
   public abstract boolean isVisible();
   
   public abstract boolean referencesType(ServerGeoObjectType type);
-
+  
+  public String getOrganization()
+  {
+    String gotCode = this.getGeoObjectType();
+    
+    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+    
+    if (optional.isPresent())
+    {
+      return optional.get().getCode();
+    }
+    else
+    {
+      return null;
+    }
+  }
+  
+  public AllGovernanceStatus getGovernanceStatus()
+  {
+    return this.getApprovalStatus().get(0);
+  }
+  
   protected abstract String getMessage();
 
   public AbstractAction(RegistryService registry)

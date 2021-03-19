@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 
@@ -120,6 +123,12 @@ public class SetParentAction extends SetParentActionBase
     builder.create().fromJson(this.getJson(), ServerParentTreeNodeOverTime.class);
     
     return customGoDeserializer.referencesType;
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    return this.getChildTypeCode();
   }
 
   @Override

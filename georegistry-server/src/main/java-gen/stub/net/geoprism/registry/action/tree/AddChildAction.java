@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.action.tree;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.AddChildActionDTO;
@@ -30,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -88,6 +90,12 @@ public class AddChildAction extends AddChildActionBase
   public boolean referencesType(ServerGeoObjectType type)
   {
     return this.getChildTypeCode().equals(type.getCode()) || this.getParentTypeCode().equals(type);
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    return this.getChildTypeCode();
   }
 
   @Override
