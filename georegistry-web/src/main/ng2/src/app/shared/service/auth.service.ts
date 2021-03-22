@@ -31,7 +31,7 @@ export class AuthService {
 		this.buildRolesFromCookie(cookieDataJSON);
 		this.user.loggedIn = cookieDataJSON.loggedIn;
 		this.user.roleDisplayLabels = cookieDataJSON.roleDisplayLabels;
-		this.user.version = cookieDataJSON.version;
+		this.user.version = cookieDataJSON.version.replaceAll("+", " ");
 		this.user.installedLocales = cookieDataJSON.installedLocales;
 	}
 

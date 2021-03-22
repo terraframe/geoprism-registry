@@ -339,7 +339,7 @@
               <name>geoprism.build.version</name>
               <value>${project.version}</value>
               <regex>-SNAPSHOT</regex>
-              <replacement>\ (${maven.build.timestamp})</replacement>
+              <replacement>+(${maven.build.timestamp})</replacement>
               <failIfNoMatch>false</failIfNoMatch>
             </configuration>
           </execution>
