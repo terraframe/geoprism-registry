@@ -35,8 +35,6 @@
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
 		<cgr.adapter.version>0.14.1-SNAPSHOT</cgr.adapter.version>
-    
-    <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
 	</properties>
 
 
