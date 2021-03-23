@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 
@@ -32,6 +36,8 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.ChangeRequestPermissionService;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -53,33 +59,6 @@ public class SetParentAction extends SetParentActionBase
   public SetParentAction()
   {
     super();
-  }
-
-  @Override
-  public boolean isVisible()
-  {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      try
-      {
-        if (!this.doesGOTExist(this.getChildTypeCode()))
-        {
-          return true;
-        }
-        
-        // Important to remember that the child may or may not exist at this point (so we can't fetch it from the DB here)
-        
-        ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(this.getChildTypeCode()).get();
-
-        return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
-      }
-      catch (Exception e)
-      {
-        logger.error("error", e);
-      }
-    }
-
-    return false;
   }
   
   public static class ReferencesGOTGeoObjectNullDeserializer extends ServerParentTreeNodeOverTimeDeserializer
@@ -120,6 +99,12 @@ public class SetParentAction extends SetParentActionBase
     builder.create().fromJson(this.getJson(), ServerParentTreeNodeOverTime.class);
     
     return customGoDeserializer.referencesType;
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    return this.getChildTypeCode();
   }
 
   @Override
@@ -162,10 +147,17 @@ public class SetParentAction extends SetParentActionBase
   public void buildFromJson(JSONObject joAction)
   {
     super.buildFromJson(joAction);
+    
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
 
-    this.setChildTypeCode(joAction.getString(SetParentAction.CHILDTYPECODE));
-    this.setChildCode(joAction.getString(SetParentAction.CHILDCODE));
-    this.setJson(joAction.getJSONArray(SetParentAction.JSON).toString());
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_DETAILS
+      )))
+    {
+      this.setChildTypeCode(joAction.getString(SetParentAction.CHILDTYPECODE));
+      this.setChildCode(joAction.getString(SetParentAction.CHILDCODE));
+      this.setJson(joAction.getJSONArray(SetParentAction.JSON).toString());
+    }
   }
 
   @Override

@@ -28,8 +28,9 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
 
     original: AddChildAction;
 
-    readOnly: boolean = true;
-
+    @Input() readOnly: boolean;
+    
+    isEditing: boolean = false;
 
     private bsModalRef: BsModalRef;
 
@@ -54,7 +55,7 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
     // Big thanks to https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
     @HostListener( 'window:beforeunload' )
     canDeactivate(): Observable<boolean> | boolean {
-        if ( !this.readOnly ) {
+        if ( this.isEditing ) {
             //event.preventDefault();
             //event.returnValue = 'Are you sure?';
             //return 'Are you sure?';
@@ -66,7 +67,7 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
     }
 
     afterDeactivate( isDeactivating: boolean ) {
-        if ( isDeactivating && !this.readOnly ) {
+        if ( isDeactivating && this.isEditing ) {
             this.unlockActionSync();
         }
     }
@@ -81,7 +82,7 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
 
     lockAction() {
         this.changeRequestService.lockAction( this.action.oid ).then( response => {
-            this.readOnly = false;
+            this.isEditing = true;
         } ).catch(( err: HttpErrorResponse ) => {
             this.error( err );
         } );
@@ -89,7 +90,7 @@ export class AddRemoveChildDetailComponent implements ComponentCanDeactivate, Ac
 
     unlockAction() {
         this.changeRequestService.unlockAction( this.action.oid ).then( response => {
-            this.readOnly = true;
+            this.isEditing = false;
 
             this.action = this.original;
         } ).catch(( err: HttpErrorResponse ) => {

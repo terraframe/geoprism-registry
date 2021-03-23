@@ -32,7 +32,10 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 	@Input() action: any;
 
 	hierarchies: HierarchyOverTime[] = [];
-	readOnly: boolean = true;
+	
+	@Input() readOnly: boolean;
+	
+	isEditing: boolean = false;
 
 	bsModalRef: BsModalRef;
 
@@ -100,7 +103,7 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 	// Big thanks to https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
 	@HostListener('window:beforeunload')
 	canDeactivate(): Observable<boolean> | boolean {
-		if (!this.readOnly) {
+		if (this.isEditing) {
 			//event.preventDefault();
 			//event.returnValue = 'Are you sure?';
 			//return 'Are you sure?';
@@ -112,7 +115,7 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 	}
 
 	afterDeactivate(isDeactivating: boolean) {
-		if (isDeactivating && !this.readOnly) {
+		if (isDeactivating && this.isEditing) {
 			this.unlockActionSync();
 		}
 	}
@@ -127,7 +130,7 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 
 	lockAction() {
 		this.changeRequestService.lockAction(this.action.oid).then(response => {
-			this.readOnly = false;
+			this.isEditing = true;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -135,7 +138,7 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 
 	unlockAction() {
 		this.changeRequestService.unlockAction(this.action.oid).then(response => {
-			this.readOnly = true;
+			this.isEditing = false;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});

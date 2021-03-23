@@ -18,6 +18,9 @@
  */
 package net.geoprism.registry.action.tree;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
@@ -56,38 +59,17 @@ public class RemoveChildAction extends RemoveChildActionBase
 
     parent.removeChild(child, this.getHierarchyTypeCode());
   }
-
-  @Override
-  public boolean isVisible()
-  {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      try
-      {
-        if (!this.doesGOTExist(this.getParentTypeCode()) || !this.doesGOTExist(this.getChildTypeCode()))
-        {
-          return true;
-        }
-        
-        ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
-        ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
-        ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
-
-        return ServiceFactory.getGeoObjectRelationshipPermissionService().canRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
-      }
-      catch (Exception e)
-      {
-        logger.error("error", e);
-      }
-    }
-
-    return false;
-  }
   
   @Override
   public boolean referencesType(ServerGeoObjectType type)
   {
     return this.getChildTypeCode().equals(type.getCode()) || this.getParentTypeCode().equals(type.getCode());
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    return this.getChildTypeCode();
   }
 
   @Override

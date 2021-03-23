@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.UpdateGeoObjectActionDTO;
@@ -33,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.ChangeRequestPermissionService;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
@@ -51,34 +57,6 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   {
     super();
   }
-
-  @Override
-  public boolean isVisible()
-  {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      try
-      {
-        String sJson = this.getGeoObjectJson();
-        
-        String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
-        if (!this.doesGOTExist(typeCode))
-        {
-          return true;
-        }
-
-        ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-
-        return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
-      }
-      catch (Exception e)
-      {
-        logger.error("error", e);
-      }
-    }
-
-    return false;
-  }
   
   @Override
   public boolean referencesType(ServerGeoObjectType type)
@@ -86,6 +64,16 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
     String sJson = this.getGeoObjectJson();
 
     return GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson).equals(type.getCode());
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    String sJson = this.getGeoObjectJson();
+    
+    String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
+    
+    return typeCode;
   }
 
   @Override
@@ -157,8 +145,15 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   public void buildFromJson(JSONObject joAction)
   {
     super.buildFromJson(joAction);
+    
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
 
-    this.setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_DETAILS
+      )))
+    {
+      this.setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
+    }
   }
 
   @Override
