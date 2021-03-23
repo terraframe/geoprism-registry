@@ -1006,7 +1006,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         final ServerGeoObjectIF parent = entry.getGeoObject();
 
         EdgeObject newEdge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
-        newEdge.setValue(GeoVertex.START_DATE, entry.getDate());
+        newEdge.setValue(GeoVertex.START_DATE, entry.getStartDate());
 
         edges.add(newEdge);
       }
@@ -1035,8 +1035,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       edge.apply();
     }
 
-    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, this.date);
-    node.addParent(new ServerParentTreeNode(parent, hierarchyType, this.date));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, this.date, null);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType, this.date, null));
 
     return node;
   }
@@ -1080,8 +1080,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       newEdge.apply();
     }
     
-    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, startDate);
-    node.addParent(new ServerParentTreeNode(parent, hierarchyType, startDate));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, startDate, null);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType, startDate, null));
 
     return node;
   }
@@ -1750,7 +1750,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   private static ServerChildTreeNode internalGetChildGeoObjects(VertexServerGeoObject parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn, Date date)
   {
-    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn, date);
+    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn, date, null);
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", parent.getVertex().getRID());
@@ -1815,7 +1815,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
         else
         {
-          tnChild = new ServerChildTreeNode(child, ht, date);
+          tnChild = new ServerChildTreeNode(child, ht, date, null);
         }
 
         tnRoot.addChild(tnChild);
@@ -1827,7 +1827,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn, Date date)
   {
-    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date);
+    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date, null);
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", child.getVertex().getRID());
@@ -1908,7 +1908,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
         else
         {
-          tnParent = new ServerParentTreeNode(parent, ht, date);
+          tnParent = new ServerParentTreeNode(parent, ht, date, null);
         }
 
         tnRoot.addParent(tnParent);
@@ -1981,7 +1981,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         Date date = edge.getObjectValue(GeoVertex.START_DATE);
         Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
 
-        ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date);
+        ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date, null);
         tnRoot.setEndDate(endDate);
 
         VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
@@ -1994,7 +1994,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
         else
         {
-          tnParent = new ServerParentTreeNode(parent, ht, date);
+          tnParent = new ServerParentTreeNode(parent, ht, date, null);
         }
 
         tnRoot.addParent(tnParent);

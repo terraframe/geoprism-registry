@@ -288,7 +288,7 @@ public class ServerParentTreeNodeOverTime
         }
 
         JsonObject object = new JsonObject();
-        object.addProperty(JSON_ENTRY_STARTDATE, format.format(node.getDate()));
+        object.addProperty(JSON_ENTRY_STARTDATE, format.format(node.getStartDate()));
 
         if (node.getEndDate() != null)
         {
@@ -359,14 +359,16 @@ public class ServerParentTreeNodeOverTime
         for (int j = 0; j < entries.size(); j++)
         {
           final JsonObject entry = entries.get(j).getAsJsonObject();
-          final String startDate = entry.get(JSON_ENTRY_STARTDATE).getAsString();
+          final String sStartDate = entry.get(JSON_ENTRY_STARTDATE).getAsString();
+          final String sEndDate = entry.get(JSON_ENTRY_ENDDATE).getAsString();
           final JsonObject parents = entry.get(JSON_ENTRY_PARENTS).getAsJsonObject();
 
           try
           {
-            Date date = format.parse(startDate);
+            Date startDate = format.parse(sStartDate);
+            Date endDate = format.parse(sEndDate);
 
-            final ServerParentTreeNode parent = parseParent(ht, types, parents, date, context);
+            final ServerParentTreeNode parent = parseParent(ht, types, parents, startDate, endDate, context);
 
             if (parent != null)
             {
@@ -383,7 +385,7 @@ public class ServerParentTreeNodeOverTime
       return node;
     }
     
-    protected ServerParentTreeNode parseParent(final ServerHierarchyType ht, final JsonArray types, final JsonObject parents, final Date date, final JsonDeserializationContext context)
+    protected ServerParentTreeNode parseParent(final ServerHierarchyType ht, final JsonArray types, final JsonObject parents, final Date startDate, final Date endDate, final JsonDeserializationContext context)
     {
       for (int k = ( types.size() - 1 ); k >= 0; k--)
       {
@@ -397,7 +399,7 @@ public class ServerParentTreeNodeOverTime
 
           ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
 
-          return new ServerParentTreeNode(pSGO, ht, date);
+          return new ServerParentTreeNode(pSGO, ht, startDate, endDate);
         }
       }
 

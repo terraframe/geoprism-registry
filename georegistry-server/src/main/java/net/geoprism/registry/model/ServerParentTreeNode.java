@@ -42,9 +42,9 @@ public class ServerParentTreeNode extends ServerTreeNode
    * @param date
    *          TODO
    */
-  public ServerParentTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType, Date date)
+  public ServerParentTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
   {
-    super(geoObject, hierarchyType, date);
+    super(geoObject, hierarchyType, startDate, endDate);
 
     this.parents = Collections.synchronizedList(new LinkedList<ServerParentTreeNode>());
   }
@@ -140,7 +140,7 @@ public class ServerParentTreeNode extends ServerTreeNode
 
   public boolean isSame(ServerParentTreeNode oNode, ServerGeoObjectIF exclude)
   {
-    if (!this.getDate().equals(oNode.getDate()) || !this.isEndDateSame(oNode))
+    if (!this.getStartDate().equals(oNode.getStartDate()) || !this.isEndDateSame(oNode))
     {
       return false;
     }
