@@ -178,7 +178,7 @@
                           <label>{{req.phoneNumber}}</label>
                       </div>
                       
-                      <a *ngIf="req.approvalStatus === 'ACCEPTED' || req.approvalStatus === 'REJECTED'" class="pull-right" target="_blank" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
+                      <a *ngIf="(req.approvalStatus === 'ACCEPTED' || req.approvalStatus === 'REJECTED') && action.actionType != 'net.geoprism.registry.action.geoobject.SetParentAction'" class="pull-right" target="_blank" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
                           <localize key="change.request.open.geoobject.in.editor.link.btn"></localize>
                       </a>
                       
