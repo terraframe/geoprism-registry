@@ -53,7 +53,8 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 		this.forDate = new Date();
 
 		const day = this.forDate.getUTCDate();
-		this.dateStr = this.forDate.getUTCFullYear() + "-" + (this.forDate.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
+		const month = this.forDate.getUTCMonth();
+		this.dateStr = this.forDate.getUTCFullYear() + "-" + (month < 10 ? "0" : "") + (month + 1) + "-" + (day < 10 ? "0" : "") + day;
 	}
 
 	ngOnInit(): void {
@@ -101,24 +102,24 @@ export class SetParentDetailComponent implements ComponentCanDeactivate, ActionD
 
 
 	// Big thanks to https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
-	@HostListener('window:beforeunload')
-	canDeactivate(): Observable<boolean> | boolean {
-		if (this.isEditing) {
-			//event.preventDefault();
-			//event.returnValue = 'Are you sure?';
-			//return 'Are you sure?';
+	//@HostListener('window:beforeunload')
+	//canDeactivate(): Observable<boolean> | boolean {
+	//	if (this.isEditing) {
+	//		//event.preventDefault();
+	//		//event.returnValue = 'Are you sure?';
+	//		//return 'Are you sure?';
 
-			return false;
-		}
+	//		return false;
+	//	}
 
-		return true;
-	}
+	//	return true;
+	//}
 
-	afterDeactivate(isDeactivating: boolean) {
-		if (isDeactivating && this.isEditing) {
-			this.unlockActionSync();
-		}
-	}
+	//afterDeactivate(isDeactivating: boolean) {
+	//	if (isDeactivating && this.isEditing) {
+	//		this.unlockActionSync();
+	//	}
+	//}
 
 	startEdit(): void {
 		this.lockAction();

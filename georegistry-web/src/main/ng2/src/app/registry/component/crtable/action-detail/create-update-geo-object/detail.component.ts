@@ -138,24 +138,24 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     }
 
     // Big thanks to https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
-    @HostListener( 'window:beforeunload' )
-    canDeactivate(): Observable<boolean> | boolean {
-        if ( this.isEditing ) {
-            //event.preventDefault();
-            //event.returnValue = 'Are you sure?';
-            //return 'Are you sure?';
+    //@HostListener( 'window:beforeunload' )
+    //canDeactivate(): Observable<boolean> | boolean {
+    //    if ( this.isEditing ) {
+    //        //event.preventDefault();
+    //        //event.returnValue = 'Are you sure?';
+    //        //return 'Are you sure?';
+//
+     //       return false;
+     //   }
+//
+    //    return true;
+    //}
 
-            return false;
-        }
-
-        return true;
-    }
-
-    afterDeactivate( isDeactivating: boolean ) {
-        if ( isDeactivating && this.isEditing ) {
-            this.unlockActionSync();
-        }
-    }
+    //afterDeactivate( isDeactivating: boolean ) {
+    //    if ( isDeactivating && this.isEditing ) {
+    //        this.unlockActionSync();
+    //    }
+    //}
 
     startEdit(): void {
         this.lockAction();

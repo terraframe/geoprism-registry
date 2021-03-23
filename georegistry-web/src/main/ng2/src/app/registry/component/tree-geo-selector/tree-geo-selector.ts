@@ -55,12 +55,14 @@ export class TreeGeoSelector {
 
 		let nodes = [];
 		let current = null;
+		
+		console.log(this.hierarchy);
 
 		this.hierarchy.entries.forEach(pot => {
 			const startDate = Date.parse(pot.startDate);
 			const endDate = Date.parse(pot.endDate);
 
-			if (time >= startDate && time <= endDate) {
+			//if (time >= startDate && time <= endDate) {
 				this.hierarchy.types.forEach(type => {
 					let node: any = {
 						code: type.code,
@@ -70,7 +72,7 @@ export class TreeGeoSelector {
 					}
 
 					if (pot.parents[type.code] != null) {
-						node.name = pot.parents[type.code].text;
+						node.name = pot.parents[type.code].text + " (" + pot.startDate + " -> " + pot.endDate + ")";
 						node.geoObject = pot.parents[type.code].geoObject;
 					}
 
@@ -84,7 +86,9 @@ export class TreeGeoSelector {
 
 					current = node;
 				});
-			}
+			//}
+			
+			current = null;
 		});
 
 		this.nodes = nodes;

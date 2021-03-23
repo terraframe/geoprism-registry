@@ -36,11 +36,13 @@ public class ChangeRequestPermissionService
       HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>(Arrays.asList(ChangeRequestPermissionAction.values()));
       
       actions.remove(ChangeRequestPermissionAction.DELETE);
+      actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
       actions.remove(ChangeRequestPermissionAction.WRITE_DETAILS);
       
       if (status.equals(AllGovernanceStatus.ACCEPTED))
       {
         actions.remove(ChangeRequestPermissionAction.EXECUTE);
+        actions.remove(ChangeRequestPermissionAction.WRITE_MAINTAINER_NOTES);
       }
       
       return actions;
@@ -50,12 +52,13 @@ public class ChangeRequestPermissionService
       HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>(Arrays.asList(ChangeRequestPermissionAction.values()));
       
       actions.remove(ChangeRequestPermissionAction.DELETE);
+      actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
       actions.remove(ChangeRequestPermissionAction.WRITE_DETAILS);
       
       if (status.equals(AllGovernanceStatus.ACCEPTED))
       {
         actions.remove(ChangeRequestPermissionAction.EXECUTE);
-        actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
+        actions.remove(ChangeRequestPermissionAction.WRITE_MAINTAINER_NOTES);
       }
       
       return actions;
@@ -65,12 +68,13 @@ public class ChangeRequestPermissionService
       HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>(Arrays.asList(ChangeRequestPermissionAction.values()));
       
       actions.remove(ChangeRequestPermissionAction.DELETE);
+      actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
       actions.remove(ChangeRequestPermissionAction.WRITE_DETAILS);
       
       if (status.equals(AllGovernanceStatus.ACCEPTED))
       {
         actions.remove(ChangeRequestPermissionAction.EXECUTE);
-        actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
+        actions.remove(ChangeRequestPermissionAction.WRITE_MAINTAINER_NOTES);
       }
       
       return actions;

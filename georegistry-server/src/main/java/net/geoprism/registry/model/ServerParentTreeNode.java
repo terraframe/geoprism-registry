@@ -121,10 +121,26 @@ public class ServerParentTreeNode extends ServerTreeNode
 
     return node;
   }
+  
+  private boolean isEndDateSame(ServerParentTreeNode oNode)
+  {
+    if (this.getEndDate() == null && oNode.getEndDate() == null)
+    {
+      return true;
+    }
+    
+    if (this.getEndDate() == null && oNode.getEndDate() != null
+        || this.getEndDate() != null && oNode.getEndDate() == null)
+    {
+      return false;
+    }
+    
+    return this.getEndDate().equals(oNode.getEndDate());
+  }
 
   public boolean isSame(ServerParentTreeNode oNode, ServerGeoObjectIF exclude)
   {
-    if (!this.getDate().equals(oNode.getDate()))
+    if (!this.getDate().equals(oNode.getDate()) || !this.isEndDateSame(oNode))
     {
       return false;
     }
