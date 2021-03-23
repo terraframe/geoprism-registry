@@ -91,7 +91,9 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     }
 
     applyAction() {
-        var action = JSON.parse( JSON.stringify( this.action ) );
+        //var action = JSON.parse( JSON.stringify( this.action ) );
+        let action = this.action;
+        
         action.geoObjectJson = this.attributeEditor.getGeoObject();
 
         if ( this.geometryEditor != null ) {

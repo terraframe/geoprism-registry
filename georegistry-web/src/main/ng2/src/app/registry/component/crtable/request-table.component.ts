@@ -426,14 +426,7 @@ export class RequestTableComponent {
 			ignoreBackdropClick: true,
 		});
 		this.bsModalRef.content.curAction(action, !cr.permissions.includes("WRITE_DETAILS"));
-
-		//   var detail = this.getActiveDetailComponent();
-		//   if (detail != null)
-		//   {
-		// action.onSelect(action);
-		//   }
 	}
-	
 	formatDate(date: string): string {
 		return this.localizationService.formatDateForDisplay(date);
 	}
