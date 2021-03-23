@@ -14,14 +14,17 @@ export interface ActionDetailComponent {
 export class ActionDetailModalComponent {
 
     action: any;
+    
+    readonly: boolean;
 
     @ViewChild( "cuDetail" ) cuDetail: ActionDetailComponent;
     @ViewChild( "arDetail" ) arDetail: ActionDetailComponent;
     @ViewChild( "spDetail" ) spDetail: ActionDetailComponent;
 
     @Input()
-    set curAction( action: any ) {
-        this.action = action;
+    curAction( action: any, readonly: boolean ) {
+      this.action = action;
+      this.readonly = readonly
     }
 
     /*

@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONArray;
@@ -49,7 +50,6 @@ import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.RolePermissionService;
 
 public class ChangeRequestService
 {
@@ -175,13 +175,10 @@ public class ChangeRequestService
 
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
     
-    if (!action.isVisible())
-    {
-      throw new CGRPermissionException();
-    }
+    Set<ChangeRequestPermissionAction> perms = this.permService.getPermissions(action);
     
-    if (!this.permService.getPermissions(action).containsAll(Arrays.asList(
-        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS
+    if (!perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE
       )))
     {
       throw new CGRPermissionException();
@@ -205,7 +202,9 @@ public class ChangeRequestService
 
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
     
-    if (!action.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    if (!this.permService.getPermissions(action).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE
+      )))
     {
       throw new CGRPermissionException();
     }
@@ -220,18 +219,24 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public String getAllActions(String sessionId, String requestId)
   {
+    ChangeRequest request = ChangeRequest.get(requestId);
+    
+    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_APPROVAL_STATUS
+      )))
+    {
+      throw new CGRPermissionException();
+    }
+    
     JSONArray actions = new JSONArray();
     QueryFactory factory = new QueryFactory();
 
     AbstractActionQuery query = new AbstractActionQuery(factory);
 
-    if (requestId != null)
-    {
-      ChangeRequestQuery rQuery = new ChangeRequestQuery(factory);
-      rQuery.WHERE(rQuery.getOid().EQ(requestId));
+    ChangeRequestQuery rQuery = new ChangeRequestQuery(factory);
+    rQuery.WHERE(rQuery.getOid().EQ(requestId));
 
-      query.WHERE(query.request(rQuery));
-    }
+    query.WHERE(query.request(rQuery));
 
     query.ORDER_BY(query.getCreateActionDate(), SortOrder.ASC);
 
@@ -268,7 +273,10 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
+        ChangeRequestPermissionAction.READ_DETAILS
+      )))
     {
       throw new CGRPermissionException();
     }
@@ -291,10 +299,13 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-//    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
-//    {
-//      throw new CGRPermissionException();
-//    }
+    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
+        ChangeRequestPermissionAction.READ_DETAILS
+      )))
+    {
+      throw new CGRPermissionException();
+    }
     
     if (sActions != null && sActions.length() > 0)
     {
@@ -324,7 +335,10 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
+        ChangeRequestPermissionAction.READ_DETAILS
+      )))
     {
       throw new CGRPermissionException();
     }
@@ -374,8 +388,10 @@ public class ChangeRequestService
       while (it.hasNext())
       {
         ChangeRequest request = it.next();
-
-        if (request.isVisible())
+        
+        if (this.permService.getPermissions(request).containsAll(Arrays.asList(
+            ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_DETAILS, ChangeRequestPermissionAction.READ_APPROVAL_STATUS
+          )))
         {
           requests.add(request.toJSON());
         }
@@ -418,6 +434,13 @@ public class ChangeRequestService
 
       cr.addAction(ra).apply();
     }
+    
+    if (!this.permService.getPermissions(cr).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.SUBMIT
+      )))
+    {
+      throw new CGRPermissionException();
+    }
   }
 
   @Request(RequestType.SESSION)
@@ -433,7 +456,9 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    if (!request.isVisible() || ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC())
+    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE
+      )))
     {
       throw new CGRPermissionException();
     }
@@ -448,9 +473,9 @@ public class ChangeRequestService
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
-    RolePermissionService perms = ServiceFactory.getRolePermissionService();
-    
-    if (!(perms.isRC() && request.isCurrentUserOwner()))
+    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.DELETE
+      )))
     {
       throw new CGRPermissionException();
     }
@@ -464,6 +489,13 @@ public class ChangeRequestService
   public String lockAction(String sessionId, String actionId)
   {
     AbstractAction action = AbstractAction.get(actionId);
+    
+    if (!this.permService.getPermissions(action).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE
+      )))
+    {
+      throw new CGRPermissionException();
+    }
 
     action.lock();
 

@@ -11,6 +11,7 @@ export class ChangeRequest {
 	documents: Document[];
 	phoneNumber?: string;
 	email?: string;
+	permissions?: string[];
 }
 
 export class Document {

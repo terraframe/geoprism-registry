@@ -7,9 +7,9 @@
 
     <div class="row">
         <div class="col-md-12">
-            <crtable-detail-create-geo-object #cuDetail *ngIf="action && (action.actionType.endsWith('CreateGeoObjectAction') || action.actionType.endsWith('UpdateGeoObjectAction'))" [(action)]="action"> </crtable-detail-create-geo-object>
-            <crtable-detail-add-remove-child #arDetail *ngIf="action && (action.actionType.endsWith('AddChildAction') || action.actionType.endsWith('RemoveChildAction'))" [(action)]="action"> </crtable-detail-add-remove-child>
-            <set-parent-detail #spDetail *ngIf="action && (action.actionType.endsWith('SetParentAction'))" [(action)]="action"> </set-parent-detail>
+            <crtable-detail-create-geo-object #cuDetail *ngIf="action && (action.actionType.endsWith('CreateGeoObjectAction') || action.actionType.endsWith('UpdateGeoObjectAction'))" [(action)]="action" [readOnly]="readonly"> </crtable-detail-create-geo-object>
+            <crtable-detail-add-remove-child #arDetail *ngIf="action && (action.actionType.endsWith('AddChildAction') || action.actionType.endsWith('RemoveChildAction'))" [(action)]="action" [readOnly]="readonly"> </crtable-detail-add-remove-child>
+            <set-parent-detail #spDetail *ngIf="action && (action.actionType.endsWith('SetParentAction'))" [(action)]="action" [readOnly]="readonly"> </set-parent-detail>
         </div>
     </div>
 

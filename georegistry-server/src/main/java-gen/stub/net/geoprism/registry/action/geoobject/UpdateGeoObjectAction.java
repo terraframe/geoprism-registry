@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +37,8 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.ChangeRequestPermissionService;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
@@ -53,35 +56,6 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   public UpdateGeoObjectAction()
   {
     super();
-  }
-
-  @Override
-  public boolean isVisible()
-  {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      try
-      {
-        String typeCode = getGeoObjectType();
-        
-        Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(typeCode);
-        
-        if (!optional.isPresent())
-        {
-          return true;
-        }
-        
-        ServerGeoObjectType type = optional.get();
-
-        return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
-      }
-      catch (Exception e)
-      {
-        logger.error("error", e);
-      }
-    }
-
-    return false;
   }
   
   @Override
@@ -171,8 +145,15 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   public void buildFromJson(JSONObject joAction)
   {
     super.buildFromJson(joAction);
+    
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
 
-    this.setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_DETAILS
+      )))
+    {
+      this.setGeoObjectJson(joAction.getJSONObject(UpdateGeoObjectAction.GEOOBJECTJSON).toString());
+    }
   }
 
   @Override

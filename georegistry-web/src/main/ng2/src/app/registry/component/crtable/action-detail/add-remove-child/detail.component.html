@@ -6,24 +6,24 @@
     <div class="detail-content">
 
         <label class="detail-label"><localize key="action.detail.childid.input"></localize> : </label>
-        <input class="detail-value" type="text" [(ngModel)]="action.childId" [disabled]="readOnly">
+        <input class="detail-value" type="text" [(ngModel)]="action.childId" [disabled]="isEditing">
 
         <label class="detail-label"><localize key="action.detail.childtype.input"></localize> : </label>
-        <input class="detail-value" type="text" [(ngModel)]="action.childTypeCode" [disabled]="readOnly">
+        <input class="detail-value" type="text" [(ngModel)]="action.childTypeCode" [disabled]="isEditing">
 
         <label class="detail-label"><localize key="action.detail.parentid.input"></localize> : </label>
-        <input class="detail-value" type="text" [(ngModel)]="action.parentId"  [disabled]="readOnly">
+        <input class="detail-value" type="text" [(ngModel)]="action.parentId"  [disabled]="isEditing">
 
         <label class="detail-label"><localize key="action.detail.childtype.input"></localize> : </label>
-        <input class="detail-value" type="text" [(ngModel)]="action.parentTypeCode"  [disabled]="readOnly">
+        <input class="detail-value" type="text" [(ngModel)]="action.parentTypeCode"  [disabled]="isEditing">
 
         <label class="detail-label"><localize key="action.detail.hierarchycode.input"></localize> : </label>
-        <input class="detail-value" type="text" [(ngModel)]="action.hierarchyTypeCode"  [disabled]="readOnly">
+        <input class="detail-value" type="text" [(ngModel)]="action.hierarchyTypeCode"  [disabled]="isEditing">
 
         <label class="detail-label">
             <localize key="change.request.status"></localize> :
         </label>
-        <select style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]=action.approvalStatus   [disabled]="readOnly">
+        <select style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]=action.approvalStatus   [disabled]="isEditing">
             <option value="REJECTED">
                 <localize key="change.request.status.rejected"></localize>
             </option>
@@ -43,13 +43,13 @@
         </div>
 
         <div class="button-holder text-right" style="margin:40px 0 20px 0;">
-          <button *ngIf="readOnly && action.createdBy === getUsername()" (click)="startEdit()" class="btn btn-primary detail-accept">
+          <button *ngIf="!readOnly && !isEditing" (click)="startEdit()" class="btn btn-primary detail-accept">
             <localize key="modal.button.edit"></localize>
           </button>
-          <button *ngIf="!readOnly && action.createdBy === getUsername()" (click)="endEdit()" class="btn btn-default detail-reject">
+          <button *ngIf="!readOnly && isEditing" (click)="endEdit()" class="btn btn-default detail-reject">
             <localize key="modal.button.cancel"></localize>
           </button>
-          <button *ngIf="!readOnly" (click)="applyAction()" class="btn btn-primary detail-accept">
+          <button *ngIf="!readOnly && isEditing" (click)="applyAction()" class="btn btn-primary detail-accept">
             <localize key="modal.button.submit"></localize>
           </button>
         </div>

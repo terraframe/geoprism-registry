@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.action.tree;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +34,9 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.ChangeRequestPermissionService;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -56,34 +60,6 @@ public class AddChildAction extends AddChildActionBase
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     parent.addChild(child, ht);
-  }
-
-  @Override
-  public boolean isVisible()
-  {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      try
-      {
-        if (!this.doesGOTExist(this.getParentTypeCode()) || !this.doesGOTExist(this.getChildTypeCode()))
-        {
-          return true;
-        }
-        
-        ServerGeoObjectIF parent = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService()).getGeoObject(this.getParentId(), this.getParentTypeCode());
-        ServerGeoObjectIF child = new ServerGeoObjectService().getGeoObject(this.getChildId(), this.getChildTypeCode());
-        ServerHierarchyType ht = ServerHierarchyType.get(this.getHierarchyTypeCode());
-
-        return ServiceFactory.getGeoObjectRelationshipPermissionService().canAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
-      }
-      catch (Exception e)
-      {
-        logger.error("error", e);
-      }
-
-    }
-
-    return false;
   }
   
   @Override
@@ -129,12 +105,19 @@ public class AddChildAction extends AddChildActionBase
   public void buildFromJson(JSONObject joAction)
   {
     super.buildFromJson(joAction);
-
-    this.setChildTypeCode(joAction.getString(AddChildAction.CHILDTYPECODE));
-    this.setChildId(joAction.getString(AddChildAction.CHILDID));
-    this.setParentId(joAction.getString(AddChildAction.PARENTID));
-    this.setParentTypeCode(joAction.getString(AddChildAction.PARENTTYPECODE));
-    this.setHierarchyTypeCode(joAction.getString(AddChildAction.HIERARCHYTYPECODE));
+    
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
+    
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_DETAILS
+      )))
+    {
+      this.setChildTypeCode(joAction.getString(AddChildAction.CHILDTYPECODE));
+      this.setChildId(joAction.getString(AddChildAction.CHILDID));
+      this.setParentId(joAction.getString(AddChildAction.PARENTID));
+      this.setParentTypeCode(joAction.getString(AddChildAction.PARENTTYPECODE));
+      this.setHierarchyTypeCode(joAction.getString(AddChildAction.HIERARCHYTYPECODE));
+    }
   }
 
   @Override

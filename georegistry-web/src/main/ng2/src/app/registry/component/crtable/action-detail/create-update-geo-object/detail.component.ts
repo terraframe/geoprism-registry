@@ -38,7 +38,9 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
     geoObjectType: GeoObjectType = null;
 
-    readOnly: boolean = true;
+    @Input() readOnly: boolean;
+    
+    isEditing: boolean = false;
 
     @ViewChild( "attributeEditor" ) attributeEditor;
 
@@ -138,7 +140,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     // Big thanks to https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
     @HostListener( 'window:beforeunload' )
     canDeactivate(): Observable<boolean> | boolean {
-        if ( !this.readOnly ) {
+        if ( this.isEditing ) {
             //event.preventDefault();
             //event.returnValue = 'Are you sure?';
             //return 'Are you sure?';
@@ -150,7 +152,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
     }
 
     afterDeactivate( isDeactivating: boolean ) {
-        if ( isDeactivating && !this.readOnly ) {
+        if ( isDeactivating && this.isEditing ) {
             this.unlockActionSync();
         }
     }
@@ -165,7 +167,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
     lockAction() {
         this.changeRequestService.lockAction( this.action.oid ).then( response => {
-            this.readOnly = false;
+            this.isEditing = true;
             if ( this.geometryEditor != null ) {
                 this.geometryEditor.enableEditing( true );
             }
@@ -176,7 +178,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactiv
 
     unlockAction() {
         this.changeRequestService.unlockAction( this.action.oid ).then( response => {
-            this.readOnly = true;
+            this.isEditing = false;
             if ( this.geometryEditor != null ) {
                 this.geometryEditor.enableEditing( false );
             }
