@@ -370,7 +370,7 @@ public class MasterListService
     ServerGeoObjectType geoObjectType = masterList.getGeoObjectType();
     Organization organization = geoObjectType.getOrganization();
 
-    if (versionType.equals(MasterListVersion.EXPLORATORY) && new RolePermissionService().isRC(geoObjectType))
+    if (versionType.equals(MasterListVersion.EXPLORATORY) && new RolePermissionService().isRC(organization.getCode(), geoObjectType.getCode()))
     {
       // Good to go
     }

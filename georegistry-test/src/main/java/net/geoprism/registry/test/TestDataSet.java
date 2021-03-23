@@ -555,6 +555,19 @@ abstract public class TestDataSet
       it.next().delete();
     }
   }
+  
+  @Request
+  public static void deleteAllVaultFiles()
+  {
+    VaultFileQuery vfq = new VaultFileQuery(new QueryFactory());
+
+    OIterator<? extends VaultFile> it = vfq.getIterator();
+
+    while (it.hasNext())
+    {
+      it.next().delete();
+    }
+  }
 
   public void setDebugMode(int level)
   {

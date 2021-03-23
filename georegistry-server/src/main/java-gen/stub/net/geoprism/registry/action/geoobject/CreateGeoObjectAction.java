@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry.action.geoobject;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.geoobject.CreateGeoObjectActionDTO;
@@ -33,6 +37,10 @@ import org.slf4j.LoggerFactory;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AllGovernanceStatus;
+import net.geoprism.registry.action.ChangeRequestPermissionService;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
@@ -62,34 +70,6 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     ServerGeoObjectService builder = new ServerGeoObjectService();
     builder.apply(geoObject, true, false);
   }
-
-  @Override
-  public boolean isVisible()
-  {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
-    {
-      try
-      {
-        String sJson = this.getGeoObjectJson();
-        
-        String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
-        if (!this.doesGOTExist(typeCode))
-        {
-          return true;
-        }
-
-        ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-
-        return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
-      }
-      catch (Exception e)
-      {
-        logger.error("error", e);
-      }
-    }
-
-    return false;
-  }
   
   @Override
   public boolean referencesType(ServerGeoObjectType type)
@@ -97,6 +77,16 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     String sJson = this.getGeoObjectJson();
 
     return GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson).equals(type.getCode());
+  }
+  
+  @Override
+  public String getGeoObjectType()
+  {
+    String sJson = this.getGeoObjectJson();
+    
+    String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
+    
+    return typeCode;
   }
 
   @Override
@@ -158,7 +148,14 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   {
     super.buildFromJson(joAction);
 
-    this.setGeoObjectJson(joAction.getJSONObject(CreateGeoObjectAction.GEOOBJECTJSON).toString());
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
+    
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_DETAILS
+      )))
+    {
+      this.setGeoObjectJson(joAction.getJSONObject(CreateGeoObjectAction.GEOOBJECTJSON).toString());
+    }
   }
 
   @Override

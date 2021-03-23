@@ -9,13 +9,13 @@
           <input type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" />
         </div>    
         
-        <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="forDate" [hierarchy]="hierarchy" [readOnly]="true" (onManageVersion)="onManageVersions($event)"> </tree-geo-selector>
+        <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="forDate" [hierarchy]="hierarchy" [readOnly]="isEditing" (onManageVersion)="onManageVersions($event)"> </tree-geo-selector>
             
         <div>
             <label class="detail-label">
                 <localize key="change.request.status"></localize> :
             </label>
-            <select [disabled]="readOnly" style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]="action.approvalStatus">
+            <select [disabled]="isEditing" style="float:none;" [ngClass]="{'status-rejected': action.approvalStatus === 'REJECTED', 'status-accepted': action.approvalStatus === 'ACCEPTED', 'status-pending': action.approvalStatus === 'PENDING'}" [(ngModel)]="action.approvalStatus">
                 <option value="REJECTED">
                     <localize key="change.request.status.rejected"></localize>
                 </option>
@@ -36,13 +36,13 @@
         </div>
 
         <div class="button-holder text-right" style="margin:40px 0 20px 0;">
-          <button *ngIf="readOnly && action.createdBy === getUsername()" (click)="startEdit()" class="btn btn-primary detail-accept">
+          <button *ngIf="!readOnly && !isEditing" (click)="startEdit()" class="btn btn-primary detail-accept">
             <localize key="modal.button.edit"></localize>
           </button>
-          <button *ngIf="!readOnly && action.createdBy === getUsername()" (click)="endEdit()" class="btn btn-default detail-reject">
+          <button *ngIf="!readOnly && isEditing" (click)="endEdit()" class="btn btn-default detail-reject">
             <localize key="modal.button.cancel"></localize>
           </button>
-          <button *ngIf="!readOnly" (click)="applyAction()" class="btn btn-primary detail-accept">
+          <button *ngIf="!readOnly && isEditing" (click)="applyAction()" class="btn btn-primary detail-accept">
             <localize key="modal.button.submit"></localize>
           </button>
         </div>

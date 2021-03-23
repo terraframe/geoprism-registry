@@ -15,11 +15,10 @@
       </div>    
     
 
-        <!-- readOnly should be false unless it's the rc who created the request -->
         <geoobject-shared-attribute-editor 
           #attributeEditor
           *ngIf="preGeoObject"
-          [readOnly]="readOnly"  
+          [readOnly]="!isEditing"  
           [geoObjectType]="geoObjectType"
           [postGeoObject]="postGeoObject"
           [preGeoObject]="preGeoObject"
@@ -32,17 +31,17 @@
             <label class="detail-label">
                 <localize key="change.request.action.detail.contributorNotes"></localize> :
             </label>
-            <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.contributorNotes" disabled></textarea>
+            <textarea style="width: 100%;border-radius: 8px;height: 70px;" class="detail-value" [(ngModel)]="action.contributorNotes" [disabled]="!isEditing"></textarea>
         </div>
 
         <div class="button-holder text-right" style="margin:40px 0 20px 0;">
-          <button *ngIf="readOnly && action.createdBy === getUsername()" (click)="startEdit()" class="btn btn-primary detail-accept">
+          <button *ngIf="!readOnly && !isEditing" (click)="startEdit()" class="btn btn-primary detail-accept">
             <localize key="modal.button.edit"></localize>
           </button>
-          <button *ngIf="!readOnly && action.createdBy === getUsername()" (click)="endEdit()" class="btn btn-default detail-reject">
+          <button *ngIf="!readOnly && isEditing" (click)="endEdit()" class="btn btn-default detail-reject">
             <localize key="modal.button.cancel"></localize>
           </button>
-          <button *ngIf="!readOnly" (click)="applyAction()" class="btn btn-primary detail-accept">
+          <button *ngIf="!readOnly && isEditing" (click)="applyAction()" class="btn btn-primary detail-accept">
             <localize key="modal.button.submit"></localize>
           </button>
         </div>

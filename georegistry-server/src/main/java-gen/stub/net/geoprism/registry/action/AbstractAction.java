@@ -20,7 +20,10 @@ package net.geoprism.registry.action;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Set;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
@@ -28,12 +31,13 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public abstract class AbstractAction extends AbstractActionBase
+public abstract class AbstractAction extends AbstractActionBase implements GovernancePermissionEntity
 {
 
   private static final long serialVersionUID = 1324056554;
@@ -49,10 +53,31 @@ public abstract class AbstractAction extends AbstractActionBase
 
   abstract public void execute();
 
-  public abstract boolean isVisible();
-  
   public abstract boolean referencesType(ServerGeoObjectType type);
-
+  
+  public String getOrganization()
+  {
+    String gotCode = this.getGeoObjectType();
+    
+    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+    
+    if (optional.isPresent())
+    {
+      ServerGeoObjectType type = optional.get();
+      
+      return type.getOrganization().getCode();
+    }
+    else
+    {
+      return null;
+    }
+  }
+  
+  public AllGovernanceStatus getGovernanceStatus()
+  {
+    return this.getApprovalStatus().get(0);
+  }
+  
   protected abstract String getMessage();
 
   public AbstractAction(RegistryService registry)
@@ -121,12 +146,30 @@ public abstract class AbstractAction extends AbstractActionBase
    */
   public void buildFromJson(JSONObject joAction)
   {
-    this.clearApprovalStatus();
-    this.addApprovalStatus(AllGovernanceStatus.valueOf(joAction.getString(AbstractAction.APPROVALSTATUS)));
-
-    this.setContributorNotes(joAction.getString(AbstractAction.CONTRIBUTORNOTES));
-    this.setMaintainerNotes(joAction.getString(AbstractAction.MAINTAINERNOTES));
-    this.setAdditionalNotes(joAction.getString(AbstractAction.ADDITIONALNOTES));
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
+    
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS
+      )))
+    {
+      this.clearApprovalStatus();
+      this.addApprovalStatus(AllGovernanceStatus.valueOf(joAction.getString(AbstractAction.APPROVALSTATUS)));
+    }
+    
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES
+      )))
+    {
+      this.setContributorNotes(joAction.getString(AbstractAction.CONTRIBUTORNOTES));
+    }
+    
+    if (perms.containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE_MAINTAINER_NOTES
+      )))
+    {
+      this.setMaintainerNotes(joAction.getString(AbstractAction.MAINTAINERNOTES));
+      this.setAdditionalNotes(joAction.getString(AbstractAction.ADDITIONALNOTES));
+    }
   }
 
 }

@@ -138,7 +138,7 @@
                     </div>
                     <div class="col-md-4" style="height: 50px;text-align: center;">
                       <h4 *ngIf="req.approvalStatus !== 'PENDING'" class="vertical-center" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" style="margin: 0;">{{action.approvalStatus}}</h4>
-                      <span *ngIf="isMaintainer">
+                      <span *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS')">
                         <button type="submit" [disabled]="action.approvalStatus === 'ACCEPTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'ACCEPTED')" class="btn btn-primary vertical-center" style="width:30%;" role="button">
                           <localize style="text-transform:uppercase;" key="change.request.accept.btn"></localize>
                         </button>
@@ -155,12 +155,12 @@
                   <div class="row" style="border-top: 1px grey solid;margin:0;padding: 10px 0;">
                     
                     <div class="col-md-4" >
-                      <div class="form-group">
+                      <div *ngIf="req.permissions.includes('READ_CONTRIBUTOR_NOTES')" class="form-group">
                         <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
-                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" readonly="true"></textarea>
+                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" readonly="!req.permissions.includes('WRITE_CONTRIBUTOR_NOTES')"></textarea>
                       </div>  
                       
-                      <button type="submit" (click)="showActionDetail(action)" class="btn btn-default pull-right" style="margin:0;" role="button" [title]="'change.request.details.btn.hover' | localize">
+                      <button type="submit" (click)="showActionDetail(action, req)" class="btn btn-default pull-right" style="margin:0;" role="button" [disabled]="!req.permissions.includes('READ_DETAILS')" [title]="'change.request.details.btn.hover' | localize">
                         <localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize>
                       </button>
                       
@@ -185,14 +185,14 @@
                     </div>
                     
                     <div class="col-md-4" >
-                      <div class="form-group">
+                      <div *ngIf="req.permissions.includes('READ_MAINTAINER_NOTES')" class="form-group">
                         <label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
-                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="req.approvalStatus !== 'PENDING'"></textarea>
+                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="!req.permissions.includes('WRITE_MAINTAINER_NOTES')"></textarea>
                       </div>  
                       
-                      <div class="form-group">
+                      <div *ngIf="req.permissions.includes('READ_MAINTAINER_NOTES')" class="form-group">
                             <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
-                            <input type="text" id="additionalNotes-{{req.oid}}" class="form-control" style="width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="req.approvalStatus !== 'PENDING'">
+                            <input type="text" id="additionalNotes-{{req.oid}}" class="form-control" style="width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="!req.permissions.includes('WRITE_MAINTAINER_NOTES')">
                       </div>  
                           
                       <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
@@ -220,7 +220,7 @@
                           <localize key="change.request.no.documents.label"></localize>
                         </p>
                       
-                        <div *ngIf="isMaintainer || req.createdBy === getUsername()" style="padding:10px 0;">
+                        <div *ngIf="req.permissions.includes('WRITE_DOCUMENTS')" style="padding:10px 0;">
                             <!-- Limit file types with: accept=".xls, .xlsx, .pdf, .doc" -->
                             <input class="ghost-input" style="display:inline-block;padding:0;height:auto;border-radius:0;margin-top:10px;" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" required />
                             
@@ -235,8 +235,8 @@
                 </div> 
 
 
-                <div *ngIf="isMaintainer || req.createdBy === getUsername()" class="button-holder">
-                  <span *ngIf="isMaintainer">
+                <div *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS') || req.permissions.includes('DELETE')" class="button-holder">
+                  <span *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS')">
                     <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onApproveAll(req)" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
                       <localize key="change.request.accept.all.btn"></localize>
                     </button>
@@ -248,7 +248,7 @@
                     </button>
                   </span>
                   
-                  <a [class.disabled]="req.createdBy !== getUsername()" (click)="req.createdBy === getUsername() && onDelete(req)" class="alert pull-right" [title]="'change.request.delete.request.hover' | localize" >
+                  <a [class.disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" class="alert pull-right" [title]="'change.request.delete.request.hover' | localize" >
                     <localize key="change.request.delete.request.btn"></localize>
                   </a>
                   

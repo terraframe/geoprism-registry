@@ -18,15 +18,14 @@
  */
 package net.geoprism.registry.action;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.google.gson.JsonArray;
+import org.commongeoregistry.adapter.Optional;
+
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.RelationshipQuery;
@@ -38,16 +37,14 @@ import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
-import com.runwaysdk.system.Users;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ServiceFactory;
 
-public class ChangeRequest extends ChangeRequestBase
+public class ChangeRequest extends ChangeRequestBase implements GovernancePermissionEntity
 {
   private static final long serialVersionUID = 763209854;
 
@@ -118,30 +115,10 @@ public class ChangeRequest extends ChangeRequestBase
   
   public JsonObject toJSON()
   {
-    DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(ChangeRequest.class, new ChangeRequestJsonAdapters.ChangeRequestSerializer());
 
-    Users user = (Users) this.getCreatedBy();
-    AllGovernanceStatus status = this.getApprovalStatus().get(0);
-    
-    JsonArray ja = JsonParser.parseString(new ChangeRequestService().listDocuments(Session.getCurrentSession().getOid(), this.getOid())).getAsJsonArray();
-
-    JsonObject object = new JsonObject();
-    object.addProperty(ChangeRequest.OID, this.getOid());
-    object.addProperty(ChangeRequest.CREATEDATE, format.format(this.getCreateDate()));
-    object.addProperty(ChangeRequest.CREATEDBY, user.getUsername());
-    object.addProperty(ChangeRequest.APPROVALSTATUS, status.getEnumName());
-    object.addProperty(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
-    object.addProperty("statusLabel", status.getDisplayLabel());
-
-    if (user instanceof GeoprismUser)
-    {
-      object.addProperty("email", ( (GeoprismUser) user ).getEmail());
-      object.addProperty("phoneNumber", ( (GeoprismUser) user ).getPhoneNumber());
-    }
-    
-    object.add("documents", ja);
-
-    return object;
+    return (JsonObject) builder.create().toJsonTree(this);
   }
 
   public JsonObject getDetails()
@@ -307,28 +284,40 @@ public class ChangeRequest extends ChangeRequestBase
   {
     return this.getOwnerId().equals(Session.getCurrentSession().getUser().getOid());
   }
-
-  public boolean isVisible()
+  
+  public String getOrganization()
   {
-    if (Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null)
+    String gotCode = this.getGeoObjectType();
+    
+    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+    
+    if (optional.isPresent())
     {
-      if (isCurrentUserOwner())
-      {
-        return true;
-      }
+      ServerGeoObjectType type = optional.get();
+      
+      return type.getOrganization().getCode();
     }
-
+    else
+    {
+      return null;
+    }
+  }
+  
+  public AllGovernanceStatus getGovernanceStatus()
+  {
+    return this.getApprovalStatus().get(0);
+  }
+  
+  public String getGeoObjectType()
+  {
     List<AbstractAction> actions = this.getOrderedActions();
-
+    
     for (AbstractAction action : actions)
     {
-      if (!action.isVisible())
-      {
-        return false;
-      }
+      return action.getGeoObjectType();
     }
-
-    return true;
+    
+    return null;
   }
   
   public boolean referencesType(ServerGeoObjectType type)

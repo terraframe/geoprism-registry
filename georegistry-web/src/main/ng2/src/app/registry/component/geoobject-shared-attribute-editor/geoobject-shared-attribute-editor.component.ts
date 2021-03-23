@@ -284,7 +284,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			this.bsModalRef.content.onAttributeVersionChange.subscribe(versionObj => {
 				this.calculate();
 			});
-			this.bsModalRef.content.readonly = !this.isContributorOnly;
+			//this.bsModalRef.content.readonly = !this.isContributorOnly;
+			this.bsModalRef.content.readonly = this.readOnly;
 		}
 	}
 

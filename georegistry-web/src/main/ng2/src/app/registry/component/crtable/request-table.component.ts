@@ -77,8 +77,6 @@ export class RequestTableComponent {
 
 	filterCriteria: string = 'ALL';
 
-	isMaintainer: boolean = false;
-	
 	hasBaseDropZoneOver:boolean = false;
 	
 	/*
@@ -91,8 +89,6 @@ export class RequestTableComponent {
 
 	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
 				private eventService: EventService, private router: Router) {
-
-		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
 		this.columns = [
 			{ name: localizationService.decode('change.request.user'), prop: 'createdBy', sortable: false },
@@ -422,14 +418,14 @@ export class RequestTableComponent {
 		return action;
 	}
 
-	showActionDetail(action: any) {
+	showActionDetail(action: any, cr: any) {
 
 		this.bsModalRef = this.modalService.show(ActionDetailModalComponent, {
 			animated: true,
 			backdrop: true,
 			ignoreBackdropClick: true,
 		});
-		this.bsModalRef.content.curAction = action;
+		this.bsModalRef.content.curAction(action, !cr.permissions.includes("WRITE_DETAILS"));
 
 		//   var detail = this.getActiveDetailComponent();
 		//   if (detail != null)
