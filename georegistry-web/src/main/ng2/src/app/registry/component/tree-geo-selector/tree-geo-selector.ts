@@ -15,7 +15,7 @@ export class TreeGeoSelector {
 
 	@Input() readOnly: boolean = false;
 
-	@Input() forDate: Date = new Date();
+	@Input() forDate: Date = null;
 
 	@Output() onManageVersion = new EventEmitter<HierarchyOverTime>();
 
@@ -51,7 +51,12 @@ export class TreeGeoSelector {
 	}
 
 	calculate(): any {
-		const time = this.forDate.getTime();
+    let time = null;
+    
+    if (this.forDate != null)
+    {
+		  time = this.forDate.getTime();
+		}
 
 		let nodes = [];
 		let current = null;
@@ -62,7 +67,7 @@ export class TreeGeoSelector {
 			const startDate = Date.parse(pot.startDate);
 			const endDate = Date.parse(pot.endDate);
 
-			//if (time >= startDate && time <= endDate) {
+			if (time == null || time >= startDate && time <= endDate) {
 				this.hierarchy.types.forEach(type => {
 					let node: any = {
 						code: type.code,
@@ -72,7 +77,13 @@ export class TreeGeoSelector {
 					}
 
 					if (pot.parents[type.code] != null) {
-						node.name = pot.parents[type.code].text + " (" + pot.startDate + " -> " + pot.endDate + ")";
+						node.name = pot.parents[type.code].text;
+						
+						if (time == null)
+						{
+						  node.name = node.name + " (" + pot.startDate + " -> " + pot.endDate + ")";
+						}
+						
 						node.geoObject = pot.parents[type.code].geoObject;
 					}
 
@@ -86,7 +97,7 @@ export class TreeGeoSelector {
 
 					current = node;
 				});
-			//}
+			}
 			
 			current = null;
 		});

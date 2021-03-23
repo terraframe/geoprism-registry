@@ -4,7 +4,7 @@
     </div>
     
     <div class="detail-content">
-        <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="forDate" [hierarchy]="hierarchy" [readOnly]="!isEditing" (onManageVersion)="onManageVersions($event)"> </tree-geo-selector>
+        <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="null" [hierarchy]="hierarchy" [readOnly]="!isEditing" (onManageVersion)="onManageVersions($event)"> </tree-geo-selector>
             
         <div>
             <label class="detail-label">
