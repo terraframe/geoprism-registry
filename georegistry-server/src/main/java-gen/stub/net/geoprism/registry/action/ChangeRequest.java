@@ -344,7 +344,9 @@ public class ChangeRequest extends ChangeRequestBase implements GovernancePermis
     
     if (optional.isPresent())
     {
-      return optional.get().getCode();
+      ServerGeoObjectType type = optional.get();
+      
+      return type.getOrganization().getCode();
     }
     else
     {

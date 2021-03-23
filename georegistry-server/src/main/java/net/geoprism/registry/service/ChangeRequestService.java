@@ -58,10 +58,11 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public void deleteDocument(String sessionId, String crOid, String vfOid)
   {
-    this.deleteDocument(crOid, vfOid);
+    this.deleteDocumentInTrans(crOid, vfOid);
   }
   
-  void deleteDocument(String crOid, String vfOid)
+  @Transaction
+  void deleteDocumentInTrans(String crOid, String vfOid)
   {
     ChangeRequest request = ChangeRequest.get(crOid);
     

@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
+
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -20,6 +22,11 @@ public class ChangeRequestPermissionService
     
     final String orgCode = cr.getOrganization();
     final String gotCode = cr.getGeoObjectType();
+    
+    if (orgCode == null || gotCode == null)
+    {
+      throw new ProgrammingErrorException("These should not be null: [" + orgCode + "] [" + gotCode + "]");
+    }
     
     final AllGovernanceStatus status = cr.getGovernanceStatus();
     

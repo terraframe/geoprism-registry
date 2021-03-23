@@ -62,15 +62,16 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
     {
       try
       {
-        String sJson = this.getGeoObjectJson();
+        String typeCode = getGeoObjectType();
         
-        String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
-        if (!this.doesGOTExist(typeCode))
+        Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(typeCode);
+        
+        if (!optional.isPresent())
         {
           return true;
         }
-
-        ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+        
+        ServerGeoObjectType type = optional.get();
 
         return geoObjectPermissionService.canWrite(type.getOrganization().getCode(), type);
       }
@@ -94,7 +95,11 @@ public class UpdateGeoObjectAction extends UpdateGeoObjectActionBase
   @Override
   public String getGeoObjectType()
   {
-    return this.getType();
+    String sJson = this.getGeoObjectJson();
+    
+    String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
+    
+    return typeCode;
   }
 
   @Override
