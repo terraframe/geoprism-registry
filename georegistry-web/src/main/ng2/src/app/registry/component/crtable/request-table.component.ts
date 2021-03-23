@@ -17,6 +17,7 @@ import {
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 
 import { ChangeRequest, AbstractAction, AddChildAction, SetParentAction, CreateGeoObjectAction, RemoveChildAction, UpdateGeoObjectAction } from '@registry/model/crtable';
+import { GeoObjectOverTime } from '@registry/model/registry';
 
 import { ChangeRequestService } from '@registry/service';
 import { LocalizationService, AuthService, EventService, ExternalSystemService  } from '@shared/service';
@@ -236,17 +237,37 @@ export class RequestTableComponent {
 				});
 				
 				bsModalRef.content.submitText = this.localizationService.decode('change.requests.more.geoobject.updates.submit.btn');
-				bsModalRef.content.submitText = this.localizationService.decode('change.requests.more.geoobject.updates.cancel.btn');
+				bsModalRef.content.cancelText = this.localizationService.decode('change.requests.more.geoobject.updates.cancel.btn');
 				bsModalRef.content.message = this.localizationService.decode('change.requests.more.geoobject.updates.message');
-	
+				
 				bsModalRef.content.onConfirm.subscribe(data => {
-					this.router.navigate(['/registry/location-manager']);
+					
+					let firstGeoObject = this.getFirstGeoObjectInActions();
+					
+					if(firstGeoObject){
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code]);
+					}
+					else{
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code]);
+					}
 				});
 			
 			}).catch((response: HttpErrorResponse) => {
 					this.error(response);
 				});
 		}
+	}
+	
+	getFirstGeoObjectInActions(): GeoObjectOverTime {
+		for(let i=0; i<this.actions.length; i++){
+			let action = this.actions[i];
+			
+			if(action.hasOwnProperty("geoObjectJson")){
+				return action["geoObjectJson"];
+			}
+		}
+		
+		return null;
 	}
 	
 	onDelete(changeRequest: ChangeRequest): void {
@@ -293,7 +314,6 @@ export class RequestTableComponent {
 		this.service.applyActionStatusProperties(action).then(response => {
 			action.decisionMaker = (action.approvalStatus !== 'PENDING') ? this.authService.getUsername() : '';
 			
-			console.log(action);
 			// this.crtable.refresh()
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);

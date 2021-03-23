@@ -323,6 +323,8 @@ export class ManageVersionsComponent implements OnInit {
 	}
 	
 	onSubmit(): void {
+		
+		console.log("manage-versions  ", this.geoObjectOverTime)
 
 		this.onChange.emit(this.geoObjectOverTime);
 	}

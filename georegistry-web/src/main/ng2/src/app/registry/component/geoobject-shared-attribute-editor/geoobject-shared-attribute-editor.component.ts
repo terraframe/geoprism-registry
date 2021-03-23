@@ -12,6 +12,7 @@ import {
 
 import { LocalizedValue } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
+import { AuthService } from '@shared/service';
 
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
 
@@ -60,7 +61,7 @@ import Utils from '../../utility/Utils';
  */
 export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChanges {
 	
-	slide: string = "";
+	isContributorOnly: boolean = false;
 
 	private bsModalRef: BsModalRef;
 	
@@ -116,8 +117,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	@ViewChild("attributeForm") attributeForm;
 
-	constructor(private modalService: BsModalService, private lService: LocalizationService) {
-
+	constructor(private modalService: BsModalService, private lService: LocalizationService, private authService: AuthService) {
+		this.isContributorOnly = this.authService.isContributerOnly()
 	}
 
 	ngOnInit(): void {
@@ -140,10 +141,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			let geometry: Attribute = new Attribute("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
 			this.geoObjectType.attributes.push(geometry);
 		}
-		
-		if(this.animate){
-			this.slide = "left"
-		}
 	}
 
 	ngAfterViewInit() {
@@ -155,6 +152,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	ngOnChanges(changes: SimpleChanges) {
+		
+		console.log("ng changes: ")
+		
 		if (changes['preGeoObject'] || changes['preGeoObject']) {
 
 			this.preGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.preGeoObject)).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
@@ -176,7 +176,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	calculate(): void {
 		this.calculatedPreObject = this.calculateCurrent(this.preGeoObject);
 		this.calculatedPostObject = this.calculateCurrent(this.postGeoObject);
-
+		
 		if (this.geometryEditor != null) {
 			this.geometryEditor.reload();
 		}
@@ -284,7 +284,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			this.bsModalRef.content.onAttributeVersionChange.subscribe(versionObj => {
 				this.calculate();
 			});
-			this.bsModalRef.content.readonly = true;
+			this.bsModalRef.content.readonly = !this.isContributorOnly;
 		}
 	}
 
