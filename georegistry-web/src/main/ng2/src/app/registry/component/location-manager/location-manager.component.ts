@@ -145,11 +145,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
   ngOnInit(): void {
 	this.urlSubscriber = this.route.params.subscribe(params => {
-       let geoObjectCode = params['geoobjectcode'];
+       let geoObjectUid = params['geoobjectuid'];
 	   let geoObjectTypeCode = params['geoobjecttypecode'];
 
-		if(geoObjectCode && geoObjectTypeCode){
-			this.service.getGeoObject(geoObjectCode, geoObjectTypeCode).then(geoObj => {
+		if(geoObjectUid && geoObjectTypeCode){
+			this.service.getGeoObject(geoObjectUid, geoObjectTypeCode).then(geoObj => {
 				this.setData([geoObj]);
 				this.select(geoObj, null);
 			}).catch((err: HttpErrorResponse) => {

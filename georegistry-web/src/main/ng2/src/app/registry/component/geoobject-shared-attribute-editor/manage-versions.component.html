@@ -242,10 +242,10 @@
         <!-- <div class="label-holder"></div> -->
         <div class="holder" style="border: none; width: 100%;">
           <div class="button-holder pull-right">
-            <button type="submit" (click)="onCancel()" class="btn btn-default" role="button">
-              <localize key="io.cancel"></localize>
+            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+              <localize key="modal.button.close"></localize>
             </button>
-            <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!versionsform.valid || hasConflict">
+            <button *ngIf="!readonly" type="button" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!versionsform.valid || hasConflict">
               <localize key="modal.button.submit"></localize>
             </button>
           </div>
