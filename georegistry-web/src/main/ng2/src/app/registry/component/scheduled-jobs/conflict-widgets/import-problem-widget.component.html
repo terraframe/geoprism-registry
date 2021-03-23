@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 <div class="col-md-6" style="padding-left: 5px;">
-                    <div style="background: white;border-radius: 10px;padding: 10px;height: 100%;text-align: center;">
+                    <div *ngIf="problem.object != null && problem.object.geoObject != null" style="background: white;border-radius: 10px;padding: 10px;height: 100%;text-align: center;">
                         <button style="width: 90%;" type="submit" (click)="onEditGeoObject()" class="btn btn-primary" role="button">
                             <localize key="scheduledjobs.editGeoObject"></localize>
                         </button>
