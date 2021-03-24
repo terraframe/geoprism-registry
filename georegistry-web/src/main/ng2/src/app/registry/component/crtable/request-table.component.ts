@@ -74,6 +74,8 @@ export class RequestTableComponent {
 	columns: any[] = [];
 
 	toggleId: string;
+	
+	targetActionId: string
 
 	filterCriteria: string = 'ALL';
 
@@ -100,7 +102,7 @@ export class RequestTableComponent {
 	}
 	
 	ngOnInit(): void{
-		var getUrl = acp + '/changerequest/upload-file';
+		var getUrl = acp + '/changerequest/upload-file-action';
 
 		let options: FileUploaderOptions = {
 			queueLimit: 1,
@@ -111,7 +113,7 @@ export class RequestTableComponent {
 		this.uploader = new FileUploader(options);
 
 		this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-			form.append('crOid', this.toggleId);
+			form.append('actionOid', this.targetActionId);
 		};
 		this.uploader.onBeforeUploadItem = (fileItem: any) => {
 			this.eventService.start();
@@ -122,11 +124,12 @@ export class RequestTableComponent {
 		};
 		this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {
 			
-			for(let i=0; i<this.requests.length; i++){
-				let req = this.requests[i];
-				if(req.oid === this.toggleId){
+			for(let i=0; i<this.actions.length; i++){
+				let action = this.actions[i];
+				
+				if(action.oid === this.targetActionId){
 					
-					req.documents.push(JSON.parse(response));
+					action.documents.push(JSON.parse(response));
 					
 					break;
 				}
@@ -140,8 +143,9 @@ export class RequestTableComponent {
 		}
 	}
 	
-	onUpload(): void {
-
+	onUpload(action: AbstractAction): void {
+		this.targetActionId = action.oid;
+		
 		if (this.uploader.queue != null && this.uploader.queue.length > 0) {
 			this.uploader.uploadAll();
 		}
@@ -153,20 +157,20 @@ export class RequestTableComponent {
 		}
 	}
 	
-	onDownloadFile(requestOid: string, fileOid: string): void {
-		window.location.href = acp + '/changerequest/download-file?crOid=' + requestOid + '&' + 'vfOid=' + fileOid;
+	onDownloadFile(actionOid: string, fileOid: string): void {
+		window.location.href = acp + '/changerequest/download-file-action?actionOid=' + actionOid + '&' + 'vfOid=' + fileOid;
 	}
 	
-	onDeleteFile(requestOid: string, fileOid: string): void {
-		this.service.deleteFile(requestOid, fileOid).then(response => {
+	onDeleteFile(actionOid: string, fileOid: string): void {
+		this.service.deleteFile(actionOid, fileOid).then(response => {
 			
 			let docPos = -1;
-			for(let i=0; i<this.requests.length; i++){
-				let req = this.requests[i];
-				if(req.oid === this.toggleId){
+			for(let i=0; i<this.actions.length; i++){
+				let action = this.actions[i];
+				if(action.oid === actionOid){
 					
-					for(let index=0; index<req.documents.length; index++){
-						let doc = req.documents[index];
+					for(let index=0; index<action.documents.length; index++){
+						let doc = action.documents[index];
 						if(doc.oid === fileOid){
 							docPos = index;
 							break;
@@ -174,7 +178,7 @@ export class RequestTableComponent {
 					}
 					
 					if(docPos > -1){
-						req.documents.splice(docPos, 1)
+						action.documents.splice(docPos, 1)
 					}
 					
 					break;
@@ -208,7 +212,7 @@ export class RequestTableComponent {
 		// this.request = selected.selected;
 
 		this.service.getAllActions(selected.selected[0].oid).then(actions => {
-
+	console.log(actions)
 			this.actions = actions;
 			
 		}).catch((err: HttpErrorResponse) => {

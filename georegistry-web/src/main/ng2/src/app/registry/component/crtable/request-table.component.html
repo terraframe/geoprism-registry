@@ -157,7 +157,7 @@
                     <div class="col-md-4" >
                       <div *ngIf="req.permissions.includes('READ_CONTRIBUTOR_NOTES')" class="form-group">
                         <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
-                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" readonly="!req.permissions.includes('WRITE_CONTRIBUTOR_NOTES')"></textarea>
+                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" [disabled]="!req.permissions.includes('WRITE_CONTRIBUTOR_NOTES')"></textarea>
                       </div>  
                       
                       <button type="submit" (click)="showActionDetail(action, req)" class="btn btn-default pull-right" style="margin:0;" role="button" [disabled]="!req.permissions.includes('READ_DETAILS')" [title]="'change.request.details.btn.hover' | localize">
@@ -187,12 +187,12 @@
                     <div class="col-md-4" >
                       <div *ngIf="req.permissions.includes('READ_MAINTAINER_NOTES')" class="form-group">
                         <label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
-                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;margin:0" [(ngModel)]="action.maintainerNotes" [readonly]="!req.permissions.includes('WRITE_MAINTAINER_NOTES')"></textarea>
+                        <textarea id="maintainerNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;margin:0" [(ngModel)]="action.maintainerNotes" [disabled]="!req.permissions.includes('WRITE_MAINTAINER_NOTES')"></textarea>
                       </div>  
                       
                       <div *ngIf="req.permissions.includes('READ_MAINTAINER_NOTES')" class="form-group">
                             <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
-                            <input type="text" id="additionalNotes-{{req.oid}}" class="form-control" style="width:100%;" [(ngModel)]="action.additionalNotes" [readonly]="!req.permissions.includes('WRITE_MAINTAINER_NOTES')">
+                            <input type="text" id="additionalNotes-{{req.oid}}" class="form-control" style="width:100%;" [(ngModel)]="action.additionalNotes" [disabled]="!req.permissions.includes('WRITE_MAINTAINER_NOTES')">
                       </div>  
                           
                       <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''">
@@ -208,15 +208,15 @@
                     <div class="col-md-4" >
                       <div>
                         <label><localize key="change.request.reference.documents.label"></localize></label>
-                        <div *ngIf="req.documents.length > 0" style="border:1px solid #ccc;border-radius: 4px;">
+                        <div *ngIf="action.documents.length > 0" style="border:1px solid #ccc;border-radius: 4px;">
                           <ul style="padding:10px;margin:0;">
-                              <li *ngFor="let doc of req.documents" class="list-group-item" style="padding:0;font-size:inherit;">
-                                <a (click)="onDownloadFile(req.oid, doc.oid)" >{{doc.fileName}}</a>
-                                <i (click)="onDeleteFile(req.oid, doc.oid)" class="fa fa-times ico-remove" style="margin-left:10px;" aria-hidden="true"></i>
+                              <li *ngFor="let doc of action.documents" class="list-group-item" style="padding:0;font-size:inherit;">
+                                <a (click)="onDownloadFile(action.oid, doc.oid)" >{{doc.fileName}}</a>
+                                <i (click)="onDeleteFile(action.oid, doc.oid)" class="fa fa-times ico-remove" style="margin-left:10px;" aria-hidden="true"></i>
                               </li>
                           </ul>
                         </div>
-                        <p *ngIf="req.documents.length === 0" style="color:grey;font-style:italic;">
+                        <p *ngIf="action.documents.length === 0" style="color:grey;font-style:italic;">
                           <localize key="change.request.no.documents.label"></localize>
                         </p>
                       
@@ -224,7 +224,7 @@
                             <!-- Limit file types with: accept=".xls, .xlsx, .pdf, .doc" -->
                             <input class="ghost-input" style="display:inline-block;padding:0;height:auto;border-radius:0;margin-top:10px;" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" required />
                             
-                            <button class="btn btn-primary pull-right" style="margin:0;" (click)="onUpload()" [title]="'change.request.upload.document.btn.hover' | localize">
+                            <button class="btn btn-primary pull-right" style="margin:0;" (click)="onUpload(action)" [title]="'change.request.upload.document.btn.hover' | localize">
                               <localize key="change.request.reference.document.upload"></localize>
                             </button>
                         </div>
