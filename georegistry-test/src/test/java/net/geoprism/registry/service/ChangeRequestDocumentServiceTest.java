@@ -47,7 +47,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestUserInfo;
 
-public class ChangeRequestServiceTest
+public class ChangeRequestDocumentServiceTest
 {
   protected static FastTestDataset    testData;
   
@@ -156,13 +156,13 @@ public class ChangeRequestServiceTest
   {
     ChangeRequestService service = new ChangeRequestService();
     
-    String sJson = service.uploadFile(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+    String sJson = service.uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
     
     JsonObject jsonVF = JsonParser.parseString(sJson).getAsJsonObject();
     
     final String vfOid = jsonVF.get("oid").getAsString();
     
-    service.deleteDocument(request.getSessionId(), this.crOid, vfOid);
+    service.deleteDocumentCR(request.getSessionId(), this.crOid, vfOid);
     
     assertVaultFileDeleted(vfOid);
   }
@@ -231,7 +231,7 @@ public class ChangeRequestServiceTest
   {
     ChangeRequestService service = new ChangeRequestService();
     
-    JsonArray ja = JsonParser.parseString(service.listDocuments(request.getSessionId(), this.crOid)).getAsJsonArray();
+    JsonArray ja = JsonParser.parseString(service.listDocumentsCR(request.getSessionId(), this.crOid)).getAsJsonArray();
     
     Assert.assertEquals(2, ja.size());
     
@@ -250,7 +250,7 @@ public class ChangeRequestServiceTest
     
     for (int i = 0; i < 2; ++i)
     {
-      json = new ChangeRequestService().uploadFileInTransaction(this.crOid, "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+      json = new ChangeRequestService().uploadFileInTransactionCR(this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
     }
     
     JsonObject jsonVF = JsonParser.parseString(json).getAsJsonObject();
@@ -272,7 +272,7 @@ public class ChangeRequestServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
-          new ChangeRequestService().uploadFile(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+          new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
           
           TestDataSet.deleteAllVaultFiles();
         });
@@ -291,7 +291,7 @@ public class ChangeRequestServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
-          new ChangeRequestService().uploadFile(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
+          new ChangeRequestService().uploadFileCR(request.getSessionId(), this.crOid, "parent-test.xlsx", ChangeRequestDocumentServiceTest.class.getResourceAsStream("/parent-test.xlsx"));
           
           Assert.fail("Expected a permission exception.");
         });
@@ -354,7 +354,7 @@ public class ChangeRequestServiceTest
   {
     ChangeRequestService service = new ChangeRequestService();
     
-    try (ApplicationResource res = service.downloadDocument(request.getSessionId(), this.crOid, vfOid))
+    try (ApplicationResource res = service.downloadDocumentCR(request.getSessionId(), this.crOid, vfOid))
     {
       Assert.assertEquals("parent-test.xlsx", res.getName());
       Assert.assertNotNull(res.getUnderlyingFile());

@@ -1,0 +1,44 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdRelationship name="net.geoprism.registry.action.ActionHasDocument" label="Action Has Document Relationship" generateController="false" exported="false" publish="false">
+        <parent cardinality="1" name="net.geoprism.registry.action.AbstractAction" method="Action" />
+        <child cardinality="*" name="com.runwaysdk.system.VaultFile" method="Document" />
+      </mdRelationship>
+    </create>
+    <update></update>
+    <permissions>
+      <role roleName="cgr.RegistryContributor">
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.action.ActionHasDocument">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.action.ActionHasDocument">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.APIConsumer">
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.action.ActionHasDocument">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.action.ActionHasDocument">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

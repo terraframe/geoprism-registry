@@ -56,39 +56,76 @@ public class ChangeRequestController
     this.service = new ChangeRequestService();
   }
   
-  @Endpoint(url = "upload-file", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF uploadFile(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
+  @Endpoint(url = "upload-file-cr", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF uploadFileCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
   {
     try (InputStream stream = file.getInputStream())
     {
       String fileName = file.getFilename();
       
-      String vfOid = service.uploadFile(request.getSessionId(), crOid, fileName, stream);
+      String vfOid = service.uploadFileCR(request.getSessionId(), crOid, fileName, stream);
+  
+      return new RestBodyResponse(vfOid);
+    }
+  }
+  
+  @Endpoint(url = "upload-file-action", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF uploadFileAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
+  {
+    try (InputStream stream = file.getInputStream())
+    {
+      String fileName = file.getFilename();
+      
+      String vfOid = service.uploadFileAction(request.getSessionId(), actionOid, fileName, stream);
   
       return new RestBodyResponse(vfOid);
     }
   }
   
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF listDocuments(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid)
+  public ResponseIF listDocumentsCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid)
   {
-    String json = service.listDocuments(request.getSessionId(), crOid);
+    String json = service.listDocumentsCR(request.getSessionId(), crOid);
 
     return new RestBodyResponse(json);
   }
   
-  @Endpoint(url = "download-file", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF downloadDocument(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF listDocumentsAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid)
   {
-    ApplicationResource res = service.downloadDocument(request.getSessionId(), crOid, vfOid);
+    String json = service.listDocumentsAction(request.getSessionId(), actionOid);
+
+    return new RestBodyResponse(json);
+  }
+  
+  @Endpoint(url = "download-file-cr", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF downloadDocumentCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  {
+    ApplicationResource res = service.downloadDocumentCR(request.getSessionId(), crOid, vfOid);
 
     return new InputStreamResponse(res.openNewStream(), "application/octet-stream", res.getName());
   }
   
-  @Endpoint(url = "delete-file", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF deleteDocument(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  @Endpoint(url = "download-file-action", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF downloadDocumentAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "vfOid") String vfOid)
   {
-    service.deleteDocument(request.getSessionId(), crOid, vfOid);
+    ApplicationResource res = service.downloadDocumentAction(request.getSessionId(), actionOid, vfOid);
+
+    return new InputStreamResponse(res.openNewStream(), "application/octet-stream", res.getName());
+  }
+  
+  @Endpoint(url = "delete-file-cr", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF deleteDocumentCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
+  {
+    service.deleteDocumentCR(request.getSessionId(), crOid, vfOid);
+
+    return new RestResponse();
+  }
+  
+  @Endpoint(url = "delete-file-action", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF deleteDocumentAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "vfOid") String vfOid)
+  {
+    service.deleteDocumentAction(request.getSessionId(), actionOid, vfOid);
 
     return new RestResponse();
   }
