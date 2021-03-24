@@ -24,16 +24,13 @@ public class ChangeRequestPermissionService
     final String orgCode = cr.getOrganization();
     final String gotCode = cr.getGeoObjectType();
     
-    if (orgCode == null || gotCode == null)
-    {
-      throw new ProgrammingErrorException("These should not be null: [" + orgCode + "] [" + gotCode + "]");
-    }
+    HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>();
     
     final AllGovernanceStatus status = cr.getGovernanceStatus();
     
     if (perms.isSRA())
     {
-      HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>(Arrays.asList(ChangeRequestPermissionAction.values()));
+      actions.addAll(Arrays.asList(ChangeRequestPermissionAction.values()));
       
       actions.remove(ChangeRequestPermissionAction.DELETE);
       actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
@@ -44,12 +41,10 @@ public class ChangeRequestPermissionService
         actions.remove(ChangeRequestPermissionAction.EXECUTE);
         actions.remove(ChangeRequestPermissionAction.WRITE_MAINTAINER_NOTES);
       }
-      
-      return actions;
     }
     else if (perms.isRA(orgCode))
     {
-      HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>(Arrays.asList(ChangeRequestPermissionAction.values()));
+      actions.addAll(Arrays.asList(ChangeRequestPermissionAction.values()));
       
       actions.remove(ChangeRequestPermissionAction.DELETE);
       actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
@@ -60,12 +55,10 @@ public class ChangeRequestPermissionService
         actions.remove(ChangeRequestPermissionAction.EXECUTE);
         actions.remove(ChangeRequestPermissionAction.WRITE_MAINTAINER_NOTES);
       }
-      
-      return actions;
     }
     else if (perms.isRM(orgCode, gotCode))
     {
-      HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>(Arrays.asList(ChangeRequestPermissionAction.values()));
+      actions.addAll(Arrays.asList(ChangeRequestPermissionAction.values()));
       
       actions.remove(ChangeRequestPermissionAction.DELETE);
       actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
@@ -76,13 +69,9 @@ public class ChangeRequestPermissionService
         actions.remove(ChangeRequestPermissionAction.EXECUTE);
         actions.remove(ChangeRequestPermissionAction.WRITE_MAINTAINER_NOTES);
       }
-      
-      return actions;
     }
     else if (perms.isRC(orgCode, gotCode) || perms.isAC(orgCode, gotCode))
     {
-      HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>();
-      
       actions.addAll(Arrays.asList(ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.READ_APPROVAL_STATUS, ChangeRequestPermissionAction.READ_DETAILS,
           ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.READ_DOCUMENTS, ChangeRequestPermissionAction.WRITE_DOCUMENTS, ChangeRequestPermissionAction.READ_MAINTAINER_NOTES,
           ChangeRequestPermissionAction.READ_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.SUBMIT, ChangeRequestPermissionAction.DELETE));
@@ -93,10 +82,23 @@ public class ChangeRequestPermissionService
         actions.remove(ChangeRequestPermissionAction.WRITE_DETAILS);
         actions.remove(ChangeRequestPermissionAction.DELETE);
       }
-      
-      return actions;
     }
     
-    return new HashSet<ChangeRequestPermissionAction>();
+    if (orgCode == null || gotCode == null)
+    {
+      actions.removeAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE_DETAILS));
+      
+      if (gotCode == null)
+      {
+        actions.remove(ChangeRequestPermissionAction.READ_DETAILS);
+      }
+      
+      if ( perms.isSRA() || perms.isRA() || perms.isRM() )
+      {
+        actions.add(ChangeRequestPermissionAction.DELETE);
+      }
+    }
+    
+    return actions;
   }
 }
