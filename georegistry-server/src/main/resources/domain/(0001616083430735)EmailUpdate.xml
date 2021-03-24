@@ -1,0 +1,44 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.hours">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="user.invite.email.hours" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="${hours} hours" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.hoursAndDays">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="user.invite.email.hoursAndDays" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="${days} days and ${hours} hours" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.days">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="user.invite.email.days" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="${days} days" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.body">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="user.invite.email.body" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Congratulations!\n\nYou have been invited to create an account as Common Geo-Registry ${roles} for the ${organization} organization.\n\nTo do so, click the link below:\n${link}\n\nThe above link will stop working in ${expireTime}.\nIf you did not request this, you can safely ignore this email." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update>
+    </update>
+    <delete>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="user.invite.email.optionalOrgMsg"></object>
+    </delete>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
