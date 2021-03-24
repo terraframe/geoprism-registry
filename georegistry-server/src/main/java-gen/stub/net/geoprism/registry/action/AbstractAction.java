@@ -27,6 +27,10 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
@@ -34,6 +38,7 @@ import com.runwaysdk.system.Users;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -111,34 +116,7 @@ public abstract class AbstractAction extends AbstractActionBase implements Gover
    * TODO : We should be converting to a DTO and then serializing, that way we
    * only have to have the serialization logic in one place.
    */
-  public JSONObject serialize()
-  {
-    AllGovernanceStatus status = this.getApprovalStatus().get(0);
-    DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-
-    JSONObject jo = new JSONObject();
-
-    jo.put(AbstractAction.OID, this.getOid());
-    jo.put("actionType", this.getType());
-    jo.put("actionLabel", this.getMdClass().getDisplayLabel(Session.getCurrentLocale()));
-    jo.put(AbstractAction.CREATEACTIONDATE, this.getCreateActionDate());
-    jo.put(AbstractAction.CONTRIBUTORNOTES, this.getContributorNotes());
-    jo.put(AbstractAction.MAINTAINERNOTES, this.getMaintainerNotes());
-    jo.put(AbstractAction.ADDITIONALNOTES, this.getAdditionalNotes());
-    jo.put(AbstractAction.APPROVALSTATUS, this.getApprovalStatus().get(0).getEnumName());
-    jo.put("statusLabel", status.getDisplayLabel());
-    jo.put(AbstractAction.CREATEACTIONDATE, format.format(this.getCreateActionDate()));
-    jo.put(AbstractAction.CREATEDBY, this.getCreatedBy());
-
-    SingleActor decisionMaker = this.getDecisionMaker();
-
-    if (decisionMaker != null && ( decisionMaker instanceof Users ))
-    {
-      jo.put(AbstractAction.DECISIONMAKER, ( (Users) decisionMaker ).getUsername());
-    }
-
-    return jo;
-  }
+  abstract public JsonObject toJson();
 
   /*
    * TODO : We should be converting to a DTO and then using 'buildFromDTO', that

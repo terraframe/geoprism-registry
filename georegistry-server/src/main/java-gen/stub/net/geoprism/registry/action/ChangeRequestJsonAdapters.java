@@ -15,6 +15,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
 import net.geoprism.GeoprismUser;
@@ -24,6 +25,27 @@ import net.geoprism.registry.service.ChangeRequestService;
 
 public class ChangeRequestJsonAdapters
 {
+  public static void serializeCreatedBy(SingleActor actor, JsonObject jo)
+  {
+    if (actor instanceof Users)
+    {
+      Users user = (Users) actor;
+      
+      user.getUsername();
+      
+      jo.addProperty(ChangeRequest.CREATEDBY, user.getUsername());
+      
+      if (user instanceof GeoprismUser)
+      {
+        jo.addProperty("email", ( (GeoprismUser) user ).getEmail());
+        jo.addProperty("phoneNumber", ( (GeoprismUser) user ).getPhoneNumber());
+      }
+    }
+    else
+    {
+      jo.addProperty(ChangeRequest.CREATEDBY, actor.getKey());
+    }
+  }
 
   public static class ChangeRequestDeserializer implements JsonDeserializer<ChangeRequest>
   {
@@ -45,24 +67,19 @@ public class ChangeRequestJsonAdapters
     {
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
 
-      Users user = (Users) cr.getCreatedBy();
+      
       AllGovernanceStatus status = cr.getApprovalStatus().get(0);
       
       JsonObject object = new JsonObject();
       object.addProperty(ChangeRequest.OID, cr.getOid());
       object.addProperty(ChangeRequest.CREATEDATE, format.format(cr.getCreateDate()));
-      object.addProperty(ChangeRequest.CREATEDBY, user.getUsername());
       object.addProperty(ChangeRequest.APPROVALSTATUS, status.getEnumName());
       object.addProperty(ChangeRequest.MAINTAINERNOTES, cr.getMaintainerNotes());
       object.addProperty("statusLabel", status.getDisplayLabel());
 
-      if (user instanceof GeoprismUser)
-      {
-        object.addProperty("email", ( (GeoprismUser) user ).getEmail());
-        object.addProperty("phoneNumber", ( (GeoprismUser) user ).getPhoneNumber());
-      }
+      ChangeRequestJsonAdapters.serializeCreatedBy(cr.getCreatedBy(), object);
       
-      JsonArray jaDocuments = JsonParser.parseString(this.service.listDocuments(Session.getCurrentSession().getOid(), cr.getOid())).getAsJsonArray();
+      JsonArray jaDocuments = JsonParser.parseString(this.service.listDocumentsCR(Session.getCurrentSession().getOid(), cr.getOid())).getAsJsonArray();
       object.add("documents", jaDocuments);
       
       object.add("permissions", this.serializePermissions(cr, context));

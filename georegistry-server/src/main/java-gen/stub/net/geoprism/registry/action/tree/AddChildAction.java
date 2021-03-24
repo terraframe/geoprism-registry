@@ -31,9 +31,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.SetParentAction;
@@ -89,16 +92,12 @@ public class AddChildAction extends AddChildActionBase
   }
 
   @Override
-  public JSONObject serialize()
+  public JsonObject toJson()
   {
-    JSONObject jo = super.serialize();
-    jo.put(AddChildAction.CHILDID, this.getChildId());
-    jo.put(AddChildAction.CHILDTYPECODE, this.getChildTypeCode());
-    jo.put(AddChildAction.PARENTID, this.getParentId());
-    jo.put(AddChildAction.PARENTTYPECODE, this.getParentTypeCode());
-    jo.put(AddChildAction.HIERARCHYTYPECODE, this.getHierarchyTypeCode());
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(AddChildAction.class, new ActionJsonAdapters.AddChildActionSerializer());
 
-    return jo;
+    return (JsonObject) builder.create().toJsonTree(this);
   }
 
   @Override

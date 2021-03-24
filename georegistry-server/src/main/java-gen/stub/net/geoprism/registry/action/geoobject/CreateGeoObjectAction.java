@@ -34,10 +34,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
@@ -114,33 +117,12 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   }
 
   @Override
-  public JSONObject serialize()
+  public JsonObject toJson()
   {
-    JSONObject object = super.serialize();
-    object.put(CreateGeoObjectAction.GEOOBJECTJSON, new JSONObject(this.getGeoObjectJson()));
-    addGeoObjectType(object);
-    return object;
-  }
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(CreateGeoObjectAction.class, new ActionJsonAdapters.CreateGeoObjectActionSerializer());
 
-  private void addGeoObjectType(JSONObject object)
-  {
-    String sJson = this.getGeoObjectJson();
-    
-    String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
-    
-    Optional<GeoObjectType> op = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode);
-
-    GeoObjectType got;
-    if (op.isPresent())
-    {
-      got = op.get();
-    }
-    else
-    {
-      got = new GeoObjectType(typeCode, GeometryType.POLYGON, new LocalizedValue(typeCode), new LocalizedValue(""), false, "", ServiceFactory.getAdapter());
-    }
-    
-    object.put("geoObjectType", new JSONObject(got.toJSON().toString()));
+    return (JsonObject) builder.create().toJsonTree(this);
   }
 
   @Override

@@ -31,10 +31,14 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -87,16 +91,12 @@ public class RemoveChildAction extends RemoveChildActionBase
   }
 
   @Override
-  public JSONObject serialize()
+  public JsonObject toJson()
   {
-    JSONObject jo = super.serialize();
-    jo.put(RemoveChildAction.CHILDID, this.getChildId());
-    jo.put(RemoveChildAction.CHILDTYPECODE, this.getChildTypeCode());
-    jo.put(RemoveChildAction.PARENTID, this.getParentId());
-    jo.put(RemoveChildAction.PARENTTYPECODE, this.getParentTypeCode());
-    jo.put(RemoveChildAction.HIERARCHYTYPECODE, this.getHierarchyTypeCode());
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(RemoveChildAction.class, new ActionJsonAdapters.RemoveChildActionSerializer());
 
-    return jo;
+    return (JsonObject) builder.create().toJsonTree(this);
   }
 
   @Override

@@ -36,6 +36,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
@@ -133,14 +134,12 @@ public class SetParentAction extends SetParentActionBase
   }
 
   @Override
-  public JSONObject serialize()
+  public JsonObject toJson()
   {
-    JSONObject jo = super.serialize();
-    jo.put(SetParentAction.JSON, new JSONArray(this.getJson()));
-    jo.put(SetParentAction.CHILDTYPECODE, this.getChildTypeCode());
-    jo.put(SetParentAction.CHILDCODE, this.getChildCode());
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(SetParentAction.class, new ActionJsonAdapters.SetParentActionSerializer());
 
-    return jo;
+    return (JsonObject) builder.create().toJsonTree(this);
   }
 
   @Override

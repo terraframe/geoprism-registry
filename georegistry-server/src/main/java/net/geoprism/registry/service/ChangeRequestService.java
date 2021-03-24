@@ -335,7 +335,7 @@ public class ChangeRequestService
       throw new CGRPermissionException();
     }
     
-    JSONArray actions = new JSONArray();
+    JsonArray actions = new JsonArray();
     QueryFactory factory = new QueryFactory();
 
     AbstractActionQuery query = new AbstractActionQuery(factory);
@@ -353,7 +353,7 @@ public class ChangeRequestService
     {
       AbstractAction action = it.next();
 
-      actions.put(action.serialize());
+      actions.add(action.toJson());
     }
 
     return actions.toString();
@@ -606,7 +606,7 @@ public class ChangeRequestService
 
     action.lock();
 
-    return action.serialize().toString();
+    return action.toJson().toString();
   }
 
   @Request(RequestType.SESSION)
@@ -616,7 +616,7 @@ public class ChangeRequestService
 
     action.unlock();
 
-    return action.serialize().toString();
+    return action.toJson().toString();
   }
   
   @Transaction
