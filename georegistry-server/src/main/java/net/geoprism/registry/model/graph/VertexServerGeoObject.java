@@ -213,6 +213,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public void setCode(String code)
   {
     code = code.trim();
+    code = code.replaceAll("\\s+","");
     
     this.vertex.setValue(GeoVertex.GEOID, code);
     this.vertex.setValue(DefaultAttribute.CODE.getName(), code);
