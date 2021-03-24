@@ -202,7 +202,7 @@ export class ChangeRequestService {
             .toPromise();
     }
 
-	deleteFile(requestId: string, fileId: string): Promise<ImportConfiguration> {
+	deleteFile(actionId: string, fileId: string): Promise<ImportConfiguration> {
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
 		});
@@ -210,7 +210,7 @@ export class ChangeRequestService {
 		this.eventService.start();
 
 		return this.http
-			.post<ImportConfiguration>(acp + '/changerequest/delete-file', JSON.stringify({ crOid: requestId, vfOid: fileId }), { headers: headers })
+			.post<ImportConfiguration>(acp + '/changerequest/delete-file-action', JSON.stringify({ actionOid: actionId, vfOid: fileId }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

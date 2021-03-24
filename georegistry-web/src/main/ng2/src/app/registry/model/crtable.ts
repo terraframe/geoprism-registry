@@ -27,6 +27,7 @@ export class AbstractAction {
 	actionType: string;
 	actionLabel: string;
 	decisionMaker?: string;
+	documents: Document[];
 }
 
 export class UpdateGeoObjectAction extends AbstractAction {
