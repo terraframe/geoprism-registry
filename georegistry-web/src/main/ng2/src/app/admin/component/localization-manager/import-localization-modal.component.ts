@@ -50,7 +50,13 @@ export class ImportLocalizationModalComponent {
 			this.bsModalRef.hide();
 		};
 		this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-			const error = JSON.parse(response)
+			let error = JSON.parse(response)
+			
+			let newline = "\n";
+			//let newline = String.fromCharCode(13, 10);
+			//let newline = "<br>";
+			
+      error.localizedMessage = error.localizedMessage.replaceAll("\\n", newline);
 
 			this.error({ error: error });
 		}

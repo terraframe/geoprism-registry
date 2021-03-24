@@ -47,7 +47,7 @@ public class RegistryLocalizationController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF importSpreadsheet(ClientRequestIF request, @RequestParamter(name = "file") MultipartFileParameter file)
   {
-    new LocalizationService().importSpreadsheetInRequest(request.getSessionId(), file);
+    new LocalizationService().importSpreadsheet(request.getSessionId(), file);
 
     return new RestResponse();
   }

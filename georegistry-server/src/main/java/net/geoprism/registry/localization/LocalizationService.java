@@ -27,9 +27,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
 
+import com.runwaysdk.MessageExceptionDTO;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.MessageDTO;
 import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.constants.MdLocalizableInfo;
 import com.runwaysdk.controller.MultipartFileParameter;
@@ -62,6 +65,26 @@ import net.geoprism.registry.service.WMSService;
 public class LocalizationService
 {
 
+  public void importSpreadsheet(String sessionId, MultipartFileParameter file)
+  {
+    try
+    {
+      importSpreadsheetInRequest(sessionId, file);
+    }
+    catch (MessageExceptionDTO e)
+    {
+      throwMessageError(sessionId, e);
+    }
+  }
+  
+  @Request(RequestType.SESSION)
+  private void throwMessageError(String sessionId, MessageExceptionDTO e)
+  {
+    LocalizationImportMessagesException ex = new LocalizationImportMessagesException();
+    ex.setMessages(StringUtils.join(e.getMessageStrings(), "\\n"));
+    throw ex;
+  }
+  
   @Request(RequestType.SESSION)
   public void importSpreadsheetInRequest(String sessionId, MultipartFileParameter file)
   {
@@ -71,6 +94,7 @@ public class LocalizationService
     {
       LocalizationExcelImporter importer = new LocalizationExcelImporter(buildConfig(), file.getInputStream());
       importer.doImport();
+      
     }
     catch (IOException e)
     {

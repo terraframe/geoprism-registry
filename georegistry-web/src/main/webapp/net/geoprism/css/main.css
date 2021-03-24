@@ -251,4 +251,11 @@ a.navbar-brand {
 
 
 
+/**
+Error Modal
+**/
+.error-white-space-pre {
+	white-space: pre
+}
+
 
