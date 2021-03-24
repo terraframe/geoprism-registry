@@ -27,7 +27,8 @@ declare var $: any;
 	styleUrls: [],
 	encapsulation: ViewEncapsulation.None
 })
-export class SetParentDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
+// export class SetParentDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
+export class SetParentDetailComponent implements ActionDetailComponent {
 
 	@Input() action: any;
 

@@ -26,7 +26,8 @@ declare var $: any;
     styleUrls: ['./crtable-detail-create-geo-object.css'],
     encapsulation: ViewEncapsulation.None
 } )
-export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
+//export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
+export class CreateUpdateGeoObjectDetailComponent implements ActionDetailComponent {
 	
 	isMaintainer: boolean = false;
 
