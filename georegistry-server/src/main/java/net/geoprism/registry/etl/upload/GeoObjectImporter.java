@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -85,6 +85,7 @@ import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -297,7 +298,7 @@ public class GeoObjectImporter implements ObjectImporterIF
           ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
-        
+
         entity = service.newInstance(this.configuration.getType());
         entity.setCode(geoId);
 
@@ -396,7 +397,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       Thread.yield();
     }
-    catch(Throwable e)
+    catch (Throwable e)
     {
       e.printStackTrace();
     }
@@ -494,7 +495,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
         throw ex;
       }
-      
+
       if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
       {
         serverGo = service.getGeoObjectByCode(geoId, this.configuration.getType());
@@ -731,7 +732,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     return null;
   }
-  
+
   /**
    * Returns the entity as defined by the 'parent' and 'parentType' attributes
    * of the given feature. If an entity is not found then Earth is returned by
@@ -739,10 +740,10 @@ public class GeoObjectImporter implements ObjectImporterIF
    * geo oid. The 'parentType' value of the feature must define the localized
    * display label of the universal.
    * 
-   * This algorithm resolves parent contexts starting at the top of the hierarchy
-   * and traversing downward, resolving hierarchy inheritance as needed. If at any
-   * point a location cannot be found, a SmartException will be thrown which varies
-   * depending on the ParentMatchStrategy.
+   * This algorithm resolves parent contexts starting at the top of the
+   * hierarchy and traversing downward, resolving hierarchy inheritance as
+   * needed. If at any point a location cannot be found, a SmartException will
+   * be thrown which varies depending on the ParentMatchStrategy.
    *
    * @param feature
    *          Shapefile feature used to determine the parent
@@ -837,10 +838,13 @@ public class GeoObjectImporter implements ObjectImporterIF
         if (results != null && results.size() > 0)
         {
           ServerGeoObjectIF result = null;
-          
-          // There may be multiple results because our query doesn't filter out relationships that don't fit the date criteria
-          // You can't really add a date filter on a match query. Look at RegistryService.getGeoObjectSuggestions for an example
-          // of how this date filter could maybe be rewritten to be included into the query SQL.
+
+          // There may be multiple results because our query doesn't filter out
+          // relationships that don't fit the date criteria
+          // You can't really add a date filter on a match query. Look at
+          // RegistryService.getGeoObjectSuggestions for an example
+          // of how this date filter could maybe be rewritten to be included
+          // into the query SQL.
           for (ServerGeoObjectIF loop : results)
           {
             if (result != null && !result.getCode().equals(loop.getCode()))
@@ -850,11 +854,10 @@ public class GeoObjectImporter implements ObjectImporterIF
               ex.setContext(context.toString());
               throw ex;
             }
-            
+
             result = loop;
           }
-          
-          
+
           parent = result;
 
           JSONObject element = new JSONObject();
@@ -969,10 +972,10 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     if (function == null)
     {
-//      RequiredMappingException ex = new RequiredMappingException();
-//      ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel().getValue());
-//      throw ex;
-      
+      // RequiredMappingException ex = new RequiredMappingException();
+      // ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel().getValue());
+      // throw ex;
+
       return null;
     }
 
@@ -992,8 +995,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       try
       {
-        MdBusinessDAOIF mdBusiness = this.configuration.getType().getMdBusinessDAO();
+        ServerGeoObjectType type = this.configuration.getType();
+        MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
         MdAttributeTermDAOIF mdAttribute = (MdAttributeTermDAOIF) mdBusiness.definesAttribute(attributeName);
+
+        if (mdAttribute == null && type.getSuperType() != null)
+        {
+          mdAttribute = (MdAttributeTermDAOIF) type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
+        }
 
         Classifier classifier = Classifier.findMatchingTerm(value.toString().trim(), mdAttribute);
 
@@ -1051,7 +1060,14 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
     else if (attributeType instanceof AttributeTermType)
     {
-      this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
+      if (value != null)
+      {
+        this.setTermValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else
+      {
+        entity.setValue(attributeName, null, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
     }
     else if (attributeType instanceof AttributeIntegerType)
     {
