@@ -1,0 +1,11 @@
+.disabled{
+    cursor: not-allowed;
+}
+
+label.disabled{
+    color: lightgrey;
+}
+
+input[type="date"] {
+	min-width: 173px;
+}

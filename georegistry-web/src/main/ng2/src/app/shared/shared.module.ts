@@ -19,8 +19,8 @@ import { SuccessModalComponent } from './component/modals/success-modal.componen
 import { ConfirmModalComponent } from './component/modals/confirm-modal.component';
 import { ErrorMessageComponent } from './component/message/error-message.component';
 import { MessageComponent } from './component/message/message.component';
-import { ValidationComponent } from './component/form-fields/base/validation.component';
 import { BooleanFieldComponent } from './component/form-fields/boolean-field/boolean-field.component';
+import { DateFieldComponent } from './component/form-fields/date-field/date-field.component';
 import { LoadingBarComponent } from './component/loading-bar/loading-bar.component';
 import { PasswordStrengthBarComponent } from './component/password-strength-bar/password-strength-bar.component';
 
@@ -73,6 +73,7 @@ import '../rxjs-extensions';
 		LocalizeComponent,
 		ConvertKeyLabel,
 		BooleanFieldComponent,
+		DateFieldComponent,
 		LoadingBarComponent,
 		ErrorMessageComponent,
 		MessageComponent,
@@ -82,7 +83,6 @@ import '../rxjs-extensions';
 		PasswordStrengthBarComponent,
 		OnlyNumber,
 		MustMatchDirective,
-		ValidationComponent,
 		ProgressBarComponent,
 		ModalStepIndicatorComponent,
 		CgrHeaderComponent,
@@ -94,6 +94,7 @@ import '../rxjs-extensions';
 		LocalizeComponent,
 		ConvertKeyLabel,
 		BooleanFieldComponent,
+		DateFieldComponent,
 		LoadingBarComponent,
 		ErrorMessageComponent,
 		MessageComponent,
@@ -103,7 +104,6 @@ import '../rxjs-extensions';
 		PasswordStrengthBarComponent,
 		OnlyNumber,
 		MustMatchDirective,
-		ValidationComponent,
 		ProgressBarComponent,
 		ModalStepIndicatorComponent,
 		CgrHeaderComponent,

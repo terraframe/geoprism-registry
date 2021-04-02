@@ -6,9 +6,11 @@
         <div class="col-md-12">
             <form #myForm="ngForm" style="margin-left: 10px;">
                 <div class="form-group">
-                    <label for="forDate" style="display: block; margin-bottom: 0;"><localize key="masterlist.publishingFor"></localize></label> <input id="forDate" type="date" name="forDate" [(ngModel)]="forDate" required>
+                    <label for="forDate" style="display: block; margin-bottom: 0;"><localize key="masterlist.publishingFor"></localize></label> 
+<!--                     <input id="forDate" type="date" name="forDate" [(ngModel)]="forDate" required> -->
+                    <date-field [(value)]="forDate" (isValid)="setForDateValidity($event)" label="" style="display:inline-grid;" [inputName]="'forDate'" [allowFutureDates]="false" [required]="true"></date-field>
 
-                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid">
+                    <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid || !isForDateValid">
                         <localize key="masterlist.publishNewVersion"></localize>
                     </button>
                 </div>

@@ -17,13 +17,13 @@ import { LocalizationService, AuthService } from '@shared/service';
 export class PublishModalComponent implements OnInit {
 	currentDate : Date = new Date();
 	message: string = null;
+	
 	master: any;
 
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
      */
 	onMasterListChange: Subject<MasterList>;
-
 
     /*
      * List of geo object types from the system

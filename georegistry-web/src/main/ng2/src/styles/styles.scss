@@ -100,6 +100,7 @@ a.link-active {
 
 a.disabled {
 	color: lightgrey !important;
+	cursor: default;
 }
 
 a.alert {
@@ -644,6 +645,7 @@ div.row-holder .rad-area {
 .chk-area.disabled{
 	border-color: #d4d4d4;
 	background:#eee;
+	cursor: not-allowed;
 }
 .chk-checked{
     border-color:#598a37;
@@ -958,11 +960,11 @@ td.clickable:focus {
 	padding: 10px;
 }
 
-.form-group input,
-select,
-textarea {
-	border-color: #aaa;
-}
+//.form-group input,
+//select,
+//textarea {
+//	border-color: #aaa;
+//}
 
 .input-group-btn,
 .input-group-btn .btn.btn-primary {

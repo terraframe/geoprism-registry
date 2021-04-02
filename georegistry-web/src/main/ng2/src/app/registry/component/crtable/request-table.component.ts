@@ -212,7 +212,7 @@ export class RequestTableComponent {
 		// this.request = selected.selected;
 
 		this.service.getAllActions(selected.selected[0].oid).then(actions => {
-	console.log(actions)
+
 			this.actions = actions;
 			
 		}).catch((err: HttpErrorResponse) => {

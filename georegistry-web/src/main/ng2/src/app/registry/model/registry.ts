@@ -316,7 +316,7 @@ export class MasterList {
 	write?: boolean;
 	read?: boolean;
 	exploratory?: boolean;
-	versions?: MasterListVersion[]
+	versions?: MasterListVersion[];
 }
 
 export class MasterListVersion {

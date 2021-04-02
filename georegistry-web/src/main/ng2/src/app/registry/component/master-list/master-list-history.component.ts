@@ -20,6 +20,7 @@ export class MasterListHistoryComponent implements OnInit {
 	message: string = null;
 	list: MasterList = null;
 	forDate: string = '';
+	isForDateValid: boolean = true;
 
 	@Input() oid: string;
 
@@ -38,6 +39,9 @@ export class MasterListHistoryComponent implements OnInit {
 		});
 	}
 
+	setForDateValidity(event){
+		this.isForDateValid = event;
+	}
 
 	onPublish(): void {
 		this.message = null;

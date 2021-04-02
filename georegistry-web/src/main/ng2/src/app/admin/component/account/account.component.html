@@ -36,7 +36,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.firstName" name="firstname" required>
+              <input type="text" class="form-control" [(ngModel)]="account.user.firstName" name="firstname" required>
             </span>
           </div>
         </div>
@@ -48,7 +48,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.lastName" name="lastname" required>
+              <input type="text" class="form-control" [(ngModel)]="account.user.lastName" name="lastname" required>
             </span>
           </div>
         </div>
@@ -60,7 +60,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.altFirstName" name="altFirstname">
+              <input type="text" class="form-control" [(ngModel)]="account.user.altFirstName" name="altFirstname">
             </span>
           </div>
         </div>        
@@ -72,7 +72,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.altLastName" name="altLastname">
+              <input type="text" class="form-control" [(ngModel)]="account.user.altLastName" name="altLastname">
             </span>
           </div>
         </div>
@@ -84,7 +84,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.phoneNumber" name="phoneNumber">
+              <input type="text" class="form-control" [(ngModel)]="account.user.phoneNumber" name="phoneNumber">
             </span>
           </div>
         </div>
@@ -96,7 +96,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.altPhoneNumber" name="altPhoneNumber">
+              <input type="text" class="form-control" [(ngModel)]="account.user.altPhoneNumber" name="altPhoneNumber">
             </span>
           </div>
         </div>
@@ -108,7 +108,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="email" [(ngModel)]="account.user.email" name="email" required #aemail="ngModel" required email>
+              <input type="email" class="form-control" [(ngModel)]="account.user.email" name="email" required #aemail="ngModel" required email>
             </span>
             <div *ngIf="aemail.errors?.email && account.user.email && account.user.email.length > 0" style="float:none;" class="inline-error-message">
               <localize key="account.email.validation"></localize>
@@ -123,7 +123,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.position" name="position">
+              <input type="text" class="form-control" [(ngModel)]="account.user.position" name="position">
             </span>
           </div>
         </div>
@@ -135,7 +135,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [(ngModel)]="account.user.department" name="department">
+              <input type="text" class="form-control" [(ngModel)]="account.user.department" name="department">
             </span>
           </div>
         </div>
@@ -149,7 +149,7 @@
           </div>
           <div class="holder">
             <span class="text">
-              <input type="text" [disabled]="!account.user.newInstance && account.user.username === 'admin'" [(ngModel)]="account.user.username" name="username" required>
+              <input type="text" class="form-control" [disabled]="!account.user.newInstance && account.user.username === 'admin'" [(ngModel)]="account.user.username" name="username" required>
             </span>
           </div>
         </div>

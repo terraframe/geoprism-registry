@@ -48,7 +48,8 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                     </h5>
-                                    <input type="date" [name]="'startDate_' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" max="{{currentDate|date:'yyyy-MM-dd'}}" required>
+                                    
+                                    <date-field [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" [allowFutureDates]="false" [required]="true" ></date-field>
                                     
                                     <div style="width:100%;" class="form-input-validation-error-message-wrapper">
                                       <p *ngIf="!vAttribute.startDate" class="error-message">
@@ -139,7 +140,9 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                     </h5>
-                                    <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" max="{{currentDate|date:'yyyy-MM-dd'}}" required>
+<!--                                     <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" max="{{currentDate|date:'yyyy-MM-dd'}}" required> -->
+                                    
+                                    <date-field [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" [allowFutureDates]="false" [required]="true" ></date-field>
                                   </td>
                                   <td>
                                     <div class="version-edit-date-container">

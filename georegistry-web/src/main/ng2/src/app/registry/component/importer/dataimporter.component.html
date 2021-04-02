@@ -76,8 +76,9 @@
             <div class="form-group row">
                 <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
                 <div class="col-md-8">
-                    <input name="startDate" [(ngModel)]="startDate" type="date" max="{{currentDate|date:'yyyy-MM-dd'}}" required />
+                  <date-field [(value)]="startDate" label="" [inputName]="'startDate'" [allowFutureDates]="false"></date-field>
                 </div>
+                
                 <div class="col-md-2"></div>
             </div>
             <div class="form-group row">

@@ -155,7 +155,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		
 		console.log("ng changes: ")
 		
-		if (changes['preGeoObject'] || changes['preGeoObject']) {
+		if (changes['preGeoObject']) {
 
 			this.preGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.preGeoObject)).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
 
