@@ -153,7 +153,6 @@ public class ChangeRequest extends ChangeRequestBase implements GovernancePermis
     object.addProperty("pending", pending);
     object.addProperty("statusCode", status.getEnumName());
     object.addProperty(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
-    object.addProperty(ChangeRequest.ADDITIONALNOTES, this.getAdditionalNotes());
 
     return object;
   }
