@@ -122,7 +122,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	ngOnInit(): void {
-
+		
 		if (this.attributeExcludes != null) {
 			this.geoObjectAttributeExcludes.push.apply(this.geoObjectAttributeExcludes, this.attributeExcludes);
 
