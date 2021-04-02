@@ -30,7 +30,7 @@ import Utils from '../../utility/Utils';
 					animate('500ms')
 				]),
 				transition(':leave',
-					animate('500ms', 
+					animate('500ms',
 						style({
 							opacity: 0
 						})
@@ -41,8 +41,8 @@ import Utils from '../../utility/Utils';
 })
 export class ManageVersionsComponent implements OnInit {
 	message: string = null;
-	
-	currentDate : Date = new Date();
+
+	currentDate: Date = new Date();
 
 	@Input() readonly: boolean = false;
 
@@ -74,6 +74,7 @@ export class ManageVersionsComponent implements OnInit {
 	hasDuplicateDate: boolean = false;
 
 	hasConflict: boolean = false;
+	hasGap: boolean = false;
 
 	originalAttributeState: Attribute;
 
@@ -81,10 +82,10 @@ export class ManageVersionsComponent implements OnInit {
 
 	ngOnInit(): void {
 	}
-	
+
 	ngAfterViewInit() {
 		if (this.attribute.code === 'geometry' && this.geoObjectOverTime.attributes[this.attribute.code].values.length === 1) {
-			
+
 			setTimeout(() => {
 				this.editingGeometry = 0;
 			}, 0);
@@ -97,7 +98,8 @@ export class ManageVersionsComponent implements OnInit {
 
 	onDateChange(): any {
 		this.hasConflict = false;
-	
+		this.hasGap = false;
+
 		let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
 
@@ -110,10 +112,10 @@ export class ManageVersionsComponent implements OnInit {
 			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
 				let s1: any = new Date(h1.startDate);
 				let e1: any = new Date(h1.endDate);
-				
+
 				if (Utils.dateEndBeforeStart(s1, e1)) {
-					h1.conflict = true;		
-					h1.conflictMessage.push(this.lService.decode("manage.versions.startdate.later.enddate.message")); 
+					h1.conflict = true;
+					h1.conflictMessage.push(this.lService.decode("manage.versions.startdate.later.enddate.message"));
 					this.hasConflict = true;
 				}
 
@@ -132,16 +134,40 @@ export class ManageVersionsComponent implements OnInit {
 
 								this.hasConflict = true;
 							}
-							
 						}
 					}
 				}
 			}
 		}
-		
+
 		this.sort(vAttributes);
+
+		// check gaps
+		let current = null;
+
+		for (let j = 0; j < vAttributes.length; j++) {
+			let next = vAttributes[j];
+
+			if (j > 0) {
+				if (!(current.startDate == null || current.startDate === '') && !(current.endDate == null || current.endDate === '')) {
+					let e1: any = new Date(current.endDate);
+
+					if (!(next.startDate == null || next.startDate === '') && !(next.endDate == null || next.endDate === '')) {
+						let s2: any = new Date(next.startDate);
+
+						if (Utils.hasGap(e1.getTime(), s2.getTime())) {
+							next.conflict = true
+							next.conflictMessage.push(this.lService.decode("manage.versions.gap.message"));
+						}
+					}
+				}
+
+			}
+
+			current = next;
+		}
 	}
-	
+
 	onAddNewVersion(): void {
 		let votArr: ValueOverTime[] = this.geoObjectOverTime.attributes[this.attribute.code].values;
 
@@ -272,8 +298,8 @@ export class ManageVersionsComponent implements OnInit {
 				position = i
 			}
 		}
-		
-		if(position > -1){
+
+		if (position > -1) {
 			val.values.splice(position, 1);
 		}
 	}
@@ -289,21 +315,21 @@ export class ManageVersionsComponent implements OnInit {
 
 		return isChangeOverTime;
 	}
-	
+
 	setInfinity(vAttribute, attributes): void {
-		
-		if(vAttribute.endDate === PRESENT){
+
+		if (vAttribute.endDate === PRESENT) {
 			vAttribute.endDate = new Date();
 		}
-		else{
+		else {
 			vAttribute.endDate = PRESENT
 		}
-		
+
 		this.onDateChange();
-		
+
 		this.sort(attributes)
 	}
-	
+
 	sort(votArr: ValueOverTime[]): void {
 
 		// Sort the data by start date 
@@ -321,9 +347,9 @@ export class ManageVersionsComponent implements OnInit {
 			return first - next;
 		});
 	}
-	
+
 	onSubmit(): void {
-		
+
 		console.log("manage-versions  ", this.geoObjectOverTime)
 
 		this.onChange.emit(this.geoObjectOverTime);

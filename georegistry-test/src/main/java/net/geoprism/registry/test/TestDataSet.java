@@ -354,7 +354,7 @@ abstract public class TestDataSet
     setUpAfterApply();
   }
 
-  @Transaction
+//  @Transaction
   protected void setUpTestInTrans()
   {
     for (TestGeoObjectInfo geo : managedGeoObjectInfos)

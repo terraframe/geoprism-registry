@@ -22,6 +22,41 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <h3><localize key="settings.administrators.heading"></localize></h3>
+
+                    <div class="content-wrapper">
+                        <div class="list-table-wrapper">
+                            <table id="manage-systems-table" class="list-table table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="label-column"><localize key='account.username'></localize></th>
+                                        <th class="label-column"><localize key='account.firstname'></localize></th>
+                                        <th class="label-column"><localize key='account.lastname'></localize></th>
+                                        <th class="label-column"><localize key='account.phonenumber'></localize></th>
+                                        <th class="label-column"><localize key='account.email'></localize></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let account of sRAs.resultSet | paginate: { itemsPerPage: sRAs.pageSize, currentPage: sRAs.pageNumber, totalItems: sRAs.count }" class="fade-ngRepeat-item">
+                                        <td class="label-column username-col">{{ account.username }}</td>
+                                        <td class="label-column firstname-col">{{ account.firstName }}</td>
+                                        <td class="label-column lastname-col">{{ account.lastName }}</td>
+                                        <td class="label-column phone-col">{{ account.phoneNumber }}</td>
+                                        <td class="label-column email-col">{{ account.email }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <pagination-controls (pageChange)="onSRAPageChange($event)"></pagination-controls>
+                            
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
 
             <div *ngIf="isAdmin" class="row">
                 <div class="col-md-12">

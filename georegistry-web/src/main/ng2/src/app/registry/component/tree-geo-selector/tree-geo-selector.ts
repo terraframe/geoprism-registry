@@ -1,5 +1,5 @@
 import { Component, Input, EventEmitter, Output, ViewChild, SimpleChanges } from '@angular/core';
-import { TreeNode, TreeModel, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions } from 'angular-tree-component';
+import { TreeNode, TreeModel, TREE_ACTIONS, KEYS, IActionMapping, ITreeOptions } from '@circlon/angular-tree-component';
 
 import { HierarchyOverTime } from '@registry/model/registry';
 

@@ -23,7 +23,7 @@ import { AttributeInputComponent } from '../geoobjecttype-management/attribute-i
 export class EditAttributeModalContentComponent implements OnInit {
 
 	@Input() geoObjectType: GeoObjectType;
-	@Input() attribute: Attribute;
+	@Input() attribute: Attribute = null;
 	@Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
 
 	message: string = null;

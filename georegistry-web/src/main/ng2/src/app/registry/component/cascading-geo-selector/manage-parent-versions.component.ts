@@ -249,6 +249,31 @@ export class ManageParentVersionsComponent implements OnInit {
 		}
 		
 		this.sort(this.hierarchy);
+		
+		// check gaps
+		let current = null;
+
+		for (let j = 0; j < this.hierarchy.entries.length; j++) {
+			let next = this.hierarchy.entries[j];
+
+			if (j > 0) {
+				if (!(current.startDate == null || current.startDate === '') && !(current.endDate == null || current.endDate === '')) {
+					let e1: any = new Date(current.endDate);
+
+					if (!(next.startDate == null || next.startDate === '') && !(next.endDate == null || next.endDate === '')) {
+						let s2: any = new Date(next.startDate);
+
+						if (Utils.hasGap(e1.getTime(), s2.getTime())) {
+							next.conflict = true
+							next.conflictMessage.push(this.localizeService.decode("manage.versions.gap.message"));
+						}
+					}
+				}
+
+			}
+
+			current = next;
+		}		
 	}
 
 	formatDateString(dateObj: Date): string {

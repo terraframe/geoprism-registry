@@ -12,10 +12,6 @@ import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObject
 import { HierarchyService } from '@registry/service/hierarchy.service';
 import { GeoObjectTypeManagementService } from '@registry/service/geoobjecttype-management.service'
 
-import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
-
-
-
 @Component( {
     selector: 'term-option-widget',
     templateUrl: './term-option-widget.component.html',
@@ -52,13 +48,13 @@ import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validatio
 export class TermOptionWidgetComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() attribute: AttributeTerm;
+    @Input() attribute: AttributeTerm = null;
     @Output() attributeChange = new EventEmitter<AttributeTerm>();
     message: string = null;
     state: string = 'none';
     modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""};
 
-    constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
+    constructor( public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
     }
 
     ngOnInit(): void {
