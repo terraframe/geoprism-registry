@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { TreeModule } from 'angular-tree-component';
+import { TreeModule } from '@circlon/angular-tree-component';
 import { ContextMenuModule } from 'ngx-contextmenu';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ButtonsModule } from 'ngx-bootstrap/buttons';
@@ -42,7 +42,7 @@ import './rxjs-extensions';
         ReactiveFormsModule,
         FileUploadModule,
 //        ModalModule.forRoot(),
-        TreeModule.forRoot(),
+        TreeModule,
         ContextMenuModule.forRoot(),
         BsDropdownModule.forRoot(),
         ButtonsModule.forRoot(),

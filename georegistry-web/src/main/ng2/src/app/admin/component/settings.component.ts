@@ -31,10 +31,12 @@ import { ImportLocalizationModalComponent } from './localization-manager/import-
 
 import { Settings } from '@admin/model/settings';
 import { Locale } from '@admin/model/localization-manager';
+import { User } from '@admin/model/account';
+import { AccountService } from '@admin/service/account.service';
 
 import { PageResult, Organization, ExternalSystem } from '@shared/model/core';
 import { ModalTypes } from '@shared/model/modal';
-import { ErrorHandler, ConfirmModalComponent, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { LocalizationService, AuthService, ExternalSystemService, OrganizationService } from '@shared/service';
 
 declare let acp: string;
@@ -53,6 +55,14 @@ export class SettingsComponent implements OnInit {
 	isSRA: boolean;
 	isRA: boolean;
 	settings: Settings = { email: { isConfigured: false } }
+
+	sRAs: PageResult<User> = {
+		resultSet: [],
+		count: 0,
+		pageNumber: 1,
+		pageSize: 10
+	};
+
 	systems: PageResult<ExternalSystem> = {
 		resultSet: [],
 		count: 0,
@@ -65,7 +75,8 @@ export class SettingsComponent implements OnInit {
 		private localizeService: LocalizationService,
 		private authService: AuthService,
 		private externalSystemService: ExternalSystemService,
-		private orgService: OrganizationService
+		private orgService: OrganizationService,
+		private accountService: AccountService
 	) {
 		this.isAdmin = authService.isAdmin();
 		this.isSRA = authService.isSRA();
@@ -88,6 +99,7 @@ export class SettingsComponent implements OnInit {
 			this.error(err);
 		});
 
+		this.onSRAPageChange(1);
 		this.onSystemPageChange(1);
 	}
 
@@ -217,6 +229,14 @@ export class SettingsComponent implements OnInit {
 		this.bsModalRef.content.organization = null;
 	}
 
+	onSRAPageChange(pageNumber: number): void {
+		this.accountService.getSRAs(pageNumber).then(sRAs => {
+			this.sRAs = sRAs
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
+
 
 	/* EXTERNAL SYSTEM LOGIC */
 
@@ -279,6 +299,6 @@ export class SettingsComponent implements OnInit {
 	/* ERROR HANDLING LOGIC */
 
 	public error(err: HttpErrorResponse): void {
-			this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 }

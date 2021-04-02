@@ -41,7 +41,7 @@ import { RegistryService, GeoObjectTypeManagementService } from '@registry/servi
 export class EditTermOptionInputComponent implements OnInit {
 
 	@Input() geoObjectType: GeoObjectType;
-	@Input() attribute: AttributeTerm;
+	@Input() attribute: AttributeTerm = null;
 	@Input() termOption: Term;
 
 	message: string = null;

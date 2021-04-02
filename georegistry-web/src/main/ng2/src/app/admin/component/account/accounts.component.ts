@@ -22,7 +22,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler } from '@shared/component';
 
 import { PageResult } from '@shared/model/core';
 
@@ -48,9 +48,9 @@ export class AccountsComponent implements OnInit {
 	message: string = null;
 	isRA: boolean = false;
 
-	constructor(private service: AccountService, private modalService: BsModalService, authService:AuthService) {
+	constructor(private service: AccountService, private modalService: BsModalService, authService: AuthService) {
 		this.isRA = authService.isRA();
-	 }
+	}
 
 	ngOnInit(): void {
 		this.service.page(1).then(res => {

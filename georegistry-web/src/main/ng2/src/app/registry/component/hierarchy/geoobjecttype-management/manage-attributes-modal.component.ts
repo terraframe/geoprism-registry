@@ -19,7 +19,7 @@ import { RegistryService, GeoObjectTypeManagementService, HierarchyService } fro
 export class ManageAttributesModalComponent implements OnInit {
 
 	@Input() geoObjectType: GeoObjectType;
-	@Input() attribute: Attribute;
+	@Input() attribute: Attribute = null;
 	@Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
 
 	message: string = null;

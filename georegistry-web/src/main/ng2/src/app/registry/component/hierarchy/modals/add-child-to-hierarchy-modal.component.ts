@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
-import { TreeNode } from 'angular-tree-component';
+import { TreeNode } from '@circlon/angular-tree-component';
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from '@shared/component';
 import { HierarchyType, HierarchyNode } from '@registry/model/hierarchy';

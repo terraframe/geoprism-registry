@@ -134,8 +134,8 @@
 			<div class="col-md-9 hierarchy-content">
 				<div id="overflow-div">
 
-					<div *ngIf="currentHierarchy != null && isOrganizationRA(currentHierarchy.organizationCode, true) && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)"
-						id="emptyHierarchyDropzone" class="drop-box-container">
+					<div *ngIf="currentHierarchy != null && (currentHierarchy.rootGeoObjectTypes == null || currentHierarchy.rootGeoObjectTypes.length == 0)">
+                      <div *ngIf="isOrganizationRA(currentHierarchy.organizationCode, true)" id="emptyHierarchyDropzone" class="drop-box-container">
 						<div class="hierarchy-drop-box">
 							<div class="inner-drop-box">
 								<p class="upload-text">
@@ -143,7 +143,13 @@
 								</p>
 							</div>
 						</div>
-					</div>
+                      </div>
+                      <div *ngIf="!isOrganizationRA(currentHierarchy.organizationCode, true)">
+                          <p class="upload-text">
+                              <localize key="hierarchy.content.emptyHierarchy"></localize>
+                          </p>
+                      </div>
+                    </div>
 
 					<div id="svgHolder">
 						<!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->

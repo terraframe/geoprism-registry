@@ -42,4 +42,8 @@ export default class Utils {
 		return false;
 	}
     
+	static hasGap(a_end: number, b_start: number): boolean {
+		return (b_start - a_end) > (1000 * 60 * 60 * 24);
+	}
+	
 }

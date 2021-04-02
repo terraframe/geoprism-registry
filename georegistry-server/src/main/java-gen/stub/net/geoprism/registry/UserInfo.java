@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
@@ -32,6 +33,7 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.business.rbac.UserDAO;
 import com.runwaysdk.business.rbac.UserDAOIF;
 import com.runwaysdk.dataaccess.AttributeBooleanIF;
@@ -77,12 +79,12 @@ public class UserInfo extends UserInfoBase
   public static JSONObject page(Integer pageSize, Integer pageNumber)
   {
     final RolePermissionService perms = ServiceFactory.getRolePermissionService();
-    
+
     List<Organization> organizations = Organization.getUserOrganizations();
-    
+
     boolean isSRA = perms.isSRA();
-    boolean isRMorRCorAC = (!isSRA && !perms.isRA()) && (perms.isRM() || perms.isRC() || perms.isAC());
-    
+    boolean isRMorRCorAC = ( !isSRA && !perms.isRA() ) && ( perms.isRM() || perms.isRC() || perms.isAC() );
+
     List<ExternalSystem> externalSystemList = ExternalSystem.getExternalSystemsForOrg(1, 100);
     JSONArray externalSystems = new JSONArray();
     for (ExternalSystem externalSystem : externalSystemList)
@@ -100,7 +102,7 @@ public class UserInfo extends UserInfoBase
       vQuery.SELECT(uQuery.getOid(), uQuery.getUsername(), uQuery.getFirstName(), uQuery.getLastName(), uQuery.getPhoneNumber(), uQuery.getEmail(), uQuery.getInactive());
       vQuery.SELECT(iQuery.getAltFirstName(), iQuery.getAltLastName(), iQuery.getAltPhoneNumber(), iQuery.getPosition());
       vQuery.SELECT(iQuery.getExternalSystemOid());
-      
+
       vQuery.WHERE(new LeftJoinEq(uQuery.getOid(), iQuery.getGeoprismUser()));
 
       if (organizations.size() > 0)
@@ -117,7 +119,7 @@ public class UserInfo extends UserInfoBase
         vQuery.WHERE(relQuery.parentOid().EQ(orgQuery.getOid()));
         vQuery.WHERE(uQuery.getOid().EQ(relQuery.childOid()));
       }
-      
+
       if (isRMorRCorAC)
       {
         vQuery.WHERE(uQuery.getInactive().EQ(false));
@@ -125,46 +127,7 @@ public class UserInfo extends UserInfoBase
 
       vQuery.ORDER_BY_ASC(uQuery.getUsername());
 
-      JSONArray results = new JSONArray();
-
-      OIterator<ValueObject> it = vQuery.getIterator(pageSize, pageNumber);
-
-      try
-      {
-        while (it.hasNext())
-        {
-          ValueObject vObject = it.next();
-
-          JSONObject result = new JSONObject();
-          result.put(GeoprismUser.OID, vObject.getValue(GeoprismUser.OID));
-          result.put(GeoprismUser.USERNAME, vObject.getValue(GeoprismUser.USERNAME));
-          result.put(GeoprismUser.FIRSTNAME, vObject.getValue(GeoprismUser.FIRSTNAME));
-          result.put(GeoprismUser.LASTNAME, vObject.getValue(GeoprismUser.LASTNAME));
-          result.put(GeoprismUser.PHONENUMBER, vObject.getValue(GeoprismUser.PHONENUMBER));
-          result.put(GeoprismUser.EMAIL, vObject.getValue(GeoprismUser.EMAIL));
-          result.put(GeoprismUser.INACTIVE, AttributeBoolean.getBooleanValue((AttributeBooleanIF) vObject.getAttributeIF(GeoprismUser.INACTIVE)));
-          result.put(UserInfo.ALTFIRSTNAME, vObject.getValue(UserInfo.ALTFIRSTNAME));
-          result.put(UserInfo.ALTLASTNAME, vObject.getValue(UserInfo.ALTLASTNAME));
-          result.put(UserInfo.ALTPHONENUMBER, vObject.getValue(UserInfo.ALTPHONENUMBER));
-          result.put(UserInfo.POSITION, vObject.getValue(UserInfo.POSITION));
-          result.put(UserInfo.EXTERNALSYSTEMOID, vObject.getValue(UserInfo.EXTERNALSYSTEMOID));
-
-          results.put(result);
-        }
-      }
-      finally
-      {
-        it.close();
-      }
-
-      JSONObject page = new JSONObject();
-      page.put("resultSet", results);
-      page.put("count", vQuery.getCount());
-      page.put("pageNumber", pageNumber);
-      page.put("pageSize", pageSize);
-      page.put("externalSystems", externalSystems);
-
-      return page;
+      return serializePage(pageSize, pageNumber, externalSystems, vQuery);
     }
 
     JSONObject page = new JSONObject();
@@ -175,6 +138,73 @@ public class UserInfo extends UserInfoBase
     page.put("externalSystems", externalSystems);
 
     return page;
+  }
+
+  private static JSONObject serializePage(Integer pageSize, Integer pageNumber, JSONArray externalSystems, ValueQuery vQuery)
+  {
+    JSONArray results = new JSONArray();
+
+    OIterator<ValueObject> it = vQuery.getIterator(pageSize, pageNumber);
+
+    try
+    {
+      while (it.hasNext())
+      {
+        ValueObject vObject = it.next();
+
+        JSONObject result = new JSONObject();
+        result.put(GeoprismUser.OID, vObject.getValue(GeoprismUser.OID));
+        result.put(GeoprismUser.USERNAME, vObject.getValue(GeoprismUser.USERNAME));
+        result.put(GeoprismUser.FIRSTNAME, vObject.getValue(GeoprismUser.FIRSTNAME));
+        result.put(GeoprismUser.LASTNAME, vObject.getValue(GeoprismUser.LASTNAME));
+        result.put(GeoprismUser.PHONENUMBER, vObject.getValue(GeoprismUser.PHONENUMBER));
+        result.put(GeoprismUser.EMAIL, vObject.getValue(GeoprismUser.EMAIL));
+        result.put(GeoprismUser.INACTIVE, AttributeBoolean.getBooleanValue((AttributeBooleanIF) vObject.getAttributeIF(GeoprismUser.INACTIVE)));
+        result.put(UserInfo.ALTFIRSTNAME, vObject.getValue(UserInfo.ALTFIRSTNAME));
+        result.put(UserInfo.ALTLASTNAME, vObject.getValue(UserInfo.ALTLASTNAME));
+        result.put(UserInfo.ALTPHONENUMBER, vObject.getValue(UserInfo.ALTPHONENUMBER));
+        result.put(UserInfo.POSITION, vObject.getValue(UserInfo.POSITION));
+        result.put(UserInfo.EXTERNALSYSTEMOID, vObject.getValue(UserInfo.EXTERNALSYSTEMOID));
+
+        results.put(result);
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+
+    JSONObject page = new JSONObject();
+    page.put("resultSet", results);
+    page.put("count", vQuery.getCount());
+    page.put("pageNumber", pageNumber);
+    page.put("pageSize", pageSize);
+    page.put("externalSystems", externalSystems);
+
+    return page;
+  }
+
+  public static JSONObject getSRAs(Integer pageSize, Integer pageNumber)
+  {
+    RoleDAOIF role = RoleDAO.findRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+    Set<SingleActorDAOIF> actors = role.assignedActors();
+    Set<String> oids = actors.parallelStream().map(actor -> actor.getOid()).collect(Collectors.toSet());
+
+    ValueQuery vQuery = new ValueQuery(new QueryFactory());
+
+    GeoprismUserQuery uQuery = new GeoprismUserQuery(vQuery);
+    UserInfoQuery iQuery = new UserInfoQuery(vQuery);
+
+    vQuery.SELECT(uQuery.getOid(), uQuery.getUsername(), uQuery.getFirstName(), uQuery.getLastName(), uQuery.getPhoneNumber(), uQuery.getEmail(), uQuery.getInactive());
+    vQuery.SELECT(iQuery.getAltFirstName(), iQuery.getAltLastName(), iQuery.getAltPhoneNumber(), iQuery.getPosition());
+    vQuery.SELECT(iQuery.getExternalSystemOid());
+
+    vQuery.WHERE(new LeftJoinEq(uQuery.getOid(), iQuery.getGeoprismUser()));
+    vQuery.AND(uQuery.getOid().IN(oids.toArray(new String[oids.size()])));
+
+    vQuery.ORDER_BY_ASC(uQuery.getUsername());
+
+    return serializePage(pageSize, pageNumber, new JSONArray(), vQuery);
   }
 
   @Transaction
@@ -426,7 +456,7 @@ public class UserInfo extends UserInfoBase
     {
       info.setDepartment("");
     }
-    
+
     if (account.has(UserInfo.EXTERNALSYSTEMOID))
     {
       info.setExternalSystemOid(account.get(UserInfo.EXTERNALSYSTEMOID).getAsString());
@@ -506,7 +536,8 @@ public class UserInfo extends UserInfoBase
         user.setPassword(password);
       }
     }
-    else if (account.has(UserInfo.EXTERNALSYSTEMOID) && account.get(UserInfo.EXTERNALSYSTEMOID).getAsString().length() > 0) {
+    else if (account.has(UserInfo.EXTERNALSYSTEMOID) && account.get(UserInfo.EXTERNALSYSTEMOID).getAsString().length() > 0)
+    {
       user.setPassword(String.valueOf(new Random().nextLong()));
     }
 
@@ -555,5 +586,4 @@ public class UserInfo extends UserInfoBase
       it.close();
     }
   }
-
 }

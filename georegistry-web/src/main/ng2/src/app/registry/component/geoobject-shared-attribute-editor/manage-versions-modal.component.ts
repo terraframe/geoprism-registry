@@ -60,7 +60,6 @@ export class ManageVersionsModalComponent implements OnInit {
 
 	onVersionChange(geoObjectOverTime: GeoObjectOverTime): void {
 		
-		console.log("from manage-versions-modal  ", geoObjectOverTime)
 		if (geoObjectOverTime != null) {
 			this.onAttributeVersionChange.next(geoObjectOverTime);
 		}

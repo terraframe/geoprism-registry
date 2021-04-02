@@ -50,6 +50,20 @@ export class AccountService {
             .toPromise();
     }
 
+    getSRAs( p: number ): Promise<PageResult<User>> {
+        let params: HttpParams = new HttpParams();
+        params = params.set( 'number', p.toString() );
+
+        this.eventService.start();
+
+        return this.http
+            .get<PageResult<User>>( acp + '/registryaccount/get-sras', { params: params } )
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+            .toPromise();
+    }
+
     edit( oid: string ): Promise<Account> {
 
         let headers = new HttpHeaders( {
