@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -190,8 +190,9 @@ public class RegistryService
     {
       it2.close();
     }
-    
-    // Due to inherited hierarchy references, this has to wait until all types exist in the cache.
+
+    // Due to inherited hierarchy references, this has to wait until all types
+    // exist in the cache.
     for (ServerHierarchyType type : ServiceFactory.getMetadataCache().getAllHierarchyTypes())
     {
       type.buildHierarchyNodes();
@@ -225,7 +226,7 @@ public class RegistryService
       // skip for now
     }
   }
-  
+
   private String buildOauthServerUrl(OauthServer server)
   {
     try
@@ -255,69 +256,70 @@ public class RegistryService
   public String oauthGetAll(String sessionId, String id)
   {
     final JsonArray ja = new JsonArray();
-    
+
     if (id == null || id.length() == 0)
     {
       OauthServer[] servers = OauthServer.getAll();
-      
+
       for (OauthServer server : servers)
       {
         Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
         JsonObject json = (JsonObject) gson2.toJsonTree(server);
-        
+
         json.addProperty("url", buildOauthServerUrl(server));
-        
+
         ja.add(json);
       }
     }
     else
     {
       OauthServer server = OauthServer.get(id);
-      
+
       Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
       JsonObject json = (JsonObject) gson2.toJsonTree(server);
-      
+
       json.addProperty("url", buildOauthServerUrl(server));
-      
+
       ja.add(json);
     }
-    
+
     return ja.toString();
   }
+
   @Request(RequestType.SESSION)
   public String oauthGetPublic(String sessionId, String id)
   {
     final JsonArray ja = new JsonArray();
-    
+
     if (id == null || id.length() == 0)
     {
       OauthServer[] servers = OauthServer.getAll();
-      
+
       for (OauthServer server : servers)
       {
         JsonObject json = new JsonObject();
-        
+
         json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
         json.addProperty("url", buildOauthServerUrl(server));
-        
+
         ja.add(json);
       }
     }
     else
     {
       OauthServer server = OauthServer.get(id);
-      
+
       JsonObject json = new JsonObject();
-      
+
       json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
       json.addProperty("url", buildOauthServerUrl(server));
-      
+
       ja.add(json);
     }
-    
+
     return ja.toString();
   }
-  
+
   @Request(RequestType.SESSION)
   public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
   {
@@ -334,9 +336,9 @@ public class RegistryService
 
     final GeoObjectPermissionServiceIF pService = ServiceFactory.getGeoObjectPermissionService();
     pService.enforceCanRead(object.getType().getOrganization().getCode(), object.getType());
-    
+
     ServerGeoObjectType type = object.getType();
-    
+
     GeoObject geoObject = object.toGeoObject();
     geoObject.setWritable(pService.canCreateCR(type.getOrganization().getCode(), type));
 
@@ -407,7 +409,7 @@ public class RegistryService
     ServerGeoObjectIF object = this.service.getGeoObject(parentUid, parentGeoObjectTypeCode);
 
     ServerChildTreeNode node = object.getChildGeoObjects(childrenTypes, recursive);
-    
+
     return node.toNode(true);
   }
 
@@ -614,10 +616,9 @@ public class RegistryService
   public GeoObjectType updateGeoObjectType(String sessionId, String gtJSON)
   {
     GeoObjectType geoObjectType = GeoObjectType.fromJSON(gtJSON, adapter);
-
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), geoObjectType.getCode(), geoObjectType.getIsPrivate(), geoObjectType.getLabel().getValue());
-
     ServerGeoObjectType serverGeoObjectType = ServerGeoObjectType.get(geoObjectType.getCode());
+
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(geoObjectType.getOrganizationCode(), serverGeoObjectType, geoObjectType.getIsPrivate());
 
     serverGeoObjectType.update(geoObjectType);
 
@@ -642,7 +643,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getCode(), got.getIsPrivate(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
 
     AttributeType attrType = got.createAttributeType(attributeTypeJSON);
 
@@ -666,7 +667,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getCode(), got.getIsPrivate(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
 
     AttributeType attrType = got.updateAttributeType(attributeTypeJSON);
 
@@ -691,7 +692,7 @@ public class RegistryService
   {
     ServerGeoObjectType got = ServerGeoObjectType.get(gtId);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got.getCode(), got.getIsPrivate(), got.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
 
     got.removeAttribute(attributeName);
   }
@@ -864,7 +865,7 @@ public class RegistryService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(code);
 
-    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type.getCode(), type.getIsPrivate(), type.getLabel().getValue());
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanDelete(type.getOrganization().getCode(), type, type.getIsPrivate());
 
     if (type != null)
     {
@@ -881,7 +882,7 @@ public class RegistryService
     }
 
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-    
+
     ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
 
     final List<ServerGeoObjectIF> results;
@@ -890,13 +891,13 @@ public class RegistryService
       final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, date);
       query.setRestriction(new ServerLookupRestriction(text, date, parentCode, ht));
       query.setLimit(10);
-  
+
       results = query.getResults();
     }
     else
     {
       final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
-    
+
       StringBuilder statement = new StringBuilder();
       statement.append("select from " + type.getMdVertex().getDBClassName() + " where ");
       statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
@@ -904,10 +905,10 @@ public class RegistryService
       statement.append("  :date BETWEEN startDate AND endDate");
       statement.append("  AND COALESCE(value.defaultLocale).toLowerCase() LIKE '%' + :text + '%'");
       statement.append(") ORDER BY location.code ASC LIMIT 10");
-      
+
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
       query.setParameter("date", date);
-      
+
       if (text != null)
       {
         query.setParameter("text", text.toLowerCase().trim());
@@ -916,16 +917,15 @@ public class RegistryService
       {
         query.setParameter("text", text);
       }
-      
+
       List<VertexObject> voResults = query.getResults();
-      
+
       results = new ArrayList<ServerGeoObjectIF>();
       for (VertexObject result : voResults)
       {
         results.add(new VertexServerGeoObject(type, result, date));
       }
     }
-    
 
     JsonArray array = new JsonArray();
 
@@ -1000,7 +1000,7 @@ public class RegistryService
 
     final GeoObjectOverTime goot = go.toGeoObjectOverTime();
     ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true);
-    
+
     HierarchyService.filterHierarchiesFromPermissions(type, pot);
 
     /**

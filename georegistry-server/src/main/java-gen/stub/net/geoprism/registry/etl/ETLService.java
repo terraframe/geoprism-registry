@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -52,7 +52,6 @@ import com.runwaysdk.system.scheduler.JobHistoryRecord;
 import net.geoprism.DataUploader;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.controller.GeoObjectEditorController;
 import net.geoprism.registry.etl.ImportError.ErrorResolution;
 import net.geoprism.registry.etl.ValidationProblem.ValidationResolution;
 import net.geoprism.registry.etl.export.DataExportJob;
@@ -92,7 +91,7 @@ public class ETLService
       String historyId = config.getHistoryId();
       ImportHistory hist = ImportHistory.get(historyId);
 
-      this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+      this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
 
       if (!hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
       {
@@ -139,7 +138,7 @@ public class ETLService
 
     ImportHistory hist = ImportHistory.get(config.getHistoryId());
 
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
 
     VaultFile vf = VaultFile.get(config.getVaultFileId());
     vf.delete();
@@ -169,7 +168,7 @@ public class ETLService
     ImportConfiguration config = ImportConfiguration.build(json);
 
     ServerGeoObjectType type = ( (GeoObjectImportConfiguration) config ).getType();
-    this.checkPermissions(type.getOrganization().getCode(), type.getCode());
+    this.checkPermissions(type.getOrganization().getCode(), type);
 
     ImportHistory hist;
 
@@ -599,7 +598,7 @@ public class ETLService
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
 
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
 
     JsonObject jo = this.serializeHistory(hist, user, job);
 
@@ -629,7 +628,7 @@ public class ETLService
     return jo;
   }
 
-  private void checkPermissions(String orgCode, String gotCode)
+  private void checkPermissions(String orgCode, ServerGeoObjectType type)
   {
     RolePermissionService perms = ServiceFactory.getRolePermissionService();
 
@@ -639,7 +638,7 @@ public class ETLService
     }
     else if (perms.isRM())
     {
-      perms.enforceRM(orgCode, gotCode);
+      perms.enforceRM(orgCode, type);
     }
     else
     {
@@ -660,7 +659,7 @@ public class ETLService
 
     ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
 
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
 
     ImportError err = ImportError.get(config.get("importErrorId").getAsString());
 
@@ -716,10 +715,10 @@ public class ETLService
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
 
     ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
-    
+
     ImportHistory hist = problem.getHistory();
-    
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
 
     String resolution = config.get("resolution").getAsString();
 
@@ -788,7 +787,7 @@ public class ETLService
   {
     ImportHistory hist = ImportHistory.get(historyId);
 
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getGeoObjectTypeCode());
+    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
 
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
     {
