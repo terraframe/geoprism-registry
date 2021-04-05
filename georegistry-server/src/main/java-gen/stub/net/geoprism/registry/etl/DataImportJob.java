@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -85,9 +85,9 @@ public class DataImportJob extends DataImportJobBase
   @Transaction
   private JobHistoryRecord startInTrans(ImportConfiguration configuration)
   {
-    ServerGeoObjectType type = ((GeoObjectImportConfiguration)configuration).getType();
+    ServerGeoObjectType type = ( (GeoObjectImportConfiguration) configuration ).getType();
     Organization org = type.getOrganization();
-    
+
     RolePermissionService perms = ServiceFactory.getRolePermissionService();
     if (perms.isRA())
     {
@@ -95,13 +95,13 @@ public class DataImportJob extends DataImportJobBase
     }
     else if (perms.isRM())
     {
-      perms.enforceRM(org.getCode(), type.getCode());
+      perms.enforceRM(org.getCode(), type);
     }
     else
     {
       perms.enforceRM();
     }
-    
+
     ImportHistory history = (ImportHistory) this.createNewHistory();
 
     configuration.setHistoryId(history.getOid());
@@ -110,13 +110,13 @@ public class DataImportJob extends DataImportJobBase
     history.appLock();
     history.setConfigJson(configuration.toJSON().toString());
     history.setImportFileId(configuration.getVaultFileId());
-    
+
     if (configuration instanceof GeoObjectImportConfiguration)
     {
       history.setOrganization(org);
       history.setGeoObjectTypeCode(type.getCode());
     }
-    
+
     history.apply();
 
     JobHistoryRecord record = new JobHistoryRecord(this, history);
@@ -172,7 +172,7 @@ public class DataImportJob extends DataImportJobBase
   private void process(ExecutionContext executionContext, ImportHistory history, ImportStage stage, ImportConfiguration config) throws MalformedURLException, InvocationTargetException
   {
     validate(config);
-    
+
     // TODO : We should have a single transaction where we do all the history
     // configuration upfront, that way the job is either fully configured (and
     // resumable) or it isn't (no in-between)
@@ -181,11 +181,12 @@ public class DataImportJob extends DataImportJobBase
 
     if (stage.equals(ImportStage.VALIDATE))
     {
-      // We can't do this because it prevents people from resuming the job where it left off
-//      history.appLock();
-//      history.setWorkProgress(0L);
-//      history.setImportedRecords(0L);
-//      history.apply();
+      // We can't do this because it prevents people from resuming the job where
+      // it left off
+      // history.appLock();
+      // history.setWorkProgress(0L);
+      // history.setImportedRecords(0L);
+      // history.apply();
 
       ImportProgressListenerIF progressListener = runImport(history, stage, config);
 
@@ -200,7 +201,7 @@ public class DataImportJob extends DataImportJobBase
         history.addStage(ImportStage.VALIDATION_RESOLVE);
         history.setConfigJson(config.toJSON().toString());
         history.apply();
-        
+
         NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
       }
       else
@@ -212,7 +213,7 @@ public class DataImportJob extends DataImportJobBase
         history.setWorkProgress(0L);
         history.setImportedRecords(0L);
         history.apply();
-        
+
         NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
 
         this.process(executionContext, history, ImportStage.IMPORT, config);
@@ -222,11 +223,12 @@ public class DataImportJob extends DataImportJobBase
     {
       deleteValidationProblems(history);
 
-      // We can't do this because it prevents people from resuming the job where it left off
-//      history.appLock();
-//      history.setWorkProgress(0L);
-//      history.setImportedRecords(0L);
-//      history.apply();
+      // We can't do this because it prevents people from resuming the job where
+      // it left off
+      // history.appLock();
+      // history.setWorkProgress(0L);
+      // history.setImportedRecords(0L);
+      // history.apply();
 
       runImport(history, stage, config);
 
@@ -248,10 +250,12 @@ public class DataImportJob extends DataImportJobBase
         history.setConfigJson(config.toJSON().toString());
         history.apply();
       }
-      
+
       NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
     }
-    else if (stage.equals(ImportStage.RESUME_IMPORT)) // TODO : I'm not sure this code block is ever used
+    else if (stage.equals(ImportStage.RESUME_IMPORT)) // TODO : I'm not sure
+                                                      // this code block is ever
+                                                      // used
     {
       runImport(history, stage, config);
 
@@ -273,7 +277,7 @@ public class DataImportJob extends DataImportJobBase
         history.setConfigJson(config.toJSON().toString());
         history.apply();
       }
-      
+
       NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
     }
     else
@@ -297,7 +301,16 @@ public class DataImportJob extends DataImportJobBase
 
     if (history.getWorkProgress() > 0)
     {
-      formatImporter.setStartIndex(history.getWorkProgress() + 1); // We add one because the previous import failed at one row after where we were.
+      formatImporter.setStartIndex(history.getWorkProgress() + 1); // We add one
+                                                                   // because
+                                                                   // the
+                                                                   // previous
+                                                                   // import
+                                                                   // failed at
+                                                                   // one row
+                                                                   // after
+                                                                   // where we
+                                                                   // were.
     }
 
     formatImporter.run(stage);
@@ -350,10 +363,11 @@ public class DataImportJob extends DataImportJobBase
     ImportHistory hist = (ImportHistory) jhr.getChild();
 
     ImportStage stage = hist.getStage().get(0);
-    
+
     if (hist.getStatus().get(0).equals(AllJobStatus.RUNNING))
     {
-      // This code block happens when the server restarts after a job was running when it died.
+      // This code block happens when the server restarts after a job was
+      // running when it died.
       // Do nothing. Allow the job to resume as normal.
     }
     else
@@ -361,7 +375,7 @@ public class DataImportJob extends DataImportJobBase
       if (stage.equals(ImportStage.VALIDATION_RESOLVE))
       {
         DataImportJob.deleteValidationProblems(hist);
-  
+
         hist.appLock();
         hist.clearStage();
         hist.addStage(ImportStage.VALIDATE);
@@ -380,14 +394,14 @@ public class DataImportJob extends DataImportJobBase
       else
       {
         logger.error("Resuming job with unexpected initial stage [" + stage + "].");
-  
+
         hist.appLock();
         hist.clearStage();
         hist.addStage(ImportStage.VALIDATE);
         hist.apply();
       }
     }
-    
+
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
   }
 
@@ -401,7 +415,7 @@ public class DataImportJob extends DataImportJobBase
     history.setWorkProgress(0L);
     history.setImportedRecords(0L);
     history.apply();
-    
+
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.IMPORT_JOB_CHANGE, null));
 
     return history;

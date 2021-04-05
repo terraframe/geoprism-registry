@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.geoobject;
 
@@ -279,7 +279,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   public ServerGeoObjectIF getGeoObject(String uid, String typeCode)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-    
+
     this.permissionService.enforceCanRead(type.getOrganization().getCode(), type);
 
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
@@ -328,26 +328,25 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   {
     VertexServerGeoObject.removeAllEdges(hierarchyType, childType);
   }
-  
+
   @Request(RequestType.SESSION)
   public GeoObjectOverTime masterListEdit(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId, String notes)
   {
     return this.masterListEditTrans(sessionId, ptn, sGO, isNew, masterListId, notes);
   }
-  
+
   @Transaction
   public GeoObjectOverTime masterListEditTrans(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId, String notes)
   {
     GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
-    
+
     ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
 
     RolePermissionService perms = ServiceFactory.getRolePermissionService();
-    
+
     final String orgCode = serverGOT.getOrganization().getCode();
-    final String gotCode = serverGOT.getCode();
-    
-    if (perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, gotCode))
+
+    if (perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, serverGOT))
     {
       ServerGeoObjectService service = new ServerGeoObjectService();
 
@@ -376,7 +375,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
       return serverGO.toGeoObjectOverTime();
     }
-    else if (ServiceFactory.getRolePermissionService().isRC(orgCode, gotCode))
+    else if (ServiceFactory.getRolePermissionService().isRC(orgCode, serverGOT))
     {
       Instant base = Instant.now();
       int sequence = 0;
@@ -410,7 +409,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
         request.addAction(action).apply();
       }
 
-      if (sPtn != null && (isNew || this.hasChanged(timeGO, sPtn)))
+      if (sPtn != null && ( isNew || this.hasChanged(timeGO, sPtn) ))
       {
         SetParentAction action = new SetParentAction();
         action.addApprovalStatus(AllGovernanceStatus.PENDING);
@@ -432,7 +431,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     return null;
   }
-  
+
   private boolean hasChanged(GeoObjectOverTime timeGO, String sPtn)
   {
     ServerGeoObjectService service = new ServerGeoObjectService();
