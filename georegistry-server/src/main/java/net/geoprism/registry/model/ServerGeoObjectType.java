@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -253,7 +253,7 @@ public class ServerGeoObjectType
     if (hierarchies.size() > 0)
     {
       StringBuilder codes = hierarchies.stream().collect(StringBuilder::new, (x, y) -> x.append(y.getCode()), (a, b) -> a.append(",").append(b));
-      
+
       throw new TypeInUseException("Cannot delete a GeoObjectType used in the hierarchies: " + codes);
     }
 
@@ -302,7 +302,7 @@ public class ServerGeoObjectType
     AttributeHierarchy.deleteByUniversal(this.universal);
 
     this.getMetadata().delete();
-    
+
     // This deletes the {@link MdBusiness} as well
     this.universal.delete(false);
 
@@ -341,12 +341,13 @@ public class ServerGeoObjectType
         }
       }
     }
-    
+
     MasterList.markAllAsInvalid(null, this);
 
     new SearchService().clear(this.getCode());
-    
-    new ChangeRequestService().markAllAsInvalid(this);;
+
+    new ChangeRequestService().markAllAsInvalid(this);
+    ;
   }
 
   public void update(GeoObjectType geoObjectTypeNew)
@@ -359,12 +360,13 @@ public class ServerGeoObjectType
 
     // If this did not error out then add to the cache
     ServiceFactory.getMetadataCache().refreshGeoObjectType(geoObjectTypeModifiedApplied);
-    
-    // Modifications to supertypes can affect subtypes (i.e. changing isPrivate). We should refresh them as well.
+
+    // Modifications to supertypes can affect subtypes (i.e. changing
+    // isPrivate). We should refresh them as well.
     if (geoObjectTypeModifiedApplied.getIsAbstract())
     {
       List<ServerGeoObjectType> subtypes = geoObjectTypeModifiedApplied.getSubtypes();
-      
+
       for (ServerGeoObjectType subtype : subtypes)
       {
         ServerGeoObjectType refreshedSubtype = new ServerGeoObjectTypeConverter().build(subtype.getUniversal());
@@ -394,9 +396,9 @@ public class ServerGeoObjectType
     mdBusiness.getDisplayLabel().setValue(universal.getDisplayLabel().getValue());
     mdBusiness.getDescription().setValue(universal.getDescription().getValue());
     mdBusiness.apply();
-    
+
     GeoObjectTypeMetadata metadata = this.getMetadata();
-    if (! metadata.getIsPrivate().equals(geoObjectType.getIsPrivate()))
+    if (!metadata.getIsPrivate().equals(geoObjectType.getIsPrivate()))
     {
       metadata.appLock();
       metadata.setIsPrivate(geoObjectType.getIsPrivate());
@@ -409,7 +411,7 @@ public class ServerGeoObjectType
 
     return universal;
   }
-  
+
   public GeoObjectTypeMetadata getMetadata()
   {
     return GeoObjectTypeMetadata.getByKey(this.universal.getKey());
@@ -1052,6 +1054,11 @@ public class ServerGeoObjectType
 
   public static ServerGeoObjectType get(String code)
   {
+    return ServerGeoObjectType.get(code, false);
+  }
+
+  public static ServerGeoObjectType get(String code, boolean nullIfNotFound)
+  {
     if (code == null || code.equals(Universal.ROOT))
     {
       return RootGeoObjectType.INSTANCE;
@@ -1063,7 +1070,7 @@ public class ServerGeoObjectType
     {
       return geoObjectType.get();
     }
-    else
+    else if (!nullIfNotFound)
     {
       net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
       ex.setTypeLabel(GeoObjectTypeMetadata.sGetClassDisplayLabel());
@@ -1071,6 +1078,8 @@ public class ServerGeoObjectType
       ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
       throw ex;
     }
+
+    return null;
   }
 
   public static ServerGeoObjectType get(GeoObjectType geoObjectType)
@@ -1098,27 +1107,27 @@ public class ServerGeoObjectType
   {
     return this.type.getIsPrivate();
   }
-  
+
   public void setIsPrivate(Boolean isPrivate)
   {
     this.type.setIsPrivate(isPrivate);
   }
-  
+
   @Override
   public boolean equals(Object obj)
   {
     if (obj instanceof ServerGeoObjectType)
     {
-      return ((ServerGeoObjectType)obj).getCode().equals(this.getCode());
+      return ( (ServerGeoObjectType) obj ).getCode().equals(this.getCode());
     }
     else if (obj instanceof GeoObjectType)
     {
-      return ((GeoObjectType)obj).getCode().equals(this.getCode());
+      return ( (GeoObjectType) obj ).getCode().equals(this.getCode());
     }
-    
+
     return false;
   }
-  
+
   @Override
   public String toString()
   {

@@ -40,7 +40,12 @@ public class ChangeRequestPermissionService
 
     final String orgCode = cr.getOrganization();
     final String gotCode = cr.getGeoObjectType();
-    ServerGeoObjectType type = ServerGeoObjectType.get(gotCode);
+    ServerGeoObjectType type = null;
+
+    if (gotCode != null)
+    {
+      type = ServerGeoObjectType.get(gotCode, true);
+    }
 
     HashSet<ChangeRequestPermissionAction> actions = new HashSet<ChangeRequestPermissionAction>();
 
