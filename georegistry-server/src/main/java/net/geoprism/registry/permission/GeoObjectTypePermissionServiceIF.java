@@ -20,25 +20,27 @@ package net.geoprism.registry.permission;
 
 import com.runwaysdk.business.rbac.Operation;
 
+import net.geoprism.registry.model.ServerGeoObjectType;
+
 public interface GeoObjectTypePermissionServiceIF
 {
 
-  public boolean canRead(String orgCode, String gotCode, boolean isPrivate);
+  public boolean canRead(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public void enforceCanRead(String orgCode, String gotCode, boolean isPrivate, String gotLabel);
+  public void enforceCanRead(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public boolean canWrite(String orgCode, String gotCode, boolean isPrivate);
+  public boolean canWrite(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public void enforceCanWrite(String orgCode, String gotCode, boolean isPrivate, String gotLabel);
+  public void enforceCanWrite(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public boolean canCreate(String orgCode, String gotCode, boolean isPrivate);
+  public boolean canCreate(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public void enforceCanCreate(String orgCode, String gotCode, boolean isPrivate);
+  public void enforceCanCreate(String orgCode, boolean isPrivate);
 
-  public boolean canDelete(String orgCode, String gotCode, boolean isPrivate);
+  public boolean canDelete(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public void enforceCanDelete(String orgCode, String gotCode, boolean isPrivate, String gotLabel);
+  public void enforceCanDelete(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public void enforceActorHasPermission(String orgCode, String gotCode, boolean isPrivate, String gotLabel, Operation op);
+  public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, Operation op);
 
 }

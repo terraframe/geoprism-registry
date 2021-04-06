@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -168,17 +168,16 @@ public class HierarchyService
   public static void filterHierarchiesFromPermissions(ServerGeoObjectType type, ServerParentTreeNodeOverTime pot)
   {
     GeoObjectRelationshipPermissionServiceIF service = ServiceFactory.getGeoObjectRelationshipPermissionService();
-    
+
     Collection<ServerHierarchyType> hierarchies = pot.getHierarchies();
-    
+
     Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
 
     for (ServerHierarchyType hierarchy : hierarchies)
     {
       Organization organization = hierarchy.getOrganization();
-      
-      if ( (isCR && !service.canAddChildCR(organization.getCode(), null, type))
-           || (!isCR && !service.canAddChild(organization.getCode(), null, type)))
+
+      if ( ( isCR && !service.canAddChildCR(organization.getCode(), null, type) ) || ( !isCR && !service.canAddChild(organization.getCode(), null, type) ))
       {
         pot.remove(hierarchy);
       }
@@ -220,8 +219,9 @@ public class HierarchyService
         }
       }
     }
-    
-    // It's important that we don't modify the metadata cache when we filter things out
+
+    // It's important that we don't modify the metadata cache when we filter
+    // things out
     List<HierarchyType> filteredHierarchyTypes = new LinkedList<HierarchyType>();
     for (HierarchyType cacheType : cachedHierarchyTypes)
     {
@@ -241,16 +241,16 @@ public class HierarchyService
         it.remove();
         continue;
       }
-      
+
       List<HierarchyNode> rootTypes = ht.getRootGeoObjectTypes();
-      
+
       Iterator<HierarchyNode> rootIt = rootTypes.iterator();
-      
+
       boolean removed = false;
       while (rootIt.hasNext())
       {
         HierarchyNode hn = rootIt.next();
-        
+
         if (isRootPrivate(hn, typePermServ))
         {
           removed = true;
@@ -261,7 +261,7 @@ public class HierarchyService
           this.filterOutPrivateNodes(hn);
         }
       }
-      
+
       if (removed && rootTypes.size() == 0)
       {
         it.remove();
@@ -272,14 +272,14 @@ public class HierarchyService
 
     return hierarchies;
   }
-  
+
   private boolean isRootPrivate(HierarchyNode parent, GeoObjectTypePermissionServiceIF typePermServ)
   {
     if (parent.getInheritedHierarchyCode() == null || parent.getInheritedHierarchyCode() == "")
     {
       GeoObjectType rootGot = parent.getGeoObjectType();
-      
-      if (!typePermServ.canRead(rootGot.getOrganizationCode(), rootGot.getCode(), rootGot.getIsPrivate()))
+
+      if (!typePermServ.canRead(rootGot.getOrganizationCode(), ServerGeoObjectType.get(rootGot), rootGot.getIsPrivate()))
       {
         return true;
       }
@@ -297,24 +297,24 @@ public class HierarchyService
           return true;
         }
       }
-      
+
       return false;
     }
   }
-  
+
   private void filterOutPrivateNodes(HierarchyNode parent)
   {
     final GeoObjectTypePermissionServiceIF typePermServ = ServiceFactory.getGeoObjectTypePermissionService();
     List<HierarchyNode> list = parent.getChildren();
-    
+
     Iterator<HierarchyNode> it = list.iterator();
     while (it.hasNext())
     {
       HierarchyNode child = it.next();
-      
+
       GeoObjectType got = child.getGeoObjectType();
-      
-      if (!typePermServ.canRead(got.getOrganizationCode(), got.getCode(), got.getIsPrivate()))
+
+      if (!typePermServ.canRead(got.getOrganizationCode(), ServerGeoObjectType.get(got), got.getIsPrivate()))
       {
         it.remove();
       }
@@ -400,7 +400,7 @@ public class HierarchyService
     ServerGeoObjectType childType = ServerGeoObjectType.get(childGeoObjectTypeCode);
 
     ServiceFactory.getGeoObjectTypeRelationshipPermissionService().enforceCanAddChild(type, parentType, childType);
-    
+
     if (parentType.getIsPrivate() && !childType.getIsPrivate())
     {
       AssignPublicChildOfPrivateType ex = new AssignPublicChildOfPrivateType();

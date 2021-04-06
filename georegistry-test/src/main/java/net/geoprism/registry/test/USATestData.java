@@ -104,13 +104,13 @@ public class USATestData extends TestDataSet
 
   public static final TestGeoObjectInfo     MEXICO           = new TestGeoObjectInfo(TEST_DATA_KEY + "Mexico", COUNTRY);
 
-  public static final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(TEST_DATA_KEY + "Mexico City One", MEXICO_CITY_GOT);
+  public static final TestGeoObjectInfo     MEXICO_CITY_ONE  = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoCityOne", MEXICO_CITY_GOT);
 
-  public static final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(TEST_DATA_KEY + "Mexico City Two", MEXICO_CITY_GOT);
+  public static final TestGeoObjectInfo     MEXICO_CITY_TWO  = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoCityTwo", MEXICO_CITY_GOT);
 
-  public static final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(TEST_DATA_KEY + "Mexico State One", MEXICO_STATE);
+  public static final TestGeoObjectInfo     MEXICO_STATE_ONE = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoStateOne", MEXICO_STATE);
 
-  public static final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(TEST_DATA_KEY + "Mexico State Two", MEXICO_STATE);
+  public static final TestGeoObjectInfo     MEXICO_STATE_TWO = new TestGeoObjectInfo(TEST_DATA_KEY + "MexicoStateTwo", MEXICO_STATE);
 
   {
     managedOrganizationInfos.add(ORG_NPS);
