@@ -157,7 +157,7 @@
                     <div class="col-md-4" >
                       <div *ngIf="req.permissions.includes('READ_CONTRIBUTOR_NOTES')" class="form-group">
                         <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
-                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" [disabled]="!req.permissions.includes('WRITE_CONTRIBUTOR_NOTES')"></textarea>
+                        <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="action.contributorNotes" disabled></textarea>
                       </div>  
                       
                       <button type="submit" (click)="showActionDetail(action, req)" class="btn btn-default pull-right" style="margin:0;" role="button" [disabled]="!req.permissions.includes('READ_DETAILS')" [title]="'change.request.details.btn.hover' | localize">
