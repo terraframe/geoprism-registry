@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -345,7 +345,7 @@ public class GeoObjectImporter implements ObjectImporterIF
               {
                 Object value = function.getValue(row);
 
-                if (value != null)
+                if (value != null && !this.isEmptyString(value))
                 {
                   AttributeType attributeType = entry.getValue();
 
@@ -401,6 +401,16 @@ public class GeoObjectImporter implements ObjectImporterIF
     {
       e.printStackTrace();
     }
+  }
+
+  private boolean isEmptyString(Object value)
+  {
+    if (value instanceof String)
+    {
+      return ( (String) value ).trim().length() == 0;
+    }
+
+    return false;
   }
 
   /**
@@ -577,7 +587,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
               AttributeType attributeType = entry.getValue();
 
-              if (value != null)
+              if (value != null && !this.isEmptyString(value))
               {
                 this.setValue(serverGo, attributeType, attributeName, value);
               }
