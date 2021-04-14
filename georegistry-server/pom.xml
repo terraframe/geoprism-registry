@@ -264,7 +264,7 @@
 						<executions>
 							<execution>
 								<id>database</id>
-								<phase>install</phase>
+								<phase>validate</phase>
 								<goals>
 									<goal>java</goal>
 								</goals>
