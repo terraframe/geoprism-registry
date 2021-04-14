@@ -2,8 +2,8 @@
 
 # Run this with sudo
 
-export POSTGRES_CONTAINER_NAME=postgres
-export POSTGRES_PORT=5442
+export POSTGRES_CONTAINER_NAME=cgr-postgres
+export POSTGRES_PORT=5443
 export POSTGRES_ROOT_PASS=postgres
 
 # Exit immediately if anything errors out
