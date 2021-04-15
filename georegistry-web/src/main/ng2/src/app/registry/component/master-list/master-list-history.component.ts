@@ -39,10 +39,6 @@ export class MasterListHistoryComponent implements OnInit {
 		});
 	}
 
-	setForDateValidity(event){
-		this.isForDateValid = event;
-	}
-
 	onPublish(): void {
 		this.message = null;
 

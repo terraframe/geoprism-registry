@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Output, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { 
+	Component, 
+	OnInit, 
+	Input, 
+	Output, 
+	ChangeDetectorRef, 
+	EventEmitter, 
+	ViewChildren, 
+	QueryList } from '@angular/core';
 import {
 	trigger,
 	style,
@@ -7,6 +15,8 @@ import {
 } from '@angular/animations';
 
 import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, PRESENT } from '@registry/model/registry';
+
+import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
 import { LocalizationService } from '@shared/service';
 
@@ -27,7 +37,7 @@ import * as moment from 'moment';
 					style({
 						opacity: 0
 					}),
-					animate('1000ms')
+					animate('500ms')
 				]),
 				transition(':leave',
 					animate('500ms', 
@@ -41,7 +51,11 @@ import * as moment from 'moment';
 })
 export class GeometryPanelComponent implements OnInit {
 	
+	@ViewChildren('dateFieldComponents') dateFieldComponentsArray:QueryList<DateFieldComponent>;
+	
 	currentDate : Date = new Date();
+	
+	isValid: boolean = true;
 	
 	isVersionForHighlight: number;
 	
@@ -81,8 +95,23 @@ export class GeometryPanelComponent implements OnInit {
 	ngOnInit(): void {
 	}
 
+	checkDateFieldValidity(): boolean {
+		let dateFields = this.dateFieldComponentsArray.toArray();
+		
+		for(let i=0; i<dateFields.length; i++){
+			let field = dateFields[i];
+			if(!field.valid){
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	onDateChange(): any {
 		this.hasConflict = false;
+		
+		this.isValid = this.checkDateFieldValidity();
 	
 		let vAttributes = this.geoObjectOverTime.attributes['geometry'].values;
 
@@ -90,7 +119,6 @@ export class GeometryPanelComponent implements OnInit {
 		// check ranges
 		for (let j = 0; j < vAttributes.length; j++) {
 			const h1 = vAttributes[j];
-			h1.conflict = false;
 			h1.conflictMessage = [];
 
 			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
@@ -99,8 +127,14 @@ export class GeometryPanelComponent implements OnInit {
 				
 				if (Utils.dateEndBeforeStart(s1, e1)) {
 					h1.conflict = true;		
-					h1.conflictMessage.push(this.lService.decode("manage.versions.startdate.later.enddate.message")); 
+					h1.conflictMessage.push({
+						"type": "ERROR",	
+						"message": this.lService.decode("manage.versions.startdate.later.enddate.message")
+					});
+					
 					this.hasConflict = true;
+					
+					this.isValid = false;
 				}
 
 				for (let i = 0; i < vAttributes.length; i++) {
@@ -113,10 +147,14 @@ export class GeometryPanelComponent implements OnInit {
 
 							// Determine if there is an overlap
 							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-								h1.conflict = true
-								h1.conflictMessage.push(this.lService.decode("manage.versions.overlap.message"));
-
+								h1.conflictMessage.push({
+									"type": "ERROR",	
+									"message":this.lService.decode("manage.versions.overlap.message")
+								});
+								
 								this.hasConflict = true;
+								
+								this.isValid = false;
 							}
 							
 						}

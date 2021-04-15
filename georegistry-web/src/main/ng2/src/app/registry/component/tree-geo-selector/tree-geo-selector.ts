@@ -61,8 +61,6 @@ export class TreeGeoSelector {
 		let nodes = [];
 		let current = null;
 		
-		console.log(this.hierarchy);
-
 		this.hierarchy.entries.forEach(pot => {
 			const startDate = Date.parse(pot.startDate);
 			const endDate = Date.parse(pot.endDate);

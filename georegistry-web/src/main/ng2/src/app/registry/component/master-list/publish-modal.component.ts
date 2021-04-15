@@ -48,7 +48,7 @@ export class PublishModalComponent implements OnInit {
 
 		this.onMasterListChange = new Subject();
 
-		if (this.master == null || !this.readonly) {
+		if (!this.master || !this.readonly) {
 			this.iService.listGeoObjectTypes(true).then(types => {
 
 				var myOrgTypes = [];

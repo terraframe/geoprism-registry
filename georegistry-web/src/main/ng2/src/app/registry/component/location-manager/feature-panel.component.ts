@@ -198,8 +198,6 @@ export class FeaturePanelComponent implements OnInit {
 
 	onAttributeChange(postGeoObject: GeoObjectOverTime): void {
 		
-		console.log("feature-panel", postGeoObject)
-		
 		this.postGeoObject = postGeoObject;
 
 		this.mode = this.MODE.ATTRIBUTES;

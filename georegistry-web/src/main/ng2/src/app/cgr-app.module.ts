@@ -12,6 +12,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { TabsModule } from 'ngx-bootstrap/tabs';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { CgrAppComponent } from './cgr-app.component';
@@ -53,6 +54,7 @@ import './rxjs-extensions';
         NgxPaginationModule,
         BrowserAnimationsModule,
         SharedModule.forRoot(),
+		BsDatepickerModule.forRoot(),
     ],
     declarations: [
         CgrAppComponent,

@@ -27,7 +27,7 @@
                         <tbody class="attribute-element-wrapper" *ngIf="attribute.type === 'local'" >
                           <p class="message" *ngIf="geoObjectOverTime.attributes[attribute.code].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
                           
-                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" [ngClass]="{'error-border': vAttribute.conflict}">
+                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" [ngClass]="{'error-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'ERROR', 'warning-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'WARNING'}">
                             <td>
                               <table>
                                 <tr class="attribute-value-row" *ngFor="let loc of vAttribute.value.localeValues; let idx = index;">
@@ -48,43 +48,25 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                     </h5>
+                                
+                                    <date-field #dateFieldComponents [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true"  ></date-field>
                                     
-                                    <date-field [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" [allowFutureDates]="false" [required]="true" ></date-field>
-                                    
-                                    <div style="width:100%;" class="form-input-validation-error-message-wrapper">
-                                      <p *ngIf="!vAttribute.startDate" class="error-message">
-                                        <localize key="manage.versions.start.date.required.message"></localize>
-                                      </p>
-                                    </div>
                                   </td>
                                   <td>
                                     <div class="version-edit-date-container">
                                       <h5>
                                         <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                       </h5>
-                                      
-                                      <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange()" required>
-                                      <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                                    
-                                      <p class="text-right">
-                                        <a *ngIf="vAttribute.endDate === '5000-12-31'" (click)="setInfinity(vAttribute, geoObjectOverTime.attributes[attribute.code].values)"><localize key="manage.versions.enddate.set.date.button"></localize></a>
-                                        <a *ngIf="vAttribute.endDate !== '5000-12-31'" (click)="setInfinity(vAttribute, geoObjectOverTime.attributes[attribute.code].values)"><localize key="manage.versions.enddate.set.current.button"></localize></a>
-                                      </p>
-                                      
-                                      <div class="form-input-validation-error-message-wrapper">
-                                        <p *ngIf="!vAttribute.endDate" class="error-message">
-                                          <localize key="manage.versions.end.date.required.message"></localize>
-                                        </p>
-                                      </div>
+                                  
+                                      <date-field #dateFieldComponents [(value)]="vAttribute.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                          [required]="true" [placement]="'bottom'" ></date-field>
+                        
                                     </div>
                                   </td>
                                 </tr>
-                                <tr *ngIf="vAttribute.conflict">
-<!--                                   <p class="error-message"> -->
-<!--                                     <localize key="manage.versions.overlap.message"></localize> -->
-<!--                                   </p> -->
-                                  <p *ngFor="let msg of vAttribute.conflictMessage" class="error-message">
-                                    {{msg}}
+                                <tr *ngIf="vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0">
+                                  <p *ngFor="let msg of vAttribute.conflictMessage" [ngClass]="{'error-message': msg.type === 'ERROR', 'warning-message': msg.type === 'WARNING'}" >
+                                    {{msg.message}}
                                   </p>
                                 </tr>
                               </table>
@@ -100,7 +82,7 @@
                         <tbody class="attribute-element-wrapper" *ngIf="attribute.type !== 'local'">
                           <p class="message" *ngIf="geoObjectOverTime.attributes[attribute.code].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
 
-                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" [ngClass]="{'error-border': vAttribute.conflict}">
+                          <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;" [ngClass]="{'error-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'ERROR', 'warning-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'WARNING'}">
                             <td>
                               <table>
                                 <tr class="attribute-value-row">
@@ -116,7 +98,8 @@
                                     </div>
                                     
                                     <div *ngIf="attribute.type === 'date'">
-                                      <input type="date" class="form-control" [name]="'date-val-' + i" [ngModel]="vAttribute.value | date:'yyyy-MM-dd'" (ngModelChange)="setDateAttribute(vAttribute, $event)" required>
+                                      <date-field [(value)]="vAttribute.value" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
+                                          [required]="true" [placement]="'right'" [(valid)]="isValid" ></date-field>
                                     </div>
                                     
                                     <div *ngIf="attribute.type === 'integer' || attribute.type === 'float'">
@@ -140,9 +123,8 @@
                                     <h5>
                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                     </h5>
-<!--                                     <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" max="{{currentDate|date:'yyyy-MM-dd'}}" required> -->
-                                    
-                                    <date-field [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" [allowFutureDates]="false" [required]="true" ></date-field>
+                            
+                                    <date-field #dateFieldComponents [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true"  ></date-field>
                                   </td>
                                   <td>
                                     <div class="version-edit-date-container">
@@ -150,28 +132,15 @@
                                         <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                       </h5>
                                       
-                                      <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange()" required>
-                                      <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                                    
-                                      <p class="text-right">
-                                        <a *ngIf="vAttribute.endDate === '5000-12-31'" (click)="setInfinity(vAttribute, geoObjectOverTime.attributes[attribute.code].values)"><localize key="manage.versions.enddate.set.date.button"></localize></a>
-                                        <a *ngIf="vAttribute.endDate !== '5000-12-31'" (click)="setInfinity(vAttribute, geoObjectOverTime.attributes[attribute.code].values)"><localize key="manage.versions.enddate.set.current.button"></localize></a>
-                                      </p>
-                                      
-                                      <div class="form-input-validation-error-message-wrapper">
-                                        <p *ngIf="!vAttribute.endDate" class="error-message">
-                                          <localize key="manage.versions.end.date.required.message"></localize>
-                                        </p>
-                                      </div>
+                                      <date-field #dateFieldComponents [(value)]="vAttribute.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                          [required]="true" [placement]="'bottom'" ></date-field>
+                        
                                     </div>
                                   </td>
                                 </tr>
-                                <tr *ngIf="vAttribute.conflictMessage">
-<!--                                   <p class="error-message"> -->
-<!--                                     <localize key="manage.versions.overlap.message"></localize> -->
-<!--                                   </p> -->
-                                  <p *ngFor="let msg of vAttribute.conflictMessage" class="error-message">
-                                    {{msg}}
+                                <tr *ngIf="vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0">
+                                  <p *ngFor="let msg of vAttribute.conflictMessage" [ngClass]="{'error-message': msg.type === 'ERROR', 'warning-message': msg.type === 'WARNING'}">
+                                    {{msg.message}}
                                   </p>
                                 </tr>                                
                               </table>
@@ -207,18 +176,14 @@
                                   [bboxCode]="this.geoObjectOverTime.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="vAttribute.startDate">
                               </geoobject-editor-map>
                             </td>
-                            <td style="vertical-align: middle;"><input type="date" name="startDate-{{i}}" [(ngModel)]="vAttribute.startDate" (blur)="onDateChange()" [disabled]="readonly" required></td>
+                            <td style="vertical-align: middle;">
+                              <date-field #dateFieldComponents [(value)]="vAttribute.startDate" label="" [inputName]="'startDate-' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                            </td>
                             <td style="vertical-align: middle;">
 
-                              <p *ngIf="vAttribute.endDate === '5000-12-31'" style="font-size: 14px;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                              <input *ngIf="vAttribute.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="vAttribute.endDate" (blur)="onDateChange()" [disabled]="readonly" required>
-
-                              <div style="width:100%;" class="form-input-validation-error-message-wrapper">
-                                <p *ngIf="!vAttribute.endDate" class="error-message">
-                                  <localize key="manage.versions.end.date.required.message"></localize>
-                                </p>
-                              </div>
-
+                              <date-field #dateFieldComponents [(value)]="vAttribute.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                  [required]="true" [disable]="readonly" [placement]="'bottom'" ></date-field>
+                        
                             </td>
                             <td style="vertical-align: middle;"><i class="fa fa-times delete-btn" [ngClass]="{'clickable' : !readonly, 'disabled' : readonly}" (click)="!readonly && remove(vAttribute)"></i></td>
                           </tr>
@@ -248,7 +213,7 @@
             <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
               <localize key="modal.button.close"></localize>
             </button>
-            <button *ngIf="!readonly" type="button" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!versionsform.valid || hasConflict">
+            <button *ngIf="!readonly" type="button" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!isValid || !versionsform.valid || hasConflict">
               <localize key="modal.button.submit"></localize>
             </button>
           </div>

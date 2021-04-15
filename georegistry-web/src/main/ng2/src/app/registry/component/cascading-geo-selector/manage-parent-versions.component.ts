@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { 
+	Component, 
+	OnInit, 
+	Input, 
+	Output, 
+	EventEmitter, 
+	ViewChildren, 
+	QueryList } from '@angular/core';
+
 import {
 	trigger,
 	style,
@@ -10,6 +18,8 @@ import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
 import { HierarchyOverTime, PRESENT, ValueOverTime } from '@registry/model/registry';
+
+import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
 import { RegistryService } from '@registry/service';
 import { LocalizationService } from '@shared/service';
@@ -43,7 +53,11 @@ import Utils from '@registry/utility/Utils';
 })
 export class ManageParentVersionsComponent implements OnInit {
 	
+	@ViewChildren('dateFieldComponents') dateFieldComponentsArray:QueryList<DateFieldComponent>;
+	
 	currentDate : Date =new Date();
+	
+	isValid: boolean = true;
 
 	originalHierarchy: HierarchyOverTime;
 	@Input() hierarchy: HierarchyOverTime = null;
@@ -163,8 +177,8 @@ export class ManageParentVersionsComponent implements OnInit {
 	typeaheadOnSelect(e: TypeaheadMatch, type: any, entry: any, date: string): void {
 		//        let ptn: ParentTreeNode = parent.ptn;
 
-    entry.parents[type.code].text = e.item.name + " : " + e.item.code;
-    entry.parents[type.code].goCode = e.item.code;
+    	entry.parents[type.code].text = e.item.name + " : " + e.item.code;
+   		entry.parents[type.code].goCode = e.item.code;
 
 		let parentTypes = [];
 
@@ -180,7 +194,7 @@ export class ManageParentVersionsComponent implements OnInit {
 
 		this.service.getParentGeoObjects(e.item.uid, type.code, parentTypes, true, date).then(ancestors => {
 
-      delete entry.parents[type.code].goCode;
+      	delete entry.parents[type.code].goCode;
 			entry.parents[type.code].geoObject = ancestors.geoObject;
 			entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue + ' : ' + ancestors.geoObject.properties.code;
 
@@ -211,13 +225,27 @@ export class ManageParentVersionsComponent implements OnInit {
 		delete entry.parents[type.code].geoObject;
 		delete entry.parents[type.code].goCode;
 	}
+	
+	checkDateFieldValidity(): boolean {
+		let dateFields = this.dateFieldComponentsArray.toArray();
+		
+		for(let i=0; i<dateFields.length; i++){
+			let field = dateFields[i];
+			if(!field.valid){
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 	onDateChange(): any {
+		
+		this.isValid = this.checkDateFieldValidity();
 
 		// check ranges
 		for (let j = 0; j < this.hierarchy.entries.length; j++) {
 			const h1 = this.hierarchy.entries[j];
-			h1.conflict = false;
 			h1.conflictMessage = [];
 
 			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
@@ -225,8 +253,12 @@ export class ManageParentVersionsComponent implements OnInit {
 				let e1: any = new Date(h1.endDate);
 				
 				if (Utils.dateEndBeforeStart(s1, e1)) {
-					h1.conflict = true;		
-					h1.conflictMessage.push(this.localizeService.decode("manage.versions.startdate.later.enddate.message")); 
+					h1.conflictMessage.push({
+						"type": "ERROR",	
+						"message": this.localizeService.decode("manage.versions.startdate.later.enddate.message")
+					});
+
+					this.isValid = false;
 				}
 
 				for (let i = 0; i < this.hierarchy.entries.length; i++) {
@@ -239,8 +271,12 @@ export class ManageParentVersionsComponent implements OnInit {
 
 							// Determine if there is an overlap
 							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-								h1.conflict = true;
-								h1.conflictMessage.push(this.localizeService.decode("manage.versions.overlap.message"));
+								h1.conflictMessage.push({
+									"type": "ERROR",	
+									"message":this.localizeService.decode("manage.versions.overlap.message")
+								});
+								
+								this.isValid = false;
 							}
 						}
 					}
@@ -264,8 +300,15 @@ export class ManageParentVersionsComponent implements OnInit {
 						let s2: any = new Date(next.startDate);
 
 						if (Utils.hasGap(e1.getTime(), s2.getTime())) {
-							next.conflict = true
-							next.conflictMessage.push(this.localizeService.decode("manage.versions.gap.message"));
+							next.conflictMessage.push({
+								"type": "WARNING",	
+								"message":this.localizeService.decode("manage.versions.gap.message")
+							});
+							
+							current.conflictMessage.push({
+								"type": "WARNING",	
+								"message":this.localizeService.decode("manage.versions.gap.message")
+							});
 						}
 					}
 				}

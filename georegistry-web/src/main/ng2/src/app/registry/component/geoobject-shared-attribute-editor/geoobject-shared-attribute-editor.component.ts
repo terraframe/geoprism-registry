@@ -153,8 +153,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	ngOnChanges(changes: SimpleChanges) {
 		
-		console.log("ng changes: ")
-		
 		if (changes['preGeoObject']) {
 
 			this.preGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.preGeoObject)).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
@@ -276,7 +274,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 				ignoreBackdropClick: true,
 			});
 
-			// TODO: sending the properties like this is wrong
+			
 			this.bsModalRef.content.geoObjectOverTime = this.postGeoObject;
 			this.bsModalRef.content.geoObjectType = this.geoObjectType;
 			this.bsModalRef.content.isNewGeoObject = this.isNew;

@@ -348,8 +348,8 @@ export class HierarchyOverTime {
 		endDate: string;
 		parents: { [k: string]: { text: string; geoObject: GeoObject } };
 		loading?: any;
-		conflict?: boolean;
-		conflictMessage?: string[];
+		conflictType?: string;
+		conflictMessage?: any[];
 	}[];
 }
 

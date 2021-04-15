@@ -1,93 +1,152 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import { LocalizationService} from '@shared/service';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { LocalizationService } from '@shared/service';
 
-import * as moment from 'moment';
+import { PRESENT } from '@registry/model/registry';
 
-declare var acp:string;
+declare var acp: string;
 
-@Component({    
-  selector: 'date-field',
-  templateUrl: './date-field.component.html',
-  styleUrls: ['./date-field.css']
+@Component({
+	selector: 'date-field',
+	templateUrl: './date-field.component.html',
+	styleUrls: ['./date-field.css']
 })
 export class DateFieldComponent {
-	
-  @Input() allowFutureDates:boolean = true;
- 
-  @Input() inputName:string = this.idGenerator();
 
-  @Input() classNames:string[] = [];
+	@Input() allowFutureDates: boolean = true;
+	@Input() allowInfinity: boolean = false;
+	@Input() inputName: string = this.idGenerator();
+	@Input() classNames: string[] = [];
+	@Input() localizeLabelKey: string = ""; // localization key used to localize in the component template
+	@Input() label: string = ""; // raw string input
+	@Input() disable: boolean = false;
+	@Input() required: boolean = false;
+	@Input() placement: string = "bottom";
 
-  @Input() value:Date;
-  @Output() public valueChange = new EventEmitter<string>();
-
-  @Input() localizeLabelKey:string = ""; // localization key used to localize in the component template
-  @Input() label:string = ""; // raw string input
-
-  @Input() disable:boolean = false;
-
-  @Input() required:boolean = false;
-
-  /* You can pass a function in with (change)='function()' */
-  @Output() public change = new EventEmitter<any>();
-
-  today: Date = new Date();
-
-  message:string;
-
-  valid:boolean = true;
-  @Output() public isValid = new EventEmitter<boolean>();
-
-  constructor(private localizationService: LocalizationService){}
-
-  idGenerator() {
-    var S4 = function() {
-       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-    };
-    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-  }
-
-  toggle(event: any):void {
-	this.value = new Date(event.target.value);
-	
-	this.valid = true;
-	this.message = "";
-
-	if(!this.allowFutureDates && this.value > this.today) {
-	    this.valid = false;
-		this.message = this.localizationService.decode("date.inpu.data.in.future.error.message");
+	_value:Date
+	@Input() set value(value) {
 		
-		event.target.value = this.today.toISOString().substr(0, 10);
+		// value can be null when the user manually clears the input
+		this.setValue(value ? new Date(value) : null);
+		
+		if (value === PRESENT) {
+			this.valueIsPresent = true;
+		}
 	}
-	else if( !(this.value instanceof Date) ) {
-		this.valid = false;
+	@Output() public valueChange = new EventEmitter<string>();
+
+	/* You can pass a function in with (change)='function()' */
+	@Output() public change = new EventEmitter<any>();
+
+	today: Date = new Date();
+	message: string;
+	isMarkedInvalid: boolean = false;
+	returnFocusToInput: boolean = false;
+	valueIsPresent: boolean = false;
+
+	valid: boolean = true;
+	@Output() public validChange = new EventEmitter<boolean>();
+
+	constructor(private localizationService: LocalizationService) { }
+
+	private setValue(value:Date):void {
+		this._value = value;
 		
-		this.message = "Invalid date"
-		
-		event.target.value = this.today.toISOString().substr(0, 10);
-	}
-	else if( isNaN(Number(this.value)) ) {
-		this.valid = false;
-		
-		this.message = "Not a valid number"
-		
-		event.target.value = this.today.toISOString().substr(0, 10);
+		if(value){
+			this.toggle(value);
+		}
 	}
 	
+	public getValue():Date {
+		return this._value;
+	}
+	
+	idGenerator() {
+		var S4 = function() {
+			return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+		};
+		return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+	}
+	
+	isEqual(date1:Date, date2:Date):boolean {
+		return ( date1.getTime() === date2.getTime() )
+	}
 
-	if(this.valid){
-		// Must adhere to the ISO 8601 format
-		let formattedDate = moment(this.value, "YYYY-MM-DD").toISOString().split('T')[0];
-	
-		this.valueChange.emit(formattedDate);
-    	this.change.emit(formattedDate);
+	setInfinity(date: Date): void {
+
+		if(date && this.isEqual(date, new Date(PRESENT))) {
+			this.setValue(new Date());
+			this.valueIsPresent = false;
+		}
+		else {
+			this.setValue(new Date(PRESENT));
+			this.valueIsPresent = true;
+		}
+		
+		this.change.emit();
 	}
-	else{
-		this.valueChange.emit(this.today.toISOString().substr(0, 10));
-    	this.change.emit(this.today.toISOString().substr(0, 10));
+
+	valChange(event: Date): void {
+		console.log(event)
 	}
 	
-	this.isValid.emit(this.valid);
+	toggle(event: Date): void {
+
+		setTimeout(() => {
+			
+			let newValue:Date;
+			
+			// event can be null if manually clearing the input
+			if(event){
+			
+				newValue = new Date(event);
 	
-  }
+				this.valid = true;
+				this.message = "";
+	
+				if (!this.allowFutureDates && newValue > this.today) {
+					this.valid = false;
+					this.message = this.localizationService.decode("date.inpu.data.in.future.error.message");
+				}
+				else if (!(newValue instanceof Date)) {
+					this.valid = false;
+					this.message = this.localizationService.decode("date.inpu.data.invalid.error.message");
+				}
+				else if (newValue instanceof Date && isNaN(newValue.getTime())){
+					this.valid = false;
+					this.message = this.localizationService.decode("date.inpu.data.invalid.error.message");
+				}
+			}
+			else{
+				// date required
+				this.valid = false;
+				this.message = this.localizationService.decode("manage.versions.date.required.message");
+			}
+
+
+			if (this.valid && this.getValue()) {
+				
+				// Must adhere to the ISO 8601 format
+				let formattedDate = newValue.toISOString().substr(0, 10);
+
+				if (formattedDate === PRESENT) {
+					this.valueIsPresent = true;
+				}
+				else {
+					this.valueIsPresent = false;
+				}
+
+				this.valueChange.emit(formattedDate);
+			}
+			else {
+				// hack to avoid ngx-datepicker from putting "invalid date" in the input
+				this.setValue(null);
+				
+				this.valueChange.emit(null);
+			}
+			
+			this.change.emit();
+//			this.validChange.emit(this.valid);
+
+		}, 0)
+	}
 }

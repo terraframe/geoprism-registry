@@ -3,6 +3,8 @@ import { LocalizedValue } from '@shared/model/core';
 
 import { PRESENT } from '@registry/model/registry';
 
+import * as moment from 'moment';
+
 declare var Globalize: any;
 declare var com: any
 declare var registry: any
@@ -87,7 +89,8 @@ export class LocalizationService {
 			return this.localize("changeovertime", "present");
 		}
 		
-		return new Date(date).toLocaleDateString(window.navigator.language);
+		return moment(date, "YYYY-MM-DD").toISOString().split('T')[0]
+//		return new Date(date).toLocaleDateString(window.navigator.language);
 	}
 
 	public localize(bundle: string, key: string): string {

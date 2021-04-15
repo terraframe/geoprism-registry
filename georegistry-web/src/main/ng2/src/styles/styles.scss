@@ -1,6 +1,7 @@
 @import '~@circlon/angular-tree-component/css/angular-tree-component.css';
 @import '~mapbox-gl/dist/mapbox-gl.css';
 @import '~@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+@import '~ngx-bootstrap/datepicker/bs-datepicker.css';
 
 @import 'modal.scss';
 @import 'form.scss';
@@ -593,7 +594,9 @@ div.row-holder .rad-area {
 	transition: transform .3s ease, -webkit-transform .3s ease; */
 }
 
-.radio.disabled {
+.radio.disabled,
+.radio-group.input-group-read-only,
+.radio-group.input-group-read-only label {
 	cursor: not-allowed;
 }
 .radio.disabled input:checked + span:before {
@@ -603,6 +606,9 @@ div.row-holder .rad-area {
 
 .radio input[type="radio"]:disabled + span {
   color: lightgrey;
+}
+.radio input[type="radio"]:disabled + span:hover {
+	cursor: not-allowed;
 }
 
 .inline-radio-input {

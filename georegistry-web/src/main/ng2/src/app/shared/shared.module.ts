@@ -13,6 +13,7 @@ import { FileUploadModule } from 'ng2-file-upload';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ProgressbarModule } from 'ngx-bootstrap/progressbar';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 import { ErrorModalComponent } from './component/modals/error-modal.component';
 import { SuccessModalComponent } from './component/modals/success-modal.component';
@@ -67,7 +68,8 @@ import '../rxjs-extensions';
 		TypeaheadModule,
 		ProgressbarModule,
 		CollapseModule,
-		NgxPaginationModule
+		NgxPaginationModule,
+		BsDatepickerModule.forRoot()
 	],
 	declarations: [
 		LocalizeComponent,
