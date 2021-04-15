@@ -1,0 +1,55 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="date.inpu.data.in.future.error.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="date.inpu.data.in.future.error.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Dates can not be set in the future" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="date.inpu.data.invalid.error.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="date.inpu.data.invalid.error.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Invalid date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.name">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.name" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Organization Name" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.contact">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.contact" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Contact Information" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.date.required.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="manage.versions.date.required.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Date is required" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+  	</createOrUpdate>
+    <create></create>
+    
+     <update>
+    </update>
+    
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
