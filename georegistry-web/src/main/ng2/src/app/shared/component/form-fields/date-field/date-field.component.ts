@@ -149,7 +149,7 @@ export class DateFieldComponent {
 			}
 			
 			this.change.emit();
-//			this.validChange.emit(this.valid);
+			this.validChange.emit(this.valid);
 
 		}, 0)
 	}
