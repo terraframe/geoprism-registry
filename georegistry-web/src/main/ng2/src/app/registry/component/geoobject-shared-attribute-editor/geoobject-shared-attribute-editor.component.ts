@@ -170,6 +170,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			this.calculate();
 		}
 	}
+	
+	setBoolean(attribute, value): void {
+		attribute.value = value
+	}
 
 	calculate(): void {
 		this.calculatedPreObject = this.calculateCurrent(this.preGeoObject);

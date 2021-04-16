@@ -4,31 +4,26 @@
 
 <!-- <input id="date-input" [class]="classNames" name="{{inputName}}" [(ngModel)]="value" (change)="toggle($event)" type="date" max="{{today|date:'yyyy-MM-dd'}}" [disabled]="disable" [required]="required"/> -->
 
-<!-- (bsValueChange)="toggle($event)" -->
-
 <div *ngIf="!valueIsPresent">
   <span class="wrapper">
       <input class="date-input-element form-control"
+           name="{{inputName}}"
            type="text"
            placeholder="YYYY-MM-DD"
            [(bsValue)]="_value"
            (bsValueChange)="toggle($event)"
-           [bsConfig]="{ 
+           [bsConfig]="{
               dateInputFormat: 'YYYY-MM-DD', 
               containerClass: 'theme-default', 
-              showTodayButton: 'true', 
-              todayPosition: 'center',
-              showClearButton: 'true',
-              clearPosition: 'right',
               returnFocusToInput: returnFocusToInput
               }"
            [outsideClick]="true"
            placement="{{placement}}"
            [maxDate]="allowFutureDates ? null : today"
            [isDisabled]="disable"
+           [disabled]="disable"
            bsDatepicker
            #dp="bsDatepicker"
-           [disabled]="disable"
            >
   </span>
   

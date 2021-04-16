@@ -1,6 +1,8 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { LocalizationService } from '@shared/service';
 
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+
 import { PRESENT } from '@registry/model/registry';
 
 declare var acp: string;
@@ -46,7 +48,9 @@ export class DateFieldComponent {
 	valid: boolean = true;
 	@Output() public validChange = new EventEmitter<boolean>();
 
-	constructor(private localizationService: LocalizationService) { }
+	constructor(private localizationService: LocalizationService, private bsDatepickerConfig: BsDatepickerConfig) {
+		this.bsDatepickerConfig.dateInputFormat = 'YYYY-MM-DD';
+	 }
 
 	private setValue(value:Date):void {
 		this._value = value;

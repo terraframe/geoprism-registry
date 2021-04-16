@@ -164,6 +164,38 @@ export class GeometryPanelComponent implements OnInit {
 		}
 		
 		this.sort(vAttributes);
+		
+		// check gaps
+		let current = null;
+
+		for (let j = 0; j < vAttributes.length; j++) {
+			let next = vAttributes[j];
+
+			if (j > 0) {
+				if (!(current.startDate == null || current.startDate === '') && !(current.endDate == null || current.endDate === '')) {
+					let e1: any = new Date(current.endDate);
+
+					if (!(next.startDate == null || next.startDate === '') && !(next.endDate == null || next.endDate === '')) {
+						let s2: any = new Date(next.startDate);
+
+						if (Utils.hasGap(e1.getTime(), s2.getTime())) {
+							next.conflictMessage.push({
+								"type": "WARNING",	
+								"message":this.lService.decode("manage.versions.gap.message")
+							});
+							
+							current.conflictMessage.push({
+								"type": "WARNING",	
+								"message":this.lService.decode("manage.versions.gap.message")
+							});
+						}
+					}
+				}
+
+			}
+
+			current = next;
+		}
 	}
 
 	edit(vot: ValueOverTime, isVersionForHighlight: number): void {

@@ -118,12 +118,12 @@
 
                     <div class="input-group" >
                       <div [ngClass]="{'input-group-read-only': readOnly}" class="radio-group">
-                        <label class="radio radio-inline" style="margin:0;"> 
-                          <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code].value" disabled [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true"> 
+                        <label class="radio radio-inline" style="margin:0;"> {{calculatedPostObject[attr.code].value}}
+                          <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code].value === true" [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true" disabled > 
                           <span><localize key="change.request.boolean.option.true"></localize></span>
                         </label> 
                         <label class="radio radio-inline" style="margin:0;"> 
-                          <input class="inline-radio-input" type="radio" [checked]="!calculatedPostObject[attr.code].value" disabled [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false"> 
+                          <input class="inline-radio-input" type="radio" [checked]="!calculatedPostObject[attr.code].value === false" [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false" disabled > 
                           <span><localize key="change.request.boolean.option.false"></localize></span>
                         </label> 
                       </div>

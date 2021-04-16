@@ -192,7 +192,6 @@ export class ManageVersionsComponent implements OnInit {
 						let s2: any = new Date(next.startDate);
 
 						if (Utils.hasGap(e1.getTime(), s2.getTime())) {
-//							next.conflictType = "WARNING";
 							next.conflictMessage.push({
 								"type": "WARNING",	
 								"message":this.lService.decode("manage.versions.gap.message")
@@ -202,7 +201,6 @@ export class ManageVersionsComponent implements OnInit {
 								"type": "WARNING",	
 								"message":this.lService.decode("manage.versions.gap.message")
 							});
-//							current.conflictType = "WARNING";
 						}
 					}
 				}
@@ -260,7 +258,7 @@ export class ManageVersionsComponent implements OnInit {
 		else if (this.attribute.type === 'term') {
 			var terms = this.getGeoObjectTypeTermAttributeOptions(this.attribute.code);
 
-			if (terms.length > 0) {
+			if (terms && terms.length > 0) {
 				vot.value = terms[0].code;
 			}
 		}
