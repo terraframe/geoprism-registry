@@ -85,12 +85,16 @@ export class LocalizationService {
 	}
 	
 	public formatDateForDisplay(date: string): string {
+		if(!date){
+			return "";
+		}
+		
+		
 		if (date === PRESENT) {
 			return this.localize("changeovertime", "present");
 		}
 		
 		return moment(date, "YYYY-MM-DD").toISOString().split('T')[0]
-//		return new Date(date).toLocaleDateString(window.navigator.language);
 	}
 
 	public localize(bundle: string, key: string): string {

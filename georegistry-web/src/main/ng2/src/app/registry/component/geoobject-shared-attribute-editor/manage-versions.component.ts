@@ -138,7 +138,6 @@ export class ManageVersionsComponent implements OnInit {
 		for (let j = 0; j < vAttributes.length; j++) {
 			const h1 = vAttributes[j];
 			h1.conflictMessage = [];
-//			h1.conflictType = null;
 
 			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
 				let s1: any = new Date(h1.startDate);
@@ -150,7 +149,6 @@ export class ManageVersionsComponent implements OnInit {
 						"message": this.lService.decode("manage.versions.startdate.later.enddate.message")
 					});
 					this.hasConflict = true;
-//					h1.conflictType = "ERROR";
 				}
 
 				for (let i = 0; i < vAttributes.length; i++) {
@@ -168,7 +166,6 @@ export class ManageVersionsComponent implements OnInit {
 									"message":this.lService.decode("manage.versions.overlap.message")
 								});
 								this.hasConflict = true;
-//								h1.conflictType = "ERROR";
 							}
 						}
 					}

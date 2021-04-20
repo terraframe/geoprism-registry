@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, OnInit, forwardRef } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { LocalizationService } from '@shared/service';
 
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
@@ -10,8 +11,9 @@ declare var acp: string;
 @Component({
 	selector: 'date-field',
 	templateUrl: './date-field.component.html',
-	styleUrls: ['./date-field.css']
+	styleUrls: ['./date-field.css'],
 })
+
 export class DateFieldComponent {
 
 	@Input() allowFutureDates: boolean = true;
@@ -24,14 +26,11 @@ export class DateFieldComponent {
 	@Input() required: boolean = false;
 	@Input() placement: string = "bottom";
 
-	_value:Date
+	_value:Date;
 	@Input() set value(value) {
-		
-		// value can be null when the user manually clears the input
-		this.setValue(value ? new Date(value) : null);
-		
-		if (value === PRESENT) {
-			this.valueIsPresent = true;
+	
+		if(value){
+			this.setValue(value ? value : null);
 		}
 	}
 	@Output() public valueChange = new EventEmitter<string>();
@@ -44,20 +43,38 @@ export class DateFieldComponent {
 	isMarkedInvalid: boolean = false;
 	returnFocusToInput: boolean = false;
 	valueIsPresent: boolean = false;
-
+	changeDetection: boolean = true;
+	
 	valid: boolean = true;
 	@Output() public validChange = new EventEmitter<boolean>();
 
-	constructor(private localizationService: LocalizationService, private bsDatepickerConfig: BsDatepickerConfig) {
+	constructor(private localizationService: LocalizationService, private bsDatepickerConfig: BsDatepickerConfig, private changeDetectorRef: ChangeDetectorRef) {
 		this.bsDatepickerConfig.dateInputFormat = 'YYYY-MM-DD';
-	 }
+	}
 
-	private setValue(value:Date):void {
-		this._value = value;
-		
-		if(value){
-			this.toggle(value);
+
+	private setValue(value:string | number):void {
+		if(value && typeof value == 'string'){
+			let date = new Date(+value.split("-")[0], +value.split("-")[1]-1, +value.split("-")[2]);
+
+			if (value === PRESENT) {
+				this.valueIsPresent = true;
+			}
+			
+			this._value = date;
 		}
+		// Custom attributes of date type come through as UTC time
+		else if(value && typeof value == 'number'){
+			this._value = new Date(new Date(value).getUTCFullYear(), new Date(value).getUTCMonth(), new Date(value).getUTCDate());
+		}
+		else{
+			this._value = null;
+		}
+		
+//		if(value){
+//			this.toggle(value);
+//		}
+
 	}
 	
 	public getValue():Date {
@@ -72,27 +89,48 @@ export class DateFieldComponent {
 	}
 	
 	isEqual(date1:Date, date2:Date):boolean {
-		return ( date1.getTime() === date2.getTime() )
+		let equal = false;
+		
+		if(date1 && date2){
+			if(date1.toISOString().substr(0, 10) === PRESENT && date1.toISOString().substr(0, 10) === PRESENT){
+				return true;
+			}
+			
+			return ( date1.getTime() === date2.getTime() );
+		}
+		
+		return equal;
 	}
 
 	setInfinity(date: Date): void {
 
 		if(date && this.isEqual(date, new Date(PRESENT))) {
-			this.setValue(new Date());
+			this.setValue(null);
 			this.valueIsPresent = false;
 		}
 		else {
-			this.setValue(new Date(PRESENT));
+			this.setValue(PRESENT);
 			this.valueIsPresent = true;
 		}
 		
 		this.change.emit();
 	}
-
-	valChange(event: Date): void {
-		console.log(event)
-	}
 	
+	getDateString(date:Date): string {
+		let year = date.getFullYear();
+		let month:number|string = date.getMonth()+1;
+		let dt:number|string = date.getDate();
+		
+		if (dt < 10) {
+		  dt = '0' + dt;
+		}
+		if (month < 10) {
+		  month = '0' + month;
+		}
+		
+		return year + "-" + month + "-" + dt;
+	}
+
 	toggle(event: Date): void {
 
 		setTimeout(() => {
@@ -102,7 +140,7 @@ export class DateFieldComponent {
 			// event can be null if manually clearing the input
 			if(event){
 			
-				newValue = new Date(event);
+				newValue = event;
 	
 				this.valid = true;
 				this.message = "";
@@ -127,10 +165,10 @@ export class DateFieldComponent {
 			}
 
 
-			if (this.valid && this.getValue()) {
+			if(this.valid) {
 				
 				// Must adhere to the ISO 8601 format
-				let formattedDate = newValue.toISOString().substr(0, 10);
+				let formattedDate = this.getDateString(newValue);
 
 				if (formattedDate === PRESENT) {
 					this.valueIsPresent = true;
@@ -140,6 +178,7 @@ export class DateFieldComponent {
 				}
 
 				this.valueChange.emit(formattedDate);
+
 			}
 			else {
 				// hack to avoid ngx-datepicker from putting "invalid date" in the input
