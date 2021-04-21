@@ -35,7 +35,7 @@
 <p *ngIf="valueIsPresent" style="font-size:14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
 
 <p *ngIf="allowInfinity" class="text-right">
-  <a *ngIf="valueIsPresent" (click)="setInfinity(getValue())"><localize key="manage.versions.enddate.set.date.button"></localize></a> 
-  <a *ngIf="!valueIsPresent" (click)="setInfinity(getValue())"><localize key="manage.versions.enddate.set.current.button"></localize></a>
+  <a *ngIf="valueIsPresent" [routerLink]="" (click)="setInfinity(getValue())"><localize key="manage.versions.enddate.set.date.button"></localize></a> 
+  <a *ngIf="!valueIsPresent" [routerLink]="" (click)="setInfinity(getValue())"><localize key="manage.versions.enddate.set.current.button"></localize></a>
 </p>
 
