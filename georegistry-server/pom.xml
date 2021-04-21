@@ -34,7 +34,7 @@
 
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
-		<cgr.adapter.version>0.14.4-SNAPSHOT</cgr.adapter.version>
+		<cgr.adapter.version>0.14.4</cgr.adapter.version>
 	</properties>
 
 
