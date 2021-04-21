@@ -24,7 +24,7 @@
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>0.14.4-SNAPSHOT</version>
+  <version>0.14.5-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
