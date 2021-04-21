@@ -114,6 +114,7 @@ export class DateFieldComponent {
 		}
 		
 		this.change.emit();
+		this.valueChange.emit(PRESENT);
 	}
 	
 	getDateString(date:Date): string {

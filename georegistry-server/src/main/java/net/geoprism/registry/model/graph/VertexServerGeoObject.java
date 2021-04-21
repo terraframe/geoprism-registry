@@ -1008,12 +1008,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
         EdgeObject newEdge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
         newEdge.setValue(GeoVertex.START_DATE, entry.getStartDate());
+        newEdge.setValue(GeoVertex.END_DATE, entry.getEndDate());
 
         edges.add(newEdge);
       }
-
-      // // An entry already exists at the given start time
-      this.calculateEndDates(edges);
 
       for (EdgeObject e : edges)
       {
@@ -1638,6 +1636,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
   }
 
+  @Deprecated
   private void calculateEndDates(SortedSet<EdgeObject> edges)
   {
     EdgeObject prev = null;
@@ -1650,7 +1649,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         cal.setTime(current.getObjectValue(GeoVertex.START_DATE));
         cal.add(Calendar.DAY_OF_YEAR, -1);
 
-        prev.setValue(GeoVertex.END_DATE, cal.getTime());
+        current.setValue(GeoVertex.END_DATE, cal.getTime());
       }
 
       prev = current;

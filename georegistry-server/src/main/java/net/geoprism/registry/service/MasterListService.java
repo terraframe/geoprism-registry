@@ -117,6 +117,7 @@ public class MasterListService
     this.enforceWritePermissions(masterList, MasterListVersion.EXPLORATORY);
 
     MasterListVersion version = masterList.createVersion(forDate, MasterListVersion.EXPLORATORY);
+    version.publish();
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
