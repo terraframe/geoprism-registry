@@ -88,7 +88,9 @@ export class LocalizationService {
 		// new Date(5000, 12, 31) returns UTC time. 
 		// new Date('5000-12-31') returns local time zone adjusted (e.g. off by one issues).
 		
-		return new Date(5000, 12, 31);
+		let dt =  new Date(5000, 11, 31, 0, 0, 0);
+		
+		return dt;
 	}
 	
 	public formatDateForDisplay(date: string | Date): string {

@@ -87,11 +87,13 @@ export class DateFieldComponent {
 		let equal = false;
 		
 		if(date1 && date2){
-			if(date1.toISOString().substr(0, 10) === PRESENT && date1.toISOString().substr(0, 10) === PRESENT){
+			
+			console.log("--- comparing: date1 = ", date1.getTime(), " date2 = ", date2.getTime())
+//			if(date1.toISOString().substr(0, 10) === PRESENT && date2.toISOString().substr(0, 10) === PRESENT){
+			if(date1.getTime() === date2.getTime()){
 				return true;
 			}
 			
-			return ( date1.getTime() === date2.getTime() );
 		}
 		
 		return equal;
@@ -103,13 +105,13 @@ export class DateFieldComponent {
 		
 		if(date && this.isEqual(date, this.localizationService.getPresentDate())) {
 			
-			console.log("is present - ", date)
+			console.log("is present - ", date, " present -> ", this.localizationService.getPresentDate())
 			this.setValue(null);
 			this.valueIsPresent = false;
 		}
 		else {
 			
-			console.log("is NOT present - ", date)
+			console.log("is NOT present - ", date, " present -> ", this.localizationService.getPresentDate())
 			this.setValue(PRESENT);
 			this.valueIsPresent = true;
 		}
