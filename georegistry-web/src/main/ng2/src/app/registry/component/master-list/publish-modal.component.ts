@@ -94,6 +94,10 @@ export class PublishModalComponent implements OnInit {
 			};
 		}
 	}
+	
+	ngAfterContentInit(){
+		
+	}
 
 	init(org: MasterListByOrg): void {
 		this.master.organization = org.oid;
@@ -143,6 +147,10 @@ export class PublishModalComponent implements OnInit {
 
 	onCancel(): void {
 		this.bsModalRef.hide()
+	}
+	
+	ngOnDestroy() {
+		this.onMasterListChange.unsubscribe()
 	}
 
 	error(err: HttpErrorResponse): void {

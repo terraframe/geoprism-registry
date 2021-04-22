@@ -53,10 +53,8 @@ export class ImportLocalizationModalComponent {
 			let error = JSON.parse(response)
 			
 			let newline = "\n";
-			//let newline = String.fromCharCode(13, 10);
-			//let newline = "<br>";
 			
-      error.localizedMessage = error.localizedMessage.replaceAll("\\n", newline);
+      		error.localizedMessage = error.localizedMessage.replaceAll("\\n", newline);
 
 			this.error({ error: error });
 		}

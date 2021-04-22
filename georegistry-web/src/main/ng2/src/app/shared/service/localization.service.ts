@@ -84,7 +84,14 @@ export class LocalizationService {
 		return null;
 	}
 	
-	public formatDateForDisplay(date: string): string {
+	public getPresentDate(): Date {
+		// new Date(5000, 12, 31) returns UTC time. 
+		// new Date('5000-12-31') returns local time zone adjusted (e.g. off by one issues).
+		
+		return new Date(5000, 12, 31);
+	}
+	
+	public formatDateForDisplay(date: string | Date): string {
 		if(!date){
 			return "";
 		}
@@ -94,7 +101,31 @@ export class LocalizationService {
 			return this.localize("changeovertime", "present");
 		}
 		
-		return moment(date, "YYYY-MM-DD").toISOString().split('T')[0]
+		if(date instanceof Date){
+			return this.getDateString(date);
+		}
+		else{
+			return date.split('T')[0];
+		}
+	}
+	
+	getDateString(date:Date): string {
+		if(date instanceof Date){
+			let year = date.getFullYear();
+			let month:number|string = date.getMonth()+1;
+			let dt:number|string = date.getDate();
+			
+			if (dt < 10) {
+			  dt = '0' + dt;
+			}
+			if (month < 10) {
+			  month = '0' + month;
+			}
+			
+			return year + "-" + month + "-" + dt;
+		}
+		
+		return null;
 	}
 
 	public localize(bundle: string, key: string): string {

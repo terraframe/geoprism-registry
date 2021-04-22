@@ -70,11 +70,6 @@ export class DateFieldComponent {
 		else{
 			this._value = null;
 		}
-		
-//		if(value){
-//			this.toggle(value);
-//		}
-
 	}
 	
 	public getValue():Date {
@@ -102,36 +97,35 @@ export class DateFieldComponent {
 		return equal;
 	}
 
-	setInfinity(date: Date): void {
+	toggleInfinity(): void {
 
-		if(date && this.isEqual(date, new Date(PRESENT))) {
+		let date = this.getValue();
+		
+		if(date && this.isEqual(date, this.localizationService.getPresentDate())) {
+			
+			console.log("is present - ", date)
 			this.setValue(null);
 			this.valueIsPresent = false;
 		}
 		else {
+			
+			console.log("is NOT present - ", date)
 			this.setValue(PRESENT);
 			this.valueIsPresent = true;
 		}
 		
 		this.change.emit();
-		this.valueChange.emit(PRESENT);
+		
+		if(date){
+			console.log("Emit - ", this.localizationService.getDateString(this.getValue()))
+			this.valueChange.emit(this.localizationService.getDateString(this.getValue()));
+		}
+		else{
+			console.log("Emit NULL")
+			this.valueChange.emit(null);
+		}
 	}
 	
-	getDateString(date:Date): string {
-		let year = date.getFullYear();
-		let month:number|string = date.getMonth()+1;
-		let dt:number|string = date.getDate();
-		
-		if (dt < 10) {
-		  dt = '0' + dt;
-		}
-		if (month < 10) {
-		  month = '0' + month;
-		}
-		
-		return year + "-" + month + "-" + dt;
-	}
-
 	toggle(event: Date): void {
 
 		setTimeout(() => {
@@ -169,7 +163,7 @@ export class DateFieldComponent {
 			if(this.valid) {
 				
 				// Must adhere to the ISO 8601 format
-				let formattedDate = this.getDateString(newValue);
+				let formattedDate = this.localizationService.getDateString(newValue);
 
 				if (formattedDate === PRESENT) {
 					this.valueIsPresent = true;
