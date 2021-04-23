@@ -1,9 +1,10 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryList } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
 import { HttpErrorResponse } from "@angular/common/http";
+import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
 import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
 import { LocalizationService, AuthService, EventService, ExternalSystemService } from '@shared/service';
@@ -24,9 +25,13 @@ declare var acp: string;
 })
 export class DataImporterComponent implements OnInit {
 	
+	@ViewChildren('dateFieldComponents') dateFieldComponentsArray:QueryList<DateFieldComponent>;
+	
 	currentDate : Date = new Date();
 
 	showImportConfig: boolean = false;
+	
+	isValid: boolean = false;
 
     /*
      * List of geo object types from the system
@@ -229,16 +234,36 @@ export class DataImporterComponent implements OnInit {
 		this.showImportConfig = false;
 	}
 	
-	setInfinity(endDate: any): void {
+//	setInfinity(endDate: any): void {
+//
+//		if(endDate === PRESENT){
+//			this.endDate = null;
+//		}
+//		else{
+//			this.endDate = PRESENT;
+//		}
+//	}
 
-		if(endDate === PRESENT){
-			this.endDate = null;
-		}
-		else{
-			this.endDate = PRESENT;
-		}
+	checkDates(): any {
+		setTimeout(() => {
+	
+			this.isValid = this.checkDateFieldValidity();
+	
+		}, 0);
 	}
 
+	checkDateFieldValidity(): boolean {
+		let dateFields = this.dateFieldComponentsArray.toArray();
+		console.log(dateFields)
+		for(let i=0; i<dateFields.length; i++){
+			let field = dateFields[i];
+			if(!field.valid){
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 	public error(err: any): void {
 		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

@@ -1,9 +1,8 @@
-import { Component, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, OnInit, forwardRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
+import { Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { LocalizationService } from '@shared/service';
 import { DateService } from '@shared/service/date.service';
 
-import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import { BsDatepickerConfig, BsDatepickerDirective } from 'ngx-bootstrap/datepicker';
 
 import { PRESENT } from '@registry/model/registry';
 
@@ -16,6 +15,7 @@ declare var acp: string;
 })
 
 export class DateFieldComponent {
+	@ViewChild(BsDatepickerDirective, { static: false }) datepicker: BsDatepickerDirective;
 
 	@Input() allowFutureDates: boolean = true;
 	@Input() allowInfinity: boolean = false;
@@ -41,10 +41,8 @@ export class DateFieldComponent {
 
 	today: Date = new Date();
 	message: string;
-	isMarkedInvalid: boolean = false;
 	returnFocusToInput: boolean = false;
 	valueIsPresent: boolean = false;
-	changeDetection: boolean = true;
 	
 	valid: boolean = true;
 	@Output() public validChange = new EventEmitter<boolean>();

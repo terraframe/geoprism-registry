@@ -4,18 +4,20 @@
 
 <!-- <input id="date-input" [class]="classNames" name="{{inputName}}" [(ngModel)]="value" (change)="toggle($event)" type="date" max="{{today|date:'yyyy-MM-dd'}}" [disabled]="disable" [required]="required"/> -->
 
-<div *ngIf="!valueIsPresent">
+<div [hidden]="valueIsPresent">
   <span class="wrapper">
       <input class="date-input-element form-control"
            name="{{inputName}}"
            type="text"
            placeholder="YYYY-MM-DD"
            [bsValue]="_value"
+           [value]="_value | date: 'yyyy-MM-dd'"
            (bsValueChange)="toggle($event)"
            [bsConfig]="{
               dateInputFormat: 'YYYY-MM-DD', 
               containerClass: 'theme-default', 
-              returnFocusToInput: returnFocusToInput
+              returnFocusToInput: returnFocusToInput,
+              adaptivePosition: true
               }"
            [outsideClick]="true"
            placement="{{placement}}"
@@ -31,8 +33,8 @@
     <p *ngIf="message" class="error-message">{{message}}</p>
   </div>
 </div>
-
-<p *ngIf="valueIsPresent" style="font-size:14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+<!-- {{valid}} - {{_value}} -->
+<p [hidden]="!valueIsPresent" style="font-size:14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
 
 <div *ngIf="allowInfinity" class="text-right" style="padding: 10px 0;">
   <button class="btn btn-default" style="margin:0;" *ngIf="valueIsPresent" (click)="toggleInfinity()"><localize key="manage.versions.enddate.set.date.button"></localize></button> 

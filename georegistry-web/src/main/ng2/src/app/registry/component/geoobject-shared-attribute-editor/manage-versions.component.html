@@ -213,6 +213,7 @@
             <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
               <localize key="modal.button.close"></localize>
             </button>
+            
             <button *ngIf="!readonly" type="button" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!isValid || !versionsform.valid || hasConflict">
               <localize key="modal.button.submit"></localize>
             </button>

@@ -12,14 +12,23 @@ declare var Globalize: any;
 declare var com: any
 declare var registry: any
 
+
 @Injectable()
 export class DateService {
+	overlapMessage = { 
+		"type": "ERROR",	
+		"message":this.localizationService.decode("manage.versions.overlap.message")
+	}
+	
+	gapMessage = {
+		"type": "WARNING",	
+		"message":this.localizationService.decode("manage.versions.gap.message")
+	}
 
 	constructor(private localizationService: LocalizationService) {}
 
+	
 	public getPresentDate(): Date {
-		// new Date(5000, 12, 31) returns UTC time. 
-		// new Date('5000-12-31') returns local time zone adjusted (e.g. off by one issues).
 		// NOTE: Month is 0 indexed so 11 = December
 		let dt =  new Date(5000, 11, 31, 0, 0, 0);
 		
@@ -44,6 +53,11 @@ export class DateService {
 		}
 	}
 	
+	// @param value as yyyy-mm-dd
+	getDateFromDateString(value: string){
+		return new Date(+value.split("-")[0], +value.split("-")[1]-1, +value.split("-")[2]);
+	}
+	
 	getDateString(date:Date): string {
 		if(date instanceof Date){
 			let year = date.getFullYear();
@@ -63,18 +77,22 @@ export class DateService {
 		return null;
 	}
 	
-	checkRanges(vAttributes: any): boolean {
+	checkRanges(vAttributes: any[]): boolean {
 		
 		let hasConflict = false;
+		
+		// clear all messages
+		vAttributes.forEach(attr => {
+			attr.conflictMessage = [];
+		})
 		
 		// Check for overlaps
 		for (let j = 0; j < vAttributes.length; j++) {
 			const h1 = vAttributes[j];
-			h1.conflictMessage = [];
 
-			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
-				let s1: any = new Date(h1.startDate);
-				let e1: any = new Date(h1.endDate);
+			if (h1.startDate && h1.endDate) {
+				let s1: any = this.getDateFromDateString(h1.startDate);
+				let e1: any = this.getDateFromDateString(h1.endDate);
 
 				if (Utils.dateEndBeforeStart(s1, e1)) {
 					h1.conflictMessage.push({
@@ -88,17 +106,33 @@ export class DateService {
 				for (let i = 0; i < vAttributes.length; i++) {
 
 					if (j !== i) {
+						
 						const h2 = vAttributes[i];
-						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
-							let s2: any = new Date(h2.startDate);
-							let e2: any = new Date(h2.endDate);
+						
+						// If all dates set
+						if (h2.startDate && h2.endDate) {
+							let s2: Date = this.getDateFromDateString(h2.startDate);
+							let e2: Date = this.getDateFromDateString(h2.endDate);
 
 							// Determine if there is an overlap
 							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-								h1.conflictMessage.push({
-									"type": "ERROR",	
-									"message":this.localizationService.decode("manage.versions.overlap.message")
-								});
+								h1.conflictMessage.push(this.overlapMessage);
+								
+								if(s2.getTime() === e2.getTime()){
+									h2.conflictMessage.push(this.overlapMessage);
+								}
+								
+								hasConflict = true;
+							}
+						}
+						// If 1st end date and current start date
+						else if( (i === j-1 || i === j+1) && e1 && h2.startDate){
+							let s2: Date = this.getDateFromDateString(h2.startDate);
+							
+							if(s2.getTime() <= e1){
+								
+								h1.conflictMessage.push(this.overlapMessage);
+								h2.conflictMessage.push(this.overlapMessage);
 								
 								hasConflict = true;
 							}
@@ -121,17 +155,9 @@ export class DateService {
 					let s2: any = new Date(next.startDate);
 
 					if (Utils.hasGap(e1.getTime(), s2.getTime())) {
-						next.conflictMessage.push({
-							"type": "WARNING",	
-							"message":this.localizationService.decode("manage.versions.gap.message")
-						});
+						next.conflictMessage.push(this.gapMessage);
 						
-						current.conflictMessage.push({
-							"type": "WARNING",	
-							"message":this.localizationService.decode("manage.versions.gap.message")
-						});
-						
-						hasConflict = true;
+						current.conflictMessage.push(this.gapMessage);
 					}
 				}
 			}

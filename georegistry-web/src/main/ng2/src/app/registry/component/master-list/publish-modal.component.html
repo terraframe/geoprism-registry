@@ -75,7 +75,10 @@
                     </label>
                 </div>
                 <div class="holder">
-                    <date-field [(value)]="master.publishingStartDate" [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'" [allowFutureDates]="false" [disable]="readonly"></date-field>
+                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
+                              {{formatDate(master.publishingStartDate)}}
+                    </span>
+                    <date-field *ngIf="!readonly" [(value)]="master.publishingStartDate" [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'" [allowFutureDates]="false" [disable]="readonly"></date-field>
                 </div>
             </div>
             

@@ -128,14 +128,16 @@ export class ManageVersionsComponent implements OnInit {
 	}
 
 	onDateChange(): any {
-		this.hasConflict = false;
-		this.hasGap = false;
-
-		let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
-
-		this.isValid = this.checkDateFieldValidity();
-
-		this.hasConflict = this.dateService.checkRanges(vAttributes);
+		setTimeout(() => {
+			this.hasConflict = false;
+			this.hasGap = false;
+	
+			let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
+	
+			this.isValid = this.checkDateFieldValidity();
+	
+			this.hasConflict = this.dateService.checkRanges(vAttributes);
+		}, 0);
 	}
 
 	onAddNewVersion(): void {
