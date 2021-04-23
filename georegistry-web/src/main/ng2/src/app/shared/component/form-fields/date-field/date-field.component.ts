@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, SimpleChanges, ChangeDetectorRef, OnInit, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { LocalizationService } from '@shared/service';
+import { DateService } from '@shared/service/date.service';
 
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 
@@ -48,7 +49,7 @@ export class DateFieldComponent {
 	valid: boolean = true;
 	@Output() public validChange = new EventEmitter<boolean>();
 
-	constructor(private localizationService: LocalizationService, private bsDatepickerConfig: BsDatepickerConfig, private changeDetectorRef: ChangeDetectorRef) {
+	constructor(private localizationService: LocalizationService, private bsDatepickerConfig: BsDatepickerConfig, private changeDetectorRef: ChangeDetectorRef, private dateService: DateService) {
 		this.bsDatepickerConfig.dateInputFormat = 'YYYY-MM-DD';
 	}
 
@@ -88,7 +89,6 @@ export class DateFieldComponent {
 		
 		if(date1 && date2){
 			
-			console.log("--- comparing: date1 = ", date1.getTime(), " date2 = ", date2.getTime())
 //			if(date1.toISOString().substr(0, 10) === PRESENT && date2.toISOString().substr(0, 10) === PRESENT){
 			if(date1.getTime() === date2.getTime()){
 				return true;
@@ -103,29 +103,18 @@ export class DateFieldComponent {
 
 		let date = this.getValue();
 		
-		if(date && this.isEqual(date, this.localizationService.getPresentDate())) {
-			
-			console.log("is present - ", date, " present -> ", this.localizationService.getPresentDate())
-			this.setValue(null);
+		if(date && this.isEqual(date, this.dateService.getPresentDate())) {
+			this.setValue(null); // clear the date picker
+			this.valueChange.emit(null); 
 			this.valueIsPresent = false;
 		}
 		else {
-			
-			console.log("is NOT present - ", date, " present -> ", this.localizationService.getPresentDate())
 			this.setValue(PRESENT);
+			this.valueChange.emit(this.dateService.getDateString(this.getValue()));
 			this.valueIsPresent = true;
 		}
 		
 		this.change.emit();
-		
-		if(date){
-			console.log("Emit - ", this.localizationService.getDateString(this.getValue()))
-			this.valueChange.emit(this.localizationService.getDateString(this.getValue()));
-		}
-		else{
-			console.log("Emit NULL")
-			this.valueChange.emit(null);
-		}
 	}
 	
 	toggle(event: Date): void {
@@ -165,7 +154,7 @@ export class DateFieldComponent {
 			if(this.valid) {
 				
 				// Must adhere to the ISO 8601 format
-				let formattedDate = this.localizationService.getDateString(newValue);
+				let formattedDate = this.dateService.getDateString(newValue);
 
 				if (formattedDate === PRESENT) {
 					this.valueIsPresent = true;

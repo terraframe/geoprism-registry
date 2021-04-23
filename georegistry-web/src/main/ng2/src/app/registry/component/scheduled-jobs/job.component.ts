@@ -8,6 +8,7 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { JobConflictModalComponent } from './conflict-widgets/job-conflict-modal.component';
 import { ReuploadModalComponent } from './conflict-widgets/reupload-modal.component';
 import { RegistryService, IOService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { ScheduledJob } from '@registry/model/registry';
 
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
@@ -51,7 +52,7 @@ export class JobComponent implements OnInit {
 	notifier: WebSocketSubject<{ type: string, message: string }>;
 
 	constructor(public service: RegistryService, private modalService: BsModalService,
-		private router: Router, private route: ActivatedRoute,
+		private router: Router, private route: ActivatedRoute, private dateService: DateService,
 		private localizeService: LocalizationService, authService: AuthService, public ioService: IOService) {
 		this.isAdmin = authService.isAdmin();
 		this.isMaintainer = this.isAdmin || authService.isMaintainer();
@@ -282,7 +283,7 @@ export class JobComponent implements OnInit {
 	}
 	
 	formatDate(date: string): string {
-		return this.localizeService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 	error(err: HttpErrorResponse): void {

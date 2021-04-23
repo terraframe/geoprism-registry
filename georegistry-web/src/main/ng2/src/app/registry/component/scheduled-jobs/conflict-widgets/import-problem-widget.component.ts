@@ -1,15 +1,15 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { GeoObjectType, MasterList, ScheduledJob, ImportError } from '@registry/model/registry';
+import { ScheduledJob, ImportError } from '@registry/model/registry';
 
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
 import Utils from '../../../utility/Utils'
 
 import { RegistryService, IOService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { ErrorHandler } from '@shared/component';
 import { LocalizationService } from '@shared/service';
 
@@ -28,7 +28,7 @@ export class ImportProblemWidgetComponent implements OnInit {
     edit: boolean = false;
 
 
-    constructor( private service: RegistryService, private iService: IOService, 
+    constructor( private service: RegistryService, private iService: IOService, private dateService: DateService,
         private lService: LocalizationService, public bsModalRef: BsModalRef, private modalService: BsModalService
         ) { }
 
@@ -106,7 +106,7 @@ export class ImportProblemWidgetComponent implements OnInit {
     }
 
 	formatDate(date: string): string {
-		return this.lService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
     error( err: HttpErrorResponse ): void {

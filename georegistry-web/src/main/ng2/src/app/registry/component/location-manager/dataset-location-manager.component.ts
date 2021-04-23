@@ -7,6 +7,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
 import { MapService, RegistryService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { AuthService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
 import { Subject } from 'rxjs';
@@ -95,7 +96,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	vot: ValueOverTime;
 
 	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
-		authService: AuthService, private lService: LocalizationService) {
+		authService: AuthService, private lService: LocalizationService, private dateService: DateService) {
 			this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 	}
 
@@ -621,7 +622,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 	
 	formatDate(date: string): string {
-		return this.lService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 

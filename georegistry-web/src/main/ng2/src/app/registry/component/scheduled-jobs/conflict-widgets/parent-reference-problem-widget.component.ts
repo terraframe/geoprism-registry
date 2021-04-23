@@ -9,6 +9,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { GeoObjectType, MasterList, ScheduledJob } from '@registry/model/registry';
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
 import { RegistryService, IOService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import Utils from '../../../utility/Utils'
 
 import { ErrorHandler } from '@shared/component';
@@ -36,7 +37,7 @@ export class ParentReferenceProblemWidgetComponent implements OnInit {
     edit: boolean = false;
 
 
-    constructor( private service: RegistryService, private iService: IOService, 
+    constructor( private service: RegistryService, private iService: IOService, private dateService: DateService,
         private lService: LocalizationService, public bsModalRef: BsModalRef, private modalService: BsModalService
         ) { }
 
@@ -125,7 +126,7 @@ export class ParentReferenceProblemWidgetComponent implements OnInit {
     }
 
 	formatDate(date: string): string {
-		return this.lService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
     error( err: HttpErrorResponse ): void {

@@ -37,6 +37,7 @@ import { ProgressService } from './service/progress.service';
 import { EventService } from './service/event.service';
 import { ModalStepIndicatorService } from './service/modal-step-indicator.service';
 import { SessionService } from './service/session.service';
+import { DateService } from './service/date.service';
 
 import { LocalizePipe } from './pipe/localize.pipe';
 import { PhonePipe } from './pipe/phone.pipe';
@@ -138,6 +139,7 @@ export class SharedModule {
 				OrganizationService,
 				ExternalSystemService,
 				LocalizationService,
+				DateService,
 				ModalStepIndicatorService,
 				EventService,
 				ProgressService,

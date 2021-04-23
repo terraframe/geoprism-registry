@@ -21,6 +21,7 @@ import { GeoObjectOverTime } from '@registry/model/registry';
 
 import { ChangeRequestService } from '@registry/service';
 import { LocalizationService, AuthService, EventService, ExternalSystemService  } from '@shared/service';
+import { DateService } from '@shared/service/date.service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
 import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent } from '@shared/component';
@@ -90,7 +91,7 @@ export class RequestTableComponent {
 	fileRef: ElementRef;
 
 	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-				private eventService: EventService, private router: Router) {
+				private eventService: EventService, private router: Router, private dateService: DateService) {
 
 		this.columns = [
 			{ name: localizationService.decode('change.request.user'), prop: 'createdBy', sortable: false },
@@ -432,7 +433,7 @@ export class RequestTableComponent {
 		this.bsModalRef.content.curAction(action, !cr.permissions.includes("WRITE_DETAILS"));
 	}
 	formatDate(date: string): string {
-		return this.localizationService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 	
 	getUsername(): string {

@@ -12,6 +12,7 @@ import {
 
 import { LocalizedValue } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
+import { DateService } from '@shared/service/date.service';
 import { AuthService } from '@shared/service';
 
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
@@ -117,7 +118,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	@ViewChild("attributeForm") attributeForm;
 
-	constructor(private modalService: BsModalService, private lService: LocalizationService, private authService: AuthService) {
+	constructor(private modalService: BsModalService, private lService: LocalizationService, private authService: AuthService, private dateService: DateService) {
 		this.isContributorOnly = this.authService.isContributerOnly()
 	}
 
@@ -257,7 +258,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	formatDate(date: string): string {
-		return this.lService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 	handleChangeCode(e: any): void {

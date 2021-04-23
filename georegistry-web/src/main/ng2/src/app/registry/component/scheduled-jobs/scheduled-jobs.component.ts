@@ -11,6 +11,7 @@ import { ScheduledJob, ScheduledJobOverview, PaginationPage } from '@registry/mo
 
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { LocalizationService, AuthService } from '@shared/service';
+import { DateService } from '@shared/service/date.service';
 import { ModalTypes } from '@shared/model/modal';
 
 @Component({
@@ -51,7 +52,7 @@ export class ScheduledJobsComponent implements OnInit {
 
 	isViewAllOpen: boolean = false;
 
-	constructor(public service: RegistryService, private modalService: BsModalService, private router: Router,
+	constructor(public service: RegistryService, private modalService: BsModalService, private router: Router, private dateService: DateService,
 		private localizeService: LocalizationService, authService: AuthService, public ioService: IOService) {
 		this.isAdmin = authService.isAdmin();
 		this.isMaintainer = this.isAdmin || authService.isMaintainer();
@@ -286,7 +287,7 @@ export class ScheduledJobsComponent implements OnInit {
 	}
 
 	formatDate(date: string): string {
-		return this.localizeService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 	error(err: HttpErrorResponse): void {

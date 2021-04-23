@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 
 import { TaskService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { GeoObjectType, PaginationPage } from '@registry/model/registry';
 
 import { LocalizationService } from '@shared/service';
@@ -38,7 +39,7 @@ export class TaskViewerComponent implements OnInit {
 
 	pollingData: any;
 
-	constructor(private taskService: TaskService, private localizeService: LocalizationService) { }
+	constructor(private taskService: TaskService, private localizeService: LocalizationService, private dateService: DateService) { }
 
 	ngOnInit(): void {
 		this.onInProgressTasksPageChange(1);
@@ -105,6 +106,6 @@ export class TaskViewerComponent implements OnInit {
 	}
 	
 	formatDate(date: string): string {
-		return this.localizeService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 }

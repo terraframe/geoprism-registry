@@ -19,8 +19,7 @@ import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, PRESENT } f
 import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
 import { LocalizationService } from '@shared/service';
-
-import Utils from '../../utility/Utils';
+import { DateService } from '@shared/service/date.service';
 
 import * as moment from 'moment';
 
@@ -90,7 +89,7 @@ export class GeometryPanelComponent implements OnInit {
 
 	hasDuplicateDate: boolean = false;
 
-	constructor(private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef) { }
+	constructor(private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService) { }
 
 	ngOnInit(): void {
 	}
@@ -115,87 +114,7 @@ export class GeometryPanelComponent implements OnInit {
 	
 		let vAttributes = this.geoObjectOverTime.attributes['geometry'].values;
 
-
-		// check ranges
-		for (let j = 0; j < vAttributes.length; j++) {
-			const h1 = vAttributes[j];
-			h1.conflictMessage = [];
-
-			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
-				let s1: any = new Date(h1.startDate);
-				let e1: any = new Date(h1.endDate);
-				
-				if (Utils.dateEndBeforeStart(s1, e1)) {
-					h1.conflict = true;		
-					h1.conflictMessage.push({
-						"type": "ERROR",	
-						"message": this.lService.decode("manage.versions.startdate.later.enddate.message")
-					});
-					
-					this.hasConflict = true;
-					
-					this.isValid = false;
-				}
-
-				for (let i = 0; i < vAttributes.length; i++) {
-
-					if (j !== i) {
-						const h2 = vAttributes[i];
-						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
-							let s2: any = new Date(h2.startDate);
-							let e2: any = new Date(h2.endDate);
-
-							// Determine if there is an overlap
-							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-								h1.conflictMessage.push({
-									"type": "ERROR",	
-									"message":this.lService.decode("manage.versions.overlap.message")
-								});
-								
-								this.hasConflict = true;
-								
-								this.isValid = false;
-							}
-							
-						}
-					}
-				}
-			}
-		}
-		
-		this.sort(vAttributes);
-		
-		// check gaps
-		let current = null;
-
-		for (let j = 0; j < vAttributes.length; j++) {
-			let next = vAttributes[j];
-
-			if (j > 0) {
-				if (!(current.startDate == null || current.startDate === '') && !(current.endDate == null || current.endDate === '')) {
-					let e1: any = new Date(current.endDate);
-
-					if (!(next.startDate == null || next.startDate === '') && !(next.endDate == null || next.endDate === '')) {
-						let s2: any = new Date(next.startDate);
-
-						if (Utils.hasGap(e1.getTime(), s2.getTime())) {
-							next.conflictMessage.push({
-								"type": "WARNING",	
-								"message":this.lService.decode("manage.versions.gap.message")
-							});
-							
-							current.conflictMessage.push({
-								"type": "WARNING",	
-								"message":this.lService.decode("manage.versions.gap.message")
-							});
-						}
-					}
-				}
-
-			}
-
-			current = next;
-		}
+		this.hasConflict = this.dateService.checkRanges(vAttributes);
 	}
 
 	edit(vot: ValueOverTime, isVersionForHighlight: number): void {
