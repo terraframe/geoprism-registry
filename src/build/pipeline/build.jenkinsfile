@@ -5,6 +5,7 @@ pipeline {
         label 'aws-linux2'
         registryUrl 'https://961902606948.dkr.ecr.us-west-2.amazonaws.com'
         registryCredentialsId 'ecr:us-west-2:aws-tf-builder'
+        args '-u root:root'
       }
     }
 
@@ -13,14 +14,19 @@ pipeline {
             steps {
               git branch: 'dev', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/common-geo-registry-adapter.git'
               
-              sh 'cd adapter/java && /root/.sdkman/candidates/maven/current/bin/mvn clean install -B'
+              sh 'cd java && mvn clean install -B'
+              
+              
             }
         }
         stage('Build CGR') {
             steps {
               git branch: 'docker-build', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/geoprism-registry.git'
               
-              sh 'cd georegistry && /root/.sdkman/candidates/maven/current/bin/mvn clean install -B'
+              sh 'nvm install lts/erbium'
+              sh 'cd georegistry-web/src/main/ng2 && npm install && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile'
+              
+              sh 'cd georegistry && mvn clean install -B'
             }
         }
         stage('Deploy') {
