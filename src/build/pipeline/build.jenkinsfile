@@ -13,6 +13,8 @@ pipeline {
             steps {
               git branch: 'dev', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/common-geo-registry-adapter.git'
               
+              sh 'pwd'
+              sh 'ls'
               sh 'whoami'
               
               sh 'mvn clean install -B'
