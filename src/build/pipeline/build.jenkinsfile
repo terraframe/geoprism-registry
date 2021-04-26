@@ -1,14 +1,11 @@
 pipeline {
     agent {
-      docker.withRegistry("https://961902606948.dkr.ecr.us-west-2.amazonaws.com", "ecr:us-west-2:aws-tf-builder") {
-        docker.image("tfbuilder:latest").pull()
+      docker {
+        image 'tfbuilder:latest'
+        label 'tfbuilder'
+        registryUrl 'https://961902606948.dkr.ecr.us-west-2.amazonaws.com'
+        registryCredentialsId 'ecr:us-west-2:aws-tf-builder'
       }
-    
-      docker { image 'tfbuilder:latest' }
-    }
-    
-    node {
-      checkout scm
     }
 
     stages {
