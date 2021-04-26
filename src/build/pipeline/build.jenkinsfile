@@ -11,7 +11,11 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Building..'
+              git branch: 'docker-build', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/geoprism-registry.git'
+              git branch: 'dev', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/common-geo-registry-adapter.git'
+              
+              echo 'Building..'
+                
             }
         }
         stage('Test') {
