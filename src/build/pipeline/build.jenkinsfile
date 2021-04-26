@@ -15,6 +15,7 @@ pipeline {
               
               sh 'pwd'
               sh 'ls'
+              sh 'ls /opt/android-sdk/cmdline-tools/latest'
               sh 'whoami'
               
               sh 'mvn clean install -B'
