@@ -2,7 +2,7 @@ pipeline {
     agent {
       docker {
         image 'tfbuilder:latest'
-        label 'tfbuilder'
+        label 'aws-linux2'
         registryUrl 'https://961902606948.dkr.ecr.us-west-2.amazonaws.com'
         registryCredentialsId 'ecr:us-west-2:aws-tf-builder'
       }
