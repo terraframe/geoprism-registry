@@ -18,14 +18,14 @@ pipeline {
               sh 'ls /opt/android-sdk/cmdline-tools/latest'
               sh 'whoami'
               
-              sh 'mvn clean install -B'
+              sh '/usr/bin/mvn clean install -B'
             }
         }
         stage('Build CGR') {
             steps {
               git branch: 'docker-build', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/geoprism-registry.git'
               
-              sh 'mvn clean install -B'
+              sh '/usr/bin/mvn clean install -B'
             }
         }
         stage('Deploy') {
