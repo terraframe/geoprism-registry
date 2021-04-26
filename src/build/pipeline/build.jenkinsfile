@@ -9,18 +9,18 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage('Build CGR Adapter') {
             steps {
-              git branch: 'docker-build', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/geoprism-registry.git'
               git branch: 'dev', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/common-geo-registry-adapter.git'
               
-              echo 'Building..'
-                
+              mvn clean install -B
             }
         }
-        stage('Test') {
+        stage('Build CGR') {
             steps {
-                echo 'Testing..'
+              git branch: 'docker-build', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/geoprism-registry.git'
+              
+              mvn clean install -B
             }
         }
         stage('Deploy') {
