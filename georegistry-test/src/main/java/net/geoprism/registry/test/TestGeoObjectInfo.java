@@ -96,6 +96,11 @@ public class TestGeoObjectInfo
 
   private void initialize(String code, TestGeoObjectTypeInfo testUni, String statusCode, Boolean isNew)
   {
+    if (code.contains(" "))
+    {
+      throw new ProgrammingErrorException("This will cause a confusing error downstream. Your code can't have a space in it.");
+    }
+    
     this.code = code;
     this.displayLabel = code;
     this.geoObjectType = testUni;
