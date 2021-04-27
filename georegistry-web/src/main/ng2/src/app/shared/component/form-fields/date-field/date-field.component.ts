@@ -20,7 +20,7 @@ export class DateFieldComponent {
 	@Input() allowFutureDates: boolean = true;
 	@Input() allowInfinity: boolean = false;
 	@Input() inputName: string = this.idGenerator();
-	@Input() classNames: string[] = [];
+	@Input() classNames: string = "";
 	@Input() localizeLabelKey: string = ""; // localization key used to localize in the component template
 	@Input() label: string = ""; // raw string input
 	@Input() disable: boolean = false;
@@ -53,6 +53,12 @@ export class DateFieldComponent {
 
 
 	private setValue(value:string | number):void {
+		// @ts-ignore
+		if( ! isNaN(value) ){
+			// @ts-ignore
+			value = parseInt(value);
+		}
+		
 		if(value && typeof value == 'string'){
 			let date = new Date(+value.split("-")[0], +value.split("-")[1]-1, +value.split("-")[2]);
 
