@@ -597,7 +597,9 @@ public class MasterList extends MasterListBase
   private Pair<Date, Date> getDateRange(final ServerGeoObjectType objectType)
   {
     Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-    if (this.getPublishingStartDate() != null)
+    
+    // Only use the publishing start date if there is an actual range of data
+    if (this.getPublishingStartDate() != null && range != null)
     {
       return new Pair<Date, Date>(this.getPublishingStartDate(), range.getSecond());
     }

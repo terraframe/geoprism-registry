@@ -11,7 +11,7 @@
         </h1>
     </div>
     <!-- <div class="col-md-12 order-md-1"> -->
-    <form #form="ngForm" class="modal-form">
+    <form #form="ngForm" class="modal-form" autocomplete="off">
 
         <fieldset>
             <div class="row-holder" *ngFor="let localeValue of master.displayLabel.localeValues">
@@ -30,7 +30,7 @@
                     </label>
                 </div>
                 <div class="holder">
-                    <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="master.typeCode" (change)="onChange($event)" required>
+                    <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="master.typeCode" (change)="onChange()" required>
                         <option></option>
                         <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
                     </select>
@@ -78,7 +78,8 @@
                     <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
                               {{formatDate(master.publishingStartDate)}}
                     </span>
-                    <date-field *ngIf="!readonly" [(value)]="master.publishingStartDate" [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'" [allowFutureDates]="false" [disable]="readonly"></date-field>
+                    <date-field *ngIf="!readonly" [(value)]="master.publishingStartDate" [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'" 
+                        [allowFutureDates]="false" [required]="false" [disable]="readonly"></date-field>
                 </div>
             </div>
             

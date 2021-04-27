@@ -298,7 +298,7 @@ export class GeoObjectEditorComponent implements OnInit {
 			});
 	}
 
-	private onValidChange() {
+	public onValidChange() {
 		if (this.attributeEditor != null) {
 			this.arePropertiesValid = this.attributeEditor.getIsValid();
 		}

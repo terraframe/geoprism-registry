@@ -27,7 +27,7 @@ export class DateService {
 
 	constructor(private localizationService: LocalizationService) {}
 
-	
+	// Get infinity date (called 'present' in the UI)
 	public getPresentDate(): Date {
 		// NOTE: Month is 0 indexed so 11 = December
 		let dt =  new Date(5000, 11, 31, 0, 0, 0);
