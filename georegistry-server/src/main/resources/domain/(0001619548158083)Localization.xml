@@ -20,14 +20,14 @@
 -->
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-    <create>
+  	<createOrUpdate>
       <mdException name="net.geoprism.registry.EmptyListException" 
                    label="Empty List Exception" 
                    message="No Active data to publish">
         <attributes>
         </attributes>
       </mdException>
-    </create>
+  	</createOrUpdate>
   </doIt>
   <undoIt>
     <delete></delete>
