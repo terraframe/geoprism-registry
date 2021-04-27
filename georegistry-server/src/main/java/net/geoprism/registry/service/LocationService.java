@@ -23,12 +23,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
+import com.google.gson.JsonElement;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -62,6 +65,15 @@ public class LocationService
       list.add(geoObject);
     }, (listA, listB) -> {
     });
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonElement getLocationInformationJson(String sessionId, Date date, String typeCode, String hierarchyCode)
+  {
+    LocationInformation information = this.getLocationInformation(sessionId, date, typeCode, hierarchyCode);
+    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(sessionId);
+
+    return information.toJson(serializer);
   }
 
   @Request(RequestType.SESSION)

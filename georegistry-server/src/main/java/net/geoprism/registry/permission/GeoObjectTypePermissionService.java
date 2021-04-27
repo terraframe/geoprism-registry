@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -27,6 +28,8 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.action.GovernancePermissionEntity;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.roles.CreateGeoObjectTypePermissionException;
 import net.geoprism.registry.roles.DeleteGeoObjectTypePermissionException;
@@ -161,6 +164,36 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
     }
 
     return false;
+  }
+  
+  public Set<CGRPermissionAction> getPermissions(ServerGeoObjectType got)
+  {
+    final String orgCode = got.getOrganization().getCode();
+    final Boolean isPrivate = got.getIsPrivate();
+    
+    HashSet<CGRPermissionAction> actions = new HashSet<CGRPermissionAction>();
+    
+    if (this.canRead(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.READ);
+    }
+    
+    if (this.canWrite(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.WRITE);
+    }
+    
+    if (this.canCreate(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.CREATE);
+    }
+
+    if (this.canDelete(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.DELETE);
+    }
+    
+    return actions;
   }
 
   @Override

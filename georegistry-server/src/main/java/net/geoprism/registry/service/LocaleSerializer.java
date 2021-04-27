@@ -19,12 +19,19 @@
 package net.geoprism.registry.service;
 
 import java.util.Locale;
+import java.util.Set;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.DefaultSerializer;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 
 public class LocaleSerializer extends DefaultSerializer implements CustomSerializer
 {
@@ -44,6 +51,28 @@ public class LocaleSerializer extends DefaultSerializer implements CustomSeriali
     if (value != null)
     {
       object.addProperty(LocalizedValue.LOCALIZED_VALUE, value);
+    }
+  }
+  
+  /**
+   * Inject permissions
+   */
+  @Override
+  public void configure(GeoObjectType type, JsonObject json)
+  {
+    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(type.getCode());
+    
+    if (optional.isPresent())
+    {
+      Set<CGRPermissionAction> perms = ServiceFactory.getGeoObjectTypePermissionService().getPermissions(optional.get());
+      
+      JsonArray jaPerms = new JsonArray();
+      for (CGRPermissionAction perm : perms)
+      {
+        jaPerms.add(perm.name());
+      }
+      
+      json.add("permissions", jaPerms);
     }
   }
 
