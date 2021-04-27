@@ -41,6 +41,8 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -319,6 +321,63 @@ public class RegistryService
 
     return ja.toString();
   }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject initHierarchyManager(String sessionId)
+  {
+    GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, null, PermissionContext.READ);
+    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(sessionId, null, PermissionContext.READ);
+    OrganizationDTO[] orgDtos = RegistryService.getInstance().getOrganizations(sessionId, null);
+    CustomSerializer serializer = this.serializer(sessionId);
+
+    JsonArray types = new JsonArray();
+
+    for (GeoObjectType got : gots)
+    {
+      JsonObject joGot = got.toJSON(serializer);
+
+      JsonArray relatedHiers = new JsonArray();
+
+      for (HierarchyType ht : hts)
+      {
+        List<HierarchyNode> hns = ht.getRootGeoObjectTypes();
+
+        for (HierarchyNode hn : hns)
+        {
+          if (hn.hierarchyHasGeoObjectType(got.getCode(), true))
+          {
+            relatedHiers.add(ht.getCode());
+          }
+        }
+      }
+
+      joGot.add("relatedHierarchies", relatedHiers);
+
+      types.add(joGot);
+    }
+
+    JsonArray hierarchies = new JsonArray();
+
+    for (HierarchyType ht : hts)
+    {
+      hierarchies.add(ht.toJSON(serializer));
+    }
+
+    JsonArray organizations = new JsonArray();
+
+    for (OrganizationDTO dto : orgDtos)
+    {
+      organizations.add(dto.toJSON(serializer));
+    }
+
+    JsonObject response = new JsonObject();
+    response.add("types", types);
+    response.add("hierarchies", hierarchies);
+    response.add("organizations", organizations);
+    response.add("locales", this.getLocales(sessionId));
+    
+    return response;
+  }
 
   @Request(RequestType.SESSION)
   public GeoObject getGeoObject(String sessionId, String uid, String geoObjectTypeCode)
@@ -577,6 +636,12 @@ public class RegistryService
     List<GeoObjectType> lTypes = new GeoObjectTypeService(adapter).getGeoObjectTypes(codes, hierarchies, context);
 
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject serialize(String sessionId, GeoObjectType got)
+  {
+    return got.toJSON(this.serializer(sessionId));
   }
 
   /**

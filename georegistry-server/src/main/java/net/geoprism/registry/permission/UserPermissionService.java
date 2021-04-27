@@ -23,6 +23,10 @@ import com.runwaysdk.session.Session;
 
 public class UserPermissionService
 {
+  public static enum CGRPermissionAction {
+    READ, WRITE, DELETE, CREATE
+  }
+  
   public boolean hasSessionUser()
   {
     return ( Session.getCurrentSession() != null && Session.getCurrentSession().getUser() != null );

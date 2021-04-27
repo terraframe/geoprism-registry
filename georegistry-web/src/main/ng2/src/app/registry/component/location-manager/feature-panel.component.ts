@@ -71,7 +71,7 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-	  this.isMaintainer = this.authService.isAdmin() || this.authService.isGeoObjectTypeRM(this.type.organizationCode, this.type.code);
+	  this.isMaintainer = this.authService.isAdmin() || this.type.permissions.includes("WRITE");
 		this.mode = 'ATTRIBUTES';
 		this.geometryChange.subscribe(v => {
 			this.updateGeometry(v);

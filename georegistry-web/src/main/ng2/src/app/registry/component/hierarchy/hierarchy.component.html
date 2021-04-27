@@ -51,7 +51,7 @@
                                     [ngClass]="{'got-group-parent' : (type.isAbstract), 'got-group-child' : type.superTypeCode && type.superTypeCode.length > 0}" >
 										{{type.label.localizedValue}}
 
-										<span *ngIf="isOrganizationRA(type.organizationCode)" style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
+										<span *ngIf="type.permissions.includes('WRITE')" style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
                                             
 											<i class="fa fa-times delete-btn clickable pull-right"
 												*ngIf="!excludeGeoObjectTypeDeletes(type)"
@@ -70,7 +70,7 @@
                                             </i>
 										</span>
 
-										<span *ngIf="!isOrganizationRA(type.organizationCode)" style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
+										<span *ngIf="!type.permissions.includes('WRITE') && type.permissions.includes('READ')" style="position:absolute;right:10px;background:rgba(255,255,255,.7);top:50%;transform:translateY(-50%);">
 											<i class="fa fa-eye clickable pull-right"
 												(click)="manageGeoObjectType(type, true)"
 												[title]="'button.view.helptext' | localize"> </i>

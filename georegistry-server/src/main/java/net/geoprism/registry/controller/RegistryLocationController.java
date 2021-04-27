@@ -29,6 +29,7 @@ import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.json.JSONException;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
@@ -42,7 +43,6 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.LocationService;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.view.LocationInformation;
 
 /**
  * This controller is used by the location manager widget.
@@ -87,10 +87,9 @@ public class RegistryLocationController
   {
     // ServerGeoObjectIF parent = service.getGeoObjectByEntityId(oid);
 
-    LocationInformation information = service.getLocationInformation(request.getSessionId(), parseDate(date), typeCode, hierarchyCode);
-    CustomSerializer serializer = ServiceFactory.getRegistryService().serializer(request.getSessionId());
+    JsonElement json = service.getLocationInformationJson(request.getSessionId(), parseDate(date), typeCode, hierarchyCode);
 
-    return new RestBodyResponse(information.toJson(serializer));
+    return new RestBodyResponse(json);
   }
 
   @Endpoint(error = ErrorSerialization.JSON)
