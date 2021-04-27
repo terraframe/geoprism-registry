@@ -200,6 +200,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     endpoints.add("registryaccount/inviteComplete");
     endpoints.add("registryaccount/newUserInstance");
     endpoints.add("cgrsession/ologin");
+    endpoints.add("master-list/tile");
     return endpoints;
   }
 
