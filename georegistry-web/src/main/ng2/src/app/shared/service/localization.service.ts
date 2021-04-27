@@ -1,10 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LocalizedValue } from '@shared/model/core';
 
-import { PRESENT } from '@registry/model/registry';
-
-import * as moment from 'moment';
-
 declare var Globalize: any;
 declare var com: any
 declare var registry: any

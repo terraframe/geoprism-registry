@@ -30,13 +30,16 @@ input[type="date"] {
 .date-input-element {
 	width: auto;
 }
+.date-input-element.full-width {
+	width: 100%;
+}
 
 .date-input-element:hover {
 /* 	cursor:pointer; */
 }
 
 
-/deep/ .bs-datepicker-body table td span.disabled, .bs-datepicker-body table td.disabled span {
+::ng-deep .bs-datepicker-body table td span.disabled, .bs-datepicker-body table td.disabled span {
     color: lightgrey;
     cursor: not-allowed;
 }

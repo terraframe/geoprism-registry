@@ -316,7 +316,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 			return true;
 		}
 
-		return (this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value !== this.calculatedPreObject[attribute.code].value);
+		if(attribute.type === 'date'){
+			return (this.calculatedPostObject[attribute.code].value && new Date(this.calculatedPostObject[attribute.code].value).getTime() !== new Date(this.calculatedPreObject[attribute.code].value).getTime());
+		}
+		else{
+			return (this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value !== this.calculatedPreObject[attribute.code].value);
+		}
 	}
 
 	onSelectPropertyOption(event: any, option: any): void {
