@@ -32,25 +32,15 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 	
 	editSessionEnabled: boolean = false;
-
 	toolsIconHover: boolean = false;
-
 	datasetId: string;
-
 	typeCode: string;
-
 	readOnly: boolean = false;
-
 	editOnly: boolean = false;
-
 	isEdit: boolean = false;
-
 	date: string;
-
 	code: string;
-
 	type: GeoObjectType;
-
 	bsModalRef: BsModalRef;
 
     /* 
@@ -83,16 +73,13 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 
 	mode: string = null;
-
 	isMaintainer: boolean;
-
 	forDate: Date = new Date();
 
 	@ViewChild("simpleEditControl") simpleEditControl: IControl;
 	editingControl: any;
 
 	geometryChange: Subject<any> = new Subject();
-
 	vot: ValueOverTime;
 
 	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
@@ -112,7 +99,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 			this.code = this.route.snapshot.params["code"];
 		}
 
-		this.forDate = new Date(Date.parse(this.date));
+		this.forDate = this.dateService.getDateFromDateString(this.date) // new Date(Date.parse(this.date));
 
 		this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
 			this.type = types[0];
@@ -621,7 +608,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.code = '__NEW__';
 	}
 	
-	formatDate(date: string): string {
+	formatDate(date: Date): string {
 		return this.dateService.formatDateForDisplay(date);
 	}
 

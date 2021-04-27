@@ -236,10 +236,12 @@ export class AbstractScheduledJob {
 
 export class ScheduledJob extends AbstractScheduledJob {
 	importedRecords: number;
+	exportedRecords: number;
 	configuration: ImportConfiguration;
 	importErrors: PaginationPage;
 	exportErrors: PaginationPage;
 	problems: PaginationPage;
+	fileName: string;
 }
 
 export class ScheduledJobOverview extends ScheduledJob {

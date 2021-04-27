@@ -44,7 +44,7 @@ export class DateFieldComponent {
 	returnFocusToInput: boolean = false;
 	valueIsPresent: boolean = false;
 	
-	valid: boolean = true;
+	@Input() valid: boolean = true;
 	@Output() public validChange = new EventEmitter<boolean>();
 
 	constructor(private localizationService: LocalizationService, private bsDatepickerConfig: BsDatepickerConfig, private changeDetectorRef: ChangeDetectorRef, private dateService: DateService) {
@@ -144,8 +144,10 @@ export class DateFieldComponent {
 			}
 			else{
 				// date required
-				this.valid = false;
-				this.message = this.localizationService.decode("manage.versions.date.required.message");
+				if(this.required){
+					this.valid = false;
+					this.message = this.localizationService.decode("manage.versions.date.required.message");
+				}
 			}
 
 
