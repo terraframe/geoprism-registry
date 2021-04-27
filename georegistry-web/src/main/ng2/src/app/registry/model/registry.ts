@@ -57,6 +57,7 @@ export class GeoObjectType {
 	isAbstract?: boolean;
 	isPrivate?: boolean;
 	canDrag?: boolean;
+	permissions?: string[];
 }
 
 export class Task {
