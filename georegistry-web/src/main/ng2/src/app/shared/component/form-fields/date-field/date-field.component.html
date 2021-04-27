@@ -6,7 +6,7 @@
 
 <div [hidden]="valueIsPresent">
   <span class="wrapper">
-      <input [class]="classNames.length > 0 ? classNames.join(' ') + ' ' + 'date-input-element' : 'date-input-element'" 
+      <input [class]="classNames ? classNames + ' ' + 'date-input-element' : 'date-input-element'" 
            name="{{inputName}}"
            type="text"
            placeholder="YYYY-MM-DD"

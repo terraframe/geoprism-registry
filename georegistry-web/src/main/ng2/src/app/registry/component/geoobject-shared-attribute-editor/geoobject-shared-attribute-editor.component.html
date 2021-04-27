@@ -102,7 +102,7 @@
                     <div class="input-group">
 <!--                       <input type="date" [ngClass]="{'input-group-read-only': readOnly}" [ngModel]="calculatedPostObject[attr.code].value | date:'yyyy-MM-dd'" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled>  -->
                       
-                      <date-field [(value)]="calculatedPostObject[attr.code].value" label="" [inputName]="'mod-'+attr.code" [disable]="true" [classNames]="['input-group-read-only full-width']"
+                      <date-field [(value)]="calculatedPostObject[attr.code].value" label="" [inputName]="'mod-'+attr.code" [disable]="true" [classNames]="'input-group-read-only full-width'"
                         [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [placement]="'right'"></date-field>
                       
                       <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
