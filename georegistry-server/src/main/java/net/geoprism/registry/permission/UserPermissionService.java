@@ -23,7 +23,7 @@ import com.runwaysdk.session.Session;
 
 public class UserPermissionService
 {
-  public static enum CGRPermissionAction {
+  public static enum CGRPermissionAction implements CGRPermissionActionIF {
     READ, WRITE, DELETE, CREATE
   }
   

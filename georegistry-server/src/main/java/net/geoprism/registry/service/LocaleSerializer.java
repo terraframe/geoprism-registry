@@ -31,6 +31,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.CGRPermissionActionIF;
 import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 
 public class LocaleSerializer extends DefaultSerializer implements CustomSerializer
@@ -64,10 +65,10 @@ public class LocaleSerializer extends DefaultSerializer implements CustomSeriali
     
     if (optional.isPresent())
     {
-      Set<CGRPermissionAction> perms = ServiceFactory.getGeoObjectTypePermissionService().getPermissions(optional.get());
+      Set<CGRPermissionActionIF> perms = ServiceFactory.getGeoObjectTypePermissionService().getPermissions(optional.get());
       
       JsonArray jaPerms = new JsonArray();
-      for (CGRPermissionAction perm : perms)
+      for (CGRPermissionActionIF perm : perms)
       {
         jaPerms.add(perm.name());
       }

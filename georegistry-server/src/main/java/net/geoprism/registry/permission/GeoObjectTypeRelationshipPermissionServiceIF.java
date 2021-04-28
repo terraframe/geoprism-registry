@@ -18,8 +18,11 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.Collection;
+
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 
 public interface GeoObjectTypeRelationshipPermissionServiceIF
 {
@@ -30,5 +33,7 @@ public interface GeoObjectTypeRelationshipPermissionServiceIF
   public boolean canRemoveChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
 
   public void enforceCanRemoveChild(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType);
+
+  public Collection<? extends CGRPermissionActionIF> getPermissions(ServerGeoObjectType serverGeoObjectType);
 
 }
