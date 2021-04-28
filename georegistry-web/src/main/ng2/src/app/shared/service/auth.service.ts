@@ -182,6 +182,17 @@ export class AuthService {
 
 		return this.isOrganizationRA(orgCode);
 	}
+	
+	isGeoObjectTypeOrSuperRM(got: any): boolean {
+	  if (this.isGeoObjectTypeRM(got.organizationCode, got.code))
+	  {
+	    return true;
+	  }
+	  else if (got.superTypeCode != null)
+	  {
+	    return this.isGeoObjectTypeRM(got.organizationCode, got.superTypeCode);
+	  }
+	}
 
 	isGeoObjectTypeRC(orgCode: string, gotCode: string): boolean {
 		if (this.isSRA()) {
