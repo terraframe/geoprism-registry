@@ -304,7 +304,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	isDifferentText(attribute: Attribute): boolean {
-		if (this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null) {
+		if ( this.isNullValue(this.calculatedPostObject[attribute.code]) && !this.isNullValue(this.calculatedPreObject[attribute.code])) {
 			return true;
 		}
 
@@ -312,7 +312,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	isDifferentValue(attribute: Attribute): boolean {
-		if (this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null) {
+		if ( this.isNullValue(this.calculatedPostObject[attribute.code]) && !this.isNullValue(this.calculatedPreObject[attribute.code])) {
 			return true;
 		}
 
@@ -322,6 +322,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		else{
 			return (this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value !== this.calculatedPreObject[attribute.code].value);
 		}
+	}
+	
+	isNullValue(vot: any)
+	{
+	  return vot == null || vot.value == null || vot.value == "";
 	}
 
 	onSelectPropertyOption(event: any, option: any): void {
@@ -351,12 +356,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	isStatusChanged(post, pre) {
 
-		if (pre != null && post == null) {
+		if ( (pre != null && post == null) || (post != null && pre == null) ) {
 			return true;
 		}
+		else if (pre == null && post == null)
+		{
+		  return false;
+		}
 
-		if (pre == null || post == null || pre.length == 0 || post.length == 0) {
-			return false;
+		if ( (pre.length == 0 && post.length > 0) || (post.length == 0 && pre.length > 0) ) {
+			return true;
 		}
 
 		var preCompare = pre;

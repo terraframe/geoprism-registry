@@ -100,14 +100,14 @@
                         <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'">
                           <localize key="change.request.table.update"
                            [params]="{
-                             '{0}':action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value,
+                             '{0}':getGOTLabel(action),
                              '{1}':action.geoObjectType.label.localizedValue
                             }"></localize>
                         </li>
                         <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'">
                           <localize key="change.request.table.create"
                            [params]="{
-                             '{0}':action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value,
+                             '{0}':getGOTLabel(action),
                              '{1}':action.geoObjectType.label.localizedValue
                             }"></localize>
                         </li>
