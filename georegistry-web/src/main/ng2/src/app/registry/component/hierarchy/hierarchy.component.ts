@@ -163,8 +163,15 @@ export class HierarchyComponent implements OnInit {
   private renderTree(): void {
     if (this.currentHierarchy == null || this.currentHierarchy.rootGeoObjectTypes == null || this.currentHierarchy.rootGeoObjectTypes.length == 0) {
       d3.select("#svg").remove();
+      
+      let canDrag = false;
+      if (this.currentHierarchy != null)
+      {
+        canDrag = ( this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode) );
+      }
+      
       this.geoObjectTypes.forEach((got: GeoObjectType) => {
-        got.canDrag = ( this.authService.isSRA() || this.authService.isOrganizationRA(this.primarySvgHierarchy.hierarchyType.organizationCode) );
+        got.canDrag = canDrag;
       });
       return;
     }
@@ -222,7 +229,7 @@ export class HierarchyComponent implements OnInit {
 
     if (this.primarySvgHierarchy != null) {
       // Check permissions against GOT and Hierarchy org
-      if (! ( this.authService.isSRA() || this.authService.isOrganizationRA(this.primarySvgHierarchy.hierarchyType.organizationCode) ))
+      if (! ( this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode) ))
       {
         return false;
       }
