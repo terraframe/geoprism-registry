@@ -71,7 +71,7 @@ public class HierarchyService
       {
         List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sHT, true);
 
-        if (parents.size() > 0)
+        if (parents.size() > 0 || geoObjectType.isRoot(sHT))
         {
           JsonObject object = new JsonObject();
           object.addProperty("code", sHT.getCode());
