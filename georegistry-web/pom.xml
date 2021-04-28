@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-		<version>0.14.5</version>
+		<version>0.14.6-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-web</artifactId>
 	<packaging>war</packaging>
