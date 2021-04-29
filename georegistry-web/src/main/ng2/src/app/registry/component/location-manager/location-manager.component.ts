@@ -117,6 +117,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   hoverFeatureId: string;
 
   preventSingleClick: boolean = false;
+  
+  hideSearchOptions: boolean = false;
 
   /* 
      * Timer for determining double click vs single click
@@ -149,6 +151,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   this.urlSubscriber = this.route.params.subscribe(params => {
      let geoObjectUid = params['geoobjectuid'];
      let geoObjectTypeCode = params['geoobjecttypecode'];
+     this.hideSearchOptions = params['hideSearchOptions'];
      
      this.dateStr = params['datestr'];
      this.handleDateChange();

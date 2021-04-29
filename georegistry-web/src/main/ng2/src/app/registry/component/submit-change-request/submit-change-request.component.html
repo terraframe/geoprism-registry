@@ -46,8 +46,10 @@
         
         <div class="col-md-2">
           <label></label>
-           <!-- <a *ngIf="preGeoObject && forDate" [routerLink]="['/registry/location-manager', preGeoObject.attributes.uid, preGeoObject.attributes.type, dateStr]" -->
-           <a *ngIf="preGeoObject && forDate" [routerLink]="['/registry/dataset-location-manager', '123', preGeoObject.attributes.type, 'false', dateStr, preGeoObject.attributes.code, 'true']"
+           <!-- We cannot use the dataset-location-manager here because it pulls the tiles from the dataset (list) and we don't have a dataset. -->
+           <!-- <a *ngIf="preGeoObject && forDate" [routerLink]="['/registry/dataset-location-manager', '123', preGeoObject.attributes.type, 'false', dateStr, preGeoObject.attributes.code, 'true']" -->
+          
+           <a *ngIf="preGeoObject && forDate" [routerLink]="['/registry/location-manager', preGeoObject.attributes.uid, preGeoObject.attributes.type, dateStr, 'true']"
                 target="_blank">
             <button class="btn btn-primary" style="width:100%;"><localize key="change.request.open.geoobject.in.editor.link.btn"></localize></button>
           </a>
