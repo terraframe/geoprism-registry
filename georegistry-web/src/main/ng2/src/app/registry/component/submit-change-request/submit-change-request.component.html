@@ -24,7 +24,7 @@
             [typeaheadOptionsLimit]="7" typeaheadOptionField="name" (typeaheadLoading)="changeTypeaheadLoading($event)" [placeholder]="('masterlist.search' | localize) + '...'" class="form-control" autocomplete="off">
         
             <span *ngIf="preGeoObject" class="pull-right">
-              <a (click)="showGeoObjectDetails = !showGeoObjectDetails">
+              <a (click)="clickShowDetails()">
                 <localize *ngIf="!showGeoObjectDetails" key="change.request.create.request.show.details.btn"></localize>
                 <localize *ngIf="showGeoObjectDetails" key="change.request.create.request.hide.details.btn"></localize>
               </a>
