@@ -19,7 +19,8 @@
 #
 
 
-# This script is designed to be used by developers when setting up / updating a new environment.
+# This script is designed to run when your computer boots at the beginning of the day. It should
+# launch all relevant programs necessary for development.
 # This script should be idempotent, which should allow the script to be run in update contexts.
 # This script has been tested on Ubuntu
 
@@ -45,26 +46,28 @@ nvm install lts/erbium
 
 # Update git
 cd $CGR_PROJECT
-git fetch
+git pull
 
-# Build front-end code
-cd $CGR_PROJECT/georegistry-web/src/main/ng2
-rm -rf node_modules
-npm install
-npm run build
+cd $CGR/common-geo-registry-adapter/java
+git pull
+mvn install
 
-# Build Java / webapp code
-cd $CGR_PROJECT
-mvn clean install -U
-	
 # Run Docker containers
-sudo -E $CGR_PROJECT/src/dev/shell/postgres.sh
-sudo -E $CGR_PROJECT/src/dev/shell/orientdb.sh
+sudo docker start orientdb
 
-sleep 10
+# Kill any running tomcat
+pkill -f -SIGINT catalina || true
+sleep 2
 
-# Build database
-cd $CGR_PROJECT/georegistry-server
-mvn validate -P database -Ddb.clean=true -Ddb.rootPass=postgres -Ddb.rootUser=postgres -Ddb.rootDb=postgres -Ddb.patch=false
+# Run the ng2 server
+cd $CGR_PROJECT/georegistry-web/src/main/ng2
+gnome-terminal -x sh -c "npm run start"
 
-echo "Your environment is now built. If you would like to import test data you may run the 'CambodiaTestDataset' Java file."
+# Run the cgr webserver
+cd $CGR_PROJECT
+mvn clean
+gnome-terminal -x sh -c "mvn install -P ng2-dev,cargo-run-georegistry"
+
+# Open a web browser to view the app
+sleep 5
+google-chrome https://localhost:8443/georegistry

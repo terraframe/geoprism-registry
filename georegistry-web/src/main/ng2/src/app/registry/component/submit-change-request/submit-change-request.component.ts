@@ -32,7 +32,11 @@ export class SubmitChangeRequestComponent implements OnInit {
 	reason: string = "";
 
 	dataSource: Observable<any>;
-
+	
+	dateStr: string = null;
+	
+	forDate: Date = null;
+	
 	@ViewChild("attributeEditor") attributeEditor;
 
 	@ViewChild("geometryEditor") geometryEditor;
@@ -99,7 +103,16 @@ export class SubmitChangeRequestComponent implements OnInit {
 
 	}
 
-
+  public handleDateChange() {
+    if (this.dateStr != null)
+    {
+      this.forDate = new Date(Date.parse(this.dateStr));
+    }
+    else
+    {
+      this.forDate = null;
+    }
+  }
 
 	private onValidChange(newValid: boolean) {
 		if (this.preGeoObject == null) {

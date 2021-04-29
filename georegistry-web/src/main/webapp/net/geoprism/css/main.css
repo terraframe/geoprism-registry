@@ -259,3 +259,12 @@ Error Modal
 }
 
 
+
+/**
+ * Date Erorr message for location-manager
+ */
+.date-required-message  {
+  border-color: red;
+}
+
+

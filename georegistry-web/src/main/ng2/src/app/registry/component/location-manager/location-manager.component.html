@@ -14,9 +14,13 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="location-management-widget-section">
+                    <span style="margin-right:10px;"><localize key="changeOverTime.forDate" ng-reflect-key="changeOverTime.forDate"></localize></span>
 <!--                     <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" [disabled]="mode !== MODE.SEARCH"/> -->
                     <date-field [(value)]="dateStr" label="" [inputName]="'dateStr'" (change)="handleDateChange()" [disable]="mode !== MODE.SEARCH" 
-                        [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [placement]="'right'"></date-field>
+                        [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [classNames]="displayDateRequiredError ? 'date-required-message' : ''" [placement]="'right'" style="display:inline-grid;"></date-field>
+                    <div *ngIf="displayDateRequiredError" class="error-message">
+                      <localize key="geoobject.editor.forDate.requiredErrorMessage"></localize>
+                    </div>
                   </div>
                 </div>
               </div>
