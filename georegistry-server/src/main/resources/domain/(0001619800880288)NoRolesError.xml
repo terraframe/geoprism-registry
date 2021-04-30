@@ -1,0 +1,18 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hub.no-valid-roles">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hub.no-valid-roles" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="You do not have any valid roles. Contact your administrator and request that he look at your permissions." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
