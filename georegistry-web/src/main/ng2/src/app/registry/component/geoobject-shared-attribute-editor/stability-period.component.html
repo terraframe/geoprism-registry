@@ -1,0 +1,13 @@
+
+<div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h4 style="margin:0px">Validity Period</h4>
+    </div>
+    <div class="panel-body">
+      <div *ngFor="let period of periods; let i = index">
+        {{formatDate(period.startDate)}} - {{formatDate(period.endDate)}}
+      </div>
+    </div>
+  </div>
+</div>

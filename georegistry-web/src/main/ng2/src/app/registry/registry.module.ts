@@ -46,6 +46,7 @@ import { CreateUpdateGeoObjectDetailComponent } from './component/crtable/action
 import { AddRemoveChildDetailComponent } from './component/crtable/action-detail/add-remove-child/detail.component';
 import { SetParentDetailComponent } from './component/crtable/action-detail/set-parent/set-parent-detail.component';
 import { GeoObjectSharedAttributeEditorComponent } from './component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component';
+import { ValidityPeriodComponent } from './component/geoobject-shared-attribute-editor/validity-period.component';
 import { ManageVersionsComponent } from './component/geoobject-shared-attribute-editor/manage-versions.component';
 import { ManageVersionsModalComponent } from './component/geoobject-shared-attribute-editor/manage-versions-modal.component';
 import { SubmitChangeRequestComponent } from './component/submit-change-request/submit-change-request.component';
@@ -162,6 +163,7 @@ import '../rxjs-extensions';
 		LocalizedInputComponent,
 		LocalizedTextComponent,
 		GeoObjectSharedAttributeEditorComponent,
+		ValidityPeriodComponent,
 		ManageVersionsComponent,
 		ManageVersionsModalComponent,
 		SubmitChangeRequestComponent,
@@ -242,6 +244,7 @@ import '../rxjs-extensions';
 		GeoObjectTypeInputComponent,
 		ManageTermOptionsComponent,
 		GeoObjectSharedAttributeEditorComponent,
+		ValidityPeriodComponent,
 		ManageVersionsModalComponent,
 		ManageParentVersionsModalComponent,
 		SubmitChangeRequestComponent,
