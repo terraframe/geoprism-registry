@@ -1,7 +1,5 @@
 <div>
   <div *ngIf="mode == MODE.ATTRIBUTES && postGeoObject != null">
-    <validity-period [geoObjectOverTime]="postGeoObject"></validity-period>
-  
     <!-- Attributes tab -->
     <geoobject-shared-attribute-editor 
       #attributeEditor 
