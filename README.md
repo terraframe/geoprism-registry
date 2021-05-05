@@ -10,17 +10,17 @@ There are numerous organizations involved with designing, building, and testing 
 * <a href="http://dsme.community/" target="_blank">Digital Solutions For Malaria Elimination (DSME)</a>
 
 ## A more comprehensive ticket system and live roadmap can be found here (requires GitHub login):
-*  https://app.zenhub.com/workspaces/geoprism-registry-5df81d4b734ff217d40b12a4/roadmap
+*  <a href="https://app.zenhub.com/workspaces/geoprism-registry-5df81d4b734ff217d40b12a4/roadmap" target="_blank">Software Development Tickets on ZenHub</a>
 
 NOTE: This is synchronized with GitHub so it is as current as GitHub. This sytem simply adds some more higher level roadmap features on top of GitHub.
 
 ## Documentation
 
 ### Implementor (user) Documentation
-* https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901873771/Implementor+Documentation
+* <a href="https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901873771/Implementor+Documentation" target="_blank">General Usage Documentation</a>
 
 ### Developer API
-* https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901513246/Developer+APIs
+* <a href="https://terraframe.atlassian.net/wiki/spaces/GGR/pages/901513246/Developer+APIs" target="_blank">REST API Documentation</a>
 
 ### REST API Documentation
 The CGR implements the CGR REST API specification which is a supporting opensrouce project.
