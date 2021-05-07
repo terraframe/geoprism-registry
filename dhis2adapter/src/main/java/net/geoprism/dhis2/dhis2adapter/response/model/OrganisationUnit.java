@@ -18,11 +18,14 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response.model;
 
+import java.util.Date;
+
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class OrganisationUnit
 {
-private String code;
+  private String code;
   
   private String created;
   
@@ -41,6 +44,162 @@ private String code;
   private String coordinates;
   
   private String featureType;
+  
+  private String address;
+  
+  private String description;
+  
+  private String contactPersion;
+  
+  private String url;
+  
+  private String phoneNumber;
+  
+  private Date closedDate;
+  
+  private String comment;
+  
+  private Date openingDate;
+  
+  private String email;
+  
+  private JsonObject lastUpdatedBy;
+  
+  private JsonObject createdBy;
+  
+  private JsonArray attributeValues;
+  
+  private JsonArray translations;
+
+  public String getAddress()
+  {
+    return address;
+  }
+
+  public void setAddress(String address)
+  {
+    this.address = address;
+  }
+
+  public String getDescription()
+  {
+    return description;
+  }
+
+  public void setDescription(String description)
+  {
+    this.description = description;
+  }
+
+  public String getContactPersion()
+  {
+    return contactPersion;
+  }
+
+  public void setContactPersion(String contactPersion)
+  {
+    this.contactPersion = contactPersion;
+  }
+
+  public String getUrl()
+  {
+    return url;
+  }
+
+  public void setUrl(String url)
+  {
+    this.url = url;
+  }
+
+  public String getPhoneNumber()
+  {
+    return phoneNumber;
+  }
+
+  public void setPhoneNumber(String phoneNumber)
+  {
+    this.phoneNumber = phoneNumber;
+  }
+
+  public Date getClosedDate()
+  {
+    return closedDate;
+  }
+
+  public void setClosedDate(Date closedDate)
+  {
+    this.closedDate = closedDate;
+  }
+
+  public String getComment()
+  {
+    return comment;
+  }
+
+  public void setComment(String comment)
+  {
+    this.comment = comment;
+  }
+
+  public Date getOpeningDate()
+  {
+    return openingDate;
+  }
+
+  public void setOpeningDate(Date openingDate)
+  {
+    this.openingDate = openingDate;
+  }
+
+  public String getEmail()
+  {
+    return email;
+  }
+
+  public void setEmail(String email)
+  {
+    this.email = email;
+  }
+
+  public JsonObject getLastUpdatedBy()
+  {
+    return lastUpdatedBy;
+  }
+
+  public void setLastUpdatedBy(JsonObject lastUpdatedBy)
+  {
+    this.lastUpdatedBy = lastUpdatedBy;
+  }
+
+  public JsonObject getCreatedBy()
+  {
+    return createdBy;
+  }
+
+  public void setCreatedBy(JsonObject createdBy)
+  {
+    this.createdBy = createdBy;
+  }
+
+  public JsonArray getAttributeValues()
+  {
+    return attributeValues;
+  }
+
+  public void setAttributeValues(JsonArray attributeValues)
+  {
+    this.attributeValues = attributeValues;
+  }
+
+  public JsonArray getTranslations()
+  {
+    return translations;
+  }
+
+  public void setTranslations(JsonArray translations)
+  {
+    this.translations = translations;
+  }
 
   public String getCode()
   {

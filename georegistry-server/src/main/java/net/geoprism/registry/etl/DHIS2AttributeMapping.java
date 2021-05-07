@@ -18,19 +18,46 @@
  */
 package net.geoprism.registry.etl;
 
-import java.util.Map;
+import java.lang.reflect.Type;
+import java.util.Date;
+
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.annotations.SerializedName;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
+
+import net.geoprism.registry.etl.export.dhis2.DHIS2GeoObjectJsonAdapters;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class DHIS2AttributeMapping
 {
+  public static final String ATTRIBUTE_MAPPING_STRATEGY_JSON = "attributeMappingStrategy";
   
-  private String name;
+  private static final Logger logger = LoggerFactory.getLogger(DHIS2AttributeMapping.class);
   
-  private String externalId;
+  @SerializedName(ATTRIBUTE_MAPPING_STRATEGY_JSON)
+  protected String attributeMappingStrategy;
   
-  private boolean isOrgUnitGroup = false;
+  protected String cgrAttrName;
   
-  private Map<String, String> terms;
-
+  protected String dhis2AttrCode;
+  
+  protected String externalId;
+  
   public String getExternalId()
   {
     return externalId;
@@ -41,49 +68,153 @@ public class DHIS2AttributeMapping
     this.externalId = externalId;
   }
 
-  public String getName()
+  public String getCgrAttrName()
   {
-    return name;
+    return cgrAttrName;
   }
 
-  public void setName(String name)
+  public void setCgrAttrName(String name)
   {
-    this.name = name;
-  }
-
-  public String getTermMapping(String classifierId)
-  {
-    if (this.terms == null)
-    {
-      return null;
-    }
-    
-    return this.terms.get(classifierId);
-  }
-
-  public Map<String, String> getTerms()
-  {
-    return terms;
-  }
-
-  public void setTerms(Map<String, String> terms)
-  {
-    this.terms = terms;
-  }
-
-  public boolean isOrgUnitGroup()
-  {
-    return isOrgUnitGroup;
-  }
-
-  public void setIsOrgUnitGroup(boolean isOrgUnitGroup)
-  {
-    this.isOrgUnitGroup = isOrgUnitGroup;
+    this.cgrAttrName = name;
   }
   
-  public boolean isMapped()
+  public String getAttributeMappingStrategy()
   {
-    return this.getExternalId() != null && this.getExternalId().length() > 0;
+    return attributeMappingStrategy;
+  }
+
+  public void setAttributeMappingStrategy(String attributeMappingStrategy)
+  {
+    this.attributeMappingStrategy = attributeMappingStrategy;
+  }
+
+  public String getDhis2AttrName()
+  {
+    return dhis2AttrCode;
+  }
+
+  public void setDhis2AttrName(String dhis2AttrName)
+  {
+    this.dhis2AttrCode = dhis2AttrName;
+  }
+
+  public boolean isStandardAttribute()
+  {
+    return this.cgrAttrName != null && this.cgrAttrName.length() > 0
+        && this.dhis2AttrCode != null && this.dhis2AttrCode.length() > 0
+        && (this.externalId == null || this.externalId.length() == 0);
+  }
+  
+  public boolean isCustomAttribute()
+  {
+    return this.cgrAttrName != null && this.cgrAttrName.length() > 0
+        && this.dhis2AttrCode != null && this.dhis2AttrCode.length() > 0
+        && this.externalId != null && this.externalId.length() > 0;
+  }
+
+  public void writeStandardAttributes(VertexServerGeoObject serverGo, JsonObject jo, DHIS2SyncConfig dhis2Config, SyncLevel level)
+  {
+    if (this.isStandardAttribute())
+    {
+      ServerGeoObjectType got = level.getGeoObjectType();
+      AttributeType attr = got.getAttribute(this.getCgrAttrName()).get();
+      
+      Object value = serverGo.getValue(attr.getName());
+      
+      if (value == null || (value instanceof String && ((String)value).length() == 0))
+      {
+        return;
+      }
+      
+      this.writeAttributeValue(attr, this.dhis2AttrCode, value, jo);
+    }
+  }
+
+  public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, String lastUpdateDate, String createDate)
+  {
+    if (this.isCustomAttribute())
+    {
+      ServerGeoObjectType got = syncLevel.getGeoObjectType();
+      
+      AttributeType attr = got.getAttribute(this.getCgrAttrName()).get();
+      Object value = serverGo.getValue(attr.getName());
+      
+      if (value == null || (value instanceof String && ((String)value).length() == 0))
+      {
+        return;
+      }
+      
+      JsonObject av = new JsonObject();
+
+      av.addProperty("lastUpdated", lastUpdateDate);
+
+      av.addProperty("created", createDate);
+
+      this.writeAttributeValue(attr, "value", value, av);
+
+      JsonObject joAttr = new JsonObject();
+      joAttr.addProperty("id", this.getExternalId());
+      av.add("attribute", joAttr);
+
+      attributeValues.add(av);
+    }
+  }
+
+  protected void writeAttributeValue(AttributeType attr, String propertyName, Object value, JsonObject json)
+  {
+    if (attr instanceof AttributeBooleanType)
+    {
+      json.addProperty(propertyName, (Boolean) value);
+    }
+    else if (attr instanceof AttributeIntegerType)
+    {
+      json.addProperty(propertyName, (Long) value);
+    }
+    else if (attr instanceof AttributeFloatType)
+    {
+      json.addProperty(propertyName, (Double) value);
+    }
+    else if (attr instanceof AttributeDateType)
+    {
+      json.addProperty(propertyName, DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) value));
+    }
+    else
+    {
+      json.addProperty(propertyName, String.valueOf(value));
+    }
+  }
+  
+  public static class DHIS2AttributeMappingDeserializer implements JsonDeserializer<DHIS2AttributeMapping>
+  {
+    private Gson defaultGson = new Gson();
+    
+    @Override
+    public DHIS2AttributeMapping deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
+    {
+      JsonObject jo = json.getAsJsonObject();
+      
+      String typeName;
+      if (jo.has(ATTRIBUTE_MAPPING_STRATEGY_JSON))
+      {
+        typeName = jo.get(ATTRIBUTE_MAPPING_STRATEGY_JSON).getAsString();
+      }
+      else
+      {
+        typeName = DHIS2AttributeMapping.class.getName();
+      }
+      
+      try
+      {
+        @SuppressWarnings("unchecked")
+        Class<DHIS2AttributeMapping> clazz = (Class<DHIS2AttributeMapping>) DHIS2AttributeMapping.class.getClassLoader().loadClass(typeName);
+        return defaultGson.fromJson(json, clazz);
+      }
+      catch (ClassNotFoundException | SecurityException e)
+      {
+        logger.error("Unable to instantiate mapping strategy.", e);
+        throw new ProgrammingErrorException(e);
+      }
+    }
   }
   
 }

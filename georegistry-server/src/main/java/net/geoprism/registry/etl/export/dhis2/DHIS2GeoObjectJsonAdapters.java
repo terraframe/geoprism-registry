@@ -25,12 +25,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
@@ -67,7 +67,6 @@ import net.geoprism.registry.io.InvalidGeometryException;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class DHIS2GeoObjectJsonAdapters
@@ -227,29 +226,60 @@ public class DHIS2GeoObjectJsonAdapters
 
     private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
-      // if (this.syncLevel.getSyncType() == SyncLevel.Type.ALL ||
-      // this.syncLevel.getSyncType() == SyncLevel.Type.ORG_UNITS)
-      // {
-      jo.addProperty("code", serverGo.getCode());
+      // Give our attribute mappings a chance to fill out any standard attributes
+      for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
+      {
+        mapping.writeStandardAttributes(serverGo, jo, this.dhis2Config, this.syncLevel);
+      }
+      
+      // Fill in any required attributes with some sensible defaults
+      // TODO : Attribute mapping should be optional
+      if (!jo.has("code"))
+      {
+        jo.addProperty("code", serverGo.getCode());
+      }
 
-      jo.addProperty("id", this.getOrCreateExternalId(serverGo));
+      if (!jo.has("id"))
+      {
+        jo.addProperty("id", this.getOrCreateExternalId(serverGo));
+      }
 
-      jo.addProperty("created", formatDate(serverGo.getCreateDate()));
+      if (!jo.has("created"))
+      {
+        jo.addProperty("created", formatDate(serverGo.getCreateDate()));
+      }
 
-      jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
+      if (!jo.has("lastUpdated"))
+      {
+        jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
+      }
 
-      jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+      if (!jo.has("name"))
+      {
+        jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+      }
 
-      jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+      if (!jo.has("shortName"))
+      {
+        jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+      }
 
-      jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
+      if (!jo.has("openingDate"))
+      {
+        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
+      }
 
-      writeGeometry(jo, serverGo);
+      if (!jo.has("featureType") || !jo.has("coordinates"))
+      {
+        writeGeometry(jo, serverGo);
+      }
 
-      jo.add("translations", writeTranslations(serverGo));
+      if (!jo.has("translations"))
+      {
+        jo.add("translations", writeTranslations(serverGo));
+      }
 
       this.writeCustomAttributes(serverGo, jo);
-      // }
     }
 
     private void writeCustomAttributes(VertexServerGeoObject serverGo, JsonObject jo)
@@ -259,107 +289,10 @@ public class DHIS2GeoObjectJsonAdapters
       final String createDate = formatDate(serverGo.getCreateDate());
 
       JsonArray attributeValues = new JsonArray();
-
-      Map<String, AttributeType> attrs = this.got.getAttributeMap();
-
-      for (AttributeType attr : attrs.values())
+      
+      for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
       {
-        if (attr.getIsDefault())
-        {
-          continue;
-        }
-        
-        if (this.syncLevel.hasAttribute(attr.getName()))
-        {
-          Object value = serverGo.getValue(attr.getName());
-          
-          if (value == null || (value instanceof String && ((String)value).length() == 0))
-          {
-            continue;
-          }
-          
-          DHIS2AttributeMapping attrMapping = this.syncLevel.getAttribute(attr.getName());
-
-          if (attrMapping.isOrgUnitGroup())
-          {
-            if (attr instanceof AttributeTermType)
-            {
-              Classifier classy = (Classifier) value;
-
-              String orgUnitGroupId = attrMapping.getTermMapping(classy.getClassifierId());
-
-              if (orgUnitGroupId == null)
-              {
-                MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
-                ex.setTermCode(classy.getClassifierId());
-                throw ex;
-              }
-
-              Set<String> orgUnitGroupIdSet = this.syncLevel.getOrgUnitGroupIdSet(orgUnitGroupId);
-              if (orgUnitGroupIdSet == null)
-              {
-                orgUnitGroupIdSet = this.syncLevel.newOrgUnitGroupIdSet(orgUnitGroupId);
-              }
-
-              orgUnitGroupIdSet.add(serverGo.getExternalId(this.ex));
-            }
-            else
-            {
-              logger.error("Unsupported attribute type [" + attr.getClass().getName() + "] with name [" + attr.getName() + "] when matched to OrgUnitGroup.");
-              continue;
-            }
-          }
-          else if (attrMapping.isMapped())
-          {
-            JsonObject av = new JsonObject();
-
-            av.addProperty("lastUpdated", lastUpdateDate);
-
-            av.addProperty("created", createDate);
-
-            if (attr instanceof AttributeBooleanType)
-            {
-              av.addProperty("value", (Boolean) value);
-            }
-            else if (attr instanceof AttributeIntegerType)
-            {
-              av.addProperty("value", (Long) value);
-            }
-            else if (attr instanceof AttributeFloatType)
-            {
-              av.addProperty("value", (Double) value);
-            }
-            else if (attr instanceof AttributeDateType)
-            {
-              av.addProperty("value", formatDate((Date) value));
-            }
-            else if (attr instanceof AttributeTermType)
-            {
-              Classifier classy = (Classifier) value;
-
-              String mapping = attrMapping.getTermMapping(classy.getClassifierId());
-
-              if (mapping == null)
-              {
-                MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
-                ex.setTermCode(classy.getClassifierId());
-                throw ex;
-              }
-
-              av.addProperty("value", mapping);
-            }
-            else
-            {
-              av.addProperty("value", String.valueOf(value));
-            }
-
-            JsonObject joAttr = new JsonObject();
-            joAttr.addProperty("id", attrMapping.getExternalId());
-            av.add("attribute", joAttr);
-
-            attributeValues.add(av);
-          }
-        }
+        mapping.writeCustomAttributes(attributeValues, serverGo, this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
       }
 
       jo.add("attributeValues", attributeValues);
