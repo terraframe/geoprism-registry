@@ -327,9 +327,24 @@ export class SynchronizationConfigModalComponent implements OnInit {
 
         if (isDifferentGot) {
           level.attributes = {};
+          levelRow.attrCfg = { geoObjectTypeCode: geoObjectTypeCode, mappings: [], attrConfigInfos: infos };
         }
-
-        levelRow.attrCfg = { geoObjectTypeCode: geoObjectTypeCode, mappings: [], attrConfigInfos: infos };
+        else
+        {
+          let mappings = [];
+          Object.values(level.attributes).forEach(
+            (attr: DHIS2AttributeMapping) => {
+              infos.forEach( (info) => {
+                if (info.cgrAttr.name === attr.cgrAttrName)
+                {
+                  attr.info = info;
+                }
+              });
+              mappings.push(attr);
+            }
+          );
+          levelRow.attrCfg = { geoObjectTypeCode: geoObjectTypeCode, mappings: mappings, attrConfigInfos: infos };
+        }
 
         if (editorIndex != -1 && (editorIndex === levelRowIndex + 1 || infos.length > 0)) {
           this.levelRows.splice(editorIndex, 1);
@@ -366,6 +381,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
     mapping.externalId = null;
     mapping.terms = {};
     mapping.isOrgUnitGroup = false;
+    mapping.attributeMappingStrategy = info.attributeMappingStrategies[0];
   }
   
   onChangeTargetType(mapping: DHIS2AttributeMapping): void {

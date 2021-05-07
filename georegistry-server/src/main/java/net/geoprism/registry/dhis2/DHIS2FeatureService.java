@@ -108,7 +108,7 @@ public class DHIS2FeatureService
   {
     List<DHIS2AttributeMapping> strategies = new ArrayList<DHIS2AttributeMapping>();
     
-    if (type.equals(AttributeTermType.TYPE))
+    if (type.getType().equals(AttributeTermType.TYPE))
     {
       strategies.add(new DHIS2TermAttributeMapping());
     }
