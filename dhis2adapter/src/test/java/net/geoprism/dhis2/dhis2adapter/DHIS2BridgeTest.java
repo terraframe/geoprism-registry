@@ -44,9 +44,6 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.ValueType;
 
-/**
- * Tests the DHIS2 Facade by talking to play.dhis2.org
- */
 public class DHIS2BridgeTest
 {
   

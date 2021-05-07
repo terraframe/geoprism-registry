@@ -18,8 +18,6 @@
  */
 package net.geoprism.dhis2.dhis2adapter.exception;
 
-import com.google.gson.JsonObject;
-
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
 
 public class UnexpectedResponseException extends Exception

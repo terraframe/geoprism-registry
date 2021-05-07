@@ -52,6 +52,7 @@ import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.vividsolutions.jts.geom.Geometry;
 
+import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -227,9 +228,12 @@ public class DHIS2GeoObjectJsonAdapters
     private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
       // Give our attribute mappings a chance to fill out any standard attributes
-      for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
+      if (this.syncLevel.getAttributes() != null)
       {
-        mapping.writeStandardAttributes(serverGo, jo, this.dhis2Config, this.syncLevel);
+        for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
+        {
+          mapping.writeStandardAttributes(serverGo, jo, this.dhis2Config, this.syncLevel);
+        }
       }
       
       // Fill in any required attributes with some sensible defaults
@@ -290,9 +294,12 @@ public class DHIS2GeoObjectJsonAdapters
 
       JsonArray attributeValues = new JsonArray();
       
-      for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
+      if (this.syncLevel.getAttributes() != null)
       {
-        mapping.writeCustomAttributes(attributeValues, serverGo, this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
+        for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
+        {
+          mapping.writeCustomAttributes(attributeValues, serverGo, this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
+        }
       }
 
       jo.add("attributeValues", attributeValues);
@@ -363,7 +370,7 @@ public class DHIS2GeoObjectJsonAdapters
 
     public static String formatDate(Date date)
     {
-      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+      SimpleDateFormat format = new SimpleDateFormat(DHIS2Constants.DATE_FORMAT);
       format.setTimeZone(TimeZone.getTimeZone("UTC"));
 
       if (date != null)

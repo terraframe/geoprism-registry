@@ -32,6 +32,7 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,7 +45,6 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
-import junit.framework.Assert;
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
@@ -59,8 +59,8 @@ import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
-import net.geoprism.registry.etl.DHIS2ServiceTest;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.DHIS2TermAttributeMapping;
 import net.geoprism.registry.etl.SyncLevel;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
@@ -341,8 +341,8 @@ public class RemoteDHIS2APITest
     levels.add(level3);
     
     Map<String, DHIS2AttributeMapping> mappings = new HashMap<String, DHIS2AttributeMapping>();
-    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
-    mapping.setName(attr.getAttributeName());
+    DHIS2TermAttributeMapping mapping = new DHIS2TermAttributeMapping();
+    mapping.setCgrAttrName(attr.getAttributeName());
     mapping.setExternalId(externalAttrId);
     mappings.put(attr.getAttributeName(), mapping);
     level3.setAttributes(mappings);
@@ -421,7 +421,7 @@ public class RemoteDHIS2APITest
   @Request
   public void testGetCustomAttributeConfiguration() throws Exception
   {
-    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.clientSession.getSessionId(), this.system.getOid(), AllAttributesDataset.GOT_ALL.getCode());
+    JsonArray custConfig = new DHIS2FeatureService().getDHIS2AttributeConfiguration(testData.clientSession.getSessionId(), this.system.getOid(), AllAttributesDataset.GOT_ALL.getCode());
     
     for (int i = 0; i < custConfig.size(); ++i)
     {

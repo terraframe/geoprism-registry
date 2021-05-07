@@ -21,10 +21,12 @@ package net.geoprism.registry.etl;
 import java.lang.reflect.Type;
 import java.util.Date;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,6 +179,10 @@ public class DHIS2AttributeMapping
     else if (attr instanceof AttributeDateType)
     {
       json.addProperty(propertyName, DHIS2GeoObjectJsonAdapters.DHIS2Serializer.formatDate((Date) value));
+    }
+    else if (attr instanceof AttributeLocalType)
+    {
+      json.addProperty(propertyName, ((LocalizedValue)value).getValue(LocalizedValue.DEFAULT_LOCALE));
     }
     else
     {

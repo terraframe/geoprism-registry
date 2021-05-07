@@ -26,6 +26,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.dhis2.dhis2adapter.response.model.ErrorReport;
 import net.geoprism.dhis2.dhis2adapter.response.model.ObjectReport;
 
@@ -53,6 +54,7 @@ public class ObjectReportResponse extends DHIS2ImportResponse
     if (this.getJsonObject() != null && this.getJsonObject().has("response"))
     {
       GsonBuilder builder = new GsonBuilder();
+      builder.setDateFormat(DHIS2Constants.DATE_FORMAT);
       Gson gson = builder.create();
       
       Type tt = new TypeToken<ObjectReport>() {}.getType();

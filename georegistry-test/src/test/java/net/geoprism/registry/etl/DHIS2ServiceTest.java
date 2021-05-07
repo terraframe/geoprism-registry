@@ -50,9 +50,10 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.etl.DHIS2TestService.Dhis2Payload;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -89,10 +90,10 @@ public class DHIS2ServiceTest
     testData = AllAttributesDataset.newTestData();
     testData.setUpMetadata();
 
-    if (!SchedulerManager.initialized())
-    {
+    //if (!SchedulerManager.initialized())
+    //{
       SchedulerManager.start();
-    }
+    //}
   }
 
   @AfterClass
@@ -240,9 +241,9 @@ public class DHIS2ServiceTest
 
     Map<String, DHIS2AttributeMapping> mappings = new HashMap<String, DHIS2AttributeMapping>();
 
-    DHIS2AttributeMapping mapping = new DHIS2AttributeMapping();
+    DHIS2TermAttributeMapping mapping = new DHIS2TermAttributeMapping();
 
-    mapping.setName(attr.getAttributeName());
+    mapping.setCgrAttrName(attr.getAttributeName());
     mapping.setExternalId("TEST_EXTERNAL_ID");
     mappings.put(attr.getAttributeName(), mapping);
 
@@ -423,13 +424,14 @@ public class DHIS2ServiceTest
   {
     SynchronizationConfig config = createSyncConfig(this.system, null);
 
-    JsonArray custConfig = this.syncService.getCustomAttributeConfiguration(testData.clientSession.getSessionId(), config.getSystem(), AllAttributesDataset.GOT_ALL.getCode());
+    JsonArray custConfig = new DHIS2FeatureService().getDHIS2AttributeConfiguration(testData.clientSession.getSessionId(), config.getSystem(), AllAttributesDataset.GOT_ALL.getCode());
 
     for (int i = 0; i < custConfig.size(); ++i)
     {
       JsonObject attr = custConfig.get(i).getAsJsonObject();
 
-      String name = attr.get("name").getAsString();
+      JsonObject cgrAttr = attr.get("cgrAttr").getAsJsonObject();
+      String name = cgrAttr.get("name").getAsString();
 
       TestAttributeTypeInfo attrType = null;
 
@@ -578,12 +580,12 @@ public class DHIS2ServiceTest
         Assert.fail("Unexpected attribute name [" + name + "].");
       }
 
-      Assert.assertEquals(attrType.fetchDTO().getLabel().getValue(), attr.get("label").getAsString());
+      Assert.assertEquals(attrType.fetchDTO().getLabel().getValue(), cgrAttr.get("label").getAsString());
 
-      Assert.assertEquals(attrType.fetchDTO().getType(), attr.get("type").getAsString());
+      Assert.assertEquals(attrType.fetchDTO().getType(), cgrAttr.get("type").getAsString());
 
-      Assert.assertNotNull(attr.get("typeLabel").getAsString());
-      Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.fetchDTO().getType()), attr.get("typeLabel").getAsString());
+      Assert.assertNotNull(cgrAttr.get("typeLabel").getAsString());
+      Assert.assertEquals(AttributeTypeMetadata.get().getTypeEnumDisplayLabel(attrType.fetchDTO().getType()), cgrAttr.get("typeLabel").getAsString());
     }
   }
   

@@ -31,6 +31,7 @@ import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
+import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
@@ -229,7 +230,7 @@ public class DHIS2FeatureService
 
             jo.add("options", jaDhis2Options);
           }
-          else if (cgrAttr instanceof AttributeCharacterType && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.TEXT) || dhis2Attr.getValueType().equals(ValueType.LONG_TEXT) || dhis2Attr.getValueType().equals(ValueType.LETTER) || dhis2Attr.getValueType().equals(ValueType.PHONE_NUMBER) || dhis2Attr.getValueType().equals(ValueType.EMAIL) || dhis2Attr.getValueType().equals(ValueType.USERNAME) || dhis2Attr.getValueType().equals(ValueType.URL) ))
+          else if ( (cgrAttr instanceof AttributeCharacterType || cgrAttr instanceof AttributeLocalType) && dhis2Attr.getOptionSetId() == null && ( dhis2Attr.getValueType().equals(ValueType.TEXT) || dhis2Attr.getValueType().equals(ValueType.LONG_TEXT) || dhis2Attr.getValueType().equals(ValueType.LETTER) || dhis2Attr.getValueType().equals(ValueType.PHONE_NUMBER) || dhis2Attr.getValueType().equals(ValueType.EMAIL) || dhis2Attr.getValueType().equals(ValueType.USERNAME) || dhis2Attr.getValueType().equals(ValueType.URL) ))
           {
             valid = true;
           }
