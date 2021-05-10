@@ -6,7 +6,6 @@
       <localize key="synchronization.config.title"></localize>
     </h2>
   </div>
-  <!-- <div class="col-md-12 order-md-1"> -->
   <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
 
     <fieldset>
@@ -122,25 +121,22 @@
 									  <div>
                       <a *ngIf="levelRow.level.geoObjectType && (levelRow.level.type === 'ORG_UNITS' || levelRow.level.type === 'ALL')" style="padding: 10px;" (click)="configureAttributes(levelRow)" [title]="'sync.attr.configureAttributes.helptext' | localize">
                         <icon class="fa fa-edit"></icon>
-                        <label style="cursor:pointer; margin-left:3px;"><localize key="sync.attr.configureAttributes"></localize></label>
+                        <label style="cursor:pointer; margin-left:3px;"><localize key="sync.attr.attributes.editButton"></localize></label>
                       </a> 
                     </div>
 									</td>
-                  <td colspan="4" *ngIf="levelRow.isAttributeEditor === true">
-                    <h4>Attributes</h4>
-	                  <table class="table">
-	                    <thead>
-	                      <tr>
-	                        <th></th>
-	                      </tr>
-	                    </thead>
+                  <td colspan="5" *ngIf="levelRow.isAttributeEditor === true">
+                    <h4><localize key="sync.attr.attributes.title"></localize></h4>
+	                  <table class="table table-bordered table-striped" style="margin-left:80px; width: calc(100% - 80px)">
+
+	                    <colgroup>
+									        <col width="5%">
+									        <col width="95%">
+									    </colgroup>
 	                    <tbody>
-	                      <tr>
-	                        <input type="button" [value]="'Add new mapping?'" class="btn btn-default" (click)="addNewMapping(levelRow)"/>
-	                      </tr>
 	                      <tr *ngFor="let mapping of levelRow.attrCfg.mappings; let mappingIndex = index;">
-	                        <td class="row-holder">
-	                          <table class="row" style="width:80%; margin-left:80px; margin-top:15px; margin-bottom: 10px;">
+	                        <td colspan="2" class="row-holder">
+	                          <table style="width:80%; margin-top:15px; margin-bottom: 10px;">
 	                            <thead>
 	                              <tr>
 	                                <th style="width:5%"></th>
@@ -166,7 +162,6 @@
 	                                  <icon (click)="deleteMapping(levelRow, mappingIndex)" class="fa fa-times"></icon>
 	                                </td>
 	                                <td style="width:23%">
-	                                  <!-- [(ngModel)]="levelRow.attrCfg.mappings[mappingIndex]" -->
 	                                  <select style="width:95%" [(ngModel)]="mapping.cgrAttrName" (change)="mapCgrAttr($event.target.selectedIndex == 0 ? null : levelRow.attrCfg.attrConfigInfos[$event.target.selectedIndex-1], mapping)" [name]="'sourceAttrSelect' + i + '-' + mappingIndex + (mapping.cgrAttrName ? mapping.cgrAttrName : '')">
 					                            <option [ngValue]="null"></option>
 					                            <option *ngFor="let info of levelRow.attrCfg.attrConfigInfos" [ngValue]="info.cgrAttr.name">
@@ -241,13 +236,18 @@
                             </div>
 	                        </td>
 	                      </tr>
+	                      <tr>
+                          <td class="button-column">
+                            <a class="fa fa-plus" (click)="addNewMapping(levelRow)" [title]="'sync.attr.attributes.add.tooltip' | localize"></a>
+                          </td>
+                        </tr>
 	                    </tbody>
 	                  </table>
                   </td>
                 </tr>
                 <tr>
                   <td class="button-column">
-                    New Level ? <a class="fa fa-plus" (click)="addLevel()"></a>
+                    <a class="fa fa-plus" [title]="'sync.levels.add.tooltip' | localize" (click)="addLevel()"></a>
                   </td>
                 </tr>
               </tbody>
@@ -271,5 +271,4 @@
 
     </fieldset>
   </form>
-  <!-- </div> -->
 </div>

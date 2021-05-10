@@ -441,7 +441,10 @@ export class SynchronizationConfigModalComponent implements OnInit {
           }
         }
 
-        //this.levelRows.splice(levelRowIndex + 1, 0, { isAttributeEditor: true, attrCfg: levelRow.attrCfg, level: levelRow.level, levelNum: levelRow.levelNum });
+        if (!isDifferentGot)
+        {
+          this.levelRows.splice(levelRowIndex + 1, 0, { isAttributeEditor: true, attrCfg: levelRow.attrCfg, level: levelRow.level, levelNum: levelRow.levelNum });
+        }
         
       }).catch((err: HttpErrorResponse) => {
         this.error(err);
