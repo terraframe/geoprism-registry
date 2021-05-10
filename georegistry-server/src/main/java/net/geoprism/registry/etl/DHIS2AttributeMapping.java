@@ -56,7 +56,7 @@ public class DHIS2AttributeMapping
   
   protected String cgrAttrName;
   
-  protected String dhis2AttrCode;
+  protected String dhis2AttrName;
   
   protected String externalId;
   
@@ -92,25 +92,25 @@ public class DHIS2AttributeMapping
 
   public String getDhis2AttrName()
   {
-    return dhis2AttrCode;
+    return dhis2AttrName;
   }
 
   public void setDhis2AttrName(String dhis2AttrName)
   {
-    this.dhis2AttrCode = dhis2AttrName;
+    this.dhis2AttrName = dhis2AttrName;
   }
 
   public boolean isStandardAttribute()
   {
     return this.cgrAttrName != null && this.cgrAttrName.length() > 0
-        && this.dhis2AttrCode != null && this.dhis2AttrCode.length() > 0
+        && this.dhis2AttrName != null && this.dhis2AttrName.length() > 0
         && (this.externalId == null || this.externalId.length() == 0);
   }
   
   public boolean isCustomAttribute()
   {
     return this.cgrAttrName != null && this.cgrAttrName.length() > 0
-        && this.dhis2AttrCode != null && this.dhis2AttrCode.length() > 0
+        && this.dhis2AttrName != null && this.dhis2AttrName.length() > 0
         && this.externalId != null && this.externalId.length() > 0;
   }
 
@@ -128,7 +128,7 @@ public class DHIS2AttributeMapping
         return;
       }
       
-      this.writeAttributeValue(attr, this.dhis2AttrCode, value, jo);
+      this.writeAttributeValue(attr, this.dhis2AttrName, value, jo);
     }
   }
 

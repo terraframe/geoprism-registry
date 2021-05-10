@@ -405,6 +405,11 @@ export class SynchronizationConfigModalComponent implements OnInit {
       {
         continue;
       }
+      else if (levelRow.attrCfg == null)
+      {
+        levelIndex++;
+        continue;
+      }
       
       let attributes = this.config.configuration.levels[levelIndex].attributes;
       let mappingsLen = levelRow.attrCfg.mappings.length;

@@ -18,9 +18,11 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
@@ -28,12 +30,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermMapping;
 import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
 {
@@ -101,14 +107,13 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
     {
       if (attr instanceof AttributeTermType)
       {
-        Classifier classy = (Classifier) value;
-
-        String orgUnitGroupId = this.getTermMapping(classy.getClassifierId());
+        String termId = this.getTermId(value);
+        String orgUnitGroupId = this.getTermMapping(termId);
 
         if (orgUnitGroupId == null)
         {
           MissingDHIS2TermOrgUnitGroupMapping ex = new MissingDHIS2TermOrgUnitGroupMapping();
-          ex.setTermCode(classy.getClassifierId());
+          ex.setTermCode(termId);
           throw ex;
         }
 
@@ -137,14 +142,14 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
   {
     if (attr instanceof AttributeTermType)
     {
-      Classifier classy = (Classifier) value;
+      String termId = this.getTermId(value);
 
-      String termMapping = this.getTermMapping(classy.getClassifierId());
+      String termMapping = this.getTermMapping(termId);
 
       if (termMapping == null)
       {
         MissingDHIS2TermMapping ex = new MissingDHIS2TermMapping();
-        ex.setTermCode(classy.getClassifierId());
+        ex.setTermCode(termId);
         throw ex;
       }
 
@@ -154,6 +159,29 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
     {
       logger.error("Unsupported attribute type [" + attr.getClass().getName() + "] with name [" + attr.getName() + "] for mapping type [" + DHIS2TermAttributeMapping.class.getName() + "].");
       return;
+    }
+  }
+  
+  protected String getTermId(Object value)
+  {
+    if (value == null)
+    {
+      return null;
+    }
+    else if (value instanceof Classifier)
+    {
+      return this.getTermMapping(((Classifier)value).getClassifierId());
+    }
+    else if (value instanceof GeoObjectStatus)
+    {
+      GeoObjectStatus status = (GeoObjectStatus) value;
+      Term term = ServiceFactory.getConversionService().geoObjectStatusToTerm(status);
+      
+      return term.getCode();
+    }
+    else
+    {
+      throw new ProgrammingErrorException("Unsupported value type [" + value.getClass().getName() + "].");
     }
   }
 
