@@ -228,9 +228,9 @@ public class DHIS2GeoObjectJsonAdapters
     private void writeAttributes(VertexServerGeoObject serverGo, JsonObject jo)
     {
       // Give our attribute mappings a chance to fill out any standard attributes
-      if (this.syncLevel.getAttributes() != null)
+      if (this.syncLevel.getMappings() != null)
       {
-        for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
+        for (DHIS2AttributeMapping mapping : this.syncLevel.getMappings())
         {
           mapping.writeStandardAttributes(serverGo, jo, this.dhis2Config, this.syncLevel);
         }
@@ -238,40 +238,40 @@ public class DHIS2GeoObjectJsonAdapters
       
       // Fill in any required attributes with some sensible defaults
       // TODO : Attribute mapping should be optional
-      if (!jo.has("code"))
-      {
-        jo.addProperty("code", serverGo.getCode());
-      }
+//      if (!jo.has("code"))
+//      {
+//        jo.addProperty("code", serverGo.getCode());
+//      }
 
       if (!jo.has("id"))
       {
         jo.addProperty("id", this.getOrCreateExternalId(serverGo));
       }
 
-      if (!jo.has("created"))
-      {
-        jo.addProperty("created", formatDate(serverGo.getCreateDate()));
-      }
+//      if (!jo.has("created"))
+//      {
+//        jo.addProperty("created", formatDate(serverGo.getCreateDate()));
+//      }
 
-      if (!jo.has("lastUpdated"))
-      {
-        jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
-      }
+//      if (!jo.has("lastUpdated"))
+//      {
+//        jo.addProperty("lastUpdated", formatDate(serverGo.getLastUpdateDate()));
+//      }
 
-      if (!jo.has("name"))
-      {
-        jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-      }
+//      if (!jo.has("name"))
+//      {
+//        jo.addProperty("name", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+//      }
+//
+//      if (!jo.has("shortName"))
+//      {
+//        jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+//      }
 
-      if (!jo.has("shortName"))
-      {
-        jo.addProperty("shortName", serverGo.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
-      }
-
-      if (!jo.has("openingDate"))
-      {
-        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
-      }
+//      if (!jo.has("openingDate"))
+//      {
+//        jo.addProperty("openingDate", formatDate(serverGo.getCreateDate()));
+//      }
 
       if (!jo.has("featureType") || !jo.has("coordinates"))
       {
@@ -294,9 +294,9 @@ public class DHIS2GeoObjectJsonAdapters
 
       JsonArray attributeValues = new JsonArray();
       
-      if (this.syncLevel.getAttributes() != null)
+      if (this.syncLevel.getMappings() != null)
       {
-        for (DHIS2AttributeMapping mapping : this.syncLevel.getAttributes().values())
+        for (DHIS2AttributeMapping mapping : this.syncLevel.getMappings())
         {
           mapping.writeCustomAttributes(attributeValues, serverGo, this.dhis2Config, this.syncLevel, lastUpdateDate, createDate);
         }

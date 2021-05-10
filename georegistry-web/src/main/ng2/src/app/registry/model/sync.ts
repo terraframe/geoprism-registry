@@ -46,6 +46,6 @@ export interface SyncLevel {
   geoObjectType: string;
   type: string;
   level: number;
-  attributes: {};
+  mappings: DHIS2AttributeMapping[];
   orgUnitGroupId: string;
 }

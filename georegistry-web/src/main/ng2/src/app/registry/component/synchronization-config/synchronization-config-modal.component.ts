@@ -113,9 +113,65 @@ export class SynchronizationConfigModalComponent implements OnInit {
     }
   }
   
+  buildDefaultMappings(): DHIS2AttributeMapping[] {
+    return [
+      {
+        "attributeMappingStrategy": DEFAULT_MAPPING_STRATEGY,
+        "isOrgUnitGroup": false,
+        "cgrAttrName": "displayLabel",
+        "externalId": null,
+        "dhis2Id": "name",
+        "dhis2AttrName": "name"
+      },
+      {
+        "attributeMappingStrategy": DEFAULT_MAPPING_STRATEGY,
+        "isOrgUnitGroup": false,
+        "cgrAttrName": "displayLabel",
+        "externalId": null,
+        "dhis2Id": "shortName",
+        "dhis2AttrName": "shortName"
+      },
+      {
+        "attributeMappingStrategy": DEFAULT_MAPPING_STRATEGY,
+        "isOrgUnitGroup": false,
+        "cgrAttrName": "code",
+        "dhis2Id": "code",
+        "externalId": null,
+        "dhis2AttrName": "code"
+      },
+      {
+        "attributeMappingStrategy": DEFAULT_MAPPING_STRATEGY,
+        "isOrgUnitGroup": false,
+        "cgrAttrName": "createDate",
+        "externalId": null,
+        "dhis2Id": "openingDate",
+        "dhis2AttrName": "openingDate"
+      }
+      /*
+      {
+        "attributeMappingStrategy": DEFAULT_MAPPING_STRATEGY,
+        "isOrgUnitGroup": false,
+        "cgrAttrName": "createDate",
+        "externalId": null,
+        "dhis2Id": "created",
+        "dhis2AttrName": "created"
+      },
+      {
+        "attributeMappingStrategy": DEFAULT_MAPPING_STRATEGY,
+        "isOrgUnitGroup": false,
+        "cgrAttrName": "lastUpdateDate",
+        "externalId": null,
+        "dhis2Id": "lastUpdated",
+        "dhis2AttrName": "lastUpdated"
+      },
+      */
+    ];
+  }
+  
   clearMappingData(): void {
-    this.levelRows = [];
     this.types = [];
+    this.levelRows = [];
+    this.config.configuration['levels'] = [];
     
     if (this.cSystem != null && this.cSystem.type === 'DHIS2ExternalSystem') {
       this.service.getConfigForES(this.config.system, this.config.hierarchy).then(esConfig => {
@@ -125,16 +181,48 @@ export class SynchronizationConfigModalComponent implements OnInit {
         this.error(err);
       });
 
-      if (this.config.configuration['levels'] == null) {
-        var lvl = {
-          type: null,
-          geoObjectType: null,
-          level: 0,
-          attributes: {},
-          orgUnitGroupId: null
-        };
-        this.config.configuration['levels'] = [lvl];
-        this.levelRows.push({ level: lvl, levelNum: 0, isAttributeEditor: false });
+      var lvl = {
+        type: null,
+        geoObjectType: null,
+        level: 0,
+        mappings: [],
+        orgUnitGroupId: null
+      };
+      this.config.configuration['levels'] = [lvl];
+      this.levelRows.push({ level: lvl, levelNum: 0,  isAttributeEditor: false });
+    }
+  }
+  
+  onSelectLevelType(levelRow: LevelRow): void {
+    if (levelRow.level.type == "RELATIONSHIPS")
+    {
+      levelRow.attrCfg.mappings = [];
+      levelRow.level.mappings = [];
+      
+      let editorIndex = this.getEditorIndex();
+      if (editorIndex != -1) {
+        this.levelRows.splice(editorIndex, 1);
+      }
+    }
+    else
+    {
+      if (levelRow.attrCfg.mappings.length == 0)
+      {
+        levelRow.attrCfg.mappings = this.buildDefaultMappings();
+        levelRow.level.mappings = levelRow.attrCfg.mappings;
+        
+        let len = levelRow.level.mappings.length;
+        for (let i = 0; i < len; ++i)
+        {
+          let mapping = levelRow.level.mappings[i];
+          
+          levelRow.attrCfg.attrConfigInfos.forEach( (info) => {
+            if (info.cgrAttr.name === mapping.cgrAttrName)
+            {
+              mapping.info = info;
+            }
+          });
+        }
       }
     }
   }
@@ -189,7 +277,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
       type: null,
       geoObjectType: null,
       level: this.config.configuration.levels.length,
-      attributes: {},
+      mappings: [],
       orgUnitGroupId: null
     };
     var len = this.config.configuration['levels'].push(lvl);
@@ -292,7 +380,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
       var levelRow: LevelRow = this.levelRows[levelRowIndex];
 
       levelRow.attrCfg = null;
-      levelRow.level.attributes = {};
+      levelRow.level.mappings = [];
 
       var editorIndex = this.getEditorIndex();
 
@@ -325,26 +413,25 @@ export class SynchronizationConfigModalComponent implements OnInit {
         var levelRow: LevelRow = this.levelRows[levelRowIndex];
         var level = levelRow.level;
 
-        if (isDifferentGot) {
-          level.attributes = {};
-          levelRow.attrCfg = { geoObjectTypeCode: geoObjectTypeCode, mappings: [], attrConfigInfos: infos };
-        }
-        else
+        if (level.mappings.length == 0 || isDifferentGot)
         {
-          let mappings = [];
-          Object.values(level.attributes).forEach(
-            (attr: DHIS2AttributeMapping) => {
-              infos.forEach( (info) => {
-                if (info.cgrAttr.name === attr.cgrAttrName)
-                {
-                  attr.info = info;
-                }
-              });
-              mappings.push(attr);
-            }
-          );
-          levelRow.attrCfg = { geoObjectTypeCode: geoObjectTypeCode, mappings: mappings, attrConfigInfos: infos };
+          level.mappings = this.buildDefaultMappings();
         }
+
+        let len = level.mappings.length;
+        for (let i = 0; i < len; ++i)
+        {
+          let mapping = level.mappings[i];
+          
+          infos.forEach( (info) => {
+            if (info.cgrAttr.name === mapping.cgrAttrName)
+            {
+              mapping.info = info;
+            }
+          });
+        }
+        
+        levelRow.attrCfg = { geoObjectTypeCode: geoObjectTypeCode, mappings: level.mappings, attrConfigInfos: infos };
 
         if (editorIndex != -1 && (editorIndex === levelRowIndex + 1 || infos.length > 0)) {
           this.levelRows.splice(editorIndex, 1);
@@ -354,7 +441,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
           }
         }
 
-        this.levelRows.splice(levelRowIndex + 1, 0, { isAttributeEditor: true, attrCfg: levelRow.attrCfg, level: levelRow.level, levelNum: levelRow.levelNum });
+        //this.levelRows.splice(levelRowIndex + 1, 0, { isAttributeEditor: true, attrCfg: levelRow.attrCfg, level: levelRow.level, levelNum: levelRow.levelNum });
         
       }).catch((err: HttpErrorResponse) => {
         this.error(err);
@@ -395,6 +482,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
   }
 
   onSubmit(): void {
+    /*
     let levelIndex = 0;
     let len = this.levelRows.length;
     for (let i = 0; i < len; ++i)
@@ -411,17 +499,18 @@ export class SynchronizationConfigModalComponent implements OnInit {
         continue;
       }
       
-      let attributes = this.config.configuration.levels[levelIndex].attributes;
+      let mappings = this.config.configuration.levels[levelIndex].mappings;
       let mappingsLen = levelRow.attrCfg.mappings.length;
       for (let j = 0; j < mappingsLen; ++j)
       {
         let mapping = JSON.parse(JSON.stringify(levelRow.attrCfg.mappings[j]));
         delete mapping.info;
-        attributes[mapping.cgrAttrName] = mapping;
+        mappings.push(mapping);
       }
       
       levelIndex++;
     }
+    */
   
     this.service.apply(this.config).then(cfg => {
 

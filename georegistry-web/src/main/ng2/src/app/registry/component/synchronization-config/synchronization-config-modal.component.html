@@ -99,7 +99,7 @@
                     </select>
                   </td>
                   <td style="width:25%" *ngIf="levelRow.isAttributeEditor === false">
-                    <select type="text" [(ngModel)]="levelRow.level.type" [name]="'type' + levelRow.levelNum" required>
+                    <select type="text" (change)="onSelectLevelType(levelRow)" [(ngModel)]="levelRow.level.type" [name]="'type' + levelRow.levelNum" required>
                       <option></option>
                       <option value="ORG_UNITS"><localize key="synchronization.config.units"></localize></option>
                       <option value="RELATIONSHIPS"><localize key="synchronization.config.relationships"></localize></option>
@@ -120,7 +120,7 @@
 									    </a> 
 									  </div>
 									  <div>
-                      <a *ngIf="levelRow.level.geoObjectType" style="padding: 10px;" (click)="configureAttributes(levelRow)" [title]="'sync.attr.configureAttributes.helptext' | localize">
+                      <a *ngIf="levelRow.level.geoObjectType && (levelRow.level.type === 'ORG_UNITS' || levelRow.level.type === 'ALL')" style="padding: 10px;" (click)="configureAttributes(levelRow)" [title]="'sync.attr.configureAttributes.helptext' | localize">
                         <icon class="fa fa-edit"></icon>
                         <label style="cursor:pointer; margin-left:3px;"><localize key="sync.attr.configureAttributes"></localize></label>
                       </a> 
