@@ -71,7 +71,7 @@ public class DHIS2FeatureService
 {
   public static final String[] OAUTH_INCOMPATIBLE_VERSIONS = new String[] {"2.35.0", "2.35.1"};
   
-  public static final int LAST_TESTED_DHIS2_API_VERSION = 35;
+  public static final int LAST_TESTED_DHIS2_API_VERSION = 36;
   
   private static final Logger logger = LoggerFactory.getLogger(DHIS2FeatureService.class);
   
@@ -131,8 +131,26 @@ public class DHIS2FeatureService
     ServerGeoObjectType got = ServerGeoObjectType.get(geoObjectTypeCode);
 
     Map<String, AttributeType> cgrAttrs = got.getAttributeMap();
+    
+    DHIS2TransportServiceIF dhis2;
+    try
+    {
+      dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
+    }
+    catch (InvalidLoginException e)
+    {
+      LoginException cgrlogin = new LoginException(e);
+      throw cgrlogin;
+    }
+    catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
+    {
+      HttpError cgrhttp = new HttpError(e);
+      throw cgrhttp;
+    }
+    
+    final DHIS2OptionCache optionCache = new DHIS2OptionCache(dhis2);
 
-    List<Attribute> dhis2Attrs = null;
+    List<Attribute> dhis2Attrs = getDHIS2Attributes(dhis2);
     
     final String[] skipAttrs = new String[] {DefaultAttribute.GEOMETRY.getName(), DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.TYPE.getName()};
 
@@ -156,30 +174,6 @@ public class DHIS2FeatureService
           jaStrategies.add(strategy.getClass().getName());
         }
         joAttr.add("attributeMappingStrategies", jaStrategies);
-
-        DHIS2TransportServiceIF dhis2;
-        
-        try
-        {
-          dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
-        }
-        catch (InvalidLoginException e)
-        {
-          LoginException cgrlogin = new LoginException(e);
-          throw cgrlogin;
-        }
-        catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
-        {
-          HttpError cgrhttp = new HttpError(e);
-          throw cgrhttp;
-        }
-
-        if (dhis2Attrs == null)
-        {
-          dhis2Attrs = getDHIS2Attributes(dhis2);
-        }
-
-        DHIS2OptionCache optionCache = new DHIS2OptionCache(dhis2);
 
         JsonArray jaDhis2Attrs = new JsonArray();
         for (Attribute dhis2Attr : dhis2Attrs)
@@ -293,7 +287,7 @@ public class DHIS2FeatureService
 
       List<Attribute> attrs = resp.getObjects();
       
-      attrs.addAll(this.buildDefaultDhis2OrgUnitAttributes());
+      attrs.addAll(buildDefaultDhis2OrgUnitAttributes());
       
       return attrs;
     }
@@ -309,7 +303,7 @@ public class DHIS2FeatureService
     }
   }
   
-  private List<Attribute> buildDefaultDhis2OrgUnitAttributes()
+  public static List<Attribute> buildDefaultDhis2OrgUnitAttributes()
   {
     List<Attribute> attrs = new ArrayList<Attribute>();
     

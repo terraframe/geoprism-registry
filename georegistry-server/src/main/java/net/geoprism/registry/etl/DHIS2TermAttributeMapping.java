@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.etl;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,7 +33,6 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermMapping;
 import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -60,6 +58,19 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
     return this.terms.get(classifierId);
   }
 
+  @Override
+  public String getAttributeMappingStrategy()
+  {
+    if (attributeMappingStrategy == null || attributeMappingStrategy.length() == 0)
+    {
+      return DHIS2TermAttributeMapping.class.getName();
+    }
+    else
+    {
+      return attributeMappingStrategy;
+    }
+  }
+  
   public Map<String, String> getTerms()
   {
     return terms;
@@ -170,7 +181,7 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
     }
     else if (value instanceof Classifier)
     {
-      return this.getTermMapping(((Classifier)value).getClassifierId());
+      return ((Classifier)value).getClassifierId();
     }
     else if (value instanceof GeoObjectStatus)
     {

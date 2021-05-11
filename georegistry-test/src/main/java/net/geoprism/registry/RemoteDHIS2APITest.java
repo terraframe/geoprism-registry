@@ -19,15 +19,19 @@
 package net.geoprism.registry;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.StringEntity;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
@@ -82,11 +86,11 @@ public class RemoteDHIS2APITest
 {
   public static final String TEST_DATA_KEY = "RemoteDHIS2Test";
   
-  private static final Integer API_VERSION = 35;
+  private static final Integer API_VERSION = 36;
   
-  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".2";
+  private static final String VERSION = "2." + String.valueOf(API_VERSION) + ".0";
   
-  private static final String URL = "http://localhost:8095/";
+  private static final String URL = "https://play.dhis2.org/" + VERSION + "/";
   
   private static final String USERNAME = "admin";
   
@@ -306,6 +310,32 @@ public class RemoteDHIS2APITest
     }
   }
   
+  public static Collection<DHIS2AttributeMapping> getDefaultMappings()
+  {
+    Collection<DHIS2AttributeMapping> mappings = new ArrayList<DHIS2AttributeMapping>();
+    
+    final String defaultMappingStrategy = DHIS2AttributeMapping.class.getName();
+    
+    HashMap<String, String> lazyMap = new HashMap<String, String>();
+    
+    // These DHIS2 default attribute names are also hardcoded in the synchronization-config-modal.component.ts front-end as well as the DHIS2FeatureService.buildDefaultDhis2OrgUnitAttributes
+    lazyMap.put("name", DefaultAttribute.DISPLAY_LABEL.getName());
+    lazyMap.put("shortName", DefaultAttribute.DISPLAY_LABEL.getName());
+    lazyMap.put("code", DefaultAttribute.CODE.getName());
+    lazyMap.put("openingDate", DefaultAttribute.CREATE_DATE.getName());
+    
+    for (Entry<String, String> entry : lazyMap.entrySet())
+    {
+      DHIS2AttributeMapping name = new DHIS2AttributeMapping();
+      name.setCgrAttrName(entry.getValue());
+      name.setDhis2AttrName(entry.getKey());
+      name.setAttributeMappingStrategy(defaultMappingStrategy);
+      mappings.add(name);
+    }
+    
+    return mappings;
+  }
+  
   @Request
   public SynchronizationConfig createSyncConfig(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr, String externalAttrId)
   {
@@ -331,21 +361,23 @@ public class RemoteDHIS2APITest
     SyncLevel level2 = new SyncLevel();
     level2.setGeoObjectType(AllAttributesDataset.GOT_ALL.getServerObject().getCode());
     level2.setSyncType(SyncLevel.Type.ALL);
+    level2.setMappings(getDefaultMappings());
     level2.setLevel(1);
     levels.add(level2);
 
     SyncLevel level3 = new SyncLevel();
     level3.setGeoObjectType(got.getServerObject().getCode());
     level3.setSyncType(SyncLevel.Type.ALL);
+    level3.setMappings(getDefaultMappings());
     level3.setLevel(2);
     levels.add(level3);
     
-    Map<String, DHIS2AttributeMapping> mappings = new HashMap<String, DHIS2AttributeMapping>();
+    Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
     DHIS2TermAttributeMapping mapping = new DHIS2TermAttributeMapping();
     mapping.setCgrAttrName(attr.getAttributeName());
     mapping.setExternalId(externalAttrId);
-    mappings.put(attr.getAttributeName(), mapping);
-    level3.setAttributes(mappings);
+    mappings.add(mapping);
+    level3.setMappings(mappings);
     
     Map<String, String> terms = new HashMap<String, String>();
     terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getClassifierId(), "HNaxl8GKadp");
@@ -426,17 +458,19 @@ public class RemoteDHIS2APITest
     for (int i = 0; i < custConfig.size(); ++i)
     {
       JsonObject attr = custConfig.get(i).getAsJsonObject();
+      
+      JsonObject cgrAttr = attr.get("cgrAttr").getAsJsonObject();
 
-      Assert.assertTrue(attr.get("name").getAsString().length() > 0);
+      Assert.assertTrue(cgrAttr.get("name").getAsString().length() > 0);
 
       attr.get("dhis2Attrs").getAsJsonArray();
 
-      Assert.assertTrue(attr.get("label").getAsString().length() > 0);
+      Assert.assertTrue(cgrAttr.get("label").getAsString().length() > 0);
 
-      Assert.assertTrue(attr.get("type").getAsString().length() > 0);
+      Assert.assertTrue(cgrAttr.get("type").getAsString().length() > 0);
 
-      Assert.assertNotNull(attr.get("typeLabel").getAsString());
-      Assert.assertTrue(attr.get("typeLabel").getAsString().length() > 0);
+      Assert.assertNotNull(cgrAttr.get("typeLabel").getAsString());
+      Assert.assertTrue(cgrAttr.get("typeLabel").getAsString().length() > 0);
     }
   }
   

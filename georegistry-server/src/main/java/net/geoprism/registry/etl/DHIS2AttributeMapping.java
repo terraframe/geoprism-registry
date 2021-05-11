@@ -82,7 +82,14 @@ public class DHIS2AttributeMapping
   
   public String getAttributeMappingStrategy()
   {
-    return attributeMappingStrategy;
+    if (attributeMappingStrategy == null || attributeMappingStrategy.length() == 0)
+    {
+      return DHIS2AttributeMapping.class.getName();
+    }
+    else
+    {
+      return attributeMappingStrategy;
+    }
   }
 
   public void setAttributeMappingStrategy(String attributeMappingStrategy)
