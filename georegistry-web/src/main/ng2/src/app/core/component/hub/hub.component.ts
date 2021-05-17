@@ -42,6 +42,7 @@ export class HubComponent implements OnInit {
     isAdmin: boolean = false;
     buckets: string = 'col-sm-6';
     bsModalRef: BsModalRef;
+    loading: boolean = true;
 
     constructor(
         private service: HubService,
@@ -55,6 +56,7 @@ export class HubComponent implements OnInit {
 
     ngOnInit(): void {
       this.service.applications().then( applications => {
+          this.loading = false;
           this.applications = applications;
       } );
       
