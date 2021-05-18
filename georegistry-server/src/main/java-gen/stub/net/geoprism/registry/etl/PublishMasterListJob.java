@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -55,7 +54,7 @@ public class PublishMasterListJob extends PublishMasterListJobBase
   {
     this.getMasterList().publishFrequencyVersions();
   }
-
+  
   @Override
   public void afterJobExecute(JobHistory history)
   {
@@ -64,7 +63,7 @@ public class PublishMasterListJob extends PublishMasterListJobBase
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
   }
 
-  public JSONObject toJSON()
+  public JsonObject toJson()
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -77,32 +76,32 @@ public class PublishMasterListJob extends PublishMasterListJobBase
 
     try
     {
-      final JSONObject object = new JSONObject();
-      object.put(PublishMasterListJob.OID, this.getOid());
-      object.put(PublishMasterListJob.MASTERLIST, this.getMasterListOid());
-      object.put(PublishMasterListJob.TYPE, type.getLabel().getValue());
+      final JsonObject object = new JsonObject();
+      object.addProperty(PublishMasterListJob.OID, this.getOid());
+      object.addProperty(PublishMasterListJob.MASTERLIST, this.getMasterListOid());
+      object.addProperty(PublishMasterListJob.TYPE, type.getLabel().getValue());
 
       if (allHist.size() > 0)
       {
         final JobHistory history = allHist.get(0);
-        object.put(JobHistory.STATUS, history.getStatus().get(0).getDisplayLabel());
-        object.put("author", user.getUsername());
-        object.put("createDate", format.format(history.getCreateDate()));
-        object.put("lastUpdateDate", format.format(history.getLastUpdateDate()));
-        object.put("workProgress", history.getWorkProgress());
-        object.put("workTotal", history.getWorkTotal());
-        object.put("historyoryId", history.getOid());
+        object.addProperty(JobHistory.STATUS, history.getStatus().get(0).getDisplayLabel());
+        object.addProperty("author", user.getUsername());
+        object.addProperty("createDate", format.format(history.getCreateDate()));
+        object.addProperty("lastUpdateDate", format.format(history.getLastUpdateDate()));
+        object.addProperty("workProgress", history.getWorkProgress());
+        object.addProperty("workTotal", history.getWorkTotal());
+        object.addProperty("historyoryId", history.getOid());
 
         if (history.getStatus().get(0).equals(AllJobStatus.FAILURE) && history.getErrorJson().length() > 0)
         {
           String errorJson = history.getErrorJson();
           JsonObject error = JsonParser.parseString(errorJson).getAsJsonObject();
 
-          JSONObject exception = new JSONObject();
-          exception.put("type", error.get("type").getAsString());
-          exception.put("message", history.getLocalizedError(Session.getCurrentLocale()));
+          JsonObject exception = new JsonObject();
+          exception.addProperty("type", error.get("type").getAsString());
+          exception.addProperty("message", history.getLocalizedError(Session.getCurrentLocale()));
 
-          object.put("exception", exception);
+          object.add("exception", exception);
         }
       }
 

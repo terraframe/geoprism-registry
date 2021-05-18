@@ -337,6 +337,7 @@ export class MasterListVersion {
 	shapefile?: boolean;
 	isAbstract?: boolean;
 	superTypeCode?: string;
+	refreshProgress?: any;
 }
 
 export class HierarchyOverTime {

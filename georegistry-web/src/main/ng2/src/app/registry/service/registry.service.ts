@@ -652,12 +652,12 @@ export class RegistryService {
 			.toPromise()
 	}
 
-	publishMasterList(oid: string): Observable<MasterListVersion> {
+	publishMasterList(oid: string): Observable<string> {
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
 		});
 
-		return this.http.post<MasterListVersion>(acp + '/master-list/publish', JSON.stringify({ oid: oid }), { headers: headers });
+		return this.http.post<string>(acp + '/master-list/publish', JSON.stringify({ oid: oid }), { headers: headers });
 	}
 
 	getMasterList(oid: string): Promise<MasterList> {

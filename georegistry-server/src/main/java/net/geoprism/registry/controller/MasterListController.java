@@ -106,7 +106,7 @@ public class MasterListController
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JsonObject response = this.service.publish(request.getSessionId(), oid);
+    JsonObject response = this.service.publishVersion(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
   }
@@ -233,7 +233,7 @@ public class MasterListController
       isAscending = true;
     }
 
-    JSONObject config = this.service.getPublishJobs(request.getSessionId(), oid, pageSize, pageNumber, sortAttr, isAscending);
+    JsonObject config = this.service.getPublishJobs(request.getSessionId(), oid, pageSize, pageNumber, sortAttr, isAscending);
 
     return new RestBodyResponse(config.toString());
   }
