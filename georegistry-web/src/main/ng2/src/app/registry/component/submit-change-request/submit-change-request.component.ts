@@ -101,7 +101,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 
 
 
-	private onValidChange(newValid: boolean) {
+	public onValidChange(newValid: boolean) {
 		if (this.preGeoObject == null) {
 			this.isValid = false;
 			return;

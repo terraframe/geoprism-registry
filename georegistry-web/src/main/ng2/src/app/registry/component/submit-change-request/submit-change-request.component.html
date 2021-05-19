@@ -26,7 +26,7 @@
             
             <div *ngIf="showGeoObjectDetails">
               <geoobject-shared-attribute-editor 
-              #attributeEditor (valid)="this.onValidChange($event)" 
+              #attributeEditor (valid)="onValidChange($event)" 
               [geoObjectType]="this.geoObjectType" 
               [preGeoObject]="this.preGeoObject" 
               [(postGeoObject)]="this.postGeoObject" 
