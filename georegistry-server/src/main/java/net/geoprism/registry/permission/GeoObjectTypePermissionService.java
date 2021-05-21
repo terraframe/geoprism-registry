@@ -136,7 +136,10 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
               {
                 if (RegistryRole.Type.isRM_Role(roleName))
                 {
-                  return true;
+                  if (op.equals(Operation.READ))
+                  {
+                    return true;
+                  }
                 }
                 else if (RegistryRole.Type.isRC_Role(roleName))
                 {
@@ -166,12 +169,12 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
     return false;
   }
   
-  public Set<CGRPermissionAction> getPermissions(ServerGeoObjectType got)
+  public Set<CGRPermissionActionIF> getPermissions(ServerGeoObjectType got)
   {
     final String orgCode = got.getOrganization().getCode();
     final Boolean isPrivate = got.getIsPrivate();
     
-    HashSet<CGRPermissionAction> actions = new HashSet<CGRPermissionAction>();
+    HashSet<CGRPermissionActionIF> actions = new HashSet<CGRPermissionActionIF>();
     
     if (this.canRead(orgCode, got, isPrivate))
     {

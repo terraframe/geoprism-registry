@@ -128,8 +128,7 @@ export class SvgHierarchyNode {
 
 			let relatedHierarchies = this.svgHierarchyType.getRelatedHierarchies(this.getCode());
 			
-			const hasActionsPermissions = this.authService.isSRA() || this.authService.isOrganizationRA(this.geoObjectType.organizationCode)
-          || this.authService.isGeoObjectTypeRM(this.svgHierarchyType.hierarchyType.organizationCode, this.geoObjectType.code)
+			const hasActionsPermissions = this.authService.isSRA() || this.authService.isOrganizationRA(this.svgHierarchyType.hierarchyType.organizationCode);
 
 			let bbox = this.getBbox();
 			let x = bbox.x + bbox.width - 5;

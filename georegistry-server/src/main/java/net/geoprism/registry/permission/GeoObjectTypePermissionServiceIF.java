@@ -46,6 +46,6 @@ public interface GeoObjectTypePermissionServiceIF
 
   public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, Operation op);
 
-  public Set<CGRPermissionAction> getPermissions(ServerGeoObjectType got);
+  public Set<CGRPermissionActionIF> getPermissions(ServerGeoObjectType got);
   
 }

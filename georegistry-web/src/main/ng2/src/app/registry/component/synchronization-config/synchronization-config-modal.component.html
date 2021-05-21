@@ -115,13 +115,13 @@
                   <td style="width:25%" *ngIf="levelRow.isAttributeEditor === false">
 									  <div>
 									    <a style="padding: 10px;" (click)="removeLevel(levelRow.levelNum, i)" [title]="'button.delete.helptext' | localize">
-									      <icon class="fa fa-trash-o ico-remove"></icon>
+									      <i class="fa fa-trash-o ico-remove"></i>
 									      <label style="cursor:pointer; margin-left:9px;"><localize key="sync.level.delete"></localize></label>
 									    </a> 
 									  </div>
 									  <div>
                       <a *ngIf="levelRow.hasAttributes" style="padding: 10px;" (click)="configureAttributes(levelRow)" [title]="'sync.attr.configureAttributes.helptext' | localize">
-                        <icon class="fa fa-edit"></icon>
+                        <i class="fa fa-edit"></i>
                         <label style="cursor:pointer; margin-left:3px;"><localize key="sync.attr.configureAttributes"></localize></label>
                       </a> 
                     </div>

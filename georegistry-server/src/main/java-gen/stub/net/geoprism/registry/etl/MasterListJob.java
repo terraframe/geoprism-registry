@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.etl;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 public abstract class MasterListJob extends MasterListJobBase
 {
@@ -29,6 +29,6 @@ public abstract class MasterListJob extends MasterListJobBase
     super();
   }
 
-  public abstract JSONObject toJSON();
+  public abstract JsonObject toJson();
 
 }

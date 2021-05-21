@@ -22,13 +22,11 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Date;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
@@ -52,6 +50,8 @@ import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.etl.PublishMasterListJobQuery;
+import net.geoprism.registry.etl.PublishMasterListVersionJob;
+import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -167,7 +167,7 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject getPublishJobs(String sessionId, String oid, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
+  public JsonObject getPublishJobs(String sessionId, String oid, int pageSize, int pageNumber, String sortAttr, boolean isAscending)
   {
     QueryFactory qf = new QueryFactory();
 
@@ -177,35 +177,67 @@ public class MasterListService
     // query.ORDER_BY(ihq.get(sortAttr), order);
     query.restrictRows(pageSize, pageNumber);
 
-    JSONArray results = new JSONArray();
+    JsonArray results = new JsonArray();
 
     try (OIterator<? extends MasterListJob> it = query.getIterator())
     {
       while (it.hasNext())
       {
-        results.put(it.next().toJSON());
+        results.add(it.next().toJson());
       }
     }
 
-    JSONObject page = new JSONObject();
-    page.put("count", query.getCount());
-    page.put("pageNumber", query.getPageNumber());
-    page.put("pageSize", query.getPageSize());
-    page.put("results", results);
+    JsonObject page = new JsonObject();
+    page.addProperty("count", query.getCount());
+    page.addProperty("pageNumber", query.getPageNumber());
+    page.addProperty("pageSize", query.getPageSize());
+    page.add("results", results);
 
     return page;
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject publish(String sessionId, String oid)
+  public JsonObject publishVersion(String sessionId, String oid)
   {
+//    MasterListVersion version = MasterListVersion.get(oid);
+//
+//    MasterList masterlist = version.getMasterlist();
+//
+//    this.enforceWritePermissions(masterlist, version.getVersionType());
+//
+//    return JsonParser.parseString(version.publish()).getAsJsonObject();
+    
     MasterListVersion version = MasterListVersion.get(oid);
 
-    MasterList masterlist = version.getMasterlist();
+    this.enforceWritePermissions(version.getMasterlist(), MasterListVersion.PUBLISHED);
 
-    this.enforceWritePermissions(masterlist, version.getVersionType());
+    QueryFactory factory = new QueryFactory();
 
-    return JsonParser.parseString(version.publish()).getAsJsonObject();
+    PublishMasterListVersionJobQuery query = new PublishMasterListVersionJobQuery(factory);
+    query.WHERE(query.getMasterListVersion().EQ(version));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new DuplicateJobException("This master list version has already been queued for publishing");
+    }
+
+    PublishMasterListVersionJob job = new PublishMasterListVersionJob();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.setMasterListVersion(version);
+    job.setMasterList(version.getMasterlist());
+    job.apply();
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
+    final JobHistory history = job.start();
+    
+    JsonObject resp = new JsonObject();
+    resp.addProperty("jobOid", history.getOid());
+    return resp;
   }
 
   @Request(RequestType.SESSION)

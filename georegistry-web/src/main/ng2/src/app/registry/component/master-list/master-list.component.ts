@@ -21,7 +21,7 @@ declare var acp: string;
 @Component({
 	selector: 'master-list',
 	templateUrl: './master-list.component.html',
-	styleUrls: []
+	styleUrls: ['./master-list.component.css']
 })
 export class MasterListComponent implements OnInit, OnDestroy {
 	message: string = null;
@@ -72,13 +72,25 @@ export class MasterListComponent implements OnInit, OnDestroy {
 			this.isWritable = this.authService.isGeoObjectTypeRC(orgCode, typeCode);
 
 			this.onPageChange(1);
+			
+			if (version.refreshProgress != null)
+			{
+			  this.handleProgressChange(version.refreshProgress);
+			}
 		});
 
 		let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
 
 		this.notifier = webSocket(baseUrl + '/websocket/progress/' + oid);
 		this.notifier.subscribe(message => {
-			this.handleProgressChange(message.content)
+		  if (message.content != null)
+		  {
+			  this.handleProgressChange(message.content);
+			}
+			else
+			{
+			  this.handleProgressChange(message);
+			}
 		});
 	}
 
@@ -247,17 +259,20 @@ export class MasterListComponent implements OnInit, OnDestroy {
 		this.message = null;
 
 		this.service.publishMasterList(this.list.oid).toPromise()
-			.then(list => {
-				this.list = list;
-				this.list.attributes.forEach(attribute => {
-					attribute.isCollapsed = true;
-				});
-
-				// Refresh the resultSet
-				this.onPageChange(1);
+			.then( (historyOid: string) => {
+				this.isRefreshing = true;
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});
+			
+			
+			//this.list = list;
+        //this.list.attributes.forEach(attribute => {
+        //  attribute.isCollapsed = true;
+        //});
+
+        // Refresh the resultSet
+        //this.onPageChange(1);
 	}
 
 	onNewGeoObject(): void {

@@ -624,7 +624,7 @@ public class RegistryController
   @Endpoint(url = "geoobjecttype/list-types", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF listGeoObjectTypes(ClientRequestIF request, @RequestParamter(name = "includeAbstractTypes") Boolean includeAbstractTypes)
   {
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.WRITE);
+    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.READ);
 
     Arrays.sort(gots, new Comparator<GeoObjectType>()
     {

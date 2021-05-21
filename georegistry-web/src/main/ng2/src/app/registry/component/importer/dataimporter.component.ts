@@ -254,7 +254,7 @@ export class DataImporterComponent implements OnInit {
 
 	checkDateFieldValidity(): boolean {
 		let dateFields = this.dateFieldComponentsArray.toArray();
-		console.log(dateFields)
+		
 		for(let i=0; i<dateFields.length; i++){
 			let field = dateFields[i];
 			if(!field.valid){

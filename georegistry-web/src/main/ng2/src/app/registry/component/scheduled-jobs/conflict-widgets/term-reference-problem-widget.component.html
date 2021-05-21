@@ -92,7 +92,7 @@
 	                      [(ngModel)]="searchLabel"
 	                      [typeaheadAsync]="true"
 	                      [typeahead]="getTypeAheadObservable(problem)"
-	                      (typeaheadOnSelect)="typeaheadOnSelect($event, problem)"
+	                      (typeaheadOnSelect)="typeaheadOnSelect($event)"
 	                      [typeaheadOptionsLimit]="7"
 	                      typeaheadOptionField="label"
 	                      [typeaheadMinLength]="0"

@@ -196,7 +196,7 @@ public class CambodiaTestDataset extends TestDataSet
     GO_Cambodia.setDefaultValue(this.AT_UN_MEMBER.getAttributeName(), true);
     
     this.AT_DATE_OF_FORMATION = TestDataSet.createAttribute("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
-    GO_Cambodia.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
+    GO_Cambodia.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), TestDataSet.DEFAULT_OVER_TIME_DATE);
     
     createTermAttribute();
   }

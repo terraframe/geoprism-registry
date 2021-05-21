@@ -92,7 +92,7 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
 	{
-        path: 'location-manager/:geoobjectuid/:geoobjecttypecode',
+        path: 'location-manager/:geoobjectuid/:geoobjecttypecode/:datestr/:hideSearchOptions',
         component: LocationManagerComponent,
         canActivate: [AuthGuard]
     },

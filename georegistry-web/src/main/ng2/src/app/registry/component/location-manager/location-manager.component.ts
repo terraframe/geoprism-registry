@@ -61,7 +61,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
   dateStr: string = null;
 
-  forDate: Date = new Date();
+  forDate: Date = null;
 
 
     /* 
@@ -88,6 +88,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * Flag denoting the draw control is active
      */
   active: boolean = false;
+  
+  public displayDateRequiredError: boolean = false;
 
   vectorLayers: string[] = [];
 
@@ -115,6 +117,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   hoverFeatureId: string;
 
   preventSingleClick: boolean = false;
+  
+  hideSearchOptions: boolean = false;
 
   /* 
      * Timer for determining double click vs single click
@@ -144,24 +148,28 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   ngOnInit(): void {
-	this.urlSubscriber = this.route.params.subscribe(params => {
-       let geoObjectUid = params['geoobjectuid'];
-	   let geoObjectTypeCode = params['geoobjecttypecode'];
+  this.urlSubscriber = this.route.params.subscribe(params => {
+     let geoObjectUid = params['geoobjectuid'];
+     let geoObjectTypeCode = params['geoobjecttypecode'];
+     this.hideSearchOptions = params['hideSearchOptions'];
+     
+     this.dateStr = params['datestr'];
+     this.handleDateChange();
 
-		if(geoObjectUid && geoObjectTypeCode){
-			this.service.getGeoObject(geoObjectUid, geoObjectTypeCode).then(geoObj => {
-				this.setData([geoObj]);
-				this.select(geoObj, null);
-			}).catch((err: HttpErrorResponse) => {
-				this.error(err);
-			});
-		}
-	});
+    if(geoObjectUid && geoObjectTypeCode && this.dateStr){
+      this.service.getGeoObject(geoObjectUid, geoObjectTypeCode).then(geoObj => {
+        this.setData([geoObj]);
+        this.select(geoObj, null);
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+    }
+  });
   }
 
   ngOnDestroy(): void {
     this.map.remove();
-	this.urlSubscriber.unsubscribe();
+    this.urlSubscriber.unsubscribe();
   }
 
   ngAfterViewInit() {
@@ -223,7 +231,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   handleDateChange(): void {
-    this.forDate = new Date(Date.parse(this.dateStr));
+    if (this.dateStr != null)
+    {
+      this.forDate = new Date(Date.parse(this.dateStr));
+      this.displayDateRequiredError = false;
+    }
   }
 
   initMap(): void {
@@ -246,22 +258,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
       this.handleMapClickEvent(event);
     });
 
-	this.map.on('draw.selectionchange', (e: any) => {
-			if(e.features.length > 0 || e.points.length > 0) {
-				this.editSessionEnabled = true;
-			}
-			else {
-				this.editSessionEnabled = false;
-			}
-	});
-	
-	// Set map data on page load with URL params (single Geo-Object)
-	if(this.data){
-		let fc = {"type":"FeatureCollection", "features":this.data};
-		(<any>this.map.getSource('children')).setData(fc);
-		
-		this.zoomToFeature(this.data[0], null);
-	}
+  this.map.on('draw.selectionchange', (e: any) => {
+      if(e.features.length > 0 || e.points.length > 0) {
+        this.editSessionEnabled = true;
+      }
+      else {
+        this.editSessionEnabled = false;
+      }
+  });
+  
+  // Set map data on page load with URL params (single Geo-Object)
+  if(this.data){
+    let fc = {"type":"FeatureCollection", "features":this.data};
+    (<any>this.map.getSource('children')).setData(fc);
+    
+    this.zoomToFeature(this.data[0], null);
+  }
   }
 
   handleMapClickEvent(event: any): void {
@@ -456,6 +468,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
   select(node: GeoObject, event: MouseEvent): void {
 
+    if (this.forDate == null)
+    {
+      this.displayDateRequiredError = true;
+    
+      return;
+    }
+
     if (event != null) {
       event.stopPropagation();
     }
@@ -602,9 +621,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     this.editingControl = null;
-	this.map.addControl(this.simpleEditControl);
-	
-	this.editSessionEnabled = false;
+  this.map.addControl(this.simpleEditControl);
+  
+  this.editSessionEnabled = false;
   }
 
 
@@ -681,7 +700,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     this.editingControl = null;
 
-	this.editSessionEnabled = false;
+    this.editSessionEnabled = false;
   }
 
   getDrawGeometry(): any {

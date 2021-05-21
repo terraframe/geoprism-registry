@@ -1,0 +1,10 @@
+.version-busy-overlay
+{
+	height:100%;
+	width:100%;
+	background-color: #CCCCCC;
+  position: absolute;
+  display: block;
+  opacity: 0.8;
+  z-index: 99999 !important;
+}

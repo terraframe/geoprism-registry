@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { PageResult } from '@shared/model/core'
+import { PageResult } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
 import { ModalTypes } from '@shared/model/modal';
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';

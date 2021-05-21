@@ -100,14 +100,14 @@
                         <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'">
                           <localize key="change.request.table.update"
                            [params]="{
-                             '{0}':action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value,
+                             '{0}':getGOTLabel(action),
                              '{1}':action.geoObjectType.label.localizedValue
                             }"></localize>
                         </li>
                         <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'">
                           <localize key="change.request.table.create"
                            [params]="{
-                             '{0}':action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value,
+                             '{0}':getGOTLabel(action),
                              '{1}':action.geoObjectType.label.localizedValue
                             }"></localize>
                         </li>
@@ -178,7 +178,7 @@
                           <label>{{req.phoneNumber}}</label>
                       </div>
                       
-                      <a *ngIf="(req.approvalStatus === 'ACCEPTED' || req.approvalStatus === 'REJECTED') && action.actionType != 'net.geoprism.registry.action.geoobject.SetParentAction'" class="pull-right" target="_blank" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
+                      <a *ngIf="(req.approvalStatus === 'ACCEPTED' || req.approvalStatus === 'REJECTED') && action.actionType != 'net.geoprism.registry.action.geoobject.SetParentAction'" class="pull-right" target="_blank" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code, '2020-01-01', true]">
                           <localize key="change.request.open.geoobject.in.editor.link.btn"></localize>
                       </a>
                       

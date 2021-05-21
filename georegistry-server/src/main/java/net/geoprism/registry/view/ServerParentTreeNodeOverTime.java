@@ -391,15 +391,19 @@ public class ServerParentTreeNodeOverTime
       {
         final JsonObject type = types.get(k).getAsJsonObject();
         final String code = type.get(JSON_TYPE_CODE).getAsString();
-        final JsonObject parent = parents.get(code).getAsJsonObject();
-
-        if (parent.has(JSON_ENTRY_PARENT_GEOOBJECT))
+        
+        if (parents.has(code))
         {
-          final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
-
-          ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
-
-          return new ServerParentTreeNode(pSGO, ht, startDate, endDate);
+          final JsonObject parent = parents.get(code).getAsJsonObject();
+  
+          if (parent.has(JSON_ENTRY_PARENT_GEOOBJECT) && !parent.get(JSON_ENTRY_PARENT_GEOOBJECT).isJsonNull())
+          {
+            final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
+  
+            ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
+  
+            return new ServerParentTreeNode(pSGO, ht, startDate, endDate);
+          }
         }
       }
 

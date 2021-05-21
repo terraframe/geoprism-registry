@@ -72,6 +72,9 @@ export class ImportConfiguration {
 	endDate: string;
 	isExternal: string;
 	externalSystemId: string;
+	externalSystem?: any;
+	revealGeometryColumn?: any;
+	onValidChange: any;
 	externalIdAttributeTarget: string;
 }
 

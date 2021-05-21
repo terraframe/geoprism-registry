@@ -3,10 +3,18 @@
         <cgr-header></cgr-header>
         <loading-bar></loading-bar>
         
-        <div id="app-container" class="container-fluid">
-            <div class="nav-icon-container">
-
-                <div *ngIf="applications?.length > 0" class="row vertical-center-row">
+        <div id="app-container" class="container-fluid" style="height:100%">
+            <div class="nav-icon-container" >
+                <div *ngIf="applications?.length == 0" style="display: flex; justify-content: center; align-items: center; height:100%">
+			            <div *ngIf="!loading && authService.getRoles().length == 0" class="error-message" style="font-size:1.5em;">
+			              <localize key="hub.no-valid-roles"></localize>
+			            </div>
+			            <div *ngIf="loading" class="standby-overlay" style="width:100%; height:100%; font-size:4em; color:black;">
+			              
+			            </div>
+			          </div>
+                
+                <div *ngIf="applications?.length > 0 && !loading" class="row vertical-center-row">
                     <div class="col-md-3 col-sm-4 col-xs-2"></div>
                     <div class="col-md-6 col-sm-4 col-xs-8">
                         <div *ngFor="let app of applications; let i = index;">

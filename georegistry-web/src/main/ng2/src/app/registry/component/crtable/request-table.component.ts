@@ -8,10 +8,6 @@ import {
 	style,
 	animate,
 	transition,
-	state,
-	group,
-	query,
-	stagger
 } from '@angular/animations';
 
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
@@ -20,7 +16,7 @@ import { ChangeRequest, AbstractAction, AddChildAction, SetParentAction, CreateG
 import { GeoObjectOverTime } from '@registry/model/registry';
 
 import { ChangeRequestService } from '@registry/service';
-import { LocalizationService, AuthService, EventService, ExternalSystemService  } from '@shared/service';
+import { LocalizationService, AuthService, EventService } from '@shared/service';
 import { DateService } from '@shared/service/date.service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
@@ -144,6 +140,23 @@ export class RequestTableComponent {
 		}
 	}
 	
+	getGOTLabel(action: any): string {
+	  if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values
+	      && action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues
+	      && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0] && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value)
+	  {
+	    return action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value;
+	  }
+	  else if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.code) 
+	  {
+	    return action.geoObjectJson.attributes.code;
+	  }
+	  else
+	  {
+	    return this.localizationService.decode("geoObject.label");
+	  }
+	}
+	
 	onUpload(action: AbstractAction): void {
 		this.targetActionId = action.oid;
 		
@@ -246,10 +259,10 @@ export class RequestTableComponent {
 					let firstGeoObject = this.getFirstGeoObjectInActions();
 					
 					if(firstGeoObject){
-						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code]);
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, true]);
 					}
 					else{
-						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code]);
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, true]);
 					}
 				});
 			

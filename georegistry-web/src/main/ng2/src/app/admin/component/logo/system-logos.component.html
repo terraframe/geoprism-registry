@@ -20,7 +20,7 @@
             <span>
               <a class="fa fa-pencil ico-edit" (click)="edit(icon)" [title]="'system.image.editTooltip' | localize"></a>
               <a *ngIf="icon.custom" class="fa fa-trash-o ico-remove" [title]="'system.image.removeTooltip' | localize"
-                 (click)="onClickRemove(icon, $event)"></a>
+                 (click)="onClickRemove(icon)"></a>
             </span>
           </td>
           <td class="label-column">{{ icon.label }}</td>

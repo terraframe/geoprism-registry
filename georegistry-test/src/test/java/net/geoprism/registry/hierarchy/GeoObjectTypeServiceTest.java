@@ -255,7 +255,7 @@ public class GeoObjectTypeServiceTest
     createPrivateTestGot();
 
     // Allowed users
-    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, USER_PRIVATE_GOT_RM})
+    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         updateGot(request, adapter, TEST_PRIVATE_GOT);
@@ -266,7 +266,7 @@ public class GeoObjectTypeServiceTest
     }
     
     // Disallowed users
-    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         try 
@@ -356,7 +356,7 @@ public class GeoObjectTypeServiceTest
     }
     
     // Allowed users with write context
-    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, USER_PRIVATE_GOT_RM})
+    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
@@ -366,7 +366,7 @@ public class GeoObjectTypeServiceTest
     }
     
     // Disallowed users with write context
-    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
