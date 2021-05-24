@@ -1,17 +1,43 @@
-<!-- <div class="check-block"> -->
-<!--   <div (click)="toggle()" [ngClass]="{'chk-checked' : value, 'disabled': disable}" ng-style="chkstyle" class="chk-area"> -->
-<!--     <span></span> -->
-<!--   </div> -->
-  
-<!--   <label *ngIf="label.length > 0" class="checkbox-label" [ngClass]="{'disabled': disable}">{{label}}</label> -->
-<!--   <label *ngIf="localizeLabelKey.length > 0" class="checkbox-label" [ngClass]="{'disabled': disable}"><localize key="{{localizeLabelKey}}"></localize></label> -->
-<!-- </div> -->
-
-<!-- <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label> -->
 
 <label for="{{inputName}}" *ngIf="label.length > 0" [ngClass]="{'disabled': disable}">{{label}}</label>
 <label for="{{inputName}}" *ngIf="localizeLabelKey.length > 0" [ngClass]="{'disabled': disable}"><localize key="{{localizeLabelKey}}"></localize></label>
 
-<input [class]="classNames" name="{{inputName}}" [(ngModel)]="value" (blur)="toggle($event)" type="date" max="{{today|date:'yyyy-MM-dd'}}" [disabled]="disable" [required]="required" />
+<!-- <input id="date-input" [class]="classNames" name="{{inputName}}" [(ngModel)]="value" (change)="toggle($event)" type="date" max="{{today|date:'yyyy-MM-dd'}}" [disabled]="disable" [required]="required"/> -->
 
-<p *ngIf="message" class="error-message">{{message}}</p>
+<div [hidden]="valueIsPresent">
+  <span class="wrapper">
+      <input [class]="classNames ? classNames + ' ' + 'date-input-element' : 'date-input-element'" 
+           name="{{inputName}}"
+           type="text"
+           placeholder="YYYY-MM-DD"
+           [bsValue]="_value"
+           [value]="_value | date: 'yyyy-MM-dd'"
+           (bsValueChange)="toggle($event)"
+           [bsConfig]="{
+              dateInputFormat: 'YYYY-MM-DD', 
+              containerClass: 'theme-default', 
+              returnFocusToInput: returnFocusToInput,
+              adaptivePosition: true
+              }"
+           [outsideClick]="true"
+           placement="{{placement}}"
+           [maxDate]="allowFutureDates ? null : today"
+           [isDisabled]="disable"
+           [disabled]="disable"
+           bsDatepicker
+           #dp="bsDatepicker"
+           >
+  </span>
+  
+  <div class="form-input-validation-error-message-wrapper">
+    <p *ngIf="message" class="error-message">{{message}}</p>
+  </div>
+</div>
+
+<p [hidden]="!valueIsPresent" style="font-size:14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
+
+<div *ngIf="allowInfinity" class="text-right" style="padding: 10px 0;">
+  <button class="btn btn-default" style="margin:0;" *ngIf="valueIsPresent" (click)="toggleInfinity()"><localize key="manage.versions.enddate.set.date.button"></localize></button> 
+  <button class="btn btn-default" style="margin:0;" *ngIf="!valueIsPresent" (click)="toggleInfinity()"><localize key="manage.versions.enddate.set.current.button"></localize></button>
+</div>
+

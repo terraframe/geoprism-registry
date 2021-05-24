@@ -85,7 +85,7 @@ if [ "$deploy" == "true" ]; then
   [ -h ../permissions ] && unlink ../permissions
   ln -s $WORKSPACE/geoprism-platform/permissions ../permissions
 
-  ansible-playbook georegistry.yml -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db artifact_version=$version"
+  ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db artifact_version=$version"
 
   if [ "$environment" == "demo" ]; then
     ansible-playbook $WORKSPACE/geoprism-platform/ansible/aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini

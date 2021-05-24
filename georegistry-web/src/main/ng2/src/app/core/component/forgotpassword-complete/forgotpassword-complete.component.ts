@@ -24,6 +24,8 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from '@shared/component';
 
 import { ForgotPasswordService } from '@core/service/forgotpassword.service';
+import { PasswordStrengthBarComponent } from '@shared/component/password-strength-bar/password-strength-bar.component';
+
 
 
 @Component({
@@ -40,7 +42,8 @@ export class ForgotPasswordCompleteComponent implements OnInit {
   constructor(
     private service: ForgotPasswordService,
     private router: Router,      
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+	private passwordStrengthBarComponent: PasswordStrengthBarComponent) {
   }
   
   ngOnInit() {

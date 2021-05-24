@@ -5,6 +5,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 import { MasterList, MasterListByOrg } from '@registry/model/registry';
 import { RegistryService, IOService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 
 import { ErrorHandler } from '@shared/component';
 import { LocalizationService, AuthService } from '@shared/service';
@@ -42,13 +43,14 @@ export class PublishModalComponent implements OnInit {
 
 	isNew: boolean = false;
 
-	constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService) { }
+	constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService,
+		private dateService: DateService) { }
 
 	ngOnInit(): void {
 
 		this.onMasterListChange = new Subject();
 
-		if (this.master == null || !this.readonly) {
+		if (!this.master || !this.readonly) {
 			this.iService.listGeoObjectTypes(true).then(types => {
 
 				var myOrgTypes = [];
@@ -93,6 +95,10 @@ export class PublishModalComponent implements OnInit {
 				visibility: null
 			};
 		}
+	}
+	
+	ngAfterContentInit(){
+		
 	}
 
 	init(org: MasterListByOrg): void {
@@ -143,6 +149,14 @@ export class PublishModalComponent implements OnInit {
 
 	onCancel(): void {
 		this.bsModalRef.hide()
+	}
+	
+	ngOnDestroy() {
+		this.onMasterListChange.unsubscribe()
+	}
+	
+	formatDate(date: string): string {
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 	error(err: HttpErrorResponse): void {

@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Output, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { 
+	Component, 
+	OnInit, 
+	Input, 
+	Output, 
+	ChangeDetectorRef, 
+	EventEmitter, 
+	ViewChildren, 
+	QueryList } from '@angular/core';
 import {
 	trigger,
 	style,
@@ -8,9 +16,10 @@ import {
 
 import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, PRESENT } from '@registry/model/registry';
 
-import { LocalizationService } from '@shared/service';
+import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
-import Utils from '../../utility/Utils';
+import { LocalizationService } from '@shared/service';
+import { DateService } from '@shared/service/date.service';
 
 import * as moment from 'moment';
 
@@ -27,7 +36,7 @@ import * as moment from 'moment';
 					style({
 						opacity: 0
 					}),
-					animate('1000ms')
+					animate('500ms')
 				]),
 				transition(':leave',
 					animate('500ms', 
@@ -41,7 +50,11 @@ import * as moment from 'moment';
 })
 export class GeometryPanelComponent implements OnInit {
 	
+	@ViewChildren('dateFieldComponents') dateFieldComponentsArray:QueryList<DateFieldComponent>;
+	
 	currentDate : Date = new Date();
+	
+	isValid: boolean = true;
 	
 	isVersionForHighlight: number;
 	
@@ -76,56 +89,32 @@ export class GeometryPanelComponent implements OnInit {
 
 	hasDuplicateDate: boolean = false;
 
-	constructor(private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef) { }
+	constructor(private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService) { }
 
 	ngOnInit(): void {
 	}
 
-	onDateChange(): any {
-		this.hasConflict = false;
-	
-		let vAttributes = this.geoObjectOverTime.attributes['geometry'].values;
-
-
-		// check ranges
-		for (let j = 0; j < vAttributes.length; j++) {
-			const h1 = vAttributes[j];
-			h1.conflict = false;
-			h1.conflictMessage = [];
-
-			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
-				let s1: any = new Date(h1.startDate);
-				let e1: any = new Date(h1.endDate);
-				
-				if (Utils.dateEndBeforeStart(s1, e1)) {
-					h1.conflict = true;		
-					h1.conflictMessage.push(this.lService.decode("manage.versions.startdate.later.enddate.message")); 
-					this.hasConflict = true;
-				}
-
-				for (let i = 0; i < vAttributes.length; i++) {
-
-					if (j !== i) {
-						const h2 = vAttributes[i];
-						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
-							let s2: any = new Date(h2.startDate);
-							let e2: any = new Date(h2.endDate);
-
-							// Determine if there is an overlap
-							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-								h1.conflict = true
-								h1.conflictMessage.push(this.lService.decode("manage.versions.overlap.message"));
-
-								this.hasConflict = true;
-							}
-							
-						}
-					}
-				}
+	checkDateFieldValidity(): boolean {
+		let dateFields = this.dateFieldComponentsArray.toArray();
+		
+		for(let i=0; i<dateFields.length; i++){
+			let field = dateFields[i];
+			if(!field.valid){
+				return false;
 			}
 		}
 		
-		this.sort(vAttributes);
+		return true;
+	}
+	
+	onDateChange(): any {
+		this.hasConflict = false;
+		
+		this.isValid = this.checkDateFieldValidity();
+	
+		let vAttributes = this.geoObjectOverTime.attributes['geometry'].values;
+
+		this.hasConflict = this.dateService.checkRanges(vAttributes);
 	}
 
 	edit(vot: ValueOverTime, isVersionForHighlight: number): void {

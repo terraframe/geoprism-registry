@@ -12,6 +12,7 @@ import {
 
 import { LocalizedValue } from '@shared/model/core';
 import { LocalizationService } from '@shared/service';
+import { DateService } from '@shared/service/date.service';
 import { AuthService } from '@shared/service';
 
 import { ManageVersionsModalComponent } from './manage-versions-modal.component';
@@ -117,7 +118,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	@ViewChild("attributeForm") attributeForm;
 
-	constructor(private modalService: BsModalService, private lService: LocalizationService, private authService: AuthService) {
+	constructor(private modalService: BsModalService, private lService: LocalizationService, private authService: AuthService, private dateService: DateService) {
 		this.isContributorOnly = this.authService.isContributerOnly()
 	}
 
@@ -153,8 +154,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	ngOnChanges(changes: SimpleChanges) {
 		
-		console.log("ng changes: ")
-		
 		if (changes['preGeoObject']) {
 
 			this.preGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.preGeoObject)).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
@@ -171,6 +170,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		else if (changes['forDate']) {
 			this.calculate();
 		}
+	}
+	
+	setBoolean(attribute, value): void {
+		attribute.value = value
 	}
 
 	calculate(): void {
@@ -255,7 +258,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	formatDate(date: string): string {
-		return this.lService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 	handleChangeCode(e: any): void {
@@ -276,7 +279,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 				ignoreBackdropClick: true,
 			});
 
-			// TODO: sending the properties like this is wrong
+			
 			this.bsModalRef.content.geoObjectOverTime = this.postGeoObject;
 			this.bsModalRef.content.geoObjectType = this.geoObjectType;
 			this.bsModalRef.content.isNewGeoObject = this.isNew;
@@ -301,7 +304,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	isDifferentText(attribute: Attribute): boolean {
-		if (this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null) {
+		if ( this.isNullValue(this.calculatedPostObject[attribute.code]) && !this.isNullValue(this.calculatedPreObject[attribute.code])) {
 			return true;
 		}
 
@@ -309,11 +312,21 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 	}
 
 	isDifferentValue(attribute: Attribute): boolean {
-		if (this.calculatedPostObject[attribute.code] == null && this.calculatedPreObject[attribute.code] != null) {
+		if ( this.isNullValue(this.calculatedPostObject[attribute.code]) && !this.isNullValue(this.calculatedPreObject[attribute.code])) {
 			return true;
 		}
 
-		return (this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value !== this.calculatedPreObject[attribute.code].value);
+		if(attribute.type === 'date'){
+			return (this.calculatedPostObject[attribute.code].value && new Date(this.calculatedPostObject[attribute.code].value).getTime() !== new Date(this.calculatedPreObject[attribute.code].value).getTime());
+		}
+		else{
+			return (this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value !== this.calculatedPreObject[attribute.code].value);
+		}
+	}
+	
+	isNullValue(vot: any)
+	{
+	  return vot == null || vot.value == null || vot.value == "";
 	}
 
 	onSelectPropertyOption(event: any, option: any): void {
@@ -343,12 +356,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
 	isStatusChanged(post, pre) {
 
-		if (pre != null && post == null) {
+		if ( (pre != null && post == null) || (post != null && pre == null) ) {
 			return true;
 		}
+		else if (pre == null && post == null)
+		{
+		  return false;
+		}
 
-		if (pre == null || post == null || pre.length == 0 || post.length == 0) {
-			return false;
+		if ( (pre.length == 0 && post.length > 0) || (post.length == 0 && pre.length > 0) ) {
+			return true;
 		}
 
 		var preCompare = pre;

@@ -1,4 +1,12 @@
-import { Component, OnInit, Input, Output, ChangeDetectorRef, EventEmitter } from '@angular/core';
+import { 
+		Component, 
+		OnInit, 
+		Input, 
+		Output, 
+		ChangeDetectorRef, 
+		EventEmitter,
+		ViewChildren, 
+		QueryList } from '@angular/core';
 import {
 	trigger,
 	style,
@@ -8,7 +16,10 @@ import {
 
 import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from '@registry/model/registry';
 
-import { RegistryService, IOService } from '@registry/service';
+import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
+
+import { RegistryService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 
 import { LocalizationService } from '@shared/service';
 
@@ -40,10 +51,16 @@ import Utils from '../../utility/Utils';
 		]]
 })
 export class ManageVersionsComponent implements OnInit {
+	
+	@ViewChildren('dateFieldComponents') dateFieldComponentsArray:QueryList<DateFieldComponent>;
+	
 	message: string = null;
 
 	currentDate: Date = new Date();
 
+	isValid: boolean = true;
+	@Output() isValidChange = new EventEmitter<boolean>()
+	
 	@Input() readonly: boolean = false;
 
     /*
@@ -73,12 +90,13 @@ export class ManageVersionsComponent implements OnInit {
 
 	hasDuplicateDate: boolean = false;
 
+	conflict: string;
 	hasConflict: boolean = false;
 	hasGap: boolean = false;
 
 	originalAttributeState: Attribute;
 
-	constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef) { }
+	constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService) { }
 
 	ngOnInit(): void {
 	}
@@ -91,81 +109,35 @@ export class ManageVersionsComponent implements OnInit {
 			}, 0);
 		}
 	}
-
+	
 	geometryChange(vAttribute, event): void {
 		vAttribute.value = event;
 	}
+	
+	checkDateFieldValidity(): boolean {
+		let dateFields = this.dateFieldComponentsArray.toArray();
+		
+		for(let i=0; i<dateFields.length; i++){
+			let field = dateFields[i];
+			if(!field.valid){
+				return false;
+			}
+		}
+		
+		return true;
+	}
 
 	onDateChange(): any {
-		this.hasConflict = false;
-		this.hasGap = false;
-
-		let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
-
-
-		// check ranges
-		for (let j = 0; j < vAttributes.length; j++) {
-			const h1 = vAttributes[j];
-			h1.conflict = false;
-			h1.conflictMessage = [];
-
-			if (!(h1.startDate == null || h1.startDate === '') && !(h1.endDate == null || h1.endDate === '')) {
-				let s1: any = new Date(h1.startDate);
-				let e1: any = new Date(h1.endDate);
-
-				if (Utils.dateEndBeforeStart(s1, e1)) {
-					h1.conflict = true;
-					h1.conflictMessage.push(this.lService.decode("manage.versions.startdate.later.enddate.message"));
-					this.hasConflict = true;
-				}
-
-				for (let i = 0; i < vAttributes.length; i++) {
-
-					if (j !== i) {
-						const h2 = vAttributes[i];
-						if (!(h2.startDate == null || h2.startDate === '') && !(h2.endDate == null || h2.endDate === '')) {
-							let s2: any = new Date(h2.startDate);
-							let e2: any = new Date(h2.endDate);
-
-							// Determine if there is an overlap
-							if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-								h1.conflict = true
-								h1.conflictMessage.push(this.lService.decode("manage.versions.overlap.message"));
-
-								this.hasConflict = true;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		this.sort(vAttributes);
-
-		// check gaps
-		let current = null;
-
-		for (let j = 0; j < vAttributes.length; j++) {
-			let next = vAttributes[j];
-
-			if (j > 0) {
-				if (!(current.startDate == null || current.startDate === '') && !(current.endDate == null || current.endDate === '')) {
-					let e1: any = new Date(current.endDate);
-
-					if (!(next.startDate == null || next.startDate === '') && !(next.endDate == null || next.endDate === '')) {
-						let s2: any = new Date(next.startDate);
-
-						if (Utils.hasGap(e1.getTime(), s2.getTime())) {
-							next.conflict = true
-							next.conflictMessage.push(this.lService.decode("manage.versions.gap.message"));
-						}
-					}
-				}
-
-			}
-
-			current = next;
-		}
+		setTimeout(() => {
+			this.hasConflict = false;
+			this.hasGap = false;
+	
+			let vAttributes = this.geoObjectOverTime.attributes[this.attribute.code].values;
+	
+			this.isValid = this.checkDateFieldValidity();
+	
+			this.hasConflict = this.dateService.checkRanges(vAttributes);
+		}, 0);
 	}
 
 	onAddNewVersion(): void {
@@ -215,7 +187,7 @@ export class ManageVersionsComponent implements OnInit {
 		else if (this.attribute.type === 'term') {
 			var terms = this.getGeoObjectTypeTermAttributeOptions(this.attribute.code);
 
-			if (terms.length > 0) {
+			if (terms && terms.length > 0) {
 				vot.value = terms[0].code;
 			}
 		}
@@ -255,10 +227,6 @@ export class ManageVersionsComponent implements OnInit {
 		})
 
 		return defVal;
-	}
-
-	setDateAttribute(vot: ValueOverTime, val: string): void {
-		vot.value = new Date(val).getTime().toString()
 	}
 
 	getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {
@@ -302,6 +270,8 @@ export class ManageVersionsComponent implements OnInit {
 		if (position > -1) {
 			val.values.splice(position, 1);
 		}
+		
+		this.onDateChange();
 	}
 
 	isChangeOverTime(attr: Attribute): boolean {
@@ -314,20 +284,6 @@ export class ManageVersionsComponent implements OnInit {
 		})
 
 		return isChangeOverTime;
-	}
-
-	setInfinity(vAttribute, attributes): void {
-
-		if (vAttribute.endDate === PRESENT) {
-			vAttribute.endDate = new Date();
-		}
-		else {
-			vAttribute.endDate = PRESENT
-		}
-
-		this.onDateChange();
-
-		this.sort(attributes)
 	}
 
 	sort(votArr: ValueOverTime[]): void {
@@ -349,10 +305,8 @@ export class ManageVersionsComponent implements OnInit {
 	}
 
 	onSubmit(): void {
-
-		console.log("manage-versions  ", this.geoObjectOverTime)
-
 		this.onChange.emit(this.geoObjectOverTime);
+//		this.isValidChange.emit(this.isValid);
 	}
 
 	onCancel(): void {

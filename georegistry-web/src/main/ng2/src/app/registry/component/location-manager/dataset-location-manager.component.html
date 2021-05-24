@@ -1,4 +1,4 @@
-<div class="">
+<div>
   <cgr-header></cgr-header>
   <loading-bar></loading-bar>
 
@@ -23,7 +23,7 @@
               [readOnly]="readOnly"
               [geometryChange]="geometryChange"
               (geometryEdit)="onGeometryEdit($event)"
-              (featureChange)="onFeatureChange($event)"              
+              (featureChange)="onFeatureChange()"              
               (modeChange)="onModeChange($event)"
             ></feature-panel>
           </div>

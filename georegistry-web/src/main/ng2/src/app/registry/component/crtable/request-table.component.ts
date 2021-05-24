@@ -21,6 +21,7 @@ import { GeoObjectOverTime } from '@registry/model/registry';
 
 import { ChangeRequestService } from '@registry/service';
 import { LocalizationService, AuthService, EventService, ExternalSystemService  } from '@shared/service';
+import { DateService } from '@shared/service/date.service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
 import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent } from '@shared/component';
@@ -90,7 +91,7 @@ export class RequestTableComponent {
 	fileRef: ElementRef;
 
 	constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-				private eventService: EventService, private router: Router) {
+				private eventService: EventService, private router: Router, private dateService: DateService) {
 
 		this.columns = [
 			{ name: localizationService.decode('change.request.user'), prop: 'createdBy', sortable: false },
@@ -141,6 +142,23 @@ export class RequestTableComponent {
 
 			this.error({ error: error });
 		}
+	}
+	
+	getGOTLabel(action: any): string {
+	  if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values
+	      && action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues
+	      && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0] && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value)
+	  {
+	    return action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value;
+	  }
+	  else if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.code) 
+	  {
+	    return action.geoObjectJson.attributes.code;
+	  }
+	  else
+	  {
+	    return this.localizationService.decode("geoObject.label");
+	  }
 	}
 	
 	onUpload(action: AbstractAction): void {
@@ -432,7 +450,7 @@ export class RequestTableComponent {
 		this.bsModalRef.content.curAction(action, !cr.permissions.includes("WRITE_DETAILS"));
 	}
 	formatDate(date: string): string {
-		return this.localizationService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 	
 	getUsername(): string {

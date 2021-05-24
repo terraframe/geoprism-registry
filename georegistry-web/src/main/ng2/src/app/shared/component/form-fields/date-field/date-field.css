@@ -9,3 +9,37 @@ label.disabled{
 input[type="date"] {
 	min-width: 173px;
 }
+
+
+.wrapper input[type="text"] {
+    position: relative; 
+}
+
+/* input { font-family: 'FontAwesome'; } This is for the placeholder */
+
+/* .wrapper:after { */
+/*     font-family: 'FontAwesome'; */
+/*     position: relative; */
+/*     color: grey; */
+/*     content: "\f073"; */
+/*     left: 175px; */
+/*     top: -33px; */
+/*     font-size: 20px; */
+/* } */
+
+.date-input-element {
+	width: auto;
+}
+.date-input-element.full-width {
+	width: 100%;
+}
+
+.date-input-element:hover {
+/* 	cursor:pointer; */
+}
+
+
+::ng-deep .bs-datepicker-body table td span.disabled, .bs-datepicker-body table td.disabled span {
+    color: lightgrey;
+    cursor: not-allowed;
+}

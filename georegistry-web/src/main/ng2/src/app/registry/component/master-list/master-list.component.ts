@@ -9,6 +9,7 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { MasterListVersion } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { ExportFormatModalComponent } from './export-format-modal.component';
 import { GeoObjectEditorComponent } from '../geoobject-editor/geoobject-editor.component';
 
@@ -50,7 +51,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	notifier: WebSocketSubject<{ type: string, content: any }>;
 
 
-	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute,
+	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private dateService: DateService,
 		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService) {
 
 		this.searchPlaceholder = localizeService.decode("masterlist.search");
@@ -291,7 +292,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	}
 	
 	formatDate(date: string): string {
-		return this.localizeService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 	error(err: HttpErrorResponse): void {

@@ -55,8 +55,8 @@ public class Sandbox
   @Request
   private static void test() throws Exception
   {
-//    String url = "http://localhost:8080/fhir/";
-    String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
+    String url = "http://localhost:8080/fhir/";
+    // String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
     // Create a client
     FhirContext ctx = FhirContext.forR4();
     IGenericClient client = ctx.newRestfulGenericClient(url);
@@ -70,10 +70,10 @@ public class Sandbox
 
     Date date = cal.getTime();
 
-//     exportType(client, date, ServerGeoObjectType.get("District"));
-//     exportType(client, date, ServerGeoObjectType.get("Village"));
+    // exportType(client, date, ServerGeoObjectType.get("District"));
+    // exportType(client, date, ServerGeoObjectType.get("Village"));
 
-    exportJson(client, new File("/home/jsmethie/Documents/DSME/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
+    exportJson(client, new File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
   }
 
   private static void exportType(IGenericClient client, Date date, ServerGeoObjectType sType)
@@ -159,17 +159,31 @@ public class Sandbox
       }
     }
 
+    // Create the root type
+    Location location = new Location();
+    location.addIdentifier().setSystem("http://terraframe.com/code").setValue("ROOT");
+    location.setStatus(LocationStatus.ACTIVE);
+    location.setName("ROOT");
+    location.setMode(LocationMode.INSTANCE);
+    // location.setPartOf(new Reference("Location/1"));
+
+    // Create the resource on the server
+    MethodOutcome outcome = client.create().resource(location).execute();
+
+    // Log the ID that the server assigned
+    IIdType id = outcome.getId();
+
     for (int i = 0; i < results.size(); i++)
     {
       JsonObject result = results.get(i).getAsJsonObject();
 
       JsonObject resource = result.get("resource").getAsJsonObject();
 
-      processLocation(client, idMap, partOfQueue, processed, resource);
+      processLocation(client, idMap, partOfQueue, processed, resource, id);
     }
   }
 
-  private static void processLocation(IGenericClient client, Map<String, IIdType> idMap, Map<String, List<JsonObject>> partOfQueue, Set<String> processed, JsonObject resource)
+  private static void processLocation(IGenericClient client, Map<String, IIdType> idMap, Map<String, List<JsonObject>> partOfQueue, Set<String> processed, JsonObject resource, IIdType rootId)
   {
     String resourceType = resource.get("resourceType").getAsString();
 
@@ -190,7 +204,7 @@ public class Sandbox
           // Update the partOf value
           partOf.addProperty("reference", partOfIdType.getResourceType() + "/" + partOfIdType.getIdPart());
 
-          process(client, idMap, partOfQueue, processed, resource, key);
+          process(client, idMap, partOfQueue, processed, resource, key, rootId);
         }
         else
         {
@@ -200,12 +214,18 @@ public class Sandbox
       }
       else
       {
-        process(client, idMap, partOfQueue, processed, resource, key);
+        JsonObject partOf = new JsonObject();
+        partOf.addProperty("reference", rootId.getResourceType() + "/" + rootId.getIdPart());
+
+        // Update the partOf value
+        resource.add("partOf", partOf);
+
+        process(client, idMap, partOfQueue, processed, resource, key, rootId);
       }
     }
   }
 
-  private static void process(IGenericClient client, Map<String, IIdType> idMap, Map<String, List<JsonObject>> partOfQueue, Set<String> processed, JsonObject resource, String key)
+  private static void process(IGenericClient client, Map<String, IIdType> idMap, Map<String, List<JsonObject>> partOfQueue, Set<String> processed, JsonObject resource, String key, IIdType rootId)
   {
     if (resource.has("managingOrganization"))
     {
@@ -235,7 +255,7 @@ public class Sandbox
 
       for (JsonObject child : children)
       {
-        processLocation(client, idMap, partOfQueue, processed, child);
+        processLocation(client, idMap, partOfQueue, processed, child, rootId);
       }
 
       partOfQueue.remove(key);

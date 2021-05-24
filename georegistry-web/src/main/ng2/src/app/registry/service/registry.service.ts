@@ -677,6 +677,18 @@ export class RegistryService {
 			'Content-Type': 'application/json'
 		});
 
+			
+		// Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
+		// This conversion allows the date picker to work while ensuring the server recieves the correct format. 
+		for(const prop in geoObject.attributes) { 
+			let attr = geoObject.attributes[prop];
+ 			if(attr.type === "date"){ 
+				attr.values.forEach( val => { 
+					val.value = new Date(val.value).getTime().toString();
+				}) 
+			}
+		}
+
 		let params = { geoObject: geoObject, isNew: isNew, masterListId: masterListId };
 
 		if (parentTreeNode != null) {

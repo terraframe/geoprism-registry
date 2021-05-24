@@ -11,6 +11,7 @@ import { MasterList, MasterListVersion } from '@registry/model/registry';
 
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { RegistryService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { AuthService, LocalizationService } from '@shared/service';
 
 declare var acp: any;
@@ -42,7 +43,8 @@ export class PublishedMasterListHistoryComponent implements OnInit, OnDestroy {
 	isAdmin: boolean;
 
 
-	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService, private localizeService: LocalizationService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, public authService: AuthService, private localizeService: LocalizationService,
+		private dateService: DateService) {
 
 		this.isAdmin = authService.isAdmin();
 	}
@@ -161,7 +163,7 @@ export class PublishedMasterListHistoryComponent implements OnInit, OnDestroy {
 	}
 	
 	formatDate(date: string): string {
-		return this.localizeService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 	error(err: HttpErrorResponse): void {

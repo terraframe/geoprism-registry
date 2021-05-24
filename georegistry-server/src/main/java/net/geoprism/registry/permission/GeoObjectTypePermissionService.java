@@ -4,20 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.permission;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -27,6 +28,8 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.action.GovernancePermissionEntity;
+import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.roles.CreateGeoObjectTypePermissionException;
 import net.geoprism.registry.roles.DeleteGeoObjectTypePermissionException;
@@ -133,7 +136,10 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
               {
                 if (RegistryRole.Type.isRM_Role(roleName))
                 {
-                  return true;
+                  if (op.equals(Operation.READ))
+                  {
+                    return true;
+                  }
                 }
                 else if (RegistryRole.Type.isRC_Role(roleName))
                 {
@@ -161,6 +167,36 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
     }
 
     return false;
+  }
+  
+  public Set<CGRPermissionActionIF> getPermissions(ServerGeoObjectType got)
+  {
+    final String orgCode = got.getOrganization().getCode();
+    final Boolean isPrivate = got.getIsPrivate();
+    
+    HashSet<CGRPermissionActionIF> actions = new HashSet<CGRPermissionActionIF>();
+    
+    if (this.canRead(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.READ);
+    }
+    
+    if (this.canWrite(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.WRITE);
+    }
+    
+    if (this.canCreate(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.CREATE);
+    }
+
+    if (this.canDelete(orgCode, got, isPrivate))
+    {
+      actions.add(CGRPermissionAction.DELETE);
+    }
+    
+    return actions;
   }
 
   @Override

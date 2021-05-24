@@ -18,6 +18,7 @@
 		"@circlon/angular-tree-component": "^11.0.4",
 		"@mapbox/mapbox-gl-draw": "1.2.0",
 		"@mapbox/mapbox-gl-draw-static-mode": "1.0.1",
+		"@ng-bootstrap/ng-bootstrap": "^9.0.2",
 		"@turf/turf": "^5.1.6",
 		"@types/mapbox-gl": "1.11.1",
 		"@types/uuid": "8.0.0",

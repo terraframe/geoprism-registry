@@ -39,7 +39,7 @@
 
 <div *ngIf="!isLoading && isExternal !== null && showImportConfig">
     <div >
-        <form #form="ngForm">
+        <form #form="ngForm" autocomplete="off">
             <div *ngIf="isExternal" class="form-group row">
                 <label class="col-md-2 text-right" for="externalSystem">
                     <localize key="io.import.externalSystems"></localize>
@@ -54,7 +54,7 @@
             <div class="form-group row" *ngIf="types">
                 <label class="col-md-2 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
                 <div class="col-md-8">
-                    <select id="code" name="code" class="select-area" [(ngModel)]="code" required>
+                    <select id="code" name="code" class="select-area" [(ngModel)]="code" (change)="checkDates()" required>
                         <option></option>
                         <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
                     </select>
@@ -67,7 +67,7 @@
                     <localize *ngIf="this.format === 'SHAPEFILE'" key="shapefile.import.import.strategy"></localize>
                 </label>
                 <div class="col-md-8">
-                    <select id="strategy" name="strategy" class="select-area" [(ngModel)]="importStrategy" required>
+                    <select id="strategy" name="strategy" class="select-area" [(ngModel)]="importStrategy" (change)="checkDates()" required>
                         <option *ngFor="let strategy of importStrategies" value={{strategy.strategy}}>{{strategy.label}}</option>
                     </select>
                 </div>
@@ -76,7 +76,7 @@
             <div class="form-group row">
                 <label class="col-md-2 text-right" for="startDate"><localize key="io.startDate"></localize></label>
                 <div class="col-md-8">
-                  <date-field [(value)]="startDate" label="" [inputName]="'startDate'" [allowFutureDates]="false"></date-field>
+                  <date-field #dateFieldComponents [(value)]="startDate" label="" [inputName]="'startDate'" (change)="checkDates()" [allowFutureDates]="false"></date-field>
                 </div>
                 
                 <div class="col-md-2"></div>
@@ -84,22 +84,14 @@
             <div class="form-group row">
                 <label class="col-md-2 text-right" for="endDate"><localize key="io.endDate"></localize></label>
                 <div class="col-md-8">
-<!--                     <input name="endDate" [(ngModel)]="endDate" type="date" required /> -->
-                
-                  <input *ngIf="endDate !== '5000-12-31'" name="endDate" type="date" [(ngModel)]="endDate" required>
-                  <p *ngIf="endDate === '5000-12-31'" style="font-size: 14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                                      
-                  <p class="text-right">
-                    <a *ngIf="endDate === '5000-12-31'" (click)="setInfinity(endDate)"><localize key="manage.versions.enddate.set.date.button"></localize></a>
-                    <a *ngIf="endDate !== '5000-12-31'" (click)="setInfinity(endDate)"><localize key="manage.versions.enddate.set.current.button"></localize></a>
-                  </p>
+                  <date-field #dateFieldComponents [(value)]="endDate" label="" [inputName]="'endDate'" (change)="checkDates()" [allowInfinity]="true" [allowFutureDates]="true" [required]="true" ></date-field>
                 </div>
                                       
                 <div class="col-md-2"></div>
             </div>
             <div class="form-group row">
                 
-                <label class="col-md-2 text-right" for="endDate">Copy blank values</label>
+                <label class="col-md-2 text-right" for="copyBlank">Copy blank values</label>
                 <div class="col-md-8">
                    <boolean-field [(value)]="copyBlank" label=""></boolean-field>
                 </div>
@@ -122,10 +114,10 @@
             <div class="form-group row">
                 <div class="col-md-2"></div>
                 <div class="button-holder col-md-8 text-right">
-                    <button type="submit" class="btn btn-default" (click)="onBack()">
-                        <localize key="io.back"></localize>
-                    </button>
-                    <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="onClick()">
+<!--                     <button type="submit" class="btn btn-default" (click)="onBack()"> -->
+<!--                         <localize key="io.back"></localize> -->
+<!--                     </button> -->
+                    <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="onClick()">
                         <localize key="io.submit"></localize>
                     </button>
                 </div>

@@ -71,7 +71,7 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-	  this.isMaintainer = this.authService.isAdmin() || this.authService.isGeoObjectTypeRM(this.type.organizationCode, this.type.code);
+	  this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
 		this.mode = 'ATTRIBUTES';
 		this.geometryChange.subscribe(v => {
 			this.updateGeometry(v);
@@ -197,8 +197,6 @@ export class FeaturePanelComponent implements OnInit {
 	}
 
 	onAttributeChange(postGeoObject: GeoObjectOverTime): void {
-		
-		console.log("feature-panel", postGeoObject)
 		
 		this.postGeoObject = postGeoObject;
 

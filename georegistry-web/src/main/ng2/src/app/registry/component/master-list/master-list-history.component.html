@@ -4,11 +4,12 @@
     <div *ngIf="list && list.exploratory" style="margin-bottom: 10px;" class="row">
 
         <div class="col-md-12">
-            <form #myForm="ngForm" style="margin-left: 10px;">
+            <form #myForm="ngForm" style="margin-left: 10px;" autocomplete="off">
                 <div class="form-group">
                     <label for="forDate" style="display: block; margin-bottom: 0;"><localize key="masterlist.publishingFor"></localize></label> 
-<!--                     <input id="forDate" type="date" name="forDate" [(ngModel)]="forDate" required> -->
-                    <date-field [(value)]="forDate" (isValid)="setForDateValidity($event)" label="" style="display:inline-grid;" [inputName]="'forDate'" [allowFutureDates]="false" [required]="true"></date-field>
+
+                    <date-field [(value)]="forDate" [(valid)]="isForDateValid" label="" style="display:inline-grid;" [inputName]="'forDate'" 
+                        [allowFutureDates]="false" [required]="true" [placement]="'right'"></date-field>
 
                     <button type="submit" style="margin-left: 15px;" (click)="onPublish()" class="btn btn-primary" role="button" [disabled]="myForm.invalid || !isForDateValid">
                         <localize key="masterlist.publishNewVersion"></localize>

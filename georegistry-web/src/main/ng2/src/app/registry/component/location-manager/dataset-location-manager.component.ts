@@ -7,6 +7,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
 import { MapService, RegistryService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { AuthService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
 import { Subject } from 'rxjs';
@@ -31,25 +32,15 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 	
 	editSessionEnabled: boolean = false;
-
 	toolsIconHover: boolean = false;
-
 	datasetId: string;
-
 	typeCode: string;
-
 	readOnly: boolean = false;
-
 	editOnly: boolean = false;
-
 	isEdit: boolean = false;
-
 	date: string;
-
 	code: string;
-
 	type: GeoObjectType;
-
 	bsModalRef: BsModalRef;
 
     /* 
@@ -82,20 +73,17 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 
 	mode: string = null;
-
 	isMaintainer: boolean;
-
 	forDate: Date = new Date();
 
 	@ViewChild("simpleEditControl") simpleEditControl: IControl;
 	editingControl: any;
 
 	geometryChange: Subject<any> = new Subject();
-
 	vot: ValueOverTime;
 
 	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
-		authService: AuthService, private lService: LocalizationService) {
+		authService: AuthService, private lService: LocalizationService, private dateService: DateService) {
 			this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 	}
 
@@ -111,7 +99,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 			this.code = this.route.snapshot.params["code"];
 		}
 
-		this.forDate = new Date(Date.parse(this.date));
+		this.forDate = this.dateService.getDateFromDateString(this.date) // new Date(Date.parse(this.date));
 
 		this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
 			this.type = types[0];
@@ -174,18 +162,21 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	  if (this.code !== '__NEW__')
 	  {
   		this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
-  			let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-  
-  			let padding = 50;
-  			let maxZoom = 20;
-  
-  			// Zoom level was requested to be reduced when displaying point types as per #420
-  			if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
-  				padding = 100;
-  				maxZoom = 12;
-  			}
-  
-  			this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
+	
+			if(bounds){
+	  			let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+	  
+	  			let padding = 50;
+	  			let maxZoom = 20;
+	  
+	  			// Zoom level was requested to be reduced when displaying point types as per #420
+	  			if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
+	  				padding = 100;
+	  				maxZoom = 12;
+	  			}
+	  
+	  			this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
+			}
   		});
 		}
 
@@ -617,8 +608,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.code = '__NEW__';
 	}
 	
-	formatDate(date: string): string {
-		return this.lService.formatDateForDisplay(date);
+	formatDate(date: Date): string {
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 

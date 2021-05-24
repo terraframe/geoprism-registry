@@ -7,6 +7,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
 import { ScheduledJob } from '@registry/model/registry';
 import { RegistryService, IOService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 
 import { LocalizationService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
@@ -29,7 +30,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     edit: boolean = false;
 
 
-    constructor( private service: RegistryService, private iService: IOService, 
+    constructor( private service: RegistryService, private iService: IOService, private dateService: DateService,
         private lService: LocalizationService, public bsModalRef: BsModalRef, private modalService: BsModalService
         ) { }
 
@@ -97,7 +98,7 @@ export class TermReferenceProblemWidgetComponent implements OnInit {
     }
 
 	formatDate(date: string): string {
-		return this.lService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
     error( err: HttpErrorResponse ): void {

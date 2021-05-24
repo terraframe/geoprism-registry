@@ -5,7 +5,7 @@
 
     <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert"><localize key="changeovertime.manageVersions.duplicateDate"></localize></div>
 
-    <form #form="ngForm" class="modal-form" style="height: calc(100vh - 165px);display: contents;">
+    <form #form="ngForm" class="modal-form" style="height: calc(100vh - 165px);display: contents;" autocomplete="off">
         <fieldset>
             <div class="row">
                 <div class="col-md-12">
@@ -20,7 +20,7 @@
                                             <localize key="changeovertime.manageVersions.no.versions.message"></localize>
                                           </p>
                   
-                                          <tr @fadeInOut *ngFor="let entry of hierarchy.entries; let i = index;" [ngClass]="{'error-border': entry.conflict}">
+                                          <tr @fadeInOut *ngFor="let entry of hierarchy.entries; let i = index;" [ngClass]="{'error-border': entry.conflictMessage && entry.conflictMessage.length > 0 && entry.conflictMessage[0].type === 'ERROR', 'warning-border': entry.conflictMessage && entry.conflictMessage.length > 0 && entry.conflictMessage[0].type === 'WARNING'}">
                                             <td>
                                               <table>
                                                 <tr class="attribute-value-row">
@@ -54,7 +54,8 @@
                                                     <h5>
                                                       <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                                     </h5> 
-                                                    <input style="width: 100%;" type="date" [name]="'startDate-' + i" [(ngModel)]="entry.startDate" (blur)="onDateChange()" max="{{currentDate|date:'yyyy-MM-dd'}}" required />
+                                                  
+                                                    <date-field #dateFieldComponents style="width: 100%;" [(value)]="entry.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" ></date-field>
                                                   </td>
                                                   <td>
                                                     <div class="version-edit-date-container">
@@ -62,28 +63,17 @@
                                                         <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                                       </h5>
                                                       
-                                                      <input *ngIf="entry.endDate !== '5000-12-31'" type="date" [name]="'endDate_' + i" [(ngModel)]="entry.endDate" (blur)="onDateChange()" required>
-                                                      <p *ngIf="entry.endDate === '5000-12-31'" style="font-size: 14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
-                                                    
-                                                      <p class="text-right">
-                                                        <a *ngIf="entry.endDate === '5000-12-31'" (click)="setInfinity(entry, hierarchy.entries)"><localize key="manage.versions.enddate.set.date.button"></localize></a>
-                                                        <a *ngIf="entry.endDate !== '5000-12-31'" (click)="setInfinity(entry, hierarchy.entries)"><localize key="manage.versions.enddate.set.current.button"></localize></a>
-                                                      </p>
+                                                      <date-field #dateFieldComponents [(value)]="entry.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" [required]="true" [placement]="'bottom'"></date-field>
                                                       
-                                                      <div class="form-input-validation-error-message-wrapper">
-                                                        <p *ngIf="!entry.endDate" class="error-message">
-                                                          <localize key="manage.versions.end.date.required.message"></localize>
-                                                        </p>
-                                                      </div>
                                                     </div>
                                                   </td>
                                                 </tr>
-                                                <tr *ngIf="entry.conflict">
+                                                <tr *ngIf="entry.conflictMessage && entry.conflictMessage.length > 0">
 <!--                                                   <p class="error-message"> -->
 <!--                                                     <localize key="manage.versions.overlap.message"></localize> -->
 <!--                                                   </p> -->
-                                                    <p *ngFor="let msg of entry.conflictMessage" class="error-message">
-                                                      {{msg}}
+                                                    <p *ngFor="let msg of entry.conflictMessage" [ngClass]="{'error-message': msg.type === 'ERROR', 'warning-message': msg.type === 'WARNING'}">
+                                                      {{msg.message}}
                                                     </p>
                                                 </tr>                                                
                                               </table>
@@ -112,7 +102,7 @@
                         <button type="button" (click)="onCancel()" class="btn btn-default" role="button" >
                             <localize key="io.cancel"></localize>
                         </button> 
-                        <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="form.invalid || hasDuplicateDate">
+                        <button type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!isValid || form.invalid || hasDuplicateDate">
                             <localize key="modal.button.submit"></localize>
                         </button>
                     </div>

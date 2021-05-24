@@ -600,12 +600,13 @@ public class RegistryController
     PermissionContext pContext = PermissionContext.get(context);
 
     GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), aTypes, aHierarchies, pContext);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonArray jarray = new JsonArray();
     for (int i = 0; i < gots.length; ++i)
     {
-      jarray.add(gots[i].toJSON(serializer));
+      JsonObject jo = this.registryService.serialize(request.getSessionId(), gots[i]);
+      
+      jarray.add(jo);
     }
 
     return new RestBodyResponse(jarray);
@@ -666,9 +667,8 @@ public class RegistryController
   public ResponseIF createGeoObjectType(ClientRequestIF request, @RequestParamter(name = RegistryUrls.GEO_OBJECT_TYPE_CREATE_PARAM_GOT) String gtJSON) throws JSONException
   {
     GeoObjectType geoObjectType = this.registryService.createGeoObjectType(request.getSessionId(), gtJSON);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(geoObjectType.toJSON(serializer));
+    return new RestBodyResponse(this.registryService.serialize(request.getSessionId(), geoObjectType));
   }
 
   /**
@@ -682,9 +682,8 @@ public class RegistryController
   public ResponseIF updateGeoObjectType(ClientRequestIF request, @RequestParamter(name = "gtJSON") String gtJSON) throws JSONException
   {
     GeoObjectType geoObjectType = this.registryService.updateGeoObjectType(request.getSessionId(), gtJSON);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
-    return new RestBodyResponse(geoObjectType.toJSON(serializer));
+    return new RestBodyResponse(this.registryService.serialize(request.getSessionId(), geoObjectType));
   }
 
   /**
@@ -934,58 +933,7 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "init")
   public ResponseIF init(ClientRequestIF request)
   {
-    GeoObjectType[] gots = this.registryService.getGeoObjectTypes(request.getSessionId(), null, null, PermissionContext.READ);
-    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(request.getSessionId(), null, PermissionContext.READ);
-    OrganizationDTO[] orgDtos = RegistryService.getInstance().getOrganizations(request.getSessionId(), null);
-    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
-
-    JsonArray types = new JsonArray();
-
-    for (GeoObjectType got : gots)
-    {
-      JsonObject joGot = got.toJSON(serializer);
-
-      JsonArray relatedHiers = new JsonArray();
-
-      for (HierarchyType ht : hts)
-      {
-        List<HierarchyNode> hns = ht.getRootGeoObjectTypes();
-
-        for (HierarchyNode hn : hns)
-        {
-          if (hn.hierarchyHasGeoObjectType(got.getCode(), true))
-          {
-            relatedHiers.add(ht.getCode());
-          }
-        }
-      }
-
-      joGot.add("relatedHierarchies", relatedHiers);
-
-      types.add(joGot);
-    }
-
-    JsonArray hierarchies = new JsonArray();
-
-    for (HierarchyType ht : hts)
-    {
-      hierarchies.add(ht.toJSON(serializer));
-    }
-
-    JsonArray organizations = new JsonArray();
-
-    for (OrganizationDTO dto : orgDtos)
-    {
-      organizations.add(dto.toJSON(serializer));
-    }
-
-    JsonObject response = new JsonObject();
-    response.add("types", types);
-    response.add("hierarchies", hierarchies);
-    response.add("organizations", organizations);
-    response.add("locales", this.registryService.getLocales(request.getSessionId()));
-
-    return new RestBodyResponse(response);
+    return new RestBodyResponse(this.registryService.initHierarchyManager(request.getSessionId()));
   }
 
   /**

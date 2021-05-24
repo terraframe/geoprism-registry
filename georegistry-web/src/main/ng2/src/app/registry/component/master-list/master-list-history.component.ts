@@ -9,6 +9,7 @@ import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { PublishModalComponent } from './publish-modal.component';
 
 import { RegistryService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { LocalizationService, AuthService } from '@shared/service';
 
 @Component({
@@ -29,7 +30,8 @@ export class MasterListHistoryComponent implements OnInit {
     */
 	bsModalRef: BsModalRef;
 
-	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, private localizeService: LocalizationService) {
+	constructor(public service: RegistryService, private router: Router, private modalService: BsModalService, private localizeService: LocalizationService,
+		private dateService: DateService) {
 
 	}
 
@@ -37,10 +39,6 @@ export class MasterListHistoryComponent implements OnInit {
 		this.service.getMasterListHistory(this.oid, "EXPLORATORY").then(list => {
 			this.list = list;
 		});
-	}
-
-	setForDateValidity(event){
-		this.isForDateValid = event;
 	}
 
 	onPublish(): void {
@@ -92,7 +90,7 @@ export class MasterListHistoryComponent implements OnInit {
 	}
 	
 	formatDate(date: string): string {
-		return this.localizeService.formatDateForDisplay(date);
+		return this.dateService.formatDateForDisplay(date);
 	}
 
 

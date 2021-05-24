@@ -1,0 +1,75 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  	<createOrUpdate>
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="date.inpu.data.in.future.error.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="date.inpu.data.in.future.error.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Dates can not be set in the future" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="date.inpu.data.invalid.error.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="date.inpu.data.invalid.error.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Invalid date" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.name">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.name" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Organization Name" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="organization.contact">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="organization.contact" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Contact Information" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.date.required.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="manage.versions.date.required.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Date is required" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+  	</createOrUpdate>
+    <create></create>
+    
+     <update>
+    </update>
+    
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

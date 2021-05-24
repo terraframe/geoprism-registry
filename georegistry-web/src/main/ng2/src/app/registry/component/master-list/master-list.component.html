@@ -108,7 +108,10 @@
                                     <div id="collapseBasic" [collapse]="attribute.isCollapsed">
                                         <input *ngIf="attribute.type === 'input'" [name]="attribute.name" [(ngModel)]="attribute.value" (keyup.enter)="handleInputChange(attribute)" type="text" class="form-control search-input" />
                                         <div *ngIf="attribute.type === 'date'">
-                                            <input [name]="attribute.name + 'Start'" [(ngModel)]="attribute.value.start" (change)="handleDateChange(attribute)" type="date" class="form-control search-input" /> <input [name]="attribute.name + 'End'" [(ngModel)]="attribute.value.end" (change)="handleDateChange(attribute)" type="date" class="form-control search-input" />
+<!--                                             <input [name]="attribute.name + 'Start'" [(ngModel)]="attribute.value.start" (change)="handleDateChange(attribute)" type="date" class="form-control search-input" />  -->
+<!--                                             <input [name]="attribute.name + 'End'" [(ngModel)]="attribute.value.end" (change)="handleDateChange(attribute)" type="date" class="form-control search-input" /> -->
+                                            <date-field [(value)]="attribute.value.start" label="" [classNames]="'search-input'" [inputName]="attribute.name + 'Start'" (change)="handleDateChange(attribute)" [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [placement]="'bottom'"></date-field>
+                                            <date-field [(value)]="attribute.value.end" label="" [classNames]="'search-input'" [inputName]="attribute.name + 'End'" (change)="handleDateChange(attribute)" [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [placement]="'bottom'"></date-field>
                                         </div>
                                         <input *ngIf="attribute.type === 'list'" 
                                           type="text" 

@@ -57,6 +57,7 @@ export class GeoObjectType {
 	isAbstract?: boolean;
 	isPrivate?: boolean;
 	canDrag?: boolean;
+	permissions?: string[];
 }
 
 export class Task {
@@ -236,10 +237,12 @@ export class AbstractScheduledJob {
 
 export class ScheduledJob extends AbstractScheduledJob {
 	importedRecords: number;
+	exportedRecords: number;
 	configuration: ImportConfiguration;
 	importErrors: PaginationPage;
 	exportErrors: PaginationPage;
 	problems: PaginationPage;
+	fileName: string;
 }
 
 export class ScheduledJobOverview extends ScheduledJob {
@@ -348,8 +351,8 @@ export class HierarchyOverTime {
 		endDate: string;
 		parents: { [k: string]: { text: string; geoObject: GeoObject } };
 		loading?: any;
-		conflict?: boolean;
-		conflictMessage?: string[];
+		conflictType?: string;
+		conflictMessage?: any[];
 	}[];
 }
 

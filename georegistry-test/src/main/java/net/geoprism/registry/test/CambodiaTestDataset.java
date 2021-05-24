@@ -66,7 +66,7 @@ public class CambodiaTestDataset extends TestDataSet
 
   public static final TestGeoObjectInfo     GO_Cambodia              = new TestGeoObjectInfo("Cambodia", GOT_Country);
   
-  public static final TestGeoObjectInfo     GO_Oddar_Meanchey              = new TestGeoObjectInfo("Oddar Meanchey", GOT_Province);
+  public static final TestGeoObjectInfo     GO_Oddar_Meanchey              = new TestGeoObjectInfo("OddarMeanchey", GOT_Province);
   
   public static final TestUserInfo          USER_CGOV_RM          = new TestUserInfo("cgovrm", "cgovrm", "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
 
@@ -196,7 +196,7 @@ public class CambodiaTestDataset extends TestDataSet
     GO_Cambodia.setDefaultValue(this.AT_UN_MEMBER.getAttributeName(), true);
     
     this.AT_DATE_OF_FORMATION = TestDataSet.createAttribute("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
-    GO_Cambodia.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), new Date()); // TODO
+    GO_Cambodia.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), TestDataSet.DEFAULT_OVER_TIME_DATE);
     
     createTermAttribute();
   }

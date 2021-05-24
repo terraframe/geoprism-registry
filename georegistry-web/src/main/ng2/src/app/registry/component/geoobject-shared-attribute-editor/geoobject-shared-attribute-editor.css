@@ -55,7 +55,8 @@ fieldset {
 	line-height: 40px;
 }
 
-.input-group input[type="text"],
+/* Adding ::ng-deep to text inputs for child date-field formatting */
+::ng-deep .input-group input[type="text"],
 .input-group input[type="number"],
 .input-group input[type="date"],
 .input-group select {
