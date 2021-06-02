@@ -208,8 +208,8 @@ public class MasterListService
 //    return JsonParser.parseString(version.publish()).getAsJsonObject();
     
     MasterListVersion version = MasterListVersion.get(oid);
-
-    this.enforceWritePermissions(version.getMasterlist(), MasterListVersion.PUBLISHED);
+    
+    this.enforceWritePermissions(version.getMasterlist(), version.getVersionType());
 
     QueryFactory factory = new QueryFactory();
 
