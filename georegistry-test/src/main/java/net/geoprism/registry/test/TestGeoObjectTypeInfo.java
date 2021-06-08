@@ -383,4 +383,9 @@ public class TestGeoObjectTypeInfo
 
     this.assertEquals(type.getType());
   }
+
+  public TestAttributeTypeInfo getAttribute(String cgrAttrName)
+  {
+    return new TestAttributeTypeInfo(cgrAttrName, this);
+  }
 }
