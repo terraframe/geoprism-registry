@@ -35,6 +35,7 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.InvalidRegistryIdException;
@@ -59,6 +60,7 @@ import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
+import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.GeoObjectSplitView;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -330,13 +332,13 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
-  public GeoObjectOverTime masterListEdit(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId, String notes)
+  public JsonObject masterListEdit(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId, String notes)
   {
     return this.masterListEditTrans(sessionId, ptn, sGO, isNew, masterListId, notes);
   }
 
   @Transaction
-  public GeoObjectOverTime masterListEditTrans(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId, String notes)
+  public JsonObject masterListEditTrans(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId, String notes)
   {
     GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
 
@@ -373,7 +375,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
         }
       }
 
-      return serverGO.toGeoObjectOverTime();
+      JsonObject resp = new JsonObject();
+      
+      resp.addProperty("isChangeRequest", false);
+      resp.add("geoObject", serverGO.toGeoObjectOverTime().toJSON(ServiceFactory.getRegistryService().serializer(Session.getCurrentSession().getOid())));
+      
+      return resp;
     }
     else if (ServiceFactory.getRolePermissionService().isRC(orgCode, serverGOT))
     {
@@ -423,13 +430,18 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
         request.addAction(action).apply();
       }
+      
+      JsonObject resp = new JsonObject();
+      
+      resp.addProperty("isChangeRequest", true);
+      resp.addProperty("changeRequestId", request.getOid());
+      
+      return resp;
     }
     else
     {
       throw new CGRPermissionException();
     }
-
-    return null;
   }
 
   private boolean hasChanged(GeoObjectOverTime timeGO, String sPtn)

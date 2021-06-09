@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewEncapsulation, ViewChild, ElementRef, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -23,6 +23,7 @@ import { ActionDetailModalComponent } from './action-detail/action-detail-modal.
 import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent } from '@shared/component';
 
 declare var acp: string;
+declare var $: any;
 
 @Component({
 
@@ -70,13 +71,15 @@ export class RequestTableComponent {
 
 	columns: any[] = [];
 
-	toggleId: string;
+	@Input() toggleId: string;
 	
 	targetActionId: string
 
 	filterCriteria: string = 'ALL';
 
 	hasBaseDropZoneOver:boolean = false;
+	
+	waitingOnScroll: boolean = false;
 	
 	/*
      * File uploader
@@ -138,7 +141,22 @@ export class RequestTableComponent {
 
 			this.error({ error: error });
 		}
+		
+		if (this.toggleId != null)
+		{
+		  this.onSelect({ selected: [{ oid: this.toggleId }] });
+		  this.waitingOnScroll = true;
+		}
 	}
+	
+	scrollToBottom(): void {
+    //try {
+      // This is a hack but I expect it will need to be redone when we have pagination anyway.
+      $(".new-admin-design-main")[0].scrollTop = $(".new-admin-design-main")[0].scrollHeight;
+    //} catch(err) {
+    //  console.log(err);
+    //}
+  }
 	
 	getGOTLabel(action: any): string {
 	  if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values
@@ -213,6 +231,13 @@ export class RequestTableComponent {
 		this.service.getAllRequests("ALL").then(requests => {
 			
 			this.requests = requests;
+			
+			if (this.waitingOnScroll)
+			{
+			  let that = this;
+			  setTimeout(function(){ that.scrollToBottom(); }, 100);
+			  this.waitingOnScroll = false;
+			}
 
 		}).catch((response: HttpErrorResponse) => {
 			this.error(response);

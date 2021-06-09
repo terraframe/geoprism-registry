@@ -81,7 +81,9 @@
               [geometryChange]="geometryChange"
               (geometryEdit)="onGeometryEdit($event)"
               (featureChange)="search()"
-              (modeChange)="onModeChange($event)"              
+              (modeChange)="onModeChange($event)"
+              (panelCancel)="onPanelCancel()"
+              (panelSubmit)="onPanelSubmit($event)"
             ></feature-panel>
           </div>
         </div>            
