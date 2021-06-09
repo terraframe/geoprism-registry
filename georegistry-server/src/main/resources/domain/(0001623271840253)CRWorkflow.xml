@@ -1,0 +1,53 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject-editor.changerequest.submitted">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoobject-editor.changerequest.submitted" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Change request submitted successfully." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject-editor.changerequest.view">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoobject-editor.changerequest.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="View change request" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject-editor.edit.submitted">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoobject-editor.edit.submitted" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Edit submitted successfully." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject-editor.cancel.returnExplorer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoobject-editor.cancel.returnExplorer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Return to explorer" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject-editor.cancel.returnList">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoobject-editor.cancel.returnList" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Return to list" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject-editor.continueEditing">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="geoobject-editor.continueEditing" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Continue editing" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
