@@ -57,6 +57,7 @@ import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -598,6 +599,87 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     });
 
     return list;
+  }
+  
+  /**
+   * 
+   * @param hierarchy
+   * @param parents The parent types, sorted from the top to the bottom
+   * @return
+   */
+  private GraphQuery<VertexObject> buildAncestorQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
+  {
+    LinkedList<ServerHierarchyType> inheritancePath = new LinkedList<ServerHierarchyType>();
+    inheritancePath.add(hierarchy);
+    
+    for (int i = parents.size()-1; i >= 0; --i)
+    {
+      ServerGeoObjectType parent = parents.get(i);
+      
+      if (parent.isRoot(hierarchy))
+      {
+        ServerHierarchyType inheritedHierarchy = parent.getInheritedHierarchy(hierarchy);
+        
+        if (inheritedHierarchy != null)
+        {
+          inheritancePath.addFirst(inheritedHierarchy);
+        }
+      }
+    }
+    
+    String dbClassName = this.getMdClass().getDBClassName();
+
+//    select code, displayLabel_cot from (
+//        TRAVERSE inE('adh0')[DATE('2021-06-10','yyyy-MM-dd') between startDate AND endDate].outV() FROM (
+//          TRAVERSE inE('hfgh0')[DATE('2021-06-10','yyyy-MM-dd') between startDate AND endDate].outV() FROM (
+//            SELECT FROM ch0 WHERE @rid=#65:0
+//          )
+//        )
+//      )
+//      WHERE 
+//      status_cot CONTAINS (value CONTAINS 'ea48a4be-aa38-4b92-9d5b-dfd10e0005ba' AND DATE('2021-06-10','yyyy-MM-dd') BETWEEN startDate AND endDate)
+    
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT " + DefaultAttribute.CODE.getName() + ", " + DefaultAttribute.DISPLAY_LABEL + "_cot FROM (");
+    
+    for (ServerHierarchyType hier : inheritancePath)
+    {
+      statement.append("TRAVERSE inE('" + hier.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].outV() FROM (");
+    }
+    
+    statement.append("SELECT FROM '" + dbClassName + "' WHERE @rid=:rid");
+    
+    for (ServerHierarchyType hier : inheritancePath)
+    {
+      statement.append(")");
+    }
+    
+    statement.append(") WHERE status_cot CONTAINS (value CONTAINS :status AND :date BETWEEN startDate AND endDate)");
+    
+    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    query.setParameter("rid", this.vertex.getRID());
+    query.setParameter("date", this.date);
+    query.setParameter("status", GeoObjectStatus.ACTIVE.getOid());
+
+    return query;
+  }
+  
+  public Map<String, LocationInfo> getAncestorMap2(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
+  {
+    TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
+
+    GraphQuery<VertexObject> query = buildAncestorQueryFast(hierarchy, parents);
+
+    List<VertexObject> results = query.getResults();
+    results.forEach(result -> {
+      MdVertexDAOIF mdClass = (MdVertexDAOIF) result.getMdClass();
+      ServerGeoObjectType vType = ServerGeoObjectType.get(mdClass);
+      VertexServerGeoObject object = new VertexServerGeoObject(type, result, this.date);
+
+      map.put(vType.getUniversal().getKey(), object);
+    });
+
+    return map;
   }
 
   @Override

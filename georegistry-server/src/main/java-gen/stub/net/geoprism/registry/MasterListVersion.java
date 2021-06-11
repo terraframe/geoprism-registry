@@ -28,6 +28,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -109,8 +110,6 @@ import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.scheduler.AllJobStatus;
-import com.runwaysdk.system.scheduler.JobHistoryQuery;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
@@ -121,8 +120,6 @@ import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.SupportedLocaleCache;
-import net.geoprism.registry.etl.DuplicateJobException;
-import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -773,6 +770,21 @@ public class MasterListVersion extends MasterListVersionBase
       Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
       Collection<AttributeType> attributes = type.getAttributeMap().values();
       Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
+      
+      Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMapServer = new HashMap<ServerHierarchyType, List<ServerGeoObjectType>>();
+      for (Entry<HierarchyType, List<GeoObjectType>> entry : ancestorMap.entrySet())
+      {
+        ServerHierarchyType serverHT = ServerHierarchyType.get(entry.getKey());
+        
+        ArrayList<ServerGeoObjectType> serverGotList = new ArrayList<ServerGeoObjectType>();
+        
+        for (GeoObjectType got : entry.getValue())
+        {
+          serverGotList.add(ServerGeoObjectType.get(got));
+        }
+        
+        ancestorMapServer.put(serverHT, serverGotList);
+      }
 
       // ServerGeoObjectService service = new ServerGeoObjectService();
       // ServerGeoObjectQuery query = service.createQuery(type,
@@ -814,7 +826,7 @@ public class MasterListVersion extends MasterListVersionBase
           {
             Business business = new Business(mdBusiness.definesType());
 
-            publish(result, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+            publish(result, business, attributes, ancestorMapServer, hierarchiesOfSubTypes, locales);
 
             Thread.yield();
 
@@ -840,7 +852,7 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
   
-  private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<HierarchyType, List<GeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, List<Locale> locales)
+  private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, List<Locale> locales)
   {
     boolean hasData = false;
     
@@ -939,7 +951,7 @@ public class MasterListVersion extends MasterListVersionBase
         ServerHierarchyType hierarchy = ServerHierarchyType.get(entry.getKey());
   
         // List<GeoObjectType> parents = entry.getValue();
-        Map<String, LocationInfo> map = go.getAncestorMap(hierarchy, true);
+        Map<String, LocationInfo> map = go.getAncestorMap2(hierarchy, true);
   
         Set<Entry<String, LocationInfo>> locations = map.entrySet();
   
