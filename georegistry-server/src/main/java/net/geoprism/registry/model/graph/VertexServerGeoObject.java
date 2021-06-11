@@ -757,6 +757,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       return this.getStatus();
     }
+    else if (attributeName.equals(DefaultAttribute.CREATE_DATE.getName()))
+    {
+      return this.getCreateDate();
+    }
 
     MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);
 

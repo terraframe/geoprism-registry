@@ -1106,6 +1106,21 @@ public class MasterListVersion extends MasterListVersionBase
     {
       object.addProperty("superTypeCode", type.getSuperType().getCode());
     }
+    
+    if (type.getIsAbstract())
+    {
+      JsonArray subtypes = new JsonArray();
+      
+      for (ServerGeoObjectType subtype : type.getSubtypes())
+      {
+        JsonObject jo = new JsonObject();
+        jo.addProperty("code", subtype.getCode());
+        jo.addProperty("label", subtype.getLabel().getValue());
+        subtypes.add(jo);
+      }
+      
+      object.add("subtypes", subtypes);
+    }
 
     if (this.getPublishDate() != null)
     {

@@ -26,7 +26,7 @@ import { EventService } from '@shared/service';
 
 import { PageResult } from '@shared/model/core'
 import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from '@registry/model/registry'
-import { CustomAttributeConfig } from '@registry/model/sync'
+import { AttributeConfigInfo, DHIS2AttributeMapping } from '@registry/model/sync'
 
 declare var acp: any;
 
@@ -66,7 +66,7 @@ export class SynchronizationConfigService {
 			.toPromise();
 	}
 	
-	getCustomAttrCfg(geoObjectTypeCode: string, externalId: string): Promise<CustomAttributeConfig[]> {
+	getCustomAttrCfg(geoObjectTypeCode: string, externalId: string): Promise<AttributeConfigInfo[]> {
 
     let params: HttpParams = new HttpParams();
     params = params.set('externalId', externalId);
@@ -75,7 +75,7 @@ export class SynchronizationConfigService {
     this.eventService.start();
 
     return this.http
-      .get<CustomAttributeConfig[]>(acp + '/synchronization-config/get-custom-attr', { params: params })
+      .get<AttributeConfigInfo[]>(acp + '/synchronization-config/get-custom-attr', { params: params })
       .pipe(finalize(() => {
         this.eventService.complete();
       }))
@@ -91,7 +91,7 @@ export class SynchronizationConfigService {
     this.eventService.start();
 
     return this.http
-      .get<CustomAttributeConfig[]>(acp + '/synchronization-config/get-config-for-es', { params: params })
+      .get<any[]>(acp + '/synchronization-config/get-config-for-es', { params: params })
       .pipe(finalize(() => {
         this.eventService.complete();
       }))

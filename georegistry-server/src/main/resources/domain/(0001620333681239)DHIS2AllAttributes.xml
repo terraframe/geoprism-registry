@@ -1,0 +1,46 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.levels.add.tooltip">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.levels.add.tooltip" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add new level" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.attributes.add.tooltip">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.attributes.add.tooltip" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Add new attribute mapping" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.attributes.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.attributes.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Attributes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="sync.attr.attributes.editButton">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="sync.attr.attributes.editButton" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Attributes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="attributeType.typeEnum.local">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="attributeType.typeEnum.local" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Localized Value" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

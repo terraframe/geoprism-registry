@@ -107,6 +107,7 @@ import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -968,7 +969,7 @@ public class RegistryService
       statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
       statement.append("AND displayLabel_cot CONTAINS (");
       statement.append("  :date BETWEEN startDate AND endDate");
-      statement.append("  AND COALESCE(value.defaultLocale).toLowerCase() LIKE '%' + :text + '%'");
+      statement.append("  AND " + AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
       statement.append(") ORDER BY location.code ASC LIMIT 10");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());

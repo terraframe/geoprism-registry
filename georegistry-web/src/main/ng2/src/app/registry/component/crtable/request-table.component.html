@@ -248,9 +248,9 @@
                     </button>
                   </span>
                   
-                  <a [class.disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" class="alert pull-right" [title]="'change.request.delete.request.hover' | localize" >
+                  <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
                     <localize key="change.request.delete.request.btn"></localize>
-                  </a>
+                  </button>
                   
                 </div>
               </div>

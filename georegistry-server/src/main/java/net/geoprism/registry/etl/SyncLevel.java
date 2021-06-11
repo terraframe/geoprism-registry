@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class SyncLevel implements Comparable<SyncLevel>
 
   private Integer                 level;
   
-  private Map<String, DHIS2AttributeMapping> attributes;
+  private Collection<DHIS2AttributeMapping> mappings;
   
   private String         orgUnitGroupId;
   
@@ -85,26 +86,16 @@ public class SyncLevel implements Comparable<SyncLevel>
     this.level = level;
   }
   
-  public Boolean hasAttribute(String name)
+  public Collection<DHIS2AttributeMapping> getMappings()
   {
-    return this.attributes != null && this.attributes.containsKey(name);
-  }
-  
-  public DHIS2AttributeMapping getAttribute(String name)
-  {
-    return this.attributes.get(name);
-  }
-  
-  public Map<String, DHIS2AttributeMapping> getAttributes()
-  {
-    return attributes;
+    return mappings;
   }
 
-  public void setAttributes(Map<String, DHIS2AttributeMapping> attributes)
+  public void setMappings(Collection<DHIS2AttributeMapping> mappings)
   {
-    this.attributes = attributes;
+    this.mappings = mappings;
   }
-  
+
   @Override
   public int hashCode() {
     return new String(geoObjectTypeCode + syncType.name()).hashCode() + level;

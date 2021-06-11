@@ -40,6 +40,8 @@ export class FeaturePanelComponent implements OnInit {
 	@Output() geometryEdit = new EventEmitter<ValueOverTime>();
 	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
 	@Output() modeChange = new EventEmitter<boolean>();
+	@Output() panelCancel = new EventEmitter<void>();
+	@Output() panelSubmit = new EventEmitter<{isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}>();
 	
 	isValid: boolean = true;
 
@@ -59,7 +61,7 @@ export class FeaturePanelComponent implements OnInit {
 
 	isNew: boolean = false;
 
-	isEdit: boolean = false;
+	isEdit: boolean = true;
 
 	hierarchies: HierarchyOverTime[];
 
@@ -87,7 +89,9 @@ export class FeaturePanelComponent implements OnInit {
 		this.postGeoObject = null;
 		this.preGeoObject = null;
 		this.hierarchies = null;
-		this.setEditMode(false);
+		
+		//this.setEditMode(false);
+		this.setEditMode(true);
 
 		if (code != null && this.type != null) {
 
@@ -166,21 +170,27 @@ export class FeaturePanelComponent implements OnInit {
 		return null;
 	}
 
-	onCancel(): void {
+	onCancelInternal(): void {
 
-		if (this._code === '__NEW__') {
-			this.updateCode(null);
-		}
-		else {
-			this.updateCode(this._code);
-		}
+    this.panelCancel.emit();
+
+
+		//if (this._code === '__NEW__') {
+		//	this.updateCode(null);
+		//}
+		//else {
+		//	this.updateCode(this._code);
+		//}
 	}
 
 	onSubmit(): void {
-		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then(() => {
-			this.featureChange.emit(this.postGeoObject);
-
-			this.updateCode(this._code);
+		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+		  if (!applyInfo.isChangeRequest)
+      {
+			  this.featureChange.emit(this.postGeoObject);
+			  this.updateCode(this._code);
+			}
+			this.panelSubmit.emit(applyInfo);
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});

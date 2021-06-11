@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
@@ -16,7 +16,9 @@ import { ModalState } from '@registry/model/location-manager';
 
 import { MapService, RegistryService } from '@registry/service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent, SuccessModalComponent } from '@shared/component';
+
+import { LocalizationService } from '@shared/service';
 
 declare var acp: string;
 
@@ -92,6 +94,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   public displayDateRequiredError: boolean = false;
 
   vectorLayers: string[] = [];
+  
+  backReference: string;
 
     /* 
      * List of base layers
@@ -143,28 +147,29 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
   editingControl: any;
 
 
-  constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService, private route: ActivatedRoute) {
+  constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService, private route: ActivatedRoute, private router: Router, private lService: LocalizationService) {
   
   }
 
   ngOnInit(): void {
-  this.urlSubscriber = this.route.params.subscribe(params => {
-     let geoObjectUid = params['geoobjectuid'];
-     let geoObjectTypeCode = params['geoobjecttypecode'];
-     this.hideSearchOptions = params['hideSearchOptions'];
+    this.urlSubscriber = this.route.params.subscribe(params => {
+      let geoObjectUid = params['geoobjectuid'];
+      let geoObjectTypeCode = params['geoobjecttypecode'];
+      this.hideSearchOptions = params['hideSearchOptions'];
+      this.backReference = this.route.snapshot.params["backReference"];
      
-     this.dateStr = params['datestr'];
-     this.handleDateChange();
+      this.dateStr = params['datestr'];
+      this.handleDateChange();
 
-    if(geoObjectUid && geoObjectTypeCode && this.dateStr){
-      this.service.getGeoObject(geoObjectUid, geoObjectTypeCode).then(geoObj => {
-        this.setData([geoObj]);
-        this.select(geoObj, null);
-      }).catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
-    }
-  });
+      if(geoObjectUid && geoObjectTypeCode && this.dateStr){
+        this.service.getGeoObject(geoObjectUid, geoObjectTypeCode).then(geoObj => {
+          this.setData([geoObj]);
+          this.select(geoObj, null);
+        }).catch((err: HttpErrorResponse) => {
+          this.error(err);
+        });
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -286,7 +291,64 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
   }
 
-
+  onPanelCancel(): void {
+    if (this.backReference != null && this.backReference.length >= 2)
+    {
+      let ref = this.backReference.substring(0,2);
+      
+      if (ref === "CR")
+      {
+        this.router.navigate(['/registry/change-requests']);
+      }
+    }
+    else
+    {
+      this.changeMode(this.MODE.SEARCH);
+    }
+  }
+  
+  onPanelSubmit(applyInfo: {isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}): void {
+    if (applyInfo.isChangeRequest)
+    {
+      if (this.backReference != null && this.backReference.length >= 2 && this.backReference.substring(0,2) === "CR")
+      {
+        this.bsModalRef = this.modalService.show(SuccessModalComponent, { backdrop: true, class:"error-white-space-pre" });
+        
+        this.bsModalRef.content.message = this.lService.decode("geoobject-editor.changerequest.submitted");
+        this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.changerequest.view");
+        
+        this.bsModalRef.content.onConfirm.subscribe( () => {
+          this.router.navigate(['/registry/change-requests', applyInfo.changeRequestId]);
+        } );
+      }
+      else
+      {
+        this.bsModalRef = this.modalService.show(ConfirmModalComponent, { backdrop: true, class:"error-white-space-pre" });
+        
+        this.bsModalRef.content.message = this.lService.decode("geoobject-editor.changerequest.submitted");
+        this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.changerequest.view");
+        this.bsModalRef.content.cancelText = this.lService.decode("geoobject-editor.cancel.returnExplorer");
+        
+        this.bsModalRef.content.onConfirm.subscribe( () => {
+          this.router.navigate(['/registry/change-requests', applyInfo.changeRequestId]);
+        } );
+        this.bsModalRef.content.onCancel.subscribe( () => {
+          this.changeMode(this.MODE.SEARCH);
+        } );
+      }
+    }
+    else
+    {
+      this.bsModalRef = this.modalService.show(SuccessModalComponent, { backdrop: true, class:"error-white-space-pre" });
+      
+      this.bsModalRef.content.message = this.lService.decode("geoobject-editor.edit.submitted");
+      this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.cancel.returnExplorer");
+      
+      this.bsModalRef.content.onConfirm.subscribe( () => {
+        this.onPanelCancel();
+      } );
+    }
+  }
 
   addLayers(): void {
 

@@ -40,6 +40,7 @@ import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.etl.PublishMasterListJob;
 import net.geoprism.registry.service.MasterListService;
 
@@ -177,7 +178,7 @@ public class MasterListController
   public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
-    String code = masterList.get(MasterList.TYPE_CODE).getAsString();
+    String code = masterList.get(MasterList.TYPE_CODE).getAsString() + "-" + masterList.get(MasterListVersion.FORDATE).getAsString();
 
     return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", code + ".zip");
   }
@@ -186,7 +187,7 @@ public class MasterListController
   public ResponseIF downloadShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
-    String code = masterList.get(MasterList.TYPE_CODE).getAsString();
+    String code = masterList.get(MasterList.TYPE_CODE).getAsString() + "-" + masterList.get(MasterListVersion.FORDATE).getAsString();
 
     return new InputStreamResponse(service.downloadShapefile(request.getSessionId(), oid), "application/zip", code + ".zip");
   }

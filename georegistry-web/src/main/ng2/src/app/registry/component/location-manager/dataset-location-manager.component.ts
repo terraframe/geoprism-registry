@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Map, NavigationControl, AttributionControl, LngLatBounds, IControl } from 'mapbox-gl';
@@ -10,6 +10,7 @@ import { MapService, RegistryService } from '@registry/service';
 import { DateService } from '@shared/service/date.service';
 import { AuthService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
+import { ConfirmModalComponent } from '@shared/component';
 import { Subject } from 'rxjs';
 
 import { LocalizationService } from '@shared/service';
@@ -42,6 +43,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	code: string;
 	type: GeoObjectType;
 	bsModalRef: BsModalRef;
+	backReference: string;
 
     /* 
      * mapbox-gl map
@@ -83,7 +85,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	vot: ValueOverTime;
 
 	constructor(private mapService: MapService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
-		authService: AuthService, private lService: LocalizationService, private dateService: DateService) {
+		authService: AuthService, private lService: LocalizationService, private dateService: DateService, private router: Router) {
 			this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 	}
 
@@ -94,6 +96,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		this.date = this.route.snapshot.params["date"];
 		this.readOnly = this.route.snapshot.params["readOnly"] === 'true';
 		this.editOnly = this.route.snapshot.params["editOnly"] === 'true';
+		this.backReference = this.route.snapshot.params["backReference"];
 
 		if (this.route.snapshot.params["code"] != null) {
 			this.code = this.route.snapshot.params["code"];
@@ -108,6 +111,53 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		});
 
 	}
+	
+	onPanelCancel(): void {
+	  if (this.backReference != null && this.backReference.length >= 2)
+	  {
+	    let ref = this.backReference.substring(0,2);
+	    
+	    if (ref === "ML")
+	    {
+	      let published = this.backReference.substring(3,3) === "T";
+	      let oid = this.backReference.substring(3);
+	    
+	      this.router.navigate(['/registry/master-list', oid, published]);
+	    }
+	  }
+  }
+  
+  onPanelSubmit(applyInfo: {isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}): void {
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, { backdrop: true, class:"error-white-space-pre" });
+      
+    if (applyInfo.isChangeRequest)
+    {
+      this.bsModalRef.content.message = this.lService.decode("geoobject-editor.changerequest.submitted");
+      this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.cancel.returnList");
+      this.bsModalRef.content.cancelText = this.lService.decode("geoobject-editor.changerequest.view");
+    }
+    else
+    {
+      this.bsModalRef.content.message = this.lService.decode("geoobject-editor.edit.submitted");
+      this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.cancel.returnList");
+      this.bsModalRef.content.cancelText = this.lService.decode("geoobject-editor.continueEditing");
+    }
+    
+    this.bsModalRef.content.onConfirm.subscribe( () => {
+      this.onPanelCancel();
+    } );
+    
+    this.bsModalRef.content.onCancel.subscribe( () => {
+      if (applyInfo.isChangeRequest)
+      {
+        this.router.navigate(['/registry/change-requests', applyInfo.changeRequestId]);
+      }
+      else
+      {
+        // do nothing
+      }
+    } );
+  }
 
 	ngOnDestroy(): void {
 		this.map.remove();

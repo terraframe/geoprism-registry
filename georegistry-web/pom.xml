@@ -124,6 +124,7 @@
 									<cargo.tomcat.connector.keystorePass>2v8hVW2rPFncN6m</cargo.tomcat.connector.keystorePass>
 									<cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
 									<cargo.tomcat.httpSecure>true</cargo.tomcat.httpSecure>
+                  <cargo.tomcat.uriencoding>UTF-8</cargo.tomcat.uriencoding>
 									<cargo.jvmargs>
 										-Xmx5120M
 										-Xdebug
