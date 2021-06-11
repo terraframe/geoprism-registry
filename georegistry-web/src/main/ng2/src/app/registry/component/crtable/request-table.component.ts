@@ -59,6 +59,8 @@ declare var acp: string;
 	]
 })
 export class RequestTableComponent {
+	
+	today: string = this.dateService.getDateString(new Date());
 
 	objectKeys = Object.keys;
 
@@ -259,10 +261,10 @@ export class RequestTableComponent {
 					let firstGeoObject = this.getFirstGeoObjectInActions();
 					
 					if(firstGeoObject){
-						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, true]);
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, this.today, true]);
 					}
 					else{
-						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, true]);
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, this.today, true]);
 					}
 				});
 			

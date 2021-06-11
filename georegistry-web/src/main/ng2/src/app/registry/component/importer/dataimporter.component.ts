@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryList } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryList, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -97,7 +97,8 @@ export class DataImporterComponent implements OnInit {
 		private modalService: BsModalService,
 		private localizationService: LocalizationService,
 		private authService: AuthService,
-		private sysService: ExternalSystemService
+		private sysService: ExternalSystemService,
+		private changeDetectorRef: ChangeDetectorRef
 	) { }
 
 	ngOnInit(): void {
@@ -255,11 +256,25 @@ export class DataImporterComponent implements OnInit {
 	checkDateFieldValidity(): boolean {
 		let dateFields = this.dateFieldComponentsArray.toArray();
 		
+		let startDateField: DateFieldComponent;
 		for(let i=0; i<dateFields.length; i++){
 			let field = dateFields[i];
+			
+			if(field.inputName === "startDate"){
+				// set startDateField so we can use it in the next check
+				startDateField = field;
+			}
+			
 			if(!field.valid){
 				return false;
 			}
+		}
+		
+		if(this.startDate > this.endDate){
+			
+			startDateField.setInvalid(this.localizationService.decode('date.input.startdate.after.enddate.error.message'));
+			
+			this.changeDetectorRef.detectChanges() 
 		}
 		
 		return true;

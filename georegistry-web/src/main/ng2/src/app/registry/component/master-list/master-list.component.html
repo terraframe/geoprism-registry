@@ -25,7 +25,7 @@
 
             <div class="col-md-12">
                 <h4>
-                    <localize key="masterlist.publishDate"></localize>
+                    <localize key="masterlist.generatedDate"></localize>
                     : <span class="date-string-display">
                           {{formatDate(list.publishDate)}}
                       </span>
@@ -59,7 +59,7 @@
         </div>
         <div class="row form-group">
             <div class="col-md-12">
-                <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
+                <pagination-controls style="position:absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
             
                 <div class="button-holder pull-right">
             
@@ -90,12 +90,12 @@
             </div>
         </div>
         <div class="row form-group">
-            <div *ngIf="list" class="col-md-12 table-responsive" style="">
-                <table class="list-table table table-bordered table-striped">
-                    <thead>
+            <div *ngIf="list"  class="col-md-12 table-responsive" id="list-view-table" style="max-height:calc(100vh - 415px)">
+                <table class="list-table table table-bordered table-striped"  >
+                    <thead style="position: sticky;top: 0;background: #ececec;">
                         <tr>
-                            <th style="width: 3%" class="label-column"><localize key="masterlist.view.column"></localize></th>
-                            <th *ngFor="let attribute of list.attributes" class="label-column">
+                            <th style="width: 3%;position: sticky;top: 0 " class="label-column"><localize key="masterlist.view.column"></localize></th>
+                            <th style="position: sticky;top: 0" *ngFor="let attribute of list.attributes" class="label-column">
 
                                 <div style="display: table-cell; padding-right: 10px; vertical-align: middle;" *ngIf="isFilterable(attribute)">
                                     <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"> 

@@ -17,6 +17,7 @@ import { ErrorHandler } from '@shared/component';
 import { LocalizationService, AuthService, ProgressService } from '@shared/service';
 
 declare var acp: string;
+declare var $: any;
 
 @Component({
 	selector: 'master-list',
@@ -52,7 +53,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
 
 	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private dateService: DateService,
-		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService) {
+		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService ) {
 
 		this.searchPlaceholder = localizeService.decode("masterlist.search");
 	}
@@ -96,6 +97,10 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
 	ngOnDestroy() {
 		this.notifier.complete();
+	}
+	
+	ngAfterViewInit() {
+
 	}
 
 
@@ -308,6 +313,15 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	
 	formatDate(date: string): string {
 		return this.dateService.formatDateForDisplay(date);
+	}
+	
+	onWheel(event: WheelEvent): void {
+		let tableEl = (<Element>event.target).parentElement.closest('table').parentElement;
+//	    if (event.deltaY > 0) tableEl!.scrollLeft += 40;
+//	    else tableEl!.scrollLeft -= 40;
+
+		tableEl.scrollLeft += event.deltaY;
+   		event.preventDefault();
 	}
 
 	error(err: HttpErrorResponse): void {
