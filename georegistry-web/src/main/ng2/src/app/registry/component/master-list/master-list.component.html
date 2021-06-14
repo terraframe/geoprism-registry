@@ -167,7 +167,7 @@
 
         <div class="row">
             <div class="col-md-12">
-                <span style="margin-right:-35px;">Showing {{(page.pageNumber-1)*page.pageSize}} to {{page.pageNumber*page.pageSize}} of {{page.count}}</span> <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
+                <span style="margin-right:-35px;"><localize key="masterlist.pagination.showing"></localize> {{(page.pageNumber-1)*page.pageSize}} <localize key="masterlist.pagination.to"></localize> {{page.pageNumber*page.pageSize}} <localize key="masterlist.pagination.of"></localize> {{page.count}}</span> <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
             </div>
         </div>
     </div>
