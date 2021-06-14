@@ -59,8 +59,6 @@
         </div>
         <div class="row form-group">
             <div class="col-md-12">
-                <pagination-controls style="position:absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
-            
                 <div class="button-holder pull-right">
             
                     <span class="clickable" (click)="clearFilters()" style="padding: 10px;">
@@ -169,7 +167,7 @@
 
         <div class="row">
             <div class="col-md-12">
-                <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
+                <span style="margin-right:-35px;">Showing {{(page.pageNumber-1)*page.pageSize}} to {{page.pageNumber*page.pageSize}} of {{page.count}}</span> <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
             </div>
         </div>
     </div>
