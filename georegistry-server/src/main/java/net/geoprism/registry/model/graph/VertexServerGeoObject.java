@@ -105,6 +105,7 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -720,7 +721,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     
     OResult rawLV = (OResult) votc.getValueOnDate(this.date);
     
-    List<Locale> locales = LocalizationFacade.getInstalledLocales();
+//    List<Locale> locales = LocalizationFacade.getInstalledLocales(); // TODO : God only knows why these objects aren't cached at the runway object level
+    List<Locale> locales = SupportedLocaleCache.getLocales();
     
     LocalizedValue lv = new LocalizedValue(rawLV.getProperty("defaultLocale"));
     lv.setValue(Locale.getDefault(), rawLV.getProperty("defaultLocale"));
