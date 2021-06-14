@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
@@ -51,16 +50,15 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
@@ -106,7 +104,6 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
-import net.geoprism.registry.StatusValueException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
@@ -118,6 +115,7 @@ import net.geoprism.registry.model.AbstractServerGeoObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.LocationInfo;
+import net.geoprism.registry.model.LocationInfoHolder;
 import net.geoprism.registry.model.ServerChildTreeNode;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -134,6 +132,8 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo, VertexComponent
 {
+  private static final Logger logger = LoggerFactory.getLogger(VertexServerGeoObject.class);
+  
   private static class EdgeComparator implements Comparator<EdgeObject>
   {
     @Override
@@ -607,7 +607,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
    * @param parents The parent types, sorted from the top to the bottom
    * @return
    */
-  private GraphQuery<VertexObject> buildAncestorQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
+  private GraphQuery<List<Object>> buildAncestorQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
   {
     LinkedList<ServerHierarchyType> inheritancePath = new LinkedList<ServerHierarchyType>();
     inheritancePath.add(hierarchy);
@@ -640,14 +640,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 //      status_cot CONTAINS (value CONTAINS 'ea48a4be-aa38-4b92-9d5b-dfd10e0005ba' AND DATE('2021-06-10','yyyy-MM-dd') BETWEEN startDate AND endDate)
     
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT " + DefaultAttribute.CODE.getName() + ", " + DefaultAttribute.DISPLAY_LABEL + "_cot FROM (");
+    statement.append("SELECT @class, " + DefaultAttribute.CODE.getName() + ", " + DefaultAttribute.DISPLAY_LABEL.getName() + "_cot FROM (");
     
     for (ServerHierarchyType hier : inheritancePath)
     {
       statement.append("TRAVERSE inE('" + hier.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].outV() FROM (");
     }
     
-    statement.append("SELECT FROM '" + dbClassName + "' WHERE @rid=:rid");
+    statement.append("SELECT FROM " + dbClassName + " WHERE @rid=:rid");
     
     for (ServerHierarchyType hier : inheritancePath)
     {
@@ -656,7 +656,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     
     statement.append(") WHERE status_cot CONTAINS (value CONTAINS :status AND :date BETWEEN startDate AND endDate)");
     
-    GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
+    GraphQuery<List<Object>> query = new GraphQuery<List<Object>>(statement.toString());
     query.setParameter("rid", this.vertex.getRID());
     query.setParameter("date", this.date);
     query.setParameter("status", GeoObjectStatus.ACTIVE.getOid());
@@ -668,18 +668,69 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
 
-    GraphQuery<VertexObject> query = buildAncestorQueryFast(hierarchy, parents);
+    GraphQuery<List<Object>> query = buildAncestorQueryFast(hierarchy, parents);
 
-    List<VertexObject> results = query.getResults();
+    List<List<Object>> results = query.getResults();
+    results.remove(0);
     results.forEach(result -> {
-      MdVertexDAOIF mdClass = (MdVertexDAOIF) result.getMdClass();
-      ServerGeoObjectType vType = ServerGeoObjectType.get(mdClass);
-      VertexServerGeoObject object = new VertexServerGeoObject(type, result, this.date);
-
-      map.put(vType.getUniversal().getKey(), object);
+      String clazz = (String) result.get(0);
+      String code = (String) result.get(1);
+      
+      List<OResult> displayLabelRaw = (List<OResult>) result.get(2);
+      
+      LocalizedValue localized = convertToLocalizedValue(displayLabelRaw);
+      
+      LocationInfoHolder holder = new LocationInfoHolder(code, localized);
+      
+      ServerGeoObjectType type = null;
+      for (ServerGeoObjectType parent : parents)
+      {
+        if (parent.getMdVertex().getDBClassName().equals(clazz))
+        {
+          type = parent;
+        }
+      }
+      
+      if (type != null)
+      {
+        map.put(type.getUniversal().getKey(), holder);
+      }
+      else
+      {
+        logger.error("Could not find [" + clazz + "]");
+      }
     });
 
     return map;
+  }
+  
+  private LocalizedValue convertToLocalizedValue(List<OResult> results)
+  {
+    ValueOverTimeCollection votc = new ValueOverTimeCollection();
+    
+    for (OResult result : results)
+    {
+      Date startDate = result.getProperty("startDate");
+      Date endDate = result.getProperty("endDate");
+      Object value = result.getProperty("value");
+      
+      ValueOverTime vot = new ValueOverTime(startDate, endDate, value);
+      votc.add(vot);
+    }
+    
+    OResult rawLV = (OResult) votc.getValueOnDate(this.date);
+    
+    List<Locale> locales = LocalizationFacade.getInstalledLocales();
+    
+    LocalizedValue lv = new LocalizedValue(rawLV.getProperty("defaultLocale"));
+    lv.setValue(Locale.getDefault(), rawLV.getProperty("defaultLocale"));
+    
+    for (Locale locale : locales)
+    {
+      lv.setValue(locale, rawLV.getProperty(locale.toString().toLowerCase()));
+    }
+    
+    return lv;
   }
 
   @Override

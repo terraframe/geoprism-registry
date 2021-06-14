@@ -130,6 +130,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.progress.Progress;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
@@ -767,24 +768,9 @@ public class MasterListVersion extends MasterListVersionBase
       List<Locale> locales = SupportedLocaleCache.getLocales();
 
       // Add the type ancestor fields
-      Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
+      Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
       Collection<AttributeType> attributes = type.getAttributeMap().values();
       Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
-      
-      Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMapServer = new HashMap<ServerHierarchyType, List<ServerGeoObjectType>>();
-      for (Entry<HierarchyType, List<GeoObjectType>> entry : ancestorMap.entrySet())
-      {
-        ServerHierarchyType serverHT = ServerHierarchyType.get(entry.getKey());
-        
-        ArrayList<ServerGeoObjectType> serverGotList = new ArrayList<ServerGeoObjectType>();
-        
-        for (GeoObjectType got : entry.getValue())
-        {
-          serverGotList.add(ServerGeoObjectType.get(got));
-        }
-        
-        ancestorMapServer.put(serverHT, serverGotList);
-      }
 
       // ServerGeoObjectService service = new ServerGeoObjectService();
       // ServerGeoObjectQuery query = service.createQuery(type,
@@ -826,7 +812,7 @@ public class MasterListVersion extends MasterListVersionBase
           {
             Business business = new Business(mdBusiness.definesType());
 
-            publish(result, business, attributes, ancestorMapServer, hierarchiesOfSubTypes, locales);
+            publish(result, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
 
             Thread.yield();
 
@@ -854,6 +840,8 @@ public class MasterListVersion extends MasterListVersionBase
   
   private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, List<Locale> locales)
   {
+    VertexServerGeoObject vertexGo = (VertexServerGeoObject) go;
+    
     boolean hasData = false;
     
     business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, go.getGeometry());
@@ -944,14 +932,13 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (hasData)
     {
-      Set<Entry<HierarchyType, List<GeoObjectType>>> entries = ancestorMap.entrySet();
+      Set<Entry<ServerHierarchyType, List<ServerGeoObjectType>>> entries = ancestorMap.entrySet();
   
-      for (Entry<HierarchyType, List<GeoObjectType>> entry : entries)
+      for (Entry<ServerHierarchyType, List<ServerGeoObjectType>> entry : entries)
       {
-        ServerHierarchyType hierarchy = ServerHierarchyType.get(entry.getKey());
+        ServerHierarchyType hierarchy = entry.getKey();
   
-        // List<GeoObjectType> parents = entry.getValue();
-        Map<String, LocationInfo> map = go.getAncestorMap2(hierarchy, true);
+        Map<String, LocationInfo> map = vertexGo.getAncestorMap2(hierarchy, entry.getValue());
   
         Set<Entry<String, LocationInfo>> locations = map.entrySet();
   
@@ -1032,7 +1019,7 @@ public class MasterListVersion extends MasterListVersionBase
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
     Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
-    Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
+    Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
     Collection<AttributeType> attributes = type.getAttributeMap().values();
 
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
@@ -1069,7 +1056,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
-    Map<HierarchyType, List<GeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
+    Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
     Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
     Collection<AttributeType> attributes = type.getAttributeMap().values();
 
