@@ -221,9 +221,9 @@ public class MasterList extends MasterListBase
     return new JsonArray();
   }
 
-  public Map<HierarchyType, List<GeoObjectType>> getAncestorMap(ServerGeoObjectType type)
+  public Map<ServerHierarchyType, List<ServerGeoObjectType>> getAncestorMap(ServerGeoObjectType type)
   {
-    Map<HierarchyType, List<GeoObjectType>> map = new HashMap<>();
+    Map<ServerHierarchyType, List<ServerGeoObjectType>> map = new HashMap<>();
 
     JsonArray hierarchies = this.getHierarchiesAsJson();
 
@@ -237,8 +237,17 @@ public class MasterList extends MasterListBase
       {
         String hCode = hierarchy.get("code").getAsString();
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
+        
+        List<GeoObjectType> dtoAncestors = type.getTypeAncestors(hierarchyType, true);
 
-        map.put(hierarchyType.getType(), type.getTypeAncestors(hierarchyType, true));
+        List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
+        
+        for (GeoObjectType ancestor : dtoAncestors)
+        {
+          ancestors.add(ServerGeoObjectType.get(ancestor));
+        }
+        
+        map.put(hierarchyType, ancestors);
       }
     }
 
