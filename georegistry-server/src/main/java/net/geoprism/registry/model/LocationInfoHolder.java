@@ -11,10 +11,13 @@ public class LocationInfoHolder implements LocationInfo
   
   private LocalizedValue label;
   
-  public LocationInfoHolder(String code, LocalizedValue label)
+  private ServerGeoObjectType type;
+  
+  public LocationInfoHolder(String code, LocalizedValue label, ServerGeoObjectType type)
   {
     this.code = code;
     this.label = label;
+    this.type = type;
   }
   
   public void setCode(String code)
@@ -43,6 +46,16 @@ public class LocationInfoHolder implements LocationInfo
   public String getLabel(Locale locale)
   {
     return this.label.getValue(locale);
+  }
+
+  public ServerGeoObjectType getType()
+  {
+    return type;
+  }
+
+  public void setType(ServerGeoObjectType type)
+  {
+    this.type = type;
   }
   
 }

@@ -24,6 +24,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -122,7 +123,14 @@ public class GeoObjectExcelExporter
     Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, false, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
-    List<GeoObjectType> ancestors = this.type.getTypeAncestors(this.hierarchy, true);
+    List<GeoObjectType> dtoAncestors = this.type.getTypeAncestors(this.hierarchy, true);
+    
+    List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
+    
+    for (GeoObjectType ancestor : dtoAncestors)
+    {
+      ancestors.add(ServerGeoObjectType.get(ancestor));
+    }
 
     this.writeHeader(boldStyle, header, attributes, ancestors, locales);
 
@@ -137,7 +145,7 @@ public class GeoObjectExcelExporter
     return workbook;
   }
 
-  public void writeRow(Row row, ServerGeoObjectIF object, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales, CellStyle dateStyle)
+  public void writeRow(Row row, ServerGeoObjectIF object, Collection<AttributeType> attributes, List<ServerGeoObjectType> ancestors, List<Locale> locales, CellStyle dateStyle)
   {
     int col = 0;
     // Write the row
@@ -215,9 +223,9 @@ public class GeoObjectExcelExporter
     }
 
     // Write the parent values
-    Map<String, LocationInfo> map = object.getAncestorMap(this.hierarchy, true);
+    Map<String, LocationInfo> map = object.getAncestorMap(this.hierarchy, ancestors);
 
-    for (GeoObjectType ancestor : ancestors)
+    for (ServerGeoObjectType ancestor : ancestors)
     {
       LocationInfo vObject = map.get(ancestor.getCode());
 
@@ -245,7 +253,7 @@ public class GeoObjectExcelExporter
     }
   }
 
-  public void writeHeader(CellStyle boldStyle, Row header, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales)
+  public void writeHeader(CellStyle boldStyle, Row header, Collection<AttributeType> attributes, List<ServerGeoObjectType> ancestors, List<Locale> locales)
   {
     int col = 0;
 
@@ -271,7 +279,7 @@ public class GeoObjectExcelExporter
       }
     }
 
-    for (GeoObjectType ancestor : ancestors)
+    for (ServerGeoObjectType ancestor : ancestors)
     {
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);

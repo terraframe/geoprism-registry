@@ -938,7 +938,7 @@ public class MasterListVersion extends MasterListVersionBase
       {
         ServerHierarchyType hierarchy = entry.getKey();
   
-        Map<String, LocationInfo> map = vertexGo.getAncestorMap2(hierarchy, entry.getValue());
+        Map<String, LocationInfo> map = vertexGo.getAncestorMap(hierarchy, entry.getValue());
   
         Set<Entry<String, LocationInfo>> locations = map.entrySet();
   

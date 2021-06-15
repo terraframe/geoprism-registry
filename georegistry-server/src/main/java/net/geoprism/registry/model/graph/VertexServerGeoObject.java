@@ -645,7 +645,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     
     for (ServerHierarchyType hier : inheritancePath)
     {
-      statement.append("TRAVERSE inE('" + hier.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].outV() FROM (");
+      if (this.date != null)
+      {
+        statement.append("TRAVERSE inE('" + hier.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].outV() FROM (");
+      }
+      else
+      {
+        statement.append("TRAVERSE inE('" + hier.getMdEdge().getDBClassName() + "').outV() FROM (");
+      }
     }
     
     statement.append("SELECT FROM " + dbClassName + " WHERE @rid=:rid");
@@ -655,24 +662,42 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append(")");
     }
     
-    statement.append(") WHERE status_cot CONTAINS (value CONTAINS :status AND :date BETWEEN startDate AND endDate)");
+    if (this.date != null)
+    {
+      statement.append(") WHERE status_cot CONTAINS (value CONTAINS :status AND :date BETWEEN startDate AND endDate)");
+    }
+    else
+    {
+      statement.append(") WHERE status_cot CONTAINS (value CONTAINS :status)");
+    }
     
     GraphQuery<List<Object>> query = new GraphQuery<List<Object>>(statement.toString());
     query.setParameter("rid", this.vertex.getRID());
-    query.setParameter("date", this.date);
     query.setParameter("status", GeoObjectStatus.ACTIVE.getOid());
+    
+    if (this.date != null)
+    {
+      query.setParameter("date", this.date);
+    }
 
     return query;
   }
   
-  public Map<String, LocationInfo> getAncestorMap2(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
   {
     TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
 
     GraphQuery<List<Object>> query = buildAncestorQueryFast(hierarchy, parents);
 
     List<List<Object>> results = query.getResults();
-    results.remove(0);
+    
+    if (results.size() <= 1)
+    {
+      return map;
+    }
+    
+    results.remove(0); // First result is the child object
+    
     results.forEach(result -> {
       String clazz = (String) result.get(0);
       String code = (String) result.get(1);
@@ -680,8 +705,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       List<OResult> displayLabelRaw = (List<OResult>) result.get(2);
       
       LocalizedValue localized = convertToLocalizedValue(displayLabelRaw);
-      
-      LocationInfoHolder holder = new LocationInfoHolder(code, localized);
       
       ServerGeoObjectType type = null;
       for (ServerGeoObjectType parent : parents)
@@ -692,13 +715,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
       }
       
-      if (type != null)
+      if (type != null && localized != null)
       {
+        LocationInfoHolder holder = new LocationInfoHolder(code, localized, type);
         map.put(type.getUniversal().getKey(), holder);
       }
       else
       {
-        logger.error("Could not find [" + clazz + "]");
+        logger.error("Could not find [" + clazz + "] or the localized value was null.");
       }
     });
 
@@ -719,7 +743,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       votc.add(vot);
     }
     
-    OResult rawLV = (OResult) votc.getValueOnDate(this.date);
+    OResult rawLV;
+    
+    if (this.date != null)
+    {
+      rawLV = (OResult) votc.getValueOnDate(this.date);
+    }
+    else
+    {
+      rawLV = (OResult) votc.getValueOnDate(new Date());
+      
+      if (rawLV == null && votc.size() > 0)
+      {
+        rawLV = (OResult) votc.get(0);
+      }
+    }
+    
+    if (rawLV == null)
+    {
+      return null;
+    }
     
 //    List<Locale> locales = LocalizationFacade.getInstalledLocales(); // TODO : God only knows why these objects aren't cached at the runway object level
     List<Locale> locales = SupportedLocaleCache.getLocales();
@@ -735,34 +778,34 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return lv;
   }
 
-  @Override
-  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, boolean includeInheritedTypes)
-  {
-    TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
-
-    GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy);
-
-    List<VertexObject> results = query.getResults();
-    results.forEach(result -> {
-      MdVertexDAOIF mdClass = (MdVertexDAOIF) result.getMdClass();
-      ServerGeoObjectType vType = ServerGeoObjectType.get(mdClass);
-      VertexServerGeoObject object = new VertexServerGeoObject(type, result, this.date);
-
-      map.put(vType.getUniversal().getKey(), object);
-
-      if (includeInheritedTypes && vType.isRoot(hierarchy))
-      {
-        ServerHierarchyType inheritedHierarchy = vType.getInheritedHierarchy(hierarchy);
-
-        if (inheritedHierarchy != null)
-        {
-          map.putAll(object.getAncestorMap(inheritedHierarchy, true));
-        }
-      }
-    });
-
-    return map;
-  }
+//  @Override
+//  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, boolean includeInheritedTypes)
+//  {
+//    TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
+//
+//    GraphQuery<VertexObject> query = buildAncestorQuery(hierarchy);
+//
+//    List<VertexObject> results = query.getResults();
+//    results.forEach(result -> {
+//      MdVertexDAOIF mdClass = (MdVertexDAOIF) result.getMdClass();
+//      ServerGeoObjectType vType = ServerGeoObjectType.get(mdClass);
+//      VertexServerGeoObject object = new VertexServerGeoObject(type, result, this.date);
+//
+//      map.put(vType.getUniversal().getKey(), object);
+//
+//      if (includeInheritedTypes && vType.isRoot(hierarchy))
+//      {
+//        ServerHierarchyType inheritedHierarchy = vType.getInheritedHierarchy(hierarchy);
+//
+//        if (inheritedHierarchy != null)
+//        {
+//          map.putAll(object.getAncestorMap(inheritedHierarchy, true));
+//        }
+//      }
+//    });
+//
+//    return map;
+//  }
 
   private GraphQuery<VertexObject> buildAncestorQuery(ServerHierarchyType hierarchy)
   {
