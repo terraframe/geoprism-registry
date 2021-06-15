@@ -1,0 +1,49 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+   	<createOrUpdate>
+  		<object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.open.geoobject.in.editor.link.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.open.geoobject.in.editor.link.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="View Geo-Object" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.requests.more.geoobject.updates.message">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.requests.more.geoobject.updates.message" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="This change request has been fully implemented. Click the further edits button if more changes are needed." />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.requests.more.geoobject.updates.cancel.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.requests.more.geoobject.updates.cancel.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Close" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.requests.more.geoobject.updates.submit.btn">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.requests.more.geoobject.updates.submit.btn" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Further edits" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+	</createOrUpdate>
+  
+  
+  
+  
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
