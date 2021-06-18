@@ -397,7 +397,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     Map<String, AttributeType> attributes = geoObject.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
+      if (attributeName.equals(DefaultAttribute.INVALID.getName()) || attributeName.equals(DefaultAttribute.STATUS.getName()) || attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
       {
         // Ignore the attributes
       }
@@ -440,6 +440,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
     });
 
+    this.setInvalid(geoObject.getInvalid());
     this.setUid(geoObject.getUid());
     this.setCode(geoObject.getCode());
     this.setStatus(gos);
@@ -453,7 +454,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     Map<String, AttributeType> attributes = goTime.getType().getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
-      if (attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
+      if (attributeName.equals(DefaultAttribute.INVALID.getName()) || attributeName.equals(DefaultAttribute.CODE.getName()) || attributeName.equals(DefaultAttribute.UID.getName()) || attributeName.equals(GeoVertex.LASTUPDATEDATE) || attributeName.equals(GeoVertex.CREATEDATE))
       {
         // Ignore the attributes
       }
@@ -548,6 +549,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     this.setUid(goTime.getUid());
     this.setCode(goTime.getCode());
+    this.setInvalid(goTime.getInvalid());
   }
 
   private String getGeometryAttributeName()
@@ -885,7 +887,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return true;
   }
-
+  
   @Override
   public String getCode()
   {
@@ -919,15 +921,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public Object getValue(String attributeName)
   {
-    if (attributeName.equals(DefaultAttribute.CODE.getName()))
-    {
-      return this.getCode();
-    }
-    else if (attributeName.equals(DefaultAttribute.UID.getName()))
-    {
-      return this.getUid();
-    }
-    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       return this.getDisplayLabel();
     }
@@ -935,13 +929,19 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       return this.getStatus();
     }
-    else if (attributeName.equals(DefaultAttribute.CREATE_DATE.getName()))
+    else if (attributeName.equals(DefaultAttribute.UID.getName()))
     {
-      return this.getCreateDate();
+      return this.getUid();
+    }
+    
+    DefaultAttribute defaultAttr = DefaultAttribute.getByAttributeName(attributeName);
+    if (defaultAttr != null && !defaultAttr.isChangeOverTime())
+    {
+      return this.vertex.getObjectValue(attributeName);
     }
 
     MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);
-
+    
     Object value = this.vertex.getObjectValue(attributeName, this.date);
 
     if (value != null && mdAttribute instanceof MdAttributeTermDAOIF)
@@ -1065,8 +1065,13 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     this.vertex.setValue(GeoVertex.LASTUPDATEDATE, new Date());
     
+    if (this.getInvalid() == null)
+    {
+      this.setInvalid(false);
+    }
+    
     this.validate();
-
+    
     try
     {
       this.getVertex().apply();
@@ -2305,6 +2310,18 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   public String toString()
   {
     return GeoObjectMetadata.get().getClassDisplayLabel() + " : " + this.getCode();
+  }
+
+  @Override
+  public Boolean getInvalid()
+  {
+    return (Boolean) this.vertex.getObjectValue(DefaultAttribute.INVALID.getName());
+  }
+
+  @Override
+  public void setInvalid(Boolean invalid)
+  {
+    this.vertex.setValue(DefaultAttribute.INVALID.getName(), invalid);
   }
 
 }

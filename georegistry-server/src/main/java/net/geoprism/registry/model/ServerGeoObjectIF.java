@@ -51,6 +51,10 @@ public interface ServerGeoObjectIF
   public Date getLastUpdateDate();
 
   public String getCode();
+  
+  public Boolean getInvalid();
+  
+  public void setInvalid(Boolean invalid);
 
   public void setCode(String code);
 

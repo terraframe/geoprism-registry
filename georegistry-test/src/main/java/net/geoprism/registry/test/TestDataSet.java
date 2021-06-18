@@ -73,6 +73,10 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
+import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.runwaysdk.system.scheduler.ExecutableJobQuery;
+import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
@@ -553,6 +557,29 @@ abstract public class TestDataSet
     while (it.hasNext())
     {
       it.next().delete();
+    }
+  }
+  
+  @Request
+  public static void deleteAllSchedulerData()
+  {
+    JobHistoryQuery jhq = new JobHistoryQuery(new QueryFactory());
+
+    OIterator<? extends JobHistory> it = jhq.getIterator();
+
+    while (it.hasNext())
+    {
+      it.next().delete();
+    }
+    
+    ExecutableJobQuery ejq = new ExecutableJobQuery(new QueryFactory());
+    
+    try (OIterator<? extends ExecutableJob> jobit = ejq.getIterator())
+    {
+      while (jobit.hasNext())
+      {
+        jobit.next().delete();
+      }
     }
   }
   

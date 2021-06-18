@@ -271,7 +271,7 @@ public class GeoObjectAtTimeShapefileExporter
           this.attributes.forEach(attribute -> {
             String name = attribute.getName();
             String columnName = this.getColumnName(name);
-            Object value = name.equals(GeoObject.CODE) ? object.getValue(name) : object.getValue(name, this.date);
+            Object value = attribute.isChangeOverTime() ? object.getValue(name, this.date) : object.getValue(name);
 
             if (attribute instanceof AttributeTermType)
             {
