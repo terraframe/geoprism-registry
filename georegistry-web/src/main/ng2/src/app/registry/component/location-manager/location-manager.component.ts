@@ -225,6 +225,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     if (this.mode === this.MODE.SEARCH) {
       this.isEdit = false;
     }
+    else
+    {
+      this.isEdit = true;
+    }
 
     this.clearGeometryEditing();
 

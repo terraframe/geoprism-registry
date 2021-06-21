@@ -39,6 +39,7 @@ export class GeoObject {
 		sequence: string
 		createDate: string,
 		lastUpdateDate: string,
+		invalid: boolean,
 		writable?: boolean
 	};
 }

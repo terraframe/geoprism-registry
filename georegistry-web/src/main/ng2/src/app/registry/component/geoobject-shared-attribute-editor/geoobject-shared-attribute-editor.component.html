@@ -117,19 +117,44 @@
 
                   </div>
 
-                  <div *ngIf="attr.type === 'boolean'">
-                  
+                  <div *ngIf="attr.type === 'boolean' && attr.code !== 'invalid'">
 
                     <div class="input-group" >
                       <div [ngClass]="{'input-group-read-only': readOnly}" class="radio-group">
-                        <label class="radio radio-inline" style="margin:0;"> 
+                        <label class="radio radio-inline" style="margin:0;">
                           <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code].value === true" [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true" disabled > 
                           <span><localize key="change.request.boolean.option.true"></localize></span>
                         </label> 
                         <label class="radio radio-inline" style="margin:0;"> 
-                          <input class="inline-radio-input" type="radio" [checked]="!calculatedPostObject[attr.code].value === false" [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false" disabled > 
+                          <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code].value === false" [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false" disabled > 
                           <span><localize key="change.request.boolean.option.false"></localize></span>
+                        </label>
+                      </div>
+                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
+                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                      </span>
+                    </div>
+
+                    <p class="warning-text" *ngIf="!isNew && isDifferentValue(attr)">
+                      <localize key="change.request.changed.value.prefix"></localize>
+                      {{calculatedPreObject[attr.code].value}}
+                    </p>
+
+                  </div>
+                  
+                  <!-- I've created a special case here just for invalid because invalid is NOT change over time. In the future we could check the metadata (i.e. isChangeOverTime?) and make this more generic -->
+                  <div *ngIf="attr.type === 'boolean' && attr.code === 'invalid'">
+
+                    <div class="input-group" >
+                      <div [ngClass]="{'input-group-read-only': readOnly}" class="radio-group">
+                        <label class="radio radio-inline" style="margin:0;">
+                          <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code] === true" [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true" (change)="changeInvalid(true)" > 
+                          <span><localize key="change.request.boolean.option.true"></localize></span>
                         </label> 
+                        <label class="radio radio-inline" style="margin:0;"> 
+                          <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code] == false" [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false" (change)="changeInvalid(false)"> 
+                          <span><localize key="change.request.boolean.option.false"></localize></span>
+                        </label>
                       </div>
                       <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
                         <i class="fa fa-pencil" aria-hidden="true"></i>

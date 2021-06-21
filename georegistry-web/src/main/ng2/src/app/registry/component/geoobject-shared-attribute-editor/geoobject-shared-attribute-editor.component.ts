@@ -172,8 +172,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 		}
 	}
 	
-	setBoolean(attribute, value): void {
-		attribute.value = value
+	changeInvalid(value: boolean): void {
+	  this.calculatedPostObject['invalid'] = value;
+	  this.postGeoObject.attributes.invalid = value;
+	  this.onChange.emit(this.postGeoObject);
 	}
 
 	calculate(): void {
