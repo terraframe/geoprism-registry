@@ -28,7 +28,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,7 +54,6 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -110,6 +108,7 @@ import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
@@ -120,6 +119,8 @@ import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.SupportedLocaleCache;
+import net.geoprism.registry.etl.PublishMasterListVersionJob;
+import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -645,9 +646,9 @@ public class MasterListVersion extends MasterListVersionBase
   public void delete()
   {
     // Delete all jobs
-    List<PublishShapefileJob> jobs = this.getJobs();
+    List<ExecutableJob> jobs = this.getJobs();
 
-    for (PublishShapefileJob job : jobs)
+    for (ExecutableJob job : jobs)
     {
       job.delete();
     }
@@ -675,15 +676,27 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
 
-  public List<PublishShapefileJob> getJobs()
+  public List<ExecutableJob> getJobs()
   {
-    PublishShapefileJobQuery query = new PublishShapefileJobQuery(new QueryFactory());
-    query.WHERE(query.getMasterList().EQ(this));
+    LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
+    
+    PublishShapefileJobQuery psjq = new PublishShapefileJobQuery(new QueryFactory());
+    psjq.WHERE(psjq.getMasterList().EQ(this));
 
-    try (OIterator<? extends PublishShapefileJob> it = query.getIterator())
+    try (OIterator<? extends PublishShapefileJob> it = psjq.getIterator())
     {
-      return new LinkedList<PublishShapefileJob>(it.getAll());
+      jobs.addAll(it.getAll());
     }
+    
+    PublishMasterListVersionJobQuery pmlvj = new PublishMasterListVersionJobQuery(new QueryFactory());
+    pmlvj.WHERE(pmlvj.getMasterListVersion().EQ(this));
+
+    try (OIterator<? extends PublishMasterListVersionJob> it = pmlvj.getIterator())
+    {
+      jobs.addAll(it.getAll());
+    }
+    
+    return jobs;
   }
 
   public File generateShapefile()
