@@ -76,11 +76,8 @@ public class ExcelService
         ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
         reader.process(is);
 
-        JSONArray hierarchies = new JSONArray(ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, geoObjectType.getCode(), false).toString());
-
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
         object.put(GeoObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(ImportConfiguration.FILE_NAME, fileName);

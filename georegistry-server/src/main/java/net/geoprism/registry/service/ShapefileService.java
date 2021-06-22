@@ -77,11 +77,9 @@ public class ShapefileService
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-        JSONArray hierarchies = new JSONArray(ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, geoObjectType.getCode(), false).toString());
 
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
         object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf));
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(ImportConfiguration.FILE_NAME, fileName);

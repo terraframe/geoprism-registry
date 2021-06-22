@@ -89,7 +89,7 @@ public class MasterListGeoObjectShapefileExporterTest
   {
     JsonObject json = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
-    TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
+    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
       masterlist = MasterList.create(json);
       version = masterlist.createVersion(FastTestDataset.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
@@ -131,7 +131,7 @@ public class MasterListGeoObjectShapefileExporterTest
     {
       testData.setUpInstanceData();
 
-      TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
+      TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
         version.publish();
       });
     }

@@ -44,7 +44,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 
     for (ServerHierarchyType sType : hierarchyTypes)
     {
-      if (ServiceFactory.getHierarchyPermissionService().canRead(sType.getOrganization().getCode(), PermissionContext.WRITE))
+      if (ServiceFactory.getHierarchyPermissionService().canWrite(sType.getOrganization().getCode()))
       {
 
         // Note: Ordered ancestors always includes self
@@ -99,7 +99,7 @@ public abstract class AbstractServerGeoObject implements ServerGeoObjectIF
 
       for (ServerHierarchyType hierarchyType : hierarchyTypes)
       {
-        if (ServiceFactory.getHierarchyPermissionService().canRead(hierarchyType.getOrganization().getCode(), PermissionContext.WRITE))
+        if (ServiceFactory.getHierarchyPermissionService().canWrite(hierarchyType.getOrganization().getCode()))
         {
           JsonObject object = new JsonObject();
           object.addProperty("code", hierarchyType.getCode());

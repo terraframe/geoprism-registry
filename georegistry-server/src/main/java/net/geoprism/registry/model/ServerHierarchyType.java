@@ -904,7 +904,7 @@ public class ServerHierarchyType
     // Filter out what they're not allowed to see
 
     lHt.forEach(ht -> {
-      if (service.canRead(organization.getCode(), PermissionContext.WRITE))
+      if (service.canWrite(organization.getCode()))
       {
         list.add(ht);
       }

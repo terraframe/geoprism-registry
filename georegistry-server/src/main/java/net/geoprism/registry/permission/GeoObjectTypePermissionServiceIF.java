@@ -44,7 +44,7 @@ public interface GeoObjectTypePermissionServiceIF
 
   public void enforceCanDelete(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, Operation op);
+  public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, CGRPermissionActionIF action);
 
   public Set<CGRPermissionActionIF> getPermissions(ServerGeoObjectType got);
   

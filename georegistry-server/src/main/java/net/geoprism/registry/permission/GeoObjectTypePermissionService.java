@@ -39,51 +39,55 @@ import net.geoprism.registry.roles.WriteGeoObjectTypePermissionException;
 public class GeoObjectTypePermissionService extends UserPermissionService implements GeoObjectTypePermissionServiceIF
 {
   /**
-   * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
+   * Action must be one of: - WRITE (Update) - READ - DELETE - CREATE
    * 
-   * @param op
+   * @param action
    */
-  public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, Operation op)
+  public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, CGRPermissionActionIF action)
   {
-    if (!this.doesActorHavePermission(orgCode, got, isPrivate, op))
+    if (!this.doesActorHavePermission(orgCode, got, isPrivate, action))
     {
       Organization org = Organization.getByCode(orgCode);
 
-      if (op.equals(Operation.WRITE))
+      if (action.equals(CGRPermissionAction.WRITE))
       {
         WriteGeoObjectTypePermissionException ex = new WriteGeoObjectTypePermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         ex.setGeoObjectType(got.getLabel().getValue());
         throw ex;
       }
-      else if (op.equals(Operation.READ))
+      else if (action.equals(CGRPermissionAction.READ))
       {
         ReadGeoObjectTypePermissionException ex = new ReadGeoObjectTypePermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         ex.setGeoObjectType(got.getLabel().getValue());
         throw ex;
       }
-      else if (op.equals(Operation.DELETE))
+      else if (action.equals(CGRPermissionAction.DELETE))
       {
         DeleteGeoObjectTypePermissionException ex = new DeleteGeoObjectTypePermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         ex.setGeoObjectType(got.getLabel().getValue());
         throw ex;
       }
-      else if (op.equals(Operation.CREATE))
+      else if (action.equals(CGRPermissionAction.CREATE))
       {
         CreateGeoObjectTypePermissionException ex = new CreateGeoObjectTypePermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
+      else
+      {
+        throw new UnsupportedOperationException();
+      }
     }
   }
 
-  protected boolean doesActorHavePermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, Operation op)
+  protected boolean doesActorHavePermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, CGRPermissionActionIF action)
   {
     if (this.hasSessionUser())
     {
-      boolean permission = this.hasDirectPermission(orgCode, got, isPrivate, op);
+      boolean permission = this.hasDirectPermission(orgCode, got, isPrivate, action);
 
       if (!permission && got != null)
       {
@@ -91,7 +95,7 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
 
         if (superType != null)
         {
-          permission = this.hasDirectPermission(orgCode, superType, isPrivate, op);
+          permission = this.hasDirectPermission(orgCode, superType, isPrivate, action);
         }
       }
 
@@ -101,7 +105,7 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
     return true;
   }
 
-  private boolean hasDirectPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, Operation op)
+  private boolean hasDirectPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, CGRPermissionActionIF action)
   {
     if (orgCode != null)
     {
@@ -117,7 +121,7 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-          if (op.equals(Operation.READ) && !isPrivate)
+          if (action.equals(CGRPermissionAction.READ) && !isPrivate)
           {
             return true;
           }
@@ -136,21 +140,21 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
               {
                 if (RegistryRole.Type.isRM_Role(roleName))
                 {
-                  if (op.equals(Operation.READ))
+                  if (action.equals(CGRPermissionAction.READ))
                   {
                     return true;
                   }
                 }
                 else if (RegistryRole.Type.isRC_Role(roleName))
                 {
-                  if (op.equals(Operation.READ)) // || isChangeRequest
+                  if (action.equals(CGRPermissionAction.READ)) // || isChangeRequest
                   {
                     return true;
                   }
                 }
                 else if (RegistryRole.Type.isAC_Role(roleName))
                 {
-                  if (op.equals(Operation.READ))
+                  if (action.equals(CGRPermissionAction.READ))
                   {
                     return true;
                   }
@@ -202,49 +206,49 @@ public class GeoObjectTypePermissionService extends UserPermissionService implem
   @Override
   public boolean canRead(String orgCode, ServerGeoObjectType got, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, got, isPrivate, Operation.READ);
+    return this.doesActorHavePermission(orgCode, got, isPrivate, CGRPermissionAction.READ);
   }
 
   @Override
   public void enforceCanRead(String orgCode, ServerGeoObjectType got, boolean isPrivate)
   {
-    this.enforceActorHasPermission(orgCode, got, isPrivate, Operation.READ);
+    this.enforceActorHasPermission(orgCode, got, isPrivate, CGRPermissionAction.READ);
   }
 
   @Override
   public boolean canWrite(String orgCode, ServerGeoObjectType got, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, got, isPrivate, Operation.WRITE);
+    return this.doesActorHavePermission(orgCode, got, isPrivate, CGRPermissionAction.WRITE);
   }
 
   @Override
   public void enforceCanWrite(String orgCode, ServerGeoObjectType got, boolean isPrivate)
   {
-    this.enforceActorHasPermission(orgCode, got, isPrivate, Operation.WRITE);
+    this.enforceActorHasPermission(orgCode, got, isPrivate, CGRPermissionAction.WRITE);
   }
 
   @Override
   public boolean canCreate(String orgCode, ServerGeoObjectType got, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, got, isPrivate, Operation.CREATE);
+    return this.doesActorHavePermission(orgCode, got, isPrivate, CGRPermissionAction.CREATE);
   }
 
   @Override
   public void enforceCanCreate(String orgCode, boolean isPrivate)
   {
-    this.enforceActorHasPermission(orgCode, null, isPrivate, Operation.CREATE);
+    this.enforceActorHasPermission(orgCode, null, isPrivate, CGRPermissionAction.CREATE);
   }
 
   @Override
   public boolean canDelete(String orgCode, ServerGeoObjectType got, boolean isPrivate)
   {
-    return this.doesActorHavePermission(orgCode, got, isPrivate, Operation.DELETE);
+    return this.doesActorHavePermission(orgCode, got, isPrivate, CGRPermissionAction.DELETE);
   }
 
   @Override
   public void enforceCanDelete(String orgCode, ServerGeoObjectType got, boolean isPrivate)
   {
-    this.enforceActorHasPermission(orgCode, got, isPrivate, Operation.DELETE);
+    this.enforceActorHasPermission(orgCode, got, isPrivate, CGRPermissionAction.DELETE);
   }
 
 }

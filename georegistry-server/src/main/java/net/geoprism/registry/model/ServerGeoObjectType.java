@@ -847,7 +847,7 @@ public class ServerGeoObjectType
     {
       Organization org = hierarchyType.getOrganization();
 
-      if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode(), PermissionContext.READ))
+      if (ServiceFactory.getHierarchyPermissionService().canRead(org.getCode()))
       {
 
         if (this.isRoot(hierarchyType))

@@ -75,8 +75,6 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   public static final String       NUMERIC                = "numeric";
 
-  public static final String       HIERARCHIES            = "hierarchies";
-
   public static final String       HIERARCHY              = "hierarchy";
 
   public static final String       LOCATIONS              = "locations";
