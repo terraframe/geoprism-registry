@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { User } from '@shared/model/user';
-import { RoleBuilder, RegistryRole, RegistryRoleType } from '@shared/model/core';
+import { RoleBuilder, RegistryRole, RegistryRoleType, LocaleView } from '@shared/model/core';
 
 @Injectable()
 export class AuthService {
@@ -291,7 +291,7 @@ export class AuthService {
 		return this.user.version;
 	}
 
-	getLocales(): any[] {
+	getLocales(): LocaleView[] {
 		return this.user.installedLocales;
 	}
 }

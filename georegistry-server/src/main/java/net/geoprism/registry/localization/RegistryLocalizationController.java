@@ -99,15 +99,21 @@ public class RegistryLocalizationController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF installLocale(ClientRequestIF request, @RequestParamter(name = "language") String language, @RequestParamter(name = "country") String country, @RequestParamter(name = "variant") String variant) throws IOException, ServletException
+  public ResponseIF installLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException
   {
     LocalizationService service = new LocalizationService();
-    String locale = service.installLocaleInRequest(request.getSessionId(), language, country, variant);
+    service.installLocaleInRequest(request.getSessionId(), json);
 
-    RestResponse response = new RestResponse();
-    response.set("locale", locale);
+    return new RestResponse();
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF uninstallLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException
+  {
+    LocalizationService service = new LocalizationService();
+    service.uninstallLocaleInRequest(request.getSessionId(), json);
 
-    return response;
+    return new RestResponse();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)

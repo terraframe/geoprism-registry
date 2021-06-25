@@ -28,12 +28,10 @@ import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.roles.CreateHierarchyPermissionException;
 import net.geoprism.registry.roles.DeleteHierarchyPermissionException;
 import net.geoprism.registry.roles.ReadHierarchyPermissionException;
 import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
-import net.geoprism.registry.service.ServiceFactory;
 
 public class HierarchyTypePermissionService extends UserPermissionService implements HierarchyTypePermissionServiceIF
 {

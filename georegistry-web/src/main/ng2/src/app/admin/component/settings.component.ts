@@ -30,14 +30,14 @@ import { NewLocaleModalComponent } from './localization-manager/new-locale-modal
 import { ImportLocalizationModalComponent } from './localization-manager/import-localization-modal.component';
 
 import { Settings } from '@admin/model/settings';
-import { Locale } from '@admin/model/localization-manager';
 import { User } from '@admin/model/account';
 import { AccountService } from '@admin/service/account.service';
 
-import { PageResult, Organization, ExternalSystem } from '@shared/model/core';
+import { PageResult, Organization, ExternalSystem, LocaleView } from '@shared/model/core';
 import { ModalTypes } from '@shared/model/modal';
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { LocalizationService, AuthService, ExternalSystemService, OrganizationService } from '@shared/service';
+import { SettingsService, SettingsInitView } from '@admin/service/settings.service';
 
 declare let acp: string;
 
@@ -50,11 +50,13 @@ export class SettingsComponent implements OnInit {
 	bsModalRef: BsModalRef;
 	message: string = null;
 	organizations: Organization[] = [];
-	installedLocales: Locale[]; // TODO: this should be from the localizaiton-manager model
+	installedLocales: LocaleView[];
 	isAdmin: boolean;
 	isSRA: boolean;
 	isRA: boolean;
 	settings: Settings = { email: { isConfigured: false } }
+	
+	view: SettingsInitView;
 
 	sRAs: PageResult<User> = {
 		resultSet: [],
@@ -76,7 +78,8 @@ export class SettingsComponent implements OnInit {
 		private authService: AuthService,
 		private externalSystemService: ExternalSystemService,
 		private orgService: OrganizationService,
-		private accountService: AccountService
+		private accountService: AccountService,
+		private settingsService: SettingsService,
 	) {
 		this.isAdmin = authService.isAdmin();
 		this.isSRA = authService.isSRA();
@@ -91,16 +94,18 @@ export class SettingsComponent implements OnInit {
 		//     this.error( err );
 		// } );
 
-		this.installedLocales = this.getLocales();
-
-		this.orgService.getOrganizations().then(orgs => {
-			this.organizations = orgs
+		this.settingsService.getInitView().then( (view: SettingsInitView) => {
+		  this.view = view;
+			this.organizations = view.organizations;
+			this.systems = view.externalSystems;
+			this.sRAs = view.sras;
+			this.installedLocales = view.locales;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
 
-		this.onSRAPageChange(1);
-		this.onSystemPageChange(1);
+		//this.onSRAPageChange(1);
+		//this.onSystemPageChange(1);
 	}
 
 
@@ -108,7 +113,7 @@ export class SettingsComponent implements OnInit {
 		return this.authService.getVersion();
 	}
 
-	public getLocales(): Locale[] {
+	public getLocales(): LocaleView[] {
 		return this.authService.getLocales();
 	}
 
@@ -177,6 +182,33 @@ export class SettingsComponent implements OnInit {
 
 		});
 	}
+	
+	public onEditLocale(locale: LocaleView) {
+	  let bsModalRef = this.modalService.show(NewLocaleModalComponent, {
+      animated: true,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+
+    bsModalRef.content.locale = locale;
+    bsModalRef.content.isNew = false;
+
+    bsModalRef.content.onSuccess.subscribe(data => {
+      const index = this.installedLocales.findIndex(x => (x.country === data.country && x.language === data.language));
+
+      if (index !== -1) {
+        this.installedLocales[index] = data;
+      }
+      else {
+        this.installedLocales.push(data);
+      }
+
+    });
+	}
+	
+	public onRemoveLocale(locale: LocaleView) {
+    
+  }
 
 	public newOrganization(): void {
 		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
@@ -230,7 +262,7 @@ export class SettingsComponent implements OnInit {
 	}
 
 	onSRAPageChange(pageNumber: number): void {
-		this.accountService.getSRAs(pageNumber).then(sRAs => {
+		this.accountService.getSRAs(pageNumber, 10).then(sRAs => {
 			this.sRAs = sRAs
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);

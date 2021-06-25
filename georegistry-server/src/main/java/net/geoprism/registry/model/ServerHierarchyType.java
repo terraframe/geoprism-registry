@@ -79,7 +79,6 @@ import net.geoprism.registry.graph.CantRemoveInheritedGOT;
 import net.geoprism.registry.graph.GeoObjectTypeAlreadyInHierarchyException;
 import net.geoprism.registry.graph.MultipleHierarchyRootsException;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
-import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class ServerHierarchyType

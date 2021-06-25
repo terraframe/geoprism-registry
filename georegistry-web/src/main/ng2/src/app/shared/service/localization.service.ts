@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { LocalizedValue } from '@shared/model/core';
 
+import { LocaleView } from '@shared/model/core';
+
 declare var Globalize: any;
 declare var com: any
 declare var registry: any
@@ -8,7 +10,7 @@ declare var registry: any
 @Injectable()
 export class LocalizationService {
 
-	locales: string[] = ['defaultLocale'];
+	locales: LocaleView[] = [];
 	locale: string;
 
 	private parser: any = Globalize.numberParser();
@@ -18,32 +20,23 @@ export class LocalizationService {
 		this.locales = registry.locales;
 		this.locale = registry.locale;
 	}
-
-	getLocales(): string[] {
-		return this.locales;
-	}
-
+	
 	getLocale(): string {
-		return this.locale;
+	  return this.locale;
 	}
 
-	setLocales(locales: string[]): void {
-		// The installed locales are now read from the global registry value on load
-		//		this.locales = locales;
-	}
-
-	addLocale(locale: string): void {
-
-		if (this.locales.indexOf(locale) === -1) {
-			this.locales.push(locale);
-		}
+	getLocales(): LocaleView[] {
+		return this.locales;
 	}
 
 	create(): LocalizedValue {
 		const value = { localizedValue: '', localeValues: [] } as LocalizedValue;
 
 		this.locales.forEach(locale => {
-			value.localeValues.push({ locale: locale, value: '' });
+		  if (!locale.isDefaultLocale)
+		  {
+			  value.localeValues.push({ locale: locale.toString, value: '' });
+			}
 		});
 
 		return value;

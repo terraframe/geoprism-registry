@@ -20,10 +20,7 @@ package net.geoprism.registry.permission;
 
 import java.util.Set;
 
-import com.runwaysdk.business.rbac.Operation;
-
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 
 public interface GeoObjectTypePermissionServiceIF
 {

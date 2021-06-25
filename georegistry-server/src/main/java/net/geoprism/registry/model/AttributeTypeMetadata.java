@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.model;
 
-import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.localization.LocalizationFacade;
 
 public class AttributeTypeMetadata
 {

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -35,7 +36,6 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -45,6 +45,7 @@ import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
@@ -52,7 +53,6 @@ import com.runwaysdk.system.gis.geo.Universal;
 
 import net.geoprism.GeoprismProperties;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -498,7 +498,7 @@ public class MasterList extends MasterListBase
     return object;
   }
 
-  private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, List<Locale> locales)
+  private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales)
   {
     List<MasterListVersion> versions = this.getVersions(null);
 
@@ -968,7 +968,7 @@ public class MasterList extends MasterListBase
 
   public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)
   {
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     MasterListQuery query = new MasterListQuery(new QueryFactory());
     query.WHERE(query.getUniversal().EQ(type.getUniversal()));

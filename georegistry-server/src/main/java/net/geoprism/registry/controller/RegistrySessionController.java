@@ -21,18 +21,20 @@ package net.geoprism.registry.controller;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.Cookie;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.constants.ClientConstants;
 import com.runwaysdk.constants.ClientRequestIF;
@@ -49,16 +51,86 @@ import com.runwaysdk.request.ServletRequestIF;
 import com.runwaysdk.web.WebClientSession;
 
 import net.geoprism.ClientConfigurationService;
+import net.geoprism.CookieResponse;
 import net.geoprism.RoleViewDTO;
 import net.geoprism.SessionController;
+import net.geoprism.SessionEvent;
+import net.geoprism.SessionEvent.EventType;
 import net.geoprism.account.LocaleSerializer;
 import net.geoprism.account.OauthServerIF;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.session.RegistrySessionServiceDTO;
 
 @Controller(url = "cgrsession")
 public class RegistrySessionController
 {
   public static final long serialVersionUID = 1234283350799L;
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF login(ServletRequestIF req, @RequestParamter(name = "username") String username, @RequestParamter(name = "password") String password) throws JSONException
+  {
+    if (username != null)
+    {
+      username = username.trim();
+    }
+
+    Locale[] locales = this.getLocales(req);
+    
+//    Locale sessionLocale = req.getLocale();
+//
+//    JSONArray installedLocalesArr = new JSONArray();
+//    Collection<Locale> installedLocales = LocalizationFacade.getInstalledLocales();
+//    for (Locale loc : installedLocales)
+//    {
+//      JSONObject locObj = new JSONObject();
+//      locObj.put("language", loc.getDisplayLanguage(sessionLocale));
+//      locObj.put("country", loc.getDisplayCountry(sessionLocale));
+//      locObj.put("name", loc.getDisplayName(sessionLocale));
+//      locObj.put("variant", loc.getDisplayVariant(sessionLocale));
+//
+//      installedLocalesArr.put(locObj);
+//    }
+    
+    ClientRequestIF clientRequest = loginWithLocales(req, username, password, locales);
+    
+    JSONArray jaLocales = new JSONArray(ServiceFactory.getRegistryService().getLocales(clientRequest.getSessionId()).toString());
+
+    JSONArray roles = new JSONArray(RoleViewDTO.getCurrentRoles(clientRequest));
+    JSONArray roleDisplayLabels = new JSONArray(RoleViewDTO.getCurrentRoleDisplayLabels(clientRequest));
+
+    CookieResponse response = new CookieResponse("user", -1);
+    response.set("loggedIn", clientRequest.isLoggedIn());
+    response.set("roles", roles);
+    response.set("roleDisplayLabels", roleDisplayLabels);
+    response.set("userName", username);
+    response.set("version", ClientConfigurationService.getServerVersion());
+    response.set("installedLocales", jaLocales);
+
+    return response;
+  }
+
+  public ClientRequestIF loginWithLocales(ServletRequestIF req, String username, String password, Locale[] locales)
+  {
+    try
+    {
+      WebClientSession clientSession = WebClientSession.createUserSession(username, password, locales);
+      ClientRequestIF clientRequest = clientSession.getRequest();
+
+      req.getSession().setMaxInactiveInterval(CommonProperties.getSessionTime());
+      req.getSession().setAttribute(ClientConstants.CLIENTSESSION, clientSession);
+      req.setAttribute(ClientConstants.CLIENTREQUEST, clientRequest);
+
+      ClientConfigurationService.handleSessionEvent(new SessionEvent(EventType.LOGIN_SUCCESS, clientRequest, username));
+
+      return clientRequest;
+    }
+    catch (RuntimeException e)
+    {
+      ClientConfigurationService.handleSessionEvent(new SessionEvent(EventType.LOGIN_FAILURE, null, username));
+
+      throw e;
+    }
+  }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF ologin(ServletRequestIF req, @RequestParamter(name = "code") String code, @RequestParamter(name = "state") String state) throws MalformedURLException, JSONException
@@ -99,19 +171,25 @@ public class RegistrySessionController
       cookieJson.addProperty("userName", username);
       cookieJson.addProperty("version", ClientConfigurationService.getServerVersion());
       
-      JsonArray installedLocalesArr = new JsonArray();
-      List<Locale> installedLocales = LocalizationFacade.getInstalledLocales();
-      for (Locale loc : installedLocales)
-      {
-        JsonObject locObj = new JsonObject();
-        locObj.addProperty("language", loc.getDisplayLanguage());
-        locObj.addProperty("country", loc.getDisplayCountry());
-        locObj.addProperty("name", loc.getDisplayName());
-        locObj.addProperty("variant", loc.getDisplayVariant());
-
-        installedLocalesArr.add(locObj);
-      }
-      cookieJson.add("installedLocales", installedLocalesArr);
+//      final Locale sessionLocale = Session.getCurrentLocale();
+//      
+//      JsonArray installedLocalesArr = new JsonArray();
+//      Set<SupportedLocaleIF> installedLocales = LocalizationFacade.getSupportedLocales();
+//      for (SupportedLocaleIF supportedLocale : installedLocales)
+//      {
+//        Locale locale = supportedLocale.getLocale();
+//        
+//        JsonObject locObj = new JsonObject();
+//        locObj.addProperty("language", locale.getDisplayLanguage(sessionLocale));
+//        locObj.addProperty("country", locale.getDisplayCountry(sessionLocale));
+//        locObj.addProperty("name", locale.getDisplayName(sessionLocale));
+//        locObj.addProperty("variant", locale.getDisplayVariant(sessionLocale));
+//
+//        installedLocalesArr.add(locObj);
+//      }
+      
+      JsonArray jaLocales = ServiceFactory.getRegistryService().getLocales(clientRequest.getSessionId());
+      cookieJson.add("installedLocales", jaLocales);
       
       final String cookieValue = URLEncoder.encode(cookieJson.toString(), "UTF-8");
       
@@ -150,5 +228,18 @@ public class RegistrySessionController
     {
       clientSession.logout();
     }
+  }
+  
+  public Locale[] getLocales(ServletRequestIF req)
+  {
+    Enumeration<Locale> enumeration = req.getLocales();
+    List<Locale> locales = new LinkedList<Locale>();
+
+    while (enumeration.hasMoreElements())
+    {
+      locales.add(enumeration.nextElement());
+    }
+
+    return locales.toArray(new Locale[locales.size()]);
   }
 }

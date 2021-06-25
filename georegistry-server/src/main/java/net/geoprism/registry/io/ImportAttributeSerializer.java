@@ -42,14 +42,14 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
 
   private boolean      includeCoordinates;
 
-  private List<Locale> locales;
+  private Collection<Locale> locales;
 
   public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, List<Locale> locales)
   {
     this(locale, includeCoordinates, false, false, locales);
   }
 
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, boolean includeStatus, List<Locale> locales)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, boolean includeStatus, Collection<Locale> locales)
   {
     super(locale);
 

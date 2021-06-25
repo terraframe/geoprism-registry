@@ -32,7 +32,6 @@ import com.google.gson.JsonObject;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.CGRPermissionActionIF;
-import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 
 public class LocaleSerializer extends DefaultSerializer implements CustomSerializer
 {

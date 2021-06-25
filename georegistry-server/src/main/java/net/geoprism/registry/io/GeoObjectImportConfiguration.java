@@ -43,14 +43,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -261,7 +260,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, true, SupportedLocaleCache.getLocales())).toString());
+    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, true, LocalizationFacade.getInstalledLocales())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
@@ -536,7 +535,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   public static AttributeFloatType latitude()
   {
-    LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LATITUDE_KEY));
+    LocalizedValue label = new LocalizedValue(LocalizationFacade.localize(LATITUDE_KEY));
     LocalizedValue description = new LocalizedValue("");
 
     return new AttributeFloatType(GeoObjectImportConfiguration.LATITUDE, label, description, false, false, false);
@@ -544,7 +543,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
 
   public static AttributeFloatType longitude()
   {
-    LocalizedValue label = new LocalizedValue(LocalizationFacade.getFromBundles(LONGITUDE_KEY));
+    LocalizedValue label = new LocalizedValue(LocalizationFacade.localize(LONGITUDE_KEY));
     LocalizedValue description = new LocalizedValue("");
 
     return new AttributeFloatType(GeoObjectImportConfiguration.LONGITUDE, label, description, false, false, false);

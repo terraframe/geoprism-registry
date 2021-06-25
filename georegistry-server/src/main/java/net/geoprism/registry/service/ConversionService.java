@@ -45,7 +45,7 @@ public class ConversionService
   // struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE,
   // label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
   //
-  // List<Locale> locales = SupportedLocaleCache.getLocales();
+  // List<Locale> locales = LocalizationFacade.getInstalledLocales();
   //
   // for (Locale locale : locales)
   // {
@@ -63,7 +63,7 @@ public class ConversionService
   // struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE,
   // label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE) + suffix);
   //
-  // List<Locale> locales = SupportedLocaleCache.getLocales();
+  // List<Locale> locales = LocalizationFacade.getInstalledLocales();
   //
   // for (Locale locale : locales)
   // {

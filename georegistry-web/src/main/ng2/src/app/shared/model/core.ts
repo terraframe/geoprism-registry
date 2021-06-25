@@ -12,6 +12,16 @@ export class LocaleValue {
 	}
 }
 
+export class LocaleView {
+  label: LocalizedValue;
+  toString: string;
+  tag: string;
+  isDefaultLocale: boolean;
+  language: {label: string, code: string};
+  country: {label: string, code: string};
+  variant: {label: string, code: string};
+}
+
 export class Organization {
 	code: string;
 	label: any;

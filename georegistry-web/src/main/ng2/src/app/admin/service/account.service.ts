@@ -36,9 +36,10 @@ export class AccountService {
 
     constructor( private http: HttpClient, private eventService: EventService ) { }
 
-    page( p: number ): Promise<PageResult<User>> {
+    page( pageNumber: number, pageSize: number ): Promise<PageResult<User>> {
         let params: HttpParams = new HttpParams();
-        params = params.set( 'number', p.toString() );
+        params = params.set( 'pageNumber', pageNumber.toString() );
+        params = params.set( 'pageSize', pageSize.toString() );
 
         this.eventService.start();
 
@@ -50,9 +51,10 @@ export class AccountService {
             .toPromise();
     }
 
-    getSRAs( p: number ): Promise<PageResult<User>> {
+    getSRAs( pageNumber: number, pageSize: number ): Promise<PageResult<User>> {
         let params: HttpParams = new HttpParams();
-        params = params.set( 'number', p.toString() );
+        params = params.set( 'pageNumber', pageNumber.toString() );
+        params = params.set( 'pageSize', pageSize.toString() );
 
         this.eventService.start();
 

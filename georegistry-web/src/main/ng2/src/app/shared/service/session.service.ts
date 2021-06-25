@@ -44,7 +44,7 @@ export class SessionService {
         this.service.start();
 
         return this.http
-            .post<User>( acp + '/session/login', JSON.stringify( { username: username, password: password } ), { headers: headers } )
+            .post<User>( acp + '/cgrsession/login', JSON.stringify( { username: username, password: password } ), { headers: headers } )
 			.pipe(finalize(() => {
 				this.service.complete();
 			}))
