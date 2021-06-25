@@ -25,13 +25,14 @@ import { finalize } from 'rxjs/operators';
 
 import {
 	GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode,
-	ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage, MasterListByOrg
+	ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage,
+	MasterListByOrg
 } from '@registry/model/registry';
 
 import { HierarchyType } from '@registry/model/hierarchy';
 import { Progress } from '@shared/model/progress';
 
-import { Organization, OAuthServer } from '@shared/model/core';
+import { Organization, LocaleView } from '@shared/model/core';
 import { EventService } from '@shared/service';
 
 declare var acp: any;
@@ -42,8 +43,8 @@ export class RegistryService {
 
 	constructor(private http: HttpClient, private eventService: EventService) { }
 
-	init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: string[] }> {
-		return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: string[] }>(acp + '/cgr/init')
+	init(): Promise<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }> {
+		return this.http.get<{ types: GeoObjectType[], hierarchies: HierarchyType[], organizations: Organization[], locales: LocaleView[] }>(acp + '/cgr/init')
 			.toPromise();
 	}
 
@@ -491,11 +492,11 @@ export class RegistryService {
 			.toPromise();
 	}
 
-	getLocales(): Promise<string[]> {
+	getLocales(): Promise<LocaleView[]> {
 		let params: HttpParams = new HttpParams();
 
 		return this.http
-			.get<string[]>(acp + '/localization/get-locales', { params: params })
+			.get<LocaleView[]>(acp + '/localization/get-locales', { params: params })
 			.toPromise();
 	}
 

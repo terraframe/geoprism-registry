@@ -232,7 +232,7 @@ export class SettingsComponent implements OnInit {
 			ignoreBackdropClick: true
 		});
 
-		bsModalRef.content.onSuccess.subscribe((locale: string) => {
+		bsModalRef.content.onSuccess.subscribe((locale: LocaleView) => {
 			this.localizeService.addLocale(locale);
 		})
 	}

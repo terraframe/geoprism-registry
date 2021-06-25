@@ -21,6 +21,28 @@ export class LocalizationService {
 		this.locale = registry.locale;
 	}
 	
+	addLocale(locale: LocaleView): void {
+	  
+	  let exists: boolean = false;
+	  
+	  for (let i = 0; i < this.locales.length; ++i)
+	  {
+	    if (this.locales[i].tag === locale.tag)
+	    {
+	      exists = true;
+	    }
+	  }
+	
+	  if (!exists)
+	  {
+	    this.locales.push(locale);
+	  }
+	}
+	
+	setLocales(locales: LocaleView[]): void {
+	  this.locales = locales;
+	}
+	
 	getLocale(): string {
 	  return this.locale;
 	}
