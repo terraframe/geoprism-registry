@@ -15,18 +15,26 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 
 public class DefaultLocaleView extends LocaleView
 {
+  public static final String LABEL = "locale.defaultLocale.label";
+  
+  public static final String DISPLAY_LANGUAGE = "locale.defaultLocale.displayLanguage";
+  
+  public static final String DISPLAY_COUNTRY = "locale.defaultLocale.displayCountry";
+  
+  public static final String DISPLAY_VARIANT = "locale.defaultLocale.displayVariant";
+  
   protected LocalizedValueIF countryLabel;
   protected LocalizedValueIF languageLabel;
   protected LocalizedValueIF variantLabel;
   
   public DefaultLocaleView()
   {
-    LocalizedValueIF sessionLabel = LocalizationFacade.localizeAll("locale.defaultLocale.label");
+    LocalizedValueIF sessionLabel = LocalizationFacade.localizeAll(LABEL);
     this.label = LocalizedValueConverter.convert(sessionLabel.getValue(), sessionLabel.getLocaleMap());
     
-    this.languageLabel = LocalizationFacade.localizeAll("locale.defaultLocale.displayLanguage");
-    this.countryLabel = LocalizationFacade.localizeAll("locale.defaultLocale.displayCountry");
-    this.variantLabel = LocalizationFacade.localizeAll("locale.defaultLocale.displayVariant");
+    this.languageLabel = LocalizationFacade.localizeAll(DISPLAY_LANGUAGE);
+    this.countryLabel = LocalizationFacade.localizeAll(DISPLAY_COUNTRY);
+    this.variantLabel = LocalizationFacade.localizeAll(DISPLAY_VARIANT);
     
     this.isDefaultLocale = true;
   }

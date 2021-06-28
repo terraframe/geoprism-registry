@@ -46,6 +46,7 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -124,7 +125,7 @@ public class DHIS2GeoObjectJsonAdapters
         {
           externalId = this.dhis2.getDhis2Id();
         }
-        catch (HTTPException | InvalidLoginException | UnexpectedResponseException e)
+        catch (HTTPException | InvalidLoginException | UnexpectedResponseException | BadServerUriException e)
         {
           ExportRemoteException remoteEx = new ExportRemoteException();
           remoteEx.setRemoteError(e.getLocalizedMessage()); // TODO : Pull this

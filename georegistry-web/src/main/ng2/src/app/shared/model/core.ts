@@ -25,7 +25,7 @@ export class LocaleView {
     this.country = {label:"", code:""};
     this.variant = {label:"", code:""};
   }
-
+  
   label: LocalizedValue;
   toString: string;
   tag: string;
@@ -83,6 +83,23 @@ export class LocalizedValue {
 		this.localizedValue = localizedValue;
 		this.localeValues = localeValues;
 	}
+	
+	public getValue(localeToString: string): string
+  {
+    let len = this.localeValues.length;
+    
+    for (let i = 0; i < len; ++i)
+    {
+      let lv = this.localeValues[i];
+      
+      if (lv.locale === localeToString)
+      {
+        return lv.value;
+      }
+    }
+    
+    return this.localizedValue;
+  }
 }
 
 export class RoleBuilder {

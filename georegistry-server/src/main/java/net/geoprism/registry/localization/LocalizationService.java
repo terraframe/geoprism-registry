@@ -50,6 +50,7 @@ import com.runwaysdk.localization.configuration.SpreadsheetConfiguration;
 import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.LocaleManager;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -105,6 +106,49 @@ public class LocalizationService
       throw new RuntimeException(e);
     }
   }
+  
+  @Request(RequestType.SESSION)
+  public LocaleView editLocaleInRequest(String sessionId, String json)
+  {
+    ServiceFactory.getRolePermissionService().enforceSRA();
+    
+    LocaleView view = LocaleView.fromJson(json);
+
+    return editLocaleInTransaction(view);
+  }
+
+  @Transaction
+  private LocaleView editLocaleInTransaction(LocaleView view)
+  {
+    if (view.isDefaultLocale)
+    {
+      LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
+      
+      lvs.lock();
+      lvs.getStoreValue().setLocaleMap(view.getLabel().getLocaleMap());
+      lvs.apply();
+      
+      view.getLabel().setValue(lvs.getStoreValue().getValue());
+      
+      return view;
+    }
+    else
+    {
+      SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.getSupportedLocale(view.getLocale());
+      
+      supportedLocale.appLock();
+      view.populate(supportedLocale);
+      supportedLocale.apply();
+  
+      // Refresh the users session
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+  
+      // Refresh the entire metadata cache
+      ServiceFactory.getRegistryService().refreshMetadataCache();
+      
+      return LocaleView.fromSupportedLocale(supportedLocale);
+    }
+  }
 
   @Request(RequestType.SESSION)
   public LocaleView installLocaleInRequest(String sessionId, String json)
@@ -112,6 +156,11 @@ public class LocalizationService
     ServiceFactory.getRolePermissionService().enforceSRA();
     
     LocaleView view = LocaleView.fromJson(json);
+    
+    if (view.isDefaultLocale)
+    {
+      return view;
+    }
 
     return installLocaleInTransaction(view);
   }

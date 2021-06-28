@@ -47,6 +47,21 @@ export class LocalizationManagerService {
 			}))
 			.toPromise();
 	}
+	
+	editLocale(locale: LocaleView): Promise<LocaleView> {
+    let params: HttpParams = new HttpParams();
+
+    params = params.set('json', JSON.stringify(locale));
+
+    this.eventService.start();
+
+    return this.http
+      .get<LocaleView>(acp + '/localization/editLocale', { params: params })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
 
 	installLocale(locale: LocaleView): Promise<LocaleView> {
 		let params: HttpParams = new HttpParams();

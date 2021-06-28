@@ -66,6 +66,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
@@ -113,30 +114,45 @@ public class HTTPConnector implements ConnectorIF
     return client != null;
   }
   
-  private HttpClientContext getContext() throws URISyntaxException
+  private HttpClientContext getContext() throws BadServerUriException
   {
-    URIBuilder uri = new URIBuilder(this.getServerUrl());
-    
-    final HttpHost targetHost = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
-    
-    CredentialsProvider credsProvider = new BasicCredentialsProvider();
-    credsProvider.setCredentials(
-        new AuthScope(targetHost.getHostName(), targetHost.getPort()), 
-        new UsernamePasswordCredentials(username, password));
-    
-    // This authcache code is used to enable "Preemptive authentication".
-    // http://hc.apache.org/httpcomponents-client-4.5.x/tutorial/html/authentication.html#d5e613
-    // TODO : We shouldn't need to be using preemtive authentication (because it's a potential
-    //        security risk), however I'm not sure how else to get this working.
-    AuthCache authCache = new BasicAuthCache();
-    BasicScheme basicAuth = new BasicScheme();
-    authCache.put(targetHost, basicAuth);
-    
-    HttpClientContext context = HttpClientContext.create();
-    context.setCredentialsProvider(credsProvider);
-    context.setAuthCache(authCache);
-    
-    return context;
+    try
+    {
+      URIBuilder uri = new URIBuilder(this.getServerUrl());
+      
+      final HttpHost targetHost;
+      try
+      {
+        targetHost = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
+      }
+      catch (IllegalArgumentException e)
+      {
+        throw new BadServerUriException(e, this.getServerUrl());
+      }
+      
+      CredentialsProvider credsProvider = new BasicCredentialsProvider();
+      credsProvider.setCredentials(
+          new AuthScope(targetHost.getHostName(), targetHost.getPort()), 
+          new UsernamePasswordCredentials(username, password));
+      
+      // This authcache code is used to enable "Preemptive authentication".
+      // http://hc.apache.org/httpcomponents-client-4.5.x/tutorial/html/authentication.html#d5e613
+      // TODO : We shouldn't need to be using preemtive authentication (because it's a potential
+      //        security risk), however I'm not sure how else to get this working.
+      AuthCache authCache = new BasicAuthCache();
+      BasicScheme basicAuth = new BasicScheme();
+      authCache.put(targetHost, basicAuth);
+      
+      HttpClientContext context = HttpClientContext.create();
+      context.setCredentialsProvider(credsProvider);
+      context.setAuthCache(authCache);
+      
+      return context;
+    }
+    catch (URISyntaxException e)
+    {
+      throw new BadServerUriException(e, this.getServerUrl());
+    }
   }
   
   private URI buildUri(String searchPath, List<NameValuePair> params) throws URISyntaxException
@@ -188,7 +204,7 @@ public class HTTPConnector implements ConnectorIF
     }
   }
   
-  public DHIS2Response httpGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     try
     {
@@ -247,7 +263,7 @@ public class HTTPConnector implements ConnectorIF
 //    }
 //  }
   
-  public DHIS2Response httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     try
     {
@@ -273,7 +289,7 @@ public class HTTPConnector implements ConnectorIF
     }
   }
   
-  public DHIS2Response httpPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     try
     {
@@ -299,7 +315,7 @@ public class HTTPConnector implements ConnectorIF
     }
   }
   
-  public DHIS2Response httpPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     try
     {
@@ -326,7 +342,7 @@ public class HTTPConnector implements ConnectorIF
   }
 
   @Override
-  public DHIS2Response httpDelete(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response httpDelete(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     try
     {

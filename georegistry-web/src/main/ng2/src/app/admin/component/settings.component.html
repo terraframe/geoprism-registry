@@ -156,7 +156,7 @@
                                     <tr *ngFor="let loc of installedLocales">
 	                                    <td *ngIf="isSRA" class="button-column">
 	                                        <a class="fa fa-pencil ico-edit" (click)="onEditLocale(loc)" ></a> 
-	                                        <a class="fa fa-trash-o ico-remove" (click)="onRemoveLocale(loc)" ></a>
+	                                        <a *ngIf="!loc.isDefaultLocale" class="fa fa-trash-o ico-remove" (click)="onRemoveLocale(loc)" ></a>
 	                                    </td>
 	                                    <td class="label-column">{{loc.label.localizedValue}}</td>
 	                                    <td class="label-column">{{loc.language.label}}</td>

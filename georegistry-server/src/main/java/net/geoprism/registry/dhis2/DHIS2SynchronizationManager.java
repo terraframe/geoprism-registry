@@ -49,6 +49,7 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.scheduler.JobHistory;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Objects;
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2ImportResponse;
@@ -143,7 +144,7 @@ public class DHIS2SynchronizationManager
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
-    catch (HTTPException e)
+    catch (HTTPException | BadServerUriException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;
@@ -282,7 +283,7 @@ public class DHIS2SynchronizationManager
             LoginException cgrlogin = new LoginException(e);
             throw cgrlogin;
           }
-          catch (HTTPException e)
+          catch (HTTPException | BadServerUriException e)
           {
             HttpError cgrhttp = new HttpError(e);
             throw cgrhttp;

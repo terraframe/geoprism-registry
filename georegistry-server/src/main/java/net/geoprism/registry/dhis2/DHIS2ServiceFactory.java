@@ -21,6 +21,7 @@ package net.geoprism.registry.dhis2;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
@@ -50,7 +51,7 @@ public class DHIS2ServiceFactory
     return instance;
   }
   
-  public synchronized DHIS2TransportServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException
+  public synchronized DHIS2TransportServiceIF instanceGetDhis2Service(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException, BadServerUriException
   {
     if (this.dhis2 == null)
     {
@@ -87,7 +88,7 @@ public class DHIS2ServiceFactory
     return this.dhis2;
   }
   
-  public static DHIS2TransportServiceIF buildDhis2TransportService(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException
+  public static DHIS2TransportServiceIF buildDhis2TransportService(DHIS2ExternalSystem system) throws UnexpectedResponseException, InvalidLoginException, HTTPException, BadServerUriException
   {
     return getInstance().instanceGetDhis2Service(system);
   }

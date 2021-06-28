@@ -41,6 +41,7 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutableJob;
 
 import net.geoprism.GeoprismUser;
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -154,7 +155,7 @@ public class SynchronizationConfigService
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
-    catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
+    catch (HTTPException | UnexpectedResponseException | IllegalArgumentException | BadServerUriException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;

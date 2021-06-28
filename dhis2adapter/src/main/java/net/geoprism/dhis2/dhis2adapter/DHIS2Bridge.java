@@ -29,6 +29,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 import com.google.gson.JsonObject;
 
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
@@ -70,19 +71,19 @@ public class DHIS2Bridge
     this.versionApiCompat = apiVersion;
   }
   
-  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException, BadServerUriException
   {
     fetchVersionRemoteServer();
     
     validateApiCompatVersion(this.versionApiCompat);
   }
   
-  public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException, BadServerUriException
   {
     return this.idCache.next();
   }
   
-  public DHIS2Response systemInfo() throws InvalidLoginException, HTTPException
+  public DHIS2Response systemInfo() throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.apiGet("system/info", null);
   }
@@ -98,18 +99,19 @@ public class DHIS2Bridge
    * @return
    * @throws InvalidLoginException
    * @throws HTTPException
+   * @throws BadServerUriException 
    */
-  public ObjectReportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public ObjectReportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return new ObjectReportResponse(this.apiPost(entityName, params, payload));
   }
   
-  public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.apiGet(entityName + "/" + entityId, params);
   }
   
-  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.apiDelete(entityName + "/" + entityId, params);
   }
@@ -126,8 +128,9 @@ public class DHIS2Bridge
    * @return
    * @throws InvalidLoginException
    * @throws HTTPException
+   * @throws BadServerUriException 
    */
-  public ObjectReportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public ObjectReportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return new ObjectReportResponse(this.apiPatch(entityName + "/" + entityId, params, payload));
   }
@@ -153,8 +156,9 @@ public class DHIS2Bridge
    * @return
    * @throws InvalidLoginException
    * @throws HTTPException
+   * @throws BadServerUriException 
    */
-  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return new TypeReportResponse(this.apiPut(entityName + "/" + entityId + "/translations", params, payload));
   }
@@ -167,18 +171,19 @@ public class DHIS2Bridge
    * @return
    * @throws InvalidLoginException
    * @throws HTTPException
+   * @throws BadServerUriException 
    */
-  public MetadataImportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public MetadataImportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return new MetadataImportResponse(this.apiPost("metadata", params, payload));
   }
   
-  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.metadataGet(dhis2Type, null);
   }
   
-  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     String objectNamePlural = DHIS2Objects.getPluralObjectNameFromClass(dhis2Type);
     
@@ -254,7 +259,7 @@ public class DHIS2Bridge
     this.versionApiCompat = versionApiCompat;
   }
   
-  private void fetchVersionRemoteServer() throws UnexpectedResponseException, InvalidLoginException, HTTPException
+  private void fetchVersionRemoteServer() throws UnexpectedResponseException, InvalidLoginException, HTTPException, BadServerUriException
   {
     DHIS2Response resp = this.systemInfo();
     
@@ -301,7 +306,7 @@ public class DHIS2Bridge
     }
   }
 
-  public DHIS2Response apiDelete(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response apiDelete(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {
@@ -311,7 +316,7 @@ public class DHIS2Bridge
     return connector.httpDelete(this.buildApiEndpoint() + url, params);
   }
   
-  public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {
@@ -321,7 +326,7 @@ public class DHIS2Bridge
     return connector.httpGet(this.buildApiEndpoint() + url, params);
   }
   
-  public DHIS2ImportResponse apiPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {
@@ -331,7 +336,7 @@ public class DHIS2Bridge
     return new DHIS2ImportResponse(connector.httpPost(this.buildApiEndpoint() + url, params, body));
   }
   
-  public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {
@@ -341,7 +346,7 @@ public class DHIS2Bridge
     return new DHIS2ImportResponse(connector.httpPost(this.buildApiEndpoint() + url, params, body));
   }
   
-  public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     if (!url.contains("?") && !url.endsWith(".json"))
     {

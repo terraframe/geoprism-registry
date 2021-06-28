@@ -24,8 +24,9 @@ export class CgrHeaderComponent {
 	isContributor: boolean;
 	bsModalRef: BsModalRef;
 
-	locales: LocaleView[]
-	locale: string
+  defaultLocaleView: LocaleView;
+	locales: LocaleView[];
+	locale: string;
 
 	@Input() loggedIn: boolean = true;
 
@@ -41,6 +42,7 @@ export class CgrHeaderComponent {
 		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
 		this.locales = localizationService.getLocales().filter(locale => locale.toString !== 'defaultLocale');
+		this.defaultLocaleView = localizationService.getLocales().filter(locale => locale.toString === 'defaultLocale')[0];
 		this.locale = localizationService.getLocale();
 		
 		let found: boolean = false;

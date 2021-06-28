@@ -44,6 +44,7 @@ import com.runwaysdk.RunwayException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -142,7 +143,7 @@ public class DHIS2FeatureService
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
-    catch (HTTPException | UnexpectedResponseException | IllegalArgumentException e)
+    catch (HTTPException | UnexpectedResponseException | BadServerUriException | IllegalArgumentException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;
@@ -296,7 +297,7 @@ public class DHIS2FeatureService
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
     }
-    catch (HTTPException e)
+    catch (HTTPException | BadServerUriException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;
@@ -344,6 +345,11 @@ public class DHIS2FeatureService
     {
       LoginException cgrlogin = new LoginException(e);
       throw cgrlogin;
+    }
+    catch (BadServerUriException e)
+    {
+      net.geoprism.registry.etl.export.BadServerUriException cgrhttp = new net.geoprism.registry.etl.export.BadServerUriException(e);
+      throw cgrhttp;
     }
     catch (HTTPException | UnexpectedResponseException e)
     {

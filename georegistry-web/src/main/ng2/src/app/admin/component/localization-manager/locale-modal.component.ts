@@ -43,14 +43,28 @@ export class NewLocaleModalComponent {
 
 	submit(): void {
 
-		this.localizationManagerService.installLocale(this.locale).then((locale: LocaleView) => {
-			this.onSuccess.next(locale);
-
-			this.bsModalRef.hide();
-		}).catch((err: HttpErrorResponse) => {
-			this.bsModalRef.hide();
-			this.error(err);
-		});
+    if (this.isNew)
+    {
+  		this.localizationManagerService.installLocale(this.locale).then((locale: LocaleView) => {
+  			this.onSuccess.next(locale);
+  
+  			this.bsModalRef.hide();
+  		}).catch((err: HttpErrorResponse) => {
+  			this.bsModalRef.hide();
+  			this.error(err);
+  		});
+		}
+		else
+		{
+		  this.localizationManagerService.editLocale(this.locale).then((locale: LocaleView) => {
+        this.onSuccess.next(locale);
+  
+        this.bsModalRef.hide();
+      }).catch((err: HttpErrorResponse) => {
+        this.bsModalRef.hide();
+        this.error(err);
+      });
+		}
 	}
 
 	cancel(): void {

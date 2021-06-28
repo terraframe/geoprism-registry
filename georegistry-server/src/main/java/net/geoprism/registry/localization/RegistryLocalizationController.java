@@ -97,6 +97,15 @@ public class RegistryLocalizationController
 
     return new RestBodyResponse(locales);
   }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF editLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException
+  {
+    LocalizationService service = new LocalizationService();
+    LocaleView lv = service.editLocaleInRequest(request.getSessionId(), json);
+
+    return new RestBodyResponse(lv.toJson().toString());
+  }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF installLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException

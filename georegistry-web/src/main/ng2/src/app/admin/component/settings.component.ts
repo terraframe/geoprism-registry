@@ -206,10 +206,10 @@ export class SettingsComponent implements OnInit {
 
     bsModalRef.content.locale = locale;
     bsModalRef.content.isNew = false;
-
+    
     bsModalRef.content.onSuccess.subscribe(data => {
-      const index = this.installedLocales.findIndex(x => (x.country === data.country && x.language === data.language));
-
+      const index = this.installedLocales.findIndex(x => (x.tag === data.tag));
+      
       if (index !== -1) {
         this.installedLocales[index] = data;
       }
@@ -237,6 +237,7 @@ export class SettingsComponent implements OnInit {
         this.localizeService.remove(locale);
         this.authService.removeLocale(locale);
         
+        let removeIndex = -1;
         let len = this.installedLocales.length;
         for (let i = 0; i < len; ++i)
         {
@@ -244,8 +245,13 @@ export class SettingsComponent implements OnInit {
         
           if (myLocale.tag === locale.tag)
           {
-            this.installedLocales.splice(i,1);
+            removeIndex = i;
           }
+        }
+        
+        if (removeIndex != -1)
+        {
+          this.installedLocales.splice(removeIndex,1);
         }
       }).catch((err: HttpErrorResponse) => {
         this.error(err);
