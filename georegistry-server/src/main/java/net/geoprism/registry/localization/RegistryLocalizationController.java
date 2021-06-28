@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import javax.servlet.ServletException;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,6 +40,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = "localization")
@@ -67,12 +69,14 @@ public class RegistryLocalizationController
 
     JSONArray languages = new JSONArray();
     JSONArray countries = new JSONArray();
+    
+    Locale sessionLocale = LocaleUtils.toLocale(RegistryService.getInstance().getCurrentLocale(request.getSessionId()));
 
     for (Locale locale : LocalizationFacade.getAvailableLanguagesSorted())
     {
       JSONObject jobj = new JSONObject();
       jobj.put("key", locale.getLanguage());
-      jobj.put("label", locale.getDisplayLanguage());
+      jobj.put("label", locale.getDisplayLanguage(sessionLocale));
       languages.put(jobj);
     }
 
@@ -80,7 +84,7 @@ public class RegistryLocalizationController
     {
       JSONObject jobj = new JSONObject();
       jobj.put("key", locale.getCountry());
-      jobj.put("label", locale.getDisplayCountry());
+      jobj.put("label", locale.getDisplayCountry(sessionLocale));
       countries.put(jobj);
     }
 
