@@ -42,6 +42,7 @@ import com.runwaysdk.constants.CommonProperties;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
+import com.runwaysdk.mvc.CookieResponse;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RedirectResponse;
@@ -51,7 +52,6 @@ import com.runwaysdk.request.ServletRequestIF;
 import com.runwaysdk.web.WebClientSession;
 
 import net.geoprism.ClientConfigurationService;
-import net.geoprism.CookieResponse;
 import net.geoprism.RoleViewDTO;
 import net.geoprism.SessionController;
 import net.geoprism.SessionEvent;
@@ -95,15 +95,17 @@ public class RegistrySessionController
     
     JSONArray jaLocales = new JSONArray(ServiceFactory.getRegistryService().getLocales(clientRequest.getSessionId()).toString());
 
-    JSONArray roles = new JSONArray(RoleViewDTO.getCurrentRoles(clientRequest));
-    JSONArray roleDisplayLabels = new JSONArray(RoleViewDTO.getCurrentRoleDisplayLabels(clientRequest));
+    JsonArray roles = JsonParser.parseString(RoleViewDTO.getCurrentRoles(clientRequest)).getAsJsonArray();
+    JsonArray roleDisplayLabels = JsonParser.parseString(RoleViewDTO.getCurrentRoleDisplayLabels(clientRequest)).getAsJsonArray();
+    
+    JsonObject cookieValue = new JsonObject();
+    cookieValue.addProperty("loggedIn", clientRequest.isLoggedIn());
+    cookieValue.add("roles", roles);
+    cookieValue.add("roleDisplayLabels", roleDisplayLabels);
+    cookieValue.addProperty("userName", username);
+    cookieValue.addProperty("version", ClientConfigurationService.getServerVersion());
 
-    CookieResponse response = new CookieResponse("user", -1);
-    response.set("loggedIn", clientRequest.isLoggedIn());
-    response.set("roles", roles);
-    response.set("roleDisplayLabels", roleDisplayLabels);
-    response.set("userName", username);
-    response.set("version", ClientConfigurationService.getServerVersion());
+    CookieResponse response = new CookieResponse("user", -1, cookieValue.toString());
     response.set("installedLocales", jaLocales);
 
     return response;

@@ -26,7 +26,7 @@ import { AccountInviteComponent } from './account/account-invite.component';
 import { EmailComponent } from './email/email.component'
 import { OrganizationModalComponent } from './organization/organization-modal.component'
 import { ExternalSystemModalComponent } from './external-system/external-system-modal.component'
-import { NewLocaleModalComponent } from './localization-manager/new-locale-modal.component';
+import { NewLocaleModalComponent } from './localization-manager/locale-modal.component';
 import { ImportLocalizationModalComponent } from './localization-manager/import-localization-modal.component';
 
 import { Settings } from '@admin/model/settings';
@@ -38,6 +38,7 @@ import { ModalTypes } from '@shared/model/modal';
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 import { LocalizationService, AuthService, ExternalSystemService, OrganizationService } from '@shared/service';
 import { SettingsService, SettingsInitView } from '@admin/service/settings.service';
+import { LocalizationManagerService } from '@admin/service/localization-manager.service';
 
 declare let acp: string;
 
@@ -80,6 +81,7 @@ export class SettingsComponent implements OnInit {
 		private orgService: OrganizationService,
 		private accountService: AccountService,
 		private settingsService: SettingsService,
+		private localizationManagerService: LocalizationManagerService
 	) {
 		this.isAdmin = authService.isAdmin();
 		this.isSRA = authService.isSRA();
@@ -130,6 +132,19 @@ export class SettingsComponent implements OnInit {
 		});
 	}
 
+  public newOrganization(): void {
+    let bsModalRef = this.modalService.show(OrganizationModalComponent, {
+      animated: true,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+
+    bsModalRef.content.isNewOrganization = true;
+
+    bsModalRef.content.onSuccess.subscribe(data => {
+      this.organizations.push(data);
+    })
+  }
 
 	public onEditOrganization(org: Organization): void {
 		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
@@ -156,7 +171,6 @@ export class SettingsComponent implements OnInit {
 	}
 
 	public onRemoveOrganization(code: string, name: string): void {
-
 		this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
 			animated: true,
 			backdrop: true,
@@ -202,27 +216,42 @@ export class SettingsComponent implements OnInit {
       else {
         this.installedLocales.push(data);
       }
-
+      
+      this.localizeService.addLocale(locale);
+      this.authService.addLocale(locale);
     });
 	}
 	
 	public onRemoveLocale(locale: LocaleView) {
-    
+    this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+      animated: true,
+      backdrop: true,
+      ignoreBackdropClick: true,
+    });
+    this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + ' [' + locale.label.localizedValue + ']';
+    this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+    this.bsModalRef.content.type = ModalTypes.danger;
+
+    this.bsModalRef.content.onConfirm.subscribe(data => {
+      this.localizationManagerService.uninstallLocale(locale).then(response => {
+        this.localizeService.remove(locale);
+        this.authService.removeLocale(locale);
+        
+        let len = this.installedLocales.length;
+        for (let i = 0; i < len; ++i)
+        {
+          let myLocale: LocaleView = this.installedLocales[i];
+        
+          if (myLocale.tag === locale.tag)
+          {
+            this.installedLocales.splice(i,1);
+          }
+        }
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+    });
   }
-
-	public newOrganization(): void {
-		let bsModalRef = this.modalService.show(OrganizationModalComponent, {
-			animated: true,
-			backdrop: true,
-			ignoreBackdropClick: true,
-		});
-
-		bsModalRef.content.isNewOrganization = true;
-
-		bsModalRef.content.onSuccess.subscribe(data => {
-			this.organizations.push(data);
-		})
-	}
 
 	public newLocalization(): void {
 
@@ -234,7 +263,9 @@ export class SettingsComponent implements OnInit {
 
 		bsModalRef.content.onSuccess.subscribe((locale: LocaleView) => {
 			this.localizeService.addLocale(locale);
-		})
+			this.installedLocales.push(locale);
+			this.authService.addLocale(locale);
+		});
 	}
 
 	public configureEmail(): void {

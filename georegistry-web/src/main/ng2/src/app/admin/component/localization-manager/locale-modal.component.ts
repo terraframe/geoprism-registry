@@ -6,25 +6,26 @@ import { BsModalService } from 'ngx-bootstrap/modal';
 import { LocalizationManagerService } from '@admin/service/localization-manager.service';
 import { AllLocaleInfo } from '@admin/model/localization-manager';
 import { LocaleView } from '@shared/model/core';
+import { LocalizationService } from '@shared/service/localization.service';
 
 import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
 @Component({
-	selector: 'new-locale-modal',
-	templateUrl: './new-locale-modal.component.html',
+	selector: 'locale-modal',
+	templateUrl: './locale-modal.component.html',
 	styleUrls: []
 })
 export class NewLocaleModalComponent {
 
 	allLocaleInfo: AllLocaleInfo;
 	
-	@Input() locale: LocaleView = new LocaleView();
+	@Input() locale: LocaleView = new LocaleView(this.lService);
 	
 	@Input() isNew: boolean = true;
 
-	public onSuccess: Subject<string>;
+	public onSuccess: Subject<LocaleView>;
 
-	constructor(public bsModalRef: BsModalRef, private localizationManagerService: LocalizationManagerService, private modalService: BsModalService) { }
+	constructor(public bsModalRef: BsModalRef, private localizationManagerService: LocalizationManagerService, private modalService: BsModalService, private lService: LocalizationService) { }
 
 	ngOnInit(): void {
 		this.allLocaleInfo = new AllLocaleInfo();
@@ -42,8 +43,8 @@ export class NewLocaleModalComponent {
 
 	submit(): void {
 
-		this.localizationManagerService.installLocale(this.locale.language.code, this.locale.country.code, this.locale.variant.code).then((response: { locale: string }) => {
-			this.onSuccess.next(response.locale);
+		this.localizationManagerService.installLocale(this.locale).then((locale: LocaleView) => {
+			this.onSuccess.next(locale);
 
 			this.bsModalRef.hide();
 		}).catch((err: HttpErrorResponse) => {

@@ -96,6 +96,8 @@ export class CgrHeaderComponent {
 	}
 
 	logout(): void {
+	
+	  sessionStorage.removeItem("locales");
 
 		window.location.href = acp + '/session/logout';
 

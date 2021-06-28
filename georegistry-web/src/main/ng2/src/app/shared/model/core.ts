@@ -1,3 +1,6 @@
+
+import { LocalizationService } from '@shared/service/localization.service';
+
 export interface MessageContainer {
 	setMessage(message: string);
 }
@@ -13,6 +16,16 @@ export class LocaleValue {
 }
 
 export class LocaleView {
+  constructor(lService: LocalizationService) {
+    this.label = lService.create();
+    this.toString = "";
+    this.tag = "";
+    this.isDefaultLocale = false;
+    this.language = {label:"", code:""};
+    this.country = {label:"", code:""};
+    this.variant = {label:"", code:""};
+  }
+
   label: LocalizedValue;
   toString: string;
   tag: string;

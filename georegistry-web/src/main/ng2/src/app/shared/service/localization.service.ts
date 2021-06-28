@@ -30,6 +30,7 @@ export class LocalizationService {
 	    if (this.locales[i].tag === locale.tag)
 	    {
 	      exists = true;
+	      this.locales[i] = locale;
 	    }
 	  }
 	
@@ -55,15 +56,28 @@ export class LocalizationService {
 		const value = { localizedValue: '', localeValues: [] } as LocalizedValue;
 
 		this.locales.forEach(locale => {
-		  if (!locale.isDefaultLocale)
-		  {
+		  //if (!locale.isDefaultLocale)
+		  //{
 			  value.localeValues.push({ locale: locale.toString, value: '' });
-			}
+			//}
 		});
 
 		return value;
 	}
-
+	
+	remove(locale: LocaleView): void {
+	  for (let i = 0; i < this.locales.length; ++i)
+    {
+      if (this.locales[i].tag === locale.tag)
+      {
+        this.locales.splice(i,1);
+        return;
+      }
+    }
+    
+    console.log("Could not remove locale from array because we could not find it.", locale, this.locales);
+	}
+	
 	public parseNumber(value: string): number {
 		if (value != null && value.length > 0) {
 			//convert data from view format to model format

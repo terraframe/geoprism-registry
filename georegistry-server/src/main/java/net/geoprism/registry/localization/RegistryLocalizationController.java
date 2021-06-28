@@ -102,9 +102,9 @@ public class RegistryLocalizationController
   public ResponseIF installLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException
   {
     LocalizationService service = new LocalizationService();
-    service.installLocaleInRequest(request.getSessionId(), json);
+    LocaleView lv = service.installLocaleInRequest(request.getSessionId(), json);
 
-    return new RestResponse();
+    return new RestBodyResponse(lv.toJson().toString());
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)

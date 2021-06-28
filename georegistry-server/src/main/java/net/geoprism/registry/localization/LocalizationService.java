@@ -107,17 +107,17 @@ public class LocalizationService
   }
 
   @Request(RequestType.SESSION)
-  public void installLocaleInRequest(String sessionId, String json)
+  public LocaleView installLocaleInRequest(String sessionId, String json)
   {
     ServiceFactory.getRolePermissionService().enforceSRA();
     
     LocaleView view = LocaleView.fromJson(json);
 
-    installLocaleInTransaction(view);
+    return installLocaleInTransaction(view);
   }
 
   @Transaction
-  private void installLocaleInTransaction(LocaleView view)
+  private LocaleView installLocaleInTransaction(LocaleView view)
   {
     SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.install(view.getLocale());
     
@@ -132,6 +132,8 @@ public class LocalizationService
 
     // Refresh the entire metadata cache
     ServiceFactory.getRegistryService().refreshMetadataCache();
+    
+    return LocaleView.fromSupportedLocale(supportedLocale);
   }
   
   @Request(RequestType.SESSION)

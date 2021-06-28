@@ -24,6 +24,8 @@ export class AuthService {
 
 			this.buildFromCookieJson(cookieDataJSON);
 		}
+		
+		this.loadLocales();
 	}
 
 	buildFromCookieJson(cookieDataJSON: any) {
@@ -32,7 +34,7 @@ export class AuthService {
 		this.user.loggedIn = cookieDataJSON.loggedIn;
 		this.user.roleDisplayLabels = cookieDataJSON.roleDisplayLabels;
 		this.user.version = cookieDataJSON.version.replaceAll("+", " ");
-		this.user.installedLocales = cookieDataJSON.installedLocales;
+		//this.user.installedLocales = cookieDataJSON.installedLocales;
 	}
 
 	buildRolesFromCookie(cookieDataJSON: any) {
@@ -52,8 +54,31 @@ export class AuthService {
 		return this.user.loggedIn;
 	}
 
-	setUser(cookieDataJSON: any): void {
-		this.buildFromCookieJson(cookieDataJSON);
+	afterLogIn(logInResponse: any): void {
+		this.buildFromCookieJson(JSON.parse(this.service.get("user")));
+		
+		this.setLocales(logInResponse.installedLocales);
+		this.user.installedLocales = logInResponse.installedLocales;
+	}
+	
+	afterLogOut(): void {
+	  this.user = null;
+	  sessionStorage.removeItem("locales");
+	}
+	
+	loadLocales()
+	{
+	  let storageLocales = window.sessionStorage.getItem("locales");
+	
+	  if (storageLocales != null)
+	  {
+	    this.user.installedLocales = JSON.parse(storageLocales);
+	  }
+	}
+	
+	setLocales(locales: LocaleView[])
+	{
+	  window.sessionStorage.setItem("locales", JSON.stringify(locales));
 	}
 
 	removeUser(): void {
@@ -294,4 +319,39 @@ export class AuthService {
 	getLocales(): LocaleView[] {
 		return this.user.installedLocales;
 	}
+	
+	addLocale(locale: LocaleView): void {
+    
+    let exists: boolean = false;
+    
+    for (let i = 0; i < this.user.installedLocales.length; ++i)
+    {
+      if (this.user.installedLocales[i].tag === locale.tag)
+      {
+        exists = true;
+        this.user.installedLocales[i] = locale;
+      }
+    }
+  
+    if (!exists)
+    {
+      this.user.installedLocales.push(locale);
+    }
+    
+    this.setLocales(this.user.installedLocales);
+  }
+  
+  removeLocale(locale: LocaleView): void {
+    for (let i = 0; i < this.user.installedLocales.length; ++i)
+    {
+      if (this.user.installedLocales[i].tag === locale.tag)
+      {
+        this.user.installedLocales.splice(i,1);
+        this.setLocales(this.user.installedLocales);
+        return;
+      }
+    }
+    
+    console.log("Could not remove locale from array because we could not find it.", locale, this.user.installedLocales);
+  }
 }
