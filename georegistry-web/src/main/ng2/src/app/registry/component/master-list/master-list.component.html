@@ -48,7 +48,11 @@
 <!--             </div> -->
 <!--         </div> -->
 
-
+        <div class="row form-group">
+          <div class="col-md-12 table-responsive" style="">
+	          <boolean-field [(value)]="filterInvalid" (change)="onFilterInvalidChange()" [localizeLabelKey]="'masterlist.filterInvalid'" ></boolean-field>
+          </div>
+        </div>
         <div *ngIf="filter.length > 0" class="row form-group">
             <div class="col-md-12 table-responsive" style="">
                 <localize key="masterlist.filters"></localize>
@@ -76,7 +80,7 @@
 
 
                         <button *ngIf="isWritable && !list.isAbstract" type="submit"
-                           [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract)]" routerLinkActive="active"
+                           [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]" routerLinkActive="active"
                          class="btn btn-primary" role="button">
                             <localize key="masterlist.newGeoObject"></localize>
                         </button>
@@ -88,7 +92,7 @@
 												  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
 												    <li><localize style="padding-left:10px;" key="masterlist.newGeoObject.selectASubtype"></localize></li>
 												    <li role="separator" class="divider"></li>
-												    <li *ngFor="let subtype of list.subtypes"><a [routerLink]="['/registry/dataset-location-manager', list.oid, subtype.code, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract)]" routerLinkActive="active">{{subtype.label}}</a></li>
+												    <li *ngFor="let subtype of list.subtypes"><a [routerLink]="['/registry/dataset-location-manager', list.oid, subtype.code, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]" routerLinkActive="active">{{subtype.label}}</a></li>
 												  </ul>
 												</span>
                         <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">

@@ -1607,7 +1607,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
-
+    
     BusinessQuery query = this.buildQuery(filterJson);
 
     if (sort != null && sort.length() > 0)

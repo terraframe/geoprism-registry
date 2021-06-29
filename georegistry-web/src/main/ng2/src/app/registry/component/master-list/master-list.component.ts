@@ -41,6 +41,8 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	isPublished: boolean = true;
 	isRefreshing: boolean = false;
 	isWritable: boolean = false;
+	
+	filterInvalid = true;
 
     /*
      * Reference to the modal current showing
@@ -103,12 +105,23 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
 	}
 
+  onFilterInvalidChange()
+  {
+    this.onPageChange(1);
+  }
 
 	onPageChange(pageNumber: number): void {
 
 		this.message = null;
+		
+		let newFilter = JSON.parse(JSON.stringify(this.filter));
+		
+		if (this.filterInvalid)
+		{
+		  newFilter.push({attribute:"invalid", value:"false"});
+		}
 
-		this.service.data(this.list.oid, pageNumber, this.page.pageSize, this.filter, this.sort).then(page => {
+		this.service.data(this.list.oid, pageNumber, this.page.pageSize, newFilter, this.sort).then(page => {
 			this.page = page;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -247,7 +260,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	}
 
 	isFilterable(attribute: any): boolean {
-		return attribute.type !== 'none' && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
+		return attribute.type !== 'none' && attribute.name !== 'invalid' && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
 	}
 
 	onEdit(data): void {
