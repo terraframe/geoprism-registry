@@ -713,7 +713,7 @@ public class DHIS2ServiceTest
   @Test
   public void testGetConfigForExternalSystem()
   {
-    TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.ADMIN_USER, AllAttributesDataset.USER_ORG_RA };
+    TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.USER_ADMIN, AllAttributesDataset.USER_ORG_RA };
     
     for (TestUserInfo user : users)
     {

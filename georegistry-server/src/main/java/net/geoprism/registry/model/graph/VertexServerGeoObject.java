@@ -58,7 +58,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.orientechnologies.orient.core.sql.executor.OResult;
-import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.Pair;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphObject;
@@ -79,6 +78,7 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.CreatePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.Session;
@@ -105,7 +105,6 @@ import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.RequiredAttributeException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -766,11 +765,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return null;
     }
     
-//    List<Locale> locales = LocalizationFacade.getInstalledLocales(); // TODO : God only knows why these objects aren't cached at the runway object level
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
     
-    LocalizedValue lv = new LocalizedValue(rawLV.getProperty("defaultLocale"));
-    lv.setValue(Locale.getDefault(), rawLV.getProperty("defaultLocale"));
+    LocalizedValue lv = new LocalizedValue(rawLV.getProperty(MdAttributeLocalInfo.DEFAULT_LOCALE));
+    lv.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, rawLV.getProperty(MdAttributeLocalInfo.DEFAULT_LOCALE));
     
     for (Locale locale : locales)
     {

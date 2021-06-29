@@ -162,7 +162,7 @@ public class GeoObjectTypeServiceTest
   public void testCreateGeoObjectType()
   {
     // Allowed users
-    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA })
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA })
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         createGot(request, adapter);
@@ -212,7 +212,7 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA };
 
     for (TestUserInfo user : users)
     {
@@ -552,10 +552,6 @@ public class GeoObjectTypeServiceTest
   //
   // checkAttributeMultiPolygon(DISTRICT.getCode());
   // }
-
-  /*
-   * Utility methods for this test class:
-   */
 
   @Test
   @Request

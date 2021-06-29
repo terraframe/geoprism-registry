@@ -1,4 +1,4 @@
-import { RegistryRole} from './core';
+import { RegistryRole, LocaleView} from './core';
 
 export class User {
   userName:string;
@@ -6,5 +6,5 @@ export class User {
   roles:RegistryRole[];
   roleDisplayLabels:string[];
   version:string;
-  installedLocales:string[];
+  installedLocales:LocaleView[];
 }

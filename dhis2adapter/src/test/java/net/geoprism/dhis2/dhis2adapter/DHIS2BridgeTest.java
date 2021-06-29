@@ -48,7 +48,7 @@ public class DHIS2BridgeTest
 {
   
   @Test(expected = IncompatibleServerVersionException.class)
-  public void testBadApiVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void testBadApiVersion() throws Exception
   {
     String versionResponse = TestBridgeBuilder.getVersionResponse(Constants.DHIS2_API_VERSION);
     
@@ -57,7 +57,7 @@ public class DHIS2BridgeTest
     facade.initialize();
   }
   
-  public void testGetVersion() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void testGetVersion() throws Exception
   {
     final String versionRemote = Constants.DHIS2_VERSION;
     final Integer versionApiRemote = Constants.DHIS2_API_VERSION;
@@ -75,7 +75,7 @@ public class DHIS2BridgeTest
   }
   
   @Test
-  public void testSystemInfo() throws InvalidLoginException, HTTPException, IOException, UnexpectedResponseException, IncompatibleServerVersionException
+  public void testSystemInfo() throws Exception
   {
     String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/system-info.json"), "UTF-8");
     
@@ -124,7 +124,7 @@ public class DHIS2BridgeTest
   }
   
   @Test
-  public void testMetadataPost() throws InvalidLoginException, HTTPException, IOException, UnexpectedResponseException, IncompatibleServerVersionException
+  public void testMetadataPost() throws Exception
   {
     String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/metadataPost-dataElement.json"), "UTF-8");
     
@@ -158,7 +158,7 @@ public class DHIS2BridgeTest
   }
   
   @Test
-  public void testGetDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException, IncompatibleServerVersionException
+  public void testGetDhis2Id() throws Exception
   {
     DHIS2Bridge facade = TestBridgeBuilder.buildFakeId();
     
@@ -183,7 +183,7 @@ public class DHIS2BridgeTest
   }
   
   @Test
-  public void testMetadataGetAttributes() throws HTTPException, InvalidLoginException, UnexpectedResponseException, IOException, IncompatibleServerVersionException
+  public void testMetadataGetAttributes() throws Exception
   {
     String file = IOUtils.toString(DHIS2BridgeTest.class.getResourceAsStream("/default/metadataGet-attributes.json"), "UTF-8");
     

@@ -30,14 +30,7 @@ import java.util.SortedSet;
 import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeFloatType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
-import org.commongeoregistry.adapter.metadata.AttributeTermType;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wololo.jts2geojson.GeoJSONWriter;
@@ -48,15 +41,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
-import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
@@ -132,7 +125,7 @@ public class DHIS2GeoObjectJsonAdapters
         {
           externalId = this.dhis2.getDhis2Id();
         }
-        catch (HTTPException | InvalidLoginException | UnexpectedResponseException e)
+        catch (HTTPException | InvalidLoginException | UnexpectedResponseException | BadServerUriException e)
         {
           ExportRemoteException remoteEx = new ExportRemoteException();
           remoteEx.setRemoteError(e.getLocalizedMessage()); // TODO : Pull this
@@ -164,7 +157,7 @@ public class DHIS2GeoObjectJsonAdapters
       JsonArray translations = new JsonArray();
       LocalizedValue lv = go.getDisplayLabel();
 
-      List<Locale> locales = LocalizationFacade.getInstalledLocales();
+      Set<Locale> locales = LocalizationFacade.getInstalledLocales();
       for (Locale locale : locales)
       {
         if (lv.contains(locale) && lv.getValue(locale) != null)

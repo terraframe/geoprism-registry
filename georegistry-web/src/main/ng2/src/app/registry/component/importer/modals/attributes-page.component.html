@@ -15,24 +15,6 @@
     </h3>
     -->
     <form class="modal-form" #form="ngForm">
-      
-      <div class="form-group">
-        <div class="row-holder">
-          <div class="label-holder">
-            <label class="">
-              <localize key="io.modal.hierarchy"></localize>
-            </label>
-          </div>
-          <div class="holder">
-            <select name="hierarchy" class="select-area" [(ngModel)]="configuration.hierarchy" required>
-              <option></option>
-              <option *ngFor="let hierarchy of configuration.hierarchies" value={{hierarchy.code}}>{{hierarchy.label}}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <hr />
 
       <div class="form-group" *ngFor="let attribute of configuration.type.attributes">
         <div class="row-holder">

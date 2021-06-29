@@ -30,8 +30,8 @@ import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;

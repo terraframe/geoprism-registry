@@ -41,6 +41,7 @@ import org.opengis.feature.type.GeometryDescriptor;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.resource.CloseableFile;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -48,7 +49,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.ShapefileFormatException;
@@ -77,11 +77,9 @@ public class ShapefileService
         SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
         format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-        JSONArray hierarchies = new JSONArray(ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, geoObjectType.getCode(), false).toString());
 
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
         object.put(GeoObjectImportConfiguration.SHEET, this.getSheetInformation(dbf));
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(ImportConfiguration.FILE_NAME, fileName);
@@ -116,7 +114,7 @@ public class ShapefileService
 
   private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
-    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, true, SupportedLocaleCache.getLocales())).toString());
+    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, true, LocalizationFacade.getInstalledLocales())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)

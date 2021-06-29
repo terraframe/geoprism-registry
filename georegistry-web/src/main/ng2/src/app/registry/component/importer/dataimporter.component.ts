@@ -8,12 +8,14 @@ import{ DateFieldComponent } from '../../../shared/component/form-fields/date-fi
 
 import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
 import { LocalizationService, AuthService, EventService, ExternalSystemService } from '@shared/service';
+import { HierarchyService } from '@registry/service';
 import { ExternalSystem } from '@shared/model/core';
 
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 import { ShapefileModalComponent } from './modals/shapefile-modal.component';
 import { IOService } from '@registry/service';
 import { ImportStrategy, PRESENT } from '@registry/model/registry';
+import { HierarchyGroupedTypeView } from '@registry/model/hierarchy';
 
 declare var acp: string;
 
@@ -36,7 +38,12 @@ export class DataImporterComponent implements OnInit {
     /*
      * List of geo object types from the system
      */
-	types: { label: string, code: string }[]
+	types: {code: string, label: string, orgCode: string, permissions: [string]}[]
+	
+	/*
+   * GeoObjectTypes grouped by hierarchy
+   */
+  hierarchyViews: HierarchyGroupedTypeView[];
 
 	importStrategy: ImportStrategy;
 	importStrategies: any[] = [
@@ -46,9 +53,14 @@ export class DataImporterComponent implements OnInit {
 	]
 
     /*
-     * Currently selected code
+     * Code of the currently selected GeoObjectType
      */
 	code: string = null;
+	
+	/*
+	 * Code of the currently selected Hierarchy
+	 */
+	hierarchyCode: string = null;
 
     /*
      * Start date
@@ -98,6 +110,7 @@ export class DataImporterComponent implements OnInit {
 		private localizationService: LocalizationService,
 		private authService: AuthService,
 		private sysService: ExternalSystemService,
+		private hierarchyService: HierarchyService,
 		private changeDetectorRef: ChangeDetectorRef
 	) { }
 
@@ -117,21 +130,15 @@ export class DataImporterComponent implements OnInit {
 			this.error(err);
 		});
 
-		this.service.listGeoObjectTypes(false).then(types => {
-
-			const myOrgTypes = [];
-
-			for (var i = 0; i < types.length; ++i) {
-				const type = types[i];
-				const orgCode = type.orgCode;
-				const typeCode = type.superTypeCode != null ? type.superTypeCode : type.code;
-
-				if (this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
-					myOrgTypes.push(types[i]);
-				}
-			}
-
-			this.types = myOrgTypes;
+		this.hierarchyService.getHierarchyGroupedTypes().then(views => {
+		  
+		  let filtered = [];
+		  
+		  for (let i = 0; i < views.length; ++i)
+		  {
+		  }
+		  
+      this.hierarchyViews = views;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -176,6 +183,7 @@ export class DataImporterComponent implements OnInit {
 			const configuration = JSON.parse(response);
 
 			configuration.isExternal = this.isExternal;
+			configuration.hierarchy = this.hierarchyCode;
 
 			let externalSystem: ExternalSystem = null;
 			for (let i = 0; i < this.externalSystems.length; ++i) {
@@ -204,6 +212,32 @@ export class DataImporterComponent implements OnInit {
 			this.error({ error: error });
 		}
 	}
+
+  onSelectHierarchy(): void {
+    
+    let view = null;
+    
+    let len = this.hierarchyViews.length;
+    for (let i = 0; i < len; ++i)
+    {
+      if (this.hierarchyViews[i].code === this.hierarchyCode)
+      {
+        view = this.hierarchyViews[i];
+        break;
+      }
+    }
+    
+    this.code = null;
+    
+    if (view != null)
+    {
+      this.types = view.types;
+    }
+    else
+    {
+      this.types = null;
+    }
+  }
 
 	onClick(): void {
 

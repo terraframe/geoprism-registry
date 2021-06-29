@@ -105,7 +105,7 @@ public class GeoObjectRelationshipServiceTest
   @Test
   public void testGetHierarchies() throws ParseException
   {
-    TestDataSet.runAsUser(FastTestDataset.ADMIN_USER, (request, adapter) -> {
+    TestDataSet.runAsUser(FastTestDataset.USER_ADMIN, (request, adapter) -> {
       JsonArray ptn = adapter.getHierarchiesForGeoObjectOverTime(FastTestDataset.DIST_CENTRAL.getCode(), FastTestDataset.DISTRICT.getCode());
       
       Assert.assertEquals(2, ptn.size());

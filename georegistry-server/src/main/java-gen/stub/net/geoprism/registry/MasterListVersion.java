@@ -28,7 +28,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,7 +54,6 @@ import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -90,6 +88,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
@@ -110,16 +109,17 @@ import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.scheduler.ExecutableJob;
 import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.command.GeoserverCreateWMSCommand;
 import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
+import net.geoprism.registry.etl.PublishMasterListVersionJob;
+import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -307,7 +307,7 @@ public class MasterListVersion extends MasterListVersionBase
     return true;
   }
 
-  public void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, List<Locale> locales)
+  public void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales)
   {
     TableMetadata metadata = new TableMetadata();
     metadata.setMdBusiness(this.getMdBusiness());
@@ -324,7 +324,7 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
 
-  public void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, ServerGeoObjectType type, List<Locale> locales)
+  public void createMdAttributeFromAttributeType(TableMetadata metadata, AttributeType attributeType, ServerGeoObjectType type, Collection<Locale> locales)
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
@@ -507,7 +507,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     metadata.setMdBusiness(mdBusiness);
 
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
 
@@ -545,11 +545,11 @@ public class MasterListVersion extends MasterListVersionBase
           String attributeName = hCode.toLowerCase() + pCode.toLowerCase();
           String label = typeLabel + " (" + hierarchyLabel + ")";
 
-          String codeDescription = LocalizationFacade.getFromBundles("masterlist.code.description");
+          String codeDescription = LocalizationFacade.localize("masterlist.code.description");
           codeDescription = codeDescription.replaceAll("\\{typeLabel\\}", typeLabel);
           codeDescription = codeDescription.replaceAll("\\{hierarchyLabel\\}", hierarchyLabel);
 
-          String labelDescription = LocalizationFacade.getFromBundles("masterlist.label.description");
+          String labelDescription = LocalizationFacade.localize("masterlist.label.description");
           labelDescription = labelDescription.replaceAll("\\{typeLabel\\}", typeLabel);
           labelDescription = labelDescription.replaceAll("\\{hierarchyLabel\\}", hierarchyLabel);
 
@@ -599,11 +599,11 @@ public class MasterListVersion extends MasterListVersionBase
 
         String attributeName = hCode.toLowerCase();
 
-        String codeDescription = LocalizationFacade.getFromBundles("masterlist.code.description");
+        String codeDescription = LocalizationFacade.localize("masterlist.code.description");
         codeDescription = codeDescription.replaceAll("\\{typeLabel\\}", "");
         codeDescription = codeDescription.replaceAll("\\{hierarchyLabel\\}", hierarchyLabel);
 
-        String labelDescription = LocalizationFacade.getFromBundles("masterlist.label.description");
+        String labelDescription = LocalizationFacade.localize("masterlist.label.description");
         labelDescription = labelDescription.replaceAll("\\{typeLabel\\}", "");
         labelDescription = labelDescription.replaceAll("\\{hierarchyLabel\\}", hierarchyLabel);
 
@@ -645,9 +645,9 @@ public class MasterListVersion extends MasterListVersionBase
   public void delete()
   {
     // Delete all jobs
-    List<PublishShapefileJob> jobs = this.getJobs();
+    List<ExecutableJob> jobs = this.getJobs();
 
-    for (PublishShapefileJob job : jobs)
+    for (ExecutableJob job : jobs)
     {
       job.delete();
     }
@@ -675,15 +675,27 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
 
-  public List<PublishShapefileJob> getJobs()
+  public List<ExecutableJob> getJobs()
   {
-    PublishShapefileJobQuery query = new PublishShapefileJobQuery(new QueryFactory());
-    query.WHERE(query.getMasterList().EQ(this));
+    LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
+    
+    PublishShapefileJobQuery psjq = new PublishShapefileJobQuery(new QueryFactory());
+    psjq.WHERE(psjq.getMasterList().EQ(this));
 
-    try (OIterator<? extends PublishShapefileJob> it = query.getIterator())
+    try (OIterator<? extends PublishShapefileJob> it = psjq.getIterator())
     {
-      return new LinkedList<PublishShapefileJob>(it.getAll());
+      jobs.addAll(it.getAll());
     }
+    
+    PublishMasterListVersionJobQuery pmlvj = new PublishMasterListVersionJobQuery(new QueryFactory());
+    pmlvj.WHERE(pmlvj.getMasterListVersion().EQ(this));
+
+    try (OIterator<? extends PublishMasterListVersionJob> it = pmlvj.getIterator())
+    {
+      jobs.addAll(it.getAll());
+    }
+    
+    return jobs;
   }
 
   public File generateShapefile()
@@ -765,7 +777,7 @@ public class MasterListVersion extends MasterListVersionBase
 
       ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
 
-      List<Locale> locales = SupportedLocaleCache.getLocales();
+      Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
       // Add the type ancestor fields
       Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
@@ -838,7 +850,7 @@ public class MasterListVersion extends MasterListVersionBase
     }
   }
   
-  private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, List<Locale> locales)
+  private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, Collection<Locale> locales)
   {
     VertexServerGeoObject vertexGo = (VertexServerGeoObject) go;
     
@@ -1014,7 +1026,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
@@ -1052,7 +1064,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     MasterList masterlist = this.getMasterlist();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     // Add the type ancestor fields
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
@@ -1184,7 +1196,7 @@ public class MasterListVersion extends MasterListVersionBase
 
   private JsonArray getAttributesAsJson()
   {
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
     MasterList list = this.getMasterlist();
 
     Map<String, JsonArray> dependencies = new HashMap<String, JsonArray>();
@@ -1284,14 +1296,14 @@ public class MasterListVersion extends MasterListVersionBase
       {
         JsonObject longitude = new JsonObject();
         longitude.addProperty(NAME, "longitude");
-        longitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LONGITUDE_KEY));
+        longitude.addProperty(LABEL, LocalizationFacade.localize(GeoObjectImportConfiguration.LONGITUDE_KEY));
         longitude.addProperty(TYPE, "none");
 
         attributes.add(longitude);
 
         JsonObject latitude = new JsonObject();
         latitude.addProperty(NAME, "latitude");
-        latitude.addProperty(LABEL, LocalizationFacade.getFromBundles(GeoObjectImportConfiguration.LATITUDE_KEY));
+        latitude.addProperty(LABEL, LocalizationFacade.localize(GeoObjectImportConfiguration.LATITUDE_KEY));
         latitude.addProperty(TYPE, "none");
 
         attributes.add(latitude);
@@ -1358,7 +1370,7 @@ public class MasterListVersion extends MasterListVersionBase
 
   public void removeAttributeType(TableMetadata metadata, AttributeType attributeType)
   {
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(metadata.getMdBusiness().getOid());
 

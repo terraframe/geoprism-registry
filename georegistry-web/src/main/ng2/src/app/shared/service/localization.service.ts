@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { LocalizedValue } from '@shared/model/core';
 
+import { LocaleView } from '@shared/model/core';
+
 declare var Globalize: any;
 declare var com: any
 declare var registry: any
@@ -8,7 +10,7 @@ declare var registry: any
 @Injectable()
 export class LocalizationService {
 
-	locales: string[] = ['defaultLocale'];
+	locales: LocaleView[] = [];
 	locale: string;
 
 	private parser: any = Globalize.numberParser();
@@ -18,37 +20,64 @@ export class LocalizationService {
 		this.locales = registry.locales;
 		this.locale = registry.locale;
 	}
-
-	getLocales(): string[] {
-		return this.locales;
+	
+	addLocale(locale: LocaleView): void {
+	  
+	  let exists: boolean = false;
+	  
+	  for (let i = 0; i < this.locales.length; ++i)
+	  {
+	    if (this.locales[i].tag === locale.tag)
+	    {
+	      exists = true;
+	      this.locales[i] = locale;
+	    }
+	  }
+	
+	  if (!exists)
+	  {
+	    this.locales.push(locale);
+	  }
 	}
-
+	
+	setLocales(locales: LocaleView[]): void {
+	  this.locales = locales;
+	}
+	
 	getLocale(): string {
-		return this.locale;
+	  return this.locale;
 	}
 
-	setLocales(locales: string[]): void {
-		// The installed locales are now read from the global registry value on load
-		//		this.locales = locales;
-	}
-
-	addLocale(locale: string): void {
-
-		if (this.locales.indexOf(locale) === -1) {
-			this.locales.push(locale);
-		}
+	getLocales(): LocaleView[] {
+		return this.locales;
 	}
 
 	create(): LocalizedValue {
 		const value = { localizedValue: '', localeValues: [] } as LocalizedValue;
 
 		this.locales.forEach(locale => {
-			value.localeValues.push({ locale: locale, value: '' });
+		  //if (!locale.isDefaultLocale)
+		  //{
+			  value.localeValues.push({ locale: locale.toString, value: '' });
+			//}
 		});
 
 		return value;
 	}
-
+	
+	remove(locale: LocaleView): void {
+	  for (let i = 0; i < this.locales.length; ++i)
+    {
+      if (this.locales[i].tag === locale.tag)
+      {
+        this.locales.splice(i,1);
+        return;
+      }
+    }
+    
+    console.log("Could not remove locale from array because we could not find it.", locale, this.locales);
+	}
+	
 	public parseNumber(value: string): number {
 		if (value != null && value.length > 0) {
 			//convert data from view format to model format

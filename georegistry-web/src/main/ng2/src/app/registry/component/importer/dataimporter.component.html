@@ -51,6 +51,16 @@
                 </div>
                 <div class="col-md-2"></div>
             </div>
+            <div class="form-group row" *ngIf="hierarchyViews">
+                <label class="col-md-2 text-right" for="hierarchyCode"> <localize key="io.modal.hierarchy"></localize></label>
+                <div class="col-md-8">
+                    <select id="hierarchyCode" name="hierarchyCode" class="select-area" [(ngModel)]="hierarchyCode" (change)="onSelectHierarchy()" required>
+                        <option></option>
+                        <option *ngFor="let view of hierarchyViews" value={{view.code}}>{{view.label}}</option>
+                    </select>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
             <div class="form-group row" *ngIf="types">
                 <label class="col-md-2 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
                 <div class="col-md-8">
@@ -91,7 +101,7 @@
             </div>
             <div class="form-group row">
                 
-                <label class="col-md-2 text-right" for="copyBlank">Copy blank values</label>
+                <label class="col-md-2 text-right" for="copyBlank"><localize key="dataimporter.importblankcells"></localize></label>
                 <div class="col-md-8">
                    <boolean-field [(value)]="copyBlank" label=""></boolean-field>
                 </div>

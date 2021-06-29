@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
@@ -151,6 +152,11 @@ public class DHIS2OptionCache
       throw cgrlogin;
     }
     catch (HTTPException e)
+    {
+      HttpError cgrhttp = new HttpError(e);
+      throw cgrhttp;
+    }
+    catch (BadServerUriException e)
     {
       HttpError cgrhttp = new HttpError(e);
       throw cgrhttp;

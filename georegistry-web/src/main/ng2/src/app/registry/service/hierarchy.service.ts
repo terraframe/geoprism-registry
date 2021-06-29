@@ -22,7 +22,7 @@ import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/comm
 // import 'rxjs/add/operator/toPromise';
 import { finalize } from 'rxjs/operators';
 
-import { HierarchyType } from '@registry/model/hierarchy';
+import { HierarchyType, HierarchyGroupedTypeView } from '@registry/model/hierarchy';
 import { TreeEntity } from '@registry/model/registry';
 import { EventService } from '@shared/service';
 
@@ -40,6 +40,15 @@ export class HierarchyService {
 		return this.http
 			.get<HierarchyType[]>(acp + '/cgr/hierarchytype/get-all', { params: params })
 			.toPromise();
+	}
+	
+	getHierarchyGroupedTypes(): Promise<HierarchyGroupedTypeView[]> 
+	{
+	  let params: HttpParams = new HttpParams();
+
+    return this.http
+      .get<HierarchyGroupedTypeView[]>(acp + '/hierarchy/groupedTypes', { params: params })
+      .toPromise();
 	}
 
 	addChildToHierarchy(hierarchyCode: string, parentGeoObjectTypeCode: string, childGeoObjectTypeCode: string): Promise<HierarchyType> {

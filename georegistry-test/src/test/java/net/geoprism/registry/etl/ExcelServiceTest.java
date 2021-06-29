@@ -20,6 +20,7 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -176,30 +177,6 @@ public class ExcelServiceTest
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
     Assert.assertNotNull(result.getJSONObject(GeoObjectImportConfiguration.TYPE));
-
-    JSONArray hierarchies = result.getJSONArray(GeoObjectImportConfiguration.HIERARCHIES);
-
-    Set<String> hierarchyCodes = new HashSet<String>();
-    Set<String> hierarchyLabels = new HashSet<String>();
-    
-    for (int i = 0; i < hierarchies.length(); ++i)
-    {
-      JSONObject hierarchy = hierarchies.getJSONObject(i);
-      
-      String code = hierarchy.getString("code");
-      String label = hierarchy.getString("label");
-      
-      Assert.assertNotNull(code);
-      Assert.assertNotNull(label);
-      
-      hierarchyCodes.add(code);
-      hierarchyLabels.add(label);
-    }
-    
-    Assert.assertTrue(hierarchyCodes.contains(USATestData.HIER_ADMIN.getCode()));
-    Assert.assertTrue(hierarchyCodes.contains(USATestData.HIER_SCHOOL.getCode()));
-    Assert.assertTrue(hierarchyLabels.contains(USATestData.HIER_ADMIN.getDisplayLabel()));
-    Assert.assertTrue(hierarchyLabels.contains(USATestData.HIER_SCHOOL.getDisplayLabel()));
 
     JSONObject sheet = result.getJSONObject(GeoObjectImportConfiguration.SHEET);
 

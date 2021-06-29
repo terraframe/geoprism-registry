@@ -18,14 +18,18 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.Set;
+
 public interface HierarchyTypePermissionServiceIF
 {
 
+  public Set<CGRPermissionActionIF> getPermissions(String orgCode);
+  
   public boolean canDelete(String orgCode);
 
   public void enforceCanDelete(String orgCode);
 
-  public boolean canRead(String orgCode, PermissionContext context);
+  public boolean canRead(String orgCode);
 
   public void enforceCanRead(String orgCode);
 

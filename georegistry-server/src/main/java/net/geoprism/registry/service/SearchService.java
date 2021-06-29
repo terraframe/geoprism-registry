@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
@@ -54,8 +55,8 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.localization.LocalizationService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -268,7 +269,7 @@ public class SearchService
     {
       VertexObjectDAOIF value = (VertexObjectDAOIF) vot.getValue();
 
-      List<String> attributeNames = SupportedLocaleCache.getLocaleNames();
+      Set<String> attributeNames = LocalizationService.getLocaleNames();
 
       for (String attributeName : attributeNames)
       {

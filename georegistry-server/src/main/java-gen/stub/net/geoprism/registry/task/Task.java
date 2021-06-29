@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
-import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.OIterator;
@@ -102,7 +102,7 @@ public class Task extends TaskBase
     
     processLocale(lvsTemplate, values, task, MdAttributeLocalInfo.DEFAULT_LOCALE);
     
-    List<Locale> locales = LocalizationFacade.getInstalledLocales();
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
     for (Locale locale : locales)
     {
       processLocale(lvsTemplate, values, task, locale.toString());

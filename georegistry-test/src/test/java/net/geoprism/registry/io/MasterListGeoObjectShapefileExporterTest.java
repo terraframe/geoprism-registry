@@ -49,12 +49,12 @@ import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.MasterListTest;
@@ -89,7 +89,7 @@ public class MasterListGeoObjectShapefileExporterTest
   {
     JsonObject json = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
 
-    TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
+    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
       masterlist = MasterList.create(json);
       version = masterlist.createVersion(FastTestDataset.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
@@ -131,7 +131,7 @@ public class MasterListGeoObjectShapefileExporterTest
     {
       testData.setUpInstanceData();
 
-      TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
+      TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
         version.publish();
       });
     }
@@ -204,7 +204,7 @@ public class MasterListGeoObjectShapefileExporterTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, SupportedLocaleCache.getLocales());
+    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, LocalizationFacade.getInstalledLocales());
     Collection<AttributeType> attributes = serializer.attributes(type.getType());
 
     for (AttributeType attribute : attributes)

@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
@@ -56,12 +57,13 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
 import com.runwaysdk.json.RunwayJsonAdapters;
+import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -90,11 +92,12 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
 import net.geoprism.registry.hierarchy.HierarchyService;
+import net.geoprism.registry.localization.DefaultLocaleView;
+import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
@@ -104,6 +107,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.ServerSynonymRestriction;
@@ -846,7 +850,7 @@ public class RegistryService
 
     Classifier parent = Classifier.getByKey(parentClassifierKey);
 
-    TermConverter.enforceTermPermissions(parent, Operation.DELETE);
+    TermConverter.enforceTermPermissions(parent, CGRPermissionAction.DELETE);
 
     String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 
@@ -1035,7 +1039,7 @@ public class RegistryService
     LocalizedValue label = new LocalizedValue("");
     label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "");
 
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     for (Locale locale : locales)
     {
@@ -1105,16 +1109,17 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getLocales(String sessionId)
   {
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Set<SupportedLocaleIF> locales = LocalizationFacade.getSupportedLocales();
 
     JsonArray array = new JsonArray();
-    array.add(MdAttributeLocalInfo.DEFAULT_LOCALE);
 
-    for (Locale locale : locales)
+    array.add(new DefaultLocaleView().toJson());
+    
+    for (SupportedLocaleIF locale : locales)
     {
-      array.add(locale.toString());
+      array.add(LocaleView.fromSupportedLocale(locale).toJson());
     }
-
+    
     return array;
   }
 

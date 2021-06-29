@@ -1,3 +1,6 @@
+
+import { LocalizationService } from '@shared/service/localization.service';
+
 export interface MessageContainer {
 	setMessage(message: string);
 }
@@ -10,6 +13,26 @@ export class LocaleValue {
 		this.locale = locale;
 		this.value = value;
 	}
+}
+
+export class LocaleView {
+  constructor(lService: LocalizationService) {
+    this.label = lService.create();
+    this.toString = "";
+    this.tag = "";
+    this.isDefaultLocale = false;
+    this.language = {label:"", code:""};
+    this.country = {label:"", code:""};
+    this.variant = {label:"", code:""};
+  }
+  
+  label: LocalizedValue;
+  toString: string;
+  tag: string;
+  isDefaultLocale: boolean;
+  language: {label: string, code: string};
+  country: {label: string, code: string};
+  variant: {label: string, code: string};
 }
 
 export class Organization {
@@ -60,6 +83,23 @@ export class LocalizedValue {
 		this.localizedValue = localizedValue;
 		this.localeValues = localeValues;
 	}
+	
+	public getValue(localeToString: string): string
+  {
+    let len = this.localeValues.length;
+    
+    for (let i = 0; i < len; ++i)
+    {
+      let lv = this.localeValues[i];
+      
+      if (lv.locale === localeToString)
+      {
+        return lv.value;
+      }
+    }
+    
+    return this.localizedValue;
+  }
 }
 
 export class RoleBuilder {

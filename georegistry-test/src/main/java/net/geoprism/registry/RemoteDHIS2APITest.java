@@ -429,7 +429,7 @@ public class RemoteDHIS2APITest
   @Test
   public void testGetConfigForExternalSystem()
   {
-    TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.ADMIN_USER, AllAttributesDataset.USER_ORG_RA };
+    TestUserInfo[] users = new TestUserInfo[] { AllAttributesDataset.USER_ADMIN, AllAttributesDataset.USER_ORG_RA };
     
     for (TestUserInfo user : users)
     {
@@ -476,7 +476,7 @@ public class RemoteDHIS2APITest
   
   @Request
   @Test
-  public void testGetDHIS2Attributes() throws InterruptedException, UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void testGetDHIS2Attributes() throws Exception
   {
     MetadataGetResponse<Attribute> resp = dhis2.<Attribute> metadataGet(Attribute.class);
 
@@ -487,7 +487,7 @@ public class RemoteDHIS2APITest
   
   @Request
   @Test
-  public void testOptionCache() throws InterruptedException, UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void testOptionCache() throws Exception
   {
     DHIS2OptionCache cache = new DHIS2OptionCache(this.dhis2);
     
@@ -496,7 +496,7 @@ public class RemoteDHIS2APITest
 
   @Request
   @Test
-  public void testVersion() throws InterruptedException, UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void testVersion() throws Exception
   {
     Assert.assertEquals(API_VERSION, this.dhis2.getVersionRemoteServerApi());
     Assert.assertEquals(VERSION, this.dhis2.getVersionRemoteServer());
@@ -505,7 +505,7 @@ public class RemoteDHIS2APITest
   
   @Request
   @Test
-  public void testFetchIds() throws InterruptedException, HTTPException, InvalidLoginException, UnexpectedResponseException, IncompatibleServerVersionException
+  public void testFetchIds() throws Exception
   {
     Map<String, String> map = new HashMap<String, String>();
     
