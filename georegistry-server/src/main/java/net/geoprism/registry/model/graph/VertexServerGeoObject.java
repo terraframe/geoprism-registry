@@ -1096,7 +1096,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       throw goex;
     }
 
-    new SearchService().insert(this);
+    if (!this.getInvalid())
+    {
+      new SearchService().insert(this);
+    }
+    else
+    {
+      new SearchService().remove(this.getCode());
+    }
   }
 
   @Override
