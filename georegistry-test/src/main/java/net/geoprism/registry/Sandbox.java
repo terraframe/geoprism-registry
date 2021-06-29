@@ -3,6 +3,7 @@ package net.geoprism.registry;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.Calendar;
@@ -21,10 +22,13 @@ import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.DecimalType;
 import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.HealthcareService;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Location.LocationMode;
 import org.hl7.fhir.r4.model.Location.LocationPositionComponent;
 import org.hl7.fhir.r4.model.Location.LocationStatus;
+import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.Reference;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
@@ -45,6 +49,63 @@ import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 
 public class Sandbox
 {
+  private static class Context
+  {
+    private Map<String, IIdType>          idMap;
+
+    private Map<String, List<JsonObject>> partOfQueue;
+
+    private Set<String>                   processed;
+
+    public Context()
+    {
+      this.idMap = new HashMap<String, IIdType>();
+      this.partOfQueue = new HashMap<String, List<JsonObject>>();
+      this.processed = new TreeSet<String>();
+    }
+
+    public void putId(String key, IIdType idType)
+    {
+      this.idMap.put(key, idType);
+    }
+
+    public IIdType getId(String reference)
+    {
+      return this.idMap.get(reference);
+    }
+
+    public boolean hasProcessed(String reference)
+    {
+      return this.processed.contains(reference);
+    }
+
+    public void addToQueue(String reference, JsonObject resource)
+    {
+      this.partOfQueue.putIfAbsent(reference, new LinkedList<>());
+      this.partOfQueue.get(reference).add(resource);
+    }
+
+    public void processed(String reference)
+    {
+      this.processed.add(reference);
+    }
+
+    public boolean hasQueue(String key)
+    {
+      return this.partOfQueue.containsKey(key);
+    }
+
+    public List<JsonObject> getQueue(String key)
+    {
+      return this.partOfQueue.get(key);
+    }
+
+    public void removeQueue(String key)
+    {
+      this.partOfQueue.remove(key);
+    }
+
+  }
 
   public static void main(String[] args) throws Exception
   {
@@ -132,11 +193,46 @@ public class Sandbox
     JsonObject jobj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
     JsonArray results = jobj.get("entry").getAsJsonArray();
 
-    Map<String, IIdType> idMap = new HashMap<String, IIdType>();
-    Map<String, List<JsonObject>> partOfQueue = new HashMap<String, List<JsonObject>>();
-    Set<String> processed = new TreeSet<String>();
+    Context context = new Context();
+
+    // Create the root org
+    Organization rootOrganization = new Organization();
+    rootOrganization.addIdentifier().setSystem("http://terraframe.com/code").setValue("MOH");
+    rootOrganization.setName("MOH");
+
+    // Create the resource on the server
+    IIdType rootId = client.create().resource(rootOrganization).execute().getId();
+
+    System.out.println("Root org: " + rootId);
+
+    ArrayList<IIdType> orgs = new ArrayList<IIdType>();
+
+    for (int i = 0; i < 6; i++)
+    {
+      Organization organization = new Organization();
+      organization.addIdentifier().setSystem("http://terraframe.com/code").setValue("MOH SUB ORG " + i);
+      organization.setName("MOH SUB ORG " + i);
+      organization.setPartOf(new Reference(rootId.getResourceType() + "/" + rootId.getIdPart()));
+
+      if (i % 2 == 0 || i % 3 == 0)
+      {
+        organization.addExtension(createExtension(rootId, "Funder"));
+      }
+
+      if (i % 2 == 1 || i % 3 == 0)
+      {
+        organization.addExtension(createExtension(rootId, "Operational"));
+      }
+
+      // Create the resource on the server
+      IIdType id = client.create().resource(organization).execute().getId();
+
+      orgs.add(id);
+    }
 
     // Process all organizations
+    int index = 0;
+
     for (int i = 0; i < results.size(); i++)
     {
       JsonObject result = results.get(i).getAsJsonObject();
@@ -147,15 +243,39 @@ public class Sandbox
 
       if (resourceType.equals("Organization"))
       {
+        index = index % 6;
+        IIdType partOfIdType = orgs.get(index);
+
+        JsonObject partOf = new JsonObject();
+        partOf.addProperty("reference", partOfIdType.getResourceType() + "/" + partOfIdType.getIdPart());
+
+        resource.add("partOf", partOf);
+
+        JsonArray extensions = new JsonArray();
+
+        if (i % 2 == 0 || i % 3 == 0)
+        {
+          extensions.add(createFunderExtension(partOfIdType, "Funder"));
+        }
+
+        if (i % 2 == 1 || i % 3 == 0)
+        {
+          extensions.add(createFunderExtension(partOfIdType, "Operational"));
+        }
+
+        resource.add("extension", extensions);
+
         // Create the resource on the server
         MethodOutcome outcome = client.create().resource(resource.toString()).execute();
 
         // Log the ID that the server assigned
         IIdType idType = outcome.getId();
 
-        idMap.put("Organization/" + id, idType);
+        context.putId("Organization/" + id, idType);
 
         System.out.println(id + " - " + idType.getResourceType() + "/" + idType.getIdPart());
+
+        index++;
       }
     }
 
@@ -179,11 +299,80 @@ public class Sandbox
 
       JsonObject resource = result.get("resource").getAsJsonObject();
 
-      processLocation(client, idMap, partOfQueue, processed, resource, id);
+      processLocation(client, context, resource, id);
     }
+
+    createService(client, context, "GEN", "General Practice", "17", 2);
+    createService(client, context, "ED", "Emergency Department", "14", 5);
+    createService(client, context, "DEN", "Dental", "10", 6);
+    createService(client, context, "MEN", "Mental Health", "22", 3);
   }
 
-  private static void processLocation(IGenericClient client, Map<String, IIdType> idMap, Map<String, List<JsonObject>> partOfQueue, Set<String> processed, JsonObject resource, IIdType rootId)
+  private static void createService(IGenericClient client, Context context, String code, String name, String category, int filter)
+  {
+    HealthcareService service = new HealthcareService();
+    service.addIdentifier().setSystem("http://terraframe.com/code").setValue(code);
+    service.setName(name);
+    service.addCategory(new CodeableConcept().setText(name).addCoding(new Coding("http://terminology.hl7.org/CodeSystem/service-category", category, name)));
+
+    int i = 0;
+
+    for (IIdType idType : context.idMap.values())
+    {
+      if (idType.getResourceType().equals("Location"))
+      {
+
+        if (i % filter == 0)
+        {
+          service.addLocation(new Reference(idType.getResourceType() + "/" + idType.getIdPart()));
+        }
+
+        i++;
+      }
+    }
+
+    // Create the resource on the server
+    client.create().resource(service).execute().getId();
+  }
+
+  private static Extension createExtension(IIdType rootId, String type)
+  {
+    CodeableConcept concept = new CodeableConcept();
+    concept.setText(type);
+
+    Extension rootExt = new Extension("http://ihe.net/fhir/StructureDefinition/IHE_mCSD_hierarchy_extension");
+    rootExt.addExtension(new Extension("part-of", new Reference(rootId.getResourceType() + "/" + rootId.getIdPart())));
+    rootExt.addExtension(new Extension("hierarchy-type", concept));
+    return rootExt;
+  }
+
+  private static JsonObject createFunderExtension(IIdType referenceId, String type)
+  {
+    JsonObject funder = new JsonObject();
+    funder.addProperty("reference", referenceId.getResourceType() + "/" + referenceId.getIdPart());
+
+    JsonObject concept = new JsonObject();
+    concept.addProperty("text", type);
+
+    JsonObject typeExtension = new JsonObject();
+    typeExtension.addProperty("url", "hierarchy-type");
+    typeExtension.add("valueCodeableConcept", concept);
+
+    JsonObject partOfExtension = new JsonObject();
+    partOfExtension.addProperty("url", "part-of");
+    partOfExtension.add("valueReference", funder);
+
+    JsonArray extensions = new JsonArray();
+    extensions.add(typeExtension);
+    extensions.add(partOfExtension);
+
+    JsonObject extension = new JsonObject();
+    extension.addProperty("url", "http://ihe.net/fhir/StructureDefinition/IHE_mCSD_hierarchy_extension");
+    extension.add("extension", extensions);
+    return extension;
+  }
+
+  private static void processLocation(IGenericClient client, Context context, JsonObject resource, IIdType rootId)
   {
     String resourceType = resource.get("resourceType").getAsString();
 
@@ -197,19 +386,18 @@ public class Sandbox
         JsonObject partOf = resource.get("partOf").getAsJsonObject();
         String partOfReference = partOf.get("reference").getAsString();
 
-        if (processed.contains(partOfReference))
+        if (context.hasProcessed(partOfReference))
         {
-          IIdType partOfIdType = idMap.get(partOfReference);
+          IIdType partOfIdType = context.getId(partOfReference);
 
           // Update the partOf value
           partOf.addProperty("reference", partOfIdType.getResourceType() + "/" + partOfIdType.getIdPart());
 
-          process(client, idMap, partOfQueue, processed, resource, key, rootId);
+          process(client, context, resource, key, rootId);
         }
         else
         {
-          partOfQueue.putIfAbsent(partOfReference, new LinkedList<>());
-          partOfQueue.get(partOfReference).add(resource);
+          context.addToQueue(partOfReference, resource);
         }
       }
       else
@@ -220,19 +408,19 @@ public class Sandbox
         // Update the partOf value
         resource.add("partOf", partOf);
 
-        process(client, idMap, partOfQueue, processed, resource, key, rootId);
+        process(client, context, resource, key, rootId);
       }
     }
   }
 
-  private static void process(IGenericClient client, Map<String, IIdType> idMap, Map<String, List<JsonObject>> partOfQueue, Set<String> processed, JsonObject resource, String key, IIdType rootId)
+  private static IIdType process(IGenericClient client, Context context, JsonObject resource, String key, IIdType rootId)
   {
     if (resource.has("managingOrganization"))
     {
       JsonObject managingOrganization = resource.get("managingOrganization").getAsJsonObject();
       String reference = managingOrganization.get("reference").getAsString();
 
-      IIdType organizationIdType = idMap.get(reference);
+      IIdType organizationIdType = context.getId(reference);
 
       managingOrganization.addProperty("reference", organizationIdType.getResourceType() + "/" + organizationIdType.getIdPart());
     }
@@ -243,22 +431,24 @@ public class Sandbox
     // Log the ID that the server assigned
     IIdType response = outcome.getId();
 
-    processed.add(key);
+    context.processed(key);
 
     System.out.println("Location: " + response);
 
-    idMap.put(key, response);
+    context.putId(key, response);
 
-    if (partOfQueue.containsKey(key))
+    if (context.hasQueue(key))
     {
-      List<JsonObject> children = partOfQueue.get(key);
+      List<JsonObject> children = context.getQueue(key);
 
       for (JsonObject child : children)
       {
-        processLocation(client, idMap, partOfQueue, processed, child, rootId);
+        processLocation(client, context, child, rootId);
       }
 
-      partOfQueue.remove(key);
+      context.removeQueue(key);
     }
+
+    return response;
   }
 }
