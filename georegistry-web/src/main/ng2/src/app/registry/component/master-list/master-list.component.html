@@ -48,7 +48,7 @@
 <!--             </div> -->
 <!--         </div> -->
 
-        <div class="row form-group">
+        <div *ngIf="isWritable" class="row form-group">
           <div class="col-md-12 table-responsive" style="">
 	          <boolean-field [(value)]="filterInvalid" (change)="onFilterInvalidChange()" [localizeLabelKey]="'masterlist.filterInvalid'" ></boolean-field>
           </div>
