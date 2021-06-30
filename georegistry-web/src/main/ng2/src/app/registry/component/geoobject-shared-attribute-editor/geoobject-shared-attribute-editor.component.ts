@@ -106,7 +106,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
     /*
      * Observable subject for MasterList changes.  Called when an update is successful 
      */
-	@Output() onChange = new EventEmitter<GeoObjectOverTime>()
+	@Output() onChange = new EventEmitter<GeoObjectOverTime>();
 
 	@Input() customEvent: boolean = false;
 

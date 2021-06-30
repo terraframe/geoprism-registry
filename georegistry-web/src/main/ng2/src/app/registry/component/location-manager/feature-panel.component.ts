@@ -37,7 +37,7 @@ export class FeaturePanelComponent implements OnInit {
 
 	@Input() geometryChange: Subject<any>;
 
-	@Output() geometryEdit = new EventEmitter<ValueOverTime>();
+	@Output() geometryEdit = new EventEmitter<{vot:ValueOverTime, allVOT:ValueOverTime[]}>();
 	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
 	@Output() modeChange = new EventEmitter<boolean>();
 	@Output() panelCancel = new EventEmitter<void>();
@@ -128,12 +128,12 @@ export class FeaturePanelComponent implements OnInit {
 	
 
 	onEditGeometryVersion(vot: ValueOverTime): void {
-		this.geometryEdit.emit(vot);
+		this.geometryEdit.emit({vot:vot, allVOT: this.preGeoObject.attributes.geometry ? this.preGeoObject.attributes.geometry.values : [] });
 	}
 
-	updateGeometry(geometry: any): void {
+	updateGeometry(updatedVot: any): void {
 		// Check if the geometry has been updated
-		if (geometry != null && this.postGeoObject != null) {
+		if(updatedVot.value != null && this.postGeoObject != null) {
 
 			let values = this.postGeoObject.attributes['geometry'].values;
 			const time = this.forDate.getTime();
@@ -143,8 +143,12 @@ export class FeaturePanelComponent implements OnInit {
 				const startDate = Date.parse(vot.startDate);
 				const endDate = Date.parse(vot.endDate);
 
-				if (time >= startDate && time <= endDate) {
-					vot.value = geometry;
+//				if (time >= startDate && time <= endDate) {
+//					vot.value = geometry;
+//				}
+
+				if (new Date(updatedVot.startDate).getTime() ===  startDate && new Date(updatedVot.endDate).getTime() === endDate) {
+					vot.value = updatedVot.value;
 				}
 			});
 		}
@@ -172,7 +176,7 @@ export class FeaturePanelComponent implements OnInit {
 
 	onCancelInternal(): void {
 
-    this.panelCancel.emit();
+    	this.panelCancel.emit();
 
 
 		//if (this._code === '__NEW__') {
@@ -182,7 +186,7 @@ export class FeaturePanelComponent implements OnInit {
 		//	this.updateCode(this._code);
 		//}
 	}
-
+	
 	onSubmit(): void {
 		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
 		  if (!applyInfo.isChangeRequest)
@@ -222,6 +226,10 @@ export class FeaturePanelComponent implements OnInit {
 		}
 
 		this.mode = this.MODE.ATTRIBUTES;
+	}
+	
+	onCloneGeometry(any): void {
+		console.log("emitted")
 	}
 
 	onEditAttributes(): void {

@@ -82,7 +82,8 @@
       [geoObjectOverTimeInput]="postGeoObject"
       [isNewGeoObject]="false"
       (onChange)="onAttributeChange($event)"
-      (onEdit)="onEditGeometryVersion($event)">
+      (onEdit)="onEditGeometryVersion($event)"
+      (onCloneGeometry)="onCloneGeometry($event)">
     </geometry-panel>
   </div>
 </div>
