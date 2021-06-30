@@ -102,7 +102,6 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	}
 	
 	ngAfterViewInit() {
-
 	}
 
   onFilterInvalidChange()
@@ -189,7 +188,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 		this.filter = this.filter.filter(f => f.attribute !== attribute.base);
 		this.selected = this.selected.filter(s => s !== attribute.base);
 
-		if (attribute.value != null && (attribute.value.start !== '' || attribute.value.end !== '')) {
+		if (attribute.value != null && ( (attribute.value.start !== '' && attribute.value.start !== null) || (attribute.value.end !== '' && attribute.value.end !== null))) {
 
 			let label = '[' + attribute.label + '] : [';
 
