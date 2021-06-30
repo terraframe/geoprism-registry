@@ -22,7 +22,7 @@ import { LocalizationService } from '@shared/service';
 
 declare var acp: string;
 
-const DEFAULT_COLOR = "#80cdc1";
+const DEFAULT_COLOR = "#979797";
 const SELECTED_COLOR = "#800000";
 
 @Component({
