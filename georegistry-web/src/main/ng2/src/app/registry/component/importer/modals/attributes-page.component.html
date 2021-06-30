@@ -23,7 +23,7 @@
           </div>
           <div class="holder">
             <select [name]="attribute.code + (attribute.locale != null ? attribute.locale : '')" class="select-area"
-              [(ngModel)]="attribute.target" [required]="attribute.required">
+              [(ngModel)]="attribute.target" [required]="attribute.code === 'invalid' ? false : attribute.required">
               <option></option>
               <option *ngFor="let attr of configuration.sheet.attributes[attribute.baseType]" value={{attr}}>{{attr}}</option>
             </select>

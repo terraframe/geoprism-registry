@@ -1076,6 +1076,8 @@ public class RegistryService
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
     ServerGeoObjectIF go = service.newInstance(type);
+    
+    go.setInvalid(false);
 
     final GeoObjectOverTime goot = go.toGeoObjectOverTime();
     ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true);

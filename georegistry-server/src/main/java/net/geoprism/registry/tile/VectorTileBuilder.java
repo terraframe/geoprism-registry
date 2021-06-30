@@ -102,9 +102,10 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
       }
     }
 
-    sql.append(", ST_Transform(ge." + column + ", 3857) AS " + GeoserverFacade.GEOM_COLUMN + "\n");
-    sql.append("FROM " + mdBusiness.getTableName() + " AS ge\n");
-    sql.append("WHERE ge." + column + " IS NOT NULL\n");
+    sql.append(", ST_Transform(ge." + column + ", 3857) AS " + GeoserverFacade.GEOM_COLUMN + "\n ");
+    sql.append("FROM " + mdBusiness.getTableName() + " AS ge\n ");
+    sql.append("WHERE ge." + column + " IS NOT NULL\n ");
+    sql.append("AND ge.invalid=0");
 
     return Database.query(sql.toString());
   }

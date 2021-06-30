@@ -301,6 +301,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         entity = service.newInstance(this.configuration.getType());
         entity.setCode(geoId);
+        entity.setInvalid(false);
 
         try
         {
@@ -526,6 +527,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         serverGo = service.newInstance(this.configuration.getType());
         serverGo.setCode(geoId);
+        serverGo.setInvalid(false);
       }
       else
       {
