@@ -33,7 +33,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -85,11 +84,7 @@ public class RevealGeoObjectJsonAdapters
 
         JsonObject props = new JsonObject();
         {
-          GeoObjectStatus status = serverGo.getStatus();
-          if (status != null)
-          {
-            props.addProperty("status", serverGo.getStatus().getDisplayLabel());
-          }
+          props.addProperty("exists", serverGo.getExists());
 
           LocalizedValue dl = serverGo.getDisplayLabel();
           if (dl != null)

@@ -61,7 +61,6 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.StatusValueException;
 import net.geoprism.registry.etl.InvalidExternalIdException;
@@ -305,8 +304,6 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         try
         {
-          entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
-
           LocalizedValue entityName = this.getName(row);
           if (entityName != null && this.hasValue(entityName))
           {
@@ -537,11 +534,6 @@ public class GeoObjectImporter implements ObjectImporterIF
       try
       {
         parentBuilder.setServerGO(serverGo);
-
-        if (isNew && this.configuration.getFunction(DefaultAttribute.STATUS.getName()) == null)
-        {
-          serverGo.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
 
         LocalizedValue entityName = this.getName(row);
         if (entityName != null && this.hasValue(entityName))
@@ -1049,26 +1041,6 @@ public class GeoObjectImporter implements ObjectImporterIF
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       entity.setDisplayLabel((LocalizedValue) value, this.configuration.getStartDate(), this.configuration.getEndDate());
-    }
-    else if (attributeName.equals(DefaultAttribute.STATUS.getName()))
-    {
-      if (value != null)
-      {
-        try
-        {
-          GeoObjectStatus status = GeoObjectStatus.valueOf((String) value);
-
-          entity.setStatus(status, this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
-        catch (IllegalArgumentException e)
-        {
-          throw new StatusValueException(e);
-        }
-      }
-      else
-      {
-        entity.setStatus(null, this.configuration.getStartDate(), this.configuration.getEndDate());
-      }
     }
     else if (attributeType instanceof AttributeTermType)
     {

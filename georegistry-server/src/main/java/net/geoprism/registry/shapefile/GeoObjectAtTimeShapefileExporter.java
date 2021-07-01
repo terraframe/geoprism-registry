@@ -80,7 +80,6 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -265,7 +264,7 @@ public class GeoObjectAtTimeShapefileExporter
 
       for (VertexServerGeoObject object : objects)
       {
-        if (object.getStatus(this.date).equals(GeoObjectStatus.ACTIVE))
+        if (!object.getInvalid())
         {
           builder.set(GEOM, object.getGeometry());
 

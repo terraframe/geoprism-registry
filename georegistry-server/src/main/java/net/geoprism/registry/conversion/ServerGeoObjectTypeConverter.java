@@ -37,7 +37,6 @@ import com.runwaysdk.constants.IndexTypes;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
-import com.runwaysdk.constants.MdAttributeEnumerationInfo;
 import com.runwaysdk.constants.MdAttributeLocalCharacterEmbeddedInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdAttributeReferenceInfo;
@@ -56,7 +55,6 @@ import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeBooleanDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
-import com.runwaysdk.dataaccess.metadata.MdAttributeEnumerationDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeLocalCharacterEmbeddedDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
@@ -70,16 +68,13 @@ import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
-import com.runwaysdk.system.metadata.MdAttributeEnumeration;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeUUID;
 import com.runwaysdk.system.metadata.MdBusiness;
-import com.runwaysdk.system.metadata.MdEnumeration;
 
 import net.geoprism.registry.ChainInheritanceException;
 import net.geoprism.registry.CodeLengthException;
 import net.geoprism.registry.DuplicateGeoObjectTypeException;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeoObjectTypeAssignmentException;
 import net.geoprism.registry.InvalidMasterListCodeException;
 import net.geoprism.registry.MasterList;
@@ -149,17 +144,15 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
     // DefaultAttribute.STATUS
 
-    MdEnumeration geoObjectStatusEnum = MdEnumeration.getMdEnumeration(GeoObjectStatus.CLASS);
-
-    MdAttributeEnumeration objStatusNdAttrEnum = new MdAttributeEnumeration();
-    objStatusNdAttrEnum.setAttributeName(DefaultAttribute.STATUS.getName());
-    objStatusNdAttrEnum.getDisplayLabel().setValue(DefaultAttribute.STATUS.getDefaultLocalizedName());
-    objStatusNdAttrEnum.getDescription().setValue(DefaultAttribute.STATUS.getDefaultDescription());
-    objStatusNdAttrEnum.setRequired(true);
-    objStatusNdAttrEnum.setMdEnumeration(geoObjectStatusEnum);
-    objStatusNdAttrEnum.setSelectMultiple(false);
-    objStatusNdAttrEnum.setDefiningMdClass(definingMdBusiness);
-    objStatusNdAttrEnum.apply();
+    MdAttributeBooleanDAO invalidMdAttr = MdAttributeBooleanDAO.newInstance();
+    invalidMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.INVALID.getName());
+    invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultLocalizedName());
+    invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultDescription());
+    invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, definingMdBusiness.getOid());
+    invalidMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+    invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
+    invalidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+    invalidMdAttr.apply();
   }
 
   @Transaction
@@ -185,6 +178,16 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     codeMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
     codeMdAttr.apply();
     
+    MdAttributeBooleanDAO existsMdAttr = MdAttributeBooleanDAO.newInstance();
+    existsMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.INVALID.getName());
+    existsMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultLocalizedName());
+    existsMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultDescription());
+    existsMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
+    existsMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+    existsMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
+    existsMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+    existsMdAttr.apply();
+    
     MdAttributeBooleanDAO invalidMdAttr = MdAttributeBooleanDAO.newInstance();
     invalidMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.INVALID.getName());
     invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultLocalizedName());
@@ -194,19 +197,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
     invalidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
     invalidMdAttr.apply();
-
-    MdEnumeration geoObjectStatusEnum = MdEnumeration.getMdEnumeration(GeoObjectStatus.CLASS);
-
-    MdAttributeEnumerationDAO objStatusNdAttrEnum = MdAttributeEnumerationDAO.newInstance();
-    objStatusNdAttrEnum.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.STATUS.getName());
-    objStatusNdAttrEnum.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.STATUS.getDefaultLocalizedName());
-    objStatusNdAttrEnum.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.STATUS.getDefaultDescription());
-    objStatusNdAttrEnum.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
-    objStatusNdAttrEnum.setValue(MdAttributeEnumerationInfo.MD_ENUMERATION, geoObjectStatusEnum.getOid());
-    objStatusNdAttrEnum.setValue(MdAttributeEnumerationInfo.SELECT_MULTIPLE, MdAttributeBooleanInfo.FALSE);
-    objStatusNdAttrEnum.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
-    objStatusNdAttrEnum.apply();
-
+    
     // DefaultAttribute.DISPLAY_LABEL
     MdAttributeLocalCharacterEmbeddedDAO labelMdAttr = MdAttributeLocalCharacterEmbeddedDAO.newInstance();
     labelMdAttr.setValue(MdAttributeLocalCharacterEmbeddedInfo.NAME, DefaultAttribute.DISPLAY_LABEL.getName());

@@ -29,7 +29,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -231,7 +230,7 @@ public class ShapefileServiceTest
     Assert.assertEquals(6, tAttributes.length());
 
     boolean hasCode = false;
-    boolean hasStatus = false;
+    boolean hasExists = false;
 
     for (int i = 0; i < tAttributes.length(); i++)
     {
@@ -244,16 +243,16 @@ public class ShapefileServiceTest
         Assert.assertTrue(tAttribute.has("required"));
         Assert.assertTrue(tAttribute.getBoolean("required"));
       }
-      else if (code.equals(DefaultAttribute.STATUS.getName()))
+      else if (code.equals(DefaultAttribute.EXISTS.getName()))
       {
-        hasStatus = true;
+        hasExists = true;
         Assert.assertTrue(tAttribute.has("required"));
         Assert.assertFalse(tAttribute.getBoolean("required"));
       }
     }
 
     Assert.assertTrue(hasCode);
-    Assert.assertTrue(hasStatus);
+    Assert.assertTrue(hasExists);
 
     JSONObject sheet = result.getJSONObject("sheet");
 
@@ -377,7 +376,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
-    Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
+    Assert.assertEquals(true, object.getExists());
   }
 
   @Test
@@ -902,7 +901,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
-    Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
+    Assert.assertEquals(true, object.getExists());
 
     SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.SUCCESS);
 

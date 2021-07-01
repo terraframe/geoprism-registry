@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -628,7 +627,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, DefaultTerms.GeoObjectStatusTerm.PENDING.code, true);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, true, true);
 
     info.delete();
 

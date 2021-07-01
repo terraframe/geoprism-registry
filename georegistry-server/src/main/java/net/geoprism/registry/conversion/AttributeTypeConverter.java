@@ -59,8 +59,8 @@ public class AttributeTypeConverter extends LocalizedValueConverter
     Locale locale = Session.getCurrentLocale();
 
     String attributeName = mdAttribute.definesAttribute();
-    LocalizedValue displayLabel = this.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
-    LocalizedValue description = this.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
+    LocalizedValue displayLabel = AttributeTypeConverter.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
+    LocalizedValue description = AttributeTypeConverter.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
     boolean required = mdAttribute.isRequired();
     boolean unique = mdAttribute.isUnique();
 
@@ -105,13 +105,7 @@ public class AttributeTypeConverter extends LocalizedValueConverter
     {
       AttributeTermType attributeType = (AttributeTermType) AttributeType.factory(attributeName, displayLabel, description, AttributeTermType.TYPE, required, unique, isChangeOverTime);
 
-      if (mdAttribute instanceof MdAttributeEnumerationDAOIF && mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
-      {
-        Term rootStatusTerm = ServiceFactory.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
-
-        attributeType.setRootTerm(rootStatusTerm);
-      }
-      else if (mdAttribute instanceof MdAttributeTermDAOIF)
+      if (mdAttribute instanceof MdAttributeTermDAOIF)
       {
         List<RelationshipDAOIF> rels = ( (MdAttributeTermDAOIF) mdAttribute ).getAllAttributeRoots();
 
