@@ -21,6 +21,7 @@ package net.geoprism.registry.tile;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +41,7 @@ import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.gis.dataaccess.AttributeGeometryIF;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.system.gis.geo.GeoEntity;
@@ -62,18 +64,17 @@ import net.geoprism.ontology.UserDataConverter;
 import net.geoprism.ontology.VectorLayerPublisherIF;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 
 public class VectorTileBuilder implements VectorLayerPublisherIF
 {
   private MasterListVersion version;
 
-  private List<Locale>      locales;
+  private Collection<Locale>      locales;
 
   public VectorTileBuilder(MasterListVersion version)
   {
     this.version = version;
-    this.locales = SupportedLocaleCache.getLocales();
+    this.locales = LocalizationFacade.getInstalledLocales();
   }
 
   private ResultSet getResultSet()

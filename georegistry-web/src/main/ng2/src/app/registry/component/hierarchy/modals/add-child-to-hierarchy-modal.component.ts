@@ -20,19 +20,12 @@ export class AddChildToHierarchyModalComponent implements OnInit {
      * parent id of the node being created
      */
     public parent: TreeNode;
-
     public hierarchyType: HierarchyType;
-
     public nodes: HierarchyNode[];
-
     public allGeoObjectTypes: GeoObjectType[];
-
     public selectedGeoObjectType: GeoObjectType;
-
-    private selectUndefinedOptionValue: any;
-
 	private toRoot: boolean = false;
-
+	selectUndefinedOptionValue: any;
     message: string = null;
 
     /*

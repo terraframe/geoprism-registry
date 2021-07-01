@@ -20,6 +20,7 @@ package net.geoprism.registry.etl;
 
 import java.util.SortedSet;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -64,7 +65,12 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
     JsonObject json = config.getConfigurationJson();
 
     JsonArray jaLevels = json.get(LEVELS).getAsJsonArray();
-    this.levels =  new GsonBuilder().create().fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
+//    this.levels =  new GsonBuilder().create().fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
+    
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingDeserializer());
+    Gson gson = builder.create();
+    this.levels = gson.fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
   }
 
 }

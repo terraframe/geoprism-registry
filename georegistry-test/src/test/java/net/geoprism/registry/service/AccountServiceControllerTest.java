@@ -206,7 +206,7 @@ public class AccountServiceControllerTest
       // orgCodeArray.put("TEST1");
       // orgCodeArray.put("TEST2");
 
-      RestBodyResponse response = (RestBodyResponse) controller.page(clientRequest, 1);
+      RestBodyResponse response = (RestBodyResponse) controller.page(clientRequest, 1, 10);
 //    }
 //    finally
 //    {

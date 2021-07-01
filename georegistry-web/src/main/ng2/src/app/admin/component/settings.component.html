@@ -1,5 +1,7 @@
 <div class="new-admin-design-main">
     <cgr-header></cgr-header>
+    
+    <div *ngIf="!view" class="standby-overlay" style="width:100%; height:100%; font-size:4em; color:black;"></div>
 
     <div id="app-container" class="container">
 
@@ -12,7 +14,7 @@
 
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-        <div style="padding-bottom: 30px;"> 
+        <div *ngIf="view" style="padding-bottom: 30px;"> 
             <div class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.information.heading"></localize></h3>
@@ -128,7 +130,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isSRA" class="row">
+            <div *ngIf="isSRA && installedLocales" class="row">
                 <div class="col-md-12">
                     <h3><localize key="settings.localization.heading"></localize></h3>
 
@@ -140,18 +142,25 @@
                                         <th>
                                         </th>
                                         <th>
-                                            <localize key="settings.manage.lang.table.country.header"></localize>
+                                          <localize key="settings.localization.locale.displayLabel"></localize>
                                         </th>
                                         <th>
-                                            <localize key="settings.manage.lang.table.variant.header"></localize>
+                                            <localize key="settings.manage.lang.table.language.header"></localize>
+                                        </th>
+                                        <th>
+                                            <localize key="settings.manage.lang.table.country.header"></localize>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let loc of installedLocales">
-                                        <td class="label-column">{{loc.language}}</td>
-                                        <td class="label-column">{{loc.country}}</td>
-                                        <td class="label-column">{{loc.variant}}</td>
+	                                    <td *ngIf="isSRA" class="button-column">
+	                                        <a class="fa fa-pencil ico-edit" (click)="onEditLocale(loc)" ></a> 
+	                                        <a *ngIf="!loc.isDefaultLocale" class="fa fa-trash-o ico-remove" (click)="onRemoveLocale(loc)" ></a>
+	                                    </td>
+	                                    <td class="label-column">{{loc.label.localizedValue}}</td>
+	                                    <td class="label-column">{{loc.language.label}}</td>
+	                                    <td class="label-column">{{loc.country.label}}</td>
                                     </tr>
                                     <tr>
                                         <td class="button-column"><a class="fa fa-plus" (click)="newLocalization()" [title]="'account.newTooltip' | localize"></a></td>

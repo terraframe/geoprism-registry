@@ -30,6 +30,9 @@
                                   <button class="btn btn-primary" (click)="edit(vAttribute, i)" role="button">
                                     <localize key="changeovertime.manageVersions.geometry.edit"></localize>
                                   </button>
+                                  <button type="submit" (click)="onCloneGeometryToNewVersion(vAttribute)" class="btn btn-default" role="button">
+                                      <localize key="changeovertime.manageVersions.copy.geometry.button"></localize>
+                                    </button>
                                 </td>
                               </tr>
                               <tr class="attribute-date-input-row">

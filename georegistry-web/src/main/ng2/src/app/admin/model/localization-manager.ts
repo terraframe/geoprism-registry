@@ -13,4 +13,5 @@ export class Locale {
   country: string
   name: string;
   variant: string;
+  displayLabel: string;
 }

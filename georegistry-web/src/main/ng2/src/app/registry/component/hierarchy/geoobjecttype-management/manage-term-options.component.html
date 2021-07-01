@@ -39,8 +39,8 @@
                                             <td>{{option.code}}</td>
                                             <td *ngFor="let localeValue of option.label.localeValues">{{localeValue.value}}</td>
                                             <td class="button-column">
-                                                <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editTermOption(option, $event)"></a>
-                                                <a class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeTermOption(option, $event)"></a>
+                                                <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editTermOption(option)"></a>
+                                                <a class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeTermOption(option)"></a>
                                             </td>
                                         </tr>
                                         <tr>

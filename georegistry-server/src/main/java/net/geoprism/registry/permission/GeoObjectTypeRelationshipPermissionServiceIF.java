@@ -22,7 +22,6 @@ import java.util.Collection;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
-import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 
 public interface GeoObjectTypeRelationshipPermissionServiceIF
 {

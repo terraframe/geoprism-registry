@@ -30,12 +30,11 @@
 # Additionally, your envcfg.properties must be created first before running this.
 
 # Required environment variables must be set before running:
-# (NONE)
+# CGR = /path/to/georegistry-git-checkout/../
 
 ######
 
-BASEDIR=$(dirname "$0")
-CGR_PROJECT=$BASEDIR/../../../
+CGR_PROJECT=$CGR/georegistry
 
 # Exit on error
 set -ex

@@ -116,7 +116,7 @@ public class ChangeRequestDocumentActionServiceTest
   @Test
   public void testDeleteDocument()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -189,7 +189,7 @@ public class ChangeRequestDocumentActionServiceTest
   {
     uploadDocumentsAsAdmin();
     
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -266,7 +266,7 @@ public class ChangeRequestDocumentActionServiceTest
   @Test
   public void testUploadDocument()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -312,7 +312,7 @@ public class ChangeRequestDocumentActionServiceTest
   {
     String vfOid = uploadDocumentsAsAdmin();
     
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {

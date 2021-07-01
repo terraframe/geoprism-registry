@@ -8,6 +8,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
 import { GeoObjectType, MasterList, ScheduledJob } from '@registry/model/registry';
 import { RegistryService, IOService } from '@registry/service';
+import { DateService } from '@shared/service/date.service';
 import { GeoObjectEditorComponent } from '../../geoobject-editor/geoobject-editor.component';
 import Utils from '../../../utility/Utils'
 
@@ -36,7 +37,7 @@ export class RowValidationProblemWidgetComponent implements OnInit {
     edit: boolean = false;
 
 
-    constructor( private service: RegistryService, private iService: IOService, 
+    constructor( private service: RegistryService, private iService: IOService, private dateService: DateService,
         private lService: LocalizationService, public bsModalRef: BsModalRef, private modalService: BsModalService
         ) { }
 
@@ -124,6 +125,10 @@ export class RowValidationProblemWidgetComponent implements OnInit {
         this.error(err);
       } );
     }
+
+	formatDate(date: string): string {
+		return this.dateService.formatDateForDisplay(date);
+	}
 
     onCancel(): void {
       this.bsModalRef.hide()

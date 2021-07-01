@@ -168,20 +168,20 @@ public class PublishMasterListJobTest
 
           SchedulerTestUtils.waitUntilStatus(historyId, AllJobStatus.SUCCESS);
 
-          final JSONObject response = service.getPublishJobs(request.getSessionId(), oid, 10, 1, null, true);
-          Assert.assertEquals(1, response.getInt("count"));
-          Assert.assertEquals(1, response.getInt("pageNumber"));
-          Assert.assertEquals(10, response.getInt("pageSize"));
+          final JsonObject response = service.getPublishJobs(request.getSessionId(), oid, 10, 1, null, true);
+          Assert.assertEquals(1, response.get("count").getAsInt());
+          Assert.assertEquals(1, response.get("pageNumber").getAsInt());
+          Assert.assertEquals(10, response.get("pageSize").getAsInt());
 
-          final JSONArray json = response.getJSONArray("results");
-          Assert.assertEquals(1, json.length());
+          final JsonArray json = response.get("results").getAsJsonArray();
+          Assert.assertEquals(1, json.size());
 
-          final JSONObject object = json.getJSONObject(0);
+          final JsonObject object = json.get(0).getAsJsonObject();
 
-          Assert.assertEquals(oid, object.getString(PublishMasterListJob.MASTERLIST));
-          Assert.assertEquals(FastTestDataset.PROVINCE.getDisplayLabel().getValue(), object.getString(PublishMasterListJob.TYPE));
-          Assert.assertEquals(AllJobStatus.SUCCESS.getDisplayLabel(), object.getString(JobHistory.STATUS));
-          Assert.assertEquals(user.getUsername(), object.getString("author"));
+          Assert.assertEquals(oid, object.get(PublishMasterListJob.MASTERLIST).getAsString());
+          Assert.assertEquals(FastTestDataset.PROVINCE.getDisplayLabel().getValue(), object.get(PublishMasterListJob.TYPE).getAsString());
+          Assert.assertEquals(AllJobStatus.SUCCESS.getDisplayLabel(), object.get(JobHistory.STATUS).getAsString());
+          Assert.assertEquals(user.getUsername(), object.get("author").getAsString());
           Assert.assertTrue(object.has("createDate"));
           Assert.assertTrue(object.has("lastUpdateDate"));
         });

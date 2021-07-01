@@ -97,7 +97,7 @@ public class ChangeRequestPermissionService
     {
       actions.addAll(Arrays.asList(ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.READ_APPROVAL_STATUS, ChangeRequestPermissionAction.READ_DETAILS, ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.READ_DOCUMENTS, ChangeRequestPermissionAction.WRITE_DOCUMENTS, ChangeRequestPermissionAction.READ_MAINTAINER_NOTES, ChangeRequestPermissionAction.READ_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.SUBMIT, ChangeRequestPermissionAction.DELETE));
 
-      if (status.equals(AllGovernanceStatus.ACCEPTED))
+      if (status.equals(AllGovernanceStatus.ACCEPTED) || status.equals(AllGovernanceStatus.REJECTED))
       {
         actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
         actions.remove(ChangeRequestPermissionAction.WRITE_DETAILS);

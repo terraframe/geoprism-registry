@@ -302,9 +302,9 @@ public class Sandbox
       processLocation(client, context, resource, id);
     }
 
-    createService(client, context, "GEN", "General Practice", "17", 2);
-    createService(client, context, "ED", "Emergency Department", "14", 5);
-    createService(client, context, "DEN", "Dental", "10", 6);
+    createService(client, context, "GEN", "General Practice", "17", 1);
+    createService(client, context, "ED", "Emergency Department", "14", 2);
+    createService(client, context, "DEN", "Dental", "10", 4);
     createService(client, context, "MEN", "Mental Health", "22", 3);
   }
 

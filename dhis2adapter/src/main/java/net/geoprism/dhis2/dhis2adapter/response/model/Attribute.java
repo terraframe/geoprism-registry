@@ -18,6 +18,8 @@
  */
 package net.geoprism.dhis2.dhis2adapter.response.model;
 
+import java.util.Date;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -31,11 +33,11 @@ import com.google.gson.JsonObject;
 public class Attribute
 {
   
-  private String lastUpdated;
+  private Date lastUpdated;
   
   private String id;
   
-  private String created;
+  private Date created;
   
   private String name;
   
@@ -129,14 +131,24 @@ public class Attribute
     return null;
   }
   
-  public String getLastUpdated()
+  public Date getLastUpdated()
   {
     return lastUpdated;
   }
 
-  public void setLastUpdated(String lastUpdated)
+  public void setLastUpdated(Date lastUpdated)
   {
     this.lastUpdated = lastUpdated;
+  }
+
+  public Date getCreated()
+  {
+    return created;
+  }
+
+  public void setCreated(Date created)
+  {
+    this.created = created;
   }
 
   public String getId()
@@ -147,16 +159,6 @@ public class Attribute
   public void setId(String id)
   {
     this.id = id;
-  }
-
-  public String getCreated()
-  {
-    return created;
-  }
-
-  public void setCreated(String created)
-  {
-    this.created = created;
   }
 
   public String getName()

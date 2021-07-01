@@ -27,3 +27,10 @@ export class HierarchyNode {
 	label: string;
 	inheritedHierarchyCode: string;
 }
+
+export class HierarchyGroupedTypeView {
+  code: string;
+  label: string;
+  orgCode: string;
+  types: [{code: string, label: string, orgCode: string, permissions: [string]}];
+}

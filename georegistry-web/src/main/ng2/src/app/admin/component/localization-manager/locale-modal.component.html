@@ -1,0 +1,83 @@
+<div>
+  <loading-bar></loading-bar>
+
+<form #form="ngForm" class="modal-form" name="new-locale-form" (ngSubmit)="form.valid && submit()">
+  <div class="modal-body">
+  <fieldset *ngIf="locale">
+    <div class="heading text-center">
+      <h1>
+        <localize *ngIf="this.isNew" key="new-locale.title"></localize>
+        <localize *ngIf="!this.isNew" key="edit-locale.title"></localize>
+      </h1>
+    </div>
+
+    <div *ngIf="locale.language && locale.toString !== 'defaultLocale'" class="row-holder">
+	    <div class="label-holder">
+	     <label>
+	       <localize key="new-locale.language"></localize>
+	     </label>
+	    </div>
+	    <div class="holder">
+	     <select [(ngModel)]="locale.language.code" name="new-locale-language">
+	       <option *ngFor="let lang of allLocaleInfo.languages" [ngValue]="lang.key">{{lang.label}}</option>
+	     </select>
+	    </div>
+    </div>
+
+    <div *ngIf="locale.country && locale.toString !== 'defaultLocale'" class="row-holder">
+      <div class="label-holder">
+	      <label>
+	        <localize key="new-locale.country"></localize>
+	      </label>
+      </div>
+      <div  class="holder">
+	      <select [(ngModel)]="locale.country.code" name="new-locale-country">
+	        <option *ngFor="let count of allLocaleInfo.countries" [ngValue]="count.key">{{count.label}}</option>
+	      </select>
+      </div>
+    </div>
+
+<!--     <div> -->
+<!--       <label> -->
+<!--         <localize key="new-locale.variant"></localize> -->
+<!--       </label> -->
+<!--       <input type="text" [(ngModel)]="locale.variant" name="new-locale-variant" /> -->
+<!--     </div> -->
+
+    <div *ngIf="locale.label" class="row-holder">
+      <div class="label-holder">
+        <label>
+        <localize key="settings.localization.locale.displayLabel"></localize>
+      </label>
+      </div> 
+      <div class="holder" style="padding-top:10px;">
+	      <div class="form-group" *ngFor="let localeValue of locale.label.localeValues">
+	        <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
+	        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" required>
+	      </div>
+      </div>
+    </div>
+
+    <div class="row-holder">
+      <div class="label-holder">
+      </div> 
+      <div class="holder">
+        <div class="button-holder">
+          <button type="button" (click)="cancel()" class="btn btn-default" role="button" aria-disabled="false">
+            <span>
+              <localize key="new-locale.cancel"></localize>
+            </span>
+          </button>
+          <button type="submit" class="btn btn-primary" role="button" aria-disabled="false">
+            <span>
+              <localize key="new-locale.submit"></localize>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+  </div>
+</form>
+
+</div>

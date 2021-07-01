@@ -31,7 +31,6 @@ import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 

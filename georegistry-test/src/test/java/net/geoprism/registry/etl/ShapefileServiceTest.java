@@ -251,14 +251,6 @@ public class ShapefileServiceTest
     Assert.assertTrue(hasCode);
     Assert.assertTrue(hasStatus);
 
-    JSONArray hierarchies = result.getJSONArray(GeoObjectImportConfiguration.HIERARCHIES);
-
-    Assert.assertEquals(1, hierarchies.length());
-
-    JSONObject hierarchy = hierarchies.getJSONObject(0);
-
-    Assert.assertNotNull(hierarchy.getString("label"));
-
     JSONObject sheet = result.getJSONObject("sheet");
 
     Assert.assertNotNull(sheet);

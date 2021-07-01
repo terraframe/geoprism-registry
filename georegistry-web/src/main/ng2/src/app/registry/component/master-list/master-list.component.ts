@@ -17,11 +17,12 @@ import { ErrorHandler } from '@shared/component';
 import { LocalizationService, AuthService, ProgressService } from '@shared/service';
 
 declare var acp: string;
+declare var $: any;
 
 @Component({
 	selector: 'master-list',
 	templateUrl: './master-list.component.html',
-	styleUrls: []
+	styleUrls: ['./master-list.component.css']
 })
 export class MasterListComponent implements OnInit, OnDestroy {
 	message: string = null;
@@ -52,7 +53,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
 
 	constructor(public service: RegistryService, private pService: ProgressService, private route: ActivatedRoute, private dateService: DateService,
-		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService) {
+		private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService ) {
 
 		this.searchPlaceholder = localizeService.decode("masterlist.search");
 	}
@@ -72,18 +73,34 @@ export class MasterListComponent implements OnInit, OnDestroy {
 			this.isWritable = this.authService.isGeoObjectTypeRC(orgCode, typeCode);
 
 			this.onPageChange(1);
+			
+			if (version.refreshProgress != null)
+			{
+			  this.handleProgressChange(version.refreshProgress);
+			}
 		});
 
 		let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + acp;
 
 		this.notifier = webSocket(baseUrl + '/websocket/progress/' + oid);
 		this.notifier.subscribe(message => {
-			this.handleProgressChange(message.content)
+		  if (message.content != null)
+		  {
+			  this.handleProgressChange(message.content);
+			}
+			else
+			{
+			  this.handleProgressChange(message);
+			}
 		});
 	}
 
 	ngOnDestroy() {
 		this.notifier.complete();
+	}
+	
+	ngAfterViewInit() {
+
 	}
 
 
@@ -247,17 +264,20 @@ export class MasterListComponent implements OnInit, OnDestroy {
 		this.message = null;
 
 		this.service.publishMasterList(this.list.oid).toPromise()
-			.then(list => {
-				this.list = list;
-				this.list.attributes.forEach(attribute => {
-					attribute.isCollapsed = true;
-				});
-
-				// Refresh the resultSet
-				this.onPageChange(1);
+			.then( (historyOid: string) => {
+				this.isRefreshing = true;
 			}).catch((err: HttpErrorResponse) => {
 				this.error(err);
 			});
+			
+			
+			//this.list = list;
+        //this.list.attributes.forEach(attribute => {
+        //  attribute.isCollapsed = true;
+        //});
+
+        // Refresh the resultSet
+        //this.onPageChange(1);
 	}
 
 	onNewGeoObject(): void {
@@ -293,6 +313,15 @@ export class MasterListComponent implements OnInit, OnDestroy {
 	
 	formatDate(date: string): string {
 		return this.dateService.formatDateForDisplay(date);
+	}
+	
+	onWheel(event: WheelEvent): void {
+		let tableEl = (<Element>event.target).parentElement.closest('table').parentElement;
+//	    if (event.deltaY > 0) tableEl!.scrollLeft += 40;
+//	    else tableEl!.scrollLeft -= 40;
+
+		tableEl.scrollLeft += event.deltaY;
+   		event.preventDefault();
 	}
 
 	error(err: HttpErrorResponse): void {

@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewEncapsulation, ViewChild, ElementRef, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalService } from 'ngx-bootstrap/modal';
@@ -8,10 +8,6 @@ import {
 	style,
 	animate,
 	transition,
-	state,
-	group,
-	query,
-	stagger
 } from '@angular/animations';
 
 import { FileUploader, FileUploaderOptions } from 'ng2-file-upload';
@@ -20,13 +16,14 @@ import { ChangeRequest, AbstractAction, AddChildAction, SetParentAction, CreateG
 import { GeoObjectOverTime } from '@registry/model/registry';
 
 import { ChangeRequestService } from '@registry/service';
-import { LocalizationService, AuthService, EventService, ExternalSystemService  } from '@shared/service';
+import { LocalizationService, AuthService, EventService } from '@shared/service';
 import { DateService } from '@shared/service/date.service';
 import { ActionDetailModalComponent } from './action-detail/action-detail-modal.component'
 
 import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent } from '@shared/component';
 
 declare var acp: string;
+declare var $: any;
 
 @Component({
 
@@ -63,6 +60,8 @@ declare var acp: string;
 	]
 })
 export class RequestTableComponent {
+	
+	today: string = this.dateService.getDateString(new Date());
 
 	objectKeys = Object.keys;
 
@@ -74,13 +73,15 @@ export class RequestTableComponent {
 
 	columns: any[] = [];
 
-	toggleId: string;
+	@Input() toggleId: string;
 	
 	targetActionId: string
 
 	filterCriteria: string = 'ALL';
 
 	hasBaseDropZoneOver:boolean = false;
+	
+	waitingOnScroll: boolean = false;
 	
 	/*
      * File uploader
@@ -142,7 +143,22 @@ export class RequestTableComponent {
 
 			this.error({ error: error });
 		}
+		
+		if (this.toggleId != null)
+		{
+		  this.onSelect({ selected: [{ oid: this.toggleId }] });
+		  this.waitingOnScroll = true;
+		}
 	}
+	
+	scrollToBottom(): void {
+    //try {
+      // This is a hack but I expect it will need to be redone when we have pagination anyway.
+      $(".new-admin-design-main")[0].scrollTop = $(".new-admin-design-main")[0].scrollHeight;
+    //} catch(err) {
+    //  console.log(err);
+    //}
+  }
 	
 	getGOTLabel(action: any): string {
 	  if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values
@@ -217,6 +233,13 @@ export class RequestTableComponent {
 		this.service.getAllRequests("ALL").then(requests => {
 			
 			this.requests = requests;
+			
+			if (this.waitingOnScroll)
+			{
+			  let that = this;
+			  setTimeout(function(){ that.scrollToBottom(); }, 100);
+			  this.waitingOnScroll = false;
+			}
 
 		}).catch((response: HttpErrorResponse) => {
 			this.error(response);
@@ -263,10 +286,10 @@ export class RequestTableComponent {
 					let firstGeoObject = this.getFirstGeoObjectInActions();
 					
 					if(firstGeoObject){
-						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code]);
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, this.today, true]);
 					}
 					else{
-						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code]);
+						this.router.navigate(['/registry/location-manager', firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, this.today, true]);
 					}
 				});
 			

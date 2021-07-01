@@ -49,7 +49,7 @@
         <localize key="changeovertime.manageVersions.button.label"></localize>
       </button>
       
-      <button *ngIf="isEdit" type="button" class="btn btn-default" (click)="onCancel()">
+      <button *ngIf="isEdit" type="button" class="btn btn-default" (click)="onCancelInternal()">
         <localize key="modal.button.cancel"></localize>
       </button>
       <button *ngIf="isEdit" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!isValid || (!isMaintainer && (!reason || (reason && reason.trim().length === 0)))">
@@ -82,7 +82,8 @@
       [geoObjectOverTimeInput]="postGeoObject"
       [isNewGeoObject]="false"
       (onChange)="onAttributeChange($event)"
-      (onEdit)="onEditGeometryVersion($event)">
+      (onEdit)="onEditGeometryVersion($event)"
+      (onCloneGeometry)="onCloneGeometry($event)">
     </geometry-panel>
   </div>
 </div>

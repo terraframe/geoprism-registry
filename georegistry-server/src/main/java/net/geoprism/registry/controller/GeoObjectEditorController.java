@@ -20,13 +20,14 @@ package net.geoprism.registry.controller;
 
 import org.json.JSONException;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
-import com.runwaysdk.mvc.RestResponse;
+import com.runwaysdk.mvc.RestBodyResponse;
 
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 
@@ -36,8 +37,8 @@ public class GeoObjectEditorController
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
   {
-    new ServerGeoObjectService().masterListEdit(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId, notes);
+    JsonObject resp = new ServerGeoObjectService().masterListEdit(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId, notes);
 
-    return new RestResponse();
+    return new RestBodyResponse(resp);
   }
 }

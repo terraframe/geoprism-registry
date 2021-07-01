@@ -70,6 +70,7 @@ import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
@@ -80,7 +81,6 @@ import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.GeoObjectStatus;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -100,18 +100,21 @@ public class GeoObjectAtTimeShapefileExporter
   private Collection<AttributeType> attributes;
 
   private Map<String, String>       columnNames;
+  
+  private Collection<Locale> locales;
 
   public GeoObjectAtTimeShapefileExporter(ServerGeoObjectType type, Date date)
   {
-    this(type, date, new LinkedList<Locale>());
+    this(type, date, LocalizationFacade.getInstalledLocales());
   }
 
-  public GeoObjectAtTimeShapefileExporter(ServerGeoObjectType type, Date date, List<Locale> locales)
+  public GeoObjectAtTimeShapefileExporter(ServerGeoObjectType type, Date date, Collection<Locale> locales)
   {
     this.type = type;
     this.date = date;
     this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, locales).attributes(this.type.getType());
     this.columnNames = new HashMap<String, String>();
+    this.locales = locales;
   }
 
   public Map<String, String> getColumnNames()
@@ -249,8 +252,6 @@ public class GeoObjectAtTimeShapefileExporter
 
     List<SimpleFeature> features = new ArrayList<SimpleFeature>();
     SimpleFeatureBuilder builder = new SimpleFeatureBuilder(featureType);
-    List<Locale> locales = SupportedLocaleCache.getLocales();
-
     VertexServerGeoObject prev = null;
 
     do
@@ -314,8 +315,6 @@ public class GeoObjectAtTimeShapefileExporter
 
   public SimpleFeatureType createFeatureType()
   {
-    List<Locale> locales = SupportedLocaleCache.getLocales();
-
     SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
     builder.setName(this.type.getLabel().getValue());
     builder.setCRS(DefaultGeographicCRS.WGS84);

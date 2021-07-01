@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.hierarchy;
 
+import java.util.ArrayList;
+
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataFactory;
@@ -28,6 +30,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.RunwayExceptionDTO;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.SmartExceptionDTO;
@@ -49,6 +53,7 @@ import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 import net.geoprism.registry.test.TestHierarchyTypeInfo;
 import net.geoprism.registry.test.TestUserInfo;
+import net.geoprism.registry.test.USATestData;
 
 public class HierarchyServiceTest
 {
@@ -58,6 +63,8 @@ public class HierarchyServiceTest
   public static final TestHierarchyTypeInfo TEST_HT  = new TestHierarchyTypeInfo("HMST_ReportDiv", FastTestDataset.ORG_CGOV);
 
   protected static FastTestDataset          testData;
+  
+  protected HierarchyService service = new HierarchyService();
 
   @BeforeClass
   public static void setUpClass()
@@ -98,6 +105,91 @@ public class HierarchyServiceTest
   {
     TEST_HT.delete();
     TEST_GOT.delete();
+  }
+  
+  @Test
+  public void testGetHierarchyGroupedTypes()
+  {
+    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM})
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
+        
+        ArrayList<String> hierarchyLabels = new ArrayList<String>();
+        ArrayList<String> hierarchyCodes = new ArrayList<String>();
+        
+        for (int i = 0; i < ja.size(); ++i)
+        {
+          JsonObject hierarchy = ja.get(i).getAsJsonObject();
+          
+          Assert.assertNotNull(hierarchy.get("label").getAsString());
+          Assert.assertNotNull(hierarchy.get("code").getAsString());
+          
+          hierarchyLabels.add(hierarchy.get("label").getAsString());
+          hierarchyCodes.add(hierarchy.get("code").getAsString());
+        }
+
+        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
+        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+        
+        Assert.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
+        Assert.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
+      });
+    }
+    
+    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM})
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
+        
+        ArrayList<String> hierarchyLabels = new ArrayList<String>();
+        ArrayList<String> hierarchyCodes = new ArrayList<String>();
+        
+        for (int i = 0; i < ja.size(); ++i)
+        {
+          JsonObject hierarchy = ja.get(i).getAsJsonObject();
+          
+          Assert.assertNotNull(hierarchy.get("label").getAsString());
+          Assert.assertNotNull(hierarchy.get("code").getAsString());
+          
+          hierarchyLabels.add(hierarchy.get("label").getAsString());
+          hierarchyCodes.add(hierarchy.get("code").getAsString());
+        }
+
+        Assert.assertFalse(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
+        Assert.assertFalse(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+        
+        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
+        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
+      });
+    }
+    
+    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_ADMIN})
+    {
+      FastTestDataset.runAsUser(user, (request, adapter) -> {
+        JsonArray ja = service.getHierarchyGroupedTypes(request.getSessionId());
+        
+        ArrayList<String> hierarchyLabels = new ArrayList<String>();
+        ArrayList<String> hierarchyCodes = new ArrayList<String>();
+        
+        for (int i = 0; i < ja.size(); ++i)
+        {
+          JsonObject hierarchy = ja.get(i).getAsJsonObject();
+          
+          Assert.assertNotNull(hierarchy.get("label").getAsString());
+          Assert.assertNotNull(hierarchy.get("code").getAsString());
+          
+          hierarchyLabels.add(hierarchy.get("label").getAsString());
+          hierarchyCodes.add(hierarchy.get("code").getAsString());
+        }
+
+        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_ADMIN.getCode()));
+        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+        
+        Assert.assertTrue(hierarchyCodes.contains(FastTestDataset.HIER_HEALTH_ADMIN.getCode()));
+        Assert.assertTrue(hierarchyLabels.contains(FastTestDataset.HIER_HEALTH_ADMIN.getDisplayLabel()));
+      });
+    }
   }
 
   @Test
@@ -225,10 +317,20 @@ public class HierarchyServiceTest
     gtJSON = reportingDivision.toJSON().toString();
 
     reportingDivision = ServiceFactory.getHierarchyService().updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
-
-    Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
-    Assert.assertEquals("Reporting Division 2", reportingDivision.getLabel().getValue());
-    Assert.assertEquals("The rporting division hieracy 2", reportingDivision.getDescription().getValue());
+    
+    try
+    {
+      Assert.assertNotNull("The created hierarchy was not returned", reportingDivision);
+      Assert.assertEquals("Reporting Division 2", reportingDivision.getLabel().getValue());
+      Assert.assertEquals("The rporting division hieracy 2", reportingDivision.getDescription().getValue());
+    }
+    finally
+    {
+      reportingDivision.setLabel(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+      reportingDivision.setDescription(new LocalizedValue(FastTestDataset.HIER_ADMIN.getDisplayLabel()));
+      gtJSON = reportingDivision.toJSON().toString();
+      reportingDivision = ServiceFactory.getHierarchyService().updateHierarchyType(testData.clientSession.getSessionId(), gtJSON);
+    }
   }
 
   @Test

@@ -320,6 +320,7 @@ export class MasterList {
 	read?: boolean;
 	exploratory?: boolean;
 	versions?: MasterListVersion[];
+	subtypes?: { label:string, code: string }[];
 }
 
 export class MasterListVersion {
@@ -337,6 +338,7 @@ export class MasterListVersion {
 	shapefile?: boolean;
 	isAbstract?: boolean;
 	superTypeCode?: string;
+	refreshProgress?: any;
 }
 
 export class HierarchyOverTime {

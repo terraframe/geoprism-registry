@@ -7,6 +7,7 @@
 <div [hidden]="valueIsPresent">
   <span class="wrapper">
       <input [class]="classNames ? classNames + ' ' + 'date-input-element' : 'date-input-element'" 
+           [style]="customStyles ? customStyles : ''"
            name="{{inputName}}"
            type="text"
            placeholder="YYYY-MM-DD"

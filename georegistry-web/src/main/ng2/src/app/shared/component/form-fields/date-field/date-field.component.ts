@@ -21,6 +21,7 @@ export class DateFieldComponent {
 	@Input() allowInfinity: boolean = false;
 	@Input() inputName: string = this.idGenerator();
 	@Input() classNames: string = "";
+	@Input() customStyles: string = "";
 	@Input() localizeLabelKey: string = ""; // localization key used to localize in the component template
 	@Input() label: string = ""; // raw string input
 	@Input() disable: boolean = false;
@@ -79,6 +80,11 @@ export class DateFieldComponent {
 	
 	public getValue():Date {
 		return this._value;
+	}
+	
+	public setInvalid(message: string){
+		this.valid = false;
+		this.message = message;
 	}
 	
 	idGenerator() {

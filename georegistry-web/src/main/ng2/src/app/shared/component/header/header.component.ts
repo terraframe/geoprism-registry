@@ -6,7 +6,7 @@ import { ProfileComponent } from '../profile/profile.component';
 
 import { AuthService, ProfileService, LocalizationService } from '@shared/service';
 
-import { RegistryRoleType } from '@shared/model/core';
+import { RegistryRoleType, LocaleView } from '@shared/model/core';
 
 declare var acp: string;
 declare var registry: any
@@ -24,8 +24,9 @@ export class CgrHeaderComponent {
 	isContributor: boolean;
 	bsModalRef: BsModalRef;
 
-	locales: string[]
-	locale: string
+  defaultLocaleView: LocaleView;
+	locales: LocaleView[];
+	locale: string;
 
 	@Input() loggedIn: boolean = true;
 
@@ -40,11 +41,22 @@ export class CgrHeaderComponent {
 		this.isMaintainer = this.isAdmin || service.isMaintainer();
 		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
-		this.locales = localizationService.getLocales().filter(locale => locale !== 'defaultLocale');
+		this.locales = localizationService.getLocales().filter(locale => locale.toString !== 'defaultLocale');
+		this.defaultLocaleView = localizationService.getLocales().filter(locale => locale.toString === 'defaultLocale')[0];
 		this.locale = localizationService.getLocale();
 		
-		if(this.locales.indexOf(this.locale) === -1) {
-			this.locale = '';
+		let found: boolean = false;
+		
+		for (let i = 0; i < this.locales.length; ++i)
+		{
+  		if (this.locales[i].toString === this.locale) {
+  			found = true;
+  		}
+		}
+		
+		if (!found)
+		{
+		  this.locale = '';
 		}
 	}
 
@@ -86,6 +98,8 @@ export class CgrHeaderComponent {
 	}
 
 	logout(): void {
+	
+	  sessionStorage.removeItem("locales");
 
 		window.location.href = acp + '/session/logout';
 

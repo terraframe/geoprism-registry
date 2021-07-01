@@ -178,7 +178,7 @@
                           <label>{{req.phoneNumber}}</label>
                       </div>
                       
-                      <a *ngIf="(req.approvalStatus === 'ACCEPTED' || req.approvalStatus === 'REJECTED') && action.actionType != 'net.geoprism.registry.action.geoobject.SetParentAction'" class="pull-right" target="_blank" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code]">
+                      <a *ngIf="(req.approvalStatus === 'ACCEPTED' || req.approvalStatus === 'REJECTED') && action.actionType != 'net.geoprism.registry.action.geoobject.SetParentAction'" class="pull-right" target="_blank" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code, today, true]">
                           <localize key="change.request.open.geoobject.in.editor.link.btn"></localize>
                       </a>
                       
@@ -248,9 +248,9 @@
                     </button>
                   </span>
                   
-                  <a [class.disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" class="alert pull-right" [title]="'change.request.delete.request.hover' | localize" >
+                  <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
                     <localize key="change.request.delete.request.btn"></localize>
-                  </a>
+                  </button>
                   
                 </div>
               </div>

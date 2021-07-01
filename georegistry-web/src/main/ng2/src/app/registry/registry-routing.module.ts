@@ -42,6 +42,11 @@ const routes: Routes = [
         canActivate: [ContributerGuard]
     },
     {
+        path: 'change-requests/:oid',
+        component: ChangeRequestPageComponent,
+        canActivate: [ContributerGuard]
+    },
+    {
         path: 'master-lists',
         component: MasterListManagerComponent,
         canActivate: [AuthGuard]
@@ -91,8 +96,13 @@ const routes: Routes = [
         component: LocationManagerComponent,
         canActivate: [AuthGuard]
     },
-	{
-        path: 'location-manager/:geoobjectuid/:geoobjecttypecode',
+	  {
+        path: 'location-manager/:geoobjectuid/:geoobjecttypecode/:datestr/:hideSearchOptions',
+        component: LocationManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'location-manager/:geoobjectuid/:geoobjecttypecode/:datestr/:hideSearchOptions/:backReference',
         component: LocationManagerComponent,
         canActivate: [AuthGuard]
     },
@@ -108,6 +118,11 @@ const routes: Routes = [
     },
     {
         path: 'dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code/:editOnly',
+        component: DatasetLocationManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: 'dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code/:editOnly/:backReference',
         component: DatasetLocationManagerComponent,
         canActivate: [AuthGuard]
     },

@@ -61,15 +61,15 @@ public class AccountService
   }
 
   @Request(RequestType.SESSION)
-  public String page(String sessionId, Integer number) throws JSONException
+  public String page(String sessionId, Integer number, Integer pageSize) throws JSONException
   {
-    return UserInfo.page(20, number).toString();
+    return UserInfo.page(pageSize, number).toString();
   }
 
   @Request(RequestType.SESSION)
-  public String getSRAs(String sessionId, Integer number) throws JSONException
+  public String getSRAs(String sessionId, Integer number, Integer pageSize) throws JSONException
   {
-    return UserInfo.getSRAs(20, number).toString();
+    return UserInfo.getSRAs(pageSize, number).toString();
   }
 
   @Request(RequestType.SESSION)

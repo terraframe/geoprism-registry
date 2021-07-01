@@ -128,7 +128,7 @@ public interface ServerGeoObjectIF
 
   public Map<String, ServerHierarchyType> getHierarchyTypeMap(String[] relationshipTypes);
 
-  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, boolean includeInheritedTypes);
+  public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents);
 
   public JsonArray getHierarchiesForGeoObject();
 

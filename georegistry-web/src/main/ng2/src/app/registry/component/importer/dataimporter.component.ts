@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryList } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ViewChildren, ElementRef, QueryList, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -8,12 +8,14 @@ import{ DateFieldComponent } from '../../../shared/component/form-fields/date-fi
 
 import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from '@shared/component';
 import { LocalizationService, AuthService, EventService, ExternalSystemService } from '@shared/service';
+import { HierarchyService } from '@registry/service';
 import { ExternalSystem } from '@shared/model/core';
 
 import { SpreadsheetModalComponent } from './modals/spreadsheet-modal.component';
 import { ShapefileModalComponent } from './modals/shapefile-modal.component';
 import { IOService } from '@registry/service';
 import { ImportStrategy, PRESENT } from '@registry/model/registry';
+import { HierarchyGroupedTypeView } from '@registry/model/hierarchy';
 
 declare var acp: string;
 
@@ -36,7 +38,12 @@ export class DataImporterComponent implements OnInit {
     /*
      * List of geo object types from the system
      */
-	types: { label: string, code: string }[]
+	types: {code: string, label: string, orgCode: string, permissions: [string]}[]
+	
+	/*
+   * GeoObjectTypes grouped by hierarchy
+   */
+  hierarchyViews: HierarchyGroupedTypeView[];
 
 	importStrategy: ImportStrategy;
 	importStrategies: any[] = [
@@ -46,9 +53,14 @@ export class DataImporterComponent implements OnInit {
 	]
 
     /*
-     * Currently selected code
+     * Code of the currently selected GeoObjectType
      */
 	code: string = null;
+	
+	/*
+	 * Code of the currently selected Hierarchy
+	 */
+	hierarchyCode: string = null;
 
     /*
      * Start date
@@ -97,7 +109,9 @@ export class DataImporterComponent implements OnInit {
 		private modalService: BsModalService,
 		private localizationService: LocalizationService,
 		private authService: AuthService,
-		private sysService: ExternalSystemService
+		private sysService: ExternalSystemService,
+		private hierarchyService: HierarchyService,
+		private changeDetectorRef: ChangeDetectorRef
 	) { }
 
 	ngOnInit(): void {
@@ -116,21 +130,15 @@ export class DataImporterComponent implements OnInit {
 			this.error(err);
 		});
 
-		this.service.listGeoObjectTypes(false).then(types => {
-
-			const myOrgTypes = [];
-
-			for (var i = 0; i < types.length; ++i) {
-				const type = types[i];
-				const orgCode = type.orgCode;
-				const typeCode = type.superTypeCode != null ? type.superTypeCode : type.code;
-
-				if (this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
-					myOrgTypes.push(types[i]);
-				}
-			}
-
-			this.types = myOrgTypes;
+		this.hierarchyService.getHierarchyGroupedTypes().then(views => {
+		  
+		  let filtered = [];
+		  
+		  for (let i = 0; i < views.length; ++i)
+		  {
+		  }
+		  
+      this.hierarchyViews = views;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});
@@ -175,6 +183,7 @@ export class DataImporterComponent implements OnInit {
 			const configuration = JSON.parse(response);
 
 			configuration.isExternal = this.isExternal;
+			configuration.hierarchy = this.hierarchyCode;
 
 			let externalSystem: ExternalSystem = null;
 			for (let i = 0; i < this.externalSystems.length; ++i) {
@@ -203,6 +212,32 @@ export class DataImporterComponent implements OnInit {
 			this.error({ error: error });
 		}
 	}
+
+  onSelectHierarchy(): void {
+    
+    let view = null;
+    
+    let len = this.hierarchyViews.length;
+    for (let i = 0; i < len; ++i)
+    {
+      if (this.hierarchyViews[i].code === this.hierarchyCode)
+      {
+        view = this.hierarchyViews[i];
+        break;
+      }
+    }
+    
+    this.code = null;
+    
+    if (view != null)
+    {
+      this.types = view.types;
+    }
+    else
+    {
+      this.types = null;
+    }
+  }
 
 	onClick(): void {
 
@@ -254,12 +289,26 @@ export class DataImporterComponent implements OnInit {
 
 	checkDateFieldValidity(): boolean {
 		let dateFields = this.dateFieldComponentsArray.toArray();
-		console.log(dateFields)
+		
+		let startDateField: DateFieldComponent;
 		for(let i=0; i<dateFields.length; i++){
 			let field = dateFields[i];
+			
+			if(field.inputName === "startDate"){
+				// set startDateField so we can use it in the next check
+				startDateField = field;
+			}
+			
 			if(!field.valid){
 				return false;
 			}
+		}
+		
+		if(this.startDate > this.endDate){
+			
+			startDateField.setInvalid(this.localizationService.decode('date.input.startdate.after.enddate.error.message'));
+			
+			this.changeDetectorRef.detectChanges() 
 		}
 		
 		return true;

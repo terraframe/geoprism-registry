@@ -187,7 +187,7 @@
     float: right;
 }
 
-.dropdown-toggle {
+.nav.navbar-nav.navbar-right .dropdown-toggle {
     line-height: 144px !important; 
     padding: 0 !important; 
 }
@@ -256,6 +256,15 @@ Error Modal
 **/
 .error-white-space-pre {
 	white-space: pre
+}
+
+
+
+/**
+ * Date Erorr message for location-manager
+ */
+.date-required-message  {
+  border-color: red;
 }
 
 

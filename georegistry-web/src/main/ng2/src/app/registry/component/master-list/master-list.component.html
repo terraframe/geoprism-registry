@@ -1,7 +1,14 @@
 <div class="new-admin-design-main">
     <cgr-header></cgr-header>
     <loading-bar></loading-bar>
-    <!-- <progress-bar></progress-bar> -->
+    <progress-bar *ngIf="isRefreshing"></progress-bar>
+    
+    <!--
+    <div *ngIf="isRefreshing" class="version-busy-overlay">
+      This Master List Version is currently refreshing...
+      ...Please wait... ?
+    </div>
+    -->
 
     <div id="app-container" class="container-fluid">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
@@ -18,7 +25,7 @@
 
             <div class="col-md-12">
                 <h4>
-                    <localize key="masterlist.publishDate"></localize>
+                    <localize key="masterlist.generatedDate"></localize>
                     : <span class="date-string-display">
                           {{formatDate(list.publishDate)}}
                       </span>
@@ -52,8 +59,6 @@
         </div>
         <div class="row form-group">
             <div class="col-md-12">
-                <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
-            
                 <div class="button-holder pull-right">
             
                     <span class="clickable" (click)="clearFilters()" style="padding: 10px;">
@@ -65,7 +70,7 @@
                     </span>
                     
                     <span *ngIf="!isPublished" class="clickable" (click)="onPublish()" style="padding: 10px;">
-                        <i [ngClass]="{'fa fa-refresh clickable':true, 'fa-spin':isRefreshing}" style="font-size: 24px;vertical-align: middle;padding-right: 5px;" aria-hidden="true"></i>
+                        <i [ngClass]="{'fa fa-refresh clickable':true}" style="font-size: 24px;vertical-align: middle;padding-right: 5px;" aria-hidden="true"></i>
                         <localize key="masterlist.publish"></localize>
                     </span>
 
@@ -75,6 +80,17 @@
                          class="btn btn-primary" role="button">
                             <localize key="masterlist.newGeoObject"></localize>
                         </button>
+												<span class="dropdown" *ngIf="isWritable && list.isAbstract">
+												  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+												    <localize key="masterlist.newGeoObject"></localize>
+												    <span class="caret"></span>
+												  </button>
+												  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+												    <li><localize style="padding-left:10px;" key="masterlist.newGeoObject.selectASubtype"></localize></li>
+												    <li role="separator" class="divider"></li>
+												    <li *ngFor="let subtype of list.subtypes"><a [routerLink]="['/registry/dataset-location-manager', list.oid, subtype.code, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract)]" routerLinkActive="active">{{subtype.label}}</a></li>
+												  </ul>
+												</span>
                         <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
                             <localize *ngIf="filter.length === 0" key="io.export.allrows"></localize>
                             <localize *ngIf="filter.length > 0" key="io.export.filteredrows"></localize>
@@ -83,12 +99,12 @@
             </div>
         </div>
         <div class="row form-group">
-            <div *ngIf="list" class="col-md-12 table-responsive" style="">
-                <table class="list-table table table-bordered table-striped">
-                    <thead>
+            <div *ngIf="list"  class="col-md-12 table-responsive" id="list-view-table" style="max-height:calc(100vh - 399px);">
+                <table class="list-table table table-bordered table-striped"  >
+                    <thead style="position: sticky;top: 0;background: #ececec;">
                         <tr>
-                            <th style="width: 3%" class="label-column"><localize key="masterlist.view.column"></localize></th>
-                            <th *ngFor="let attribute of list.attributes" class="label-column">
+                            <th style="width: 3%;position: sticky;top: 0 " class="label-column"><localize key="masterlist.view.column"></localize></th>
+                            <th style="position: sticky;top: 0" *ngFor="let attribute of list.attributes" class="label-column">
 
                                 <div style="display: table-cell; padding-right: 10px; vertical-align: middle;" *ngIf="isFilterable(attribute)">
                                     <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"> 
@@ -137,7 +153,7 @@
                     <tbody>
                         <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" class="fade-ngRepeat-item">
                             <td style="width: 3%; text-align: center;" class="label-column">
-                              <a class="fa" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'" [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, result.code, (!isWritable || list.isAbstract)]" routerLinkActive="active"></a>
+                              <a class="fa" style="padding:3px;" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'" [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, result.code, (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]" routerLinkActive="active"></a>
                             </td>
                             <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
                         </tr>
@@ -151,7 +167,13 @@
 
         <div class="row">
             <div class="col-md-12">
-                <pagination-controls style="position: absolute;" (pageChange)="onPageChange($event)"></pagination-controls>
+                <pagination-controls style="display:inline-block;" (pageChange)="onPageChange($event)"></pagination-controls>
+                <span style="display:inline-block;margin-left:20px;vertical-align:middle;color:#cacaca;font-weight:bold;">
+                  <localize key="masterlist.pagination.showing"></localize>
+                  &nbsp;{{(page.pageNumber-1)*page.pageSize}} 
+                  -&nbsp;{{page.pageNumber*page.pageSize}} 
+                  &nbsp;<localize key="masterlist.pagination.of"></localize>&nbsp;{{page.count}}
+                </span> 
             </div>
         </div>
     </div>

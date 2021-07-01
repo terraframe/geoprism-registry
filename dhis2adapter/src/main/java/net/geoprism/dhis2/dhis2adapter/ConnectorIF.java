@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.response.DHIS2Response;
@@ -32,12 +33,12 @@ public interface ConnectorIF
 
   public String getServerUrl();
   
-  public DHIS2Response httpGet(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
+  public DHIS2Response httpGet(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException;
   
-  public DHIS2Response httpDelete(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException;
+  public DHIS2Response httpDelete(String string, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException;
 
-  public DHIS2Response httpPost(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
+  public DHIS2Response httpPost(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException;
 
-  public DHIS2Response httpPatch(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException;
+  public DHIS2Response httpPatch(String string, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException;
   
 }

@@ -31,6 +31,7 @@ import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
+import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.service.SynchronizationConfigService;
 
 @Controller(url = "synchronization-config")
@@ -54,7 +55,7 @@ public class SynchronizationConfigController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-custom-attr")
   public ResponseIF getCustomAttributeConfiguration(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "externalId") String externalId)
   {
-    JsonArray resp = this.service.getCustomAttributeConfiguration(request.getSessionId(), externalId, geoObjectTypeCode);
+    JsonArray resp = new DHIS2FeatureService().getDHIS2AttributeConfiguration(request.getSessionId(), externalId, geoObjectTypeCode);
     
     return new RestBodyResponse(resp);
   }

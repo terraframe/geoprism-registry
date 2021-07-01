@@ -14,15 +14,19 @@
               <div class="row">
                 <div class="col-md-12">
                   <div class="location-management-widget-section">
+                    <span style="margin-right:10px;"><localize key="changeOverTime.forDate" ng-reflect-key="changeOverTime.forDate"></localize></span>
 <!--                     <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" [disabled]="mode !== MODE.SEARCH"/> -->
-                    <date-field [(value)]="dateStr" label="" [inputName]="'dateStr'" (change)="handleDateChange()" [disable]="mode !== MODE.SEARCH" 
-                        [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [placement]="'right'"></date-field>
+                    <date-field [(value)]="dateStr" label="" [inputName]="'dateStr'" (change)="handleDateChange()" [disable]="mode !== MODE.SEARCH && !hideSearchOptions" 
+                        [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [classNames]="displayDateRequiredError ? 'date-required-message' : ''" [placement]="'right'" style="display:inline-grid;"></date-field>
+                    <div *ngIf="displayDateRequiredError" class="error-message">
+                      <localize key="geoobject.editor.forDate.requiredErrorMessage"></localize>
+                    </div>
                   </div>
                 </div>
               </div>
   
               <!-- Search bar -->
-              <div class="row">
+              <div *ngIf="!hideSearchOptions" class="row">
                 <div class="col-md-12">
                   <div class="location-management-widget-section">
                     <div class="input-group">
@@ -77,7 +81,9 @@
               [geometryChange]="geometryChange"
               (geometryEdit)="onGeometryEdit($event)"
               (featureChange)="search()"
-              (modeChange)="onModeChange($event)"              
+              (modeChange)="onModeChange($event)"
+              (panelCancel)="onPanelCancel()"
+              (panelSubmit)="onPanelSubmit($event)"
             ></feature-panel>
           </div>
         </div>            
@@ -91,7 +97,28 @@
           </article>
 
           <div id="map" class="map-view-port"></div>
-          <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control>
+<!--           <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control> -->
+          
+          <div *ngIf="editingControl && (type.geometryType === 'POINT' || type.geometryType === 'MULTIPOINT')" style="position:absolute;top:185px;right:10px;color:white;">
+            
+            <div >
+                <div><label><localize key="geoobject.editor.geometry.latitude.label"></localize></label></div>
+                <div>
+                <div class="text-left">
+                  <input name="latitude" type="number" class="form-control" [(ngModel)]="coordinate.latitude" (change)="refreshDrawFromInput()" required />
+                </div>
+              </div>
+            </div>
+            <div >
+                <div><label><localize key="geoobject.editor.geometry.longitude.label"></localize></label></div>
+                <div>
+                <div class="text-left">
+                  <input name="longitude" type="number" class="form-control" [(ngModel)]="coordinate.longitude" (change)="refreshDrawFromInput()" required />
+                </div>
+              </div>
+            </div>
+            
+          </div>
           
         </div>
       </div>

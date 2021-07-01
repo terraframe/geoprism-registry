@@ -35,7 +35,7 @@ export class SessionService {
 
     constructor( private service: EventService, private http: HttpClient, private authService: AuthService ) { }
 
-    login( username: string, password: string ): Promise<User> {
+    login( username: string, password: string ): Promise<any> {
 
         let headers = new HttpHeaders( {
             'Content-Type': 'application/json'
@@ -44,15 +44,15 @@ export class SessionService {
         this.service.start();
 
         return this.http
-            .post<User>( acp + '/session/login', JSON.stringify( { username: username, password: password } ), { headers: headers } )
+            .post<User>( acp + '/cgrsession/login', JSON.stringify( { username: username, password: password } ), { headers: headers } )
 			.pipe(finalize(() => {
 				this.service.complete();
 			}))
             .toPromise()
-            .then(( user: User ) => {
-                this.authService.setUser( user );
+            .then(( logInResponse: any ) => {
+                this.authService.afterLogIn( logInResponse );
 
-                return user;
+                return logInResponse;
             } )
     }
     
@@ -72,7 +72,7 @@ export class SessionService {
 			}))
             .toPromise()
             .then(( response: any ) => {
-                this.authService.setUser( null );
+                this.authService.afterLogOut();
 
                 return response;
             } )
