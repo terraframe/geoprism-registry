@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Map, NavigationControl, AttributionControl, LngLatBounds, IControl } from 'mapbox-gl';
+import { Map, NavigationControl, AttributionControl, LngLatBounds, LngLat, IControl } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 
 import { ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
@@ -26,6 +26,12 @@ const SELECTED_COLOR = "#800000";
 	styleUrls: ['./dataset-location-manager.css']
 })
 export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
+	
+	coordinate: {
+        longitude: number,
+        latitude: number
+    } = { longitude: null, latitude: null };
+	
 	MODE = {
 		VERSIONS: 'VERSIONS',
 		ATTRIBUTES: 'ATTRIBUTES',
@@ -102,7 +108,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 			this.code = this.route.snapshot.params["code"];
 		}
 
-		this.forDate = this.dateService.getDateFromDateString(this.date) // new Date(Date.parse(this.date));
+		this.forDate = this.dateService.getDateFromDateString(this.date) 
 
 		this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
 			this.type = types[0];
@@ -112,7 +118,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	}
 	
-	onPanelCancel(): void {
+  onPanelCancel(): void {
 	  if (this.backReference != null && this.backReference.length >= 2)
 	  {
 	    let ref = this.backReference.substring(0,2);
@@ -125,9 +131,14 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	      this.router.navigate(['/registry/master-list', oid, published]);
 	    }
 	  }
+
+	  this.showOriginalGeometry();
   }
   
   onPanelSubmit(applyInfo: {isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}): void {
+	// Save everything first
+	this.onMapSave();
+	
     this.bsModalRef = this.modalService.show(ConfirmModalComponent, { backdrop: true, class:"error-white-space-pre" });
       
     if (applyInfo.isChangeRequest)
@@ -201,7 +212,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 			this.initMap();
 		});
 
-		this.map.addControl(this.simpleEditControl);
+		if(this.simpleEditControl) {
+			this.map.addControl(this.simpleEditControl);
+		};
 	}
 
 	onModeChange(value: boolean): void {
@@ -212,7 +225,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	  if (this.code !== '__NEW__')
 	  {
   		this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
-	
 			if(bounds){
 	  			let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 	  
@@ -227,14 +239,14 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	  
 	  			this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
 			}
-  		});
+  		  });
 		}
 
 
 		this.map.on('style.load', () => {
 			this.addLayers();
 		});
-
+		
 		this.addLayers();
 
 		// Add zoom and rotation controls to the map.
@@ -250,16 +262,35 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 		});
 
 
-		this.map.on('draw.selectionchange', (e: any) => {
-			if(e.features.length > 0 || e.points.length > 0) {
-				this.editSessionEnabled = true;
-			}
-			else {
-				this.editSessionEnabled = false;
-			}
+		this.map.on('draw.create', (e) => {
+		  this.refreshInputsFromDraw();
+		  this.editSessionEnabled = true;
 		});
+		this.map.on('draw.update', (e) => {
+		  this.refreshInputsFromDraw();
+          this.editSessionEnabled = true;
+		});
+		this.map.on('draw.delete', (e) => {
+		  this.coordinate = { longitude: null, latitude: null };
+		});
+//		this.map.on('draw.selectionchange', (e: any) => {
+//			if(e.features.length > 0 || e.points.length > 0) {
+//				this.editSessionEnabled = true;
+//			}
+//			else {
+//				this.editSessionEnabled = false;
+//			}
+//		});
 
+		this.showOriginalGeometry();
+	}
+	
+	showOriginalGeometry() {
 		this.addVectorLayer(this.datasetId);
+	}
+	
+	hideOriginalGeometry() {
+		this.removeVectorLayer(this.datasetId);
 	}
 
 	addLayers(): void {
@@ -467,8 +498,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 	onFeatureChange(): void {
 		// Refresh the layer
-		this.removeVectorLayer(this.datasetId);
-		this.addVectorLayer(this.datasetId);
+		this.hideOriginalGeometry();
+		this.showOriginalGeometry();
 	}
 
 	handleMapClickEvent(event: any): void {
@@ -493,34 +524,51 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	}
 
 	onMapSave(): void {
-		const geometry = this.getDrawGeometry();
-
-		this.editingControl.deleteAll();
-		this.map.removeControl(this.editingControl);
-		this.geometryChange.next(geometry);
-
-		this.vot.value = geometry;
-//		this.vot = null;
-
-		this.editingControl = null;
-		
-		this.editSessionEnabled = false;
+		if(this.editingControl){
+			const geometry = this.getDrawGeometry();
+	
+			this.editingControl.deleteAll();
+			this.map.removeControl(this.editingControl);
+	
+			this.vot.value = geometry;
+			this.geometryChange.next(this.vot);
+	
+			this.editingControl = null;
+			
+			this.editSessionEnabled = false;
+		}
 	}
 
-	onGeometryEdit(vot: ValueOverTime): void {
+	onGeometryEdit(vot: {vot:ValueOverTime, allVOT: ValueOverTime[]}): void {
+		
+		// Save everything first
+		this.onMapSave();
 		this.clearGeometryEditing();
 
-		this.vot = vot;
+		let theVOT = vot ? vot.vot : null;
+		if(theVOT){
+			this.vot = theVOT;
+			
+			this.hideOriginalGeometry();
 
-		this.addEditLayers(vot);
+			this.addEditLayers(theVOT);
+		
+			var bounds = new LngLatBounds();
+	
+			if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT"){
+				vot.allVOT.forEach(function(feature) {
+					let pt = new LngLat(feature.value.coordinates[0][0], feature.value.coordinates[0][1]);
+				    bounds.extend(pt);
+				});
+				
+				this.map.fitBounds(bounds, {padding: 50});
+				//this.map.jumpTo({ center: [vot.value.coordinates[0][0], vot.value.coordinates[0][1]] })
+			}
+		}
+		else {
+			this.showOriginalGeometry();
+		}
 	}
-
-	//	onMapEdit(): void {
-	//		// Enable editing
-	//		if (this.editingControl == null) {
-	//			this.addEditLayers();
-	//		}
-	//	}
 
 	addEditLayers(vot: ValueOverTime): void {
 		if (vot != null) {
@@ -540,9 +588,11 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 					uncombine_features: false
 				}
 			});
+			
 		}
 		else if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
 			this.editingControl = new MapboxDraw({
+				userProperties: true,
 				controls: {
 					point: true,
 					line_string: false,
@@ -550,7 +600,37 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 					trash: true,
 					combine_features: false,
 					uncombine_features: false
-				}
+				},
+				styles: [
+				    {
+				      'id': 'highlight-active-points',
+				      'type': 'circle',
+				      'filter': ['all',
+				        ['==', '$type', 'Point'],
+				        ['==', 'meta', 'feature'],
+				        ['==', 'active', 'true']],
+				      'paint': {
+				        'circle-radius': 13,
+				        'circle-color': '#33FFF9',
+						'circle-stroke-width': 4,
+						'circle-stroke-color': 'white'
+				      }
+				    },
+				    {
+				      'id': 'points-are-blue',
+				      'type': 'circle',
+				      'filter': ['all',
+				        ['==', '$type', 'Point'],
+				        ['==', 'meta', 'feature'],
+				        ['==', 'active', 'false']],
+				      'paint': {
+				        'circle-radius': 10,
+				        'circle-color': '#800000',
+						'circle-stroke-width': 2,
+						'circle-stroke-color': 'white'
+				      }
+				    }
+				  ]
 			});
 		}
 		else if (this.type.geometryType === "LINE" || this.type.geometryType === "MULTILINE") {
@@ -569,6 +649,12 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
 		if (vot.value != null) {
 			this.editingControl.add(vot.value);
+			
+			if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
+				if(vot.value.coordinates && vot.value.coordinates.length > 0){
+					this.coordinate = { longitude: vot.value.coordinates[0][0], latitude: vot.value.coordinates[0][1] };
+				}
+			}
 		}
 	}
 
@@ -661,6 +747,41 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 	formatDate(date: Date): string {
 		return this.dateService.formatDateForDisplay(date);
 	}
+	
+	refreshInputsFromDraw(): void {
+		let geom = this.getDrawGeometry();
+		let point = geom.coordinates[0];
+		
+		this.coordinate.latitude = point[1];
+		this.coordinate.longitude = point[0];
+	}
+	
+	refreshDrawFromInput(): void {
+		
+        if( this.coordinate.longitude != null && this.coordinate.latitude != null ) {
+			
+			const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
+			const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
+			
+			if( !isLatitude(this.coordinate.latitude) || !isLongitude(this.coordinate.longitude)){
+				// outside EPSG bounds
+			}
+
+			this.editingControl.set({
+			  type: 'FeatureCollection',
+			  features: [{
+				id: this.code,
+			    type: 'Feature',
+			    properties: {},
+			    geometry: { type: 'Point', coordinates: [ this.coordinate.longitude, this.coordinate.latitude ] }
+			  }]
+			});
+
+            this.editingControl.changeMode( 'simple_select', { featureIds: this.code } );
+
+			this.editSessionEnabled = true;
+        }
+    }
 
 
 	public error(err: HttpErrorResponse): void {

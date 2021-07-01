@@ -1,12 +1,13 @@
-import { 
-	Component, 
-	OnInit, 
-	Input, 
-	Output, 
-	ChangeDetectorRef, 
-	EventEmitter, 
-	ViewChildren, 
-	QueryList } from '@angular/core';
+import {
+	Component,
+	OnInit,
+	Input,
+	Output,
+	ChangeDetectorRef,
+	EventEmitter,
+	ViewChildren,
+	QueryList
+} from '@angular/core';
 import {
 	trigger,
 	style,
@@ -16,7 +17,7 @@ import {
 
 import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, PRESENT } from '@registry/model/registry';
 
-import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
+import { DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
 import { LocalizationService } from '@shared/service';
 import { DateService } from '@shared/service/date.service';
@@ -39,7 +40,7 @@ import * as moment from 'moment';
 					animate('500ms')
 				]),
 				transition(':leave',
-					animate('500ms', 
+					animate('500ms',
 						style({
 							opacity: 0
 						})
@@ -49,33 +50,35 @@ import * as moment from 'moment';
 		]]
 })
 export class GeometryPanelComponent implements OnInit {
-	
-	@ViewChildren('dateFieldComponents') dateFieldComponentsArray:QueryList<DateFieldComponent>;
-	
-	currentDate : Date = new Date();
-	
+
+	@ViewChildren('dateFieldComponents') dateFieldComponentsArray: QueryList<DateFieldComponent>;
+
+	currentDate: Date = new Date();
+
 	isValid: boolean = true;
-	
+
 	isVersionForHighlight: number;
-	
+
 	message: string = null;
 
 	readonly: boolean = false;
-	
+
 	hasConflict: boolean = false;
 
-    /*
-     * Observable subject for MasterList changes.  Called when an update is successful 
-     */
-	@Output() onChange = new EventEmitter<GeoObjectOverTime>()
+	/*
+	 * Observable subject for MasterList changes.  Called when an update is successful 
+	 */
+	@Output() onChange = new EventEmitter<GeoObjectOverTime>();
 
-	@Output() onEdit = new EventEmitter<ValueOverTime>()
+	@Output() onCloneGeometry = new EventEmitter<any>();
+
+	@Output() onEdit = new EventEmitter<ValueOverTime>();
 
 	@Input() geoObjectType: GeoObjectType;
 
 	originalGeoObjectOverTime: GeoObjectOverTime;
 	geoObjectOverTime: GeoObjectOverTime;
-	
+
 	@Input() set geoObjectOverTimeInput(value: GeoObjectOverTime) {
 		this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value));
 		this.geoObjectOverTime = value;
@@ -96,22 +99,22 @@ export class GeometryPanelComponent implements OnInit {
 
 	checkDateFieldValidity(): boolean {
 		let dateFields = this.dateFieldComponentsArray.toArray();
-		
-		for(let i=0; i<dateFields.length; i++){
+
+		for (let i = 0; i < dateFields.length; i++) {
 			let field = dateFields[i];
-			if(!field.valid){
+			if (!field.valid) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	onDateChange(): any {
 		this.hasConflict = false;
-		
+
 		this.isValid = this.checkDateFieldValidity();
-	
+
 		let vAttributes = this.geoObjectOverTime.attributes['geometry'].values;
 
 		this.hasConflict = this.dateService.checkRanges(vAttributes);
@@ -119,18 +122,22 @@ export class GeometryPanelComponent implements OnInit {
 
 	edit(vot: ValueOverTime, isVersionForHighlight: number): void {
 		this.onEdit.emit(vot);
-		
+
 		this.isVersionForHighlight = isVersionForHighlight;
 	}
 
-	onAddNewVersion(): void {
+	onAddNewVersion(geometry: ValueOverTime): void {
 		let votArr: ValueOverTime[] = this.geoObjectOverTime.attributes['geometry'].values;
 
 		let vot: ValueOverTime = new ValueOverTime();
 		vot.startDate = null;  // Utils.formatDateString(new Date());
 		vot.endDate = null;  // Utils.formatDateString(new Date());
 
-		vot.value = { "type": this.geoObjectType.geometryType, "coordinates": [] };
+		if (geometry && geometry.value) {
+			vot.value = geometry.value;
+		} else {
+			vot.value = { "type": this.geoObjectType.geometryType, "coordinates": [] };
+		}
 
 		if (this.geoObjectType.geometryType === "MULTIPOLYGON") {
 			vot.value.type = "MultiPolygon";
@@ -197,32 +204,32 @@ export class GeometryPanelComponent implements OnInit {
 				position = i
 			}
 		}
-		
-		if(position > -1){
+
+		if (position > -1) {
 			val.values.splice(position, 1);
 		}
-		
+
 	}
-	
+
 	formatDate(date: string) {
 		let localeData = moment.localeData(date);
-  		var format = localeData.longDateFormat('L');
-  		return moment().format(format);
+		var format = localeData.longDateFormat('L');
+		return moment().format(format);
 	}
-	
+
 	setInfinity(vAttribute, attributes): void {
-		
-		if(vAttribute.endDate === PRESENT){
+
+		if (vAttribute.endDate === PRESENT) {
 			vAttribute.endDate = new Date();
 		}
-		else{
+		else {
 			vAttribute.endDate = PRESENT
 		}
-		
+
 		this.onDateChange();
-		
+
 	}
-	
+
 	sort(votArr: ValueOverTime[]): void {
 
 		// Sort the data by start date 
@@ -239,6 +246,10 @@ export class GeometryPanelComponent implements OnInit {
 			let next: any = new Date(b.startDate);
 			return first - next;
 		});
+	}
+
+	onCloneGeometryToNewVersion(geometry: ValueOverTime): void {
+		this.onAddNewVersion(geometry);
 	}
 
 	onSubmit(): void {
