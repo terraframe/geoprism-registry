@@ -18,6 +18,8 @@
  */
 package com.runwaysdk.build.domain;
 
+import java.util.HashMap;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,8 @@ import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
+import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.metadata.MdAttributeBooleanDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -80,6 +84,8 @@ public class InvalidPatch
         
         if (existing == null)
         {
+          logger.info("Adding invalid attribute to [" + mdClass.getKey() + "].");
+          
           MdAttributeBooleanDAO invalidMdAttr = MdAttributeBooleanDAO.newInstance();
           invalidMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.INVALID.getName());
           invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultLocalizedName());
@@ -89,6 +95,14 @@ public class InvalidPatch
           invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
           invalidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
           invalidMdAttr.apply();
+          
+          StringBuilder statement = new StringBuilder();
+          statement.append("UPDATE " + mdClass.getDBClassName() + " SET invalid=false");
+
+          GraphDBService service = GraphDBService.getInstance();
+          GraphRequest request = service.getGraphDBRequest();
+
+          service.command(request, statement.toString(), new HashMap<>());
         }
       }
     }
