@@ -37,6 +37,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -50,12 +51,14 @@ import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
+import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
+import com.runwaysdk.system.AbstractClassification;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.data.importer.FeatureRow;
@@ -1042,6 +1045,49 @@ public class GeoObjectImporter implements ObjectImporterIF
     }
   }
 
+  protected void setClassificationValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value, Date startDate, Date endDate)
+  {
+    if (!this.configuration.isExclusion(attributeName, value.toString()))
+    {
+      try
+      {
+        ServerGeoObjectType type = this.configuration.getType();
+        MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
+        MdAttributeClassificationDAOIF mdAttribute = (MdAttributeClassificationDAOIF) mdBusiness.definesAttribute(attributeName);
+        
+        if (mdAttribute == null && type.getSuperType() != null)
+        {
+          mdAttribute = (MdAttributeClassificationDAOIF) type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
+        }
+        
+        AbstractClassification classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
+        
+        if (classifier == null)
+        {
+          Term rootClassification = ( (AttributeClassificationType) attributeType ).getRootTerm();
+          
+          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootClassification.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
+          trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+          trp.setHistoryId(this.configuration.getHistoryId());
+          
+          this.progressListener.addReferenceProblem(trp);
+        }
+        else
+        {
+          entity.setValue(attributeName, classifier.getOid(), startDate, endDate);
+        }
+      }
+      catch (UnknownTermException e)
+      {
+        TermValueException ex = new TermValueException();
+        ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+        ex.setCode(e.getCode());
+        
+        throw e;
+      }
+    }
+  }
+  
   protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
   {
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
@@ -1066,6 +1112,17 @@ public class GeoObjectImporter implements ObjectImporterIF
       else
       {
         entity.setStatus(null, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+    }
+    else if (attributeType instanceof AttributeClassificationType)
+    {
+      if (value != null)
+      {
+        this.setClassificationValue(entity, attributeType, attributeName, value, this.configuration.getStartDate(), this.configuration.getEndDate());
+      }
+      else
+      {
+        entity.setValue(attributeName, null, this.configuration.getStartDate(), this.configuration.getEndDate());
       }
     }
     else if (attributeType instanceof AttributeTermType)

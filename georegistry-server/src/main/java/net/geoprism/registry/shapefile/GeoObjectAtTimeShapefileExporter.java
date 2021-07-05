@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.shapefile;
 
@@ -44,6 +44,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -100,8 +101,8 @@ public class GeoObjectAtTimeShapefileExporter
   private Collection<AttributeType> attributes;
 
   private Map<String, String>       columnNames;
-  
-  private Collection<Locale> locales;
+
+  private Collection<Locale>        locales;
 
   public GeoObjectAtTimeShapefileExporter(ServerGeoObjectType type, Date date)
   {
@@ -278,6 +279,10 @@ public class GeoObjectAtTimeShapefileExporter
             {
               builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
             }
+            else if (attribute instanceof AttributeClassificationType)
+            {
+              builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
+            }
             else if (attribute instanceof AttributeLocalType)
             {
               builder.set(columnName, ( (LocalizedValue) value ).getValue());
@@ -410,6 +415,10 @@ public class GeoObjectAtTimeShapefileExporter
       return Long.class;
     }
     else if (attribute instanceof AttributeTermType)
+    {
+      return String.class;
+    }
+    else if (attribute instanceof AttributeClassificationType)
     {
       return String.class;
     }

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -48,6 +48,7 @@ import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -93,6 +94,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.gis.metadata.MdAttributeGeometry;
 import com.runwaysdk.system.gis.metadata.MdAttributeLineString;
 import com.runwaysdk.system.gis.metadata.MdAttributeMultiLineString;
@@ -328,7 +330,7 @@ public class MasterListVersion extends MasterListVersionBase
   {
     MdBusiness mdBusiness = metadata.getMdBusiness();
 
-    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeLocalType ))
+    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType ))
     {
       MdAttributeConcrete mdAttribute = null;
 
@@ -371,7 +373,7 @@ public class MasterListVersion extends MasterListVersionBase
       mdAttribute.setDefiningMdClass(mdBusiness);
       mdAttribute.apply();
     }
-    else if (attributeType instanceof AttributeTermType)
+    else if (attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType)
     {
       MdAttributeCharacter cloneAttribute = new MdAttributeCharacter();
       cloneAttribute.setValue(MdAttributeConcreteInfo.NAME, attributeType.getName());
@@ -678,7 +680,7 @@ public class MasterListVersion extends MasterListVersionBase
   public List<ExecutableJob> getJobs()
   {
     LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
-    
+
     PublishShapefileJobQuery psjq = new PublishShapefileJobQuery(new QueryFactory());
     psjq.WHERE(psjq.getMasterList().EQ(this));
 
@@ -686,7 +688,7 @@ public class MasterListVersion extends MasterListVersionBase
     {
       jobs.addAll(it.getAll());
     }
-    
+
     PublishMasterListVersionJobQuery pmlvj = new PublishMasterListVersionJobQuery(new QueryFactory());
     pmlvj.WHERE(pmlvj.getMasterListVersion().EQ(this));
 
@@ -694,7 +696,7 @@ public class MasterListVersion extends MasterListVersionBase
     {
       jobs.addAll(it.getAll());
     }
-    
+
     return jobs;
   }
 
@@ -810,13 +812,15 @@ public class MasterListVersion extends MasterListVersionBase
           query = new VertexGeoObjectQuery(type, this.getForDate());
           query.setLimit(pageSize);
           query.setSkip(skip);
-          
-//          List<GeoObjectStatus> validStats = new ArrayList<GeoObjectStatus>();
-//          validStats.add(GeoObjectStatus.ACTIVE);
-//          validStats.add(GeoObjectStatus.INACTIVE);
-//          validStats.add(GeoObjectStatus.PENDING);
-//          validStats.add(GeoObjectStatus.NEW);
-//          query.setRestriction(new ServerStatusRestriction(validStats, this.getForDate(), JoinOp.OR));
+
+          // List<GeoObjectStatus> validStats = new
+          // ArrayList<GeoObjectStatus>();
+          // validStats.add(GeoObjectStatus.ACTIVE);
+          // validStats.add(GeoObjectStatus.INACTIVE);
+          // validStats.add(GeoObjectStatus.PENDING);
+          // validStats.add(GeoObjectStatus.NEW);
+          // query.setRestriction(new ServerStatusRestriction(validStats,
+          // this.getForDate(), JoinOp.OR));
 
           List<ServerGeoObjectIF> results = query.getResults();
 
@@ -849,13 +853,13 @@ public class MasterListVersion extends MasterListVersionBase
       this.unlock();
     }
   }
-  
+
   private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, Collection<Locale> locales)
   {
     VertexServerGeoObject vertexGo = (VertexServerGeoObject) go;
-    
+
     boolean hasData = false;
-    
+
     business.setValue(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME, go.getGeometry());
 
     for (AttributeType attribute : attributes)
@@ -870,16 +874,16 @@ public class MasterListVersion extends MasterListVersionBase
 
         if (value != null)
         {
-          if (value instanceof LocalizedValue && ((LocalizedValue)value).isNull())
+          if (value instanceof LocalizedValue && ( (LocalizedValue) value ).isNull())
           {
             continue;
           }
-          
+
           if (!name.equals(DefaultAttribute.CODE.getName()))
           {
             hasData = true;
           }
-          
+
           if (name.equals(DefaultAttribute.STATUS.getName()))
           {
             GeoObjectStatus status = (GeoObjectStatus) value;
@@ -902,6 +906,20 @@ public class MasterListVersion extends MasterListVersionBase
             LocalizedValue label = term.getLabel();
 
             this.setValue(business, name, term.getCode());
+            this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
+
+            for (Locale locale : locales)
+            {
+              this.setValue(business, name + locale.toString(), label.getValue(locale));
+            }
+          }
+          else if (attribute instanceof AttributeClassificationType)
+          {
+            AbstractClassification classifier = (AbstractClassification) value;
+
+            LocalizedValue label = LocalizedValueConverter.convert(classifier.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+
+            this.setValue(business, name, classifier.getCode());
             this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
 
             for (Locale locale : locales)
@@ -945,27 +963,27 @@ public class MasterListVersion extends MasterListVersionBase
     if (hasData)
     {
       Set<Entry<ServerHierarchyType, List<ServerGeoObjectType>>> entries = ancestorMap.entrySet();
-  
+
       for (Entry<ServerHierarchyType, List<ServerGeoObjectType>> entry : entries)
       {
         ServerHierarchyType hierarchy = entry.getKey();
-  
+
         Map<String, LocationInfo> map = vertexGo.getAncestorMap(hierarchy, entry.getValue());
-  
+
         Set<Entry<String, LocationInfo>> locations = map.entrySet();
-  
+
         for (Entry<String, LocationInfo> location : locations)
         {
           String pCode = location.getKey();
           LocationInfo vObject = location.getValue();
-  
+
           if (vObject != null)
           {
             String attributeName = hierarchy.getCode().toLowerCase() + pCode.toLowerCase();
-  
+
             this.setValue(business, attributeName, vObject.getCode());
             this.setValue(business, attributeName + DEFAULT_LOCALE, vObject.getLabel());
-  
+
             for (Locale locale : locales)
             {
               this.setValue(business, attributeName + locale.toString(), vObject.getLabel(locale));
@@ -973,30 +991,30 @@ public class MasterListVersion extends MasterListVersionBase
           }
         }
       }
-  
+
       for (ServerHierarchyType hierarchy : hierarchiesOfSubTypes)
       {
         ServerParentTreeNode node = go.getParentsForHierarchy(hierarchy, false);
         List<ServerParentTreeNode> parents = node.getParents();
-  
+
         if (parents.size() > 0)
         {
           ServerParentTreeNode parent = parents.get(0);
-  
+
           String attributeName = hierarchy.getCode().toLowerCase();
           ServerGeoObjectIF geoObject = parent.getGeoObject();
           LocalizedValue label = geoObject.getDisplayLabel();
-  
+
           this.setValue(business, attributeName, geoObject.getCode());
           this.setValue(business, attributeName + DEFAULT_LOCALE, label.getValue(DEFAULT_LOCALE));
-  
+
           for (Locale locale : locales)
           {
             this.setValue(business, attributeName + locale.toString(), label.getValue(locale));
           }
         }
       }
-  
+
       business.apply();
     }
   }
@@ -1106,7 +1124,7 @@ public class MasterListVersion extends MasterListVersionBase
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
-    
+
     Progress progress = ProgressService.get(this.getOid());
     if (progress != null)
     {
@@ -1117,11 +1135,11 @@ public class MasterListVersion extends MasterListVersionBase
     {
       object.addProperty("superTypeCode", type.getSuperType().getCode());
     }
-    
+
     if (type.getIsAbstract())
     {
       JsonArray subtypes = new JsonArray();
-      
+
       for (ServerGeoObjectType subtype : type.getSubtypes())
       {
         JsonObject jo = new JsonObject();
@@ -1129,7 +1147,7 @@ public class MasterListVersion extends MasterListVersionBase
         jo.addProperty("label", subtype.getLabel().getValue());
         subtypes.add(jo);
       }
-      
+
       object.add("subtypes", subtypes);
     }
 
@@ -1374,11 +1392,11 @@ public class MasterListVersion extends MasterListVersionBase
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(metadata.getMdBusiness().getOid());
 
-    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeLocalType ))
+    if (! ( attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType || attributeType instanceof AttributeLocalType ))
     {
       removeAttribute(mdBusiness, attributeType.getName());
     }
-    else if (attributeType instanceof AttributeTermType)
+    else if (attributeType instanceof AttributeTermType || attributeType instanceof AttributeClassificationType)
     {
       removeAttribute(mdBusiness, attributeType.getName());
       removeAttribute(mdBusiness, attributeType.getName() + DEFAULT_LOCALE);

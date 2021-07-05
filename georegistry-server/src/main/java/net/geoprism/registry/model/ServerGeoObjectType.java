@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -27,11 +27,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -53,16 +55,20 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.Actor;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -70,6 +76,7 @@ import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.gis.metadata.graph.MdGeoVertexQuery;
 import com.runwaysdk.system.metadata.MdAttributeBoolean;
 import com.runwaysdk.system.metadata.MdAttributeCharacter;
+import com.runwaysdk.system.metadata.MdAttributeClassification;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
 import com.runwaysdk.system.metadata.MdAttributeDateTime;
 import com.runwaysdk.system.metadata.MdAttributeDouble;
@@ -77,6 +84,7 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdClassification;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
 import net.geoprism.ontology.Classifier;
@@ -91,6 +99,7 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.conversion.VertexTermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
@@ -532,6 +541,25 @@ public class ServerGeoObjectType
       // MdBusiness.getMdBusiness(Classifier.CLASS);
       // mdAttributeMultiTerm.setMdBusiness(classifierMdBusiness);
     }
+    else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
+    {
+      AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
+      String classificationType = attributeClassificationType.getClassificationType();
+
+      MdClassification mdClassification = MdClassification.getByKey(classificationType);
+      MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+
+      mdAttribute = new MdAttributeClassification();
+      MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
+      mdAttributeTerm.setReferenceMdClassification(mdClassification);
+
+      Term root = attributeClassificationType.getRootTerm();
+
+      if (root != null)
+      {
+        mdAttributeTerm.setRoot(AbstractClassification.get(root.getCode(), mdClassificationDAO));
+      }
+    }
     else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
     {
       mdAttribute = new MdAttributeBoolean();
@@ -730,6 +758,22 @@ public class ServerGeoObjectType
 
           mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
           mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
+        }
+        else if (attributeType instanceof AttributeClassificationType)
+        {
+          MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
+
+          AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
+          String classificationType = attributeClassificationType.getClassificationType();
+
+          MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+
+          Term root = attributeClassificationType.getRootTerm();
+
+          if (root != null)
+          {
+            mdAttributeTerm.setRoot(AbstractClassification.get(root.getCode(), mdClassificationDAO));
+          }
         }
 
         mdAttribute.apply();
