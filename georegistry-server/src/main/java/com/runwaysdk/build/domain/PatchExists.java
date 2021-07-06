@@ -54,6 +54,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -80,13 +81,7 @@ public class PatchExists
   @Transaction
   private void doItInTrans()
   {
-    QueryFactory qf = new QueryFactory();
-    UniversalQuery uq = new UniversalQuery(qf);
-    
-    @SuppressWarnings("unchecked")
-    List<Universal> unis = (List<Universal>) uq.getIterator().getAll();
-    
-    unis = unis.stream().filter(uni -> !uni.getKey().equals(Universal.ROOT_KEY)).collect(Collectors.toList());
+    List<Universal> unis = InvalidPatch.getUniversals();
 
     for (Universal uni : unis)
     {
@@ -102,6 +97,8 @@ public class PatchExists
       MdAttributeEnumerationDAO statusMdAttr = (MdAttributeEnumerationDAO) mdVertex.definesAttribute(STATUS_ATTRIBUTE_NAME);
       statusMdAttr.delete();
     }
+    
+    int applied = 0;
     
     for (Universal uni : unis)
     {
@@ -127,50 +124,41 @@ public class PatchExists
         
         List<VertexServerGeoObject> data = getInstanceData(type, mdClass);
         
-        Date startDate = null;
-        Date endDate = null;
+        int current = 0;
+        final int size = data.size();
+        
+        logger.info("Starting to patch instance data for type [" + mdClass.getDBClassName() + "] with count [" + size + "] ");
         
         for (VertexServerGeoObject go : data)
         {
-          Collection<AttributeType> attributes = type.getAttributeMap().values();
+          ValueOverTime defaultExists = go.buildDefaultExists();
           
-          for (AttributeType attribute : attributes)
+          if (defaultExists != null)
           {
-            if (this.isValid(attribute) && attribute.isChangeOverTime())
-            {
-              ValueOverTimeCollection votc = go.getValuesOverTime(attribute.getName());
-              
-              for (ValueOverTime vot : votc)
-              {
-                if (startDate == null || startDate.after(vot.getStartDate()))
-                {
-                  startDate = vot.getStartDate();
-                }
-                
-                if (endDate == null || endDate.before(vot.getEndDate()))
-                {
-                  endDate = vot.getEndDate();
-                }
-              }
-            }
+            go.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
+            
+            // This apply method is mega slow due to the SearchService so we're going to just bypass it
+//            go.apply(false);
+            
+            go.getVertex().setValue(GeoVertex.LASTUPDATEDATE, new Date());
+            go.getVertex().apply();
+            
+            applied++;
           }
           
-          if (startDate != null && endDate != null && go.getValuesOverTime(DefaultAttribute.EXISTS.getName()).size() == 0)
+          if (current % 10 == 0)
           {
-            go.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, startDate, endDate);
+            logger.info("Finished record " + current + " of " + size);
           }
+          
+          current++;
         }
+        
+        // TODO : Patch masterlist tables
       }
     }
-  }
-  
-  private boolean isValid(AttributeType attributeType)
-  {
-    String[] invalid = new String[] {
-        DefaultAttribute.UID.getName(), DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.LAST_UPDATE_DATE.getName(),
-        DefaultAttribute.CREATE_DATE.getName(), DefaultAttribute.TYPE.getName(), DefaultAttribute.EXISTS.getName()};
     
-    return !ArrayUtils.contains(invalid, attributeType.getName());
+    logger.info("Applied " + applied + " records across " + unis.size() + " types.");
   }
   
   private List<VertexServerGeoObject> getInstanceData(ServerGeoObjectType type, MdGraphClassDAOIF mdClass)

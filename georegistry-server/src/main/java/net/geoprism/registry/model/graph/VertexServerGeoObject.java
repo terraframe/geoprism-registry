@@ -38,6 +38,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
@@ -593,7 +594,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 //        )
 //      )
 //      WHERE 
-//      status_cot CONTAINS (value CONTAINS 'ea48a4be-aa38-4b92-9d5b-dfd10e0005ba' AND DATE('2021-06-10','yyyy-MM-dd') BETWEEN startDate AND endDate)
+//      exists_cot CONTAINS (value CONTAINS 'ea48a4be-aa38-4b92-9d5b-dfd10e0005ba' AND DATE('2021-06-10','yyyy-MM-dd') BETWEEN startDate AND endDate)
     
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT @class, " + DefaultAttribute.CODE.getName() + ", " + DefaultAttribute.DISPLAY_LABEL.getName() + "_cot FROM (");
@@ -615,6 +616,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     for (ServerHierarchyType hier : inheritancePath)
     {
       statement.append(")");
+    }
+    
+    if (this.date != null)
+    {
+      statement.append(") WHERE exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate)");
+    }
+    else
+    {
+      statement.append(") WHERE exists_cot CONTAINS (value=true)");
     }
     
     GraphQuery<List<Object>> query = new GraphQuery<List<Object>>(statement.toString());
@@ -761,7 +771,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append("MATCH ");
       statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
       statement.append(".in('" + hierarchy.getMdEdge().getDBClassName() + "')");
-      statement.append("{as: ancestor, where: (), while: (true)}");
+      statement.append("{as: ancestor, where: (exists=true AND invalid=false), while: (true)}");
       statement.append("RETURN $elements");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
@@ -775,7 +785,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append("MATCH ");
       statement.append("{class:" + dbClassName + ", where: (@rid=:rid)}");
       statement.append(".(inE('" + hierarchy.getMdEdge().getDBClassName() + "'){where: (:date BETWEEN startDate AND endDate)}.outV())");
-      statement.append("{as: ancestor, where: (), while: (true)}");
+      statement.append("{as: ancestor, where: (invalid=false AND exists_cot CONTAINS (value=true AND :date BETWEEN startDate AND endDate )), while: (true)}");
       statement.append("RETURN $elements");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
@@ -973,6 +983,55 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 //      }
 //    }
 //  }
+  
+  public ValueOverTime buildDefaultExists()
+  {
+    if (this.getValuesOverTime(DefaultAttribute.EXISTS.getName()).size() != 0)
+    {
+      return null;
+    }
+    
+    Collection<AttributeType> attributes = type.getAttributeMap().values();
+    
+    String[] shouldNotProcessArray = new String[] {
+        DefaultAttribute.UID.getName(), DefaultAttribute.SEQUENCE.getName(), DefaultAttribute.LAST_UPDATE_DATE.getName(),
+        DefaultAttribute.CREATE_DATE.getName(), DefaultAttribute.TYPE.getName(), DefaultAttribute.EXISTS.getName()};
+    
+    Date startDate = null;
+    Date endDate = null;
+    
+    for (AttributeType attribute : attributes)
+    {
+      boolean shouldProcess = !ArrayUtils.contains(shouldNotProcessArray, attribute.getName());
+      
+      if (shouldProcess && attribute.isChangeOverTime())
+      {
+        ValueOverTimeCollection votc = this.getValuesOverTime(attribute.getName());
+        
+        for (ValueOverTime vot : votc)
+        {
+          if (startDate == null || startDate.after(vot.getStartDate()))
+          {
+            startDate = vot.getStartDate();
+          }
+          
+          if (endDate == null || endDate.before(vot.getEndDate()))
+          {
+            endDate = vot.getEndDate();
+          }
+        }
+      }
+    }
+    
+    if (startDate != null && endDate != null)
+    {
+      return new ValueOverTime(startDate, endDate, Boolean.TRUE);
+    }
+    else
+    {
+      return null;
+    }
+  }
   
   private void validate()
   {
@@ -2131,8 +2190,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     final String dbClassName = type.getMdVertex().getDBClassName();
 
-    final Date startDate = new GraphQuery<Date>("SELECT MIN(status_cot.startDate) FROM " + dbClassName).getSingleResult();
-    final Date endDate = new GraphQuery<Date>("SELECT MAX(status_cot.startDate) FROM " + dbClassName).getSingleResult();
+    final Date startDate = new GraphQuery<Date>("SELECT MIN(exists_cot.startDate) FROM " + dbClassName).getSingleResult();
+    final Date endDate = new GraphQuery<Date>("SELECT MAX(exists_cot.startDate) FROM " + dbClassName).getSingleResult();
     Date current = new Date();
 
     if (startDate != null && endDate != null)

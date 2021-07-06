@@ -52,6 +52,7 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
@@ -62,7 +63,6 @@ import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.StatusValueException;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
@@ -619,6 +619,12 @@ public class GeoObjectImporter implements ObjectImporterIF
         data.setGoJson(goJson);
         data.setNew(isNew);
         data.setParentBuilder(parentBuilder);
+        
+        ValueOverTime defaultExists = ((VertexServerGeoObject) serverGo).buildDefaultExists();
+        if (defaultExists != null)
+        {
+          serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
+        }
 
         serverGo.apply(true);
       }

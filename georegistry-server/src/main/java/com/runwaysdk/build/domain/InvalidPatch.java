@@ -19,29 +19,34 @@
 package com.runwaysdk.build.domain;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.runwaysdk.constants.IndexTypes;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
+import com.runwaysdk.dataaccess.graph.orientdb.OrientDBRequest;
 import com.runwaysdk.dataaccess.metadata.MdAttributeBooleanDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.OIterator;
+import com.runwaysdk.gis.dataaccess.MdGeoVertexDAOIF;
+import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
 
-import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
-import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.graph.GeoVertexType;
 
 public class InvalidPatch
 {
@@ -61,54 +66,77 @@ public class InvalidPatch
   @Transaction
   private void doItInTrans()
   {
-    QueryFactory qf = new QueryFactory();
-    UniversalQuery uq = new UniversalQuery(qf);
-    OIterator<? extends Universal> it = uq.getIterator();
+    List<Universal> unis = getUniversals();
 
-    try
+    for (Universal uni : unis)
     {
-      while (it.hasNext())
+      MdGeoVertexDAO mdVertex = GeoVertexType.getMdGeoVertex(uni.getUniversalId());
+      
+      MdAttributeDAOIF existing = mdVertex.definesAttribute(DefaultAttribute.INVALID.getName());
+      
+      if (existing == null)
       {
-        Universal uni = it.next();
+        logger.info("Adding invalid attribute to [" + mdVertex.getKey() + "].");
+        
+        MdAttributeBooleanDAO invalidMdAttr = MdAttributeBooleanDAO.newInstance();
+        invalidMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.INVALID.getName());
+        invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultLocalizedName());
+        invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultDescription());
+        invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+        invalidMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+        invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
+        invalidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
+        invalidMdAttr.apply();
+        
+        StringBuilder statement = new StringBuilder();
+        statement.append("UPDATE " + mdVertex.getDBClassName() + " SET invalid=false");
+        
+        logger.info("Executing [" + statement.toString() + "].");
 
-        if (uni.getKey().equals(Universal.ROOT_KEY))
+        GraphDBService service = GraphDBService.getInstance();
+        GraphRequest request = service.getGraphDBRequest();
+
+        ODatabaseSession db = ((OrientDBRequest) request).getODatabaseSession();
+        
+        try (OResultSet command = db.command(statement.toString(), new HashMap<String,Object>()))
         {
-          continue;
+          logger.info(command.toString());
         }
-
-        ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
         
-        MdGraphClassDAOIF mdClass = type.getMdVertex();
-        
-        MdAttributeDAOIF existing = mdClass.definesAttribute(DefaultAttribute.INVALID.getName());
-        
-        if (existing == null)
-        {
-          logger.info("Adding invalid attribute to [" + mdClass.getKey() + "].");
-          
-          MdAttributeBooleanDAO invalidMdAttr = MdAttributeBooleanDAO.newInstance();
-          invalidMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.INVALID.getName());
-          invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultLocalizedName());
-          invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultDescription());
-          invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
-          invalidMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
-          invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
-          invalidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
-          invalidMdAttr.apply();
-          
-          StringBuilder statement = new StringBuilder();
-          statement.append("UPDATE " + mdClass.getDBClassName() + " SET invalid=false");
-
-          GraphDBService service = GraphDBService.getInstance();
-          GraphRequest request = service.getGraphDBRequest();
-
-          service.command(request, statement.toString(), new HashMap<>());
-        }
+        // TODO : Patch masterlist tables
       }
     }
-    finally
+  }
+  
+  public static List<Universal> getUniversals()
+  {
+    QueryFactory qf = new QueryFactory();
+    UniversalQuery uq = new UniversalQuery(qf);
+    
+    @SuppressWarnings("unchecked")
+    List<Universal> unis = (List<Universal>) uq.getIterator().getAll();
+    
+    Iterator<Universal> it = unis.iterator();
+    
+    while (it.hasNext())
     {
-      it.close();
+      Universal uni = it.next();
+      
+      if (uni.getKey().equals(Universal.ROOT_KEY))
+      {
+        it.remove();
+        continue;
+      }
+      
+      MdGeoVertexDAOIF superType = GeoVertexType.getMdGeoVertex(uni.getUniversalId()).getSuperClass();
+      
+      if (superType != null && !superType.definesType().equals(GeoVertex.CLASS))
+      {
+        it.remove();
+        continue;
+      }
     }
+    
+    return unis;
   }
 }

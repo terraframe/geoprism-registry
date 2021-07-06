@@ -180,7 +180,7 @@ public class MasterListGeoObjectShapefileExporterTest
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals(8, attributes.size());
+    Assert.assertEquals(7, attributes.size());
   }
 
   @Test

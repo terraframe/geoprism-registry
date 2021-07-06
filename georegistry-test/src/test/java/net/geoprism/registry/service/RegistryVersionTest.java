@@ -240,7 +240,7 @@ public class RegistryVersionTest
     dateFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
     
     ServerGeoObjectIF serverObj = geoObj.getServerObject();
-    serverObj.getValuesOverTime("status").clear();
+    serverObj.getValuesOverTime(DefaultAttribute.EXISTS.getName()).clear();
     
     serverObj.setExists(Boolean.FALSE, dateFormat.parse("01-01-1990"), dateFormat.parse("01-31-1990"));
     Assert.assertEquals(Boolean.FALSE, serverObj.getExists(dateFormat.parse("01-01-1990")));
