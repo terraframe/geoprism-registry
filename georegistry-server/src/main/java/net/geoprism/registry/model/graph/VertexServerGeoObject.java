@@ -70,6 +70,7 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -77,6 +78,7 @@ import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -1573,7 +1575,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            VertexObject classification = (VertexObject) value;
+            String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
+            MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+            MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+
+            VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
 
             try
             {
@@ -1687,7 +1693,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                 }
                 else if (attribute instanceof AttributeClassificationType)
                 {
-                  VertexObject classification = (VertexObject) value;
+                  String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
+                  MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+                  MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+
+                  VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
 
                   try
                   {
