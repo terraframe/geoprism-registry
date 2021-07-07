@@ -66,6 +66,7 @@ import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
@@ -915,11 +916,11 @@ public class MasterListVersion extends MasterListVersionBase
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            AbstractClassification classifier = (AbstractClassification) value;
+            VertexObject classifier = (VertexObject) value;
 
             LocalizedValue label = LocalizedValueConverter.convert(classifier.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
 
-            this.setValue(business, name, classifier.getCode());
+            this.setValue(business, name, classifier.getObjectValue(AbstractClassification.CODE));
             this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
 
             for (Locale locale : locales)

@@ -23,6 +23,7 @@ import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
@@ -187,12 +188,12 @@ public class ConversionService
     return classifier;
   }
 
-  public AbstractClassification termToClassification(AttributeClassificationType attr, Term term)
+  public VertexObject termToClassification(AttributeClassificationType attr, Term term)
   {
     return this.termToClassification(attr, term.getCode());
   }
 
-  public AbstractClassification termToClassification(AttributeClassificationType attr, String code)
+  public VertexObject termToClassification(AttributeClassificationType attr, String code)
   {
     String classificationType = attr.getClassificationType();
     MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);

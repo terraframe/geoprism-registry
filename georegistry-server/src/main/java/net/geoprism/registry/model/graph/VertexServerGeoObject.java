@@ -70,16 +70,13 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
-import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.cache.MdClassStrategy;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
-import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -90,8 +87,6 @@ import com.runwaysdk.session.WritePermissionException;
 import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
-import com.runwaysdk.system.metadata.MdAttributeClassification;
-import com.runwaysdk.system.metadata.MdClassification;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -437,7 +432,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
           if (value != null)
           {
-            AbstractClassification classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
+            VertexObject classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
 
             this.vertex.setValue(attributeName, classification, this.date, this.date);
           }
@@ -544,7 +539,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
               if (value != null)
               {
-                AbstractClassification classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
+                VertexObject classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
 
                 this.vertex.setValue(attributeName, classification, votDTO.getStartDate(), votDTO.getEndDate());
               }
@@ -1578,11 +1573,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            AbstractClassification classification = (AbstractClassification) value;
+            VertexObject classification = (VertexObject) value;
 
             try
             {
-              geoObj.setValue(attributeName, classification.getCode());
+              geoObj.setValue(attributeName, classification.getObjectValue(AbstractClassification.CODE));
             }
             catch (UnknownTermException e)
             {
@@ -1692,11 +1687,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                 }
                 else if (attribute instanceof AttributeClassificationType)
                 {
-                  AbstractClassification classification = (AbstractClassification) value;
+                  VertexObject classification = (VertexObject) value;
 
                   try
                   {
-                    geoObj.setValue(attributeName, classification.getCode(), vot.getStartDate(), vot.getEndDate());
+                    geoObj.setValue(attributeName, classification.getObjectValue(AbstractClassification.CODE), vot.getStartDate(), vot.getEndDate());
                   }
                   catch (UnknownTermException e)
                   {

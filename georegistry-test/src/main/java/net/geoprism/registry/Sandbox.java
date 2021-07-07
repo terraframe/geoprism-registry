@@ -3,6 +3,7 @@ package net.geoprism.registry;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +59,7 @@ import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.primitive.IdDt;
+import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -170,9 +172,6 @@ public class Sandbox
   private static void exportBundle(IGenericClient client, File file) throws FileNotFoundException, IOException
   {
     client.transaction().withBundle(IOUtils.toString(new FileReader(file))).execute();
-    // transaction.e
-    // TODO Auto-generated method stub
-
   }
 
   private static void exportType(IGenericClient client, Date date, ServerGeoObjectType sType)
@@ -250,7 +249,7 @@ public class Sandbox
 
   }
 
-  private static void exportJson(IGenericClient client, File file) throws JsonIOException, JsonSyntaxException, FileNotFoundException
+  private static void exportJson(IGenericClient client, File file) throws JsonIOException, JsonSyntaxException, DataFormatException, IOException
   {
     JsonObject jobj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
 
@@ -377,7 +376,9 @@ public class Sandbox
 
     newEntry(context, parameter);
 
-    client.transaction().withBundle(context.bundle).execute();
+    // client.transaction().withBundle(context.bundle).execute();
+
+    FhirContext.forR4().newJsonParser().encodeResourceToWriter(context.bundle, new FileWriter(new File("/home/jsmethie/Documents/IntraHealth/demo.json")));
   }
 
   private static void createService(Context context, String code, String name, String category, int filter)

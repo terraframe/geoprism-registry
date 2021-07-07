@@ -52,9 +52,9 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.RelationshipDAOIF;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -65,8 +65,8 @@ public class AttributeTypeConverter extends LocalizedValueConverter
     Locale locale = Session.getCurrentLocale();
 
     String attributeName = mdAttribute.definesAttribute();
-    LocalizedValue displayLabel = this.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
-    LocalizedValue description = this.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
+    LocalizedValue displayLabel = convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
+    LocalizedValue description = convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
     boolean required = mdAttribute.isRequired();
     boolean unique = mdAttribute.isUnique();
 
@@ -118,7 +118,8 @@ public class AttributeTypeConverter extends LocalizedValueConverter
 
       if (root != null)
       {
-        VertexTermConverter termBuilder = new VertexTermConverter(AbstractClassification.get(root.getOid()));
+        VertexObject classification = VertexObject.instantiate((VertexObjectDAO) root);
+        VertexTermConverter termBuilder = new VertexTermConverter(classification);
         Term adapterTerm = termBuilder.build();
 
         attributeType.setRootTerm(adapterTerm);

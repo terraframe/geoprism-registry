@@ -39,9 +39,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.constants.MdAttributeEmbeddedInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -52,8 +50,6 @@ import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
-import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
-import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -64,21 +60,21 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.PermissionContext;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectTypeInfo;
 
 public class AttributeTypeServiceTest
 {
-  public static final TestGeoObjectTypeInfo TEST_GOT           = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
+  public static final TestGeoObjectTypeInfo TEST_GOT            = new TestGeoObjectTypeInfo("GOTTest_TEST1", FastTestDataset.ORG_CGOV);
 
   protected static FastTestDataset          testData;
 
-  protected static String                   classificationType = "test.classification.TestClassification";
+  protected static String                   CLASSIFICATION_TYPE = "test.classification.TestClassification";
+
+  protected static String                   CODE                = "Classification-ROOT";
 
   @BeforeClass
   public static void setUpClass()
@@ -138,6 +134,16 @@ public class AttributeTypeServiceTest
     mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
     mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
     mdClassification.apply();
+
+    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
+
+    VertexObject vertexObject = new VertexObject(referenceMdVertexDAO.definesType());
+    vertexObject.setValue(AbstractClassification.CODE, CODE);
+    vertexObject.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    vertexObject.apply();
+
+    mdClassification.setValue(MdClassificationInfo.ROOT, vertexObject.getOid());
+    mdClassification.apply();
   }
 
   @Request
@@ -145,7 +151,7 @@ public class AttributeTypeServiceTest
   {
     try
     {
-      MdClassificationDAO.getMdClassificationDAO(classificationType).getBusinessDAO().delete();
+      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
     }
     catch (Exception e)
     {
@@ -354,11 +360,8 @@ public class AttributeTypeServiceTest
     String organizationCode = FastTestDataset.ORG_CGOV.getCode();
 
     AttributeClassificationType attributeClassificationType = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("Test Classification Name"), new LocalizedValue("Test Classification Description"), AttributeClassificationType.TYPE, false, false, false);
-    attributeClassificationType.setClassificationType(classificationType);
-    // attributeClassificationType.setRootTerm(new Term(TEST_GOT.getCode() +
-    // "_"
-    // + "testTerm", new LocalizedValue("Test Term Name"), new
-    // LocalizedValue("Test Term Description")));
+    attributeClassificationType.setClassificationType(CLASSIFICATION_TYPE);
+    attributeClassificationType.setRootTerm(new Term(CODE, new LocalizedValue("Test Term Name"), new LocalizedValue("Test Term Description")));
 
     GeoObjectType province = MetadataFactory.newGeoObjectType(TEST_GOT.getCode(), GeometryType.POLYGON, new LocalizedValue("Province"), new LocalizedValue(""), true, organizationCode, testData.adapter);
     province.addAttribute(attributeClassificationType);
@@ -377,21 +380,20 @@ public class AttributeTypeServiceTest
     Assert.assertNotNull("A GeoObjectType did not define the attribute: " + attributeClassificationType.getName(), mdAttributeConcreteDAOIF);
     Assert.assertTrue("A GeoObjectType did not define the attribute of the correct type: " + mdAttributeConcreteDAOIF.getType(), mdAttributeConcreteDAOIF instanceof MdAttributeClassificationDAOIF);
 
-    // Term rootTerm = attributeClassificationType.getRootTerm();
-    //
-    // Assert.assertNotNull("AttributeClassification root term not set
-    // correctly: " + attributeClassificationType.getName(), rootTerm);
+    Term rootTerm = attributeClassificationType.getRootTerm();
+
+    Assert.assertNotNull("AttributeClassification root term not set correctly: " + attributeClassificationType.getName(), rootTerm);
   }
 
   // @Request
-  // private AbstractClassification createRootClassification(MdClassificationDAO
+  // private VertexObject createRootClassification(MdClassificationDAO
   // mdClassification)
   // {
   // MdVertexDAOIF mdVertexDAO = mdClassification.getReferenceMdVertexDAO();
   //
-  // AbstractClassification classification = (AbstractClassification)
+  // VertexObject classification = (VertexObject)
   // VertexObject.instantiate(VertexObjectDAO.newInstance(mdVertexDAO));
-  // classification.setEmbeddedValue(AbstractClassification.DISPLAYLABEL,
+  // classification.setEmbeddedValue(VertexObject.DISPLAYLABEL,
   // MdAttributeLocalInfo.DEFAULT_LOCALE, "test");
   // // classification.setCode()
   // }

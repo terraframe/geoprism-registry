@@ -25,6 +25,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.ontology.Classifier;
@@ -79,14 +80,14 @@ public class GeoObjectUtil
 
   public static String convertToTermString(AttributeClassificationType attributeType, Object value)
   {
-    if (value instanceof AbstractClassification)
+    if (value instanceof VertexObject)
     {
-      LocalizedValue localized = LocalizedValueConverter.convert( ( (AbstractClassification) value ).getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+      LocalizedValue localized = LocalizedValueConverter.convert( ( (VertexObject) value ).getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
       return localized.getValue();
     }
     else if (value instanceof String)
     {
-      AbstractClassification classification = new ConversionService().termToClassification(attributeType, (String) value);
+      VertexObject classification = new ConversionService().termToClassification(attributeType, (String) value);
 
       return convertToTermString(attributeType, classification);
     }

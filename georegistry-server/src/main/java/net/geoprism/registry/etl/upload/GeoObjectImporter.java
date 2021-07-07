@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.ProblemException;
 import com.runwaysdk.ProblemIF;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
@@ -1054,22 +1055,22 @@ public class GeoObjectImporter implements ObjectImporterIF
         ServerGeoObjectType type = this.configuration.getType();
         MdBusinessDAOIF mdBusiness = type.getMdBusinessDAO();
         MdAttributeClassificationDAOIF mdAttribute = (MdAttributeClassificationDAOIF) mdBusiness.definesAttribute(attributeName);
-        
+
         if (mdAttribute == null && type.getSuperType() != null)
         {
           mdAttribute = (MdAttributeClassificationDAOIF) type.getSuperType().getMdBusinessDAO().definesAttribute(attributeName);
         }
-        
-        AbstractClassification classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
-        
+
+        VertexObject classifier = AbstractClassification.findMatchingClassification(value.toString().trim(), mdAttribute);
+
         if (classifier == null)
         {
           Term rootClassification = ( (AttributeClassificationType) attributeType ).getRootTerm();
-          
+
           TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootClassification.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
           trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
           trp.setHistoryId(this.configuration.getHistoryId());
-          
+
           this.progressListener.addReferenceProblem(trp);
         }
         else
@@ -1082,12 +1083,12 @@ public class GeoObjectImporter implements ObjectImporterIF
         TermValueException ex = new TermValueException();
         ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
         ex.setCode(e.getCode());
-        
+
         throw e;
       }
     }
   }
-  
+
   protected void setValue(ServerGeoObjectIF entity, AttributeType attributeType, String attributeName, Object value)
   {
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))

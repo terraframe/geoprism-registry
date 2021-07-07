@@ -47,6 +47,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
@@ -58,7 +59,6 @@ import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
-import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
@@ -99,7 +99,6 @@ import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
-import net.geoprism.registry.conversion.VertexTermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
@@ -557,7 +556,9 @@ public class ServerGeoObjectType
 
       if (root != null)
       {
-        mdAttributeTerm.setRoot(AbstractClassification.get(root.getCode(), mdClassificationDAO));
+        VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
+
+        mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
       }
     }
     else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
@@ -772,7 +773,9 @@ public class ServerGeoObjectType
 
           if (root != null)
           {
-            mdAttributeTerm.setRoot(AbstractClassification.get(root.getCode(), mdClassificationDAO));
+            VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
+
+            mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
           }
         }
 
