@@ -535,26 +535,26 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
               this.vertex.setValue(attributeName, classifier.getOid(), votDTO.getStartDate(), votDTO.getEndDate());
             }
-            else if (attribute instanceof AttributeClassificationType)
-            {
-              String value = (String) votDTO.getValue();
-
-              if (value != null)
-              {
-                VertexObject classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
-
-                this.vertex.setValue(attributeName, classification, votDTO.getStartDate(), votDTO.getEndDate());
-              }
-              else
-              {
-                this.vertex.setValue(attributeName, (String) null, this.date, this.date);
-              }
-            }
             else
             {
               this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
             }
           }
+          else if (attribute instanceof AttributeClassificationType)
+          {
+            String value = (String) votDTO.getValue();
+
+            if (value != null)
+            {
+              VertexObject classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
+
+              this.vertex.setValue(attributeName, classification, votDTO.getStartDate(), votDTO.getEndDate());
+            }
+            else
+            {
+              this.vertex.setValue(attributeName, (String) null, this.date, this.date);
+            }
+          }          
           else
           {
             Object value = votDTO.getValue();

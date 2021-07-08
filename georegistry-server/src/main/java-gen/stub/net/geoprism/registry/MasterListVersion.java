@@ -81,6 +81,8 @@ import com.runwaysdk.constants.MdTableInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMomentDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -88,6 +90,7 @@ import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -916,11 +919,15 @@ public class MasterListVersion extends MasterListVersionBase
           }
           else if (attribute instanceof AttributeClassificationType)
           {
-            VertexObject classifier = (VertexObject) value;
+            String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
+            MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+            MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
 
-            LocalizedValue label = LocalizedValueConverter.convert(classifier.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+            VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
 
-            this.setValue(business, name, classifier.getObjectValue(AbstractClassification.CODE));
+            LocalizedValue label = LocalizedValueConverter.convert(classification.getEmbeddedComponent(AbstractClassification.DISPLAYLABEL));
+
+            this.setValue(business, name, classification.getObjectValue(AbstractClassification.CODE));
             this.setValue(business, name + DEFAULT_LOCALE, label.getValue(LocalizedValue.DEFAULT_LOCALE));
 
             for (Locale locale : locales)

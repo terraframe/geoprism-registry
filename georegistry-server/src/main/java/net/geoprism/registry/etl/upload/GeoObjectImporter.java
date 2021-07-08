@@ -1065,13 +1065,14 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         if (classifier == null)
         {
-          Term rootClassification = ( (AttributeClassificationType) attributeType ).getRootTerm();
-
-          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootClassification.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
-          trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
-          trp.setHistoryId(this.configuration.getHistoryId());
-
-          this.progressListener.addReferenceProblem(trp);
+          throw new UnknownTermException(value.toString().trim(), attributeType);
+//          Term rootClassification = ( (AttributeClassificationType) attributeType ).getRootTerm();
+//
+//          TermReferenceProblem trp = new TermReferenceProblem(value.toString(), rootClassification.getCode(), mdAttribute.getOid(), attributeName, attributeType.getLabel().getValue());
+//          trp.addAffectedRowNumber(this.progressListener.getWorkProgress() + 1);
+//          trp.setHistoryId(this.configuration.getHistoryId());
+//
+//          this.progressListener.addReferenceProblem(trp);
         }
         else
         {

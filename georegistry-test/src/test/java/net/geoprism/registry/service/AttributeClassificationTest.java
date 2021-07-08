@@ -18,11 +18,15 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.InputStream;
+
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -30,19 +34,31 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.AbstractClassification;
+import com.runwaysdk.system.scheduler.AllJobStatus;
 
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListQuery;
+import net.geoprism.registry.etl.ETLService;
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.etl.ImportStage;
+import net.geoprism.registry.etl.upload.ImportConfiguration;
+import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.test.SchedulerTestUtils;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.TestUserInfo;
@@ -184,4 +200,26 @@ public class AttributeClassificationTest
     }
   }
 
+  @Test
+  public void testCreateGeoObjectOverTime()
+  {
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { USATestData.USER_NPS_RA };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      TestDataSet.runAsUser(user, (request, adapter) -> {
+        TestDataSet.populateAdapterIds(user, adapter);
+
+        GeoObjectOverTime object = TEST_GO.newGeoObjectOverTime(adapter);
+        object.setValue(testClassification.getName(), CODE, TEST_GO.getDate(), ValueOverTime.INFINITY_END_DATE);
+
+        GeoObjectOverTime returned = adapter.createGeoObjectOverTime(object.toJSON().toString());
+
+        Assert.assertEquals(CODE, returned.getValue(testClassification.getName(), TEST_GO.getDate()));
+
+        TEST_GO.assertApplied();
+        TEST_GO.delete();
+      });
+    }
+  }
 }

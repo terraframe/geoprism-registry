@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -24,7 +24,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
+import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONObject;
@@ -38,13 +43,20 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.ComponentInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.AbstractClassification;
+import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.DuplicateMasterListException;
@@ -117,9 +129,15 @@ public class MasterListTest
     }
   }
 
-  private static USATestData       testData;
+  private static String                      CLASSIFICATION_TYPE = "test.classification.TestClassification";
 
-  private static AttributeTermType testTerm;
+  private static String                      CODE                = "Test Term";
+
+  private static USATestData                 testData;
+
+  private static AttributeTermType           testTerm;
+
+  private static AttributeClassificationType testClassification;
 
   @BeforeClass
   public static void setUpClass()
@@ -133,21 +151,54 @@ public class MasterListTest
   @Request
   private static void setUpInReq()
   {
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    // testTerm = (AttributeTermType)
-    // ServiceFactory.getRegistryService().createAttributeType(null,
-    // USATestData.STATE.getCode(), testTerm.toJSON().toString());
+    MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
+    mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
+    mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
+    mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    mdClassification.apply();
+
+    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
+
+    VertexObject root = new VertexObject(referenceMdVertexDAO.definesType());
+    root.setValue(AbstractClassification.CODE, CODE);
+    root.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    root.apply();
+
+    mdClassification.setValue(MdClassificationInfo.ROOT, root.getOid());
+    mdClassification.apply();
+
+    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
+    testClassification.setClassificationType(CLASSIFICATION_TYPE);
+    testClassification.setRootTerm(new Term(CODE, new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification")));
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
+    testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
+
+    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+
     testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
+
+    USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
   }
 
   @AfterClass
-  public static void cleanUpClass()
+  @Request
+  public static void classTearDown()
   {
     if (testData != null)
     {
       testData.tearDownMetadata();
+    }
+
+    USATestData.COLORADO.removeDefaultValue(testClassification.getName());
+
+    try
+    {
+      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
+    }
+    catch (Exception e)
+    {
+      // skip
     }
   }
 
