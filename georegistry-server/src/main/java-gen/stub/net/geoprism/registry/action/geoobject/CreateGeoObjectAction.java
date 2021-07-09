@@ -73,24 +73,6 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
     ServerGeoObjectService builder = new ServerGeoObjectService();
     builder.apply(geoObject, true, false);
   }
-  
-  @Override
-  public boolean referencesType(ServerGeoObjectType type)
-  {
-    String sJson = this.getGeoObjectJson();
-
-    return GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson).equals(type.getCode());
-  }
-  
-  @Override
-  public String getGeoObjectType()
-  {
-    String sJson = this.getGeoObjectJson();
-    
-    String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(sJson);
-    
-    return typeCode;
-  }
 
   @Override
   public void apply()
@@ -130,7 +112,7 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
   {
     super.buildFromJson(joAction);
 
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
     
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_DETAILS

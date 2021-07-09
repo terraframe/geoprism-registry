@@ -19,37 +19,48 @@
 package net.geoprism.registry.service;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
+import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AbstractActionQuery;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.etl.ImportHistoryQuery;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.RolePermissionService;
 
 public class ChangeRequestService
 {
@@ -87,7 +98,7 @@ public class ChangeRequestService
   {
     AbstractAction action = AbstractAction.get(actionOid);
     
-    if (!this.permService.getPermissions(action).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
+    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -127,7 +138,7 @@ public class ChangeRequestService
   {
     AbstractAction action = AbstractAction.get(actionOid);
     
-    if (!this.permService.getPermissions(action).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
+    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -187,7 +198,7 @@ public class ChangeRequestService
     
     AbstractAction action = AbstractAction.get(actionOid);
     
-    if (!this.permService.getPermissions(action).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
+    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -252,7 +263,7 @@ public class ChangeRequestService
   {
     AbstractAction action = AbstractAction.get(actionOid);
     
-    if (!this.permService.getPermissions(action).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
+    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -282,7 +293,7 @@ public class ChangeRequestService
 
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
     
-    Set<ChangeRequestPermissionAction> perms = this.permService.getPermissions(action);
+    Set<ChangeRequestPermissionAction> perms = this.permService.getPermissions(action.getAllRequest().next());
     
     if (!perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE
@@ -309,7 +320,7 @@ public class ChangeRequestService
 
     AbstractAction action = AbstractAction.get(joAction.getString("oid"));
     
-    if (!this.permService.getPermissions(action).containsAll(Arrays.asList(
+    if (!this.permService.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE
       )))
     {
@@ -485,6 +496,8 @@ public class ChangeRequestService
     {
       query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.ACCEPTED));
     }
+    
+    filterQueryBasedOnPermissions(query);
 
     OIterator<? extends ChangeRequest> it = query.getIterator();
 
@@ -509,6 +522,88 @@ public class ChangeRequestService
     finally
     {
       it.close();
+    }
+  }
+  
+  public void filterQueryBasedOnPermissions(ChangeRequestQuery crq)
+  {
+    List<String> raOrgs = new ArrayList<String>();
+    List<String> goRoles = new ArrayList<String>();
+
+    Condition cond = null;
+
+    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+    for (RoleDAOIF role : actor.authorizedRoles())
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+      {
+        if (RegistryRole.Type.isRA_Role(roleName))
+        {
+          String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+          raOrgs.add(roleOrgCode);
+        }
+        else if (RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName))
+        {
+          goRoles.add(roleName);
+        }
+      }
+    }
+
+    for (String orgCode : raOrgs)
+    {
+      Organization org = Organization.getByCode(orgCode);
+
+      Condition loopCond = crq.getOrganizationCode().EQ(org.getCode());
+
+      if (cond == null)
+      {
+        cond = loopCond;
+      }
+      else
+      {
+        cond = cond.OR(loopCond);
+      }
+    }
+
+    for (String roleName : goRoles)
+    {
+      String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+      Organization org = Organization.getByCode(roleOrgCode);
+      String gotCode = RegistryRole.Type.parseGotCode(roleName);
+
+      Condition loopCond = crq.getGeoObjectTypeCode().EQ(gotCode).AND(crq.getOrganizationCode().EQ(org.getCode()));
+
+      if (cond == null)
+      {
+        cond = loopCond;
+      }
+      else
+      {
+        cond = cond.OR(loopCond);
+      }
+      
+      
+      // If they have permission to an abstract parent type, then they also have permission to all its children.
+      Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+      
+      if (op.isPresent() && op.get().getIsAbstract())
+      {
+        List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
+        
+        for (ServerGeoObjectType subType : subTypes)
+        {
+          Condition superCond = crq.getGeoObjectTypeCode().EQ(subType.getCode()).AND(crq.getOrganizationCode().EQ(subType.getOrganization().getCode()));
+          
+          cond = cond.OR(superCond);
+        }
+      }
+    }
+
+    if (cond != null)
+    {
+      crq.AND(cond);
     }
   }
 
@@ -597,7 +692,7 @@ public class ChangeRequestService
   {
     AbstractAction action = AbstractAction.get(actionId);
     
-    if (!this.permService.getPermissions(action).containsAll(Arrays.asList(
+    if (!this.permService.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE
       )))
     {
@@ -632,7 +727,7 @@ public class ChangeRequestService
     {
       for (ChangeRequest cr : it)
       {
-        if (cr.referencesType(type))
+        if (cr.getGeoObjectTypeCode().equals(type.getCode()))
         {
           cr.invalidate(reason);
         }

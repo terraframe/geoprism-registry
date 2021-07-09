@@ -106,7 +106,7 @@ public class ActionJsonAdapters
     
     protected JsonArray serializePermissions(AbstractAction action, JsonSerializationContext context)
     {
-      Set<ChangeRequestPermissionAction> crPerms = this.perms.getPermissions(action);
+      Set<ChangeRequestPermissionAction> crPerms = this.perms.getPermissions(action.getAllRequest().next());
       
       return context.serialize(crPerms).getAsJsonArray();
     }

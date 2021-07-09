@@ -44,7 +44,7 @@ import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class ChangeRequest extends ChangeRequestBase implements GovernancePermissionEntity
+public class ChangeRequest extends ChangeRequestBase
 {
   private static final long serialVersionUID = 763209854;
 
@@ -285,54 +285,9 @@ public class ChangeRequest extends ChangeRequestBase implements GovernancePermis
     return this.getOwnerId().equals(Session.getCurrentSession().getUser().getOid());
   }
   
-  public String getOrganization()
-  {
-    String gotCode = this.getGeoObjectType();
-    
-    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
-    
-    if (optional.isPresent())
-    {
-      ServerGeoObjectType type = optional.get();
-      
-      return type.getOrganization().getCode();
-    }
-    else
-    {
-      return null;
-    }
-  }
-  
   public AllGovernanceStatus getGovernanceStatus()
   {
     return this.getApprovalStatus().get(0);
-  }
-  
-  public String getGeoObjectType()
-  {
-    List<AbstractAction> actions = this.getOrderedActions();
-    
-    for (AbstractAction action : actions)
-    {
-      return action.getGeoObjectType();
-    }
-    
-    return null;
-  }
-  
-  public boolean referencesType(ServerGeoObjectType type)
-  {
-    List<AbstractAction> actions = this.getOrderedActions();
-    
-    for (AbstractAction action : actions)
-    {
-      if (action.referencesType(type))
-      {
-        return true;
-      }
-    }
-    
-    return false;
   }
   
   @Transaction
