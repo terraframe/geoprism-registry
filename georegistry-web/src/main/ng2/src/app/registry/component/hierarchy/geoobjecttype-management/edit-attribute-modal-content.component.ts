@@ -1,4 +1,10 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import {
+	trigger,
+	style,
+	animate,
+	transition,
+} from '@angular/animations';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { HttpErrorResponse } from "@angular/common/http";
 
@@ -18,7 +24,26 @@ import { AttributeInputComponent } from '../geoobjecttype-management/attribute-i
 @Component({
 	selector: 'edit-attribute-modal-content',
 	templateUrl: './edit-attribute-modal-content.component.html',
-	styleUrls: ['./edit-attribute-modal-content.css']
+	styleUrls: ['./edit-attribute-modal-content.css'],
+//	host: { '[@fadeInOut]': 'true' },
+	animations: [
+		[
+			trigger('fadeInOut', [
+				transition('void => *', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				]),
+//				transition(':leave',
+//					animate('500ms',
+//						style({
+//							opacity: 0
+//						})
+//					)
+//				)
+			])
+		]]
 })
 export class EditAttributeModalContentComponent implements OnInit {
 
@@ -68,7 +93,7 @@ export class EditAttributeModalContentComponent implements OnInit {
 				}
 			}
 
-			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageAttributes, "attribute": "", "termOption": "" })
+			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": "", "termOption": "" })
 
 			this.geoObjectTypeChange.emit(this.geoObjectType);
 		}).catch((err: HttpErrorResponse) => {
@@ -89,11 +114,11 @@ export class EditAttributeModalContentComponent implements OnInit {
 	}
 
 	cancel(): void {
-		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageAttributes, "attribute": "", "termOption": "" })
+		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": "", "termOption": "" })
 	}
 
 	back(): void {
-		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageAttributes, "attribute": "", "termOption": "" })
+		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": "", "termOption": "" })
 	}
 
 	error(err: HttpErrorResponse): void {
