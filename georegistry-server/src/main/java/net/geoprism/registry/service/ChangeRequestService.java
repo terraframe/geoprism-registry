@@ -61,6 +61,7 @@ import net.geoprism.registry.etl.ImportHistoryQuery;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.view.Page;
 
 public class ChangeRequestService
 {
@@ -335,7 +336,7 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public String getAllActions(String sessionId, String requestId)
+  public JsonArray getAllActions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
@@ -367,7 +368,7 @@ public class ChangeRequestService
       actions.add(action.toJson());
     }
 
-    return actions.toString();
+    return actions;
   }
 
   /**
@@ -407,13 +408,13 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public String approveAllActions(String sessionId, String requestId, String sActions)
+  public JsonArray approveAllActions(String sessionId, String requestId, String sActions)
   {
     return approveAllActionsInTransaction(sessionId, requestId, sActions);
   }
 
   @Transaction
-  public String approveAllActionsInTransaction(String sessionId, String requestId, String sActions)
+  public JsonArray approveAllActionsInTransaction(String sessionId, String requestId, String sActions)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
@@ -443,13 +444,13 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public String rejectAllActions(String sessionId, String requestId, String actions)
+  public JsonArray rejectAllActions(String sessionId, String requestId, String actions)
   {
     return rejectAllActionsInTransaction(sessionId, requestId, actions);
   }
 
   @Transaction
-  public String rejectAllActionsInTransaction(String sessionId, String requestId, String sActions)
+  public JsonArray rejectAllActionsInTransaction(String sessionId, String requestId, String sActions)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
@@ -478,8 +479,9 @@ public class ChangeRequestService
     return this.getAllActions(sessionId, requestId);
   }
 
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Request(RequestType.SESSION)
-  public JsonArray getAllRequests(String sessionId, String filter)
+  public Page<ChangeRequest> getAllRequests(String sessionId, int pageSize, int pageNumber, String filter)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getCreateDate());
@@ -497,32 +499,11 @@ public class ChangeRequestService
       query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.ACCEPTED));
     }
     
+    query.restrictRows(pageSize, pageNumber);
+    
     filterQueryBasedOnPermissions(query);
-
-    OIterator<? extends ChangeRequest> it = query.getIterator();
-
-    try
-    {
-      JsonArray requests = new JsonArray();
-
-      while (it.hasNext())
-      {
-        ChangeRequest request = it.next();
-        
-        if (this.permService.getPermissions(request).containsAll(Arrays.asList(
-            ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_DETAILS, ChangeRequestPermissionAction.READ_APPROVAL_STATUS
-          )))
-        {
-          requests.add(request.toJSON());
-        }
-      }
-
-      return requests;
-    }
-    finally
-    {
-      it.close();
-    }
+    
+    return new Page(query.getCount(), pageNumber, pageSize, query.getIterator().getAll());
   }
   
   public void filterQueryBasedOnPermissions(ChangeRequestQuery crq)

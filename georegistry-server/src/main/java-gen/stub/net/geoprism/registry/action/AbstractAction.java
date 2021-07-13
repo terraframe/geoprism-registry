@@ -73,6 +73,11 @@ public abstract class AbstractAction extends AbstractActionBase
 
     return action;
   }
+  
+  public ChangeRequest getChangeRequest()
+  {
+    return this.getAllRequest().next();
+  }
 
   protected void buildFromDTO(AbstractActionDTO dto)
   {

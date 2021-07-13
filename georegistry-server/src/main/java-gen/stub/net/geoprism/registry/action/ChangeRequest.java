@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -42,9 +44,11 @@ import com.runwaysdk.system.VaultFile;
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.JsonSerializable;
 
-public class ChangeRequest extends ChangeRequestBase
+public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 {
   private static final long serialVersionUID = 763209854;
 
@@ -113,10 +117,28 @@ public class ChangeRequest extends ChangeRequestBase
     super.delete();
   }
   
+  public ServerGeoObjectType getGeoObjectType()
+  {
+    return ServerGeoObjectType.get(this.getGeoObjectTypeCode(), true);
+  }
+  
+  public VertexServerGeoObject getGeoObject()
+  {
+    ServerGeoObjectType type = this.getGeoObjectType();
+    
+    if (type == null)
+    {
+      return null;
+    }
+    
+    return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), type);
+  }
+  
   public JsonObject toJSON()
   {
     GsonBuilder builder = new GsonBuilder();
     builder.registerTypeAdapter(ChangeRequest.class, new ChangeRequestJsonAdapters.ChangeRequestSerializer());
+    builder.registerTypeAdapter(GeoObjectOverTime.class, new GeoObjectOverTimeJsonAdapters.GeoObjectSerializer());
 
     return (JsonObject) builder.create().toJsonTree(this);
   }

@@ -44,6 +44,7 @@ import com.runwaysdk.system.Users;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.SetParentAction;
+import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
@@ -122,30 +123,23 @@ public class ActionJsonAdapters
       
       jo.add(CreateGeoObjectAction.GEOOBJECTJSON, this.getGeoObjectJson(action));
       
-      this.addGeoObjectType(action, jo);
-      
       return jo;
     }
-    
-    private void addGeoObjectType(AbstractAction action, JsonObject object)
-    {
-      JsonObject json = this.getGeoObjectJson(action);
-      
-      String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(json.toString());
-      
-      Optional<GeoObjectType> op = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode);
+  }
   
-      GeoObjectType got;
-      if (op.isPresent())
-      {
-        got = op.get();
-      }
-      else
-      {
-        got = new GeoObjectType(typeCode, GeometryType.POLYGON, new LocalizedValue(typeCode), new LocalizedValue(""), false, "", ServiceFactory.getAdapter());
-      }
+  public static class UpdateAttributeActionSerializer extends AbstractActionSerializer implements JsonSerializer<UpdateAttributeAction>
+  {
+    @Override
+    public JsonElement serialize(UpdateAttributeAction action, Type typeOfSrc, JsonSerializationContext context)
+    {
+      JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
       
-      object.add("geoObjectType", got.toJSON());
+      jo.addProperty("attributeName", action.getAttributeName());
+      
+      JsonObject attributeDiff = JsonParser.parseString(action.getJson()).getAsJsonObject();
+      jo.add("attributeDiff", attributeDiff);
+      
+      return jo;
     }
   }
   

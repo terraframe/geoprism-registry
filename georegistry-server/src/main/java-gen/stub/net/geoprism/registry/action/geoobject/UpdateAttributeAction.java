@@ -1,10 +1,18 @@
 package net.geoprism.registry.action.geoobject;
 
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
+
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
+import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
 public class UpdateAttributeAction extends UpdateAttributeActionBase
 {
@@ -22,21 +30,26 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
     
     ServerGeoObjectType type = ServerGeoObjectType.get(cr.getType());
     
-    VertexServerGeoObject.getVertexByCode(type, cr.getGeoObjectCode());
+    VertexServerGeoObject go = new VertexGeoObjectStrategy(type).getGeoObjectByCode(cr.getGeoObjectCode());
+    
+    AbstractUpdateAttributeView view = UpdateAttributeViewJsonAdapters.deserialize(this.getJson(), this.getAttributeName(), type);
+    
+    view.execute(go);
   }
 
   @Override
   protected String getMessage()
   {
-    // TODO Auto-generated method stub
     return null;
   }
 
   @Override
   public JsonObject toJson()
   {
-    // TODO Auto-generated method stub
-    return null;
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(UpdateAttributeAction.class, new ActionJsonAdapters.UpdateAttributeActionSerializer());
+
+    return (JsonObject) builder.create().toJsonTree(this);
   }
   
 }

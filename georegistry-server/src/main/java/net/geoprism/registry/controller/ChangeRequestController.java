@@ -38,7 +38,9 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.resource.ApplicationResource;
 
+import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.view.Page;
 
 /**
  * This controller is used by the change request table widget.
@@ -186,17 +188,17 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF getAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
   {
-    String json = service.getAllActions(request.getSessionId(), requestId);
+    JsonArray json = service.getAllActions(request.getSessionId(), requestId);
 
-    return new RestBodyResponse(json);
+    return new RestBodyResponse(json.toString());
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
-  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "filter") String filter)
+  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "filter") String filter)
   {
-    JsonArray requests = service.getAllRequests(request.getSessionId(), filter);
+    Page<ChangeRequest> paginated = service.getAllRequests(request.getSessionId(), pageSize, pageNumber, filter);
 
-    return new RestBodyResponse(requests);
+    return new RestBodyResponse(paginated.toJSON().toString());
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "get-request-details", method = ServletMethod.GET)
@@ -226,17 +228,17 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "approve-all-actions", method = ServletMethod.POST)
   public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions)
   {
-    String response = service.approveAllActions(request.getSessionId(), requestId, actions);
+    JsonArray response = service.approveAllActions(request.getSessionId(), requestId, actions);
 
-    return new RestBodyResponse(response);
+    return new RestBodyResponse(response.toString());
   }
 
   @Endpoint(error = ErrorSerialization.JSON, url = "reject-all-actions", method = ServletMethod.POST)
   public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions)
   {
-    String response = service.rejectAllActions(request.getSessionId(), requestId, actions);
+    JsonArray response = service.rejectAllActions(request.getSessionId(), requestId, actions);
 
-    return new RestBodyResponse(response);
+    return new RestBodyResponse(response.toString());
   }
   
   @Endpoint(error = ErrorSerialization.JSON, url = "delete", method = ServletMethod.POST)

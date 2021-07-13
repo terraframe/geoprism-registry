@@ -23,6 +23,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Set;
 
+import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -32,14 +36,19 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
+import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class ChangeRequestJsonAdapters
 {
@@ -80,6 +89,8 @@ public class ChangeRequestJsonAdapters
     
     private ChangeRequestPermissionService perms = new ChangeRequestPermissionService();
     
+    private boolean hasCreate = false;
+    
     @Override
     public JsonElement serialize(ChangeRequest cr, Type typeOfSrc, JsonSerializationContext context)
     {
@@ -94,7 +105,7 @@ public class ChangeRequestJsonAdapters
       object.addProperty(ChangeRequest.APPROVALSTATUS, status.getEnumName());
       object.addProperty(ChangeRequest.MAINTAINERNOTES, cr.getMaintainerNotes());
       object.addProperty("statusLabel", status.getDisplayLabel());
-
+      
       ChangeRequestJsonAdapters.serializeCreatedBy(cr.getCreatedBy(), object);
       
       JsonArray jaDocuments = JsonParser.parseString(this.service.listDocumentsCR(Session.getCurrentSession().getOid(), cr.getOid())).getAsJsonArray();
@@ -102,7 +113,61 @@ public class ChangeRequestJsonAdapters
       
       object.add("permissions", this.serializePermissions(cr, context));
       
+      object.add("actions", this.serializeActions(cr));
+      
+      addCurrent(cr, object, context);
+      
       return object;
+    }
+    
+    private void addCurrent(ChangeRequest cr, JsonObject object, JsonSerializationContext context)
+    {
+      ServerGeoObjectType sgot = cr.getGeoObjectType();
+      GeoObjectType got;
+      
+      JsonObject current = new JsonObject();
+      
+      if (sgot == null)
+      {
+        got = new GeoObjectType(cr.getGeoObjectTypeCode(), GeometryType.POLYGON, new LocalizedValue(cr.getGeoObjectTypeCode()), new LocalizedValue(""), false, "", ServiceFactory.getAdapter());
+      }
+      else
+      {
+        got = sgot.getType();
+      }
+      
+      current.add("geoObjectType", got.toJSON());
+      
+      if (!hasCreate)
+      {
+        VertexServerGeoObject go = cr.getGeoObject();
+        
+        if (go != null)
+        {
+          current.add("geoObject", context.serialize(go.toGeoObjectOverTime()));
+        }
+      }
+      
+      object.add("current", current);
+    }
+    
+    protected JsonArray serializeActions(ChangeRequest cr)
+    {
+      JsonArray ja = new JsonArray();
+      
+      OIterator<? extends AbstractAction> actions = cr.getAllAction();
+      
+      for (AbstractAction action : actions)
+      {
+        if (action instanceof CreateGeoObjectAction)
+        {
+          hasCreate = true;
+        }
+        
+        ja.add(action.toJson());
+      }
+      
+      return ja;
     }
     
     protected JsonArray serializePermissions(ChangeRequest cr, JsonSerializationContext context)
