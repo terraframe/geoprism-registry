@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.graph;
 
@@ -45,7 +45,7 @@ import net.geoprism.registry.view.JsonSerializable;
 public abstract class ExternalSystem extends ExternalSystemBase implements JsonSerializable
 {
   private static final long serialVersionUID = 1516759164;
-  
+
   public ExternalSystem()
   {
     super();
@@ -80,24 +80,24 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   {
     this.delete(true);
   }
-  
+
   public void delete(Boolean checkReferencedData)
   {
     if (checkReferencedData && getReferencedDataCount() > 0)
     {
       throw new ObjectHasDataException();
     }
-    
+
     List<SynchronizationConfig> configs = SynchronizationConfig.getAll(this);
 
     for (SynchronizationConfig config : configs)
     {
       config.delete();
     }
-    
+
     super.delete();
   }
-  
+
   public long getReferencedDataCount()
   {
     final MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
@@ -106,9 +106,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     builder.append("SELECT COUNT(*) FROM " + mdEdge.getDBClassName());
 
     builder.append(" WHERE out = :system");
-    
+
     final GraphQuery<Long> query = new GraphQuery<Long>(builder.toString());
-    
+
     query.setParameter("system", this.getRID());
 
     return query.getSingleResult();
@@ -138,10 +138,10 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     object.addProperty(ExternalSystem.ORGANIZATION, this.getOrganization().getCode());
     object.add(ExternalSystem.LABEL, LocalizedValueConverter.convert(this.getEmbeddedComponent(LABEL)).toJSON());
     object.add(ExternalSystem.DESCRIPTION, LocalizedValueConverter.convert(this.getEmbeddedComponent(DESCRIPTION)).toJSON());
-    
+
     return object;
   }
-  
+
   public LocalizedValue getDisplayLabel()
   {
     return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
@@ -249,6 +249,10 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     if (type.equals(RevealExternalSystem.class.getSimpleName()))
     {
       return new RevealExternalSystem();
+    }
+    else if (type.equals(FhirExternalSystem.class.getSimpleName()))
+    {
+      return new FhirExternalSystem();
     }
 
     return new DHIS2ExternalSystem();

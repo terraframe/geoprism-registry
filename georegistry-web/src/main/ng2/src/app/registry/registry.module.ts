@@ -41,6 +41,7 @@ import { ManageGeoObjectTypeModalComponent } from './component/hierarchy/modals/
 import { MasterListManagerComponent } from './component/master-list/master-list-manager.component';
 import { PublishModalComponent } from './component/master-list/publish-modal.component';
 import { ExportFormatModalComponent } from './component/master-list/export-format-modal.component';
+import { ExportSystemModalComponent } from './component/master-list/export-system-modal.component';
 import { RequestTableComponent } from './component/crtable/request-table.component';
 import { CreateUpdateGeoObjectDetailComponent } from './component/crtable/action-detail/create-update-geo-object/detail.component';
 import { AddRemoveChildDetailComponent } from './component/crtable/action-detail/add-remove-child/detail.component';
@@ -189,6 +190,7 @@ import '../rxjs-extensions';
 		MasterListViewComponent,
 		// Scheduled jobs
 		ExportFormatModalComponent,
+    ExportSystemModalComponent,
 		ScheduledJobsComponent,
 		JobComponent,
 		JobConflictModalComponent,
@@ -248,6 +250,7 @@ import '../rxjs-extensions';
 		GeoObjectEditorComponent,
 		PublishModalComponent,
 		ExportFormatModalComponent,
+    ExportSystemModalComponent,
 		DataPageComponent,
 		ChangeRequestPageComponent,
 		ActionDetailModalComponent,

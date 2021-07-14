@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -46,6 +46,8 @@ import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.TileCache;
 import net.geoprism.registry.etl.DuplicateJobException;
+import net.geoprism.registry.etl.FhirExportJob;
+import net.geoprism.registry.etl.FhirExportJobQuery;
 import net.geoprism.registry.etl.MasterListJob;
 import net.geoprism.registry.etl.MasterListJobQuery;
 import net.geoprism.registry.etl.PublishMasterListJob;
@@ -54,6 +56,7 @@ import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
+import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.progress.ProgressService;
@@ -199,16 +202,16 @@ public class MasterListService
   @Request(RequestType.SESSION)
   public JsonObject publishVersion(String sessionId, String oid)
   {
-//    MasterListVersion version = MasterListVersion.get(oid);
-//
-//    MasterList masterlist = version.getMasterlist();
-//
-//    this.enforceWritePermissions(masterlist, version.getVersionType());
-//
-//    return JsonParser.parseString(version.publish()).getAsJsonObject();
-    
+    // MasterListVersion version = MasterListVersion.get(oid);
+    //
+    // MasterList masterlist = version.getMasterlist();
+    //
+    // this.enforceWritePermissions(masterlist, version.getVersionType());
+    //
+    // return JsonParser.parseString(version.publish()).getAsJsonObject();
+
     MasterListVersion version = MasterListVersion.get(oid);
-    
+
     this.enforceWritePermissions(version.getMasterlist(), version.getVersionType());
 
     QueryFactory factory = new QueryFactory();
@@ -234,7 +237,7 @@ public class MasterListService
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
 
     final JobHistory history = job.start();
-    
+
     JsonObject resp = new JsonObject();
     resp.addProperty("jobOid", history.getOid());
     return resp;
@@ -264,6 +267,42 @@ public class MasterListService
     PublishShapefileJob job = new PublishShapefileJob();
     job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
     job.setVersion(version);
+    job.setMasterList(version.getMasterlist());
+    job.apply();
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
+    final JobHistory history = job.start();
+    return history.getOid();
+  }
+
+  @Request(RequestType.SESSION)
+  public String exportToFhir(String sessionId, String oid, String systemId)
+  {
+    MasterListVersion version = MasterListVersion.get(oid);
+    FhirExternalSystem externalSystem = FhirExternalSystem.get(systemId);
+
+    this.enforceWritePermissions(version.getMasterlist(), MasterListVersion.PUBLISHED);
+
+    QueryFactory factory = new QueryFactory();
+
+    FhirExportJobQuery query = new FhirExportJobQuery(factory);
+    query.WHERE(query.getVersion().EQ(version));
+    query.AND(query.getExternalSystem().EQ(externalSystem.getOid()));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new DuplicateJobException("This master list version has already been queued for generating a shapefile");
+    }
+
+    FhirExportJob job = new FhirExportJob();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.setVersion(version);
+    job.setExternalSystem(externalSystem);
     job.setMasterList(version.getMasterlist());
     job.apply();
 

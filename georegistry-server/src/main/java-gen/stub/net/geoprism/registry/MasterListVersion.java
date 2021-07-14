@@ -128,6 +128,10 @@ import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
+import net.geoprism.registry.etl.export.fhir.FhirDataPopulator;
+import net.geoprism.registry.etl.export.fhir.FhirExportFactory;
+import net.geoprism.registry.etl.export.fhir.MasterListFhirExporter;
+import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
@@ -515,7 +519,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
+    ServerGeoObjectType type = masterlist.getGeoObjectType();
 
     this.createMdAttributeFromAttributeType(mdBusiness, type.getGeometryType());
 
@@ -737,6 +741,14 @@ public class MasterListVersion extends MasterListVersionBase
     }
 
     return file;
+  }
+
+  public void exportToFhir(FhirExternalSystem system)
+  {
+    FhirDataPopulator populator = FhirExportFactory.getPopulator(this);
+
+    MasterListFhirExporter exporter = new MasterListFhirExporter(this, system, populator);
+    exporter.export();
   }
 
   public InputStream downloadShapefile()
