@@ -85,11 +85,13 @@ export class AccountComponent implements OnInit {
 	set setExternalSystems(externalSystems: ExternalSystem[]) {
 		this.externalSystems = externalSystems;
 
-		this.externalSystems.forEach(system => {
-			if (system.oAuthServer != null) {
-				this.systemHasOauth = true;
-			}
-		});
+		if(this.externalSystems){
+			this.externalSystems.forEach(system => {
+				if (system.oAuthServer != null) {
+					this.systemHasOauth = true;
+				}
+			});
+		}
 	}
 
 	public onEdit: Subject<Account>;

@@ -6,7 +6,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 import { OrganizationModalComponent } from "@admin/component/organization/organization-modal.component";
-import { LocalizationService, OrganizationService, EventService } from "@shared/service";
+import { LocalizationService, OrganizationService, EventService, AuthService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
 
 import { ORGANIZATION } from "@test/admin/mocks";
@@ -31,7 +31,8 @@ describe("OrganizationModalComponent", () => {
 				BsModalRef,
 				OrganizationService,
 				LocalizationService,
-				EventService
+				EventService,
+				AuthService
 			]
 		}).compileComponents();
 	}));
