@@ -695,7 +695,7 @@ public class ETLService
         geoObject = go.toJSON().toString();
       }
 
-      new ServerGeoObjectService().masterListEdit(sessionId, parentTreeNode, geoObject, isNew, null, null);
+      new ServerGeoObjectService().createGeoObject(sessionId, parentTreeNode, geoObject, isNew, null, null);
 
       err.appLock();
       err.setResolution(resolution);

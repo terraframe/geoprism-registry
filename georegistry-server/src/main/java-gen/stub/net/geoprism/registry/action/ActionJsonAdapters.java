@@ -78,7 +78,7 @@ public class ActionJsonAdapters
       JsonObject jo = new JsonObject();
 
       jo.addProperty(AbstractAction.OID, action.getOid());
-      jo.addProperty("actionType", action.getType());
+      jo.addProperty("actionType", action.getClass().getSimpleName());
       jo.addProperty("actionLabel", action.getMdClass().getDisplayLabel(Session.getCurrentLocale()));
       jo.addProperty(AbstractAction.CREATEACTIONDATE, format.format(action.getCreateActionDate()));
       jo.addProperty(AbstractAction.CONTRIBUTORNOTES, action.getContributorNotes());

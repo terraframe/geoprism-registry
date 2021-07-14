@@ -146,6 +146,13 @@ public class ChangeRequestJsonAdapters
         {
           current.add("geoObject", context.serialize(go.toGeoObjectOverTime()));
         }
+        else
+        {
+          cr.lock();
+          cr.clearApprovalStatus();
+          cr.addApprovalStatus(AllGovernanceStatus.INVALID);
+          cr.apply();
+        }
       }
       
       object.add("current", current);

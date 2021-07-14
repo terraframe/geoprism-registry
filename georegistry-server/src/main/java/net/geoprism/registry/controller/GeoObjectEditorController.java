@@ -35,9 +35,17 @@ import net.geoprism.registry.geoobject.ServerGeoObjectService;
 public class GeoObjectEditorController
 {
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
+  public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
   {
-    JsonObject resp = new ServerGeoObjectService().masterListEdit(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId, notes);
+    JsonObject resp = new ServerGeoObjectService().createGeoObject(request.getSessionId(), parentTreeNode, geoObject, masterListId, notes);
+
+    return new RestBodyResponse(resp);
+  }
+  
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "attributeDiffs") String attributeDiffs, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
+  {
+    JsonObject resp = new ServerGeoObjectService().updateGeoObject(request.getSessionId(), geoObjectCode, geoObjectTypeCode, attributeDiffs, masterListId, notes);
 
     return new RestBodyResponse(resp);
   }

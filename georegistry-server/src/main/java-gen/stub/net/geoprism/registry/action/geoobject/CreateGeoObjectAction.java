@@ -38,10 +38,12 @@ import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 {
@@ -63,8 +65,14 @@ public class CreateGeoObjectAction extends CreateGeoObjectActionBase
 
     GeoObjectOverTime geoObject = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sJson);
 
-    ServerGeoObjectService builder = new ServerGeoObjectService();
-    builder.apply(geoObject, true, false);
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    service.apply(geoObject, true, false);
+    
+    ServerGeoObjectIF child = service.getGeoObjectByCode(geoObject.getCode(), geoObject.getType().getCode());
+    
+    ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(child.getType(), this.getParentJson());
+
+    child.setParents(ptnOt);
   }
 
   @Override

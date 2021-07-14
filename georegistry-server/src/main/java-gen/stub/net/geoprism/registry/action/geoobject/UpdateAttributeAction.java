@@ -1,8 +1,5 @@
 package net.geoprism.registry.action.geoobject;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
-
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
