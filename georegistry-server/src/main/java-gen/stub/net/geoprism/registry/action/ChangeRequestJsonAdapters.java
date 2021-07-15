@@ -67,10 +67,17 @@ public class ChangeRequestJsonAdapters
         jo.addProperty("email", ( (GeoprismUser) user ).getEmail());
         jo.addProperty("phoneNumber", ( (GeoprismUser) user ).getPhoneNumber());
       }
+      else
+      {
+        jo.addProperty("email", "");
+        jo.addProperty("phoneNumber", "");
+      }
     }
     else
     {
       jo.addProperty(ChangeRequest.CREATEDBY, actor.getKey());
+      jo.addProperty("email", "");
+      jo.addProperty("phoneNumber", "");
     }
   }
 

@@ -69,6 +69,7 @@ import net.geoprism.registry.service.GeoSynonymService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class ETLService
 {
@@ -687,15 +688,27 @@ public class ETLService
       String parentTreeNode = config.get("parentTreeNode").toString();
       String geoObject = config.get("geoObject").toString();
       Boolean isNew = config.get("isNew").getAsBoolean();
+      
+      GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
 
       if (isNew)
       {
-        GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
         go.setUid(RegistryIdService.getInstance().next());
         geoObject = go.toJSON().toString();
+        
+        new ServerGeoObjectService().createGeoObject(sessionId, parentTreeNode, geoObject, null, null);
       }
+      else
+      {
+        ServerGeoObjectService service = new ServerGeoObjectService();
 
-      new ServerGeoObjectService().createGeoObject(sessionId, parentTreeNode, geoObject, isNew, null, null);
+        ServerGeoObjectIF serverGO = service.apply(go, isNew, false);
+        final ServerGeoObjectType type = serverGO.getType();
+
+        ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);
+
+        serverGO.setParents(ptnOt);
+      }
 
       err.appLock();
       err.setResolution(resolution);

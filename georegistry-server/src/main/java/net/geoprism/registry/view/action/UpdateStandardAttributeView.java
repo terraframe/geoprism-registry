@@ -14,7 +14,7 @@ public class UpdateStandardAttributeView extends AbstractUpdateAttributeView
   {
     if (newValue != null)
     {
-      go.setValue(getAttributeName(), newValue);
+      go.setValue(this.getAttributeName(), newValue);
     }
   }
 

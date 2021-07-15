@@ -206,7 +206,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
           status = AllGovernanceStatus.ACCEPTED;
         }
-        else if (action.getApprovalStatus().contains(AllGovernanceStatus.REJECTED))
+        else if (action.getApprovalStatus().contains(AllGovernanceStatus.REJECTED) || action.getApprovalStatus().contains(AllGovernanceStatus.INVALID))
         {
           rejected.add(action.getMessage());
         }

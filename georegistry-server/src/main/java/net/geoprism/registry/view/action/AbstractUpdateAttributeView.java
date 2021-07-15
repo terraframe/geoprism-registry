@@ -4,9 +4,9 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 abstract public class AbstractUpdateAttributeView
 {
-  protected String attributeName;
+  private String attributeName;
   
-  protected String governanceStatus;
+  abstract public void execute(VertexServerGeoObject go);
 
   public String getAttributeName()
   {
@@ -17,21 +17,4 @@ abstract public class AbstractUpdateAttributeView
   {
     this.attributeName = attributeName;
   }
-
-  public String getGovernanceStatus()
-  {
-    return governanceStatus;
-  }
-
-  public void setGovernanceStatus(String governanceStatus)
-  {
-    this.governanceStatus = governanceStatus;
-  }
-  
-  public void populate()
-  {
-    
-  }
-  
-  abstract public void execute(VertexServerGeoObject go);
 }

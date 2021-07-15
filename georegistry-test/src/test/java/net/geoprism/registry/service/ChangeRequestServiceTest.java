@@ -18,8 +18,8 @@
  */
 package net.geoprism.registry.service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -33,10 +33,13 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.CGRPermissionException;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -45,7 +48,6 @@ import net.geoprism.registry.action.geoobject.CreateGeoObjectActionBase;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeActionBase;
 import net.geoprism.registry.model.ServerGeoObjectIF;
-import net.geoprism.registry.roles.CreateGeoObjectTypePermissionException;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestUserInfo;
@@ -56,6 +58,10 @@ public class ChangeRequestServiceTest
   protected static FastTestDataset    testData;
   
   private static final String NEW_ANTHEM = "NEW_ANTHEM";
+  
+  private static final String NEW_START_DATE = "2020-05-04";
+  
+  private static final String NEW_END_DATE = "2021-05-04";
   
   private String UPDATE_ATTR_JSON = null;
   
@@ -89,8 +95,8 @@ public class ChangeRequestServiceTest
     +         "\"action\" : \"UPDATE\","
     +         "\"oldValue\" : \"" + FastTestDataset.CAMBODIA.getDefaultValue(FastTestDataset.AT_National_Anthem.getAttributeName()) + "\","
     +         "\"newValue\" : \"" + NEW_ANTHEM + "\","
-    +         "\"newStartDate\" : \"2020-05-04\","
-    +         "\"newEndDate\" : \"2021-05-04\","
+    +         "\"newStartDate\" : \"" + NEW_START_DATE + "\","
+    +         "\"newEndDate\" : \"" + NEW_END_DATE + "\","
     +         "\"oldStartDate\" : \"2020-04-04\","
     +         "\"oldEndDate\" : \"2021-04-04\""
     +     "}"
@@ -236,5 +242,152 @@ public class ChangeRequestServiceTest
   private JsonObject toJson(String sessionId, Page<ChangeRequest> page)
   {
     return page.toJSON();
+  }
+  
+  @Test
+  public void testSetActionStatus()
+  {
+    String crOid = createTestChangeRequest(false);
+    
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testSetActionStatus(request, crOid);
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        e.printStackTrace();
+        Assert.fail("Unexpected permission exception was thrown on user [" + user.getUsername() + "].");
+      }
+    }
+    
+    TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+
+    for (TestUserInfo user : disAllowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testSetActionStatus(request, crOid);
+          
+          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+      }
+    }
+  }
+  
+  private void testSetActionStatus(ClientRequestIF request, String crOid)
+  {
+    ChangeRequestService service = new ChangeRequestService();
+    
+    service.setActionStatus(request.getSessionId(), testSetActionStatusGetCRAction(crOid), AllGovernanceStatus.ACCEPTED.name());
+    
+    testSetActionStatusVerifyCRAction(crOid);
+  }
+  
+  @Request
+  private String testSetActionStatusGetCRAction(String crOid)
+  {
+    ChangeRequest cr = ChangeRequest.get(crOid);
+    return cr.getAllAction().next().getOid();
+  }
+  
+  @Request
+  private void testSetActionStatusVerifyCRAction(String crOid)
+  {
+    ChangeRequest cr2 = ChangeRequest.get(crOid);
+    AbstractAction action2 = cr2.getAllAction().next();
+    
+    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action2.getGovernanceStatus().name());
+  }
+  
+  @Test
+  public void testImplementDecisions()
+  {
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testImplementDecisions(request, createTestChangeRequest(false));
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        e.printStackTrace();
+        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+      }
+    }
+    
+    TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+
+    for (TestUserInfo user : disAllowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testImplementDecisions(request, createTestChangeRequest(false));
+          
+          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+      }
+    }
+  }
+  
+  private void testImplementDecisions(ClientRequestIF request, String crOid) throws Exception
+  {
+    ChangeRequestService service = new ChangeRequestService();
+    
+    testSetActionStatus(request, crOid);
+    
+    service.implementDecisions(request.getSessionId(), crOid);
+    
+    testImplementDecisionsVerify(crOid);
+  }
+  
+  @Request
+  private void testImplementDecisionsVerify(String crOid) throws Exception
+  {
+    ChangeRequest cr = ChangeRequest.get(crOid);
+    
+    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getApprovalStatus().get(0).name());
+    
+    AbstractAction action = cr.getAllAction().next();
+    
+    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), action.getApprovalStatus().get(0).name());
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    sdf.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    
+    Date newStartDate = sdf.parse(NEW_START_DATE);
+    Date newEndDate = sdf.parse(NEW_END_DATE);
+    
+    ServerGeoObjectIF serverGo = FastTestDataset.CAMBODIA.getServerObject();
+    
+    ValueOverTimeCollection votc = serverGo.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName());
+    
+    Assert.assertEquals(1, votc.size());
+    
+    ValueOverTime vot = votc.get(0);
+    
+    Assert.assertEquals(newStartDate, vot.getStartDate());
+    Assert.assertEquals(newEndDate, vot.getEndDate());
+    Assert.assertEquals(NEW_ANTHEM, vot.getValue());
+    Assert.assertEquals(NEW_ANTHEM, serverGo.getValue(FastTestDataset.AT_National_Anthem.getAttributeName(), newStartDate));
   }
 }

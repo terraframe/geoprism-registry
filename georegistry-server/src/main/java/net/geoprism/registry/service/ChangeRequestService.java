@@ -597,7 +597,16 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public void setActionStatus(String sessionId, String actionOid, String status)
   {
-    AbstractAction action = AbstractAction.lock(actionOid);
+    AbstractAction action = AbstractAction.get(actionOid);
+    
+    if (!this.permService.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(
+      ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS
+    )))
+    {
+      throw new CGRPermissionException();
+    }
+    
+    action.appLock();
     action.clearApprovalStatus();
     action.addApprovalStatus(AllGovernanceStatus.valueOf(status));
     action.apply();

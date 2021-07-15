@@ -25,13 +25,15 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
   {
     ChangeRequest cr = this.getAllRequest().next();
     
-    ServerGeoObjectType type = ServerGeoObjectType.get(cr.getType());
+    ServerGeoObjectType type = ServerGeoObjectType.get(cr.getGeoObjectTypeCode());
     
     VertexServerGeoObject go = new VertexGeoObjectStrategy(type).getGeoObjectByCode(cr.getGeoObjectCode());
     
     AbstractUpdateAttributeView view = UpdateAttributeViewJsonAdapters.deserialize(this.getJson(), this.getAttributeName(), type);
     
     view.execute(go);
+    
+    go.apply(false);
   }
 
   @Override

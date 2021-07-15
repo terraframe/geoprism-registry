@@ -5,14 +5,12 @@ import java.lang.reflect.Type;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 
+import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class UpdateAttributeViewJsonAdapters
@@ -27,7 +25,9 @@ public class UpdateAttributeViewJsonAdapters
     {
       builder.registerTypeAdapter(UpdateValueOverTimeView.class, new UpdateParentValueOverTimeViewDeserializer());
       
-      return builder.create().fromJson(json, UpdateParentView.class);
+      AbstractUpdateAttributeView view = builder.create().fromJson(json, UpdateParentView.class);
+      view.setAttributeName(attributeName);
+      return view;
     }
     else
     {
@@ -35,11 +35,15 @@ public class UpdateAttributeViewJsonAdapters
       
       if (attr.isChangeOverTime())
       {
-        return builder.create().fromJson(json, UpdateChangeOverTimeAttributeView.class);
+        AbstractUpdateAttributeView view = builder.create().fromJson(json, UpdateChangeOverTimeAttributeView.class);
+        view.setAttributeName(attributeName);
+        return view;
       }
       else
       {
-        return builder.create().fromJson(json, AbstractUpdateAttributeView.class);
+        AbstractUpdateAttributeView view = builder.create().fromJson(json, AbstractUpdateAttributeView.class);
+        view.setAttributeName(attributeName);
+        return view;
       }
     }
   }
