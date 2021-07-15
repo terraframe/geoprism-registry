@@ -63,6 +63,11 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
     return version;
   }
 
+  public FhirExportContext getContext()
+  {
+    return context;
+  }
+
   protected Extension createHierarchyTypeExtension(String code, ServerHierarchyType type)
   {
     String literal = this.getLiteralIdentifier(code);

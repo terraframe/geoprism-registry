@@ -155,6 +155,8 @@ public class MasterListFhirExporter
       objects.close();
     }
 
+    this.populator.finish(bundle);
+
     return bundle;
   }
 

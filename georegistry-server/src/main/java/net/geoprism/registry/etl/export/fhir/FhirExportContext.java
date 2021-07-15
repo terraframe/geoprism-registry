@@ -1,5 +1,6 @@
 package net.geoprism.registry.etl.export.fhir;
 
+import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import net.geoprism.registry.graph.FhirExternalSystem;
 
@@ -19,6 +20,11 @@ public class FhirExportContext
   public IGenericClient getClient()
   {
     return client;
+  }
+
+  public FhirContext getFhirContext()
+  {
+    return this.client.getFhirContext();
   }
 
   public FhirExternalSystem getExternalSystem()

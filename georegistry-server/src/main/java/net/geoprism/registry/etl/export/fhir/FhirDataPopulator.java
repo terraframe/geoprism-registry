@@ -15,4 +15,6 @@ public interface FhirDataPopulator
   public void populate(Business row, Facility facility);
 
   public void createExtraResources(Business row, Bundle bundle, Facility facility);
+
+  public void finish(Bundle bundle);
 }

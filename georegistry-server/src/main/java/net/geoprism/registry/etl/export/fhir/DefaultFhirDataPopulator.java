@@ -61,4 +61,9 @@ public class DefaultFhirDataPopulator implements FhirDataPopulator
   public void createExtraResources(Business row, Bundle bundle, Facility facility)
   {
   }
+
+  @Override
+  public void finish(Bundle bundle)
+  {
+  }
 }
