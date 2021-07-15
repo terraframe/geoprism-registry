@@ -31,15 +31,26 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
 
   private MasterList          list;
 
+  private FhirExportContext   context;
+
   private Map<String, String> identifiers;
 
-  public AbstractFhirDataPopulator(MasterListVersion version)
+  public AbstractFhirDataPopulator()
   {
     super();
 
-    this.version = version;
-    this.list = version.getMasterlist();
+    this.version = null;
+    this.list = null;
+    this.context = null;
     this.identifiers = new HashMap<String, String>();
+  }
+
+  @Override
+  public void configure(FhirExportContext context, MasterListVersion version)
+  {
+    this.context = context;
+    this.version = version;
+    this.list = this.version.getMasterlist();
   }
 
   public MasterList getList()
@@ -52,9 +63,9 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
     return version;
   }
 
-  protected Extension createHierarchyTypeExtension(FhirExportContext context, String code, ServerHierarchyType type)
+  protected Extension createHierarchyTypeExtension(String code, ServerHierarchyType type)
   {
-    String literal = this.getLiteralIdentifier(context, code);
+    String literal = this.getLiteralIdentifier(code);
 
     if (literal != null)
     {
@@ -79,7 +90,7 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
     }
   }
 
-  private String getLiteralIdentifier(FhirExportContext context, String code)
+  private String getLiteralIdentifier(String code)
   {
     if (!this.identifiers.containsKey(code))
     {
@@ -99,7 +110,7 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
     return this.identifiers.get(code);
   }
 
-  public void addHierarchyValue(FhirExportContext context, Business row, Organization org, ServerHierarchyType hierarchyType)
+  public void addHierarchyValue(Business row, Facility facility, ServerHierarchyType hierarchyType)
   {
     JsonArray hierarchies = this.list.getHierarchiesAsJson();
 
@@ -125,7 +136,7 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
 
             if (code != null)
             {
-              org.addExtension(this.createHierarchyTypeExtension(context, code, hierarchyType));
+              facility.getOrganization().addExtension(this.createHierarchyTypeExtension(code, hierarchyType));
 
               return;
             }

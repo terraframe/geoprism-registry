@@ -1,34 +1,51 @@
 package net.geoprism.registry.etl.export.fhir;
 
-import org.hl7.fhir.r4.model.Organization;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
 
-import com.runwaysdk.business.Business;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
-import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.ServerHierarchyType;
 
 public class FhirExportFactory
 {
+  public static List<FhirDataPopulator> getPopulators()
+  {
+    List<FhirDataPopulator> configurations = new ArrayList<FhirDataPopulator>();
+
+    ServiceLoader<FhirDataPopulator> loader = ServiceLoader.load(FhirDataPopulator.class, Thread.currentThread().getContextClassLoader());
+
+    try
+    {
+      Iterator<FhirDataPopulator> it = loader.iterator();
+
+      while (it.hasNext())
+      {
+        configurations.add(it.next());
+      }
+    }
+    catch (ServiceConfigurationError serviceError)
+    {
+      throw new ProgrammingErrorException(serviceError);
+    }
+
+    return configurations;
+  }
 
   public static FhirDataPopulator getPopulator(final MasterListVersion version)
   {
-    MasterList list = version.getMasterlist();
-    ServerGeoObjectType type = list.getGeoObjectType();
+    List<FhirDataPopulator> populators = FhirExportFactory.getPopulators();
 
-    if (!type.getCode().equals("Country"))
+    for (FhirDataPopulator populator : populators)
     {
-      return new AbstractFhirDataPopulator(version)
+      if (populator.supports(version))
       {
-        @Override
-        public void populateOrganization(FhirExportContext context, Business row, Organization org)
-        {
-          this.addHierarchyValue(context, row, org, ServerHierarchyType.get("Around"));
-        }
-      };
+        return populator;
+      }
     }
-
     return new DefaultFhirDataPopulator();
   }
 }

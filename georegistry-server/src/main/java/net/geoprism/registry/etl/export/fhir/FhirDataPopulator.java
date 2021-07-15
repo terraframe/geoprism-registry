@@ -1,15 +1,18 @@
 package net.geoprism.registry.etl.export.fhir;
 
-import org.hl7.fhir.r4.model.Location;
-import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.Bundle;
 
 import com.runwaysdk.business.Business;
 
+import net.geoprism.registry.MasterListVersion;
+
 public interface FhirDataPopulator
 {
+  public boolean supports(MasterListVersion version);
 
-  public void populateOrganization(FhirExportContext context, Business row, Organization org);
+  public void configure(FhirExportContext context, MasterListVersion version);
 
-  public void populateLocation(FhirExportContext context, Business row, Location location);
+  public void populate(Business row, Facility facility);
 
+  public void createExtraResources(Business row, Bundle bundle, Facility facility);
 }

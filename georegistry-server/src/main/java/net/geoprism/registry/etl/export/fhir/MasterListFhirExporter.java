@@ -83,6 +83,8 @@ public class MasterListFhirExporter
     IGenericClient client = factory.newGenericClient(system.getUrl());
 
     this.context = new FhirExportContext(system, client);
+
+    this.populator.configure(context, version);
   }
 
   public MasterList getList()
@@ -138,12 +140,14 @@ public class MasterListFhirExporter
           identifier.setSystem(system);
         }
 
-        Organization organization = createOrganization(row, identifier);
-        Location location = createLocation(row, organization, identifier);
+        Facility facility = createFacility(row, identifier);
+
+        this.populator.populate(row, facility);
 
         // Add the organization and its corresponding location to the bundle
-        newEntry(bundle, organization, identifier);
-        newEntry(bundle, location, identifier);
+        createEntries(bundle, facility, identifier);
+
+        this.populator.createExtraResources(row, bundle, facility);
       }
     }
     finally
@@ -154,7 +158,7 @@ public class MasterListFhirExporter
     return bundle;
   }
 
-  private Organization createOrganization(Business row, Identifier identifier)
+  private Facility createFacility(Business row, Identifier identifier)
   {
     String code = row.getValue(DefaultAttribute.CODE.getName());
 
@@ -162,15 +166,6 @@ public class MasterListFhirExporter
     org.setId(new IdType(org.getResourceType().name(), code));
     org.setName(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE));
     org.addIdentifier(identifier);
-
-    this.populator.populateOrganization(context, row, org);
-
-    return org;
-  }
-
-  private Location createLocation(Business row, Organization org, Identifier identifier)
-  {
-    String code = row.getValue(DefaultAttribute.CODE.getName());
 
     Location location = new Location();
     location.setId(new IdType(location.getResourceType().name(), code));
@@ -202,24 +197,26 @@ public class MasterListFhirExporter
       location.addExtension(extension);
     }
 
-    this.populator.populateLocation(context, row, location);
-
-    return location;
+    return new Facility(org, location);
   }
 
-  private static BundleEntryComponent newEntry(Bundle bundle, Resource resource, Identifier identifier)
+  private static void createEntries(Bundle bundle, Facility facility, Identifier identifier)
   {
-    IdType resourceID = resource.getIdElement();
+    Resource[] resources = new Resource[] { facility.getOrganization(), facility.getLocation() };
 
-    BundleEntryComponent entry = bundle.addEntry();
-    entry.setFullUrl(resource.fhirType() + "/" + resourceID.getIdPart());
-    entry.setResource(resource);
+    for (Resource resource : resources)
+    {
 
-    BundleEntryRequestComponent request = entry.getRequest();
-    request.setMethod(HTTPVerb.PUT);
-    request.setUrl(resource.getResourceType().name() + "?identifier=" + identifier.getValue());
-    entry.setRequest(request);
+      IdType resourceID = resource.getIdElement();
 
-    return entry;
+      BundleEntryComponent entry = bundle.addEntry();
+      entry.setFullUrl(resource.fhirType() + "/" + resourceID.getIdPart());
+      entry.setResource(resource);
+
+      BundleEntryRequestComponent request = entry.getRequest();
+      request.setMethod(HTTPVerb.PUT);
+      request.setUrl(resource.getResourceType().name() + "?identifier=" + identifier.getValue());
+      entry.setRequest(request);
+    }
   }
 }
