@@ -2,9 +2,11 @@ package net.geoprism.registry.view.action;
 
 import java.util.Date;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 
+import net.geoprism.registry.RegistryJsonTimeFormatter;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class UpdateValueOverTimeView
@@ -23,12 +25,16 @@ public class UpdateValueOverTimeView
   
   protected Object newValue;
   
+  @JsonAdapter(RegistryJsonTimeFormatter.class)
   protected Date newStartDate;
   
+  @JsonAdapter(RegistryJsonTimeFormatter.class)
   protected Date newEndDate;
   
+  @JsonAdapter(RegistryJsonTimeFormatter.class)
   protected Date oldStartDate;
   
+  @JsonAdapter(RegistryJsonTimeFormatter.class)
   protected Date oldEndDate;
   
   public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)

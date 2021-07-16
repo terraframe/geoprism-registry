@@ -400,8 +400,14 @@ public class ServerParentTreeNodeOverTime
             final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
   
             ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
+            
+            String oid = null;
+            if (parent.has("oid"))
+            {
+              oid = parent.get("oid").getAsString();
+            }
   
-            return new ServerParentTreeNode(pSGO, ht, startDate, endDate);
+            return new ServerParentTreeNode(pSGO, ht, startDate, endDate, oid);
           }
         }
       }

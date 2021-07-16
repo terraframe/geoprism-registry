@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
@@ -1208,19 +1209,22 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       hierarchyType.validateUniversalRelationship(this.getType(), parent.getType());
     }
 
+    String edgeOid = null;
+    
     if (this.getVertex().isNew() || !this.exists(parent, hierarchyType, null, null))
     {
       EdgeObject edge = this.getVertex().addParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
       edge.apply();
+      
+      edgeOid = edge.getOid();
     }
 
-    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, this.date, null);
-    node.addParent(new ServerParentTreeNode(parent, hierarchyType, this.date, null));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, this.date, null, null);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType, this.date, null, edgeOid));
 
     return node;
   }
-
-  @Override
+  
   public ServerParentTreeNode addParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
   {
     if (!hierarchyType.getUniversalType().equals(AllowedIn.CLASS))
@@ -1259,8 +1263,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       newEdge.apply();
     }
     
-    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, startDate, null);
-    node.addParent(new ServerParentTreeNode(parent, hierarchyType, startDate, null));
+    ServerParentTreeNode node = new ServerParentTreeNode(this, hierarchyType, startDate, null, null);
+    node.addParent(new ServerParentTreeNode(parent, hierarchyType, startDate, null, newEdge.getOid()));
 
     return node;
   }
@@ -1376,7 +1380,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     
     return al;
   }
-
+  
   private boolean calculateStartDates(SortedSet<EdgeObject> edges, ServerGeoObjectIF parent, Date startDate, Date endDate)
   {
     if (startDate != null && endDate != null)
@@ -1570,13 +1574,17 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
       {
         ValueOverTimeCollection votc = this.getValuesOverTime(attributeName);
+        ValueOverTimeCollectionDTO votcDTO = new ValueOverTimeCollectionDTO(attribute);
 
         for (ValueOverTime vot : votc)
         {
           Object value = this.getDisplayLabel(vot.getStartDate());
 
-          geoObj.setValue(attributeName, value, vot.getStartDate(), vot.getEndDate());
+          ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
+          votDTO.setValue(value);
         }
+        
+        geoObj.setValueCollection(attributeName, votcDTO);
       }
       // else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
       // {
@@ -1596,6 +1604,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         if (attribute.isChangeOverTime())
         {
           ValueOverTimeCollection votc = this.getValuesOverTime(attributeName);
+          ValueOverTimeCollectionDTO votcDTO = new ValueOverTimeCollectionDTO(attribute);
 
           for (ValueOverTime vot : votc)
           {
@@ -1603,7 +1612,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
             {
               Term statusTerm = ServiceFactory.getConversionService().geoObjectStatusToTerm(this.getStatus(vot.getStartDate()));
 
-              geoObj.setStatus(statusTerm, vot.getStartDate(), vot.getEndDate());
+              ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
+              votDTO.setValue(statusTerm.getCode());
+              votcDTO.add(votDTO);
             }
             else
             {
@@ -1617,7 +1628,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
                   try
                   {
-                    geoObj.setValue(attributeName, classifier.getClassifierId(), vot.getStartDate(), vot.getEndDate());
+                    ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
+                    votDTO.setValue(classifier.getClassifierId());
+                    votcDTO.add(votDTO);
                   }
                   catch (UnknownTermException e)
                   {
@@ -1630,11 +1643,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                 }
                 else
                 {
-                  geoObj.setValue(attributeName, value, vot.getStartDate(), vot.getEndDate());
+                  ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
+                  votDTO.setValue(value);
+                  votcDTO.add(votDTO);
                 }
               }
             }
           }
+          
+          geoObj.setValueCollection(attributeName, votcDTO);
         }
         else
         {
@@ -1681,12 +1698,16 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
 
     ValueOverTimeCollection votc = this.getValuesOverTime(this.getGeometryAttributeName());
+    ValueOverTimeCollectionDTO votcDTO = new ValueOverTimeCollectionDTO(geoObj.getGeometryAttributeType());
     for (ValueOverTime vot : votc)
     {
       Object value = vot.getValue();
 
-      geoObj.setValue(DefaultAttribute.GEOMETRY.getName(), value, vot.getStartDate(), vot.getEndDate());
+      ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
+      votDTO.setValue(value);
+      votcDTO.add(votDTO);
     }
+    geoObj.setValueCollection(DefaultAttribute.GEOMETRY.getName(), votcDTO);
 
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
 
@@ -1930,7 +1951,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   private static ServerChildTreeNode internalGetChildGeoObjects(VertexServerGeoObject parent, String[] childrenTypes, Boolean recursive, ServerHierarchyType htIn, Date date)
   {
-    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn, date, null);
+    ServerChildTreeNode tnRoot = new ServerChildTreeNode(parent, htIn, date, null, null);
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", parent.getVertex().getRID());
@@ -1995,7 +2016,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
         else
         {
-          tnChild = new ServerChildTreeNode(child, ht, date, null);
+          tnChild = new ServerChildTreeNode(child, ht, date, null, edge.getOid());
         }
 
         tnRoot.addChild(tnChild);
@@ -2007,7 +2028,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn, Date date)
   {
-    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date, null);
+    ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, htIn, date, null, null);
 
     Map<String, Object> parameters = new HashedMap<String, Object>();
     parameters.put("rid", child.getVertex().getRID());
@@ -2071,7 +2092,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
       if (! ( mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID) || mdEdge.definesType().startsWith(SearchService.PACKAGE) ))
       {
-        VertexObject parentVertex = edge.getParent();
+        final VertexObject parentVertex = edge.getParent();
 
         MdVertexDAOIF mdVertex = (MdVertexDAOIF) parentVertex.getMdClass();
 
@@ -2088,7 +2109,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
         else
         {
-          tnParent = new ServerParentTreeNode(parent, ht, date, null);
+          tnParent = new ServerParentTreeNode(parent, ht, date, null, edge.getOid());
         }
 
         tnRoot.addParent(tnParent);
@@ -2160,9 +2181,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
         Date date = edge.getObjectValue(GeoVertex.START_DATE);
         Date endDate = edge.getObjectValue(GeoVertex.END_DATE);
+        String oid = edge.getObjectValue(GeoVertex.OID);
 
-        ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date, null);
+        ServerParentTreeNode tnRoot = new ServerParentTreeNode(child, null, date, null, oid);
         tnRoot.setEndDate(endDate);
+        tnRoot.setOid(oid);
 
         VertexServerGeoObject parent = new VertexServerGeoObject(parentType, parentVertex, date);
 
@@ -2174,7 +2197,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         }
         else
         {
-          tnParent = new ServerParentTreeNode(parent, ht, date, null);
+          tnParent = new ServerParentTreeNode(parent, ht, date, null, oid);
         }
 
         tnRoot.addParent(tnParent);

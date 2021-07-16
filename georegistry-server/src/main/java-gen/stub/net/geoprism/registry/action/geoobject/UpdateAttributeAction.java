@@ -2,7 +2,9 @@ package net.geoprism.registry.action.geoobject;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 
+import net.geoprism.dhis2.dhis2adapter.DHIS2Constants;
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
@@ -33,7 +35,16 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
     
     view.execute(go);
     
-    go.apply(false);
+    if (!this.getAttributeName().equals(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME))
+    {
+      ValueOverTimeCollection votc = go.getValuesOverTime(this.getAttributeName());
+      
+      votc.reorder();
+      
+      go.apply(false);
+    }
+    
+    
   }
 
   @Override
@@ -46,6 +57,7 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
   public JsonObject toJson()
   {
     GsonBuilder builder = new GsonBuilder();
+    builder.setDateFormat("yyyy-MM-dd");
     builder.registerTypeAdapter(UpdateAttributeAction.class, new ActionJsonAdapters.UpdateAttributeActionSerializer());
 
     return (JsonObject) builder.create().toJsonTree(this);

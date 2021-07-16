@@ -7,19 +7,31 @@ import com.runwaysdk.business.graph.GraphQuery;
 
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.GeoVertex;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
 {
-  public void execute(UpdateParentView cotView, VertexServerGeoObject go)
+  public static final String VALUE_SPLIT_TOKEN = "_~VST~_";
+  
+  @Override
+  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
   {
-    final ServerHierarchyType hierarchyType = ServerHierarchyType.get(cotView.getHierarchyCode());
-    final VertexServerGeoObject parent = new VertexGeoObjectStrategy(go.getType()).getGeoObjectByCode(String.valueOf(this.getNewValue()));
+    UpdateParentView parentView = (UpdateParentView) cotView;
+    
+    String[] newValueSplit = ((String)this.getNewValue()).split(VALUE_SPLIT_TOKEN);
+    String parentTypeCode = newValueSplit[0];
+    String parentCode = newValueSplit[1];
+    
+    ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
+    
+    final ServerHierarchyType hierarchyType = ServerHierarchyType.get(parentView.getHierarchyCode());
+    final VertexServerGeoObject parent = new VertexGeoObjectStrategy(parentType).getGeoObjectByCode(parentCode);
     
     if (this.action.equals(UpdateActionType.DELETE))
     {
-      EdgeObject edge = this.getEdgeByOid((String) this.newValue, go, hierarchyType);
+      EdgeObject edge = this.getEdgeByOid(this.oid, go, hierarchyType);
       
       if (edge == null)
       {
@@ -30,7 +42,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     }
     else if (this.action.equals(UpdateActionType.UPDATE))
     {
-      EdgeObject edge = this.getEdgeByOid((String) this.newValue, go, hierarchyType);
+      EdgeObject edge = this.getEdgeByOid(this.oid, go, hierarchyType);
       
       if (edge == null)
       {
@@ -39,7 +51,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       
       String currentCode = edge.getParent().getObjectValue(DefaultAttribute.CODE.getName());
       
-      if (currentCode != this.newValue)
+      if (currentCode != parentCode)
       {
         edge.delete();
         go.addParent(parent, hierarchyType, this.newStartDate, this.newEndDate);
@@ -75,22 +87,16 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     }
   }
   
-  private EdgeObject getEdgeByOid(String edgeRid, VertexServerGeoObject go, ServerHierarchyType hierarchyType)
+  private EdgeObject getEdgeByOid(String edgeOid, VertexServerGeoObject go, ServerHierarchyType hierarchyType)
   {
-    String statement = "SELECT expand(inE('" + hierarchyType.getMdEdge().getDBClassName() + "'))";
-    statement += " FROM :child";
-    statement += " WHERE :edgerid = @rid";
+    String statement = "SELECT FROM (";
+    statement += "SELECT expand(inE('" + hierarchyType.getMdEdge().getDBClassName() + "')) FROM :child";
+    statement += ") WHERE :edgeoid = oid";
 
     GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
     query.setParameter("child", go.getVertex().getRID());
-    query.setParameter("edgerid", edgeRid);
+    query.setParameter("edgeoid", edgeOid);
     
     return query.getSingleResult();
-  }
-  
-  @Override
-  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
-  {
-    throw new UnsupportedOperationException("Cannot invoke this execute method.");
   }
 }
