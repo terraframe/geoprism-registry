@@ -334,15 +334,15 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject createGeoObject(String sessionId, String ptn, String sGO, String masterListId, String notes)
+  public JsonObject createGeoObject(String sessionId, String ptn, String sTimeGo, String masterListId, String notes)
   {
-    return this.createGeoObjectInTrans(ptn, sGO, masterListId, notes);
+    return this.createGeoObjectInTrans(ptn, sTimeGo, masterListId, notes);
   }
 
   @Transaction
-  public JsonObject createGeoObjectInTrans(String sPtn, String sGO, String masterListId, String notes)
+  public JsonObject createGeoObjectInTrans(String sPtn, String sTimeGo, String masterListId, String notes)
   {
-    GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
+    GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sTimeGo);
 
     ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
 
@@ -400,7 +400,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       CreateGeoObjectAction action = new CreateGeoObjectAction();
       action.addApprovalStatus(AllGovernanceStatus.PENDING);
       action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-      action.setGeoObjectJson(sGO);
+      action.setGeoObjectJson(sTimeGo);
       action.setParentJson(sPtn);
       action.setApiVersion(CGRAdapterProperties.getApiVersion());
       action.setContributorNotes(notes);
@@ -489,7 +489,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
         action.setContributorNotes(notes);
         action.apply();
         
-        request.addAction(action);
+        request.addAction(action).apply();
       }
       
       request.apply();

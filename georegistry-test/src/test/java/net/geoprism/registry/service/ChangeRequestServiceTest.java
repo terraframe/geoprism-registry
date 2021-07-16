@@ -31,11 +31,13 @@ import org.junit.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -44,10 +46,12 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
+import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectActionBase;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeActionBase;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.test.FastTestDataset;
@@ -63,13 +67,19 @@ public class ChangeRequestServiceTest
 {
   public static final TestGeoObjectInfo BELIZE = new TestGeoObjectInfo("Belize", FastTestDataset.COUNTRY);
   
+  public static final TestGeoObjectInfo TEST_NEW_PROVINCE = new TestGeoObjectInfo("CR_TEST_NEW_PROVINCE", FastTestDataset.PROVINCE);
+  
   protected static FastTestDataset    testData;
   
   private static final String NEW_ANTHEM = "NEW_ANTHEM";
   
-  private static final String NEW_START_DATE = "2020-05-04";
+  private static final String NEW_START_DATE = "2020-05-04"; // The complex update test assumes this date is AFTER the old date.
   
   private static final String NEW_END_DATE = "2021-05-04";
+  
+  private static final String OLD_START_DATE = "2020-04-04";
+  
+  private static final String OLD_END_DATE = "2020-04-04";
   
   private String UPDATE_ATTR_JSON = null;
   
@@ -93,8 +103,6 @@ public class ChangeRequestServiceTest
   {
     testData.setUpInstanceData();
     
-//    TestDataSet.populateAdapterIds(null, testData.adapter);
-    
     BELIZE.apply();
     
     ServerGeoObjectIF cambodia = FastTestDataset.CAMBODIA.getServerObject();
@@ -109,8 +117,8 @@ public class ChangeRequestServiceTest
     +         "\"newValue\" : \"" + NEW_ANTHEM + "\","
     +         "\"newStartDate\" : \"" + NEW_START_DATE + "\","
     +         "\"newEndDate\" : \"" + NEW_END_DATE + "\","
-    +         "\"oldStartDate\" : \"2020-04-04\","
-    +         "\"oldEndDate\" : \"2021-04-04\""
+    +         "\"oldStartDate\" : \"" + OLD_START_DATE + "\","
+    +         "\"oldEndDate\" : \"" + OLD_END_DATE + "\""
     +     "}"
     + "]"
     + "}";
@@ -128,8 +136,8 @@ public class ChangeRequestServiceTest
         +         "\"newValue\" : \"" + FastTestDataset.COUNTRY.getCode() + UpdateParentValueOverTimeView.VALUE_SPLIT_TOKEN + BELIZE.getCode() + "\","
         +         "\"newStartDate\" : \"" + NEW_START_DATE + "\","
         +         "\"newEndDate\" : \"" + NEW_END_DATE + "\","
-        +         "\"oldStartDate\" : \"2020-04-04\","
-        +         "\"oldEndDate\" : \"2021-04-04\""
+        +         "\"oldStartDate\" : \"" + OLD_START_DATE + "\","
+        +         "\"oldEndDate\" : \"" + OLD_END_DATE + "\""
         +     "}"
         + "]"
         + "}";
@@ -530,5 +538,336 @@ public class ChangeRequestServiceTest
     Assert.assertEquals(newStartDate, ptn.getStartDate());
     Assert.assertEquals(newEndDate, ptn.getEndDate());
     Assert.assertEquals(BELIZE.getCode(), parent.getGeoObject().getCode());
+  }
+  
+  @Test
+  public void testCreateGeoObjectCR() throws Exception
+  {
+    String[] json = testCreateGeoObjectCR_Json();
+    
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RC };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testCreateGeoObjectCR(json, request);
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        e.printStackTrace();
+        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+      }
+      
+      tearDown();
+      setUp();
+    }
+    
+    TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_AC };
+
+    for (TestUserInfo user : disAllowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testCreateGeoObjectCR(json, request);
+          
+          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+      }
+    }
+  }
+  
+  private void testCreateGeoObjectCR(String[] json, ClientRequestIF request) throws Exception
+  {
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    
+    JsonObject jo = service.createGeoObject(request.getSessionId(), json[0], json[1], null, "test-notes");
+    
+    Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
+    Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
+    
+    testCreateGeoObjectCR_Verify();
+  }
+  
+  @Request
+  private String[] testCreateGeoObjectCR_Json() throws Exception
+  {
+    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    sdf.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    
+    final Date newStartDate = sdf.parse(NEW_START_DATE);
+    final Date newEndDate = sdf.parse(NEW_END_DATE);
+    
+    String[] ret = new String[2];
+    
+    ServerParentTreeNodeOverTime ptnot = new ServerParentTreeNodeOverTime(FastTestDataset.PROVINCE.getServerObject());
+    ServerParentTreeNode childNode = new ServerParentTreeNode(null, FastTestDataset.HIER_ADMIN.getServerObject(), newStartDate, newEndDate, null);
+    childNode.addParent(new ServerParentTreeNode(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.HIER_ADMIN.getServerObject(), newStartDate, newEndDate, null));
+    ptnot.add(FastTestDataset.HIER_ADMIN.getServerObject(), childNode);
+    
+    ret[0] = ptnot.toJSON().toString();
+    
+    ret[1] = TEST_NEW_PROVINCE.newGeoObjectOverTime(ServiceFactory.getAdapter()).toJSON().toString();
+    
+    return ret;
+  }
+  
+  @Request
+  private void testCreateGeoObjectCR_Verify()
+  {
+    ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
+    
+    Assert.assertEquals(1, crq.getCount());
+    
+    ChangeRequest cr = crq.getIterator().next();
+    
+    Assert.assertEquals(AllGovernanceStatus.PENDING.name(), cr.getGovernanceStatus().name());
+    
+    AbstractAction action = cr.getAllAction().next();
+    
+    Assert.assertTrue(action instanceof CreateGeoObjectAction);
+    
+    Assert.assertEquals(TEST_NEW_PROVINCE.getCode(), cr.getGeoObjectCode());
+    Assert.assertEquals(TEST_NEW_PROVINCE.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+  }
+  
+  
+  
+  @Test
+  public void testUpdateGeoObjectCR() throws Exception
+  {
+    String json = testUpdateGeoObjectCR_Json();
+    
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RC };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testUpdateGeoObjectCR(json, request);
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        e.printStackTrace();
+        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+      }
+      
+      tearDown();
+      setUp();
+    }
+    
+    TestUserInfo[] disAllowedUsers = new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_AC };
+
+    for (TestUserInfo user : disAllowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testUpdateGeoObjectCR(json, request);
+          
+          Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        Assert.assertEquals(e.getType(), CGRPermissionException.CLASS);
+      }
+    }
+  }
+  
+  private void testUpdateGeoObjectCR(String json, ClientRequestIF request) throws Exception
+  {
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    
+    JsonObject jo = service.updateGeoObject(request.getSessionId(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.COUNTRY.getCode(), json, null, "test-notes");
+    
+    Assert.assertEquals(true, jo.get("isChangeRequest").getAsBoolean());
+    Assert.assertEquals(36, jo.get("changeRequestId").getAsString().length());
+    
+    testUpdateGeoObjectCR_Verify();
+  }
+  
+  @Request
+  private String testUpdateGeoObjectCR_Json() throws Exception
+  {
+    JsonArray ja = new JsonArray();
+    
+    JsonObject jo = new JsonObject();
+    
+    jo.addProperty("attributeName", FastTestDataset.AT_National_Anthem.getAttributeName());
+    jo.add("attributeDiff", JsonParser.parseString(UPDATE_ATTR_JSON).getAsJsonObject());
+    
+    ja.add(jo);
+    
+    return ja.toString();
+  }
+  
+  @Request
+  private void testUpdateGeoObjectCR_Verify()
+  {
+    ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
+    
+    Assert.assertEquals(1, crq.getCount());
+    
+    ChangeRequest cr = crq.getIterator().next();
+    
+    Assert.assertEquals(AllGovernanceStatus.PENDING.name(), cr.getGovernanceStatus().name());
+    
+    AbstractAction action = cr.getAllAction().next();
+    
+    Assert.assertTrue(action instanceof UpdateAttributeAction);
+    
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+  }
+  
+  
+  
+  /**
+   * This usecase tests the create and delete actions for value over time objects. 
+   */
+  @Test
+  public void testComplexUpdateGeoObjectCR() throws Exception
+  {
+    String[] data = testComplexUpdateGeoObjectCR_applyCR();
+    
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_CGOV_RA };
+
+    for (TestUserInfo user : allowedUsers)
+    {
+      try
+      {
+        FastTestDataset.runAsUser(user, (request, adapter) -> {
+          testComplexUpdateGeoObjectCR(data, request);
+        });
+      }
+      catch (SmartExceptionDTO e)
+      {
+        e.printStackTrace();
+        Assert.fail("Unexpected exception was thrown on user [" + user.getUsername() + "].");
+      }
+    }
+  }
+  
+  private void testComplexUpdateGeoObjectCR(String[] data, ClientRequestIF request) throws Exception
+  {
+    new ChangeRequestService().implementDecisions(request.getSessionId(), data[0]);
+    
+    testComplexUpdateGeoObjectCR_Verify(data);
+  }
+  
+  @Request
+  private String[] testComplexUpdateGeoObjectCR_applyCR() throws Exception
+  {
+    ChangeRequest cr = new ChangeRequest();
+    cr.addApprovalStatus(AllGovernanceStatus.PENDING);
+    cr.setOrganizationCode(FastTestDataset.ORG_CGOV.getCode());
+    cr.setGeoObjectCode(FastTestDataset.CAMBODIA.getCode());
+    cr.setGeoObjectTypeCode(FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
+    cr.apply();
+    
+    UpdateAttributeAction action = new UpdateAttributeAction();
+    action.setApiVersion("1.0");
+    ( (UpdateAttributeActionBase) action ).setAttributeName(FastTestDataset.AT_National_Anthem.getAttributeName());
+    
+    
+    JsonObject diff = new JsonObject();
+    
+    ServerGeoObjectIF cambodia = FastTestDataset.CAMBODIA.getServerObject();
+    String votOid = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE).getOid();
+    
+    JsonArray valuesOverTime = JsonParser.parseString("["
+        + "{"
+        + "  \"oid\": \"" + votOid + "\","
+        + "  \"action\": \"DELETE\""
+        + "},"
+        + "{"
+        + "  \"action\": \"CREATE\","
+        + "  \"newValue\": \"" + NEW_ANTHEM + "\","
+        + "  \"newStartDate\": \"" + NEW_START_DATE + "\","
+        + "  \"newEndDate\": \"" + NEW_END_DATE + "\""
+        + "},"
+        + "{"
+        + "  \"action\": \"CREATE\","
+        + "  \"newValue\": \"" + NEW_ANTHEM + "\","
+        + "  \"newStartDate\": \"" + OLD_START_DATE + "\","
+        + "  \"newEndDate\": \"" + OLD_END_DATE + "\""
+        + "}"
+        + "]").getAsJsonArray();
+    
+    diff.add("valuesOverTime", valuesOverTime);
+    
+    
+    ( (UpdateAttributeActionBase) action ).setJson(diff.toString());
+    action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+    action.setCreateActionDate(new Date());
+    action.apply();
+    
+    cr.addAction(action).apply();
+    
+    return new String[] {cr.getOid(), votOid};
+  }
+  
+  @Request
+  private void testComplexUpdateGeoObjectCR_Verify(String[] data) throws Exception
+  {
+    final String oldOid = data[1];
+    
+    final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    sdf.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+    
+    final Date newStartDate = sdf.parse(NEW_START_DATE);
+    final Date newEndDate = sdf.parse(NEW_END_DATE);
+    final Date oldStartDate = sdf.parse(OLD_START_DATE);
+    final Date oldEndDate = sdf.parse(OLD_END_DATE);
+    
+    ChangeRequestQuery crq = new ChangeRequestQuery(new QueryFactory());
+    
+    Assert.assertEquals(1, crq.getCount());
+    
+    ChangeRequest cr = crq.getIterator().next();
+    
+    Assert.assertEquals(AllGovernanceStatus.ACCEPTED.name(), cr.getGovernanceStatus().name());
+    
+    AbstractAction action = cr.getAllAction().next();
+    
+    Assert.assertTrue(action instanceof UpdateAttributeAction);
+    
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), cr.getGeoObjectCode());
+    Assert.assertEquals(FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), cr.getGeoObjectTypeCode());
+    Assert.assertEquals(FastTestDataset.ORG_CGOV.getCode(), cr.getOrganizationCode());
+    
+    ServerGeoObjectIF cambodia = FastTestDataset.CAMBODIA.getServerObject();
+    ValueOverTimeCollection votc = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName());
+    
+    Assert.assertEquals(2, votc.size());
+    
+    ValueOverTime vot1 = votc.get(0);
+    
+    Assert.assertNotNull(vot1.getOid());
+    Assert.assertTrue(!(vot1.getOid().equals(oldOid)));
+    Assert.assertEquals(NEW_ANTHEM, vot1.getValue());
+    Assert.assertEquals(oldStartDate, vot1.getStartDate());
+    Assert.assertEquals(oldEndDate, vot1.getEndDate());
+    
+    
+    ValueOverTime vot2 = votc.get(1);
+    
+    Assert.assertNotNull(vot2.getOid());
+    Assert.assertTrue(!(vot2.getOid().equals(oldOid)));
+    Assert.assertEquals(NEW_ANTHEM, vot2.getValue());
+    Assert.assertEquals(newStartDate, vot2.getStartDate());
+    Assert.assertEquals(newEndDate, vot2.getEndDate());
   }
 }

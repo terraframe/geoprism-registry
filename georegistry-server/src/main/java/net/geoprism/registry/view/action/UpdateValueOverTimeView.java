@@ -79,6 +79,8 @@ public class UpdateValueOverTimeView
       {
         // TODO throw an exception?
       }
+      
+      go.setValue(cotView.getAttributeName(), newValue, newStartDate, newEndDate);
     }
     else
     {
