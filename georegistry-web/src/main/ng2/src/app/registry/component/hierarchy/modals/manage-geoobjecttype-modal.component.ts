@@ -1,4 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import {
+	trigger,
+	style,
+	animate,
+	transition,
+} from '@angular/animations';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
@@ -13,7 +19,26 @@ import { HierarchyService, GeoObjectTypeManagementService } from '@registry/serv
 @Component({
 	selector: 'manage-geoobjecttype-modal',
 	templateUrl: './manage-geoobjecttype-modal.component.html',
-	styleUrls: ['./manage-geoobjecttype-modal.css']
+	styleUrls: ['./manage-geoobjecttype-modal.css'],
+//	host: { '[@fadeInOut]': 'true' },
+	animations: [
+		[
+			trigger('fadeInOut', [
+				transition('void => *', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				]),
+				transition(':leave',
+					animate('500ms',
+						style({
+							opacity: 0
+						})
+					)
+				)
+			])
+		]]
 })
 export class ManageGeoObjectTypeModalComponent implements OnInit {
 	message: string = null;

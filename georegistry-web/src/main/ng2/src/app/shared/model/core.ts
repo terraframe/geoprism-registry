@@ -85,21 +85,21 @@ export class LocalizedValue {
 	}
 	
 	public getValue(localeToString: string): string
-  {
-    let len = this.localeValues.length;
-    
-    for (let i = 0; i < len; ++i)
     {
-      let lv = this.localeValues[i];
-      
-      if (lv.locale === localeToString)
-      {
-        return lv.value;
-      }
+	    let len = this.localeValues.length;
+	    
+	    for (let i = 0; i < len; ++i)
+	    {
+	      let lv = this.localeValues[i];
+	      
+	      if (lv.locale === localeToString)
+	      {
+	        return lv.value;
+	      }
+	    }
+	    
+	    return this.localizedValue;
     }
-    
-    return this.localizedValue;
-  }
 }
 
 export class RoleBuilder {

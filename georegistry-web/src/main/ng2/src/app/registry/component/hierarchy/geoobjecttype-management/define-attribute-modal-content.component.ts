@@ -61,7 +61,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
 		this.registryService.addAttributeType(this.geoObjectType.code, this.newAttribute).then(data => {
 			this.geoObjectType.attributes.push(data);
 
-			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageAttributes, "attribute": "", "termOption": "" })
+			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": "", "termOption": "" })
 
 			this.geoObjectTypeChange.emit(this.geoObjectType);
 		}).catch((err: HttpErrorResponse) => {
@@ -97,7 +97,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
 	}
 
 	cancel(): void {
-		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageAttributes, "attribute": "", "termOption": "" })
+		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": "", "termOption": "" })
 	}
 
 	error(err: HttpErrorResponse): void {

@@ -1,20 +1,45 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import {
+	trigger,
+	style,
+	animate,
+	transition,
+} from '@angular/animations';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from "@angular/common/http";
-import { StepConfig } from '@shared/model/modal';
+import { StepConfig, ModalTypes } from '@shared/model/modal';
 import { ErrorHandler, ConfirmModalComponent } from '@shared/component';
 
 import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
 
-import { GeoObjectType, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '@registry/model/registry';
+import { GeoObjectType, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates, Attribute } from '@registry/model/registry';
 import { RegistryService, GeoObjectTypeManagementService, HierarchyService } from '@registry/service';
 
 @Component( {
     selector: 'geoobjecttype-input',
     templateUrl: './geoobjecttype-input.component.html',
-    styleUrls: ['./geoobjecttype-input.css']
+    styleUrls: ['./geoobjecttype-input.css'],
+//	host: { '[@fadeInOut]': 'true' },
+	animations: [
+		[
+			trigger('fadeInOut', [
+				transition('void => *', [
+					style({
+						opacity: 0
+					}),
+					animate('500ms')
+				]),
+				transition(':leave',
+					animate('500ms',
+						style({
+							opacity: 0
+						})
+					)
+				)
+			])
+		]]
 } )
 export class GeoObjectTypeInputComponent implements OnInit {
 
@@ -39,6 +64,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
         {"label":this.localizationService.decode("modal.step.indicator.manage.geoobjecttype"), "active":true, "enabled":true}
     ]};
 
+
     constructor( private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService, 
         private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, 
         private localizationService: LocalizationService, private registryService: RegistryService ) {
@@ -52,6 +78,10 @@ export class GeoObjectTypeInputComponent implements OnInit {
         
         this.fetchOrganizationLabel();
     }
+
+	defineAttributeModal(): void {
+		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.defineAttribute, "attribute": "", "termOption": "" })
+	}
 
     fetchOrganizationLabel(): void {
         
@@ -122,6 +152,42 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
         return true;
     }
+
+	editAttribute(attr: Attribute, e: any): void {
+		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.editAttribute, "attribute": attr, "termOption": "" })
+	}
+
+	removeAttributeType(attr: Attribute, e: any): void {
+
+		this.confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
+			animated: true,
+			backdrop: true,
+			ignoreBackdropClick: true,
+		});
+		this.confirmBsModalRef.content.message = this.localizationService.decode("confirm.modal.verify.delete") + '[' + attr.label.localizedValue + ']';
+		this.confirmBsModalRef.content.data = { 'attributeType': attr, 'geoObjectType': this.geoObjectType };
+		this.confirmBsModalRef.content.submitText = this.localizationService.decode("modal.button.delete");
+		this.confirmBsModalRef.content.type = ModalTypes.danger;
+
+		(<ConfirmModalComponent>this.confirmBsModalRef.content).onConfirm.subscribe(data => {
+			this.deleteAttributeType(data.geoObjectType.code, data.attributeType);
+		});
+	}
+
+	deleteAttributeType(geoObjectTypeCode: string, attr: Attribute): void {
+
+		this.registryService.deleteAttributeType(geoObjectTypeCode, attr.code).then(data => {
+
+			if (data) {
+				this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
+			}
+			
+			this.geoObjectTypeChange.emit(this.geoObjectType);
+
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
+	}
 
     error( err: HttpErrorResponse ): void {
             this.message = ErrorHandler.getMessageFromError(err);

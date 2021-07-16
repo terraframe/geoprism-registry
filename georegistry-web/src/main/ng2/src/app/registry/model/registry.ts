@@ -339,6 +339,7 @@ export class MasterListVersion {
 	isAbstract?: boolean;
 	superTypeCode?: string;
 	refreshProgress?: any;
+	subtypes?: { label:string, code: string }[];
 }
 
 export class HierarchyOverTime {
