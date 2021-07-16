@@ -98,6 +98,9 @@ public class ChangeRequestDocumentActionServiceTest
   {
     ChangeRequest cr = new ChangeRequest();
     cr.addApprovalStatus(AllGovernanceStatus.PENDING);
+    cr.setGeoObjectCode(FastTestDataset.CAMBODIA.getCode());
+    cr.setGeoObjectTypeCode(FastTestDataset.COUNTRY.getCode());
+    cr.setOrganizationCode(FastTestDataset.ORG_CGOV.getCode());
     cr.apply();
     
     CreateGeoObjectAction action = new CreateGeoObjectAction();

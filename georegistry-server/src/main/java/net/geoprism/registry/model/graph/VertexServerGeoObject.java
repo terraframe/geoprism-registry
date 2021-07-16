@@ -1582,6 +1582,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
           ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
           votDTO.setValue(value);
+          votcDTO.add(votDTO);
         }
         
         geoObj.setValueCollection(attributeName, votcDTO);
