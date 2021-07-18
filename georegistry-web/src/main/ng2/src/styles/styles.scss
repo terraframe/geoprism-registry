@@ -472,6 +472,10 @@ li.list-group-item.active {
 	padding-top: 0;
     padding-bottom: 0;
 }
+.list-table thead .label-column {
+	padding-top: 8px;
+    padding-bottom: 8px;
+}
 .list-table .description-column {
 	width: 25%;
 	font-size: 14px;
