@@ -5,6 +5,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 
+import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -35,7 +36,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       
       if (edge == null)
       {
-        // TODO throw an exception?
+        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
+        throw ex;
       }
       
       edge.delete();
@@ -46,7 +48,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       
       if (edge == null)
       {
-        // TODO throw an exception?
+        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
+        throw ex;
       }
       
       String currentCode = edge.getParent().getObjectValue(DefaultAttribute.CODE.getName());
@@ -76,7 +79,8 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       
       if (edge != null)
       {
-        // TODO throw an exception?
+        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
+        throw ex;
       }
       
       go.addParent(parent, hierarchyType, this.newStartDate, this.newEndDate);

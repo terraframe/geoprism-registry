@@ -21,6 +21,11 @@
             value="INVALID" />
         </attributeStruct>
       </object>
+      
+      <mdException name="net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException"
+        message="The Change Request cannot be implemented as specified because it references objects which no longer exist."
+        exported="false" publish="false">
+      </mdException>
     </create>
     <update>
       <mdBusiness name="net.geoprism.registry.action.ChangeRequest">

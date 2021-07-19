@@ -26,6 +26,7 @@ import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.RegistryJsonTimeFormatter;
+import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
@@ -70,7 +71,8 @@ public class UpdateValueOverTimeView
       
       if (vot == null)
       {
-        // TODO throw an exception?
+        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
+        throw ex;
       }
       
       votc.remove(vot);
@@ -78,6 +80,12 @@ public class UpdateValueOverTimeView
     else if (this.action.equals(UpdateActionType.UPDATE))
     {
       ValueOverTime vot = votc.getValueByOid(this.getOid());
+      
+      if (vot == null)
+      {
+        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
+        throw ex;
+      }
       
       if (newStartDate != null)
       {
@@ -97,7 +105,8 @@ public class UpdateValueOverTimeView
       
       if (vot != null)
       {
-        // TODO throw an exception?
+        ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
+        throw ex;
       }
       
       this.persistValue(null, cotView, go);
