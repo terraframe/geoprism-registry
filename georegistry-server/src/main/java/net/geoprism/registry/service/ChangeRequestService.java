@@ -22,12 +22,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.commongeoregistry.adapter.Optional;
-import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -44,7 +41,6 @@ import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.VaultFile;
 
-import net.geoprism.GeoprismUser;
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.action.AbstractAction;
@@ -273,204 +269,6 @@ public class ChangeRequestService
     
     return jo.toString();
   }
-  
-//  @Request(RequestType.SESSION)
-//  public void applyAction(String sessionId, String sAction)
-//  {
-//    applyActionInTransaction(sAction);
-//  }
-//
-//  @Transaction
-//  public void applyActionInTransaction(String sAction)
-//  {
-//    JSONObject joAction = new JSONObject(sAction);
-//
-//    AbstractAction action = AbstractAction.get(joAction.getString("oid"));
-//    
-//    Set<ChangeRequestPermissionAction> perms = this.permService.getPermissions(action.getAllRequest().next());
-//    
-//    if (!perms.containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.WRITE
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//
-//    action.buildFromJson(joAction);
-//
-//    action.apply();
-//  }
-
-//  @Request(RequestType.SESSION)
-//  public void applyActionStatusProperties(String sessionId, String sAction)
-//  {
-//    applyActionStatusPropertiesInTransaction(sAction);
-//  }
-//
-//  @Transaction
-//  public void applyActionStatusPropertiesInTransaction(String sAction)
-//  {
-//    JSONObject joAction = new JSONObject(sAction);
-//
-//    AbstractAction action = AbstractAction.get(joAction.getString("oid"));
-//    
-//    if (!this.permService.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.WRITE
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//
-//    action.lock();
-//    action.buildFromJson(joAction);
-//    action.setDecisionMaker(GeoprismUser.getCurrentUser());
-//    action.apply();
-//    action.unlock();
-//  }
-
-//  @Request(RequestType.SESSION)
-//  public JsonArray getAllActions(String sessionId, String requestId)
-//  {
-//    ChangeRequest request = ChangeRequest.get(requestId);
-//    
-//    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_APPROVAL_STATUS
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//    
-//    JsonArray actions = new JsonArray();
-//    QueryFactory factory = new QueryFactory();
-//
-//    AbstractActionQuery query = new AbstractActionQuery(factory);
-//
-//    ChangeRequestQuery rQuery = new ChangeRequestQuery(factory);
-//    rQuery.WHERE(rQuery.getOid().EQ(requestId));
-//
-//    query.WHERE(query.request(rQuery));
-//
-//    query.ORDER_BY(query.getCreateActionDate(), SortOrder.ASC);
-//
-//    Iterator<? extends AbstractAction> it = query.getIterator();
-//
-//    while (it.hasNext())
-//    {
-//      AbstractAction action = it.next();
-//
-//      actions.add(action.toJson());
-//    }
-//
-//    return actions;
-//  }
-
-  /**
-   * ]
-   * 
-   * @param sessionId
-   * @param requestId
-   * @return
-   * 
-   *         Sets all PENDING actions to APPROVED and executes the change
-   *         request to persist both the change request and actions.
-   */
-//  @Request(RequestType.SESSION)
-//  public JsonObject confirmChangeRequest(String sessionId, String requestId)
-//  {
-//    return confirmChangeRequestTransaction(sessionId, requestId);
-//  }
-//
-//  @Transaction
-//  private JsonObject confirmChangeRequestTransaction(String sessionId, String requestId)
-//  {
-//    ChangeRequest request = ChangeRequest.get(requestId);
-//    
-//    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
-//        ChangeRequestPermissionAction.READ_DETAILS
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//    
-//    request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
-//
-//    this.executeActions(sessionId, requestId);
-//
-//    return request.getDetails();
-//  }
-//
-//  @Request(RequestType.SESSION)
-//  public JsonArray approveAllActions(String sessionId, String requestId, String sActions)
-//  {
-//    return approveAllActionsInTransaction(sessionId, requestId, sActions);
-//  }
-//
-//  @Transaction
-//  public JsonArray approveAllActionsInTransaction(String sessionId, String requestId, String sActions)
-//  {
-//    ChangeRequest request = ChangeRequest.get(requestId);
-//    
-//    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
-//        ChangeRequestPermissionAction.READ_DETAILS
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//    
-//    if (sActions != null && sActions.length() > 0)
-//    {
-//      JSONArray jaActions = new JSONArray(sActions);
-//
-//      for (int i = 0; i < jaActions.length(); ++i)
-//      {
-//        JSONObject joAction = jaActions.getJSONObject(i);
-//
-//        this.applyActionStatusPropertiesInTransaction(joAction.toString());
-//      }
-//    }
-//
-//    request.setAllActionsStatus(AllGovernanceStatus.ACCEPTED);
-//
-//    return this.getAllActions(sessionId, requestId);
-//  }
-//
-//  @Request(RequestType.SESSION)
-//  public JsonArray rejectAllActions(String sessionId, String requestId, String actions)
-//  {
-//    return rejectAllActionsInTransaction(sessionId, requestId, actions);
-//  }
-//
-//  @Transaction
-//  public JsonArray rejectAllActionsInTransaction(String sessionId, String requestId, String sActions)
-//  {
-//    ChangeRequest request = ChangeRequest.get(requestId);
-//    
-//    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
-//        ChangeRequestPermissionAction.READ_DETAILS
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//    
-//    if (sActions != null && sActions.length() > 0)
-//    {
-//      JSONArray jaActions = new JSONArray(sActions);
-//
-//      for (int i = 0; i < jaActions.length(); ++i)
-//      {
-//        JSONObject joAction = jaActions.getJSONObject(i);
-//
-//        this.applyActionStatusPropertiesInTransaction(joAction.toString());
-//      }
-//    }
-//
-//    request.setAllActionsStatus(AllGovernanceStatus.REJECTED);
-//
-//    return this.getAllActions(sessionId, requestId);
-//  }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Request(RequestType.SESSION)
@@ -490,6 +288,10 @@ public class ChangeRequestService
     else if (filter != null && filter.equals("ACCEPTED"))
     {
       query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.ACCEPTED));
+    }
+    else if (filter != null && filter.equals("INVALID"))
+    {
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.INVALID));
     }
     
     query.restrictRows(pageSize, pageNumber);
@@ -612,52 +414,6 @@ public class ChangeRequestService
     action.apply();
   }
 
-//  /**
-//   * 
-//   * @param sessionId
-//   * @param sJson
-//   *          - serialized array of AbstractActions
-//   */
-//  @Request(RequestType.SESSION)
-//  public void submitChangeRequest(String sessionId, String sJson)
-//  {
-//    new ChangeRequestService().submitChangeRequest(sJson);
-//  }
-//
-//  @Transaction
-//  public void submitChangeRequest(String sJson)
-//  {
-//    ChangeRequest cr = new ChangeRequest();
-//    cr.addApprovalStatus(AllGovernanceStatus.PENDING);
-//    cr.apply();
-//
-//    List<AbstractActionDTO> actionDTOs = AbstractActionDTO.parseActions(sJson);
-//
-//    for (AbstractActionDTO actionDTO : actionDTOs)
-//    {
-//      AbstractAction ra = AbstractAction.dtoToRegistry(actionDTO);
-//      ra.addApprovalStatus(AllGovernanceStatus.PENDING);
-//      ra.apply();
-//
-//      cr.addAction(ra).apply();
-//    }
-//    
-//    if (!this.permService.getPermissions(cr).containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.SUBMIT
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//  }
-
-//  @Request(RequestType.SESSION)
-//  public JsonObject getRequestDetails(String sessionId, String requestId)
-//  {
-//    ChangeRequest request = ChangeRequest.get(requestId);
-//
-//    return request.getDetails();
-//  }
-
   @Request(RequestType.SESSION)
   public void implementDecisions(String sessionId, String requestId)
   {
@@ -691,33 +447,6 @@ public class ChangeRequestService
 
     return requestId;
   }
-
-//  @Request(RequestType.SESSION)
-//  public String lockAction(String sessionId, String actionId)
-//  {
-//    AbstractAction action = AbstractAction.get(actionId);
-//    
-//    if (!this.permService.getPermissions(action.getAllRequest().next()).containsAll(Arrays.asList(
-//        ChangeRequestPermissionAction.WRITE
-//      )))
-//    {
-//      throw new CGRPermissionException();
-//    }
-//
-//    action.lock();
-//
-//    return action.toJson().toString();
-//  }
-//
-//  @Request(RequestType.SESSION)
-//  public String unlockAction(String sessionId, String actionId)
-//  {
-//    AbstractAction action = AbstractAction.get(actionId);
-//
-//    action.unlock();
-//
-//    return action.toJson().toString();
-//  }
   
   @Transaction
   public void markAllAsInvalid(ServerGeoObjectType type)
