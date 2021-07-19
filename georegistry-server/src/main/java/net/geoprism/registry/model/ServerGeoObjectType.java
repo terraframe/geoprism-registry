@@ -104,7 +104,7 @@ import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class ServerGeoObjectType
+public class ServerGeoObjectType implements ServerElement
 {
   // private Logger logger = LoggerFactory.getLogger(ServerLeafGeoObject.class);
 
@@ -430,11 +430,16 @@ public class ServerGeoObjectType
 
     AttributeType attrType = AttributeType.parse(attrObj);
 
-    MdAttributeConcrete mdAttribute = this.createMdAttributeFromAttributeType(attrType);
+    return createAttributeType(attrType);
+  }
 
-    attrType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+  public AttributeType createAttributeType(AttributeType attributeType)
+  {
+    MdAttributeConcrete mdAttribute = this.createMdAttributeFromAttributeType(attributeType);
 
-    this.type.addAttribute(attrType);
+    attributeType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
+
+    this.type.addAttribute(attributeType);
 
     // If this did not error out then add to the cache
     this.refreshCache();
@@ -445,7 +450,7 @@ public class ServerGeoObjectType
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
     }
 
-    return attrType;
+    return attributeType;
   }
 
   private void refreshCache()

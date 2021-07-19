@@ -1,0 +1,11 @@
+<CGR xsi:noNamespaceSchemaLocation="classpath:xsd/cgr.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <type code="TEST_VILLAGE" label="Test Village" description="Test Village Description" visibility="PUBLIC" geometryType="POINT" isGeometryEditable="false">
+    <attributes>
+      <text code="TEST_TEXT" label="Test Text" description="Test Text Description" />
+      <boolean code="TEST_BOOLEAN" label="Test Boolean" description="Test Boolean Description" />
+      <integer code="TEST_INTEGER" label="Test Integer" description="Test Integer Description" />
+      <decimal code="TEST_DECIMAL" label="Test Decimal" description="Test Decimal Description" precision="10" scale="2" />
+      <integer code="TEST_DATE" label="Test Date" description="Test Date Description" />
+    </attributes>
+  </type>
+</CGR>

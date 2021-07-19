@@ -1,0 +1,107 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <!-- The root element of the xml schema -->
+  <xs:element name="CGR" type="rootOptions" />
+  <xs:complexType name="rootOptions">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="type" type="type" />
+      <xs:element name="hierarchy" type="hierarchy" />
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="hierarchy">
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+    <xs:attribute name="progress" type="xs:string" use="optional" />
+    <xs:attribute name="acknowledgement" type="xs:string" use="optional" />
+    <xs:attribute name="disclaimer" type="xs:string" use="optional" />
+    <xs:attribute name="accessConstraints" type="xs:string" use="optional" />
+    <xs:attribute name="useConstraints" type="xs:string" use="optional" />
+  </xs:complexType>
+  <xs:complexType name="type">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="attributes" type="attributes" minOccurs="0" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+    <xs:attribute name="visibility" type="visibility" use="optional" />
+    <xs:attribute name="geometryType" type="geometryType" use="required" />
+    <xs:attribute name="isGeometryEditable" type="xs:boolean" />
+  </xs:complexType>
+  <!-- ************************************** ATTRIBUTE DEFINITIONS ****************************************** -->
+  <!-- A list of all possible attributes -->
+  <xs:complexType name="attributes">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="text" type="text" />
+      <xs:element name="boolean" type="boolean" />
+      <xs:element name="integer" type="integer" />
+      <xs:element name="decimal" type="decimal" />
+      <xs:element name="date" type="date" />
+      <xs:element name="term" type="term" />
+    </xs:choice>
+  </xs:complexType>
+  <!-- Common Attributes of all attributes -->
+  <xs:attributeGroup name="attribute">
+    <!-- name: The name of the attribute -->
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <!-- label:The display label of the attribute -->
+    <xs:attribute name="label" type="xs:string" />
+    <!-- description: A description of the purpose of attribute -->
+    <xs:attribute name="description" type="xs:string" />
+  </xs:attributeGroup>
+  <xs:complexType name="text">
+    <xs:attributeGroup ref="attribute" />
+  </xs:complexType>
+  <xs:complexType name="term">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="rootTerm">
+        <xs:complexType>
+          <!-- The fully qualified path of type that defines the struct -->
+          <xs:attribute name="key" type="xs:string" use="required" />
+          <xs:attribute name="selectable" type="xs:boolean" use="optional" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="attribute" />
+  </xs:complexType>
+  
+  <!-- Common Attributes of float, double, and decimal attributes -->
+  <xs:attributeGroup name="attributeDec">
+    <xs:attributeGroup ref="attribute" />
+    <!-- Length: Total number of digits -->
+    <xs:attribute name="precision" type="xs:integer" />
+    <!-- Decimal: The number of digits after the decimal point -->
+    <xs:attribute name="scale" type="xs:integer" />
+  </xs:attributeGroup>
+  <!-- Represents a Boolean object in the database -->
+  <xs:complexType name="boolean">
+    <xs:attributeGroup ref="attribute" />
+  </xs:complexType>
+  <!-- Represents a Double object in the database -->
+  <xs:complexType name="integer">
+    <xs:attributeGroup ref="attribute" />
+  </xs:complexType>
+  <!-- Represents a Decimal object in the database -->
+  <xs:complexType name="decimal">
+    <xs:attributeGroup ref="attributeDec" />
+  </xs:complexType>
+  <!-- Represents a Date object in the database -->
+  <xs:complexType name="date">
+    <xs:attributeGroup ref="attribute" />
+  </xs:complexType>
+  <xs:simpleType name="visibility">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PRIVATE" />
+      <xs:enumeration value="PUBLIC" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="geometryType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="POINT" />
+      <xs:enumeration value="LINE" />
+      <xs:enumeration value="POLYGON" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
