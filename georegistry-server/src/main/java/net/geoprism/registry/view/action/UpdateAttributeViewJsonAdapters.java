@@ -29,6 +29,12 @@ public class UpdateAttributeViewJsonAdapters
       view.setAttributeName(attributeName);
       return view;
     }
+    else if (attributeName.equals("geometry"))
+    {
+      AbstractUpdateAttributeView view = builder.create().fromJson(json, UpdateChangeOverTimeAttributeView.class);
+      view.setAttributeName(attributeName);
+      return view;
+    }
     else
     {
       AttributeType attr = type.getAttribute(attributeName).get();

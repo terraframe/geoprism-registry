@@ -1,0 +1,54 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdBusiness name="net.geoprism.registry.action.geoobject.UpdateAttributeAction" label="Update Attribute" exported="false" extends="net.geoprism.registry.action.AbstractAction">
+        <attributes>
+          <text name="attributeName" label="attributeName" required="true" />
+          <text name="json" label="json" required="true" />
+        </attributes>
+      </mdBusiness>
+      
+      <object
+        key="INVALID"
+        type="net.geoprism.registry.action.GovernanceStatus">
+        <attribute
+          name="enumName"
+          value="INVALID" />
+        <attributeStruct
+          name="displayLabel">
+          <attribute
+            name="defaultLocale"
+            value="INVALID" />
+        </attributeStruct>
+      </object>
+    </create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.action.ChangeRequest">
+        <create>
+          <attributes>
+            <text name="geoObjectCode" label="geoObjectCode" required="false" />
+            <text name="geoObjectTypeCode" label="geoObjectTypeCode" required="false" />
+            <text name="organizationCode" label="organizationCode" required="false" />
+          </attributes>
+        </create>
+      </mdBusiness>
+      
+      <mdBusiness name="net.geoprism.registry.action.geoobject.CreateGeoObjectAction">
+        <create>
+          <attributes>
+            <text name="parentJson" label="parentJson" required="false" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.action.geoobject.UpdateAttributeAction" type="com.runwaysdk.system.metadata.MdBusiness"></object>
+      <object key="net.geoprism.registry.action.ChangeRequest.geoObjectCode" type="com.runwaysdk.system.metadata.MdAttributeText"></object>
+      <object key="net.geoprism.registry.action.ChangeRequest.geoObjectTypeCode" type="com.runwaysdk.system.metadata.MdAttributeText"></object>
+      <object key="net.geoprism.registry.action.ChangeRequest.organizationCode" type="com.runwaysdk.system.metadata.MdAttributeText"></object>
+      <object key="INVALID" type="net.geoprism.registry.action.GovernanceStatus"></object>
+    </delete>
+  </undoIt>
+</version>

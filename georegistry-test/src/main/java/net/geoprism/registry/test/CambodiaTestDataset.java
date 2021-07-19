@@ -91,7 +91,7 @@ public class CambodiaTestDataset extends TestDataSet
   
   public TestAttributeTypeInfo AT_DATE_OF_FORMATION;
   
-  public TestAttributeTypeInfo AT_RELIGION;
+  public TestAttributeTermTypeInfo AT_RELIGION;
   
   public Term T_Religion;
   
@@ -212,7 +212,7 @@ public class CambodiaTestDataset extends TestDataSet
     T_Christianity = TestDataSet.createTerm(this.AT_RELIGION, "Christianity", "Christianity");
     T_Other = TestDataSet.createTerm(this.AT_RELIGION, "Other", "Other");
     
-    Classifier rootClassy = TestDataSet.getClassifierIfExist(this.AT_RELIGION.getRootTerm().getCode());
+    Classifier rootClassy = TestDataSet.getClassifierIfExist(this.AT_RELIGION.fetchRootAsTerm().getCode());
     List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
     Assert.assertEquals(4, childClassifiers.size());
     

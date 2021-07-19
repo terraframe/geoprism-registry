@@ -550,7 +550,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     this.setCode(goTime.getCode());
   }
 
-  private String getGeometryAttributeName()
+  public String getGeometryAttributeName()
   {
     GeometryType geometryType = this.type.getGeometryType();
 

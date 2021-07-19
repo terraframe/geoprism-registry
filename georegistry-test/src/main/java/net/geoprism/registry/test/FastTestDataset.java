@@ -93,7 +93,7 @@ public class FastTestDataset extends TestDataSet
 
   public static final TestAttributeTypeInfo AT_DATE_OF_FORMATION  = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", COUNTRY, AttributeDateType.TYPE);
 
-  public static final TestAttributeTypeInfo AT_RELIGION           = new TestAttributeTypeInfo("Religion", "Religion", COUNTRY, AttributeTermType.TYPE);
+  public static final TestAttributeTermTypeInfo AT_RELIGION       = new TestAttributeTermTypeInfo("Religion", "Religion", COUNTRY);
 
   public static final TestUserInfo          USER_CGOV_RA          = new TestUserInfo(TEST_DATA_KEY + "_" + "cgovra", "cgovra", TEST_DATA_KEY + "cgovra@noreply.com", new String[] { RegistryRole.Type.getRA_RoleName(ORG_CGOV.getCode()) });
   
@@ -117,15 +117,15 @@ public class FastTestDataset extends TestDataSet
 
   public static final TestUserInfo          USER_CGOV_AC_PRIVATE          = new TestUserInfo(FastTestDataset.TEST_DATA_KEY + "_" + "cgovacprivate", "cgovacprivate", FastTestDataset.TEST_DATA_KEY + "cgovacprivate@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.COUNTRY.getCode()), RegistryRole.Type.getAC_RoleName(FastTestDataset.ORG_CGOV.getCode(), FastTestDataset.PROVINCE_PRIVATE.getCode()) });
 
-  public Term                               T_Religion;
+  public static final TestTermInfo                       T_Religion = new TestTermInfo("Religion", AT_RELIGION);
 
-  public Term                               T_Buddhism;
+  public static final TestTermInfo                       T_Buddhism = new TestTermInfo("Buddhism", AT_RELIGION);
 
-  public Term                               T_Islam;
+  public static final TestTermInfo                       T_Islam = new TestTermInfo("Islam", AT_RELIGION);
 
-  public Term                               T_Christianity;
+  public static final TestTermInfo                       T_Christianity = new TestTermInfo("Chistianity", AT_RELIGION);
 
-  public Term                               T_Other;
+  public static final TestTermInfo                       T_Other = new TestTermInfo("Other", AT_RELIGION);
 
   {
     managedOrganizationInfos.add(ORG_CGOV);
@@ -158,6 +158,12 @@ public class FastTestDataset extends TestDataSet
     managedUsers.add(USER_CGOV_RM_PRIVATE);
     managedUsers.add(USER_CGOV_RC_PRIVATE);
     managedUsers.add(USER_CGOV_AC_PRIVATE);
+    
+    AT_RELIGION.addManagedTerm(T_Religion);
+    AT_RELIGION.addManagedTerm(T_Buddhism);
+    AT_RELIGION.addManagedTerm(T_Islam);
+    AT_RELIGION.addManagedTerm(T_Christianity);
+    AT_RELIGION.addManagedTerm(T_Other);
   }
 
   public static FastTestDataset newTestData()
@@ -250,9 +256,9 @@ public class FastTestDataset extends TestDataSet
 
     AT_RELIGION.apply();
 
-    createReligionTerms();
+//    createReligionTerms();
 
-    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
+    CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
   }
 
   @Override
@@ -260,17 +266,17 @@ public class FastTestDataset extends TestDataSet
   {
   }
 
-  public void createReligionTerms()
-  {
-    T_Religion = TestDataSet.createAttributeRootTerm(COUNTRY, AT_RELIGION);
-
-    T_Buddhism = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Buddhism", "Buddhism");
-    T_Islam = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Islam", "Islam");
-    T_Christianity = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Christianity", "Christianity");
-    T_Other = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Other", "Other");
-
-    Classifier rootClassy = TestDataSet.getClassifierIfExist(AT_RELIGION.getRootTerm().getCode());
-    List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
-    Assert.assertEquals(4, childClassifiers.size());
-  }
+//  public void createReligionTerms()
+//  {
+//    T_Religion = TestDataSet.createAttributeRootTerm(COUNTRY, AT_RELIGION);
+//
+//    T_Buddhism = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Buddhism", "Buddhism");
+//    T_Islam = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Islam", "Islam");
+//    T_Christianity = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Christianity", "Christianity");
+//    T_Other = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Other", "Other");
+//
+//    Classifier rootClassy = TestDataSet.getClassifierIfExist(AT_RELIGION.getRootTerm().getCode());
+//    List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
+//    Assert.assertEquals(4, childClassifiers.size());
+//  }
 }

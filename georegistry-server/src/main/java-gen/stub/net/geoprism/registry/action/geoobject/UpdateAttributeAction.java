@@ -37,7 +37,13 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
     
     if (!this.getAttributeName().equals(UpdateAttributeViewJsonAdapters.PARENT_ATTR_NAME))
     {
-      ValueOverTimeCollection votc = go.getValuesOverTime(this.getAttributeName());
+      String attributeName = this.getAttributeName();
+      if (attributeName.equals("geometry"))
+      {
+        attributeName = go.getGeometryAttributeName();
+      }
+      
+      ValueOverTimeCollection votc = go.getValuesOverTime(attributeName);
       
       votc.reorder();
       

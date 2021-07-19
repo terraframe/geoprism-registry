@@ -20,7 +20,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   {
     UpdateParentView parentView = (UpdateParentView) cotView;
     
-    String[] newValueSplit = ((String)this.getNewValue()).split(VALUE_SPLIT_TOKEN);
+    String[] newValueSplit = (this.getNewValue().getAsString()).split(VALUE_SPLIT_TOKEN);
     String parentTypeCode = newValueSplit[0];
     String parentCode = newValueSplit[1];
     
