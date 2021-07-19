@@ -30,12 +30,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.sequence.OSequence;
+import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibrary;
+import com.orientechnologies.orient.core.metadata.sequence.OSequence.SEQUENCE_TYPE;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphDDLCommandAction;
 import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
@@ -50,6 +56,7 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.action.AbstractAction;
+import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
@@ -69,7 +76,7 @@ public class CRAttributePatch
   @Request
   private void doItInReq()
   {
-    executeGraphSql("CREATE PROPERTY ChangeOverTime.oid IF NOT EXISTS STRING");
+    executeGraphDDLCommand("CREATE PROPERTY ChangeOverTime.oid IF NOT EXISTS STRING");
     
     doItInTrans();
   }
@@ -98,7 +105,12 @@ public class CRAttributePatch
       
       cr.appLock();
       
+      boolean hasInvalidAction = false;
+      
       OIterator<? extends AbstractAction> actionIt = cr.getAllAction();
+      
+      SetParentAction setParent = null;
+      CreateGeoObjectAction createAction = null;
       
       for (AbstractAction action : actionIt)
       {
@@ -109,6 +121,8 @@ public class CRAttributePatch
           gotCode = spa.getChildCode();
           gotTypeCode = spa.getChildTypeCode();
           orgCode = Organization.getRootOrganizationCode(Universal.getByKey(gotTypeCode).getOwnerOid());
+          
+          setParent = (SetParentAction) action;
         }
         else if (action instanceof CreateGeoObjectAction)
         {
@@ -117,6 +131,8 @@ public class CRAttributePatch
           gotCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getCode(create.getGeoObjectJson());
           gotTypeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(create.getGeoObjectJson());
           orgCode = Organization.getRootOrganizationCode(Universal.getByKey(gotTypeCode).getOwnerOid());
+          
+          createAction = (CreateGeoObjectAction) action;
         }
         else if (action instanceof UpdateGeoObjectAction)
         {
@@ -125,6 +141,8 @@ public class CRAttributePatch
           gotCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getCode(update.getGeoObjectJson());
           gotTypeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(update.getGeoObjectJson());
           orgCode = Organization.getRootOrganizationCode(Universal.getByKey(gotTypeCode).getOwnerOid());
+          
+          hasInvalidAction = true;
         }
         else
         {
@@ -132,9 +150,30 @@ public class CRAttributePatch
         }
       }
       
+      if (setParent != null && createAction != null)
+      {
+        createAction.appLock();
+        createAction.setParentJson(setParent.getJson());
+        createAction.apply();
+        
+        setParent.delete();
+      }
+      else if (setParent != null || createAction != null)
+      {
+        // A set parent without a create (or vice versa)? This isn't supposed to exist
+        cr.clearApprovalStatus();
+        cr.addApprovalStatus(AllGovernanceStatus.INVALID);
+      }
+      
       cr.setOrganizationCode(orgCode);
       cr.setGeoObjectCode(gotCode);
       cr.setGeoObjectTypeCode(gotTypeCode);
+      
+      if (cr.getGovernanceStatus().equals(AllGovernanceStatus.PENDING) && hasInvalidAction)
+      {
+        cr.clearApprovalStatus();
+        cr.addApprovalStatus(AllGovernanceStatus.INVALID);
+      }
       
       cr.apply();
     }
@@ -183,20 +222,14 @@ public class CRAttributePatch
     }
   }
   
-  private void executeGraphSql(String sql)
+  public void executeGraphDDLCommand(String sql)
   {
-    logger.info("Executing [" + sql + "].");
-    
     GraphDBService service = GraphDBService.getInstance();
-    GraphRequest request = service.getGraphDBRequest();
-
-    ODatabaseSession db = ((OrientDBRequest) request).getODatabaseSession();
+    GraphRequest dml = service.getGraphDBRequest();
+    GraphRequest ddl = service.getDDLGraphDBRequest();
     
-    try (OResultSet command = db.command(sql, new HashMap<String,Object>()))
-//    try (OResultSet command = db.execute("sql", sql, new HashMap<String,Object>()))
-    {
-      logger.info(command.toString());
-    }
+    GraphDDLCommandAction action = service.ddlCommand(dml, ddl, sql, new HashMap<String, Object>());
+    action.execute();
   }
   
   public static List<Universal> getUniversals()

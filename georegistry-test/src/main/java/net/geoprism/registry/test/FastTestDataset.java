@@ -256,8 +256,6 @@ public class FastTestDataset extends TestDataSet
 
     AT_RELIGION.apply();
 
-//    createReligionTerms();
-
     CAMBODIA.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
   }
 
@@ -265,18 +263,4 @@ public class FastTestDataset extends TestDataSet
   protected void cleanUpClassInTrans()
   {
   }
-
-//  public void createReligionTerms()
-//  {
-//    T_Religion = TestDataSet.createAttributeRootTerm(COUNTRY, AT_RELIGION);
-//
-//    T_Buddhism = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Buddhism", "Buddhism");
-//    T_Islam = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Islam", "Islam");
-//    T_Christianity = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Christianity", "Christianity");
-//    T_Other = TestDataSet.createTerm(AT_RELIGION, TEST_DATA_KEY + "_Other", "Other");
-//
-//    Classifier rootClassy = TestDataSet.getClassifierIfExist(AT_RELIGION.getRootTerm().getCode());
-//    List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
-//    Assert.assertEquals(4, childClassifiers.size());
-//  }
 }
