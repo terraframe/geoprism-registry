@@ -8,6 +8,11 @@
     </xs:choice>
   </xs:complexType>
   <xs:complexType name="hierarchy">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="child" type="node" minOccurs="0" />
+      </xs:choice>
+    </xs:sequence>  
     <xs:attribute name="code" type="xs:string" use="required" />
     <xs:attribute name="label" type="xs:string" use="required" />
     <xs:attribute name="description" type="xs:string" use="optional" />
@@ -29,6 +34,14 @@
     <xs:attribute name="visibility" type="visibility" use="optional" />
     <xs:attribute name="geometryType" type="geometryType" use="required" />
     <xs:attribute name="isGeometryEditable" type="xs:boolean" />
+  </xs:complexType>
+  <xs:complexType name="node">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="child" type="node" minOccurs="0" />
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="code" type="xs:string" use="required" />
   </xs:complexType>
   <!-- ************************************** ATTRIBUTE DEFINITIONS ****************************************** -->
   <!-- A list of all possible attributes -->
@@ -56,23 +69,29 @@
   </xs:complexType>
   <xs:complexType name="term">
     <xs:sequence minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="rootTerm">
+      <xs:element name="option">
         <xs:complexType>
-          <!-- The fully qualified path of type that defines the struct -->
-          <xs:attribute name="key" type="xs:string" use="required" />
-          <xs:attribute name="selectable" type="xs:boolean" use="optional" />
+          <xs:attribute name="code" type="xs:string" use="required" />
+          <!-- label:The display label of the attribute -->
+          <xs:attribute name="label" type="xs:string" />
+          <!-- description: A description of the purpose of attribute -->
+          <xs:attribute name="description" type="xs:string" />
         </xs:complexType>
       </xs:element>
     </xs:sequence>
     <xs:attributeGroup ref="attribute" />
   </xs:complexType>
-  
-  <!-- Common Attributes of float, double, and decimal attributes -->
+  <xs:complexType name="classification">
+    <xs:attributeGroup ref="attributeClassification" />
+  </xs:complexType>
+  <xs:attributeGroup name="attributeClassification">
+    <xs:attributeGroup ref="attribute" />
+    <xs:attribute name="root" type="xs:string" use="required" />
+    <xs:attribute name="classificationType" type="xs:string" use="required" />
+  </xs:attributeGroup>
   <xs:attributeGroup name="attributeDec">
     <xs:attributeGroup ref="attribute" />
-    <!-- Length: Total number of digits -->
     <xs:attribute name="precision" type="xs:integer" />
-    <!-- Decimal: The number of digits after the decimal point -->
     <xs:attribute name="scale" type="xs:integer" />
   </xs:attributeGroup>
   <!-- Represents a Boolean object in the database -->

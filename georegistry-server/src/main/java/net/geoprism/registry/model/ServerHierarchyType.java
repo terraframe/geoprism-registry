@@ -238,6 +238,41 @@ public class ServerHierarchyType implements ServerElement
     return this.type.getCode();
   }
 
+  public String getProgress()
+  {
+    return this.type.getProgress();
+  }
+
+  public String getAccessConstraints()
+  {
+    return this.type.getAccessConstraints();
+  }
+
+  public String getUseConstraints()
+  {
+    return this.type.getUseConstraints();
+  }
+
+  public String getAcknowledgement()
+  {
+    return this.type.getAcknowledgement();
+  }
+
+  public String getDisclaimer()
+  {
+    return this.type.getDisclaimer();
+  }
+
+  public List<HierarchyNode> getRootGeoObjectTypes()
+  {
+    return this.type.getRootGeoObjectTypes();
+  }
+
+  public MetadataDisplayLabel getDescription()
+  {
+    return this.entityRelationship.getDescription();
+  }
+
   public MetadataDisplayLabel getDisplayLabel()
   {
     return this.entityRelationship.getDisplayLabel();
@@ -361,6 +396,11 @@ public class ServerHierarchyType implements ServerElement
 
   public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
+    this.addToHierarchy(parentType, childType, true);
+  }
+
+  public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean refresh)
+  {
     if (parentType.getIsAbstract())
     {
       AbstractParentException exception = new AbstractParentException();
@@ -411,7 +451,10 @@ public class ServerHierarchyType implements ServerElement
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
-    this.refresh();
+    if (refresh)
+    {
+      this.refresh();
+    }
   }
 
   /**
