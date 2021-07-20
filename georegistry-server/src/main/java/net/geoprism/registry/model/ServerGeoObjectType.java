@@ -64,6 +64,7 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.dataaccess.transaction.TransactionState;
 import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -1108,11 +1109,30 @@ public class ServerGeoObjectType implements ServerElement
     return ServerGeoObjectType.get(code, false);
   }
 
+  @SuppressWarnings("unchecked")
   public static ServerGeoObjectType get(String code, boolean nullIfNotFound)
   {
     if (code == null || code.equals(Universal.ROOT))
     {
       return RootGeoObjectType.INSTANCE;
+    }
+
+    TransactionState state = TransactionState.getCurrentTransactionState();
+
+    if (state != null)
+    {
+      Object transactionCache = state.getTransactionObject("transaction-state");
+
+      if (transactionCache != null)
+      {
+        Map<String, ServerElement> cache = (Map<String, ServerElement>) transactionCache;
+        ServerElement element = cache.get(code);
+
+        if (element != null && element instanceof ServerGeoObjectType)
+        {
+          return (ServerGeoObjectType) element;
+        }
+      }
     }
 
     Optional<ServerGeoObjectType> geoObjectType = ServiceFactory.getMetadataCache().getGeoObjectType(code);
@@ -1133,23 +1153,47 @@ public class ServerGeoObjectType implements ServerElement
     return null;
   }
 
-  public static ServerGeoObjectType get(GeoObjectType geoObjectType)
-  {
-    String code = geoObjectType.getCode();
-
-    return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
-  }
-
   public static ServerGeoObjectType get(Universal universal)
   {
     String code = universal.getKey();
 
-    return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
+    return getFromCache(code);
+  }
+
+  public static ServerGeoObjectType get(GeoObjectType geoObjectType)
+  {
+    String code = geoObjectType.getCode();
+
+    return getFromCache(code);
   }
 
   public static ServerGeoObjectType get(MdVertexDAOIF mdVertex)
   {
     String code = mdVertex.getTypeName();
+
+    return getFromCache(code);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static ServerGeoObjectType getFromCache(String code)
+  {
+    TransactionState state = TransactionState.getCurrentTransactionState();
+
+    if (state != null)
+    {
+      Object transactionCache = state.getTransactionObject("transaction-state");
+
+      if (transactionCache != null)
+      {
+        Map<String, ServerElement> cache = (Map<String, ServerElement>) transactionCache;
+        ServerElement element = cache.get(code);
+
+        if (element != null && element instanceof ServerGeoObjectType)
+        {
+          return (ServerGeoObjectType) element;
+        }
+      }
+    }
 
     return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
   }

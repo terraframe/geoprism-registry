@@ -17,6 +17,7 @@ import { DatePipe } from '@angular/common';
 import { LocalizedInputComponent } from './component/form-fields/localized-input/localized-input.component';
 import { LocalizedTextComponent } from './component/form-fields/localized-text/localized-text.component';
 import { HierarchyComponent } from './component/hierarchy/hierarchy.component';
+import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
 import { CreateHierarchyTypeModalComponent } from './component/hierarchy/modals/create-hierarchy-type-modal.component';
 import { AddChildToHierarchyModalComponent } from './component/hierarchy/modals/add-child-to-hierarchy-modal.component';
 import { CreateGeoObjTypeModalComponent } from './component/hierarchy/modals/create-geoobjtype-modal.component';
@@ -138,6 +139,7 @@ import '../rxjs-extensions';
 		CreateUpdateGeoObjectDetailComponent,
 		AddRemoveChildDetailComponent,
 		SetParentDetailComponent,
+    ImportTypesModalComponent,
 		CreateHierarchyTypeModalComponent,
 		AddChildToHierarchyModalComponent,
 		CreateGeoObjTypeModalComponent,
@@ -234,6 +236,7 @@ import '../rxjs-extensions';
 		ManageAttributesModalComponent,
 		DefineAttributeModalContentComponent,
 		EditAttributeModalContentComponent,
+    ImportTypesModalComponent,
 		CreateHierarchyTypeModalComponent,
 		ShapefileModalComponent,
 		SpreadsheetModalComponent,

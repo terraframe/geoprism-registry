@@ -13,6 +13,7 @@
       </term>
       <classification code="TEST_CLASSIFICATION" label="Test Classification" description="Test Text Classification" classificationType="test.classification.TestClassification" root="Test_Classification" />
     </attributes>
+    <group-item code="TEST_GI" label="Test GI" description="Test GI" />
   </type>
   <type code="TEST_DISTRICT" label="Test District" description="Test District" visibility="PUBLIC" geometryType="POINT" isGeometryEditable="false">
   </type>

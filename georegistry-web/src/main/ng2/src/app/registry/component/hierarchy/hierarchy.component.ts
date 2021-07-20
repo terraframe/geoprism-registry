@@ -23,6 +23,7 @@ import { RegistryService, HierarchyService } from '@registry/service';
 import { SvgHierarchyType } from './d3/svg-hierarchy-type';
 import { svgPoint, isPointWithin, calculateTextWidth, getBboxFromSelection } from './d3/svg-util';
 import { SvgHierarchyNode } from './d3/svg-hierarchy-node';
+import { ImportTypesModalComponent } from './modals/import-types-modal.component';
 
 export const TREE_SCALE_FACTOR_X: number = 1.8;
 export const TREE_SCALE_FACTOR_Y: number = 1.8;
@@ -76,24 +77,24 @@ export class HierarchyComponent implements OnInit {
 
   _opened: boolean = false;
 
-    /*
-     * Reference to the modal current showing
-    */
+  /*
+   * Reference to the modal current showing
+  */
   private bsModalRef: BsModalRef;
 
-    /*
-     * Template for tree node menu
-     */
+  /*
+   * Template for tree node menu
+   */
   @ViewChild('nodeMenu') public nodeMenuComponent: ContextMenuComponent;
 
-    /*
-     * Template for leaf menu
-     */
+  /*
+   * Template for leaf menu
+   */
   @ViewChild('leafMenu') public leafMenuComponent: ContextMenuComponent;
 
-    /* 
-     * Currently clicked on id for delete confirmation modal 
-     */
+  /* 
+   * Currently clicked on id for delete confirmation modal 
+   */
   current: any;
 
   isSRA: boolean = false;
@@ -163,13 +164,12 @@ export class HierarchyComponent implements OnInit {
   private renderTree(): void {
     if (this.currentHierarchy == null || this.currentHierarchy.rootGeoObjectTypes == null || this.currentHierarchy.rootGeoObjectTypes.length == 0) {
       d3.select("#svg").remove();
-      
+
       let canDrag = false;
-      if (this.currentHierarchy != null)
-      {
-        canDrag = ( this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode) );
+      if (this.currentHierarchy != null) {
+        canDrag = (this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode));
       }
-      
+
       this.geoObjectTypes.forEach((got: GeoObjectType) => {
         got.canDrag = canDrag;
       });
@@ -229,11 +229,10 @@ export class HierarchyComponent implements OnInit {
 
     if (this.primarySvgHierarchy != null) {
       // Check permissions against GOT and Hierarchy org
-      if (! ( this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode) ))
-      {
+      if (!(this.authService.isSRA() || this.authService.isOrganizationRA(this.currentHierarchy.organizationCode))) {
         return false;
       }
-    
+
       // If the child is already on the graph, they cannot drag.
       if (this.primarySvgHierarchy.getNodeByCode(got.code) != null) {
         return false;
@@ -794,7 +793,7 @@ export class HierarchyComponent implements OnInit {
       }
     }
   }
-  
+
   public findOrganizationByCode(code: string): Organization {
     for (let i = 0; i < this.organizations.length; ++i) {
       let org: Organization = this.organizations[i];
@@ -1242,7 +1241,7 @@ export class HierarchyComponent implements OnInit {
 
       let pos = this.getGeoObjectTypePosition(code);
       this.geoObjectTypes.splice(pos, 1);
-      
+
       this.refreshAll(this.currentHierarchy);
 
     }).catch((err: HttpErrorResponse) => {
@@ -1417,6 +1416,24 @@ export class HierarchyComponent implements OnInit {
       this.error(err);
     });
   }
+
+  public importTypes(): void {
+    this.bsModalRef = this.modalService.show(ImportTypesModalComponent, {
+      animated: true,
+      backdrop: true,
+      ignoreBackdropClick: true,
+      'class': 'upload-modal'
+    });
+
+    this.bsModalRef.content.init(this.organizations);
+
+    this.bsModalRef.content.onNodeChange.subscribe(data => {
+      // Reload the page
+      this.refreshAll(null);
+    });
+  }
+
+
 
   public error(err: HttpErrorResponse): void {
     this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

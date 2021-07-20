@@ -32,6 +32,7 @@ import org.xml.sax.SAXException;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.dataaccess.transaction.TransactionState;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.Organization;
@@ -59,6 +60,9 @@ public class XMLImporter
   @Transaction
   public List<ServerElement> importXMLDefinitions(Organization organization, InputStream istream)
   {
+    TransactionState state = TransactionState.getCurrentTransactionState();
+    state.putTransactionObject("transaction-state", this.cache);
+
     LinkedList<ServerElement> list = new LinkedList<ServerElement>();
 
     try
@@ -118,12 +122,44 @@ public class XMLImporter
         Element elem = (Element) nNode;
 
         ServerGeoObjectType type = createServerGeoObjectType(organization, elem);
+        list.add(type);
+        this.cache.put(type.getCode(), type);
 
         this.addAttributes(elem, type);
 
-        list.add(type);
+        list.addAll(this.addGroupItems(elem, type));
+      }
+    }
 
-        this.cache.put(type.getCode(), type);
+    return list;
+  }
+
+  private List<ServerElement> addGroupItems(Element root, ServerGeoObjectType superType)
+  {
+    List<ServerElement> list = new LinkedList<ServerElement>();
+
+    NodeList nList = root.getElementsByTagName("group-item");
+
+    for (int i = 0; i < nList.getLength(); i++)
+    {
+      Node nNode = nList.item(i);
+
+      if (nNode.getNodeType() == Node.ELEMENT_NODE)
+      {
+        Element elem = (Element) nNode;
+
+        String code = elem.getAttribute("code");
+        LocalizedValue label = this.getLabel(elem);
+        LocalizedValue description = this.getDescription(elem);
+
+        GeoObjectType type = new GeoObjectType(code, superType.getGeometryType(), label, description, superType.isGeometryEditable(), superType.getOrganization().getCode(), adapter);
+        type.setSuperTypeCode(superType.getCode());
+        type.setIsPrivate(superType.getIsPrivate());
+
+        ServerGeoObjectType result = new ServerGeoObjectTypeConverter().create(type);
+
+        list.add(result);
+        this.cache.put(code, result);
       }
     }
 
@@ -240,7 +276,7 @@ public class XMLImporter
 
         String code = elem.getAttribute("code");
 
-        ServerGeoObjectType child = this.cache.containsKey(code) ? (ServerGeoObjectType) this.cache.get(code) : ServerGeoObjectType.get(code);
+        ServerGeoObjectType child = ServerGeoObjectType.get(code);
 
         hierarchy.addToHierarchy(parent, child, false);
 
@@ -280,9 +316,11 @@ public class XMLImporter
     String visibility = elem.getAttribute("visibility");
     GeometryType geometryType = this.getGeometryType(elem);
     boolean isGeometryEditable = this.getIsGeometryEditable(elem);
+    boolean isAbstract = this.getIsGroup(elem) || ( elem.getElementsByTagName("group-item").getLength() > 0 );
 
     GeoObjectType type = new GeoObjectType(code, geometryType, label, description, isGeometryEditable, organization.getCode(), adapter);
     type.setIsPrivate(this.getIsPrivate(visibility));
+    type.setIsAbstract(isAbstract);
 
     ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(organization.getCode(), type.getIsPrivate());
 
@@ -307,6 +345,13 @@ public class XMLImporter
     return value;
   }
 
+  private boolean getIsGroup(Element elem)
+  {
+    String isGroup = elem.getAttribute("isGroup");
+
+    return isGroup != null && isGroup.equalsIgnoreCase("true");
+  }
+
   private boolean getIsGeometryEditable(Element elem)
   {
     String isGeometryEditable = elem.getAttribute("isGeometryEditable");
@@ -328,7 +373,7 @@ public class XMLImporter
     }
     else if (geometryType.equalsIgnoreCase("POLYGON"))
     {
-      return GeometryType.POLYGON;
+      return GeometryType.MULTIPOLYGON;
     }
 
     throw new ProgrammingErrorException("Unknown geometry type [" + geometryType + "]");

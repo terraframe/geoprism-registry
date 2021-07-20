@@ -89,11 +89,11 @@ public class XMLImporterTest
 
       List<ServerElement> results = xmlImporter.importXMLDefinitions(organization, istream);
 
-      RegistryService.getInstance().refreshMetadataCache();
-
       try
       {
-        Assert.assertEquals(3, results.size());
+        RegistryService.getInstance().refreshMetadataCache();
+
+        Assert.assertEquals(4, results.size());
 
         ServerGeoObjectType type = ServerGeoObjectType.get(results.get(0).getCode());
 
@@ -102,6 +102,7 @@ public class XMLImporterTest
         Assert.assertEquals(GeometryType.MULTIPOINT, type.getGeometryType());
         Assert.assertFalse(type.getIsPrivate());
         Assert.assertFalse(type.isGeometryEditable());
+        Assert.assertTrue(type.getIsAbstract());
 
         Optional<AttributeType> oattribute = type.getAttribute("TEST_TEXT");
 
@@ -165,7 +166,17 @@ public class XMLImporterTest
         Assert.assertEquals(CLASSIFICATION_TYPE, ( (AttributeClassificationType) attributeType ).getClassificationType());
         Assert.assertEquals(ROOT_CODE, ( (AttributeClassificationType) attributeType ).getRootTerm().getCode());
 
-        ServerHierarchyType hierarchy = ServerHierarchyType.get(results.get(2).getCode());
+        type = ServerGeoObjectType.get(results.get(1).getCode());
+
+        Assert.assertEquals("TEST_GI", type.getCode());
+        Assert.assertEquals("Test GI", type.getLabel().getValue(LocalizedValue.DEFAULT_LOCALE));
+        Assert.assertEquals(GeometryType.MULTIPOINT, type.getGeometryType());
+        Assert.assertFalse(type.getIsPrivate());
+        Assert.assertFalse(type.isGeometryEditable());
+        Assert.assertFalse(type.getIsAbstract());
+        Assert.assertEquals("TEST_VILLAGE", type.getSuperType().getCode());
+
+        ServerHierarchyType hierarchy = ServerHierarchyType.get(results.get(3).getCode());
 
         Assert.assertEquals("TEST_HIERARCHY", hierarchy.getCode());
         Assert.assertEquals("Test Hierarchy", hierarchy.getDisplayLabel().getValue(LocalizedValue.DEFAULT_LOCALE));

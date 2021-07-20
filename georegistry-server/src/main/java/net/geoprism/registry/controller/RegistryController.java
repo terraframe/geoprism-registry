@@ -4,20 +4,22 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -43,6 +45,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
@@ -99,9 +102,11 @@ public class RegistryController
 
     return new RestResponse();
   }
-  
+
   /**
-   * Returns an OauthServer configuration with the specified id. If an id is not provided, this endpoint will return all configurations (in your organization).
+   * Returns an OauthServer configuration with the specified id. If an id is not
+   * provided, this endpoint will return all configurations (in your
+   * organization).
    * 
    * @param request
    * @param id
@@ -115,13 +120,15 @@ public class RegistryController
 
     return new RestBodyResponse(json);
   }
-  
+
   /**
-   * Returns information which is available to public users (without permissions) which will allow them to login as an oauth user.
+   * Returns information which is available to public users (without
+   * permissions) which will allow them to login as an oauth user.
    * 
    * @param request
    * @param id
-   * @return A json array of OauthServer configurations with only publicly available information.
+   * @return A json array of OauthServer configurations with only publicly
+   *         available information.
    * @throws JSONException
    */
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "oauth/get-public")
@@ -607,7 +614,7 @@ public class RegistryController
     for (int i = 0; i < gots.length; ++i)
     {
       JsonObject jo = this.registryService.serialize(request.getSessionId(), gots[i]);
-      
+
       jarray.add(jo);
     }
 
@@ -754,6 +761,25 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
+  }
+
+  /**
+   * Create the {@link HierarchyType} from the given JSON.
+   * 
+   * @param sessionId
+   * @param htJSON
+   *          JSON of the {@link HierarchyType} to be created.
+   * @throws IOException
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import-types")
+  public ResponseIF importTypes(ClientRequestIF request, @RequestParamter(name = "orgCode") String orgCode, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
+  {
+    try (InputStream istream = file.getInputStream())
+    {
+      ServiceFactory.getRegistryService().importTypes(request.getSessionId(), orgCode, istream);
+
+      return new RestResponse();
+    }
   }
 
   /**
@@ -955,7 +981,7 @@ public class RegistryController
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
   }
-  
+
   @Endpoint(url = "init-settings", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF initSettings(ClientRequestIF request) throws ParseException
   {
@@ -966,18 +992,18 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonObject settingsView = new JsonObject();
-    
+
     JsonArray orgsJson = new JsonArray();
     for (OrganizationDTO org : orgs)
     {
       orgsJson.add(org.toJSON(serializer));
     }
     settingsView.add("organizations", orgsJson);
-    
+
     settingsView.add("locales", jaLocales);
-    
+
     settingsView.add("externalSystems", esPage);
-    
+
     settingsView.add("sras", sraPage);
 
     return new RestBodyResponse(settingsView);

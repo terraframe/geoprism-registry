@@ -22,10 +22,16 @@
     <xs:attribute name="accessConstraints" type="xs:string" use="optional" />
     <xs:attribute name="useConstraints" type="xs:string" use="optional" />
   </xs:complexType>
+  <xs:complexType name="group-item">
+    <xs:attribute name="code" type="xs:string" use="required" />
+    <xs:attribute name="label" type="xs:string" use="required" />
+    <xs:attribute name="description" type="xs:string" use="optional" />
+  </xs:complexType>
   <xs:complexType name="type">
     <xs:sequence>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="attributes" type="attributes" minOccurs="0" />
+        <xs:element name="group-item" type="group-item" minOccurs="0" maxOccurs="unbounded" />
       </xs:choice>
     </xs:sequence>
     <xs:attribute name="code" type="xs:string" use="required" />
@@ -34,6 +40,7 @@
     <xs:attribute name="visibility" type="visibility" use="optional" />
     <xs:attribute name="geometryType" type="geometryType" use="required" />
     <xs:attribute name="isGeometryEditable" type="xs:boolean" />
+    <xs:attribute name="isGroup" type="xs:boolean" />
   </xs:complexType>
   <xs:complexType name="node">
     <xs:sequence>

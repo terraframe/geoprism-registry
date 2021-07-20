@@ -1,0 +1,106 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdVertex name="net.geoprism.registry.graph.FhirExternalSystem" label="FHIR"  extends="net.geoprism.registry.graph.ExternalSystem">
+        <attributes>
+          <text name="url" label="URL" required="true" />
+        </attributes>
+      </mdVertex>   
+    
+      <mdBusiness name="net.geoprism.registry.etl.FhirExportJob" extends="net.geoprism.registry.etl.MasterListJob" exported="false">
+        <attributes>
+          <reference name="version" type="net.geoprism.registry.MasterListVersion" label="Master List" required="true"/>
+          <graphReference name="externalSystem" type="net.geoprism.registry.graph.FhirExternalSystem" label="External System" required="true"/>          
+        </attributes>      
+      </mdBusiness>    
+      <mdException name="net.geoprism.registry.etl.UnresolvableResourceException" 
+                   label="Unresolvable Resource Exception" 
+                   message="Unable to find the remote Organization resource with the identifier [{identifier}].  Make sure the resource has already been exported to the FHIR server">
+        <attributes>
+          <text name="identifier" label="Identifier" />
+        </attributes>
+      </mdException>
+      <mdException name="net.geoprism.registry.etl.FhirResponseException" 
+                   label="Fhir Response Exception" 
+                   message="The FHIR server responded with the following error: [{errorMessage}]">
+        <attributes>
+          <text name="errorMessage" label="Error message" />
+        </attributes>
+      </mdException>      
+    </create>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.fhir">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.fhir" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="FHIR" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.export-to-fhir">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="masterlist.export-to-fhir" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Export to FHIR" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export-fhir-modal.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export-fhir-modal.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Select FHIR server" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="export-fhir-modal.system">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="export-fhir-modal.system" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="External System" />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.FhirExportJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.etl.FhirExportJob">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>    
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.etl.UnresolvableResourceException" type="com.runwaysdk.system.metadata.MdException"/>    
+      <object key="net.geoprism.registry.etl.FhirResponseException" type="com.runwaysdk.system.metadata.MdException"/>    
+      <object key="net.geoprism.registry.etl.FhirExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
+      <object key="net.geoprism.registry.graph.FhirExternalSystem" type="com.runwaysdk.system.metadata.MdVertex"/>    
+    </delete>
+  </undoIt>
+</version>

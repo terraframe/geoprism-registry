@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -44,18 +44,19 @@ import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
+import net.geoprism.registry.xml.XMLImporter;
 
 public class GeoRegistryUtil extends GeoRegistryUtilBase
 {
-  private static final long serialVersionUID = 2034796376;
-  
-  public static final TimeZone SYSTEM_TIMEZONE = TimeZone.getTimeZone("UTC");
+  private static final long    serialVersionUID = 2034796376;
+
+  public static final TimeZone SYSTEM_TIMEZONE  = TimeZone.getTimeZone("UTC");
 
   public GeoRegistryUtil()
   {
     super();
   }
-  
+
   public static String formatIso8601(Date date, boolean includeTime)
   {
     if (!includeTime)
@@ -71,7 +72,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       return formatter.format(date);
     }
   }
-  
+
   public static Date parseIso8601(String date)
   {
     String s = "2020-02-13T18:51:09.840Z";
@@ -136,6 +137,15 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     {
       throw new ProgrammingErrorException(e);
     }
+  }
+
+  @Authenticate
+  public static void importTypes(String orgCode, InputStream istream)
+  {
+    Organization organization = Organization.getByCode(orgCode);
+
+    XMLImporter xmlImporter = new XMLImporter();
+    xmlImporter.importXMLDefinitions(organization, istream);
   }
 
 }
