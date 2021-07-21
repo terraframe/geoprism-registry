@@ -2,13 +2,13 @@
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
     <div class="heading text-center">
-      <h1> Import Types </h1>
+      <h1> <localize key="hierarchy.sidebar.importTypes"></localize> </h1>
     </div> 
     <form #form="ngForm" class="modal-form" autocomplete="off">
       <fieldset>
         <div class="row-holder">
           <div class="label-holder">
-            <label> Organization </label>
+            <label> <localize key="attribute.organization.label"></localize> </label>
           </div>
           <div class="holder">
             <select (change)="onSelect($event.target.value)">
@@ -19,7 +19,7 @@
         </div>
         <div class="row-holder">
           <div class="label-holder">
-            <label> File </label>
+            <label> <localize key="hierarchy.sidebar.xmlFile"></localize> </label>
           </div>
           <div class="holder">
             <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".xml" required /> 
