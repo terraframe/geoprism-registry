@@ -420,7 +420,7 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public void implementDecisions(String sessionId, String requestId)
+  public JsonObject implementDecisions(String sessionId, String requestId)
   {
     ChangeRequest request = ChangeRequest.get(requestId);
     
@@ -433,7 +433,7 @@ public class ChangeRequestService
     
     request.execute(true);
 
-//    return request.getDetails();
+    return request.getDetails();
   }
   
   @Request(RequestType.SESSION)

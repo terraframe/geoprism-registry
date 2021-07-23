@@ -673,27 +673,28 @@ export class RegistryService {
     /*
      * Not really part of the RegistryService
      */
-	applyGeoObjectEdit(parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string, notes: string): Promise<void> {
+	applyGeoObjectEdit(geoObjectCode: string, geoObjectTypeCode: string, actions: string, masterListId: string, notes: string): Promise<void> {
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
 		});
 
-			
+	
+	  // TODO
 		// Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
 		// This conversion allows the date picker to work while ensuring the server recieves the correct format. 
-		for(const prop in geoObject.attributes) { 
-			let attr = geoObject.attributes[prop];
- 			if(attr.type === "date"){ 
-				attr.values.forEach( val => { 
-					val.value = new Date(val.value).getTime().toString();
-				}) 
-			}
-		}
+		//for(const prop in geoObject.attributes) { 
+		//	let attr = geoObject.attributes[prop];
+ 		//	if(attr.type === "date"){ 
+		//		attr.values.forEach( val => { 
+		//			val.value = new Date(val.value).getTime().toString();
+		//		}) 
+		//	}
+		//}
 
-		let params = { geoObject: geoObject, isNew: isNew, masterListId: masterListId };
+		let params = { geoObjectCode: geoObjectCode, geoObjectTypeCode: geoObjectTypeCode, actions: actions };
 
-		if (parentTreeNode != null) {
-			params['parentTreeNode'] = parentTreeNode;
+		if (masterListId != null) {
+			params['masterListId'] = masterListId;
 		}
 		if (notes != null) {
 			params['notes'] = notes;

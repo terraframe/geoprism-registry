@@ -320,7 +320,7 @@ export class RequestTableComponent {
 
         if (changeRequest != null) {
 
-            this.service.execute(changeRequest.oid).then(request => {
+            this.service.implementDecisions(changeRequest.oid).then(request => {
 
                 changeRequest = request;
 
@@ -438,7 +438,7 @@ export class RequestTableComponent {
         // var action = JSON.parse(JSON.stringify(this.action));
         // action.geoObjectJson = this.attributeEditor.getGeoObject();
 
-        this.service.applyActionStatusProperties(action).then(response => {
+        this.service.setActionStatus(action.oid, action.approvalStatus).then(response => {
 
             action.decisionMaker = (action.approvalStatus !== "PENDING") ? this.authService.getUsername() : "";
 
@@ -449,65 +449,6 @@ export class RequestTableComponent {
             this.error(err);
 
         });
-
-    }
-
-    onApproveAll(changeRequest: ChangeRequest): void {
-
-        if (changeRequest != null) {
-
-            const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                animated: true,
-                backdrop: true,
-                ignoreBackdropClick: true
-            });
-
-            bsModalRef.content.onConfirm.subscribe(data => {
-
-                this.service.approveAllActions(changeRequest.oid, this.actions).then(actions => {
-
-                    this.actions = actions;
-
-                }).catch((response: HttpErrorResponse) => {
-
-                    this.error(response);
-
-                });
-
-            });
-
-        }
-
-    }
-
-    onRejectAll(changeRequest: ChangeRequest): void {
-
-        if (changeRequest != null) {
-
-            const bsModalRef = this.modalService.show(ConfirmModalComponent, {
-                animated: true,
-                backdrop: true,
-                ignoreBackdropClick: true
-            });
-
-            bsModalRef.content.onConfirm.subscribe(data => {
-
-                this.service.rejectAllActions(changeRequest.oid, this.actions).then(actions => {
-
-                    this.actions = actions;
-
-                    // TODO: Determine if there is a way to update an individual record
-                    // this.refresh();
-
-                }).catch((response: HttpErrorResponse) => {
-
-                    this.error(response);
-
-                });
-
-            });
-
-        }
 
     }
 
@@ -553,27 +494,25 @@ export class RequestTableComponent {
 
     filter(criteria: string): void {
 
-//        this.service.getAllRequests(criteria).then(requests => {
-//            this.requests = requests;
-//        }).catch((response: HttpErrorResponse) => {
-//            this.error(response);
-//        })
+        this.service.getAllRequests(10, 1, criteria).then(requests => {
+            this.requests = requests.resultSet;
+            
+            if (this.waitingOnScroll) {
 
-        this.requests = this.service.getAllRequests(10, 1, "ALL").resultSet;
-
-        if (this.waitingOnScroll) {
-
-            let that = this;
-            setTimeout(function() {
-
-                that.scrollToBottom();
-
-            }, 100);
-            this.waitingOnScroll = false;
-
-        }
-
-        this.filterCriteria = criteria;
+                let that = this;
+                setTimeout(function() {
+    
+                    that.scrollToBottom();
+    
+                }, 100);
+                this.waitingOnScroll = false;
+    
+            }
+    
+            this.filterCriteria = criteria;
+        }).catch((response: HttpErrorResponse) => {
+            this.error(response);
+        })
 
     }
 

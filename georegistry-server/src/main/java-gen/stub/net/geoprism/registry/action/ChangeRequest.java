@@ -143,41 +143,41 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     return (JsonObject) builder.create().toJsonTree(this);
   }
 
-//  public JsonObject getDetails()
-//  {
-//    int total = 0;
-//    int pending = 0;
-//
-//    OIterator<? extends AbstractAction> it = this.getAllAction();
-//
-//    try
-//    {
-//      while (it.hasNext())
-//      {
-//        total++;
-//
-//        AbstractAction action = it.next();
-//
-//        if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
-//        {
-//          pending++;
-//        }
-//      }
-//    }
-//    finally
-//    {
-//      it.close();
-//    }
-//    AllGovernanceStatus status = this.getApprovalStatus().get(0);
-//
-//    JsonObject object = this.toJSON();
-//    object.addProperty("total", total);
-//    object.addProperty("pending", pending);
-//    object.addProperty("statusCode", status.getEnumName());
-//    object.addProperty(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
-//
-//    return object;
-//  }
+  public JsonObject getDetails()
+  {
+    int total = 0;
+    int pending = 0;
+
+    OIterator<? extends AbstractAction> it = this.getAllAction();
+
+    try
+    {
+      while (it.hasNext())
+      {
+        total++;
+
+        AbstractAction action = it.next();
+
+        if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        {
+          pending++;
+        }
+      }
+    }
+    finally
+    {
+      it.close();
+    }
+    AllGovernanceStatus status = this.getApprovalStatus().get(0);
+
+    JsonObject object = this.toJSON();
+    object.addProperty("total", total);
+    object.addProperty("pending", pending);
+    object.addProperty("statusCode", status.getEnumName());
+    object.addProperty(ChangeRequest.MAINTAINERNOTES, this.getMaintainerNotes());
+
+    return object;
+  }
 
   @Transaction
   public void execute(boolean sendEmail)

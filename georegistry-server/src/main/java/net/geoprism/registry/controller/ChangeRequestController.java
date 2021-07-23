@@ -160,7 +160,7 @@ public class ChangeRequestController
    * @throws net.geoprism.registry.CGRPermissionException
    * @return Empty response
    */
-  @Endpoint(error = ErrorSerialization.JSON, url = "set-action-status", method = ServletMethod.GET)
+  @Endpoint(error = ErrorSerialization.JSON, url = "set-action-status", method = ServletMethod.POST)
   public ResponseIF setActionStatus(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "status") String status)
   {
     service.setActionStatus(request.getSessionId(), actionOid, status);
@@ -181,9 +181,9 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "implement-decisions", method = ServletMethod.POST)
   public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
   {
-    service.implementDecisions(request.getSessionId(), requestId);
+    JsonObject details = service.implementDecisions(request.getSessionId(), requestId);
 
-    return new RestResponse();
+    return new RestBodyResponse(details);
   }
   
   @Endpoint(error = ErrorSerialization.JSON, url = "delete", method = ServletMethod.POST)
