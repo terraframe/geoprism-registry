@@ -10,21 +10,21 @@ export class LocaleValue {
 	value: string;
 
 	constructor(locale: string, value: string) {
-		this.locale = locale;
-		this.value = value;
+	    this.locale = locale;
+	    this.value = value;
 	}
 }
 
 export class LocaleView {
-  constructor(lService: LocalizationService) {
-    this.label = lService.create();
-    this.toString = "";
-    this.tag = "";
-    this.isDefaultLocale = false;
-    this.language = {label:"", code:""};
-    this.country = {label:"", code:""};
-    this.variant = {label:"", code:""};
-  }
+    constructor(lService: LocalizationService) {
+        this.label = lService.create();
+        this.toString = "";
+        this.tag = "";
+        this.isDefaultLocale = false;
+        this.language = {label:"", code:""};
+        this.country = {label:"", code:""};
+        this.variant = {label:"", code:""};
+    }
   
   label: LocalizedValue;
   toString: string;
@@ -80,12 +80,12 @@ export class LocalizedValue {
 	localeValues: LocaleValue[];
 
 	constructor(localizedValue: string, localeValues: LocaleValue[]) {
-		this.localizedValue = localizedValue;
-		this.localeValues = localeValues;
+	    this.localizedValue = localizedValue;
+	    this.localeValues = localeValues;
 	}
 	
 	public getValue(localeToString: string): string
-    {
+	{
 	    let len = this.localeValues.length;
 	    
 	    for (let i = 0; i < len; ++i)
@@ -99,41 +99,41 @@ export class LocalizedValue {
 	    }
 	    
 	    return this.localizedValue;
-    }
+	}
 }
 
 export class RoleBuilder {
-	static buildFromRoleName(roleName: string): RegistryRole {
-		if (roleName === "cgr.SRA") {
-			return new RegistryRole(RegistryRoleType.SRA, "", "", "cgr.SRA");
-		}
+    static buildFromRoleName(roleName: string): RegistryRole {
+        if (roleName === "cgr.SRA") {
+            return new RegistryRole(RegistryRoleType.SRA, "", "", "cgr.SRA");
+        }
 
-		let roleSplit = roleName.split(".");
+        let roleSplit = roleName.split(".");
 
-		let orgCode: string = roleSplit[2];
+        let orgCode: string = roleSplit[2];
 
-		if (roleSplit.length === 4) {
-			return new RegistryRole(RegistryRoleType.RA, orgCode, "", roleName);
-		}
-		else if (roleSplit.length === 5) {
-			let roleSuffix: string = roleSplit[4];
+        if (roleSplit.length === 4) {
+            return new RegistryRole(RegistryRoleType.RA, orgCode, "", roleName);
+        }
+        else if (roleSplit.length === 5) {
+            let roleSuffix: string = roleSplit[4];
 
-			let gotCode: string = roleSplit[3];
+            let gotCode: string = roleSplit[3];
 
-			if (roleSuffix === "RM") {
-				return new RegistryRole(RegistryRoleType.RM, orgCode, gotCode, roleName);
-			}
-			else if (roleSuffix === "RC") {
-				return new RegistryRole(RegistryRoleType.RC, orgCode, gotCode, roleName);
-			}
-			else if (roleSuffix === "AC") {
-				return new RegistryRole(RegistryRoleType.AC, orgCode, gotCode, roleName);
-			}
-		}
-		else {
-			return null;
-		}
-	}
+            if (roleSuffix === "RM") {
+                return new RegistryRole(RegistryRoleType.RM, orgCode, gotCode, roleName);
+            }
+            else if (roleSuffix === "RC") {
+                return new RegistryRole(RegistryRoleType.RC, orgCode, gotCode, roleName);
+            }
+            else if (roleSuffix === "AC") {
+                return new RegistryRole(RegistryRoleType.AC, orgCode, gotCode, roleName);
+            }
+        }
+        else {
+            return null;
+        }
+    }
 }
 
 export class RegistryRole {
@@ -144,10 +144,10 @@ export class RegistryRole {
 	displayLabel: string;
 
 	constructor(type: RegistryRoleType, orgCode: string, geoObjectTypeCode: string, roleName: string) {
-		this.type = type;
-		this.orgCode = orgCode;
-		this.geoObjectTypeCode = geoObjectTypeCode;
-		this.roleName = roleName;
+	    this.type = type;
+	    this.orgCode = orgCode;
+	    this.geoObjectTypeCode = geoObjectTypeCode;
+	    this.roleName = roleName;
 	}
 }
 

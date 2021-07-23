@@ -1,0 +1,18 @@
+.version-column-wrapper {
+	border-left: solid 5px;
+	padding-top: 25px;
+}
+.version-column-wrapper .version-column-indicator {
+	background: grey;
+    color: white;
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0 6px;
+}
+
+.list-group {
+ margin-bottom: 0;
+}

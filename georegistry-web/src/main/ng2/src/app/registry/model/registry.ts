@@ -135,6 +135,12 @@ export class ValueOverTime {
 	removable?: boolean;
 }
 
+export class AttributeOverTime {
+    name: string;
+    type: string;
+    values: ValueOverTime[];
+}
+
 export class Attribute {
 	code: string;
 	type: string;
@@ -143,6 +149,7 @@ export class Attribute {
 	isDefault: boolean;
 	required: boolean;
 	unique: boolean;
+    governanceStatus: GovernanceStatus;
 	isChangeOverTime?: boolean;
 	precision?: number;
 	scale?: number;
@@ -184,6 +191,12 @@ export class AttributeDecimal extends Attribute {
 		this.precision = 32;
 		this.scale = 8;
 	}
+}
+
+export enum GovernanceStatus {
+    "PENDING" = "PENDING", 
+    "ACCEPTED" = "ACCEPTED", 
+    "REJECTED" = "REJECTED"
 }
 
 export enum GeoObjectTypeModalStates {

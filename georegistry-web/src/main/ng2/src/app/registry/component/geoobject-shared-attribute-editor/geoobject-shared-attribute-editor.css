@@ -71,4 +71,8 @@ fieldset {
 	border-radius: 5px; 
 }
 
-
+.geoobject-panel-header{
+	height: 50px;
+    width: 100%;
+    background: grey;
+}
