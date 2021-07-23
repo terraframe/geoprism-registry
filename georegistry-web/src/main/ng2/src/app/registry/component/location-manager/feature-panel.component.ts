@@ -188,16 +188,32 @@ export class FeaturePanelComponent implements OnInit {
 	}
 	
 	onSubmit(): void {
-		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
-		  if (!applyInfo.isChangeRequest)
-      {
-			  this.featureChange.emit(this.postGeoObject);
-			  this.updateCode(this._code);
-			}
-			this.panelSubmit.emit(applyInfo);
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
+	  if (this.isNew)
+	  {
+	    this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+        if (!applyInfo.isChangeRequest)
+        {
+          this.featureChange.emit(this.postGeoObject);
+          this.updateCode(this._code);
+        }
+        this.panelSubmit.emit(applyInfo);
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+	  }
+	  else
+	  {
+  		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+  		  if (!applyInfo.isChangeRequest)
+        {
+  			  this.featureChange.emit(this.postGeoObject);
+  			  this.updateCode(this._code);
+  			}
+  			this.panelSubmit.emit(applyInfo);
+  		}).catch((err: HttpErrorResponse) => {
+  			this.error(err);
+  		});
+		}
 	}
 
 	onManageAttributeVersion(attribute: Attribute): void {

@@ -702,12 +702,51 @@ export class RegistryService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(acp + '/geoobject-editor/apply', JSON.stringify(params), { headers: headers })
+			.post<void>(acp + '/geoobject-editor/updateGeoObject', JSON.stringify(params), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
 			.toPromise();
 	}
+	
+	/*
+   * Not really part of the RegistryService
+   */
+	applyGeoObjectCreate(parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string, notes: string): Promise<void> {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+      
+    // Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
+    // This conversion allows the date picker to work while ensuring the server recieves the correct format. 
+    for(const prop in geoObject.attributes) { 
+      let attr = geoObject.attributes[prop];
+      if(attr.type === "date"){ 
+        attr.values.forEach( val => { 
+          val.value = new Date(val.value).getTime().toString();
+        }) 
+      }
+    }
+
+    let params = { geoObject: geoObject, isNew: isNew, masterListId: masterListId };
+
+    if (parentTreeNode != null) {
+      params['parentTreeNode'] = parentTreeNode;
+    }
+    if (notes != null) {
+      params['notes'] = notes;
+    }
+
+    this.eventService.start();
+
+    return this.http
+      .post<void>(acp + '/geoobject-editor/createGeoObject', JSON.stringify(params), { headers: headers })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
 
 	data(oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string }): Promise<any> {
 		let headers = new HttpHeaders({

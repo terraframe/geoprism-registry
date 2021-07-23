@@ -273,34 +273,20 @@ export class RequestTableComponent {
 
     refresh(): void {
 
-//        this.service.getAllRequests("ALL").then(requests => {
-//
-//            this.requests = requests;
-//
-//            if (this.waitingOnScroll)
-//            {
-//              let that = this;
-//              setTimeout(function(){ that.scrollToBottom(); }, 100);
-//              this.waitingOnScroll = false;
-//            }
-//
-//        }).catch((response: HttpErrorResponse) => {
-//            this.error(response);
-//        })
+        this.service.getAllRequests(10, 1, "ALL").then(requests => {
 
-        this.requests = this.service.getAllRequests("ALL").resultSet;
+            this.requests = requests.resultSet;
 
-        if (this.waitingOnScroll) {
+            if (this.waitingOnScroll)
+            {
+              let that = this;
+              setTimeout(function(){ that.scrollToBottom(); }, 100);
+              this.waitingOnScroll = false;
+            }
 
-            let that = this;
-            setTimeout(function() {
-
-                that.scrollToBottom();
-
-            }, 100);
-            this.waitingOnScroll = false;
-
-        }
+        }).catch((response: HttpErrorResponse) => {
+            this.error(response);
+        })
 
     }
 
@@ -308,14 +294,13 @@ export class RequestTableComponent {
 
         // this.request = selected.selected;
 
-//        this.service.getAllActions(selected.selected[0].oid).then(actions => {
-//
-//            this.actions = actions;
-//
-//        }).catch((err: HttpErrorResponse) => {
-//            this.error(err);
-//        });
-        this.requests = this.service.getAllRequests("ALL").resultSet;
+        this.service.getAllRequests(10, 1, "ALL").then(requests => {
+
+            this.requests = requests.resultSet;
+
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
 
         if (this.waitingOnScroll) {
 
@@ -574,7 +559,7 @@ export class RequestTableComponent {
 //            this.error(response);
 //        })
 
-        this.requests = this.service.getAllRequests("ALL").resultSet;
+        this.requests = this.service.getAllRequests(10, 1, "ALL").resultSet;
 
         if (this.waitingOnScroll) {
 

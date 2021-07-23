@@ -23,6 +23,7 @@ import java.io.InputStream;
 
 import org.json.JSONException;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
@@ -36,9 +37,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.resource.ApplicationResource;
 
-import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.service.ChangeRequestService;
-import net.geoprism.registry.view.Page;
 
 /**
  * This controller is used by the change request table widget.
@@ -148,9 +147,9 @@ public class ChangeRequestController
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
   public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "filter") String filter)
   {
-    Page<ChangeRequest> paginated = service.getAllRequests(request.getSessionId(), pageSize, pageNumber, filter);
+    JsonObject paginated = service.getAllRequestsSerialized(request.getSessionId(), pageSize, pageNumber, filter);
 
-    return new RestBodyResponse(paginated.toJSON().toString());
+    return new RestBodyResponse(paginated.toString());
   }
   
   /**
