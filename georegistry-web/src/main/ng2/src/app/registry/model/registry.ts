@@ -367,6 +367,7 @@ export enum ImportStrategy {
 
 export class MasterListByOrg {
 	oid: string;
+	code: string;
 	label: string;
 	write: boolean;
 	lists: {

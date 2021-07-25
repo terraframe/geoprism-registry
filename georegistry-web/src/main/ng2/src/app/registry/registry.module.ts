@@ -77,6 +77,8 @@ import { StepIndicatorComponent } from './component/scheduled-jobs/step-indicato
 import { ImportProblemWidgetComponent } from './component/scheduled-jobs/conflict-widgets/import-problem-widget.component';
 import { TaskViewerComponent } from './component/task-viewer/task-viewer.component';
 
+import { FhirSynchronizationConfigComponent } from './component/synchronization-config/fhir-synchronization-config.component';
+import { Dhis2SynchronizationConfigComponent } from './component/synchronization-config/dhis2-synchronization-config.component';
 import { SynchronizationConfigManagerComponent } from './component/synchronization-config/synchronization-config-manager.component';
 import { SynchronizationConfigModalComponent } from './component/synchronization-config/synchronization-config-modal.component';
 import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
@@ -204,6 +206,8 @@ import '../rxjs-extensions';
 		ImportProblemWidgetComponent,
 		TaskViewerComponent,
 		// Synchronization Config
+    FhirSynchronizationConfigComponent,
+    Dhis2SynchronizationConfigComponent,
 		SynchronizationConfigManagerComponent,
 		SynchronizationConfigModalComponent,
 		SynchronizationConfigComponent,

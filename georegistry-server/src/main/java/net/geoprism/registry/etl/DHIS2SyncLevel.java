@@ -28,7 +28,7 @@ import com.google.gson.annotations.SerializedName;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 
-public class SyncLevel implements Comparable<SyncLevel>
+public class DHIS2SyncLevel implements Comparable<DHIS2SyncLevel>
 {
 
   public static enum Type {
@@ -102,7 +102,7 @@ public class SyncLevel implements Comparable<SyncLevel>
   }
 
   @Override
-  public int compareTo(SyncLevel o)
+  public int compareTo(DHIS2SyncLevel o)
   {
     return this.getLevel().compareTo(o.getLevel());
   }

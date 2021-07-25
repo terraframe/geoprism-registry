@@ -1082,6 +1082,7 @@ public class MasterList extends MasterListBase
 
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
+      object.addProperty("code", org.getCode());
       object.addProperty("label", org.getDisplayLabel().getValue());
       object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
       object.add("lists", lists);

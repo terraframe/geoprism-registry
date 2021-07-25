@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.export;
 
@@ -39,14 +39,17 @@ import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.FhirSyncConfig;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
+import net.geoprism.registry.etl.export.fhir.FhirSynchronizationManager;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
 /**
- * This class is currently hardcoded to DHIS2 export, however the metadata is attempting to be generic enough
- * to scale to more generic usecases.
+ * This class is currently hardcoded to DHIS2 export, however the metadata is
+ * attempting to be generic enough to scale to more generic usecases.
  * 
  * @author rrowlands
  * @author jsmethie
@@ -54,17 +57,9 @@ import net.geoprism.registry.ws.NotificationFacade;
  */
 public class DataExportJob extends DataExportJobBase
 {
-  private static final long     serialVersionUID = -1821569567;
+  private static final long   serialVersionUID = -1821569567;
 
-  private static final Logger   logger           = LoggerFactory.getLogger(DataExportJob.class);
-
-  private DHIS2SyncConfig       dhis2Config;
-
-  private DHIS2TransportServiceIF dhis2;
-  
-  private ExportHistory         history;
-  
-  private DHIS2FeatureService   dhis2FeatureService;
+  private static final Logger logger           = LoggerFactory.getLogger(DataExportJob.class);
 
   public DataExportJob()
   {
@@ -95,7 +90,7 @@ public class DataExportJob extends DataExportJobBase
   private JobHistoryRecord startInTrans(SynchronizationConfig configuration)
   {
     ExportHistory history = (ExportHistory) this.createNewHistory();
-    
+
     JobHistoryRecord record = new JobHistoryRecord(this, history);
     record.apply();
 
@@ -105,26 +100,35 @@ public class DataExportJob extends DataExportJobBase
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
-    this.dhis2FeatureService = new DHIS2FeatureService();
-    
-    this.history = (ExportHistory) executionContext.getJobHistoryRecord().getChild();
-    
-    this.dhis2Config = (DHIS2SyncConfig) this.getConfig().buildConfiguration();
-
-    this.dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(this.dhis2Config.getSystem());
-    
-    this.dhis2FeatureService.setExternalSystemDhis2Version(dhis2, dhis2Config.getSystem());
+    ExportHistory history = (ExportHistory) executionContext.getJobHistoryRecord().getChild();
 
     this.setStage(history, ExportStage.EXPORT);
 
-    new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
+    ExternalSystemSyncConfig config = this.getConfig().buildConfiguration();
+
+    if (config instanceof DHIS2SyncConfig)
+    {
+      DHIS2SyncConfig dhis2Config = (DHIS2SyncConfig) config;
+
+      DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(dhis2Config.getSystem());
+
+      DHIS2FeatureService dhis2FeatureService = new DHIS2FeatureService();
+      dhis2FeatureService.setExternalSystemDhis2Version(dhis2, dhis2Config.getSystem());
+
+      new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
+    }
+    else if (config instanceof FhirSyncConfig)
+    {
+      FhirSynchronizationManager manager = new FhirSynchronizationManager((FhirSyncConfig) config, history);
+      manager.synchronize();
+    }
   }
-  
+
   @Override
   public void afterJobExecute(JobHistory history)
   {
     super.afterJobExecute(history);
-    
+
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
   }
 
@@ -134,7 +138,7 @@ public class DataExportJob extends DataExportJobBase
     history.clearStage();
     history.addStage(stage);
     history.apply();
-    
+
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
   }
 

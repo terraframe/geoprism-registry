@@ -3,6 +3,7 @@ package net.geoprism.registry.graph;
 import com.google.gson.JsonObject;
 
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.FhirSyncConfig;
 
 public class FhirExternalSystem extends FhirExternalSystemBase
 {
@@ -16,27 +17,27 @@ public class FhirExternalSystem extends FhirExternalSystemBase
   @Override
   public boolean isExportSupported()
   {
-    return false;
+    return true;
   }
 
   @Override
   public ExternalSystemSyncConfig configuration()
   {
-    throw new UnsupportedOperationException();
+    return new FhirSyncConfig();
   }
 
   protected void populate(JsonObject json)
   {
     super.populate(json);
 
-    this.setUrl(json.get(DHIS2ExternalSystem.URL).getAsString());
+    this.setUrl(json.get(FhirExternalSystem.URL).getAsString());
   }
 
   @Override
   public JsonObject toJSON()
   {
     JsonObject object = super.toJSON();
-    object.addProperty(DHIS2ExternalSystem.URL, this.getUrl());
+    object.addProperty(FhirExternalSystem.URL, this.getUrl());
 
     return object;
   }

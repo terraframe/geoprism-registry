@@ -39,14 +39,14 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
   public static final String TYPE            = "type";
   
-  private SortedSet<SyncLevel>    levels;
+  private SortedSet<DHIS2SyncLevel>    levels;
   
-  public SortedSet<SyncLevel> getLevels()
+  public SortedSet<DHIS2SyncLevel> getLevels()
   {
     return levels;
   }
 
-  public void setLevels(SortedSet<SyncLevel> levels)
+  public void setLevels(SortedSet<DHIS2SyncLevel> levels)
   {
     this.levels = levels;
   }
@@ -70,7 +70,7 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
     GsonBuilder builder = new GsonBuilder();
     builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingDeserializer());
     Gson gson = builder.create();
-    this.levels = gson.fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
+    this.levels = gson.fromJson(jaLevels, new TypeToken<SortedSet<DHIS2SyncLevel>>() {}.getType());
   }
 
 }

@@ -37,8 +37,6 @@ import org.hl7.fhir.r4.model.Location.LocationPositionComponent;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
@@ -59,8 +57,6 @@ import net.geoprism.registry.graph.FhirExternalSystem;
 
 public class MasterListFhirExporter
 {
-  private static Logger     logger = LoggerFactory.getLogger(MasterListFhirExporter.class);
-
   private MasterList        list;
 
   private MasterListVersion version;
@@ -97,13 +93,15 @@ public class MasterListFhirExporter
     this.list = list;
   }
 
-  public void export()
+  public long export()
   {
     Bundle collection = createBundle();
 
     try
     {
-      this.context.getClient().transaction().withBundle(collection).execute();
+      Bundle result = this.context.getClient().transaction().withBundle(collection).execute();
+
+      return result.getEntry().size();
     }
     catch (BaseServerResponseException e)
     {
