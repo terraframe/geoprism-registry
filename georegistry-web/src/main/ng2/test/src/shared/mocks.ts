@@ -1,15 +1,13 @@
 import { LocalizedValue, PageResult } from "@shared/model/core";
 import { HttpErrorResponse } from "@angular/common/http";
 
-export const LOCALIZED_LABEL: LocalizedValue = {
-	localizedValue: "Test System",
-	localeValues: [
+
+export const LOCALIZED_LABEL: LocalizedValue = new LocalizedValue("Test System", [
 		{
 			locale: "defaultLocale",
 			value: "Test System"
 		}
-	]
-};
+	])
 
 export const MOCK_HTTP_ERROR_RESPONSE: HttpErrorResponse = {
 	error: {

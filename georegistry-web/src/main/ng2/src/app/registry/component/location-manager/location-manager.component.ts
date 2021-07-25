@@ -6,7 +6,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 
-import { AllGeoJSON } from '@turf/helpers'
+import { AllGeoJSON } from '@turf/helpers';
 import bbox from '@turf/bbox';
 
 import { Subject } from 'rxjs';
@@ -161,7 +161,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			let geoObjectUid = params['geoobjectuid'];
 			let geoObjectTypeCode = params['geoobjecttypecode'];
 			this.hideSearchOptions = params['hideSearchOptions'];
-			this.backReference = this.route.snapshot.params["backReference"];
+			this.backReference = this.route.snapshot ? this.route.snapshot.params["backReference"] : null;
 
 			this.dateStr = params['datestr'];
 			this.handleDateChange();

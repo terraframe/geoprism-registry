@@ -125,7 +125,6 @@ export const MASTER_LIST_VERSION: MasterListVersion = {
 	oid: "VERSION-OID",
 	typeCode: "TEST-TYPE",
 	orgCode: "ORG-ID",
-	leaf: false,
 	masterlist: 'LIST-ID',
 	forDate: '02/20/2020',
 	createDate: '02/20/2020',

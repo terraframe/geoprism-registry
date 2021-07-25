@@ -41,8 +41,14 @@ export class CgrHeaderComponent {
 		this.isMaintainer = this.isAdmin || service.isMaintainer();
 		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
-		this.locales = localizationService.getLocales().filter(locale => locale.toString !== 'defaultLocale');
-		this.defaultLocaleView = localizationService.getLocales().filter(locale => locale.toString === 'defaultLocale')[0];
+		if(localizationService.getLocales()){
+			this.locales = localizationService.getLocales().filter(locale => locale.toString !== 'defaultLocale');
+			this.defaultLocaleView = localizationService.getLocales().filter(locale => locale.toString === 'defaultLocale')[0];
+		}
+		else{
+			this.locales = [];
+			this.defaultLocaleView = null;
+		}
 		this.locale = localizationService.getLocale();
 		
 		let found: boolean = false;

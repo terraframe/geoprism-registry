@@ -8,7 +8,7 @@ import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 import { MasterListManagerComponent } from "@registry/component/master-list/master-list-manager.component";
-import { LocalizationService, EventService, ProfileService, AuthService } from "@shared/service";
+import { LocalizationService, EventService, ProfileService, AuthService, DateService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
 import { MOCK_HTTP_ERROR_RESPONSE, LOCALIZED_LABEL } from "@test/shared/mocks";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -47,7 +47,8 @@ describe("MasterListManagerComponent", () => {
 				RegistryService,
 				ProfileService,
 				AuthService,
-				IOService
+				IOService,
+				DateService
 			]
 		}).compileComponents();
 	}));
@@ -103,11 +104,13 @@ describe("MasterListManagerComponent", () => {
 		expect(component.message).toBeTruthy();
 	}));
 
+
 	it(`test onCreate`, async(() => {
 		component.onCreate(MASTER_LIST_BY_ORG);
 
 		expect(component.bsModalRef).toBeTruthy();
 	}));
+
 
 	it('Test onView', fakeAsync(() => {
 		component.onView(MASTER_LIST_BY_ORG.oid);
@@ -117,17 +120,19 @@ describe("MasterListManagerComponent", () => {
 		expect(router.url).toEqual('/registry/master-list-view/' + MASTER_LIST_BY_ORG.oid);
 	}));
 
+
 	it('Test onEdit', fakeAsync(() => {
 		service.getMasterList = jasmine.createSpy().and.returnValue(
 			Promise.resolve(MASTER_LIST)
 		);
 
-		component.onEdit({ label: 'Test', oid: MASTER_LIST.oid });
+		component.onEdit({ label: 'Test', oid: MASTER_LIST.oid, visibility: "PUBLIC" });
 
 		tick(500);
 
 		expect(component.bsModalRef).toBeTruthy();
 	}));
+
 
 	it(`test onDelete`, async(() => {
 		component.onDelete(MASTER_LIST_BY_ORG, { label: 'Test list', oid: MASTER_LIST.oid });

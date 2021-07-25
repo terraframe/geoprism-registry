@@ -9,6 +9,7 @@ import { PendingChangesGuard } from './pending-changes-guard';
 import { ProfileService } from './profile.service';
 import { ProgressService } from './progress.service';
 import { SessionService } from './session.service';
+import { DateService } from './date.service';
 
 export const services: any[] = [
 	AuthService,
@@ -24,7 +25,8 @@ export const services: any[] = [
 	PendingChangesGuard,
 	ProfileService,
 	ProgressService,
-	SessionService
+	SessionService,
+	DateService
 ];
 
 export * from './auth.service';
@@ -38,3 +40,4 @@ export * from './pending-changes-guard';
 export * from './profile.service';
 export * from './progress.service';
 export * from './session.service';
+export * from './date.service';

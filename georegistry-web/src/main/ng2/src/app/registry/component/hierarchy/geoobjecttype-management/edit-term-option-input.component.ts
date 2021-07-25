@@ -82,7 +82,7 @@ export class EditTermOptionInputComponent implements OnInit {
 				this.attribute.rootTerm.children[index] = data;
 			}
 
-			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageTermOption, "attribute": this.attribute, "termOption": null })
+			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": this.attribute, "termOption": null })
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
 		});

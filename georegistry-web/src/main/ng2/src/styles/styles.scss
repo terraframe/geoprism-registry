@@ -471,6 +471,12 @@ li.list-group-item.active {
 	vertical-align: middle;
 	padding-top: 0;
     padding-bottom: 0;
+    white-space: normal;
+}
+.list-table thead .label-column {
+	padding-top: 8px;
+    padding-bottom: 8px;
+    white-space: nowrap;
 }
 .list-table .description-column {
 	width: 25%;
