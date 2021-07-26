@@ -60,11 +60,11 @@ export class UpdateAttributeAction extends AbstractAction {
     attributeDiff: { "valuesOverTime": ValueOverTimeDiff[] };
 }
 
-export interface ChangeRequestCurrentObject {
+export class ChangeRequestCurrentObject {
     geoObjectType: GeoObjectType;
 }
 
-export interface UpdateChangeRequestCurrentObject {
+export class UpdateChangeRequestCurrentObject {
     geoObjectType: GeoObjectType;
     geoObject: GeoObjectOverTime;
 }
