@@ -290,6 +290,26 @@ export class RequestTableComponent {
 
         this.requests = this.service.getAllRequests("ALL").resultSet;
 
+        // Copying the Geo-Object to add consistency for template processing
+        this.requests.forEach((req) => {
+
+            if (!req.current.geoObject) {
+
+                for (let i = 0; i < req.actions.length; i++) {
+
+                    if (req.actions[0].actionType === "CreateGeoObjectAction") {
+
+                        // This is the state of the Geo-Object as the Registry Contributor configured it.
+                        req.current.geoObject = JSON.parse(JSON.stringify(req.actions[0].geoObjectJson));
+
+                    }
+
+                }
+
+            }
+
+        });
+
         if (this.waitingOnScroll) {
 
             let that = this;

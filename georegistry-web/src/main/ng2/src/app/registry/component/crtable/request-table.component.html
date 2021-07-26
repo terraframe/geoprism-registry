@@ -81,8 +81,15 @@
             
             <td colspan="5">
               <div class="geoobject-panel-header">
-                    <h3 style="margin-top: 10px;">{{req.current.geoObjectJson.attributes.displayLabel.values[0].value.localizedValue}}</h3>
-                    <h4>{{req.current.geoObjectJson.attributes.code}}</h4>
+              
+                    <div *ngIf="req.current.geoObjectJson">
+                        <h3 style="margin-top: 10px;">{{req.current.geoObjectJson.attributes.displayLabel.values[0].value.localizedValue}}</h3>
+                        <h4>{{req.current.geoObjectJson.attributes.code}}</h4>
+                    </div>
+                    <div *ngIf="!req.current.geoObjectJson">
+                        <h3 style="margin-top: 10px;">TODO: this</h3>
+                        <h4>TODO: this too</h4>
+                    </div>
               </div>
                   
 <!--               <div class="row"> -->
@@ -205,7 +212,7 @@
                               *ngIf="req.actions.length > 0"
                               [readOnly]="req.permissions.includes('WRITE_DETAILS')"  
                               [geoObjectType]="req.current.geoObjectType"
-                              [geoObjectData]="{'geoObject':req.current.geoObjectJson, 'actions': req.actions}"
+                              [geoObjectData]="{'geoObject':req.current.geoObject, 'actions': req.actions}"
                               [forDate]="today"
                               [readOnly]="false"
                               [isGeometryInlined]="true">

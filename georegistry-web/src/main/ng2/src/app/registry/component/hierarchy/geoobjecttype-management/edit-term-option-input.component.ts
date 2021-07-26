@@ -1,110 +1,126 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input } from "@angular/core";
 import {
-	trigger,
-	style,
-	animate,
-	transition
-} from '@angular/animations'
-import { BsModalRef } from 'ngx-bootstrap/modal';
+    trigger,
+    style,
+    animate,
+    transition
+} from "@angular/animations";
+import { BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { StepConfig } from '@shared/model/modal';
-import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
-import { ErrorHandler } from '@shared/component';
+import { StepConfig } from "@shared/model/modal";
+import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
+import { ErrorHandler } from "@shared/component";
 
-import { GeoObjectType, AttributeTerm, Term, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '@registry/model/registry';
-import { RegistryService, GeoObjectTypeManagementService } from '@registry/service';
+import { GeoObjectType, AttributeTerm, Term, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectTypeModalStates } from "@registry/model/constants";
+import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
 
 @Component({
-	selector: 'edit-term-option-input',
-	templateUrl: './edit-term-option-input.component.html',
-	styleUrls: [],
-	animations: [
-		trigger('openClose',
-			[
-				transition(
-					':enter', [
-					style({ 'opacity': 0 }),
-					animate('500ms', style({ 'opacity': 1 }))
-				]
-				),
-				transition(
-					':leave', [
-					style({ 'opacity': 1 }),
-					animate('0ms', style({ 'opacity': 0 })),
+    selector: "edit-term-option-input",
+    templateUrl: "./edit-term-option-input.component.html",
+    styleUrls: [],
+    animations: [
+        trigger("openClose",
+            [
+                transition(
+                    ":enter", [
+                        style({ opacity: 0 }),
+                        animate("500ms", style({ opacity: 1 }))
+                    ]
+                ),
+                transition(
+                    ":leave", [
+                        style({ opacity: 1 }),
+                        animate("0ms", style({ opacity: 0 })),
 
-				]
-				)]
-		)
-	]
+                    ]
+                )]
+        )
+    ]
 })
 export class EditTermOptionInputComponent implements OnInit {
 
-	@Input() geoObjectType: GeoObjectType;
-	@Input() attribute: AttributeTerm = null;
-	@Input() termOption: Term;
+    @Input() geoObjectType: GeoObjectType;
+    @Input() attribute: AttributeTerm = null;
+    @Input() termOption: Term;
 
-	message: string = null;
-	modalState: ManageGeoObjectTypeModalState = { "state": GeoObjectTypeModalStates.editAttribute, "attribute": this.attribute, "termOption": "" };
-	modalStepConfig: StepConfig = {
-		"steps": [
-			{ "label": this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), "active": true, "enabled": false },
-			{ "label": this.localizeService.decode("modal.step.indicator.manage.attributes"), "active": true, "enabled": false },
-			{ "label": this.localizeService.decode("modal.step.indicator.edit.attribute"), "active": true, "enabled": false },
-			{ "label": this.localizeService.decode("modal.step.indicator.manage.term.options"), "active": true, "enabled": false },
-			{ "label": this.localizeService.decode("modal.step.indicator.edit.term.option"), "active": true, "enabled": true }
+    message: string = null;
+    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.editAttribute, attribute: this.attribute, termOption: "" };
+    modalStepConfig: StepConfig = {
+        steps: [
+            { label: this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), active: true, enabled: false },
+            { label: this.localizeService.decode("modal.step.indicator.manage.attributes"), active: true, enabled: false },
+            { label: this.localizeService.decode("modal.step.indicator.edit.attribute"), active: true, enabled: false },
+            { label: this.localizeService.decode("modal.step.indicator.manage.term.options"), active: true, enabled: false },
+            { label: this.localizeService.decode("modal.step.indicator.edit.term.option"), active: true, enabled: true }
 
-		]
-	};
+        ]
+    };
 
-	constructor(public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
-		private localizeService: LocalizationService, private registryService: RegistryService) {
-	}
+    // eslint-disable-next-line no-useless-constructor
+    constructor(public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
+        private localizeService: LocalizationService, private registryService: RegistryService) { }
 
-	ngOnInit(): void {
-		this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-	}
+    ngOnInit(): void {
 
-	ngAfterViewInit() {
+        this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
 
-	}
+    }
 
-	ngOnDestroy() {
-	}
+    ngAfterViewInit() {
 
-	handleOnSubmit(): void {
+    }
 
-		this.registryService.updateAttributeTermTypeOption(this.attribute.rootTerm.code, this.termOption).then(data => {
-			// Update the term definition on the attribute
-			const index = this.attribute.rootTerm.children.findIndex(t => t.code === data.code);
+    ngOnDestroy() {
+    }
 
-			if (index !== -1) {
-				this.attribute.rootTerm.children[index] = data;
-			}
+    handleOnSubmit(): void {
 
-			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": this.attribute, "termOption": null })
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+        this.registryService.updateAttributeTermTypeOption(this.attribute.rootTerm.code, this.termOption).then(data => {
 
-	isFormValid(): boolean {
-		// let isAttrValid: boolean = this.attributeInputComponent.isValid();
+            // Update the term definition on the attribute
+            const index = this.attribute.rootTerm.children.findIndex(t => t.code === data.code);
 
-		// if(isAttrValid){
-		//     return true;
-		// }
+            if (index !== -1) {
 
-		// return false;
-		return true
-	}
+                this.attribute.rootTerm.children[index] = data;
 
-	cancel(): void {
-		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageTermOption, "attribute": this.attribute, "termOption": null })
-	}
+            }
 
-	error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
+            this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: this.attribute, termOption: null });
+
+        }).catch((err: HttpErrorResponse) => {
+
+            this.error(err);
+
+        });
+
+    }
+
+    isFormValid(): boolean {
+
+        // let isAttrValid: boolean = this.attributeInputComponent.isValid();
+
+        // if(isAttrValid){
+        //     return true;
+        // }
+
+        // return false;
+        return true;
+
+    }
+
+    cancel(): void {
+
+        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: null });
+
+    }
+
+    error(err: HttpErrorResponse): void {
+
+        this.message = ErrorHandler.getMessageFromError(err);
+
+    }
 
 }

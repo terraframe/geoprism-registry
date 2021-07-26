@@ -1,17 +1,23 @@
 /* eslint-disable padded-blocks */
 import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType } from "./registry";
 import { LocalizedValue } from "@shared/model/core";
+import { ActionTypes } from "./constants";
 
 export class Document {
     fileName: string;
     oid: string;
 }
 
-export class AttributeValuesOverTime {
+export class Geometry {
+    type: string;
+    coordinates: number[][] | number [];
+}
+
+export class ValueOverTimeDiff {
     oid: string;
     action: string;
-    oldValue: LocalizedValue | string;
-    newValue: LocalizedValue | string;
+    oldValue: LocalizedValue | string | Geometry;
+    newValue: LocalizedValue | string | Geometry;
     newStartDate: string;
     newEndDate: string;
     oldStartDate: string;
@@ -29,10 +35,6 @@ export class AttributeValuesOverTime {
 //    documents: Document[];
 // }
 
-export enum ActionTypes {
-    "CREATEGEOOBJECTACTION" = "CreateGeoObjectAction", 
-    "UPDATEATTRIBUTETACTION" = "UpdateAttributeAction"
-}
 
 export class AbstractAction {
     oid: string;
@@ -55,15 +57,16 @@ export class CreateGeoObjectAction extends AbstractAction {
 
 export class UpdateAttributeAction extends AbstractAction {
     attributeName: string;
-    attributeDiff: { "valuesOverTime": AttributeValuesOverTime[] };
+    attributeDiff: { "valuesOverTime": ValueOverTimeDiff[] };
 }
 
-export class ChangeRequestCurrentObject {
+export interface ChangeRequestCurrentObject {
     geoObjectType: GeoObjectType;
 }
 
-export class UpdateChangeRequestCurrentObject extends ChangeRequestCurrentObject {
-    geoObjectJson: GeoObjectOverTime;
+export interface UpdateChangeRequestCurrentObject {
+    geoObjectType: GeoObjectType;
+    geoObject: GeoObjectOverTime;
 }
 
 export class ChangeRequest {
@@ -74,8 +77,8 @@ export class ChangeRequest {
     total: number;
     pending: number;
     documents: Document[];
-    actions: CreateGeoObjectAction[] | UpdateAttributeAction[];
-    current: ChangeRequestCurrentObject | UpdateChangeRequestCurrentObject;
+    actions: CreateGeoObjectAction[] & UpdateAttributeAction[];
+    current: ChangeRequestCurrentObject & UpdateChangeRequestCurrentObject;
     statusLabel?: string;
     phoneNumber?: string;
     email?: string;
@@ -109,11 +112,11 @@ export class ChangeRequest {
 //    hierarchyCode: string;
 // }
 
-//export class SetParentAction extends AbstractAction {
+// export class SetParentAction extends AbstractAction {
 //    childCode: string;
 //    childTypeCode: string;
 //    json: HierarchyOverTime[];
-//}
+// }
 
 export class GovernanceStatus {
     key: string;
