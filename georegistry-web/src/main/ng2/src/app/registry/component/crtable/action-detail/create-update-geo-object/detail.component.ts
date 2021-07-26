@@ -108,6 +108,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
 
         }
 
+        /*
         this.changeRequestService.applyAction(action).then(response => {
 
             this.endEdit();
@@ -117,6 +118,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
             this.error(err);
 
         });
+        */
 
     }
 
@@ -180,16 +182,16 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
 
     startEdit(): void {
 
-        this.lockAction();
+        //this.lockAction();
 
     }
 
     public endEdit(): void {
 
-        this.unlockAction();
+        //this.unlockAction();
 
     }
-
+/*
     lockAction() {
 
         this.changeRequestService.lockAction(this.action.oid).then(response => {
@@ -242,7 +244,7 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
         });
 
     }
-
+*/
     getUsername(): string {
 
         return this.authService.getUsername();

@@ -42,8 +42,6 @@ import { PublishModalComponent } from "./component/master-list/publish-modal.com
 import { ExportFormatModalComponent } from "./component/master-list/export-format-modal.component";
 import { RequestTableComponent } from "./component/crtable/request-table.component";
 import { CreateUpdateGeoObjectDetailComponent } from "./component/crtable/action-detail/create-update-geo-object/detail.component";
-import { AddRemoveChildDetailComponent } from "./component/crtable/action-detail/add-remove-child/detail.component";
-import { SetParentDetailComponent } from "./component/crtable/action-detail/set-parent/set-parent-detail.component";
 import { GeoObjectSharedAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
 import { ManageVersionsComponent } from "./component/geoobject-shared-attribute-editor/manage-versions.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
@@ -131,8 +129,6 @@ import "../rxjs-extensions";
         HierarchyComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
-        AddRemoveChildDetailComponent,
-        SetParentDetailComponent,
         CreateHierarchyTypeModalComponent,
         AddChildToHierarchyModalComponent,
         CreateGeoObjTypeModalComponent,

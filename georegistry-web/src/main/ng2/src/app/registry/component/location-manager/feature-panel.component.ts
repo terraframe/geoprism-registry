@@ -203,7 +203,8 @@ export class FeaturePanelComponent implements OnInit {
 	  }
 	  else
 	  {
-  		this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, actions, this.datasetId, this.reason).then((applyInfo: any) => {
+	    // TODO : Actions
+  		this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, "", this.datasetId, this.reason).then((applyInfo: any) => {
   		  if (!applyInfo.isChangeRequest)
         {
   			  this.featureChange.emit(this.postGeoObject);
