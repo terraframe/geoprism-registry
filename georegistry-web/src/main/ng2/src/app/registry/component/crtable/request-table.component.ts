@@ -277,12 +277,32 @@ export class RequestTableComponent {
 
             this.requests = requests.resultSet;
 
-            if (this.waitingOnScroll)
-            {
-              let that = this;
-              setTimeout(function(){ that.scrollToBottom(); }, 100);
-              this.waitingOnScroll = false;
-            }
+            // Copying the Geo-Object to add consistency for template processing
+            this.requests.forEach((req) => {
+    
+                if (!req.current.geoObject) {
+    
+                    for (let i = 0; i < req.actions.length; i++) {
+    
+                        if (req.actions[0].actionType === "CreateGeoObjectAction") {
+    
+                            // This is the state of the Geo-Object as the Registry Contributor configured it.
+                            req.current.geoObject = JSON.parse(JSON.stringify(req.actions[0].geoObjectJson));
+    
+                        }
+    
+                    }
+    
+                }
+    
+            });
+
+          if (this.waitingOnScroll)
+          {
+            let that = this;
+            setTimeout(function(){ that.scrollToBottom(); }, 100);
+            this.waitingOnScroll = false;
+          }
 
         }).catch((response: HttpErrorResponse) => {
             this.error(response);

@@ -12,8 +12,9 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
-import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeTerm, Term, ValueOverTime, GovernanceStatus } from "@registry/model/registry";
-import { CreateGeoObjectAction, UpdateAttributeAction } from "@registry/model/crtable";
+import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeOverTime, AttributeTerm, Term, ValueOverTime } from "@registry/model/registry";
+import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
+import { ActionTypes } from "@registry/model/constants";
 
 import Utils from "../../utility/Utils";
 
@@ -203,55 +204,81 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
     }
 
-    setGeoObjectToCurrent(geoObject: GeoObjectOverTime): void {
+    updateValueOverTime(actionDiffVOTs: ValueOverTimeDiff[], geoObjecAtttribute: AttributeOverTime, geoObject: GeoObjectOverTime, action: any) {
 
-        // Iterate over all actions to find all the changes
-        this.actions.forEach((action) => {
+        // If action is an AttributeUpdateAction
+        if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
 
-            if (geoObject.attributes[action.attributeName]) {
+            if (geoObjecAtttribute.name === action.attributeName) {
 
-                let attribute = geoObject.attributes[action.attributeName];
+                for (let i1 = 0; i1 < actionDiffVOTs.length; i1++) {
 
-                if (attribute.name === action.attributeName) {
+                    let actionDiffVOT = actionDiffVOTs[i1];
 
-                    let newAttributeValues = [];
-                    action.attributeDiff.valuesOverTime.forEach((diffVot) => {
+                    for (let i2 = 0; i2 < geoObjecAtttribute.values.length; i2++) {
 
-                        if (attribute.type === "date") {
+                        let val = geoObjecAtttribute.values[i2];
 
-                            if (new Date(String(diffVot.oldValue)) !== new Date(String(diffVot.newValue))) {
+                        if (actionDiffVOT.oid === val.oid) {
 
-                                let thisVot = new ValueOverTime();
-                                thisVot.startDate = diffVot.newStartDate;
-                                thisVot.endDate = diffVot.newEndDate;
-                                thisVot.value = diffVot.newValue;
+                            console.log("dif value --> ", actionDiffVOT.newValue)
 
-                                newAttributeValues.push(thisVot);
-
-                            }
-
-                        } else if (attribute.type === "local") {
-
-                            newAttributeValues.push({ startDate: diffVot.newStartDate, endDate: diffVot.newEndDate, value: diffVot.newValue });
-
-                        } else {
-
-                            if (diffVot.oldValue !== diffVot.newValue) {
-
-                                let thisVot = new ValueOverTime();
-                                thisVot.startDate = diffVot.newStartDate;
-                                thisVot.endDate = diffVot.newEndDate;
-                                thisVot.value = diffVot.newValue;
-
-                                newAttributeValues.push(thisVot);
-
-                            }
+//                            if (geoObjectAttribute.type === "date") {
+//
+//                                if (new Date(String(actionDiffVot.oldValue)) !== new Date(String(actionDiffVot.newValue))) {
+//
+//                                    let thisVot = new ValueOverTime();
+//                                    thisVot.startDate = actionDiffVot.newStartDate;
+//                                    thisVot.endDate = actionDiffVot.newEndDate;
+//                                    thisVot.value = actionDiffVot.newValue;
+//
+//                                    newAttributeValues.push(thisVot);
+//
+//                                }
+//
+//                            } else if (geoObjectAttribute.type === "local") {
+//
+//                                newAttributeValues.push({ startDate: actionDiffVot.newStartDate, endDate: actionDiffVot.newEndDate, value: actionDiffVot.newValue });
+//
+//                            } else {
+//
+//                            }
 
                         }
 
-                    });
+                    }
 
-                    attribute.values = newAttributeValues;
+                }
+
+            }
+
+        } else {
+
+            // Else if action is a CreateGeoObjectAction
+
+            console.log("create geoobject action")
+
+        }
+
+    }
+
+    setGeoObjectToCurrent(geoObject: GeoObjectOverTime): void {
+
+        // Iterate over all actions to find all the changes
+        this.actions.forEach((action: any) => {
+
+            // If action is an AttributeUpdateAction
+            if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
+
+                if (geoObject.attributes[action.attributeName]) {
+
+                    let geoObjectAttribute = geoObject.attributes[action.attributeName];
+
+                    if (geoObjectAttribute.name === action.attributeName) {
+
+                        this.updateValueOverTime(action.attributeDiff.valuesOverTime, geoObjectAttribute, geoObject, action);
+
+                    }
 
                 }
 
@@ -260,6 +287,64 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
         });
 
     }
+
+//    setGeoObjectToCurrent(geoObject: GeoObjectOverTime): void {
+//
+//        // Iterate over all actions to find all the changes
+//        this.actions.forEach((action) => {
+//
+//            if (geoObject.attributes[action.attributeName]) {
+//
+//                let attribute = geoObject.attributes[action.attributeName];
+//
+//                if (attribute.name === action.attributeName) {
+//
+//                    let newAttributeValues = [];
+//                    action.attributeDiff.valuesOverTime.forEach((diffVot) => {
+//
+//                        if (attribute.type === "date") {
+//
+//                            if (new Date(String(diffVot.oldValue)) !== new Date(String(diffVot.newValue))) {
+//
+//                                let thisVot = new ValueOverTime();
+//                                thisVot.startDate = diffVot.newStartDate;
+//                                thisVot.endDate = diffVot.newEndDate;
+//                                thisVot.value = diffVot.newValue;
+//
+//                                newAttributeValues.push(thisVot);
+//
+//                            }
+//
+//                        } else if (attribute.type === "local") {
+//
+//                            newAttributeValues.push({ startDate: diffVot.newStartDate, endDate: diffVot.newEndDate, value: diffVot.newValue });
+//
+//                        } else {
+//
+//                            if (diffVot.oldValue !== diffVot.newValue) {
+//
+//                                let thisVot = new ValueOverTime();
+//                                thisVot.startDate = diffVot.newStartDate;
+//                                thisVot.endDate = diffVot.newEndDate;
+//                                thisVot.value = diffVot.newValue;
+//
+//                                newAttributeValues.push(thisVot);
+//
+//                            }
+//
+//                        }
+//
+//                    });
+//
+//                    attribute.values = newAttributeValues;
+//
+//                }
+//
+//            }
+//
+//        });
+//
+//    }
 
     changePage(nextPage: number): void {
 

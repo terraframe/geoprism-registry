@@ -149,6 +149,7 @@
                                 <div *ngIf="getValueDifference(geoObjectOverTime.attributes[attributeType.code], null) as valueDiff">
                                     <p class="warning-text" *ngIf="!isNew && valueDiff">
                                       <localize key="change.request.changed.value.prefix"></localize>
+                                      <!-- TODO: update to read directly from the model if possible (e.g. geoObjectOverTime.attributes[attributeType.code].THE.MODEL.VALUES) -->
                                       {{ valueDiff }}
                                     </p>
                                   </div>
