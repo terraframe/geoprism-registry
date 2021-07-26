@@ -1,57 +1,48 @@
-      <div>
-        <div class="label-holder">
-          <label><localize key="synchronization.config.units"></localize></label>
-        </div>
-        <div class="holder">
-          <div class="list-table-wrapper">
+<div>
+    <div class="label-holder">
+        <label><localize key="synchronization.config.units"></localize></label>
+    </div>
+    <div class="holder">
+        <div class="list-table-wrapper">
             <table id="manage-systems-table" class="list-table table table-bordered">
-              <thead>
-                <tr>
-                  <th style="width:3%">
-                    <localize key="settings.external.synchronization.level.label"></localize>
-                  </th>
-                  <th style="width:25%">
-                    Master List
-                  </th>
-                  <th style="width:25%">
-                    Version
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let levelRow of levelRows; let i = index;" [style.background-color]="'#F7F7F7'">
-                  <td style="width:3%" >
-                    <label style="padding: 10px 0; margin: 0;"><localize key="sync.level.label"></localize> {{levelRow.levelNum + 1}}</label>
-                  </td>
-                  <td style="width:25%" >
-                    <select type="text" [(ngModel)]="levelRow.level.masterListId" (change)="onSelectMasterList(levelRow)" [name]="'masterList' + levelRow.levelNum" required>
-                      <option></option>
-                      <option *ngFor="let list of org.lists" [value]="list.oid">{{list.label}}</option>
-                    </select>
-                  </td>
-                  <td style="width:25%" >
-                    <select *ngIf="levelRow.list != null" type="text" [(ngModel)]="levelRow.level.versionId" [name]="'version' + levelRow.levelNum" required>
-                      <option></option>
-                      <option *ngFor="let version of levelRow.list.versions" [value]="version.oid">{{version.forDate}}</option>
-                    </select>
-                  </td>
-                  <td style="width:25%" >
-									  <div>
-									    <a style="padding: 10px;" (click)="removeLevel(levelRow.levelNum, i)" [title]="'button.delete.helptext' | localize">
-									      <i class="fa fa-trash-o ico-remove"></i>
-									      <label style="cursor:pointer; margin-left:9px;"><localize key="sync.level.delete"></localize></label>
-									    </a> 
-									  </div>
-									</td>
-                </tr>
-                <tr>
-                  <td class="button-column">
-                    <a class="fa fa-plus" [title]="'sync.levels.add.tooltip' | localize" (click)="addLevel()"></a>
-                  </td>
-                </tr>
-              </tbody>
+                <thead>
+                    <tr>
+                        <th style="width: 3%"><localize key="settings.external.synchronization.level.label"></localize></th>
+                        <th style="width: 25%">Master List</th>
+                        <th style="width: 25%">Version</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let levelRow of levelRows; let i = index;" [style.background-color]="'#F7F7F7'">
+                        <td style="width: 3%">
+                            <label style="padding: 10px 0; margin: 0;"><localize key="sync.level.label"></localize> {{levelRow.level.level + 1}}</label>
+                        </td>
+                        <td style="width: 25%">
+                            <select *ngIf="org != null" type="text" [(ngModel)]="levelRow.level.masterListId" (change)="onSelectMasterList(levelRow)" [name]="'masterList' + levelRow.level.level" required>
+                                <option></option>
+                                <option *ngFor="let list of org.lists" [value]="list.oid">{{list.label}}</option>
+                            </select>
+                        </td>
+                        <td style="width: 25%">
+                            <select *ngIf="levelRow.list != null" type="text" [(ngModel)]="levelRow.level.versionId" [name]="'version' + levelRow.level.level" required>
+                                <option></option>
+                                <option *ngFor="let version of levelRow.list.versions" [value]="version.oid">{{version.forDate}}</option>
+                            </select>
+                        </td>
+                        <td style="width: 25%">
+                            <div>
+                                <a style="padding: 10px;" (click)="removeLevel(i)" [title]="'button.delete.helptext' | localize">
+                                    <i class="fa fa-trash-o ico-remove"></i> <label style="cursor: pointer; margin-left: 9px;"><localize key="sync.level.delete"></localize></label>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="button-column"><a class="fa fa-plus" [title]="'sync.levels.add.tooltip' | localize" (click)="addLevel()"></a></td>
+                    </tr>
+                </tbody>
             </table>
-          
-          </div>
+
         </div>
-      </div>
+    </div>
+</div>

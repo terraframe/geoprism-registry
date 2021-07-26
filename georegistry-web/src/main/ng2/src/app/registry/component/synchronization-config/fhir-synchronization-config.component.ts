@@ -1,26 +1,18 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subject, config } from 'rxjs';
+import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { LocalizationService } from '@shared/service';
-import { ErrorHandler } from '@shared/component';
-
-import { SynchronizationConfig, OrgSyncInfo, GeoObjectType, MasterListByOrg, MasterListVersion, MasterList } from '@registry/model/registry';
-import { SynchronizationConfigService, RegistryService } from '@registry/service';
-import { AttributeConfigInfo } from '@registry/model/sync';
+import { SynchronizationConfig, MasterListByOrg, MasterList } from '@registry/model/registry';
+import { RegistryService } from '@registry/service';
 
 interface FhirSyncLevel {
   masterListId: string;
   versionId: string;
-  type: string;
   level: number;
 }
 
-
 export interface LevelRow {
   level?: FhirSyncLevel;
-  levelNum?: number;
   list?: MasterList;
 }
 
@@ -29,10 +21,12 @@ export interface LevelRow {
   templateUrl: './fhir-synchronization-config.component.html',
   styleUrls: []
 })
-export class FhirSynchronizationConfigComponent implements OnInit {
+export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
   message: string = null;
 
   @Input() config: SynchronizationConfig;
+  @Input() fieldChange: Subject<string>;
+  @Output() onError = new EventEmitter<HttpErrorResponse>();
 
   levelRows: LevelRow[] = [];
 
@@ -42,15 +36,33 @@ export class FhirSynchronizationConfigComponent implements OnInit {
 
   ngOnInit(): void {
 
+    this.reset();
+
+    this.fieldChange.subscribe((field: string) => {
+      if (field === 'organization' || field === 'system') {
+        this.reset();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.fieldChange.unsubscribe();
+  }
+
+  reset(): void {
+
     this.levelRows = [];
 
-    if (this.config.configuration != null) {
+    if (this.config.configuration != null && this.config.configuration.levels != null) {
       for (var i = 0; i < this.config.configuration.levels.length; ++i) {
         var level = this.config.configuration.levels[i];
 
-        var levelRow: LevelRow = { level: level, levelNum: i };
+        var levelRow: LevelRow = { level: level };
 
         this.levelRows.push(levelRow);
+        
+        // Get version options
+        this.onSelectMasterList(levelRow);
       }
     }
     else {
@@ -70,30 +82,40 @@ export class FhirSynchronizationConfigComponent implements OnInit {
   }
 
   onSelectMasterList(row: LevelRow): void {
-    this.rService.getMasterListHistory(row.level.masterListId, 'PUBLISHED').then(list => {
-      row.list = list;
-    })
+
+    if (row.level.masterListId != null) {
+
+      this.rService.getMasterListHistory(row.level.masterListId, 'PUBLISHED').then(list => {
+        row.list = list;
+      });
+    }
   }
 
   addLevel(): void {
     var lvl = {
-      type: null,
       masterListId: null,
       versionId: null,
       level: this.config.configuration.levels.length,
     };
 
-    var len = this.config.configuration['levels'].push(lvl);
-    this.levelRows.push({ level: lvl, levelNum: len - 1, list : null });
+    this.levelRows.push({ level: lvl, list: null });
   }
 
-  removeLevel(levelNum: number, levelRowIndex: number): void {
-    if (levelNum < this.config.configuration['levels'].length) {
+  removeLevel(i: number): void {
+    this.levelRows.splice(i, 1);
+    this.config.configuration.levels.splice(i, 1);
+
+    // Reorder the level
+    if (this.config.configuration != null && this.config.configuration.levels != null) {
+      for (var i = 0; i < this.config.configuration.levels.length; ++i) {
+        this.config.configuration.levels[i].level = i;
+      }
     }
+
   }
 
   error(err: HttpErrorResponse): void {
-    this.message = ErrorHandler.getMessageFromError(err);
+    this.onError.emit(err);
   }
 
 }

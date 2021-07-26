@@ -60,10 +60,10 @@
       </div>
 
       <div class="row-holder" *ngIf="cSystem != null && cSystem.type === 'DHIS2ExternalSystem'">
-
+        <dhis2-synchronization-config [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></dhis2-synchronization-config>
       </div>
       <div class="row-holder" *ngIf="cSystem != null && cSystem.type === 'FhirExternalSystem'">
-        <fhir-synchronization-config [(config)]="config"></fhir-synchronization-config>
+        <fhir-synchronization-config [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-synchronization-config>
       </div>
 
       <div class="row-holder">

@@ -1,13 +1,9 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Component, OnInit, Input, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { LocalizationService } from '@shared/service';
-import { ErrorHandler } from '@shared/component';
-
 import { SynchronizationConfig, OrgSyncInfo, GeoObjectType } from '@registry/model/registry';
-import { SynchronizationConfigService, RegistryService } from '@registry/service';
+import { SynchronizationConfigService } from '@registry/service';
 import { AttributeConfigInfo, DHIS2AttributeMapping, SyncLevel } from '@registry/model/sync';
 
 let DEFAULT_MAPPING_STRATEGY = "net.geoprism.registry.etl.DHIS2AttributeMapping";
@@ -31,10 +27,12 @@ export interface GOTAttributeConfig {
   templateUrl: './dhis2-synchronization-config.component.html',
   styleUrls: []
 })
-export class Dhis2SynchronizationConfigComponent implements OnInit {
+export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   message: string = null;
 
   @Input() config: SynchronizationConfig;
+  @Input() fieldChange: Subject<string>;
+  @Output() onError = new EventEmitter<HttpErrorResponse>();
 
   organizations: OrgSyncInfo[] = [];
 
@@ -47,7 +45,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit {
   orgUnitGroups: any[] = [];
 
 
-  constructor(private service: SynchronizationConfigService, private bsModalRef: BsModalRef) { }
+  constructor(private service: SynchronizationConfigService) { }
 
   ngOnInit(): void {
     // Get the types  
@@ -64,14 +62,32 @@ export class Dhis2SynchronizationConfigComponent implements OnInit {
 
 
     this.levelRows = [];
-    for (var i = 0; i < this.config.configuration.levels.length; ++i) {
-      var level = this.config.configuration.levels[i];
 
-      var levelRow: LevelRow = { level: level, levelNum: i, isAttributeEditor: false };
+    if (this.config.configuration != null && this.config.configuration.levels != null) {
 
-      this.levelRows.push(levelRow);
+      for (var i = 0; i < this.config.configuration.levels.length; ++i) {
+        var level = this.config.configuration.levels[i];
+
+        var levelRow: LevelRow = { level: level, levelNum: i, isAttributeEditor: false };
+
+        this.levelRows.push(levelRow);
+      }
     }
+    else {
+      this.config.configuration = {
+        levels: [],
+      };
+    }
+
+    this.fieldChange.subscribe(() => {
+      this.clearMappingData();
+    });
   }
+
+  ngOnDestroy(): void {
+    this.fieldChange.unsubscribe();
+  }
+
 
   buildDefaultMappings(): DHIS2AttributeMapping[] {
     return [
@@ -192,10 +208,6 @@ export class Dhis2SynchronizationConfigComponent implements OnInit {
       externalId: null,
       terms: []
     });
-  }
-
-  onChangeHierarchy(): void {
-    this.clearMappingData();
   }
 
   addLevel(): void {
@@ -335,6 +347,10 @@ export class Dhis2SynchronizationConfigComponent implements OnInit {
         var levelRow: LevelRow = this.levelRows[levelRowIndex];
         var level = levelRow.level;
 
+        if (level.mappings == null) {
+          level.mappings = [];
+        }
+
         if (level.mappings.length == 0 || isDifferentGot) {
           level.mappings = this.buildDefaultMappings();
         }
@@ -401,7 +417,6 @@ export class Dhis2SynchronizationConfigComponent implements OnInit {
   }
 
   error(err: HttpErrorResponse): void {
-    this.message = ErrorHandler.getMessageFromError(err);
+    this.onError.emit(err);
   }
-
 }
