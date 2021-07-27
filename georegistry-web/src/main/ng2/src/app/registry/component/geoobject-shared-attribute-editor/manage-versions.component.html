@@ -34,9 +34,9 @@
                           [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'WARNING'}">
                         <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
                           <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
-                          <table *ngIf="viewModel.newValue">
+                          <table *ngIf="viewModel.value">
                           
-                            <tr *ngFor="let loc of viewModel.newValue.localeValues; let idx = index;" class="attribute-value-row">
+                            <tr *ngFor="let loc of viewModel.value.localeValues; let idx = index;" class="attribute-value-row">
                               <td colspan="2">
                                 <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
                                 
@@ -67,7 +67,7 @@
                                   <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                 </h5>
                             
-                                <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                                <date-field #dateFieldComponents [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
                                 
                                 <div *ngIf="viewModel.oldStartDate && !isNew">
                                   <p class="warning-text">
@@ -82,7 +82,7 @@
                                     <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                   </h5>
                               
-                                  <date-field #dateFieldComponents [(value)]="viewModel.newEndDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                  <date-field #dateFieldComponents [(value)]="viewModel.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                                       [required]="true" [placement]="'bottom'" [disable]="readonly" ></date-field>
                     
                                   <div *ngIf="viewModel.oldEndDate && !isNew">
@@ -123,31 +123,31 @@
                             <tr class="attribute-value-row">
                               <td colspan="2">
                                 <div *ngIf="attributeType.type === 'term'">
-                                  <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.newValue" [disabled]="readonly">
+                                  <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.value" [disabled]="readonly">
                                       <option value=""></option>
                                       <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attributeType.code)" [value]="option.code">{{option.label.localizedValue}}</option>
                                   </select>
                                 </div>
                                 <div *ngIf="attributeType.type === 'character'">
-                                  <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.newValue" (ngModelChange)="viewModel.newValue = $event" [disabled]="readonly" required>
+                                  <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly" required>
                                 </div>
                                 
                                 <div *ngIf="attributeType.type === 'date'">
-                                  <date-field [(value)]="viewModel.newValue" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
+                                  <date-field [(value)]="viewModel.value" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
                                       [required]="true" [placement]="'right'" [(valid)]="isValid" [disable]="readonly" ></date-field>
                                 </div>
                                 
                                 <div *ngIf="attributeType.type === 'integer' || attributeType.type === 'float'">
-                                  <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.newValue" (ngModelChange)="viewModel.newValue = $event" [disabled]="readonly" required>
+                                  <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly" required>
                                 </div>
                                 
                                 <div *ngIf="attributeType.type === 'boolean'">
                                     <label class="radio radio-inline" style="padding-left:0;"> 
-                                      <input class="inline-radio-input" type="radio" [checked]="viewModel.newValue === true" [value]="true" [(ngModel)]="viewModel.newValue" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly"> 
+                                      <input class="inline-radio-input" type="radio" [checked]="viewModel.value === true" [value]="true" [(ngModel)]="viewModel.value" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly"> 
                                       <span><localize key="change.request.boolean.option.true"></localize></span>
                                     </label> 
                                     <label class="radio radio-inline"> 
-                                      <input class="inline-radio-input" type="radio" [checked]="viewModel.newValue === false" [value]="false" [(ngModel)]="viewModel.newValue" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly"> 
+                                      <input class="inline-radio-input" type="radio" [checked]="viewModel.value === false" [value]="false" [(ngModel)]="viewModel.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly"> 
                                       <span><localize key="change.request.boolean.option.false"></localize></span>
                                     </label>
                                 </div>
@@ -166,7 +166,7 @@
                                   <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                 </h5>
                         
-                                <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                                <date-field #dateFieldComponents [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
                                 
                                 <div *ngIf="viewModel.oldStartDate && !isNew">
                                   <p class="warning-text">
@@ -181,7 +181,7 @@
                                     <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                   </h5>
                                   
-                                  <date-field #dateFieldComponents [(value)]="viewModel.newEndDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                  <date-field #dateFieldComponents [(value)]="viewModel.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                                       [required]="true" [placement]="'bottom'" [disable]="readonly"></date-field>
                     
                                   <div *ngIf="viewModel.oldEndDate && !isNew">
@@ -232,16 +232,16 @@
                             <localize key="changeovertime.manageVersions.geometry.edit"></localize>
                           </button> 
                           <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
-                              (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly" [postGeometry]="viewModel.newValue" 
-                              [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="viewModel.newStartDate">
+                              (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly" [postGeometry]="viewModel.value" 
+                              [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="viewModel.startDate">
                           </geoobject-editor-map>
                         </td>
                         <td style="vertical-align: middle;">
-                          <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'startDate-' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                          <date-field #dateFieldComponents [(value)]="viewModel.startDate" label="" [inputName]="'startDate-' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
                         </td>
                         <td style="vertical-align: middle;">
 
-                          <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                          <date-field #dateFieldComponents [(value)]="viewModel.startDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                               [required]="true" [disable]="readonly" [placement]="'bottom'" ></date-field>
                     
                         </td>

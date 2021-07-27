@@ -41,25 +41,25 @@ class ValueOverTimeEditPropagator {
   valueOverTime?: ValueOverTime;
   diff?: ValueOverTimeDiff;
   
-  set newStartDate(oldStartDate: string)
+  set startDate(startDate: string)
   {
     if (this.diff != null)
     {
-      this.diff.oldStartDate = oldStartDate;
+      this.diff.newStartDate = startDate;
+    }
+    else if (this.diff != null)
+    {
+      this.valueOverTime.startDate = startDate;
     }
   }
 }
 
-class VersionDiffView {
+class VersionDiffView extends ValueOverTime {
   summaryKey: SummaryKey;
   conflictMessage?: [{message: string, type: string}]; // 
-  oid: string;
   oldValue?: any;
-  newValue?: any
   oldStartDate?: string;
-  newStartDate?: string;
   oldEndDate?: string;
-  newEndDate?: string;
   versionEditPropagator?: ValueOverTimeEditPropagator; // If this is null, then it means we had some kind of critical problem (either the oid reference is out of date or something) and this diff/action is not valid
 }
 
@@ -111,7 +111,7 @@ export class ManageVersionsComponent implements OnInit {
     actions: AbstractAction[] = [];
 
     // eslint-disable-next-line accessor-pairs
-    @Input() set attributeData(value: {"attributeType":AttributeType, "actions":CreateGeoObjectAction[] | UpdateAttributeAction[], geoObject:GeoObjectOverTime}) {
+    @Input() set attributeData(value: {"attributeType":AttributeType, "actions":AbstractAction[], geoObject:GeoObjectOverTime}) {
 
         this.attributeType = value.attributeType;
 
@@ -193,31 +193,51 @@ export class ManageVersionsComponent implements OnInit {
             this.hasConflict = false;
             this.hasGap = false;
 
-            let vAttributes = this.postGeoObject.attributes[this.attributeType.code].values;
-
             this.isValid = this.checkDateFieldValidity();
 
-            this.hasConflict = this.dateService.checkRanges(vAttributes);
+            this.hasConflict = this.dateService.checkRanges(this.viewModels);
 
         }, 0);
+
+    }
+    
+    remove(view: VersionDiffView): void {
+
+        let position = -1;
+        let len = this.viewModels.length;
+        for (let i = 0; i < len; i++) {
+            let loopView = this.viewModels[i];
+
+            if (loopView.oid === view.oid) {
+                position = i;
+            }
+        }
+
+        if (position > -1) {
+          this.viewModels.splice(position, 1);
+        }
+        
+        // TODO : Propagate change ?
+
+        this.onDateChange();
 
     }
 
     onAddNewVersion(): void {
 
-        let votArr: ValueOverTimeDiff[] = this.postGeoObject.attributes[this.attributeType.code].values;
-
-        let vot: ValueOverTimeDiff = new ValueOverTimeDiff();
-        vot.newStartDate = null; // Utils.formatDateString(new Date());
-        vot.newEndDate = null; // Utils.formatDateString(new Date());
+        let view: VersionDiffView = new VersionDiffView();
+        view.startDate = null; // Utils.formatDateString(new Date());
+        view.endDate = null; // Utils.formatDateString(new Date());
+        view.oid = this.generateUUID();
 
         if (this.attributeType.type === "local") {
 
             //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
-            vot.newValue = this.lService.create();
+            view.value = this.lService.create();
 
         } else if (this.attributeType.type === "geometry") {
 
+          /*
             if (votArr.length > 0) {
 
                 if (this.editingGeometry !== -1 && this.editingGeometry != null) {
@@ -261,6 +281,7 @@ export class ManageVersionsComponent implements OnInit {
                 }
 
             }
+            */
 
         } else if (this.attributeType.type === "term") {
 
@@ -268,22 +289,34 @@ export class ManageVersionsComponent implements OnInit {
 
             if (terms && terms.length > 0) {
 
-                vot.newValue = terms[0].code;
+                view.value = terms[0].code;
 
             }
 
         }
 
-        votArr.push(vot);
+        this.viewModels.push(view);
 
+        /*
         if (this.attributeType.code === "geometry") {
 
             this.editingGeometry = votArr.length - 1;
 
         }
+        */
+        
+        // TODO : Propagate change ?
 
         this.changeDetectorRef.detectChanges();
 
+    }
+    
+    // https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
+    generateUUID() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
     }
 
     editGeometry(index: number) {
@@ -367,33 +400,6 @@ export class ManageVersionsComponent implements OnInit {
 
     }
 
-    remove(version: any): void {
-
-        let val = this.postGeoObject.attributes[this.attributeType.code];
-
-        let position = -1;
-        for (let i = 0; i < val.values.length; i++) {
-
-            let vals = val.values[i];
-
-            if (vals.startDate === version.startDate) {
-
-                position = i;
-
-            }
-
-        }
-
-        if (position > -1) {
-
-            val.values.splice(position, 1);
-
-        }
-
-        this.onDateChange();
-
-    }
-
     isChangeOverTime(attr: AttributeType): boolean {
 
         let isChangeOverTime = false;
@@ -474,9 +480,9 @@ export class ManageVersionsComponent implements OnInit {
         
         view.oid = vot.oid;
         view.summaryKey = SummaryKey.UNMODIFIED;
-        view.newStartDate = vot.startDate;
-        view.newEndDate = vot.endDate;
-        view.newValue = vot.value;
+        view.startDate = vot.startDate;
+        view.endDate = vot.endDate;
+        view.value = vot.value;
         
         // TODO
         //view.versionEditPropagator = new ValueOverTimeEditPropagator();
@@ -512,10 +518,10 @@ export class ManageVersionsComponent implements OnInit {
                 delete view.oldStartDate;
                 delete view.oldEndDate;
                 
-                view.newStartDate = votDiff.oldStartDate;
-                view.newEndDate = votDiff.oldEndDate;
+                view.startDate = votDiff.oldStartDate;
+                view.endDate = votDiff.oldEndDate;
                 view.oid = votDiff.oid;
-                view.newValue = votDiff.oldValue;
+                view.value = votDiff.oldValue;
                 
                 view.summaryKey = SummaryKey.DELETE;
                 
@@ -533,18 +539,18 @@ export class ManageVersionsComponent implements OnInit {
                 }
                 
                 view.oid = votDiff.oid;
-                view.newStartDate = votDiff.newStartDate;
-                view.newEndDate = votDiff.newEndDate;
+                view.startDate = votDiff.newStartDate;
+                view.endDate = votDiff.newEndDate;
                 view.oldStartDate = votDiff.oldStartDate;
                 view.oldEndDate = votDiff.oldEndDate;
-                view.newValue = votDiff.newValue;
+                view.value = votDiff.newValue;
                 view.oldValue = votDiff.oldValue;
                 
                 view.versionEditPropagator = new ValueOverTimeEditPropagator();
                 view.versionEditPropagator.diff = votDiff;
                 
-                let hasTime = view.newStartDate != null || view.newEndDate != null;
-                let hasValue = view.newValue != null;
+                let hasTime = view.startDate != null || view.endDate != null;
+                let hasValue = view.value != null;
                 
                 if (hasTime && hasValue)
                 {
@@ -575,11 +581,11 @@ export class ManageVersionsComponent implements OnInit {
                   view = new VersionDiffView();
                   
                   view.oid = votDiff.oid;
-                  view.newStartDate = votDiff.newStartDate;
-                  view.newEndDate = votDiff.newEndDate;
+                  view.startDate = votDiff.newStartDate;
+                  view.endDate = votDiff.newEndDate;
                   view.oldStartDate = votDiff.oldStartDate;
                   view.oldEndDate = votDiff.oldEndDate;
-                  view.newValue = votDiff.newValue;
+                  view.value = votDiff.newValue;
                   view.oldValue = votDiff.oldValue;
                   
                   view.versionEditPropagator = new ValueOverTimeEditPropagator();
