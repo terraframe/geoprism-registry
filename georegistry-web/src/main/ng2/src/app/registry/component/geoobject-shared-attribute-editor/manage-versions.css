@@ -1,13 +1,12 @@
 .version-column-wrapper {
 	border-left: solid 5px;
-	padding-top: 25px;
+	padding-top: 0px;
 }
 .version-column-wrapper .version-column-indicator {
 	background: grey;
     color: white;
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: relative;
+    left: -8px;
     font-size: 14px;
     font-weight: bold;
     padding: 0 6px;

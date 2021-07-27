@@ -32,8 +32,8 @@
                       
                       <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row" 
                           [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'WARNING'}">
-                        <td class="version-column-wrapper">
-                          <span class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
+                        <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
+                          <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
                           <table *ngIf="viewModel.newValue">
                           
                             <tr *ngFor="let loc of viewModel.newValue.localeValues; let idx = index;" class="attribute-value-row">
@@ -82,7 +82,7 @@
                                     <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                   </h5>
                               
-                                  <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                  <date-field #dateFieldComponents [(value)]="viewModel.newEndDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                                       [required]="true" [placement]="'bottom'" [disable]="readonly" ></date-field>
                     
                                   <div *ngIf="viewModel.oldEndDate && !isNew">
@@ -117,8 +117,8 @@
 
                       <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row"
                           [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'WARNING'}">
-                        <td class="version-column-wrapper">
-                          <span class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
+                        <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
+                          <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
                           <table>
                             <tr class="attribute-value-row">
                               <td colspan="2">

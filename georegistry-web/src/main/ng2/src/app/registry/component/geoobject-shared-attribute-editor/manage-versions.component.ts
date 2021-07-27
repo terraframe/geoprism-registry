@@ -30,6 +30,7 @@ import Utils from "../../utility/Utils";
 
 export enum SummaryKey {
     NEW = "NEW",
+    UNMODIFIED = "UNMODIFIED",
     DELETE = "DELETE",
     UPDATE = "UPDATE",
     TIME_CHANGE = "TIME_CHANGE",
@@ -51,6 +52,7 @@ class ValueOverTimeEditPropagator {
 
 class VersionDiffView {
   summaryKey: SummaryKey;
+  conflictMessage?: [{message: string, type: string}]; // 
   oid: string;
   oldValue?: any;
   newValue?: any
@@ -465,6 +467,25 @@ export class ManageVersionsComponent implements OnInit {
 
       this.viewModels = [];
       
+      // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
+      // on the GeoObject
+      this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
+        let view = new VersionDiffView();
+        
+        view.oid = vot.oid;
+        view.summaryKey = SummaryKey.UNMODIFIED;
+        view.newStartDate = vot.startDate;
+        view.newEndDate = vot.endDate;
+        view.newValue = vot.value;
+        
+        // TODO
+        //view.versionEditPropagator = new ValueOverTimeEditPropagator();
+        //view.versionEditPropagator.diff = votDiff;
+        
+        this.viewModels.push(view);
+      });
+      
+      // Next, we must apply all changes which may exist in the actions.
       this.actions.forEach((action: AbstractAction) => {
       
         if (action.actionType === 'UpdateAttributeAction')
@@ -479,22 +500,24 @@ export class ManageVersionsComponent implements OnInit {
   
               if (votDiff.action === "DELETE")
               {
-                if (view != null)
-                {
-                  delete view.oldValue;
-                  delete view.oldStartDate;
-                  delete view.oldEndDate;
-                }
-                else
+                if (view == null)
                 {
                   view = new VersionDiffView();
-                  view.summaryKey = SummaryKey.DELETE;
-                  view.newStartDate = votDiff.oldStartDate;
-                  view.newEndDate = votDiff.oldEndDate;
-                  view.oid = votDiff.oid;
-                  view.newValue = votDiff.oldValue;
                   this.viewModels.push(view);
+                  
+                  view.conflictMessage = [{type: "ERROR", message: "Could not find expected reference?"}]; // TODO : Localize
                 }
+                
+                delete view.oldValue;
+                delete view.oldStartDate;
+                delete view.oldEndDate;
+                
+                view.newStartDate = votDiff.oldStartDate;
+                view.newEndDate = votDiff.oldEndDate;
+                view.oid = votDiff.oid;
+                view.newValue = votDiff.oldValue;
+                
+                view.summaryKey = SummaryKey.DELETE;
                 
                 view.versionEditPropagator = new ValueOverTimeEditPropagator();
                 view.versionEditPropagator.diff = votDiff;
@@ -505,6 +528,8 @@ export class ManageVersionsComponent implements OnInit {
                 {
                   view = new VersionDiffView();
                   this.viewModels.push(view);
+                  
+                  view.conflictMessage = [{type: "ERROR", message: "Could not find expected reference?"}]; // TODO : Localize
                 }
                 
                 view.oid = votDiff.oid;

@@ -77,7 +77,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
     @Input() postGeoObject: GeoObjectOverTime = null;
 
     // Array of Actions that will be part of a Change Request Object
-    actions: CreateGeoObjectAction[] | UpdateAttributeAction[] = [];
+    actions: AbstractAction[] = [];
 
     calculatedGeoObject: any = {};
 
