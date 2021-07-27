@@ -6,7 +6,7 @@ import { StepConfig } from "@shared/model/modal";
 
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { GeoObjectType, AttributeType, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, AttributeTermType, AttributeDecimalType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
 import { AttributeInputComponent } from "../geoobjecttype-management/attribute-input.component";
@@ -82,11 +82,11 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
         if (type === "term") {
 
-            this.newAttribute = new AttributeTerm("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+            this.newAttribute = new AttributeTermType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
 
         } else if (type === "float") {
 
-            this.newAttribute = new AttributeDecimal("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+            this.newAttribute = new AttributeDecimalType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
 
         } else {
 

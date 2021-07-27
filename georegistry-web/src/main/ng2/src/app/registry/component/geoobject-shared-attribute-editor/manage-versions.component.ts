@@ -15,8 +15,8 @@ import {
     transition
 } from "@angular/animations";
 
-import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from "@registry/model/registry";
-import { CreateGeoObjectAction, UpdateAttributeAction, ValueOverTimeDiff } from "@registry/model/crtable";
+import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTermType, PRESENT } from "@registry/model/registry";
+import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
@@ -28,15 +28,37 @@ import { LocalizationService } from "@shared/service";
 
 import Utils from "../../utility/Utils";
 
+export enum SummaryKey {
+    NEW = "NEW",
+    DELETE = "DELETE",
+    UPDATE = "UPDATE",
+    TIME_CHANGE = "TIME_CHANGE",
+    VALUE_CHANGE = "VALUE_CHANGE",
+}
+
+class ValueOverTimeEditPropagator {
+  valueOverTime?: ValueOverTime;
+  diff?: ValueOverTimeDiff;
+  
+  set newStartDate(oldStartDate: string)
+  {
+    if (this.diff != null)
+    {
+      this.diff.oldStartDate = oldStartDate;
+    }
+  }
+}
+
 class VersionDiffView {
-  summaryKey: string;
-  oldValue: any;
-  newValue: any
-  oldStartDate: Date;
-  newSateDate: Date;
-  oldEndDate: Date;
-  newEndDate: Date;
-  versionEditPropagator: any;
+  summaryKey: SummaryKey;
+  oid: string;
+  oldValue?: any;
+  newValue?: any
+  oldStartDate?: string;
+  newStartDate?: string;
+  oldEndDate?: string;
+  newEndDate?: string;
+  versionEditPropagator?: ValueOverTimeEditPropagator; // If this is null, then it means we had some kind of critical problem (either the oid reference is out of date or something) and this diff/action is not valid
 }
 
 @Component({
@@ -84,8 +106,7 @@ export class ManageVersionsComponent implements OnInit {
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
 
     attributeType: AttributeType;
-    actions: CreateGeoObjectAction[] | UpdateAttributeAction[] = [];
-    postActions: CreateGeoObjectAction[] | UpdateAttributeAction[] = [];
+    actions: AbstractAction[] = [];
 
     // eslint-disable-next-line accessor-pairs
     @Input() set attributeData(value: {"attributeType":AttributeType, "actions":CreateGeoObjectAction[] | UpdateAttributeAction[], geoObject:GeoObjectOverTime}) {
@@ -93,7 +114,6 @@ export class ManageVersionsComponent implements OnInit {
         this.attributeType = value.attributeType;
 
         this.actions = value.actions;
-        this.postActions = JSON.parse(JSON.stringify(value.actions));
 
         this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
         this.postGeoObject = value.geoObject;
@@ -103,7 +123,8 @@ export class ManageVersionsComponent implements OnInit {
             this.editingGeometry = 0;
 
         }
-
+        
+        this.calculateViewModels();
     }
 
     @Input() geoObjectType: GeoObjectType;
@@ -127,8 +148,8 @@ export class ManageVersionsComponent implements OnInit {
 
     originalAttributeState: AttributeType;
     
-    viewModel: VersionDiffView[] = [];
-
+    viewModels: VersionDiffView[] = [];
+    
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService) { }
 
@@ -287,6 +308,11 @@ export class ManageVersionsComponent implements OnInit {
 
     }
     
+    getValueAtLocale(lv: LocalizedValue, locale: string)
+    {
+      return new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
+    }
+    
     getDefaultLocaleVal(locale: any): string {
 
         let defVal = null;
@@ -313,7 +339,7 @@ export class ManageVersionsComponent implements OnInit {
 
             if (attr.type === "term" && attr.code === termAttributeCode) {
 
-                attr = <AttributeTerm>attr;
+                attr = <AttributeTermType>attr;
                 let attrOpts = attr.rootTerm.children;
 
                 // only remove status of the required status type
@@ -407,136 +433,154 @@ export class ManageVersionsComponent implements OnInit {
         });
 
     }
-
-    calculateViewModel(): string {
-
-      this.viewModel = [];
+    
+    findViewByOid(oid: string): VersionDiffView
+    {
+      this.viewModels.forEach( (view: VersionDiffView) => {
+        if (view.oid === oid)
+        {
+          return view;
+        }
+      });
       
+      return null;
+    }
+    
+    findPostGeoObjectVOT(oid: string)
+    {
+      this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
+        if (vot.oid === oid)
+        {
+          return vot;
+        }
+      });
       
+      return null;
+    }
+    
+    /**
+     * Our goal here is to loop over the action diffs and then calculate what to display to the end user.
+     */
+    calculateViewModels(): void {
+
+      this.viewModels = [];
       
-      this.actions.forEach((action) => {
-
-          if (this.attributeType.name === action.attributeName) {
-
-              action.attributeDiff.valuesOverTime.forEach((vot) => {
-
-                  if (attribute.type === "date") {
-
-                      if (new Date(String(vot.oldValue)).getTime() !== new Date(String(vot.newValue)).getTime()) {
-
-                          oldValue = String(vot.oldValue);
-
-                      }
-
-                  } else if (attribute.type === "local") {
-
-                      (vot.oldValue as LocalizedValue).localeValues.forEach(oldLocalVal => {
-
-                          if (oldLocalVal.locale === localKey) {
-
-                              (vot.newValue as LocalizedValue).localeValues.forEach(newLocalVal => {
-
-                                  if (oldLocalVal.value !== newLocalVal.value) {
-
-                                      oldValue = String(oldLocalVal.value);
-
-                                  }
-
-                              });
-
-                          }
-
-                      });
-
-                  } else {
-
-                      if (vot.oldValue !== vot.newValue) {
-
-                          oldValue = String(vot.oldValue);
-
-                          vot.currentValue = oldValue;
-
-                      }
-
-                  }
-
-              });
-
+      this.actions.forEach((action: AbstractAction) => {
+      
+        if (action.actionType === 'UpdateAttributeAction')
+        {
+          let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+          
+          if (this.attributeType.code === updateAttrAction.attributeName) {
+  
+            updateAttrAction.attributeDiff.valuesOverTime.forEach((votDiff: ValueOverTimeDiff) => {
+  
+              let view = this.findViewByOid(votDiff.oid);
+  
+              if (votDiff.action === "DELETE")
+              {
+                if (view != null)
+                {
+                  delete view.oldValue;
+                  delete view.oldStartDate;
+                  delete view.oldEndDate;
+                }
+                else
+                {
+                  view = new VersionDiffView();
+                  view.summaryKey = SummaryKey.DELETE;
+                  view.newStartDate = votDiff.oldStartDate;
+                  view.newEndDate = votDiff.oldEndDate;
+                  view.oid = votDiff.oid;
+                  view.newValue = votDiff.oldValue;
+                  this.viewModels.push(view);
+                }
+                
+                view.versionEditPropagator = new ValueOverTimeEditPropagator();
+                view.versionEditPropagator.diff = votDiff;
+              }
+              else if (votDiff.action === "UPDATE")
+              {
+                if (view == null)
+                {
+                  view = new VersionDiffView();
+                  this.viewModels.push(view);
+                }
+                
+                view.oid = votDiff.oid;
+                view.newStartDate = votDiff.newStartDate;
+                view.newEndDate = votDiff.newEndDate;
+                view.oldStartDate = votDiff.oldStartDate;
+                view.oldEndDate = votDiff.oldEndDate;
+                view.newValue = votDiff.newValue;
+                view.oldValue = votDiff.oldValue;
+                
+                view.versionEditPropagator = new ValueOverTimeEditPropagator();
+                view.versionEditPropagator.diff = votDiff;
+                
+                let hasTime = view.newStartDate != null || view.newEndDate != null;
+                let hasValue = view.newValue != null;
+                
+                if (hasTime && hasValue)
+                {
+                  view.summaryKey = SummaryKey.UPDATE;
+                }
+                else if (hasTime)
+                {
+                  view.summaryKey = SummaryKey.TIME_CHANGE;
+                }
+                else if (hasValue)
+                {
+                  view.summaryKey = SummaryKey.VALUE_CHANGE;
+                }
+                else
+                {
+                  view.summaryKey = SummaryKey.UPDATE;
+                }
+              }
+              else if (votDiff.action === "CREATE")
+              {
+                if (view != null)
+                {
+                  // This action doesn't make sense. We're trying to create something that already exists?
+                  view.versionEditPropagator = null;
+                }
+                else
+                {
+                  view = new VersionDiffView();
+                  
+                  view.oid = votDiff.oid;
+                  view.newStartDate = votDiff.newStartDate;
+                  view.newEndDate = votDiff.newEndDate;
+                  view.oldStartDate = votDiff.oldStartDate;
+                  view.oldEndDate = votDiff.oldEndDate;
+                  view.newValue = votDiff.newValue;
+                  view.oldValue = votDiff.oldValue;
+                  
+                  view.versionEditPropagator = new ValueOverTimeEditPropagator();
+                  view.versionEditPropagator.diff = votDiff;
+                  
+                  this.viewModels.push(view);
+                }
+              }
+  
+            });
+    
           }
+        }
+        else if (action.actionType === 'CreateGeoObjectAction')
+        {
+          // TODO
+          //let postGoVot = this.findPostGeoObjectVOT(votDiff.oid);
+        }
+        else
+        {
+          console.log("Unexpected action : " + action.actionType, action);
+        }
 
       });
 
-      return oldValue;
-
     }
-
-    /**
-    * TODO: Dedeprecate
-    */
-//    isDifferentValue(attribute: AttributeOverTime, localKey: string): boolean {
-//
-//        let isDifferent: boolean = false;
-//
-//        // if ( this.isNullValue(this.calculatedPostObject[attribute.code]) && !this.isNullValue(this.calculatedPreObject[attribute.code])) {
-//        //  return true;
-//        // }
-//        //
-//        // return (this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value.trim() !== this.calculatedPreObject[attribute.code].value);
-//
-//        // Iterate over all actions to find all the changes
-//        this.actions.forEach((action) => {
-//
-//            if (attribute.name === action.attributeName) {
-//
-//                action.attributeDiff.valuesOverTime.forEach((vot) => {
-//
-//                    if (attribute.type === "date") {
-//
-//                        if (new Date(String(vot.oldValue)).getTime() !== new Date(String(vot.newValue)).getTime()) {
-//
-//                            isDifferent = true;
-//
-//                        }
-//
-//                    } else if (attribute.type === "local") {
-//
-//                        (vot.oldValue as LocalizedValue).localeValues.forEach(oldLocalVal => {
-//
-//                            if (oldLocalVal.locale === localKey) {
-//
-//                                (vot.newValue as LocalizedValue).localeValues.forEach(newLocalVal => {
-//
-//                                    if (oldLocalVal.value !== newLocalVal.value) {
-//
-//                                        isDifferent = true;
-//
-//                                    }
-//
-//                                });
-//
-//                            }
-//
-//                        });
-//
-//                    } else {
-//
-//                        if (vot.oldValue !== vot.newValue) {
-//
-//                            isDifferent = true;
-//
-//                        }
-//
-//                    }
-//
-//                });
-//
-//            }
-//
-//        });
-//
-//        return isDifferent;
-//
-//    }
 
     isStatusChanged(post, pre) {
 

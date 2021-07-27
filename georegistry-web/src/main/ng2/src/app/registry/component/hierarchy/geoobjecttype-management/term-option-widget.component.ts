@@ -8,7 +8,7 @@ import {
 } from "@angular/animations";
 import { BsModalRef } from "ngx-bootstrap/modal";
 
-import { GeoObjectType, AttributeTerm, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectType, AttributeTermType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { GeoObjectTypeManagementService } from "@registry/service/geoobjecttype-management.service";
 
@@ -48,8 +48,8 @@ import { GeoObjectTypeManagementService } from "@registry/service/geoobjecttype-
 export class TermOptionWidgetComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() attribute: AttributeTerm = null;
-    @Output() attributeChange = new EventEmitter<AttributeTerm>();
+    @Input() attribute: AttributeTermType = null;
+    @Output() attributeChange = new EventEmitter<AttributeTermType>();
     message: string = null;
     state: string = "none";
     modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: "" };

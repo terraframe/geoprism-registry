@@ -55,7 +55,7 @@ export class GeoObjectType {
     isLeaf: boolean;
     isGeometryEditable: boolean;
     organizationCode: string;
-    attributes: Array<AttributeType | AttributeTerm | AttributeDecimal> = [];
+    attributes: Array<AttributeType | AttributeTermType | AttributeDecimalType> = [];
     relatedHierarchies?: string[];
     superTypeCode?: string;
     isAbstract?: boolean;
@@ -144,7 +144,7 @@ export class AttributeOverTime {
 }
 
 export class AttributeType {
-    code: string;
+    code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept, for some reason we just rename the field to 'code' when serializing.
     type: string;
     label: LocalizedValue;
     description: LocalizedValue;
@@ -170,7 +170,7 @@ export class AttributeType {
 
 }
 
-export class AttributeTerm extends AttributeType {
+export class AttributeTermType extends AttributeType {
 
     // descendants: Attribute[];
 
@@ -188,7 +188,7 @@ export class AttributeTerm extends AttributeType {
     }
 }
 
-export class AttributeDecimal extends AttributeType {
+export class AttributeDecimalType extends AttributeType {
     constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
         super(code, type, label, description, isDefault, required, unique, isChange);
 

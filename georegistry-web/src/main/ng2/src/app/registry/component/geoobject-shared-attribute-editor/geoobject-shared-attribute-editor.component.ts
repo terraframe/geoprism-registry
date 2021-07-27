@@ -12,7 +12,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
-import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeOverTime, AttributeTerm, Term, ValueOverTime } from "@registry/model/registry";
+import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeOverTime, AttributeTermType, Term, ValueOverTime } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 
@@ -536,7 +536,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
             if (attr.type === "term" && attr.code === termAttributeCode) {
 
-                attr = <AttributeTerm>attr;
+                attr = <AttributeTermType>attr;
                 let attrOpts = attr.rootTerm.children;
 
                 if (attr.code === "status") {

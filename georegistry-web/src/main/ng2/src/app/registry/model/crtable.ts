@@ -15,7 +15,7 @@ export class Geometry {
 
 export class ValueOverTimeDiff {
     oid: string;
-    action: string;
+    action: string; // Can be one of DELETE, UPDATE, CREATE
     oldValue: LocalizedValue | string | Geometry;
     newValue: LocalizedValue | string | Geometry;
     newStartDate: string;

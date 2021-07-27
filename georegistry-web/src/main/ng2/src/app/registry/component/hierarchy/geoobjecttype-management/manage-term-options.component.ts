@@ -14,7 +14,7 @@ import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
 import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
-import { GeoObjectType, AttributeTerm, Term } from "@registry/model/registry";
+import { GeoObjectType, AttributeTermType, Term } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 @Component({
@@ -53,8 +53,8 @@ import { GeoObjectTypeModalStates } from "@registry/model/constants";
 export class ManageTermOptionsComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() attribute: AttributeTerm;
-    @Output() attributeChange = new EventEmitter<AttributeTerm>();
+    @Input() attribute: AttributeTermType;
+    @Output() attributeChange = new EventEmitter<AttributeTermType>();
     message: string = null;
     termOption: Term;
     state: string = "none";

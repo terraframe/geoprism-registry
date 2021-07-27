@@ -11,18 +11,12 @@
 
         <!-- <div class="label-holder"></div> -->
         <div class="col-md-12">
-          <div *ngIf="geoObjectOverTime" class="attribute-version-wrapper">
+          <div *ngIf="postGeoObject" class="attribute-version-wrapper">
 <!--             <h3>{{attribute.label.localizedValue}}</h3> -->
 
             <ul class="list-group">
-              <!-- <li class="list-group-item" style="text-align:left;" *ngFor="let vAttribute of geoObjectOverTime.attributes[attribute.code].values; let i = index;"> -->
               <li class="list-group-item" style="text-align:left;padding:0;">
 
-
-
-                <!-- 
-                    Attributes
-                 -->
                 <div *ngIf="attributeType && actions && attributeType.type !== 'geometry' && selectedTab === 0">
                 
                   <table class="table table-striped">
@@ -32,17 +26,17 @@
                         Local Type 
                     -->
                     <tbody *ngIf="attributeType.type === 'local'" class="attribute-element-wrapper" >
-                      <p class="message" *ngIf="geoObjectOverTime.attributes[attributeType.code].values.length === 0">
+                      <p class="message" *ngIf="postGeoObject.attributes[attributeType.code].values.length === 0">
                         <localize key="changeovertime.manageVersions.no.versions.message"></localize> 
                       </p>
                       
-                      <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attributeType.code].values; let i = index;" class="version-row" 
-                          [ngClass]="{'error-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'ERROR', 'warning-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'WARNING'}">
+                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row" 
+                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'WARNING'}">
                         <td class="version-column-wrapper">
-                          <span class="version-column-indicator">TODO: Indicator</span>
-                          <table *ngIf="vAttribute.value">
+                          <span class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
+                          <table *ngIf="viewModel.newValue">
                           
-                            <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;" class="attribute-value-row">
+                            <tr *ngFor="let loc of viewModel.newValue.localeValues; let idx = index;" class="attribute-value-row">
                               <td colspan="2">
                                 <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
                                 
@@ -54,12 +48,13 @@
                                   </p>
                                 </div>
                                 
-                                <div *ngIf="getValueDifference(geoObjectOverTime.attributes[attributeType.code], loc.locale) as valueDiff">
-                                  <p class="warning-text" *ngIf="!isNew && valueDiff">
-                                      <localize key="change.request.changed.value.prefix"></localize>
-                                      {{ valueDiff }}
+                                <div *ngIf="viewModel.oldValue && !isNew">
+                                  <p class="warning-text">
+                                    <localize key="change.request.changed.value.prefix"></localize>
+                                    {{ getValueAtLocale(viewModel.oldValue, loc.locale) }}
                                   </p>
                                 </div>
+                                
 <!--                                      <p class="warning-text" *ngIf="!isNew && calculatedPreObject[attr.code].value != null && localeValue.value != null && localeValue.value.trim() !== calculatedPreObject[attr.code].value.localeValues[i].value"> --> 
 <!--                                       <localize key="change.request.changed.value.prefix"></localize> -->
 <!--                                       {{calculatedPreObject[attr.code].value.localeValues[i].value}} -->
@@ -72,8 +67,14 @@
                                   <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                 </h5>
                             
-                                <date-field #dateFieldComponents [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                                <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
                                 
+                                <div *ngIf="viewModel.oldStartDate && !isNew">
+                                  <p class="warning-text">
+                                    <localize key="change.request.changed.value.prefix"></localize>
+                                    {{ viewModel.oldStartDate }}
+                                  </p>
+                                </div>
                               </td>
                               <td>
                                 <div class="version-edit-date-container">
@@ -81,21 +82,27 @@
                                     <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                   </h5>
                               
-                                  <date-field #dateFieldComponents [(value)]="vAttribute.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                  <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                                       [required]="true" [placement]="'bottom'" [disable]="readonly" ></date-field>
                     
+                                  <div *ngIf="viewModel.oldEndDate && !isNew">
+                                    <p class="warning-text">
+                                      <localize key="change.request.changed.value.prefix"></localize>
+                                      {{ viewModel.oldEndDate }}
+                                    </p>
+                                  </div>
                                 </div>
                               </td>
                             </tr>
-                            <tr *ngIf="vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0">
-                              <p *ngFor="let msg of vAttribute.conflictMessage" [ngClass]="{'error-message': msg.type === 'ERROR', 'warning-message': msg.type === 'WARNING'}" >
+                            <tr *ngIf="viewModel.conflictMessage && viewModel.conflictMessage.length > 0">
+                              <p *ngFor="let msg of viewModel.conflictMessage" [ngClass]="{'error-message': msg.type === 'ERROR', 'warning-message': msg.type === 'WARNING'}" >
                                 {{msg.message}}
                               </p>
                             </tr>
                           </table>
                         </td>
                         
-                        <td *ngIf="!readonly" (click)="remove(vAttribute)" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize">
+                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize">
                           <i class="fa fa-times" ></i>
                         </td>
                       </tr>
@@ -106,53 +113,51 @@
                         Standard Types 
                     -->
                     <tbody *ngIf="attributeType.type !== 'local'" class="attribute-element-wrapper" >
-                      <p class="message" *ngIf="geoObjectOverTime.attributes[attributeType.code].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
+                      <p class="message" *ngIf="postGeoObject.attributes[attributeType.code].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
 
-                      <!-- Iterate over Attribute values of the Geo-Object for the specific Attribute ONLY -->
-                      <tr @fadeInOut *ngFor="let vAttribute of geoObjectOverTime.attributes[attributeType.code].values; let i = index;" class="version-row"
-                          [ngClass]="{'error-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'ERROR', 'warning-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'WARNING'}">
+                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row"
+                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].type === 'WARNING'}">
                         <td class="version-column-wrapper">
-                          <span class="version-column-indicator">TODO: Indicator</span>
+                          <span class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
                           <table>
                             <tr class="attribute-value-row">
                               <td colspan="2">
                                 <div *ngIf="attributeType.type === 'term'">
-                                  <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="vAttribute.value" [disabled]="readonly">
+                                  <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.newValue" [disabled]="readonly">
                                       <option value=""></option>
                                       <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attributeType.code)" [value]="option.code">{{option.label.localizedValue}}</option>
                                   </select>
                                 </div>
                                 <div *ngIf="attributeType.type === 'character'">
-                                  <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" [disabled]="readonly" required>
+                                  <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.newValue" (ngModelChange)="viewModel.newValue = $event" [disabled]="readonly" required>
                                 </div>
                                 
                                 <div *ngIf="attributeType.type === 'date'">
-                                  <date-field [(value)]="vAttribute.value" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
+                                  <date-field [(value)]="viewModel.newValue" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
                                       [required]="true" [placement]="'right'" [(valid)]="isValid" [disable]="readonly" ></date-field>
                                 </div>
                                 
                                 <div *ngIf="attributeType.type === 'integer' || attributeType.type === 'float'">
-                                  <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="vAttribute.value" (ngModelChange)="vAttribute.value = $event" [disabled]="readonly" required>
+                                  <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.newValue" (ngModelChange)="viewModel.newValue = $event" [disabled]="readonly" required>
                                 </div>
                                 
                                 <div *ngIf="attributeType.type === 'boolean'">
                                     <label class="radio radio-inline" style="padding-left:0;"> 
-                                      <input class="inline-radio-input" type="radio" [checked]="vAttribute.value === true" [value]="true" [(ngModel)]="vAttribute.value" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly"> 
+                                      <input class="inline-radio-input" type="radio" [checked]="viewModel.newValue === true" [value]="true" [(ngModel)]="viewModel.newValue" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly"> 
                                       <span><localize key="change.request.boolean.option.true"></localize></span>
                                     </label> 
                                     <label class="radio radio-inline"> 
-                                      <input class="inline-radio-input" type="radio" [checked]="vAttribute.value === false" [value]="false" [(ngModel)]="vAttribute.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly"> 
+                                      <input class="inline-radio-input" type="radio" [checked]="viewModel.newValue === false" [value]="false" [(ngModel)]="viewModel.newValue" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly"> 
                                       <span><localize key="change.request.boolean.option.false"></localize></span>
                                     </label>
                                 </div>
                                 
-                                <div *ngIf="getValueDifference(geoObjectOverTime.attributes[attributeType.code], null) as valueDiff">
-                                    <p class="warning-text" *ngIf="!isNew && valueDiff">
-                                      <localize key="change.request.changed.value.prefix"></localize>
-                                      <!-- TODO: update to read directly from the model if possible (e.g. geoObjectOverTime.attributes[attributeType.code].THE.MODEL.VALUES) -->
-                                      {{ valueDiff }}
-                                    </p>
-                                  </div>
+                                <div *ngIf="viewModel.oldValue && !isNew">
+                                  <p class="warning-text">
+                                    <localize key="change.request.changed.value.prefix"></localize>
+                                    {{ viewModel.oldValue }}
+                                  </p>
+                                </div>
                               </td>
                             </tr>
                             <tr class="attribute-date-input-row">
@@ -161,7 +166,14 @@
                                   <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
                                 </h5>
                         
-                                <date-field #dateFieldComponents [(value)]="vAttribute.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                                <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                                
+                                <div *ngIf="viewModel.oldStartDate && !isNew">
+                                  <p class="warning-text">
+                                    <localize key="change.request.changed.value.prefix"></localize>
+                                    {{ viewModel.oldStartDate }}
+                                  </p>
+                                </div>
                               </td>
                               <td>
                                 <div class="version-edit-date-container">
@@ -169,20 +181,26 @@
                                     <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
                                   </h5>
                                   
-                                  <date-field #dateFieldComponents [(value)]="vAttribute.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                                  <date-field #dateFieldComponents [(value)]="viewModel.newEndDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                                       [required]="true" [placement]="'bottom'" [disable]="readonly"></date-field>
                     
+                                  <div *ngIf="viewModel.oldEndDate && !isNew">
+	                                  <p class="warning-text">
+	                                    <localize key="change.request.changed.value.prefix"></localize>
+	                                    {{ viewModel.oldEndDate }}
+	                                  </p>
+	                                </div>
                                 </div>
                               </td>
                             </tr>
-                            <tr *ngIf="vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0">
-                              <p *ngFor="let msg of vAttribute.conflictMessage" [ngClass]="{'error-message': msg.type === 'ERROR', 'warning-message': msg.type === 'WARNING'}">
+                            <tr *ngIf="viewModel.conflictMessage && viewModel.conflictMessage.length > 0">
+                              <p *ngFor="let msg of viewModel.conflictMessage" [ngClass]="{'error-message': msg.type === 'ERROR', 'warning-message': msg.type === 'WARNING'}">
                                 {{msg.message}}
                               </p>
                             </tr>                                
                           </table>
                         </td>
-                        <td *ngIf="!readonly" style="vertical-align: middle;" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize" (click)="remove(vAttribute)">
+                        <td *ngIf="!readonly" style="vertical-align: middle;" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize" (click)="remove(viewModel)">
                           <i class="fa fa-times"></i>
                         </td>
                       </tr>
@@ -198,7 +216,7 @@
                 -->
                 <div *ngIf="attributeType.type === 'geometry' && selectedTab === 2">
                 
-                  <p class="message" *ngIf="geoObjectOverTime.attributes['geometry'].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
+                  <p class="message" *ngIf="postGeoObject.attributes['geometry'].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
                   
                   <table class="table table-striped">
                     <thead style="font-size: 14px;">
@@ -208,26 +226,26 @@
                       <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
                     </thead>
                     <tbody style="text-align: center;">
-                      <tr @fadeInOut [ngClass]="{'active' : i === editingGeometry}" *ngFor="let vAttribute of geoObjectOverTime.attributes['geometry'].values; let i = index;">
+                      <tr @fadeInOut [ngClass]="{'active' : i === editingGeometry}" *ngFor="let viewModel of viewModels; let i = index;">
                         <td style="vertical-align: middle;">
                           <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button">
                             <localize key="changeovertime.manageVersions.geometry.edit"></localize>
                           </button> 
                           <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
-                              (geometryChange)="this.geometryChange(vAttribute, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly" [postGeometry]="vAttribute.value" 
-                              [bboxCode]="this.geoObjectOverTime.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="vAttribute.startDate">
+                              (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly" [postGeometry]="viewModel.newValue" 
+                              [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="viewModel.newStartDate">
                           </geoobject-editor-map>
                         </td>
                         <td style="vertical-align: middle;">
-                          <date-field #dateFieldComponents [(value)]="vAttribute.startDate" label="" [inputName]="'startDate-' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+                          <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'startDate-' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
                         </td>
                         <td style="vertical-align: middle;">
 
-                          <date-field #dateFieldComponents [(value)]="vAttribute.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                          <date-field #dateFieldComponents [(value)]="viewModel.newStartDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                               [required]="true" [disable]="readonly" [placement]="'bottom'" ></date-field>
                     
                         </td>
-                        <td *ngIf="!readonly" style="vertical-align: middle;"><i class="fa fa-times delete-btn" [ngClass]="{'clickable' : !readonly, 'disabled' : readonly}" (click)="!readonly && remove(vAttribute)"></i></td>
+                        <td *ngIf="!readonly" style="vertical-align: middle;"><i class="fa fa-times delete-btn" [ngClass]="{'clickable' : !readonly, 'disabled' : readonly}" (click)="!readonly && remove(viewModel)"></i></td>
                       </tr>
                     </tbody>
                   </table>
