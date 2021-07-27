@@ -61,6 +61,7 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.SetParentAction;
+import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.graph.GeoVertexType;
 
@@ -97,6 +98,7 @@ public class CRAttributePatch
     
     OIterator<? extends ChangeRequest> it = crq.getIterator();
     
+    Outer:
     for (ChangeRequest cr : it)
     {
       String orgCode = null;
@@ -143,6 +145,10 @@ public class CRAttributePatch
           orgCode = Organization.getRootOrganizationCode(Universal.getByKey(gotTypeCode).getOwnerOid());
           
           hasInvalidAction = true;
+        }
+        else if (action instanceof UpdateAttributeAction)
+        {
+          continue Outer;
         }
         else
         {

@@ -55,7 +55,7 @@ export class GeoObjectType {
     isLeaf: boolean;
     isGeometryEditable: boolean;
     organizationCode: string;
-    attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
+    attributes: Array<AttributeType | AttributeTerm | AttributeDecimal> = [];
     relatedHierarchies?: string[];
     superTypeCode?: string;
     isAbstract?: boolean;
@@ -143,7 +143,7 @@ export class AttributeOverTime {
     values: ValueOverTime[];
 }
 
-export class Attribute {
+export class AttributeType {
     code: string;
     type: string;
     label: LocalizedValue;
@@ -170,7 +170,7 @@ export class Attribute {
 
 }
 
-export class AttributeTerm extends Attribute {
+export class AttributeTerm extends AttributeType {
 
     // descendants: Attribute[];
 
@@ -188,7 +188,7 @@ export class AttributeTerm extends Attribute {
     }
 }
 
-export class AttributeDecimal extends Attribute {
+export class AttributeDecimal extends AttributeType {
     constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
         super(code, type, label, description, isDefault, required, unique, isChange);
 

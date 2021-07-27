@@ -7,7 +7,7 @@ import { StepConfig, ModalTypes } from "@shared/model/modal";
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
@@ -20,7 +20,7 @@ import { RegistryService, GeoObjectTypeManagementService } from "@registry/servi
 export class ManageAttributesModalComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() attribute: Attribute = null;
+    @Input() attribute: AttributeType = null;
     @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
 
     message: string = null;
@@ -61,13 +61,13 @@ export class ManageAttributesModalComponent implements OnInit {
 
     }
 
-    editAttribute(attr: Attribute, e: any): void {
+    editAttribute(attr: AttributeType, e: any): void {
 
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
 
     }
 
-    removeAttributeType(attr: Attribute, e: any): void {
+    removeAttributeType(attr: AttributeType, e: any): void {
 
         this.confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: true,
@@ -87,7 +87,7 @@ export class ManageAttributesModalComponent implements OnInit {
 
     }
 
-    deleteAttributeType(geoObjectTypeCode: string, attr: Attribute): void {
+    deleteAttributeType(geoObjectTypeCode: string, attr: AttributeType): void {
 
         this.registryService.deleteAttributeType(geoObjectTypeCode, attr.code).then(data => {
 

@@ -82,13 +82,9 @@
             <td colspan="5">
               <div class="geoobject-panel-header">
               
-                    <div *ngIf="req.current.geoObjectJson">
-                        <h3 style="margin-top: 10px;">{{req.current.geoObjectJson.attributes.displayLabel.values[0].value.localizedValue}}</h3>
-                        <h4>{{req.current.geoObjectJson.attributes.code}}</h4>
-                    </div>
-                    <div *ngIf="!req.current.geoObjectJson">
-                        <h3 style="margin-top: 10px;">TODO: this</h3>
-                        <h4>TODO: this too</h4>
+                    <div>
+                        <h3 style="margin-top: 10px;">{{req.geoObject.label}}</h3>
+                        <h4>{{req.geoObject.code}}</h4>
                     </div>
               </div>
                   

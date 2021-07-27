@@ -8,7 +8,7 @@ import {
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { GeoObjectType, Attribute, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 import { ErrorHandler } from "@shared/component";
@@ -40,7 +40,7 @@ import { AttributeInputComponent } from "../geoobjecttype-management/attribute-i
 export class EditAttributeModalContentComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() attribute: Attribute = null;
+    @Input() attribute: AttributeType = null;
     @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
 
     message: string = null;

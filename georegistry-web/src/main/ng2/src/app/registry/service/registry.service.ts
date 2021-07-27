@@ -24,7 +24,7 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import {
-	GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode,
+	GeoObject, GeoObjectType, AttributeType, Term, MasterList, MasterListVersion, ParentTreeNode,
 	ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage,
 	MasterListByOrg
 } from '@registry/model/registry';
@@ -157,7 +157,7 @@ export class RegistryService {
 			.toPromise()
 	}
 
-	addAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+	addAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType> {
 
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
@@ -166,14 +166,14 @@ export class RegistryService {
 		this.eventService.start();
 
 		return this.http
-			.post<Attribute>(acp + '/cgr/geoobjecttype/addattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
+			.post<AttributeType>(acp + '/cgr/geoobjecttype/addattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
 			.toPromise();
 	}
 
-	updateAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+	updateAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType> {
 
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
@@ -183,7 +183,7 @@ export class RegistryService {
 
 
 		return this.http
-			.post<Attribute>(acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
+			.post<AttributeType>(acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -241,7 +241,7 @@ export class RegistryService {
 			.toPromise();
 	}
 
-	deleteAttributeTermTypeOption(parentTermCode: string, termCode: string): Promise<Attribute> {
+	deleteAttributeTermTypeOption(parentTermCode: string, termCode: string): Promise<AttributeType> {
 
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
@@ -251,7 +251,7 @@ export class RegistryService {
 
 
 		return this.http
-			.post<Attribute>(acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify({ 'parentTermCode': parentTermCode, 'termCode': termCode }), { headers: headers })
+			.post<AttributeType>(acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify({ 'parentTermCode': parentTermCode, 'termCode': termCode }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

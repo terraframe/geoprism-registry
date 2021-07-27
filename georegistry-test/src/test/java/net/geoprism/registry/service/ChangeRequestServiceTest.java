@@ -114,6 +114,12 @@ public class ChangeRequestServiceTest
     
     BELIZE.apply();
     
+    this.setUpTestInstanceData();
+  }
+  
+  @Request
+  private void setUpTestInstanceData()
+  {
     ServerGeoObjectIF cambodia = FastTestDataset.CAMBODIA.getServerObject();
     String votOid = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE).getOid();
     

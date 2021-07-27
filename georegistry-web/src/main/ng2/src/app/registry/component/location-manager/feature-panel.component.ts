@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angu
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
+import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
 import { AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
@@ -57,7 +57,7 @@ export class FeaturePanelComponent implements OnInit {
 	// The state of the GeoObject after our edit has been applied
 	postGeoObject: GeoObjectOverTime;
 
-	attribute: Attribute = null;
+	attribute: AttributeType = null;
 
 	isNew: boolean = false;
 
@@ -101,6 +101,7 @@ export class FeaturePanelComponent implements OnInit {
 				this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
 					this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
 					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+					console.log("Setting postGeoObject", this.postGeoObject);
 				}).catch((err: HttpErrorResponse) => {
 					this.error(err);
 				});
@@ -217,7 +218,7 @@ export class FeaturePanelComponent implements OnInit {
 		}
 	}
 
-	onManageAttributeVersion(attribute: Attribute): void {
+	onManageAttributeVersion(attribute: AttributeType): void {
 		this.attribute = attribute;
 		this.mode = this.MODE.VERSIONS;
 	}

@@ -15,7 +15,7 @@ import {
     transition
 } from "@angular/animations";
 
-import { GeoObjectType, Attribute, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTerm, PRESENT } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 
@@ -27,6 +27,17 @@ import { DateService } from "@shared/service/date.service";
 import { LocalizationService } from "@shared/service";
 
 import Utils from "../../utility/Utils";
+
+class VersionDiffView {
+  summaryKey: string;
+  oldValue: any;
+  newValue: any
+  oldStartDate: Date;
+  newSateDate: Date;
+  oldEndDate: Date;
+  newEndDate: Date;
+  versionEditPropagator: any;
+}
 
 @Component({
     selector: "manage-versions",
@@ -72,12 +83,12 @@ export class ManageVersionsComponent implements OnInit {
     // Observable subject for MasterList changes.  Called when an update is successful
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
 
-    attributeType: Attribute;
+    attributeType: AttributeType;
     actions: CreateGeoObjectAction[] | UpdateAttributeAction[] = [];
     postActions: CreateGeoObjectAction[] | UpdateAttributeAction[] = [];
 
     // eslint-disable-next-line accessor-pairs
-    @Input() set attributeData(value: {"attributeType":Attribute, "actions":CreateGeoObjectAction[] | UpdateAttributeAction[], geoObject:GeoObjectOverTime}) {
+    @Input() set attributeData(value: {"attributeType":AttributeType, "actions":CreateGeoObjectAction[] | UpdateAttributeAction[], geoObject:GeoObjectOverTime}) {
 
         this.attributeType = value.attributeType;
 
@@ -85,9 +96,9 @@ export class ManageVersionsComponent implements OnInit {
         this.postActions = JSON.parse(JSON.stringify(value.actions));
 
         this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
-        this.geoObjectOverTime = value.geoObject;
+        this.postGeoObject = value.geoObject;
 
-        if (this.attributeType.code === "geometry" && this.geoObjectOverTime.attributes[this.attributeType.code].values.length === 1) {
+        if (this.attributeType.code === "geometry" && this.postGeoObject.attributes[this.attributeType.code].values.length === 1) {
 
             this.editingGeometry = 0;
 
@@ -98,7 +109,7 @@ export class ManageVersionsComponent implements OnInit {
     @Input() geoObjectType: GeoObjectType;
 
     originalGeoObjectOverTime: GeoObjectOverTime;
-    geoObjectOverTime: GeoObjectOverTime;
+    postGeoObject: GeoObjectOverTime;
 
     @Input() isNewGeoObject: boolean = false;
 
@@ -114,7 +125,9 @@ export class ManageVersionsComponent implements OnInit {
     hasConflict: boolean = false;
     hasGap: boolean = false;
 
-    originalAttributeState: Attribute;
+    originalAttributeState: AttributeType;
+    
+    viewModel: VersionDiffView[] = [];
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService) { }
@@ -157,7 +170,7 @@ export class ManageVersionsComponent implements OnInit {
             this.hasConflict = false;
             this.hasGap = false;
 
-            let vAttributes = this.geoObjectOverTime.attributes[this.attributeType.code].values;
+            let vAttributes = this.postGeoObject.attributes[this.attributeType.code].values;
 
             this.isValid = this.checkDateFieldValidity();
 
@@ -169,7 +182,7 @@ export class ManageVersionsComponent implements OnInit {
 
     onAddNewVersion(): void {
 
-        let votArr: ValueOverTimeDiff[] = this.geoObjectOverTime.attributes[this.attributeType.code].values;
+        let votArr: ValueOverTimeDiff[] = this.postGeoObject.attributes[this.attributeType.code].values;
 
         let vot: ValueOverTimeDiff = new ValueOverTimeDiff();
         vot.newStartDate = null; // Utils.formatDateString(new Date());
@@ -256,11 +269,11 @@ export class ManageVersionsComponent implements OnInit {
 
     }
 
-    getVersionData(attribute: Attribute) {
+    getVersionData(attribute: AttributeType) {
 
         let versions: ValueOverTime[] = [];
 
-        this.geoObjectOverTime.attributes[attribute.code].values.forEach(vAttribute => {
+        this.postGeoObject.attributes[attribute.code].values.forEach(vAttribute => {
 
             vAttribute.value.localeValues.forEach(val => {
 
@@ -273,7 +286,7 @@ export class ManageVersionsComponent implements OnInit {
         return versions;
 
     }
-
+    
     getDefaultLocaleVal(locale: any): string {
 
         let defVal = null;
@@ -328,7 +341,7 @@ export class ManageVersionsComponent implements OnInit {
 
     remove(version: any): void {
 
-        let val = this.geoObjectOverTime.attributes[this.attributeType.code];
+        let val = this.postGeoObject.attributes[this.attributeType.code];
 
         let position = -1;
         for (let i = 0; i < val.values.length; i++) {
@@ -353,7 +366,7 @@ export class ManageVersionsComponent implements OnInit {
 
     }
 
-    isChangeOverTime(attr: Attribute): boolean {
+    isChangeOverTime(attr: AttributeType): boolean {
 
         let isChangeOverTime = false;
 
@@ -395,70 +408,65 @@ export class ManageVersionsComponent implements OnInit {
 
     }
 
-    getValueDifference(attribute: AttributeOverTime, localKey: string): string {
+    calculateViewModel(): string {
 
-        let oldValue: string = null;
+      this.viewModel = [];
+      
+      
+      
+      this.actions.forEach((action) => {
 
-        // if ( this.isNullValue(this.calculatedPostObject[attribute.code]) && !this.isNullValue(this.calculatedPreObject[attribute.code])) {
-        //  return true;
-        // }
-        //
-        // return (this.calculatedPostObject[attribute.code].value && this.calculatedPostObject[attribute.code].value.trim() !== this.calculatedPreObject[attribute.code].value);
+          if (this.attributeType.name === action.attributeName) {
 
-        // Iterate over all actions to find all the changes
-        this.actions.forEach((action) => {
+              action.attributeDiff.valuesOverTime.forEach((vot) => {
 
-            if (attribute.name === action.attributeName) {
+                  if (attribute.type === "date") {
 
-                action.attributeDiff.valuesOverTime.forEach((vot) => {
+                      if (new Date(String(vot.oldValue)).getTime() !== new Date(String(vot.newValue)).getTime()) {
 
-                    if (attribute.type === "date") {
+                          oldValue = String(vot.oldValue);
 
-                        if (new Date(String(vot.oldValue)).getTime() !== new Date(String(vot.newValue)).getTime()) {
+                      }
 
-                            oldValue = String(vot.oldValue);
+                  } else if (attribute.type === "local") {
 
-                        }
+                      (vot.oldValue as LocalizedValue).localeValues.forEach(oldLocalVal => {
 
-                    } else if (attribute.type === "local") {
+                          if (oldLocalVal.locale === localKey) {
 
-                        (vot.oldValue as LocalizedValue).localeValues.forEach(oldLocalVal => {
+                              (vot.newValue as LocalizedValue).localeValues.forEach(newLocalVal => {
 
-                            if (oldLocalVal.locale === localKey) {
+                                  if (oldLocalVal.value !== newLocalVal.value) {
 
-                                (vot.newValue as LocalizedValue).localeValues.forEach(newLocalVal => {
+                                      oldValue = String(oldLocalVal.value);
 
-                                    if (oldLocalVal.value !== newLocalVal.value) {
+                                  }
 
-                                        oldValue = String(oldLocalVal.value);
+                              });
 
-                                    }
+                          }
 
-                                });
+                      });
 
-                            }
+                  } else {
 
-                        });
+                      if (vot.oldValue !== vot.newValue) {
 
-                    } else {
+                          oldValue = String(vot.oldValue);
 
-                        if (vot.oldValue !== vot.newValue) {
+                          vot.currentValue = oldValue;
 
-                            oldValue = String(vot.oldValue);
+                      }
 
-                            vot.currentValue = oldValue;
+                  }
 
-                        }
+              });
 
-                    }
+          }
 
-                });
+      });
 
-            }
-
-        });
-
-        return oldValue;
+      return oldValue;
 
     }
 
@@ -569,7 +577,7 @@ export class ManageVersionsComponent implements OnInit {
     onApprove(): void {
 
 //        TODO
-//        this.onChange.emit(this.geoObjectOverTime);
+//        this.onChange.emit(this.postGeoObject);
         // this.isValidChange.emit(this.isValid);
 
     }

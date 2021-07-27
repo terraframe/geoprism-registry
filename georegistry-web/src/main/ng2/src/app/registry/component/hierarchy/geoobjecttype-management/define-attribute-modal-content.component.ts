@@ -6,7 +6,7 @@ import { StepConfig } from "@shared/model/modal";
 
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
 import { AttributeInputComponent } from "../geoobjecttype-management/attribute-input.component";
@@ -22,7 +22,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
     @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
 
     message: string = null;
-    newAttribute: Attribute = null;
+    newAttribute: AttributeType = null;
     modalStepConfig: StepConfig = {
         steps: [
             { label: this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), active: true, enabled: false },
@@ -90,7 +90,7 @@ export class DefineAttributeModalContentComponent implements OnInit {
 
         } else {
 
-            this.newAttribute = new Attribute("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+            this.newAttribute = new AttributeType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
 
         }
 

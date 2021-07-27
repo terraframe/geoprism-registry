@@ -40,7 +40,7 @@
                           [ngClass]="{'error-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'ERROR', 'warning-border': vAttribute.conflictMessage && vAttribute.conflictMessage.length > 0 && vAttribute.conflictMessage[0].type === 'WARNING'}">
                         <td class="version-column-wrapper">
                           <span class="version-column-indicator">TODO: Indicator</span>
-                          <table>
+                          <table *ngIf="vAttribute.value">
                           
                             <tr *ngFor="let loc of vAttribute.value.localeValues; let idx = index;" class="attribute-value-row">
                               <td colspan="2">

@@ -21,9 +21,11 @@ package net.geoprism.registry.action;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.constants.GeometryType;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
@@ -44,7 +46,10 @@ import com.runwaysdk.system.Users;
 import net.geoprism.GeoprismUser;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.cache.ServerMetadataCache;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ChangeRequestService;
@@ -98,11 +103,15 @@ public class ChangeRequestJsonAdapters
     
     private boolean hasCreate = false;
     
+    private ServerGeoObjectType type = null;
+    
     @Override
     public JsonElement serialize(ChangeRequest cr, Type typeOfSrc, JsonSerializationContext context)
     {
+      final ServerMetadataCache cache = ServiceFactory.getMetadataCache();
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-
+      ServerGeoObjectService serverGOService = new ServerGeoObjectService();
+      type = cr.getGeoObjectType();
       
       AllGovernanceStatus status = cr.getApprovalStatus().get(0);
       
@@ -124,23 +133,71 @@ public class ChangeRequestJsonAdapters
       
       addCurrent(cr, object, context);
       
+      object.addProperty("type", this.hasCreate ? "CreateGeoObject" : "UpdateGeoObject");
+      
+      JsonObject organization = new JsonObject();
+      organization.addProperty("code", cr.getOrganizationCode());
+      if (cache.getOrganization(cr.getOrganizationCode()).isPresent())
+      {
+        organization.addProperty("label", cache.getOrganization(cr.getOrganizationCode()).get().getDisplayLabel().getValue());
+      }
+      object.add("organization", organization);
+      
+      JsonObject geoObjectType = new JsonObject();
+      geoObjectType.addProperty("code", cr.getGeoObjectTypeCode());
+      if (type != null)
+      {
+        geoObjectType.addProperty("label", type.getLabel().getValue());
+      }
+      else
+      {
+        geoObjectType.addProperty("label", cr.getGeoObjectTypeCode());
+      }
+      object.add("geoObjectType", geoObjectType);
+      
+      JsonObject geoObject = new JsonObject();
+      geoObject.addProperty("code", cr.getGeoObjectCode());
+      if (this.hasCreate)
+      {
+        try
+        {
+          GeoObjectOverTime got = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), ((CreateGeoObjectAction) cr.getAllAction().next()).getGeoObjectJson());
+          geoObject.addProperty("label", got.getDisplayLabel(new Date()).getValue());
+        }
+        catch (Exception e)
+        {
+          geoObject.addProperty("label", cr.getGeoObjectCode());
+        }
+      }
+      else
+      {
+        if (type != null)
+        {
+          ServerGeoObjectIF serverGO = serverGOService.getGeoObjectByCode(cr.getGeoObjectCode(), cr.getGeoObjectTypeCode());
+          if (serverGO != null)
+          {
+            geoObject.addProperty("label", serverGO.getDisplayLabel().getValue());
+          }
+        }
+      }
+      object.add("geoObject", geoObject);
+      
       return object;
     }
     
     private void addCurrent(ChangeRequest cr, JsonObject object, JsonSerializationContext context)
     {
-      ServerGeoObjectType sgot = cr.getGeoObjectType();
       GeoObjectType got;
       
       JsonObject current = new JsonObject();
       
-      if (sgot == null)
+      if (type == null)
       {
         got = new GeoObjectType(cr.getGeoObjectTypeCode(), GeometryType.POLYGON, new LocalizedValue(cr.getGeoObjectTypeCode()), new LocalizedValue(""), false, "", ServiceFactory.getAdapter());
       }
       else
       {
-        got = sgot.getType();
+        got = this.type.getType();
       }
       
       current.add("geoObjectType", got.toJSON());

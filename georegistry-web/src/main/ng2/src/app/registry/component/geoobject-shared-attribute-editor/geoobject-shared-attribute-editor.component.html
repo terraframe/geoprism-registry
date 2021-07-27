@@ -42,7 +42,6 @@
           <span class="text"></span>
           <ul class="list-group">
             <li *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index" class="list-group-item" style="text-align:left;border:none;padding:0;">
-
               <div class="panel panel-default">
                 <div class="panel-heading">
                   <h4 *ngIf="attr.code !== 'geometry'" style="margin:0;">
@@ -62,9 +61,8 @@
                 </div>
 
                 <div class="panel-body">
-
                   <div *ngIf="attr.code === 'code'">
-                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="geoObject.attributes[attr.code]" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" 
+                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="preGeoObject.attributes[attr.code]" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" 
                         name="mod-{{attr.code}}" [disabled]="!isNew" required>
                   </div>
 

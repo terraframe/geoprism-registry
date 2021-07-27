@@ -12,7 +12,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
-import { GeoObjectType, GeoObjectOverTime, Attribute, AttributeOverTime, AttributeTerm, Term, ValueOverTime } from "@registry/model/registry";
+import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeOverTime, AttributeTerm, Term, ValueOverTime } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 
@@ -51,7 +51,7 @@ import Utils from "../../utility/Utils";
 /**
  * IMPORTANT
  * This component is shared between:
- * - crtable (create-update-geo-object action detail)
+ * - crtable
  * - change-request (for submitting change requests)
  * - master list geoobject editing widget
  * Be wary of changing this component for one usecase and breaking other usecases!
@@ -61,7 +61,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
     // eslint-disable-next-line accessor-pairs
     @Input() set geoObjectData(value: {"geoObject": GeoObjectOverTime, "actions": CreateGeoObjectAction[] | UpdateAttributeAction[]}) {
 
-        this.geoObject = value.geoObject;
+        this.preGeoObject = value.geoObject;
         this.postGeoObject = JSON.parse(JSON.stringify(value.geoObject));
 
         this.actions = value.actions;
@@ -71,10 +71,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
     }
 
     // The current state of the GeoObject in the GeoRegistry
-    geoObject: GeoObjectOverTime = null;
+    @Input() preGeoObject: GeoObjectOverTime = null;
 
     // The changed state of the GeoObject in the GeoRegistry
-    postGeoObject: GeoObjectOverTime = null;
+    @Input() postGeoObject: GeoObjectOverTime = null;
 
     // Array of Actions that will be part of a Change Request Object
     actions: CreateGeoObjectAction[] | UpdateAttributeAction[] = [];
@@ -110,7 +110,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
     @Output() valid = new EventEmitter<boolean>();
 
-    @Output() onManageVersion = new EventEmitter<Attribute>();
+    @Output() onManageVersion = new EventEmitter<AttributeType>();
 
     // Observable subject for MasterList changes.  Called when an update is successful
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
@@ -129,6 +129,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
         this.isContributorOnly = this.authService.isContributerOnly();
 
+    }
+    
+    stringify(): string {
+      return JSON.stringify(this.postGeoObject);
     }
 
     ngOnInit(): void {
@@ -157,7 +161,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
         }
         if (geomAttr == null) {
 
-            let geometry: Attribute = new Attribute("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
+            let geometry: AttributeType = new AttributeType("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
             this.geoObjectType.attributes.push(geometry);
 
         }
@@ -204,20 +208,20 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
     }
 
-    updateValueOverTime(actionDiffVOTs: ValueOverTimeDiff[], geoObjecAtttribute: AttributeOverTime, geoObject: GeoObjectOverTime, action: any) {
+    updateValueOverTime(actionDiffVOTs: ValueOverTimeDiff[], attribute: AttributeOverTime, geoObject: GeoObjectOverTime, action: any) {
 
         // If action is an AttributeUpdateAction
         if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
 
-            if (geoObjecAtttribute.name === action.attributeName) {
+            if (attribute.name === action.attributeName) {
 
                 for (let i1 = 0; i1 < actionDiffVOTs.length; i1++) {
 
                     let actionDiffVOT = actionDiffVOTs[i1];
 
-                    for (let i2 = 0; i2 < geoObjecAtttribute.values.length; i2++) {
+                    for (let i2 = 0; i2 < attribute.values.length; i2++) {
 
-                        let val = geoObjecAtttribute.values[i2];
+                        let val = attribute.values[i2];
 
                         if (actionDiffVOT.oid === val.oid) {
 
@@ -501,7 +505,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
     }
 
-    onVersionChange(event:any, attribute: Attribute): void {
+    onVersionChange(event:any, attribute: AttributeType): void {
 
         if (attribute) {
 

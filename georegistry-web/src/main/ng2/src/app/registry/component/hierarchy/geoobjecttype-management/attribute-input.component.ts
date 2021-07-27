@@ -8,7 +8,7 @@ import {
 } from '@angular/animations'
 import { NgControl, Validators, FormBuilder } from '@angular/forms';
 
-import { GeoObjectType, Attribute } from '@registry/model/registry';
+import { GeoObjectType, AttributeType } from '@registry/model/registry';
 import { HierarchyService } from '@registry/service';
 import { ErrorHandler } from '@shared/component';
 import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
@@ -38,8 +38,8 @@ export class AttributeInputComponent implements OnInit {
 	@Input() excludeDescription: boolean = false;
 	@Input() isDecimal: boolean = false;
 	@Input() geoObjectType: GeoObjectType;
-	@Input() attribute: Attribute;
-	@Output() attributeChange = new EventEmitter<Attribute>();
+	@Input() attribute: AttributeType;
+	@Output() attributeChange = new EventEmitter<AttributeType>();
 	message: string = null;
 
 	state: string = 'none';

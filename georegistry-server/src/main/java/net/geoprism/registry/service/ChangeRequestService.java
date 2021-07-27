@@ -273,11 +273,12 @@ public class ChangeRequestService
   @Request(RequestType.SESSION)
   public JsonObject getAllRequestsSerialized(String sessionId, int pageSize, int pageNumber, String filter)
   {
-    return this.getAllRequests(pageSize, pageNumber, filter).toJSON();
+    return this.getAllRequests(sessionId, pageSize, pageNumber, filter).toJSON();
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public Page<ChangeRequest> getAllRequests(int pageSize, int pageNumber, String filter)
+  @Request(RequestType.SESSION)
+  public Page<ChangeRequest> getAllRequests(String sessionId, int pageSize, int pageNumber, String filter)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getCreateDate());
