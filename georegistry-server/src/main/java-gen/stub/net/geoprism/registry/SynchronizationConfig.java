@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -96,12 +96,8 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   private void populate(JsonObject json)
   {
     String orgCode = json.get(SynchronizationConfig.ORGANIZATION).getAsString();
-    String hierarchyCode = json.get(SynchronizationConfig.HIERARCHY).getAsString();
-
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
 
     this.setOrganization(Organization.getByCode(orgCode));
-    this.setHierarchy(hierarchyType.getUniversalRelationship());
     this.setSystem(json.get(SynchronizationConfig.SYSTEM).getAsString());
     this.setConfiguration(json.get(SynchronizationConfig.CONFIGURATION).getAsJsonObject().toString());
 
@@ -113,19 +109,23 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   @Override
   public JsonObject toJSON()
   {
-    ServerHierarchyType hierarchyType = this.getServerHierarchyType();
-    ExternalSystem system = this.getExternalSystem();
-    LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
 
     JsonObject object = new JsonObject();
-    object.addProperty(SynchronizationConfig.TYPE, system.getClass().getSimpleName());
-    object.addProperty(SynchronizationConfig.SYSTEM_LABEL, label.getValue());
     object.addProperty(SynchronizationConfig.OID, this.getOid());
     object.addProperty(SynchronizationConfig.ORGANIZATION, this.getOrganization().getCode());
     object.addProperty(SynchronizationConfig.SYSTEM, this.getSystem());
-    object.addProperty(SynchronizationConfig.HIERARCHY, hierarchyType.getCode());
     object.add(SynchronizationConfig.LABEL, LocalizedValueConverter.convert(this.getLabel()).toJSON());
     object.add(SynchronizationConfig.CONFIGURATION, this.getConfigurationJson());
+
+    ExternalSystem system = this.getExternalSystem();
+
+    if (system != null)
+    {
+      LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
+
+      object.addProperty(SynchronizationConfig.TYPE, system.getClass().getSimpleName());
+      object.addProperty(SynchronizationConfig.SYSTEM_LABEL, label.getValue());
+    }
 
     return object;
   }
@@ -135,11 +135,6 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     JsonElement element = JsonParser.parseString(this.getConfiguration());
 
     return element.getAsJsonObject();
-  }
-
-  public ServerHierarchyType getServerHierarchyType()
-  {
-    return ServerHierarchyType.get(this.getHierarchy());
   }
 
   public ExternalSystem getExternalSystem()

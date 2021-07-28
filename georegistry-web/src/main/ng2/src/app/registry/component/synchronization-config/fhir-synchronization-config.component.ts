@@ -11,11 +11,6 @@ interface FhirSyncLevel {
   level: number;
 }
 
-export interface LevelRow {
-  level?: FhirSyncLevel;
-  list?: MasterList;
-}
-
 @Component({
   selector: 'fhir-synchronization-config',
   templateUrl: './fhir-synchronization-config.component.html',
@@ -28,7 +23,7 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
   @Input() fieldChange: Subject<string>;
   @Output() onError = new EventEmitter<HttpErrorResponse>();
 
-  levelRows: LevelRow[] = [];
+  lists: { [key: string]: MasterList } = {};
 
   org: MasterListByOrg = null;
 
@@ -51,24 +46,23 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
 
   reset(): void {
 
-    this.levelRows = [];
+    if (this.config.configuration == null) {
+      this.config.configuration = {
+        levels: [],
+        hierarchy: null
+      }
+    }
 
-    if (this.config.configuration != null && this.config.configuration.levels != null) {
+    if (this.config.configuration.levels != null) {
       for (var i = 0; i < this.config.configuration.levels.length; ++i) {
         var level = this.config.configuration.levels[i];
 
-        var levelRow: LevelRow = { level: level };
-
-        this.levelRows.push(levelRow);
-        
         // Get version options
-        this.onSelectMasterList(levelRow);
+        this.onSelectMasterList(level);
       }
     }
     else {
-      this.config.configuration = {
-        levels: [],
-      };
+      this.config.configuration.levels = [];
     }
 
     // Get 
@@ -81,28 +75,30 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
     });
   }
 
-  onSelectMasterList(row: LevelRow): void {
+  onSelectMasterList(level: FhirSyncLevel): void {
 
-    if (row.level.masterListId != null) {
+    if (level.masterListId != null) {
 
-      this.rService.getMasterListHistory(row.level.masterListId, 'PUBLISHED').then(list => {
-        row.list = list;
+      this.rService.getMasterListHistory(level.masterListId, 'PUBLISHED').then(list => {
+        this.lists[level.masterListId] = list;
       });
+    }
+    else {
+      this.lists[level.masterListId] = null;
     }
   }
 
   addLevel(): void {
-    var lvl = {
+    var level = {
       masterListId: null,
       versionId: null,
       level: this.config.configuration.levels.length,
     };
 
-    this.levelRows.push({ level: lvl, list: null });
+    this.config.configuration.levels.push(level);
   }
 
   removeLevel(i: number): void {
-    this.levelRows.splice(i, 1);
     this.config.configuration.levels.splice(i, 1);
 
     // Reorder the level
@@ -111,7 +107,6 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
         this.config.configuration.levels[i].level = i;
       }
     }
-
   }
 
   error(err: HttpErrorResponse): void {

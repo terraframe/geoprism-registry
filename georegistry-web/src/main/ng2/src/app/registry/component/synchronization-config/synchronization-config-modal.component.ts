@@ -38,7 +38,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
   onSuccess: Subject<SynchronizationConfig>;
 
 
-  constructor(private service: SynchronizationConfigService, private registryService: RegistryService, private lService: LocalizationService, private bsModalRef: BsModalRef) { }
+  constructor(private service: SynchronizationConfigService, private lService: LocalizationService, private bsModalRef: BsModalRef) { }
 
   ngOnInit(): void {
     this.onSuccess = new Subject();
@@ -96,10 +96,6 @@ export class SynchronizationConfigModalComponent implements OnInit {
     }
 
     this.handleFieldChange('system');
-  }
-
-  onChangeHierarchy(): void {
-    this.handleFieldChange('hierarchy');
   }
 
   onSubmit(): void {

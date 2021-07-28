@@ -31,12 +31,12 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   message: string = null;
 
   @Input() config: SynchronizationConfig;
+  @Input() cOrg: OrgSyncInfo = null;
+
   @Input() fieldChange: Subject<string>;
   @Output() onError = new EventEmitter<HttpErrorResponse>();
 
   organizations: OrgSyncInfo[] = [];
-
-  cOrg: OrgSyncInfo = null;
 
   types: GeoObjectType[] = [];
 
@@ -53,17 +53,16 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
     //  this.types = types;
     //});
 
-    this.service.getConfigForES(this.config.system, this.config.hierarchy).then(esConfig => {
-      this.types = esConfig.types;
-      this.orgUnitGroups = esConfig.orgUnitGroups;
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
-
+    if (this.config.configuration == null) {
+      this.config.configuration = {
+        levels: [],
+        hierarchy: null
+      }
+    }
 
     this.levelRows = [];
 
-    if (this.config.configuration != null && this.config.configuration.levels != null) {
+    if (this.config.configuration.levels != null) {
 
       for (var i = 0; i < this.config.configuration.levels.length; ++i) {
         var level = this.config.configuration.levels[i];
@@ -74,9 +73,16 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       }
     }
     else {
-      this.config.configuration = {
-        levels: [],
-      };
+      this.config.configuration.levels = [];
+    }
+
+    if (this.config.configuration.hierarchy != null) {
+      this.service.getConfigForES(this.config.system, this.config.configuration.hierarchy).then(esConfig => {
+        this.types = esConfig.types;
+        this.orgUnitGroups = esConfig.orgUnitGroups;
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
     }
 
     this.fieldChange.subscribe(() => {
@@ -87,6 +93,11 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.fieldChange.unsubscribe();
   }
+
+  onChangeHierarchy(): void {
+    this.clearMappingData();
+  }
+
 
 
   buildDefaultMappings(): DHIS2AttributeMapping[] {
@@ -149,12 +160,14 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
     this.levelRows = [];
     this.config.configuration['levels'] = [];
 
-    this.service.getConfigForES(this.config.system, this.config.hierarchy).then(esConfig => {
-      this.types = esConfig.types;
-      this.orgUnitGroups = esConfig.orgUnitGroups;
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
+    if (this.config.configuration.hierarchy != null) {
+      this.service.getConfigForES(this.config.system, this.config.configuration.hierarchy).then(esConfig => {
+        this.types = esConfig.types;
+        this.orgUnitGroups = esConfig.orgUnitGroups;
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+    }
 
     var lvl = {
       type: null,

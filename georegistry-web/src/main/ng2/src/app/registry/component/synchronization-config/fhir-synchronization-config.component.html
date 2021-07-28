@@ -1,4 +1,4 @@
-<div>
+<div class="row-holder" >
     <div class="label-holder">
         <label><localize key="synchronization.config.units"></localize></label>
     </div>
@@ -13,20 +13,20 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let levelRow of levelRows; let i = index;" [style.background-color]="'#F7F7F7'">
+                    <tr *ngFor="let level of config.configuration.levels; let i = index;" [style.background-color]="'#F7F7F7'">
                         <td style="width: 3%">
-                            <label style="padding: 10px 0; margin: 0;"><localize key="sync.level.label"></localize> {{levelRow.level.level + 1}}</label>
+                            <label style="padding: 10px 0; margin: 0;"><localize key="sync.level.label"></localize> {{level.level + 1}}</label>
                         </td>
                         <td style="width: 25%">
-                            <select *ngIf="org != null" type="text" [(ngModel)]="levelRow.level.masterListId" (change)="onSelectMasterList(levelRow)" [name]="'masterList' + levelRow.level.level" required>
+                            <select *ngIf="org != null" type="text" [(ngModel)]="level.masterListId" (change)="onSelectMasterList(level)" [name]="'masterList' + level.level" required>
                                 <option></option>
                                 <option *ngFor="let list of org.lists" [value]="list.oid">{{list.label}}</option>
                             </select>
                         </td>
                         <td style="width: 25%">
-                            <select *ngIf="levelRow.list != null" type="text" [(ngModel)]="levelRow.level.versionId" [name]="'version' + levelRow.level.level" required>
+                            <select *ngIf="lists[level.masterListId] != null" type="text" [(ngModel)]="level.versionId" [name]="'version' + level.level" required>
                                 <option></option>
-                                <option *ngFor="let version of levelRow.list.versions" [value]="version.oid">{{version.forDate}}</option>
+                                <option *ngFor="let version of lists[level.masterListId].versions" [value]="version.oid">{{version.forDate}}</option>
                             </select>
                         </td>
                         <td style="width: 25%">

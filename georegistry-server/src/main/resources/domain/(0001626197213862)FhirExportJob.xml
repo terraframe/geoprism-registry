@@ -78,6 +78,13 @@
         </attributeStruct>
       </object>    
     </createOrUpdate>
+    <update>
+      <mdBusiness name="net.geoprism.registry.SynchronizationConfig">
+          <attributes>
+            <reference name="hierarchy" required="false" />
+          </attributes>
+      </mdBusiness>   
+    </update>    
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>      
