@@ -44,9 +44,9 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
   }
 
   @Override
-  public void configure(FhirExportContext context, MasterListVersion version)
+  public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds)
   {
-    super.configure(context, version);
+    super.configure(context, version, resolveIds);
 
     this.list.add(createService("GEN", "General Practice", "17"));
     this.list.add(createService("ED", "Emergency Department", "14"));

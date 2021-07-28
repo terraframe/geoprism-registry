@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.etl.export.fhir;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Base64;
 import java.util.Base64.Encoder;
 
@@ -40,12 +42,15 @@ import org.hl7.fhir.r4.model.Resource;
 
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.OIterator;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.server.exceptions.BaseServerResponseException;
@@ -65,7 +70,7 @@ public class MasterListFhirExporter
 
   private FhirExportContext context;
 
-  public MasterListFhirExporter(MasterListVersion version, FhirExternalSystem system, FhirDataPopulator populator)
+  public MasterListFhirExporter(MasterListVersion version, FhirExternalSystem system, FhirDataPopulator populator, boolean resolveIds)
   {
     this.version = version;
     this.populator = populator;
@@ -80,7 +85,7 @@ public class MasterListFhirExporter
 
     this.context = new FhirExportContext(system, client);
 
-    this.populator.configure(context, version);
+    this.populator.configure(context, version, resolveIds);
   }
 
   public MasterList getList()
@@ -95,7 +100,9 @@ public class MasterListFhirExporter
 
   public long export()
   {
-    Bundle collection = createBundle();
+    Bundle collection = new Bundle();
+
+    this.populateBundle(collection);
 
     try
     {
@@ -111,10 +118,24 @@ public class MasterListFhirExporter
     }
   }
 
-  public Bundle createBundle()
+  public void write(Bundle bundle, Writer writer)
   {
-    Bundle bundle = new Bundle();
+    FhirContext ctx = this.context.getFhirContext();
+    IParser parser = ctx.newJsonParser();
 
+    // Serialize it
+    try
+    {
+      parser.encodeResourceToWriter(bundle, writer);
+    }
+    catch (DataFormatException | IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
+  public void populateBundle(Bundle bundle)
+  {
     BusinessQuery query = this.version.buildQuery(null);
     query.ORDER_BY_DESC(query.aCharacter(DefaultAttribute.CODE.getName()));
 
@@ -154,8 +175,6 @@ public class MasterListFhirExporter
     }
 
     this.populator.finish(bundle);
-
-    return bundle;
   }
 
   private Facility createFacility(Business row, Identifier identifier)

@@ -18,14 +18,30 @@
  */
 package net.geoprism.registry.etl.export.fhir;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.Writer;
 import java.util.SortedSet;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.tools.zip.ZipEntry;
+import org.apache.tools.zip.ZipOutputStream;
+import org.hl7.fhir.r4.model.Bundle;
+
+import com.runwaysdk.constants.VaultProperties;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.QueryFactory;
 
-import net.geoprism.registry.GeoRegistryUtil;
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.parser.IParser;
+import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.FhirSyncConfig;
@@ -44,26 +60,10 @@ public class FhirSynchronizationManager
 
   private ExportHistory  history;
 
-  private Date           date;
-
   public FhirSynchronizationManager(FhirSyncConfig config, ExportHistory history)
   {
     this.config = config;
-    this.date = todaysDate();
     this.history = history;
-  }
-
-  private Date todaysDate()
-  {
-    Calendar cal = Calendar.getInstance();
-    cal.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    cal.setTime(new Date());
-    cal.set(Calendar.HOUR_OF_DAY, 0);
-    cal.set(Calendar.MINUTE, 0);
-    cal.set(Calendar.SECOND, 0);
-    cal.set(Calendar.MILLISECOND, 0);
-
-    return cal.getTime();
   }
 
   public void synchronize()
@@ -91,7 +91,7 @@ public class FhirSynchronizationManager
 
       FhirDataPopulator populator = FhirExportFactory.getPopulator(version);
 
-      MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator);
+      MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, true);
       long results = exporter.export();
 
       exportCount += results;
@@ -126,49 +126,101 @@ public class FhirSynchronizationManager
     }
   }
 
-  // private void recordExportError(FhirSyncError ee, ExportHistory history)
-  // {
-  // FhirImportResponse resp = ee.response;
-  // Throwable ex = ee.error;
-  // String geoObjectCode = ee.geoObjectCode;
-  //
-  // ExportError exportError = new ExportError();
-  //
-  // if (ee.submittedJson != null)
-  // {
-  // exportError.setSubmittedJson(ee.submittedJson);
-  // }
-  //
-  // if (resp != null)
-  // {
-  // if (resp.getResponse() != null && resp.getResponse().length() > 0)
-  // {
-  // exportError.setResponseJson(resp.getResponse());
-  //
-  // if (resp.hasErrorReports())
-  // {
-  // List<ErrorReport> reports = resp.getErrorReports();
-  //
-  // ErrorReport report = reports.get(0);
-  //
-  // exportError.setErrorMessage(report.getMessage());
-  // }
-  // }
-  //
-  // exportError.setErrorCode(resp.getStatusCode());
-  // }
-  //
-  // exportError.setCode(geoObjectCode);
-  //
-  // if (ex != null)
-  // {
-  // exportError.setErrorJson(JobHistory.exceptionToJson(ex).toString());
-  // }
-  //
-  // exportError.setRowIndex(ee.rowIndex);
-  //
-  // exportError.setHistory(history);
-  //
-  // exportError.apply();
-  // }
+  public InputStream generateZipFile() throws IOException
+  {
+    // Zip up the entire contents of the file
+    final File directory = this.writeToFile();
+    final PipedOutputStream pos = new PipedOutputStream();
+    final PipedInputStream pis = new PipedInputStream(pos);
+
+    Thread t = new Thread(new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        try
+        {
+          try (ZipOutputStream zipFile = new ZipOutputStream(pos))
+          {
+            File[] files = directory.listFiles();
+
+            for (File file : files)
+            {
+              ZipEntry entry = new ZipEntry(file.getName());
+              zipFile.putNextEntry(entry);
+
+              try (FileInputStream in = new FileInputStream(file))
+              {
+                IOUtils.copy(in, zipFile);
+              }
+            }
+          }
+          finally
+          {
+            pos.close();
+          }
+
+        }
+        catch (IOException e)
+        {
+        }
+        finally
+        {
+          FileUtils.deleteQuietly(directory);
+        }
+      }
+    });
+    t.setDaemon(true);
+    t.start();
+
+    return pis;
+  }
+
+  public File writeToFile() throws IOException
+  {
+    String name = SessionPredicate.generateId();
+
+    File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
+    root.mkdirs();
+
+    final FhirExternalSystem system = (FhirExternalSystem) this.config.getSystem();
+
+    SortedSet<FhirSyncLevel> levels = this.config.getLevels();
+
+    int expectedLevel = 0;
+
+    Bundle bundle = new Bundle();
+
+    for (FhirSyncLevel level : levels)
+    {
+      if (level.getLevel() != expectedLevel)
+      {
+        throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
+      }
+
+      MasterListVersion version = MasterListVersion.get(level.getVersionId());
+
+      FhirDataPopulator populator = FhirExportFactory.getPopulator(version);
+
+      MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, false);
+      exporter.populateBundle(bundle);
+
+      expectedLevel++;
+    }
+
+    FhirContext ctx = FhirContext.forR4();
+    IParser parser = ctx.newJsonParser();
+
+    try
+    {
+      parser.encodeResourceToWriter(bundle, new FileWriter(new File(root, "bundle.json")));
+    }
+    catch (DataFormatException | IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+
+    return root;
+  }
+
 }

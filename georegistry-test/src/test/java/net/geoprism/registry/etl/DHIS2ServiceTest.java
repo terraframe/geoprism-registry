@@ -196,7 +196,7 @@ public class DHIS2ServiceTest
   }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, SyncLevel additionalLevel)
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel)
   {
     // Define reusable objects
     final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
@@ -209,11 +209,11 @@ public class DHIS2ServiceTest
     dhis2Config.setOrganization(org);
 
     // Populate Levels
-    SortedSet<SyncLevel> levels = new TreeSet<SyncLevel>();
+    SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
 
-    SyncLevel level = new SyncLevel();
+    DHIS2SyncLevel level = new DHIS2SyncLevel();
     level.setGeoObjectType(AllAttributesDataset.GOT_ALL.getServerObject().getCode());
-    level.setSyncType(SyncLevel.Type.ALL);
+    level.setSyncType(DHIS2SyncLevel.Type.ALL);
     level.setMappings(getDefaultMappings());
     level.setLevel(0);
     levels.add(level);
@@ -283,9 +283,9 @@ public class DHIS2ServiceTest
 
   private void exportCustomAttribute(TestGeoObjectTypeInfo got, TestGeoObjectInfo go, TestAttributeTypeInfo attr) throws InterruptedException
   {
-    SyncLevel level2 = new SyncLevel();
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
     level2.setGeoObjectType(got.getServerObject().getCode());
-    level2.setSyncType(SyncLevel.Type.ALL);
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
     level2.setLevel(1);
 
     Collection<DHIS2AttributeMapping> mappings = getDefaultMappings();
@@ -412,9 +412,9 @@ public class DHIS2ServiceTest
   // @Request
   // public void testSerializeConfig()
   // {
-  // SyncLevel level2 = new SyncLevel();
+  // DHIS2SyncLevel level2 = new DHIS2SyncLevel();
   // level2.setGeoObjectType(testData.GOT_CHAR.getServerObject().getCode());
-  // level2.setSyncType(SyncLevel.Type.ALL);
+  // level2.setSyncType(DHIS2SyncLevel.Type.ALL);
   // level2.setLevel(1);
   //
   // SynchronizationConfig config = createSyncConfig(level2);

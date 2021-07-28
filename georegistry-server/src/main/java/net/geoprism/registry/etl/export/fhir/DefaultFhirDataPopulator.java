@@ -24,7 +24,7 @@ public class DefaultFhirDataPopulator implements FhirDataPopulator
   }
 
   @Override
-  public void configure(FhirExportContext context, MasterListVersion version)
+  public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds)
   {
   }
 

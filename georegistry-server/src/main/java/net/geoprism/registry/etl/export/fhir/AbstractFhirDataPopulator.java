@@ -27,11 +27,13 @@ import net.geoprism.registry.model.ServerHierarchyType;
 
 public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator implements FhirDataPopulator
 {
+  private FhirExportContext   context;
+
   private MasterListVersion   version;
 
-  private MasterList          list;
+  private boolean             resolveIds;
 
-  private FhirExportContext   context;
+  private MasterList          list;
 
   private Map<String, String> identifiers;
 
@@ -42,14 +44,16 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
     this.version = null;
     this.list = null;
     this.context = null;
+    this.resolveIds = true;
     this.identifiers = new HashMap<String, String>();
   }
 
   @Override
-  public void configure(FhirExportContext context, MasterListVersion version)
+  public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds)
   {
     this.context = context;
     this.version = version;
+    this.resolveIds = resolveIds;
     this.list = this.version.getMasterlist();
   }
 
@@ -97,22 +101,27 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
 
   private String getLiteralIdentifier(String code)
   {
-    if (!this.identifiers.containsKey(code))
+    if (this.resolveIds)
     {
-      IGenericClient client = context.getClient();
-      IBaseBundle result = client.search().forResource(Organization.class).count(1).where(Organization.IDENTIFIER.exactly().systemAndValues(context.getSystem(), code)).execute();
-      List<IBaseResource> resources = BundleUtil.toListOfResources(client.getFhirContext(), result);
-
-      if (resources.size() > 0)
+      if (!this.identifiers.containsKey(code))
       {
-        IBaseResource resource = resources.get(0);
-        IIdType idElement = resource.getIdElement();
+        IGenericClient client = context.getClient();
+        IBaseBundle result = client.search().forResource(Organization.class).count(1).where(Organization.IDENTIFIER.exactly().systemAndValues(context.getSystem(), code)).execute();
+        List<IBaseResource> resources = BundleUtil.toListOfResources(client.getFhirContext(), result);
 
-        this.identifiers.put(code, idElement.getResourceType() + "/" + idElement.getIdPart());
+        if (resources.size() > 0)
+        {
+          IBaseResource resource = resources.get(0);
+          IIdType idElement = resource.getIdElement();
+
+          this.identifiers.put(code, idElement.getResourceType() + "/" + idElement.getIdPart());
+        }
       }
+
+      return this.identifiers.get(code);
     }
 
-    return this.identifiers.get(code);
+    return "Organization/" + code;
   }
 
   public void addHierarchyValue(Business row, Facility facility, ServerHierarchyType hierarchyType)

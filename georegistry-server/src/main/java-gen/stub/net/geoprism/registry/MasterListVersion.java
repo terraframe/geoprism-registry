@@ -747,7 +747,7 @@ public class MasterListVersion extends MasterListVersionBase
   {
     FhirDataPopulator populator = FhirExportFactory.getPopulator(this);
 
-    MasterListFhirExporter exporter = new MasterListFhirExporter(this, system, populator);
+    MasterListFhirExporter exporter = new MasterListFhirExporter(this, system, populator, true);
     exporter.export();
   }
 

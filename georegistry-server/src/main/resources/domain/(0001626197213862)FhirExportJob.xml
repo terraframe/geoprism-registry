@@ -77,6 +77,13 @@
           <attribute name="defaultLocale" value="External System" />
         </attributeStruct>
       </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="synchronization.config.generateBundle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="synchronization.config.generateBundle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Generate Bundle" />
+        </attributeStruct>
+      </object>    
     </createOrUpdate>
     <update>
       <mdBusiness name="net.geoprism.registry.SynchronizationConfig">

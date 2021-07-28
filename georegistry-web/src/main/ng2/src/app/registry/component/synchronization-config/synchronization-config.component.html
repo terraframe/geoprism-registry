@@ -23,13 +23,16 @@
               <label style="vertical-align: middle;">{{config.systemLabel}}</label>
             </div>
             <div class="col-md-4">
-              <form #myForm="ngForm">
-                <div class="form-group text-right" style="margin: 0;">
-                  <button type="submit" style="margin-left: 15px;" (click)="onRun()" class="btn btn-primary" role="button" [disabled]="myForm.invalid" [title]="'synchronization.config.run' | localize">
+              <div class="form-group text-right" style="margin: 0;">
+                <form>
+                  <button type="submit" style="margin-left: 15px;" (click)="onRun()" class="btn btn-primary" role="button" [title]="'synchronization.config.run' | localize">
                     <localize key="synchronization.config.run"></localize>
                   </button>
-                </div>
-              </form>
+                  <button *ngIf="config.type === 'FhirExternalSystem'" type="submit" style="margin-left: 15px;" (click)="onGenerateFile()" class="btn btn-secondary" role="button" [title]="'synchronization.config.run' | localize">
+                    <localize key="synchronization.config.generateBundle"></localize>
+                  </button>                  
+                 </form>
+               </div>
             </div>
           </div>
 

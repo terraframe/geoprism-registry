@@ -10,7 +10,7 @@ public interface FhirDataPopulator
 {
   public boolean supports(MasterListVersion version);
 
-  public void configure(FhirExportContext context, MasterListVersion version);
+  public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds);
 
   public void populate(Business row, Facility facility);
 
