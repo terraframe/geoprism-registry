@@ -5,9 +5,12 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
+import org.commongeoregistry.adapter.metadata.AttributeFloatType;
+import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeNumericType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -25,11 +28,14 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.RegistryJsonTimeFormatter;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
+import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.ConversionService;
 
 public class UpdateValueOverTimeView
 {
@@ -87,6 +93,11 @@ public class UpdateValueOverTimeView
         throw ex;
       }
       
+      if (this.newValue == null && this.newStartDate == null && this.newEndDate == null)
+      {
+        throw new InvalidChangeRequestException();
+      }
+      
       if (newStartDate != null)
       {
         vot.setStartDate(newStartDate);
@@ -107,6 +118,11 @@ public class UpdateValueOverTimeView
       {
         ExecuteOutOfDateChangeRequestException ex = new ExecuteOutOfDateChangeRequestException();
         throw ex;
+      }
+      
+      if (this.newValue == null || this.newStartDate == null || this.newEndDate == null)
+      {
+        throw new InvalidChangeRequestException();
       }
       
       this.persistValue(null, cotView, go);
@@ -131,11 +147,16 @@ public class UpdateValueOverTimeView
   
   private void persistValue(ValueOverTime vot, UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
   {
+    if (this.newValue == null)
+    {
+      return;
+    }
+    
     if (cotView.getAttributeName().equals("geometry"))
     {
       Geometry convertedValue = null;
       
-      if (this.newValue != null && ! this.newValue.isJsonNull())
+      if (! this.newValue.isJsonNull())
       {
         GeoJSONReader reader = new GeoJSONReader();
         convertedValue = reader.read(this.newValue.toString());
@@ -158,21 +179,34 @@ public class UpdateValueOverTimeView
       
       if (attype instanceof AttributeLocalType)
       {
-        final LocalizedValue convertedValue = LocalizedValue.fromJSON(this.newValue.getAsJsonObject());
-        final Set<Locale> locales = LocalizationFacade.getInstalledLocales();
+        LocalizedValue convertedValue = null;
+        
+        if (! this.newValue.isJsonNull())
+        {
+          convertedValue = LocalizedValue.fromJSON(this.newValue.getAsJsonObject());
+        }
+        
+        final Set<Locale> locales = LocalizationFacade.getInstalledLocales(); 
         
         if (vot != null)
         {
-          GraphObjectDAO votEmbeddedValue = (GraphObjectDAO) vot.getValue();
-          
-          votEmbeddedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, convertedValue.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
-  
-          for (Locale locale : locales)
+          if (convertedValue != null)
           {
-            if (convertedValue.contains(locale))
+            GraphObjectDAO votEmbeddedValue = (GraphObjectDAO) vot.getValue();
+            
+            votEmbeddedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, convertedValue.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+    
+            for (Locale locale : locales)
             {
-              votEmbeddedValue.setValue(locale.toString(), convertedValue.getValue(locale));
+              if (convertedValue.contains(locale))
+              {
+                votEmbeddedValue.setValue(locale.toString(), convertedValue.getValue(locale));
+              }
             }
+          }
+          else
+          {
+            vot.setValue(null);
           }
         }
         else
@@ -180,11 +214,46 @@ public class UpdateValueOverTimeView
           go.setDisplayLabel(convertedValue, this.newStartDate, this.newEndDate);
         }
       }
+      else if (attype.getName().equals(DefaultAttribute.STATUS.getName()))
+      {
+        if (this.newValue.isJsonNull())
+        {
+          vot.setValue(null);
+        }
+        else
+        {
+          JsonArray ja = this.newValue.getAsJsonArray();
+          
+          if (ja.size() > 0)
+          {
+            String code = ja.get(0).getAsString();
+            
+            if (code == null || code.length() == 0)
+            {
+              vot.setValue(null);
+            }
+            else
+            {
+              Term value = ( (AttributeTermType) attype ).getTermByCode(code).get();
+              GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(value);
+    
+              if (vot != null)
+              {
+                vot.setValue(gos.getOid());
+              }
+              else
+              {
+                go.setStatus(gos, this.newStartDate, this.newEndDate);
+              }
+            }
+          }
+        }
+      }
       else
       {
         Object convertedValue = null;
         
-        if (this.newValue != null && ! this.newValue.isJsonNull())
+        if (! this.newValue.isJsonNull())
         {
           if (attype instanceof AttributeDateType)
           {
@@ -213,13 +282,13 @@ public class UpdateValueOverTimeView
           {
             convertedValue = this.newValue.getAsBoolean();
           }
-          else if (attype instanceof AttributeBooleanType)
+          else if (attype instanceof AttributeFloatType)
           {
-            convertedValue = this.newValue.getAsBoolean();
+            convertedValue = this.newValue.getAsDouble();
           }
-          else if (attype instanceof AttributeNumericType)
+          else if (attype instanceof AttributeIntegerType)
           {
-            convertedValue = this.newValue.getAsNumber();
+            convertedValue = this.newValue.getAsLong();
           }
           else
           {

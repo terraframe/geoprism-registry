@@ -16,8 +16,8 @@ export class Geometry {
 export class ValueOverTimeDiff {
     oid: string;
     action: string; // Can be one of DELETE, UPDATE, CREATE
-    oldValue: LocalizedValue | string | Geometry;
-    newValue: LocalizedValue | string | Geometry;
+    oldValue: any;
+    newValue: any;
     newStartDate: string;
     newEndDate: string;
     oldStartDate: string;
@@ -53,11 +53,23 @@ export class AbstractAction {
 
 export class CreateGeoObjectAction extends AbstractAction {
     geoObjectJson: GeoObjectOverTime;
+    
+    constructor() {
+      super();
+      this.actionType = ActionTypes.CREATEGEOOBJECTACTION;
+    }
 }
 
 export class UpdateAttributeAction extends AbstractAction {
     attributeName: string;
     attributeDiff: { "valuesOverTime": ValueOverTimeDiff[] };
+    
+    constructor(attributeName: string) {
+      super();
+      this.actionType = ActionTypes.UPDATEATTRIBUTETACTION;
+      this.attributeName = attributeName;
+      this.attributeDiff = { "valuesOverTime": [] };
+    }
 }
 
 export class ChangeRequestCurrentObject {

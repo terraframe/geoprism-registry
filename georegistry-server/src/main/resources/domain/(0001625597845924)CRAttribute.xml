@@ -26,6 +26,10 @@
         message="The Change Request cannot be implemented as specified because it references objects which no longer exist."
         exported="false" publish="false">
       </mdException>
+      <mdException name="net.geoprism.registry.action.InvalidChangeRequestException"
+        message="The action cannot be performed as specified because the Change Request is invalid."
+        exported="false" publish="false">
+      </mdException>
     </create>
     <update>
       <mdBusiness name="net.geoprism.registry.action.ChangeRequest">

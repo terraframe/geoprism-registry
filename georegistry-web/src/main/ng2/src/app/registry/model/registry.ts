@@ -3,7 +3,7 @@
 import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
-import { GovernanceStatus } from "./constants";
+import { GovernanceStatus, ConflictType } from "./constants";
 
 export const PRESENT: string = "5000-12-31";
 
@@ -127,6 +127,12 @@ export class GeoObjectOverTime {
 
         return retVot;
     }
+}
+
+export class ConflictMessage {
+  message: string;
+  severity: string;
+  type: ConflictType;
 }
 
 export class ValueOverTime {

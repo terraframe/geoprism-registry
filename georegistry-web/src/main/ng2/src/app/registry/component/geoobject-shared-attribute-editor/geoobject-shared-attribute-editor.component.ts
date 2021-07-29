@@ -66,7 +66,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
         this.actions = value.actions;
 
-        this.setGeoObjectToCurrent(this.postGeoObject);
+        //this.setGeoObjectToCurrent(this.postGeoObject);
 
     }
 
@@ -609,6 +609,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
         return null;
 
+    }
+    
+    public getActions(): AbstractAction[] {
+      return this.actions;
     }
 
     public getIsValid(): boolean {

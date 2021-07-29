@@ -15,9 +15,11 @@ import {
     transition
 } from "@angular/animations";
 
-import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTermType, PRESENT } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTermType, PRESENT, ConflictMessage } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
+import { ConflictType } from '@registry/model/constants';
+import { AuthService } from "@shared/service/auth.service";
 
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 
@@ -29,38 +31,236 @@ import { LocalizationService } from "@shared/service";
 import Utils from "../../utility/Utils";
 
 export enum SummaryKey {
-    NEW = "NEW",
-    UNMODIFIED = "UNMODIFIED",
-    DELETE = "DELETE",
-    UPDATE = "UPDATE",
-    TIME_CHANGE = "TIME_CHANGE",
-    VALUE_CHANGE = "VALUE_CHANGE",
+  NEW = "NEW",
+  UNMODIFIED = "UNMODIFIED",
+  DELETE = "DELETE",
+  UPDATE = "UPDATE",
+  TIME_CHANGE = "TIME_CHANGE",
+  VALUE_CHANGE = "VALUE_CHANGE",
 }
 
 class ValueOverTimeEditPropagator {
+  view: VersionDiffView;
+  diff: ValueOverTimeDiff;
   valueOverTime?: ValueOverTime;
-  diff?: ValueOverTimeDiff;
+  action: AbstractAction;
+  component: ManageVersionsComponent;
+  
+  constructor(component: ManageVersionsComponent, action: AbstractAction, view: VersionDiffView)
+  {
+    this.view = view;
+    this.action = action;
+    this.component = component;
+  }
+  
+  get startDate()
+  {
+    return this.view.startDate;
+  }
   
   set startDate(startDate: string)
   {
-    if (this.diff != null)
+    if (this.action instanceof UpdateAttributeAction)
     {
+      if (this.diff == null)
+      {
+        if (this.valueOverTime == null)
+        {
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "CREATE";
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+        else
+        {
+          if (this.valueOverTime.startDate === startDate)
+          {
+            return;
+          }
+        
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "UPDATE";
+          this.diff.oid = this.valueOverTime.oid;
+          this.diff.oldValue = this.valueOverTime.value;
+          this.diff.oldStartDate = this.valueOverTime.startDate;
+          this.diff.oldEndDate = this.valueOverTime.endDate;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+      }
+      
       this.diff.newStartDate = startDate;
     }
-    else if (this.diff != null)
+    
+    this.view.startDate = startDate;
+    
+    this.component.onActionChange(this.action);
+  }
+  
+  get endDate()
+  {
+    return this.view.endDate;
+  }
+  
+  set endDate(endDate: string)
+  {
+    if (this.action instanceof UpdateAttributeAction)
     {
-      this.valueOverTime.startDate = startDate;
+      if (this.diff == null)
+      {
+        if (this.valueOverTime == null)
+        {
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "CREATE";
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+        else
+        {
+          if (this.valueOverTime.endDate === endDate)
+          {
+            return;
+          }
+        
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "UPDATE";
+          this.diff.oid = this.valueOverTime.oid;
+          this.diff.oldValue = this.valueOverTime.value;
+          this.diff.oldStartDate = this.valueOverTime.startDate;
+          this.diff.oldEndDate = this.valueOverTime.endDate;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+      }
+      
+      this.diff.newEndDate = endDate;
     }
+    
+    this.view.endDate = endDate;
+    
+    this.component.onActionChange(this.action);
+  }
+  
+  get value()
+  {
+    return this.view.value;
+  }
+  
+  set value(value: any)
+  {
+    if (value != null)
+    {
+      if (this.component.attributeType.type === "term")
+      {
+        value = [value];
+      }
+      else if (this.component.attributeType.type === "date")
+      {
+        value = new Date(value).getTime();
+      }
+    }
+  
+    if (this.action instanceof UpdateAttributeAction)
+    {
+      if (this.diff == null)
+      {
+        if (this.valueOverTime == null)
+        {
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "CREATE";
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+        else
+        {
+          if (this.areValuesEqual(this.valueOverTime.value, value))
+          {
+            return;
+          }
+        
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "UPDATE";
+          this.diff.oid = this.valueOverTime.oid;
+          this.diff.oldValue = this.valueOverTime.value;
+          this.diff.oldStartDate = this.valueOverTime.startDate;
+          this.diff.oldEndDate = this.valueOverTime.endDate;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+      }
+      
+      this.diff.newValue = value;
+    }
+    
+    this.view.value = value;
+    
+    this.component.onActionChange(this.action);
+  }
+  
+  public setLocalizedValue(localeValue: {locale: string, value: string})
+  {
+    if (this.action instanceof UpdateAttributeAction)
+    {
+      if (this.diff == null)
+      {
+        if (this.valueOverTime == null)
+        {
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "CREATE";
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+        else
+        {
+          let areValuesEqual: boolean = this.component.getValueAtLocale(this.valueOverTime.value, localeValue.locale) === this.component.getValueAtLocale(this.view.value, localeValue.locale)
+        
+          if (areValuesEqual)
+          {
+            return;
+          }
+        
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "UPDATE";
+          this.diff.oid = this.valueOverTime.oid;
+          this.diff.oldValue = this.valueOverTime.value;
+          this.diff.oldStartDate = this.valueOverTime.startDate;
+          this.diff.oldEndDate = this.valueOverTime.endDate;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+      }
+      
+      this.diff.newValue = this.view.value;
+    }
+    
+    this.component.onActionChange(this.action);
+  }
+  
+  private areValuesEqual(val1: any, val2: any): boolean
+  {
+    //if (this.component.attributeType.type === "local")
+    //{
+      // Not used anymore
+    //}
+    if (this.component.attributeType.type === "term")
+    {
+      return val1.length === val2.length && val1[0] === val2[0];
+    }
+    
+    return val1 === val2;
+  }
+  
+  public remove(): void
+  {
+    console.log("TODO");
   }
 }
 
 class VersionDiffView extends ValueOverTime {
   summaryKey: SummaryKey;
-  conflictMessage?: [{message: string, type: string}]; // 
+  conflictMessage?: [ConflictMessage];
   oldValue?: any;
   oldStartDate?: string;
   oldEndDate?: string;
-  versionEditPropagator?: ValueOverTimeEditPropagator; // If this is null, then it means we had some kind of critical problem (either the oid reference is out of date or something) and this diff/action is not valid
+  editPropagator: ValueOverTimeEditPropagator;
+  
+  constructor(component: ManageVersionsComponent, action: AbstractAction)
+  {
+    super();
+    this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
+  }
 }
 
 @Component({
@@ -152,10 +352,14 @@ export class ManageVersionsComponent implements OnInit {
     
     viewModels: VersionDiffView[] = [];
     
+    // The 'current' action which is to be used whenever we're applying new edits.
+    editAction: AbstractAction;
+    
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService) { }
+    constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
 
     ngOnInit(): void {
+      //this.writeToActions = this.authService.isGeoObjectTypeOrSuperRC(this.geoObjectType, false);
     }
 
     ngAfterViewInit() {
@@ -203,29 +407,29 @@ export class ManageVersionsComponent implements OnInit {
     
     remove(view: VersionDiffView): void {
 
-        let position = -1;
-        let len = this.viewModels.length;
-        for (let i = 0; i < len; i++) {
-            let loopView = this.viewModels[i];
+      view.editPropagator.remove();
 
-            if (loopView.oid === view.oid) {
-                position = i;
-            }
-        }
+      let position = -1;
+      let len = this.viewModels.length;
+      for (let i = 0; i < len; i++) {
+          let loopView = this.viewModels[i];
 
-        if (position > -1) {
-          this.viewModels.splice(position, 1);
-        }
-        
-        // TODO : Propagate change ?
+          if (loopView.oid === view.oid) {
+              position = i;
+          }
+      }
 
-        this.onDateChange();
+      if (position > -1) {
+        this.viewModels.splice(position, 1);
+      }
+      
+      this.onDateChange();
 
     }
 
     onAddNewVersion(): void {
 
-        let view: VersionDiffView = new VersionDiffView();
+        let view: VersionDiffView = new VersionDiffView(this, this.editAction);
         view.startDate = null; // Utils.formatDateString(new Date());
         view.endDate = null; // Utils.formatDateString(new Date());
         view.oid = this.generateUUID();
@@ -442,6 +646,47 @@ export class ManageVersionsComponent implements OnInit {
 
     }
     
+    onActionChange(action: AbstractAction)
+    {
+      let hasChanges: boolean = true;
+    
+      if (action instanceof UpdateAttributeAction)
+      {
+        let updateAction: UpdateAttributeAction = action as UpdateAttributeAction;
+        
+        if (updateAction.attributeDiff.valuesOverTime.length == 0)
+        {
+          hasChanges = false;
+        }
+        else
+        {
+          
+        }
+      }
+      
+      let index = -1;
+      
+      let len = this.actions.length;
+      for (let i = 0; i < len; ++i)
+      {
+        let loopAction = this.actions[i];
+      
+        if (action === loopAction)
+        {
+          index = i;
+        }
+      };
+      
+      if (index != -1 && !hasChanges)
+      {
+        this.actions.splice(index, 1);
+      }
+      else if (index == -1 && hasChanges)
+      {
+        this.actions.push(action);
+      }
+    }
+    
     findViewByOid(oid: string): VersionDiffView
     {
       this.viewModels.forEach( (view: VersionDiffView) => {
@@ -470,23 +715,47 @@ export class ManageVersionsComponent implements OnInit {
      * Our goal here is to loop over the action diffs and then calculate what to display to the end user.
      */
     calculateViewModels(): void {
+    
+      if (this.isNew)
+      {
+        let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
+        createAction.geoObjectJson = this.postGeoObject;
+        this.actions[0] = createAction;
+        this.editAction = createAction;
+      }
+      else
+      {
+        this.actions.forEach((action: AbstractAction) => {
+          if (action.actionType === 'UpdateAttributeAction')
+          {
+            let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+            
+            if (this.attributeType.code === updateAttrAction.attributeName) {
+              this.editAction = action;
+            }
+          }
+        });
+      
+        if (this.editAction == null)
+        {
+          this.editAction = new UpdateAttributeAction(this.attributeType.code);
+        }
+      }
 
       this.viewModels = [];
       
       // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
       // on the GeoObject
       this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
-        let view = new VersionDiffView();
+        let view = new VersionDiffView(this, this.editAction);
         
         view.oid = vot.oid;
         view.summaryKey = SummaryKey.UNMODIFIED;
         view.startDate = vot.startDate;
         view.endDate = vot.endDate;
-        view.value = vot.value;
+        view.value = JSON.parse(JSON.stringify(vot.value));
         
-        // TODO
-        //view.versionEditPropagator = new ValueOverTimeEditPropagator();
-        //view.versionEditPropagator.diff = votDiff;
+        view.editPropagator.valueOverTime = vot;
         
         this.viewModels.push(view);
       });
@@ -508,10 +777,10 @@ export class ManageVersionsComponent implements OnInit {
               {
                 if (view == null)
                 {
-                  view = new VersionDiffView();
+                  view = new VersionDiffView(this, action);
                   this.viewModels.push(view);
                   
-                  view.conflictMessage = [{type: "ERROR", message: "Could not find expected reference?"}]; // TODO : Localize
+                  view.conflictMessage = [{severity: "ERROR", message: "Could not find expected reference?", type: ConflictType.MISSING_REFERENCE}]; // TODO : Localize
                 }
                 
                 delete view.oldValue;
@@ -525,17 +794,16 @@ export class ManageVersionsComponent implements OnInit {
                 
                 view.summaryKey = SummaryKey.DELETE;
                 
-                view.versionEditPropagator = new ValueOverTimeEditPropagator();
-                view.versionEditPropagator.diff = votDiff;
+                view.editPropagator.diff = votDiff;
               }
               else if (votDiff.action === "UPDATE")
               {
                 if (view == null)
                 {
-                  view = new VersionDiffView();
+                  view = new VersionDiffView(this, action);
                   this.viewModels.push(view);
                   
-                  view.conflictMessage = [{type: "ERROR", message: "Could not find expected reference?"}]; // TODO : Localize
+                  view.conflictMessage = [{severity: "ERROR", message: "Could not find expected reference?", type: ConflictType.MISSING_REFERENCE}]; // TODO : Localize
                 }
                 
                 view.oid = votDiff.oid;
@@ -545,9 +813,7 @@ export class ManageVersionsComponent implements OnInit {
                 view.oldEndDate = votDiff.oldEndDate;
                 view.value = votDiff.newValue;
                 view.oldValue = votDiff.oldValue;
-                
-                view.versionEditPropagator = new ValueOverTimeEditPropagator();
-                view.versionEditPropagator.diff = votDiff;
+                view.editPropagator.diff = votDiff;
                 
                 let hasTime = view.startDate != null || view.endDate != null;
                 let hasValue = view.value != null;
@@ -574,11 +840,10 @@ export class ManageVersionsComponent implements OnInit {
                 if (view != null)
                 {
                   // This action doesn't make sense. We're trying to create something that already exists?
-                  view.versionEditPropagator = null;
                 }
                 else
                 {
-                  view = new VersionDiffView();
+                  view = new VersionDiffView(this, action);
                   
                   view.oid = votDiff.oid;
                   view.startDate = votDiff.newStartDate;
@@ -588,8 +853,7 @@ export class ManageVersionsComponent implements OnInit {
                   view.value = votDiff.newValue;
                   view.oldValue = votDiff.oldValue;
                   
-                  view.versionEditPropagator = new ValueOverTimeEditPropagator();
-                  view.versionEditPropagator.diff = votDiff;
+                  view.editPropagator.diff = votDiff;
                   
                   this.viewModels.push(view);
                 }

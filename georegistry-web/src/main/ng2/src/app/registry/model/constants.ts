@@ -23,3 +23,8 @@ export enum ImportStrategy {
     "NEW_ONLY" = "NEW_ONLY",
     "UPDATE_ONLY" = "UPDATE_ONLY"
 }
+
+export enum ConflictType {
+  MISSING_REFERENCE = "MISSING_REFERENCE",
+  TIME_RANGE = "TIME_RANGE"
+}

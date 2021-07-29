@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
@@ -32,6 +32,8 @@ export class FeaturePanelComponent implements OnInit {
 	@Input() set code(value: string) {
 		this.updateCode(value);
 	}
+	
+	@ViewChild('attributeEditor') attributeEditor;
 
 	_code: string = null;
 
@@ -204,8 +206,7 @@ export class FeaturePanelComponent implements OnInit {
 	  }
 	  else
 	  {
-	    // TODO : Actions
-  		this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, "", this.datasetId, this.reason).then((applyInfo: any) => {
+  		this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason).then((applyInfo: any) => {
   		  if (!applyInfo.isChangeRequest)
         {
   			  this.featureChange.emit(this.postGeoObject);

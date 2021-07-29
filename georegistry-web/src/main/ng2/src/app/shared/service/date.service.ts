@@ -4,7 +4,9 @@ import { LocalizationService } from './localization.service';
 
 import Utils from '../../registry/utility/Utils';
 
-import { PRESENT, ValueOverTime } from '@registry/model/registry';
+import { PRESENT, ValueOverTime, ConflictMessage } from '@registry/model/registry';
+
+import { ConflictType } from '@registry/model/constants';
 
 import * as moment from 'moment';
 
@@ -15,14 +17,16 @@ declare var registry: any
 
 @Injectable()
 export class DateService {
-	overlapMessage = { 
-		"type": "ERROR",	
-		"message":this.localizationService.decode("manage.versions.overlap.message")
+	overlapMessage: ConflictMessage = { 
+		"severity": "ERROR",	
+		"message":this.localizationService.decode("manage.versions.overlap.message"),
+		type: ConflictType.TIME_RANGE
 	}
 	
-	gapMessage = {
-		"type": "WARNING",	
-		"message":this.localizationService.decode("manage.versions.gap.message")
+	gapMessage: ConflictMessage = {
+		"severity": "WARNING",	
+		"message":this.localizationService.decode("manage.versions.gap.message"),
+		type: ConflictType.TIME_RANGE
 	}
 
 	constructor(private localizationService: LocalizationService) {}
@@ -83,8 +87,19 @@ export class DateService {
 		
 		// clear all messages
 		vAttributes.forEach(attr => {
-			attr.conflictMessage = [];
-		})
+		  if (!attr.conflictMessage)
+		  {
+			  attr.conflictMessage = [];
+			}
+			
+			for (let i = attr.conflictMessage.length-1; i >= 0; --i)
+			{
+			  if (attr.conflictMessage[i].type == ConflictType.TIME_RANGE)
+			  {
+			    attr.conflictMessage.splice(i, 1);
+			  }
+			}
+		});
 		
 		// Check for overlaps
 		for (let j = 0; j < vAttributes.length; j++) {
@@ -96,9 +111,10 @@ export class DateService {
 
 				if (Utils.dateEndBeforeStart(s1, e1)) {
 					h1.conflictMessage.push({
-						"type": "ERROR",	
-						"message": this.localizationService.decode("manage.versions.startdate.later.enddate.message")
-					});
+						"severity": "ERROR",	
+						"message": this.localizationService.decode("manage.versions.startdate.later.enddate.message"),
+						type: ConflictType.TIME_RANGE
+					} as ConflictMessage);
 					
 					hasConflict = true;
 				}
