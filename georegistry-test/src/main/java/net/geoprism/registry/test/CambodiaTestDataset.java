@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.test;
 
+import java.util.Date;
 import java.util.List;
 
 import org.commongeoregistry.adapter.Term;
@@ -81,27 +82,27 @@ public class CambodiaTestDataset extends TestDataSet
 
   public static final TestUserInfo          USER_MOHA_AC          = new TestUserInfo("mohac", "mohac", "mohaac@noreply.com", new String[] { RegistryRole.Type.getAC_RoleName(ORG_MOH.getCode(), GOT_Hospital.getCode()) });
   
-  public TestAttributeTypeInfo AT_National_Anthem;
+  public static final TestAttributeTypeInfo AT_National_Anthem    = new TestAttributeTypeInfo("NationalAnthem", "National Anthem", GOT_Country, AttributeCharacterType.TYPE);
+
+  public static final TestAttributeTypeInfo AT_PHONE_COUNTRY_CODE = new TestAttributeTypeInfo("PhoneCountryCode", "Phone Country Code", GOT_Country, AttributeIntegerType.TYPE);
+
+  public static final TestAttributeTypeInfo AT_UN_MEMBER          = new TestAttributeTypeInfo("UnMember", "UN Member", GOT_Country, AttributeBooleanType.TYPE);
+
+  public static final TestAttributeTypeInfo AT_GDP                = new TestAttributeTypeInfo("GDP", "Gross Domestic Product", GOT_Country, AttributeFloatType.TYPE);
+
+  public static final TestAttributeTypeInfo AT_DATE_OF_FORMATION  = new TestAttributeTypeInfo("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
   
-  public TestAttributeTypeInfo AT_PHONE_COUNTRY_CODE;
+  public static final TestAttributeTermTypeInfo AT_RELIGION       = new TestAttributeTermTypeInfo("Religion", "Religion", GOT_Country);
   
-  public TestAttributeTypeInfo AT_UN_MEMBER;
-  
-  public TestAttributeTypeInfo AT_GDP;
-  
-  public TestAttributeTypeInfo AT_DATE_OF_FORMATION;
-  
-  public TestAttributeTermTypeInfo AT_RELIGION;
-  
-  public Term T_Religion;
-  
-  public Term T_Buddhism;
-  
-  public Term T_Islam;
-  
-  public Term T_Christianity;
-  
-  public Term T_Other;
+  public static final TestTermInfo                       T_Religion = new TestTermInfo("Religion", AT_RELIGION);
+
+  public static final TestTermInfo                       T_Buddhism = new TestTermInfo("Buddhism", AT_RELIGION);
+
+  public static final TestTermInfo                       T_Islam = new TestTermInfo("Islam", AT_RELIGION);
+
+  public static final TestTermInfo                       T_Christianity = new TestTermInfo("Chistianity", AT_RELIGION);
+
+  public static final TestTermInfo                       T_Other = new TestTermInfo("Other", AT_RELIGION);
 
   {
     managedOrganizationInfos.add(ORG_CENTRAL);
@@ -132,6 +133,12 @@ public class CambodiaTestDataset extends TestDataSet
     managedUsers.add(USER_MOHA_RM);
     managedUsers.add(USER_MOHA_RC);
     managedUsers.add(USER_MOHA_AC);
+    
+    AT_RELIGION.addManagedTerm(T_Religion);
+    AT_RELIGION.addManagedTerm(T_Buddhism);
+    AT_RELIGION.addManagedTerm(T_Islam);
+    AT_RELIGION.addManagedTerm(T_Christianity);
+    AT_RELIGION.addManagedTerm(T_Other);
   }
   
   public static void main(String[] args)
@@ -182,42 +189,24 @@ public class CambodiaTestDataset extends TestDataSet
   {
     super.setUpMetadataInTrans();
     
-    this.AT_National_Anthem = TestDataSet.createAttribute("NationalAnthem", "National Anthem", GOT_Country, AttributeCharacterType.TYPE);
-    GO_Cambodia.setDefaultValue(this.AT_National_Anthem.getAttributeName(), "Nokor Reach");
-    
-    this.AT_PHONE_COUNTRY_CODE = TestDataSet.createAttribute("PhoneCountryCode", "Phone Country Code", GOT_Country, AttributeIntegerType.TYPE);
-    GO_Cambodia.setDefaultValue(this.AT_PHONE_COUNTRY_CODE.getAttributeName(), 855L);
-    
-    this.AT_GDP = TestDataSet.createAttribute("GDP", "Gross Domestic Product", GOT_Country, AttributeFloatType.TYPE);
-    GO_Cambodia.setDefaultValue(this.AT_GDP.getAttributeName(), 26.730D);
-    
-    this.AT_UN_MEMBER = TestDataSet.createAttribute("UnMember", "UN Member", GOT_Country, AttributeBooleanType.TYPE);
-    GO_Cambodia.setDefaultValue(this.AT_UN_MEMBER.getAttributeName(), true);
-    
-    this.AT_DATE_OF_FORMATION = TestDataSet.createAttribute("DateOfFormation", "Date Of Formation", GOT_Country, AttributeDateType.TYPE);
-    GO_Cambodia.setDefaultValue(this.AT_DATE_OF_FORMATION.getAttributeName(), TestDataSet.DEFAULT_OVER_TIME_DATE);
-    
-    createTermAttribute();
-  }
-  
-  public void createTermAttribute()
-  {
-    this.AT_RELIGION = TestDataSet.createTermAttribute("Religion", "Religion", GOT_Country, T_Religion);
-    
-    
-    T_Religion = TestDataSet.createAttributeRootTerm(this.GOT_Country, this.AT_RELIGION);
-    
-    T_Buddhism = TestDataSet.createTerm(this.AT_RELIGION, "Buddhism", "Buddhism");
-    T_Islam = TestDataSet.createTerm(this.AT_RELIGION, "Islam", "Islam");
-    T_Christianity = TestDataSet.createTerm(this.AT_RELIGION, "Christianity", "Christianity");
-    T_Other = TestDataSet.createTerm(this.AT_RELIGION, "Other", "Other");
-    
-    Classifier rootClassy = TestDataSet.getClassifierIfExist(this.AT_RELIGION.fetchRootAsTerm().getCode());
-    List<? extends Classifier> childClassifiers = rootClassy.getAllIsAChild().getAll();
-    Assert.assertEquals(4, childClassifiers.size());
-    
-    
-    GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism);
+    AT_National_Anthem.apply();
+    GO_Cambodia.setDefaultValue(AT_National_Anthem.getAttributeName(), "Nokor Reach");
+
+    AT_PHONE_COUNTRY_CODE.apply();
+    GO_Cambodia.setDefaultValue(AT_PHONE_COUNTRY_CODE.getAttributeName(), 855L);
+
+    AT_GDP.apply();
+    GO_Cambodia.setDefaultValue(AT_GDP.getAttributeName(), 26.730D);
+
+    AT_UN_MEMBER.apply();
+    GO_Cambodia.setDefaultValue(AT_UN_MEMBER.getAttributeName(), true);
+
+    AT_DATE_OF_FORMATION.apply();
+    GO_Cambodia.setDefaultValue(AT_DATE_OF_FORMATION.getAttributeName(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    AT_RELIGION.apply();
+
+    GO_Cambodia.setDefaultValue(AT_RELIGION.getAttributeName(), T_Buddhism.fetchTerm());
   }
 
   @Override

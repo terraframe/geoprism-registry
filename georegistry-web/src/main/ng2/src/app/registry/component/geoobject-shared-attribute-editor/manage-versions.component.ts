@@ -723,12 +723,16 @@ export class ManageVersionsComponent implements OnInit {
     
     findViewByOid(oid: string): VersionDiffView
     {
-      this.viewModels.forEach( (view: VersionDiffView) => {
+      let len = this.viewModels.length;
+      for (let i = 0; i < len; ++i)
+      {
+        let view = this.viewModels[i];
+        
         if (view.oid === oid)
         {
           return view;
         }
-      });
+      }
       
       return null;
     }
@@ -841,16 +845,28 @@ export class ManageVersionsComponent implements OnInit {
                 }
                 
                 view.oid = votDiff.oid;
-                view.startDate = votDiff.newStartDate;
-                view.endDate = votDiff.newEndDate;
+                
+                if (votDiff.newStartDate != null)
+                {
+                  view.startDate = votDiff.newStartDate;
+                }
+                if (votDiff.newEndDate != null)
+                {
+                  view.endDate = votDiff.newEndDate;
+                }
+                
+                if (votDiff.newValue != null)
+                {
+                  view.value = votDiff.newValue;
+                }
+                
                 view.oldStartDate = votDiff.oldStartDate;
                 view.oldEndDate = votDiff.oldEndDate;
-                view.value = votDiff.newValue;
                 view.oldValue = votDiff.oldValue;
                 view.editPropagator.diff = votDiff;
                 
-                let hasTime = view.startDate != null || view.endDate != null;
-                let hasValue = view.value != null;
+                let hasTime = votDiff.newStartDate != null || votDiff.newEndDate != null;
+                let hasValue = votDiff.newValue != null;
                 
                 if (hasTime && hasValue)
                 {
@@ -886,6 +902,7 @@ export class ManageVersionsComponent implements OnInit {
                   view.oldEndDate = votDiff.oldEndDate;
                   view.value = votDiff.newValue;
                   view.oldValue = votDiff.oldValue;
+                  view.summaryKey = SummaryKey.NEW;
                   
                   view.editPropagator.diff = votDiff;
                   
