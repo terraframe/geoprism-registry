@@ -1,15 +1,17 @@
 package net.geoprism.registry;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,13 +19,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.hl7.fhir.instance.model.api.IBaseResource;
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.hl7.fhir.r4.model.Attachment;
 import org.hl7.fhir.r4.model.Base64BinaryType;
+import org.hl7.fhir.r4.model.Binary;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
@@ -43,15 +55,19 @@ import org.hl7.fhir.r4.model.Location.LocationMode;
 import org.hl7.fhir.r4.model.Location.LocationPositionComponent;
 import org.hl7.fhir.r4.model.Location.LocationStatus;
 import org.hl7.fhir.r4.model.Organization;
+import org.hl7.fhir.r4.model.Parameters;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
+import org.hl7.fhir.r4.model.ResourceType;
 import org.hl7.fhir.r4.model.SearchParameter;
+import org.hl7.fhir.r4.model.StringType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.runwaysdk.Pair;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -60,7 +76,10 @@ import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.parser.IParser;
+import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.MethodOutcome;
+import ca.uhn.fhir.rest.client.apache.ResourceEntity;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -147,26 +166,186 @@ public class Sandbox
   @Request
   private static void test() throws Exception
   {
-    String url = "http://localhost:8080/fhir/";
+    // String url = "http://hapi.fhir.org/baseR4";
+    String url = "http://localhost:8080/fhir";
     // String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
     // Create a client
+
+    testImport(url);
+
+    // // Location parent =
+    // // client.read().resource(Location.class).withId("1").execute();
+    //
+    // Calendar cal = Calendar.getInstance();
+    // cal.clear();
+    // cal.set(2021, Calendar.MARCH, 15, 0, 0);
+    //
+    // Date date = cal.getTime();
+    //
+    // // exportType(client, date, ServerGeoObjectType.get("District"));
+    // // exportType(client, date, ServerGeoObjectType.get("Village"));
+    //
+    // exportJson(client, new
+    // File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
+
+  }
+
+  public static void testImport(String url) throws IOException, ClientProtocolException, InterruptedException
+  {
+    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(5000, TimeUnit.MILLISECONDS);
+    HttpClientBuilder builder = HttpClientBuilder.create();
+    builder.setConnectionManager(connectionManager);
+    CloseableHttpClient myClient = builder.build();
+
     FhirContext ctx = FhirContext.forR4();
-    IGenericClient client = ctx.newRestfulGenericClient(url);
 
-    // Location parent =
-    // client.read().resource(Location.class).withId("1").execute();
+    Parameters inParams = new Parameters();
+    inParams.addParameter().setName("_type").setValue(new StringType("Organization,Location"));
 
-    Calendar cal = Calendar.getInstance();
-    cal.clear();
-    cal.set(2021, Calendar.MARCH, 15, 0, 0);
+    HttpPost post = new HttpPost(url + "/" + "$export");
+    post.addHeader(Constants.HEADER_PREFER, Constants.HEADER_PREFER_RESPOND_ASYNC);
+    post.setEntity(new ResourceEntity(ctx, inParams));
 
-    Date date = cal.getTime();
+    String location = null;
 
-    // exportType(client, date, ServerGeoObjectType.get("District"));
-    // exportType(client, date, ServerGeoObjectType.get("Village"));
+    try (CloseableHttpResponse response = myClient.execute(post))
+    {
+      if (response.getStatusLine().getStatusCode() == 202)
+      {
+        location = response.getFirstHeader(Constants.HEADER_CONTENT_LOCATION).getValue();
 
-    exportJson(client, new File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
+        System.out.println(location);
+      }
+      else
+      {
+        System.out.println(response.getStatusLine().getStatusCode());
 
+        StringWriter writer = new StringWriter();
+        IOUtils.copy(response.getEntity().getContent(), writer, "utf-8");
+        String theString = writer.toString();
+
+        System.out.println(theString);
+      }
+    }
+
+    if (location != null)
+    {
+      final String uri = location;
+      final List<Pair<String, String>> outputs = new LinkedList<>();
+
+      Thread t = new Thread(new Runnable()
+      {
+
+        @Override
+        public void run()
+        {
+          try
+          {
+
+            boolean complete = false;
+
+            while (!complete)
+            {
+              try (CloseableHttpResponse response = myClient.execute(new HttpGet(uri)))
+              {
+                if (response.getStatusLine().getStatusCode() == 202)
+                {
+                  int retry = Integer.parseInt(response.getFirstHeader(Constants.HEADER_RETRY_AFTER).getValue());
+                  String progress = response.getFirstHeader(Constants.HEADER_X_PROGRESS).getValue();
+
+                  System.out.println(progress);
+
+                  Thread.sleep(retry);
+                }
+                else if (response.getStatusLine().getStatusCode() == 200)
+                {
+                  try
+                  {
+                    StringWriter writer = new StringWriter();
+                    IOUtils.copy(response.getEntity().getContent(), writer, "utf-8");
+                    String content = writer.toString();
+
+                    System.out.println(content);
+
+                    JsonObject object = JsonParser.parseString(content).getAsJsonObject();
+
+                    if (object.has("output"))
+                    {
+                      JsonArray output = object.get("output").getAsJsonArray();
+
+                      for (int i = 0; i < output.size(); i++)
+                      {
+                        JsonObject item = output.get(i).getAsJsonObject();
+                        String type = item.get("type").getAsString();
+                        String url = item.get("url").getAsString();
+
+                        outputs.add(new Pair<String, String>(type, url));
+                      }
+                    }
+                  }
+                  finally
+                  {
+                    complete = true;
+                  }
+                }
+                else
+                {
+                  // ERROR
+                  StringWriter writer = new StringWriter();
+                  IOUtils.copy(response.getEntity().getContent(), writer, "utf-8");
+                  String content = writer.toString();
+
+                  System.out.println(content);
+
+                  complete = true;
+                }
+              }
+            }
+          }
+          catch (Exception e)
+          {
+            e.printStackTrace();
+          }
+        }
+      });
+      t.start();
+
+      t.join();
+
+      IGenericClient client = ctx.newRestfulGenericClient(url);
+
+      for (Pair<String, String> output : outputs)
+      {
+        String type = output.getFirst();
+        String binaryUrl = output.getSecond();
+        // ResourceType resourceType = ResourceType.valueOf(type);
+        //
+        // System.out.println(resourceType.);
+
+        Binary binary = client.fetchResourceFromUrl(Binary.class, binaryUrl);
+
+        String base64 = binary.getContentAsBase64();
+
+        byte[] result = Base64.getDecoder().decode(base64);
+
+        IParser parser = ctx.newJsonParser();
+        String message = new String(result);
+
+        FileUtils.write(new File("output.ndjson"), message, "utf-8");
+
+        try (BufferedReader reader = new BufferedReader(new StringReader(message)))
+        {
+          String line = null;
+
+          while ( ( line = reader.readLine() ) != null)
+          {
+            IBaseResource resource = parser.parseResource(line);
+
+            System.out.println(resource.getIdElement());
+          }
+        }
+      }
+    }
   }
 
   private static void exportBundle(IGenericClient client, File file) throws FileNotFoundException, IOException
