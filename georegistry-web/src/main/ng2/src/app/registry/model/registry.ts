@@ -136,43 +136,43 @@ export class ConflictMessage {
 }
 
 export class ValueOverTime {
-    oid: string;
-    startDate: string;
-    endDate: string;
-    value: any;
-    removable?: boolean;
+  oid: string;
+  startDate: string;
+  endDate: string;
+  value: any;
+  removable?: boolean;
 }
 
 export class AttributeOverTime {
-    name: string;
-    type: string;
-    values: ValueOverTime[];
+  name: string;
+  type: string;
+  values: ValueOverTime[];
 }
 
 export class AttributeType {
-    code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept, for some reason we just rename the field to 'code' when serializing.
-    type: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
-    isDefault: boolean;
-    required: boolean;
-    unique: boolean;
-    governanceStatus: GovernanceStatus;
-    isChangeOverTime?: boolean;
-    precision?: number;
-    scale?: number;
+  code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept, for some reason we just rename the field to 'code' when serializing.
+  type: string;
+  label: LocalizedValue;
+  description: LocalizedValue;
+  isDefault: boolean;
+  required: boolean;
+  unique: boolean;
+  governanceStatus: GovernanceStatus;
+  isChangeOverTime?: boolean;
+  precision?: number;
+  scale?: number;
 
-    constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
+  constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 
-        this.code = code;
-        this.type = type;
-        this.label = label;
-        this.description = description;
-        this.isDefault = isDefault;
-        this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
-        this.unique = unique;
-        this.isChangeOverTime = isChangeOverTime;
-    }
+    this.code = code;
+    this.type = type;
+    this.label = label;
+    this.description = description;
+    this.isDefault = isDefault;
+    this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
+    this.unique = unique;
+    this.isChangeOverTime = isChangeOverTime;
+  }
 
 }
 

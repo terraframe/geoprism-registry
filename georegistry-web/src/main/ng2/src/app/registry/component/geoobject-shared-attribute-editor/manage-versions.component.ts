@@ -42,7 +42,7 @@ export enum SummaryKey {
 class ValueOverTimeEditPropagator {
   view: VersionDiffView;
   diff: ValueOverTimeDiff; // Any existing diff which may be associated with this view object.
-  valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
+  valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set and the action is UpdateAttribute, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
   action: AbstractAction;
   component: ManageVersionsComponent;
   
@@ -89,6 +89,10 @@ class ValueOverTimeEditPropagator {
       
       this.diff.newStartDate = startDate;
     }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      this.valueOverTime.startDate = startDate;
+    }
     
     this.view.startDate = startDate;
     
@@ -130,6 +134,10 @@ class ValueOverTimeEditPropagator {
       }
       
       this.diff.newEndDate = endDate;
+    }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      this.valueOverTime.endDate = endDate;
     }
     
     this.view.endDate = endDate;
@@ -185,6 +193,10 @@ class ValueOverTimeEditPropagator {
       
       this.diff.newValue = value;
     }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      this.valueOverTime.value = value;
+    }
     
     this.view.value = value;
     
@@ -223,6 +235,10 @@ class ValueOverTimeEditPropagator {
       }
       
       this.diff.newValue = this.view.value;
+    }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      this.valueOverTime.value = this.view.value;
     }
     
     this.component.onActionChange(this.action);
@@ -275,6 +291,17 @@ class ValueOverTimeEditPropagator {
         {
           this.action.attributeDiff.valuesOverTime.splice(index, 1);
         }
+      }
+    }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      let votc = this.action.geoObjectJson.attributes[this.component.attributeType.code].values;
+      
+      let index = votc.findIndex((vot) => {return vot.oid === this.valueOverTime.oid});
+      
+      if (index != -1)
+      {
+        votc.splice(index, 1);
       }
     }
     
@@ -359,8 +386,6 @@ export class ManageVersionsComponent implements OnInit {
             this.editingGeometry = 0;
 
         }
-        
-        this.calculateViewModels();
     }
 
     @Input() geoObjectType: GeoObjectType;
@@ -393,7 +418,7 @@ export class ManageVersionsComponent implements OnInit {
     constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
 
     ngOnInit(): void {
-      //this.writeToActions = this.authService.isGeoObjectTypeOrSuperRC(this.geoObjectType, false);
+      this.calculateViewModels();
     }
 
     ngAfterViewInit() {
@@ -464,8 +489,6 @@ export class ManageVersionsComponent implements OnInit {
     onAddNewVersion(): void {
 
         let view: VersionDiffView = new VersionDiffView(this, this.editAction);
-        view.startDate = null; // Utils.formatDateString(new Date());
-        view.endDate = null; // Utils.formatDateString(new Date());
         view.oid = this.generateUUID();
 
         if (this.attributeType.type === "local") {
@@ -532,6 +555,16 @@ export class ManageVersionsComponent implements OnInit {
             }
 
         }
+        
+        if (this.editAction instanceof CreateGeoObjectAction)
+        {
+          let vot = new ValueOverTime();
+          vot.oid = this.generateUUID();
+          
+          this.editAction.geoObjectJson.attributes[this.attributeType.code].values.push(vot);
+        
+          view.editPropagator.valueOverTime = vot;
+        }
 
         this.viewModels.push(view);
 
@@ -543,8 +576,6 @@ export class ManageVersionsComponent implements OnInit {
         }
         */
         
-        // TODO : Propagate change ?
-
         this.changeDetectorRef.detectChanges();
 
     }

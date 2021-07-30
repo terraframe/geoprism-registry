@@ -38,6 +38,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.runwaysdk.localization.LocalizedValueStore;
+import com.runwaysdk.localization.LocalizedValueStoreStoreValue;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
@@ -161,8 +163,13 @@ public class ChangeRequestJsonAdapters
       {
         try
         {
-          GeoObjectOverTime got = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), ((CreateGeoObjectAction) cr.getAllAction().next()).getGeoObjectJson());
-          geoObject.addProperty("label", got.getDisplayLabel(new Date()).getValue());
+          GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), ((CreateGeoObjectAction) cr.getAllAction().next()).getGeoObjectJson());
+          
+          // Quick little hack to localize a value when it's not in a database or part of a Runway object.
+          LocalizedValueStore lvs = new LocalizedValueStore();
+          lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(new Date()).getLocaleMap());
+          
+          geoObject.addProperty("label", lvs.getStoreValue().getValue());
         }
         catch (Exception e)
         {

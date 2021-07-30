@@ -202,13 +202,11 @@
                     <div class="row" style="background: white;">
                       <div class="col-md-12">
                       
-<!--                         TODO: Will there always be at least one action? Either way I don't like getting the GeoObjectJson this way -->
                          <geoobject-shared-attribute-editor 
                               #attributeEditor
-                              *ngIf="req.actions.length > 0"
                               [readOnly]="req.permissions.includes('WRITE_DETAILS')"  
                               [geoObjectType]="req.current.geoObjectType"
-                              [geoObjectData]="{'geoObject':req.current.geoObject, 'actions': req.actions}"
+                              [geoObjectData]="{'geoObject': req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson, 'actions': req.actions}"
                               [forDate]="today"
                               [readOnly]="false"
                               [isGeometryInlined]="true">
