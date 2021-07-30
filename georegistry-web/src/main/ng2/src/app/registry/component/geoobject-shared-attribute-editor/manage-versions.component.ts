@@ -41,8 +41,8 @@ export enum SummaryKey {
 
 class ValueOverTimeEditPropagator {
   view: VersionDiffView;
-  diff: ValueOverTimeDiff;
-  valueOverTime?: ValueOverTime;
+  diff: ValueOverTimeDiff; // Any existing diff which may be associated with this view object.
+  valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
   action: AbstractAction;
   component: ManageVersionsComponent;
   
@@ -244,7 +244,41 @@ class ValueOverTimeEditPropagator {
   
   public remove(): void
   {
-    console.log("TODO");
+    if (this.action instanceof UpdateAttributeAction)
+    {
+      if (this.valueOverTime != null && this.diff == null)
+      {
+        this.diff = new ValueOverTimeDiff();
+        this.diff.action = "DELETE";
+        this.diff.oid = this.valueOverTime.oid;
+        this.diff.oldValue = this.valueOverTime.value;
+        this.diff.oldStartDate = this.valueOverTime.startDate;
+        this.diff.oldEndDate = this.valueOverTime.endDate;
+        this.action.attributeDiff.valuesOverTime.push(this.diff);
+      }
+      else if (this.diff != null)
+      {
+        let index = -1;
+        
+        let len = this.action.attributeDiff.valuesOverTime.length;
+        for (let i = 0; i < len; ++i)
+        {
+          let diff = this.action.attributeDiff.valuesOverTime[i];
+        
+          if (diff.oid === this.diff.oid)
+          {
+            index = i;
+          }
+        }
+      
+        if (index != -1)
+        {
+          this.action.attributeDiff.valuesOverTime.splice(index, 1);
+        }
+      }
+    }
+    
+    this.component.onActionChange(this.action);
   }
 }
 
