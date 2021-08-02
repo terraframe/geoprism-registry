@@ -15,7 +15,7 @@ import {
     transition
 } from "@angular/animations";
 
-import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTermType, PRESENT, ConflictMessage } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTermType, PRESENT, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { ConflictType } from '@registry/model/constants';
@@ -394,6 +394,8 @@ export class ManageVersionsComponent implements OnInit {
     postGeoObject: GeoObjectOverTime;
 
     @Input() isNewGeoObject: boolean = false;
+    
+    @Input() hierarchy: HierarchyOverTime = null;
 
     goGeometries: GeoObjectOverTime;
 
@@ -815,19 +817,40 @@ export class ManageVersionsComponent implements OnInit {
       
       // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
       // on the GeoObject
-      this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
-        let view = new VersionDiffView(this, this.editAction);
-        
-        view.oid = vot.oid;
-        view.summaryKey = SummaryKey.UNMODIFIED;
-        view.startDate = vot.startDate;
-        view.endDate = vot.endDate;
-        view.value = JSON.parse(JSON.stringify(vot.value));
-        
-        view.editPropagator.valueOverTime = vot;
-        
-        this.viewModels.push(view);
-      });
+      if (this.attributeType.code === '_PARENT_')
+      {
+        this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
+          let view = new VersionDiffView(this, this.editAction);
+          
+          view.oid = entry.oid;
+          view.summaryKey = SummaryKey.UNMODIFIED;
+          view.startDate = entry.startDate;
+          view.endDate = entry.endDate;
+          
+          // TODO
+          //view.value = JSON.parse(JSON.stringify(entry.value));
+          
+          //view.editPropagator.valueOverTime = entry;
+          
+          this.viewModels.push(view);
+        });
+      }
+      else
+      {
+        this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
+          let view = new VersionDiffView(this, this.editAction);
+          
+          view.oid = vot.oid;
+          view.summaryKey = SummaryKey.UNMODIFIED;
+          view.startDate = vot.startDate;
+          view.endDate = vot.endDate;
+          view.value = JSON.parse(JSON.stringify(vot.value));
+          
+          view.editPropagator.valueOverTime = vot;
+          
+          this.viewModels.push(view);
+        });
+      }
       
       // Next, we must apply all changes which may exist in the actions.
       this.actions.forEach((action: AbstractAction) => {

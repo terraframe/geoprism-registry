@@ -61,10 +61,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     // eslint-disable-next-line accessor-pairs
     @Input() set geoObjectData(value: {"geoObject": GeoObjectOverTime, "actions": CreateGeoObjectAction[] | UpdateAttributeAction[]}) {
 
-        this.preGeoObject = value.geoObject;
-        this.postGeoObject = JSON.parse(JSON.stringify(value.geoObject));
-
-        this.actions = value.actions;
+      this.preGeoObject = value.geoObject;
+      this.postGeoObject = JSON.parse(JSON.stringify(value.geoObject));
+  
+      this.actions = value.actions;
 
 
     }
@@ -125,10 +125,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
 
     @ViewChild("attributeForm") attributeForm;
+    
+    parentAttributeType: AttributeType;
 
     constructor(private lService: LocalizationService, private authService: AuthService, private dateService: DateService) {
 
-        this.isContributorOnly = this.authService.isContributerOnly();
+      this.isContributorOnly = this.authService.isContributerOnly();
 
     }
     
@@ -166,6 +168,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             this.geoObjectType.attributes.push(geometry);
 
         }
+        
+        this.parentAttributeType = new AttributeType("_PARENT_", "_PARENT_", new LocalizedValue("Parents", null), new LocalizedValue("Parents", null), true, false, false, true);
 
     }
 

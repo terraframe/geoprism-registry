@@ -115,7 +115,8 @@
               </div>
 			      
 			        <div class="panel-body">
-			          <manage-parent-versions [hierarchy]="hierarchy" ></manage-parent-versions>
+			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'geoObject':postGeoObject}"
+                        [readonly]="readOnly" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
 			        </div>
 		        </div>
 	        </li>

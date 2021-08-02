@@ -295,6 +295,8 @@ public class ServerParentTreeNodeOverTime
         }
 
         object.add(JSON_ENTRY_PARENTS, pArray);
+        
+        object.addProperty("oid", node.getOid());
 
         entries.add(object);
       }

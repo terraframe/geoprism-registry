@@ -209,6 +209,7 @@
                               [geoObjectData]="{'geoObject': req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson, 'actions': req.actions}"
                               [forDate]="today"
                               [readOnly]="false"
+                              [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
                               [isGeometryInlined]="true">
                          </geoobject-shared-attribute-editor>
                          

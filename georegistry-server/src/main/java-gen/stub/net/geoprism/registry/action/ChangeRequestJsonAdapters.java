@@ -137,6 +137,7 @@ public class ChangeRequestJsonAdapters
       
       object.addProperty("type", this.hasCreate ? "CreateGeoObject" : "UpdateGeoObject");
       
+      // Create and populate the "organization". This object will contain a code and label for the Organization in the CR.
       JsonObject organization = new JsonObject();
       organization.addProperty("code", cr.getOrganizationCode());
       if (cache.getOrganization(cr.getOrganizationCode()).isPresent())
@@ -145,6 +146,7 @@ public class ChangeRequestJsonAdapters
       }
       object.add("organization", organization);
       
+      // Create and populate the "geoObjectType". This object will contain a code and label for the GeoObjectType in the CR.
       JsonObject geoObjectType = new JsonObject();
       geoObjectType.addProperty("code", cr.getGeoObjectTypeCode());
       if (type != null)
@@ -157,6 +159,7 @@ public class ChangeRequestJsonAdapters
       }
       object.add("geoObjectType", geoObjectType);
       
+      // Create and populate the "geoObject". This object will contain a code and label for the GeoObject in the CR.
       JsonObject geoObject = new JsonObject();
       geoObject.addProperty("code", cr.getGeoObjectCode());
       if (this.hasCreate)
@@ -198,6 +201,7 @@ public class ChangeRequestJsonAdapters
       
       JsonObject current = new JsonObject();
       
+      // Add serialized GeoObjectType
       if (type == null)
       {
         got = new GeoObjectType(cr.getGeoObjectTypeCode(), GeometryType.POLYGON, new LocalizedValue(cr.getGeoObjectTypeCode()), new LocalizedValue(""), false, "", ServiceFactory.getAdapter());
@@ -215,7 +219,11 @@ public class ChangeRequestJsonAdapters
         
         if (go != null)
         {
+          // Add serialized GeoObject to current
           current.add("geoObject", context.serialize(go.toGeoObjectOverTime()));
+          
+          // Add hierarchies
+          current.add("hierarchies", go.getHierarchiesForGeoObject());
         }
         else
         {

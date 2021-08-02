@@ -358,14 +358,17 @@ export class HierarchyOverTime {
         label: string;
     }[];
 
-    entries: {
-        startDate: string;
-        endDate: string;
-        parents: { [k: string]: { text: string; geoObject: GeoObject } };
-        loading?: any;
-        conflictType?: string;
-        conflictMessage?: any[];
-    }[];
+    entries: HierarchyOverTimeEntry[];
+}
+
+export class HierarchyOverTimeEntry {
+  startDate: string;
+  endDate: string;
+  oid: string;
+  parents: { [k: string]: { text: string; geoObject: GeoObject } };
+  loading?: any;
+  conflictType?: string;
+  conflictMessage?: any[];
 }
 
 export class MasterListByOrg {
