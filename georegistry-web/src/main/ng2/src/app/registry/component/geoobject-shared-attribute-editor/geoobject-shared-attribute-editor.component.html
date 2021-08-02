@@ -24,7 +24,7 @@
   <fieldset>
     <!-- <div class="col-md-12"> -->
     <div *ngIf="postGeoObject">
-      <div *ngIf="!this.isEditingGeometries" class="row">
+      <div *ngIf="tabIndex === 0" class="row">
         <!-- <div class="label-holder">
                         <label>
                             <localize key="change.request.geoobject.update.form.label"></localize>
@@ -104,7 +104,24 @@
           </ul>
         </div>
       </div>
-      <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined">
+      <div *ngIf="tabIndex === 1" class="row">
+        <ul class="list-group">
+	        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
+	          <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 style="margin:0;">
+                  <span> {{hierarchy.label}} </span> 
+                </h4>
+              </div>
+			      
+			        <div class="panel-body">
+			          <manage-parent-versions [hierarchy]="hierarchy" ></manage-parent-versions>
+			        </div>
+		        </div>
+	        </li>
+        </ul>
+      </div>
+      <div *ngIf="tabIndex === 2 && this.isEditingGeometries && !this.isGeometryInlined">
         TODO: enable
 <!--           <geoobject-editor-map  -->
 <!--             #geometryEditor -->

@@ -12,7 +12,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
-import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeOverTime, AttributeTermType, Term, ValueOverTime } from "@registry/model/registry";
+import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeOverTime, AttributeTermType, Term, ValueOverTime, HierarchyOverTime } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 
@@ -51,12 +51,12 @@ import Utils from "../../utility/Utils";
 /**
  * IMPORTANT
  * This component is shared between:
- * - crtable
+ * - crtable (request-table.component.ts)
  * - change-request (for submitting change requests)
- * - master list geoobject editing widget
+ * - master list geoobject editing widget (feature-panel.component.ts)
  * Be wary of changing this component for one usecase and breaking other usecases!
  */
-export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChanges {
+export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     // eslint-disable-next-line accessor-pairs
     @Input() set geoObjectData(value: {"geoObject": GeoObjectOverTime, "actions": CreateGeoObjectAction[] | UpdateAttributeAction[]}) {
@@ -66,7 +66,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
         this.actions = value.actions;
 
-        //this.setGeoObjectToCurrent(this.postGeoObject);
 
     }
 
@@ -116,6 +115,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
 
     @Input() customEvent: boolean = false;
+    
+    @Input() hierarchies: HierarchyOverTime[];
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
@@ -180,176 +181,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
     }
 
-    ngOnChanges(changes: SimpleChanges) {
-
-//        if (changes.geoObjectData) {
-
-//            this.geoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.geoObject)).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
-//
-//            if (this.postGeoObject == null) {
-//
-//                this.postGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.geoObject)).attributes); // Object.assign is a shallow copy. We want a deep copy.
-//
-//            } else {
-//
-//                this.postGeoObject = new GeoObjectOverTime(this.geoObjectType, JSON.parse(JSON.stringify(this.postGeoObject)).attributes); // We're about to heavily modify this object. We don't want to muck with the original copy they sent us.
-//
-//            }
-
-//            this.calculate();
-
-        // eslint-disable-next-line dot-notation
-
-//        } else if (changes["forDate"]) {
-//
-//            this.calculate();
-//
-//        }
-
-    }
-
-    updateValueOverTime(actionDiffVOTs: ValueOverTimeDiff[], attribute: AttributeOverTime, geoObject: GeoObjectOverTime, action: any) {
-
-        // If action is an AttributeUpdateAction
-        if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-
-            if (attribute.name === action.attributeName) {
-
-                for (let i1 = 0; i1 < actionDiffVOTs.length; i1++) {
-
-                    let actionDiffVOT = actionDiffVOTs[i1];
-
-                    for (let i2 = 0; i2 < attribute.values.length; i2++) {
-
-                        let val = attribute.values[i2];
-
-                        if (actionDiffVOT.oid === val.oid) {
-
-                            console.log("dif value --> ", actionDiffVOT.newValue)
-
-//                            if (geoObjectAttribute.type === "date") {
-//
-//                                if (new Date(String(actionDiffVot.oldValue)) !== new Date(String(actionDiffVot.newValue))) {
-//
-//                                    let thisVot = new ValueOverTime();
-//                                    thisVot.startDate = actionDiffVot.newStartDate;
-//                                    thisVot.endDate = actionDiffVot.newEndDate;
-//                                    thisVot.value = actionDiffVot.newValue;
-//
-//                                    newAttributeValues.push(thisVot);
-//
-//                                }
-//
-//                            } else if (geoObjectAttribute.type === "local") {
-//
-//                                newAttributeValues.push({ startDate: actionDiffVot.newStartDate, endDate: actionDiffVot.newEndDate, value: actionDiffVot.newValue });
-//
-//                            } else {
-//
-//                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        } else {
-
-            // Else if action is a CreateGeoObjectAction
-
-            console.log("create geoobject action")
-
-        }
-
-    }
-
-    setGeoObjectToCurrent(geoObject: GeoObjectOverTime): void {
-
-        // Iterate over all actions to find all the changes
-        this.actions.forEach((action: any) => {
-
-            // If action is an AttributeUpdateAction
-            if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-
-                if (geoObject.attributes[action.attributeName]) {
-
-                    let geoObjectAttribute = geoObject.attributes[action.attributeName];
-
-                    if (geoObjectAttribute.name === action.attributeName) {
-
-                        this.updateValueOverTime(action.attributeDiff.valuesOverTime, geoObjectAttribute, geoObject, action);
-
-                    }
-
-                }
-
-            }
-
-        });
-
-    }
-
-//    setGeoObjectToCurrent(geoObject: GeoObjectOverTime): void {
-//
-//        // Iterate over all actions to find all the changes
-//        this.actions.forEach((action) => {
-//
-//            if (geoObject.attributes[action.attributeName]) {
-//
-//                let attribute = geoObject.attributes[action.attributeName];
-//
-//                if (attribute.name === action.attributeName) {
-//
-//                    let newAttributeValues = [];
-//                    action.attributeDiff.valuesOverTime.forEach((diffVot) => {
-//
-//                        if (attribute.type === "date") {
-//
-//                            if (new Date(String(diffVot.oldValue)) !== new Date(String(diffVot.newValue))) {
-//
-//                                let thisVot = new ValueOverTime();
-//                                thisVot.startDate = diffVot.newStartDate;
-//                                thisVot.endDate = diffVot.newEndDate;
-//                                thisVot.value = diffVot.newValue;
-//
-//                                newAttributeValues.push(thisVot);
-//
-//                            }
-//
-//                        } else if (attribute.type === "local") {
-//
-//                            newAttributeValues.push({ startDate: diffVot.newStartDate, endDate: diffVot.newEndDate, value: diffVot.newValue });
-//
-//                        } else {
-//
-//                            if (diffVot.oldValue !== diffVot.newValue) {
-//
-//                                let thisVot = new ValueOverTime();
-//                                thisVot.startDate = diffVot.newStartDate;
-//                                thisVot.endDate = diffVot.newEndDate;
-//                                thisVot.value = diffVot.newValue;
-//
-//                                newAttributeValues.push(thisVot);
-//
-//                            }
-//
-//                        }
-//
-//                    });
-//
-//                    attribute.values = newAttributeValues;
-//
-//                }
-//
-//            }
-//
-//        });
-//
-//    }
-
     changePage(nextPage: number): void {
 
         this.tabIndex = nextPage;
@@ -372,118 +203,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit, OnChange
 
     }
 
-//    calculate(): void {
-//
-//        this.calculatedGeoObject = this.calculateCurrent(this.geoObject);
-//
-//        if (this.geometryEditor != null) {
-//
-//            this.geometryEditor.reload();
-//
-//        }
-//
-//    }
-
-//    calculateCurrent(goot: GeoObjectOverTime): any {
-//
-//        const object = {};
-//
-//        const time = this.forDate.getTime();
-//
-//        this.geoObjectType.attributes.forEach(attr => {
-//
-//            object[attr.code] = null;
-//
-//            if (attr.type === "local") {
-//
-//                object[attr.code] =
-//                {
-//                    startDate: null,
-//                    endDate: null,
-//                    value: this.lService.create()
-//                };
-//
-//            }
-//
-//            if (attr.isChangeOverTime) {
-//
-//                let values = goot.attributes[attr.code].values;
-//
-//                values.forEach(vot => {
-//
-//                    const startDate = Date.parse(vot.startDate);
-//                    const endDate = Date.parse(vot.endDate);
-//
-//                    if (time >= startDate && time <= endDate) {
-//
-//                        if (attr.type === "local") {
-//
-//                            object[attr.code] = {
-//                                startDate: this.formatDate(vot.startDate),
-//                                endDate: this.formatDate(vot.endDate),
-//                                value: JSON.parse(JSON.stringify(vot.value))
-//                            };
-//
-//                        } else if (attr.type === "term" && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0) {
-//
-//                            object[attr.code] = {
-//                                startDate: this.formatDate(vot.startDate),
-//                                endDate: this.formatDate(vot.endDate),
-//                                value: vot.value[0]
-//                            };
-//
-//                        } else {
-//
-//                            object[attr.code] = {
-//                                startDate: this.formatDate(vot.startDate),
-//                                endDate: this.formatDate(vot.endDate),
-//                                value: vot.value
-//                            };
-//
-//                        }
-//
-//                    }
-//
-//                });
-//
-//            } else {
-//
-//                object[attr.code] = goot.attributes[attr.code];
-//
-//            }
-//
-//        });
-//
-//        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
-//
-//            let attr = this.geoObjectType.attributes[i];
-//
-//            if (attr.isChangeOverTime && !object[attr.code]) {
-//
-//                object[attr.code] = {
-//                    startDate: null,
-//                    endDate: null,
-//                    value: ""
-//                };
-//
-//            }
-//
-//        }
-//
-//        return object;
-//
-//    }
-
     formatDate(date: string): string {
 
         return this.dateService.formatDateForDisplay(date);
 
-    }
-
-    handleChangeCode(e: any): void {
-        // this.postGeoObject.attributes.code = this.calculatedPostObject["code"];
-
-        // this.onChange.emit(this.postGeoObject);
     }
 
     onManageGeometryVersions(): void {
