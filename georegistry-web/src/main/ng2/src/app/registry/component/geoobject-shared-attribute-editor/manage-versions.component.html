@@ -1,4 +1,8 @@
 <div>
+  <ng-template #customItemTemplate let-model="item" let-index="index">
+    <h5>{{model.name }} : {{ model.code }}</h5>
+  </ng-template>
+
   <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert">
     <localize key="changeovertime.manageVersions.duplicateDate"></localize>
   </div>
@@ -14,7 +18,7 @@
           <div *ngIf="postGeoObject" class="attribute-version-wrapper">
             <ul class="list-group">
               <li class="list-group-item" style="text-align:left;padding:0;">
-                <div *ngIf="attributeType && actions && attributeType.type !== 'geometry' && selectedTab === 0">
+                <div *ngIf="attributeType && actions && attributeType.type !== 'geometry'">
                   <table class="table table-striped">
                     <tbody class="attribute-element-wrapper" >
                       <p class="message" *ngIf="viewModels.length === 0">
@@ -26,11 +30,11 @@
                         <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
                           <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
                           
-                          <!-- 
-			                        Local Type 
-			                    -->
-                          <table *ngIf="viewModel.value">
+                          <table>
                           
+                            <!-- 
+                              Local Type 
+                            -->
                             <ng-container *ngIf="attributeType.type === 'local'">
 	                           <tr *ngFor="let loc of viewModel.value.localeValues; let idx = index;" class="attribute-value-row">
 	                             <td colspan="2">
@@ -86,7 +90,33 @@
                                </div>
                                
                                <div *ngIf="attributeType.type === '_PARENT_'">
-                                 <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly" required>
+                                 <div *ngIf="hierarchy == null || hierarchy.types == null || hierarchy.types.length == 0">
+							                     <localize key="changeovertime.manageVersions.rootOfHierarchy.message"></localize>
+							                   </div>
+							                   <ng-container *ngIf="hierarchy != null && hierarchy.types != null && hierarchy.types.length > 0">
+	                                 <div style="float:left;width:100%;" *ngFor="let type of hierarchy.types; let j = index"> 
+		                                 {{type.label}}
+		                                 <div class="input-group">
+		                                    <input style="width:100%;" type="text" class="form-control" autocomplete="off"
+		                                      [name]="type.code + '-' + i"
+		                                      [disabled]="viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
+		                                      [(ngModel)]="viewModel.editPropagator.value.parents[type.code].text" 
+		                                      [typeaheadAsync]="true"
+		                                      [typeahead]="viewModel.editPropagator.getTypeAheadObservable(viewModel.editPropagator.startDate, type, viewModel.editPropagator.value, j)"
+		                                      (typeaheadOnSelect)="viewModel.editPropagator.typeaheadOnSelect($event, type, viewModel.editPropagator.value, viewModel.editPropagator.startDate)" 
+		                                      (typeaheadLoading)="viewModel.editPropagator.value.loading[type.code] = $event"
+		                                      [ngClass]="{'inline-loading':viewModel.editPropagator.value.loading[type.code]}"                                                                
+		                                      [typeaheadOptionsLimit]="7"
+		                                      [typeaheadItemTemplate]="customItemTemplate" 
+		                                      [typeaheadMinLength]="0"
+		                                      [typeaheadWaitMs]="300">
+		                                    
+		                                      <span class="input-group-addon clickable addon-alert" (click)="viewModel.editPropagator.removeType(type)"> 
+		                                        <i class="fa fa-times" aria-hidden="true"></i>
+		                                      </span>
+		                                  </div>
+		                               </div>
+		                             </ng-container>
                                </div>
                                
                                <div *ngIf="viewModel.oldValue && !isNew">

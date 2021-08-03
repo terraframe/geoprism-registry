@@ -6,6 +6,7 @@ import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
+import net.geoprism.registry.action.InvalidChangeRequestException;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -20,15 +21,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
   {
     UpdateParentView parentView = (UpdateParentView) cotView;
-    
-    String[] newValueSplit = (this.getNewValue().getAsString()).split(VALUE_SPLIT_TOKEN);
-    String parentTypeCode = newValueSplit[0];
-    String parentCode = newValueSplit[1];
-    
-    ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
-    
     final ServerHierarchyType hierarchyType = ServerHierarchyType.get(parentView.getHierarchyCode());
-    final VertexServerGeoObject parent = new VertexGeoObjectStrategy(parentType).getGeoObjectByCode(parentCode);
     
     if (this.action.equals(UpdateActionType.DELETE))
     {
@@ -52,12 +45,21 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         throw ex;
       }
       
+      final VertexServerGeoObject newParent = this.getNewValueAsGO();
+      final String parentCode = newParent == null ? null : newParent.getCode();
+      
       String currentCode = edge.getParent().getObjectValue(DefaultAttribute.CODE.getName());
       
-      if (currentCode != parentCode)
+      if (this.newValue != null
+          && (currentCode != parentCode))
       {
         edge.delete();
-        go.addParent(parent, hierarchyType, this.newStartDate, this.newEndDate);
+        
+        if (newParent != null)
+        {
+          go.addParent(newParent, hierarchyType, this.newStartDate, this.newEndDate);
+        }
+        
         return;
       }
       
@@ -75,7 +77,14 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     }
     else if (this.action.equals(UpdateActionType.CREATE))
     {
-      EdgeObject edge = go.getEdge(parent, hierarchyType, this.newStartDate, this.newEndDate);
+      final VertexServerGeoObject newParent = this.getNewValueAsGO();
+      
+      if (newParent == null || this.newStartDate == null || this.newEndDate == null)
+      {
+        throw new InvalidChangeRequestException();
+      }
+      
+      EdgeObject edge = go.getEdge(newParent, hierarchyType, this.newStartDate, this.newEndDate);
       
       if (edge != null)
       {
@@ -83,12 +92,29 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         throw ex;
       }
       
-      go.addParent(parent, hierarchyType, this.newStartDate, this.newEndDate);
+      go.addParent(newParent, hierarchyType, this.newStartDate, this.newEndDate);
     }
     else
     {
       throw new UnsupportedOperationException("Unsupported action type [" + this.action + "].");
     }
+  }
+  
+  public VertexServerGeoObject getNewValueAsGO()
+  {
+    if (this.newValue != null && !this.newValue.isJsonNull())
+    {
+      String[] newValueSplit = (this.getNewValue().getAsString()).split(VALUE_SPLIT_TOKEN);
+      String parentTypeCode = newValueSplit[0];
+      String parentCode = newValueSplit[1];
+      
+      ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
+      final VertexServerGeoObject parent = new VertexGeoObjectStrategy(parentType).getGeoObjectByCode(parentCode);
+      
+      return parent;
+    }
+    
+    return null;
   }
   
   private EdgeObject getEdgeByOid(String edgeOid, VertexServerGeoObject go, ServerHierarchyType hierarchyType)

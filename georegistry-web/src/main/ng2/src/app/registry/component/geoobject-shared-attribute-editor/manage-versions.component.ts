@@ -15,7 +15,9 @@ import {
     transition
 } from "@angular/animations";
 
-import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, AttributeTermType, PRESENT, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry } from "@registry/model/registry";
+import { Observable } from 'rxjs';
+import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
+import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, GeoObject, AttributeTermType, PRESENT, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { ConflictType } from '@registry/model/constants';
@@ -244,8 +246,10 @@ class ValueOverTimeEditPropagator {
     this.component.onActionChange(this.action);
   }
   
-  private areValuesEqual(val1: any, val2: any): boolean
+  areValuesEqual(val1: any, val2: any): boolean
   {
+    // TODO Test all attribute types here. We might need a case for geometries here.
+    
     //if (this.component.attributeType.type === "local")
     //{
       // Not used anymore
@@ -307,6 +311,458 @@ class ValueOverTimeEditPropagator {
     
     this.component.onActionChange(this.action);
   }
+  
+  public onAddNewVersion(): void {
+    if (this.component.attributeType.type === "local") {
+
+        //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
+        this.view.value = this.component.lService.create();
+
+    } else if (this.component.attributeType.type === "geometry") {
+
+      /*
+        if (votArr.length > 0) {
+
+            if (this.editingGeometry !== -1 && this.editingGeometry != null) {
+
+                vot.newValue = votArr[this.editingGeometry].oldValue;
+
+            } else {
+
+                vot.newValue = votArr[0].oldValue;
+
+            }
+
+        } else {
+
+            vot.newValue = { type: this.geoObjectType.geometryType, coordinates: [] };
+
+            if (this.geoObjectType.geometryType === "MULTIPOLYGON") {
+
+                vot.newValue.type = "MultiPolygon";
+
+            } else if (this.geoObjectType.geometryType === "POLYGON") {
+
+                vot.newValue.type = "Polygon";
+
+            } else if (this.geoObjectType.geometryType === "POINT") {
+
+                vot.newValue.type = "Point";
+
+            } else if (this.geoObjectType.geometryType === "MULTIPOINT") {
+
+                vot.newValue.type = "MultiPoint";
+
+            } else if (this.geoObjectType.geometryType === "LINE") {
+
+                vot.newValue.type = "Line";
+
+            } else if (this.geoObjectType.geometryType === "MULTILINE") {
+
+                vot.newValue.type = "MultiLine";
+
+            }
+
+        }
+        */
+
+    } else if (this.component.attributeType.type === "term") {
+
+        let terms = this.component.getGeoObjectTypeTermAttributeOptions(this.component.attributeType.code);
+
+        if (terms && terms.length > 0) {
+
+            this.view.value = terms[0].code;
+
+        }
+
+    }
+    
+    this.view.summaryKey = SummaryKey.NEW;
+    
+    if (this.component.editAction instanceof CreateGeoObjectAction)
+    {
+      let vot = new ValueOverTime();
+      vot.oid = this.component.generateUUID();
+      
+      this.component.editAction.geoObjectJson.attributes[this.component.attributeType.code].values.push(vot);
+    
+      this.valueOverTime = vot;
+    }
+  }
+}
+
+class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
+  hierarchyEntry: HierarchyOverTimeEntry;
+
+  constructor(component: ManageVersionsComponent, action: AbstractAction, view: VersionDiffView, hierarchyEntry: HierarchyOverTimeEntry)
+  {
+    super(component, action, view);
+    this.hierarchyEntry = hierarchyEntry;
+    
+    if (this.hierarchyEntry != null)
+    {
+      this.hierarchyEntry.loading = {};
+    }
+  }
+  
+  set startDate(startDate: string)
+  {
+    if (this.action instanceof UpdateAttributeAction)
+    {
+      if (this.diff == null)
+      {
+        if (this.hierarchyEntry == null)
+        {
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "CREATE";
+          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+        else
+        {
+          if (this.hierarchyEntry.startDate === startDate)
+          {
+            return;
+          }
+          
+          let immediateParent: GeoObject = this.hierarchyEntry.parents[this.component.hierarchy.types[this.component.hierarchy.types.length-1].code].geoObject;
+          let oldValue: string = immediateParent == null ? null : immediateParent.properties.type + "_~VST~_" + immediateParent.properties.code;
+        
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "UPDATE";
+          this.diff.oid = this.hierarchyEntry.oid;
+          this.diff.oldValue = oldValue;
+          this.diff.oldStartDate = this.hierarchyEntry.startDate;
+          this.diff.oldEndDate = this.hierarchyEntry.endDate;
+          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+      }
+      
+      this.diff.newStartDate = startDate;
+    }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      this.hierarchyEntry.startDate = startDate;
+    }
+    
+    this.view.startDate = startDate;
+    
+    this.component.onActionChange(this.action);
+  }
+  
+  get startDate()
+  {
+    return this.view.startDate;
+  }
+  
+  set endDate(endDate: string)
+  {
+    if (this.action instanceof UpdateAttributeAction)
+    {
+      if (this.diff == null)
+      {
+        if (this.hierarchyEntry == null)
+        {
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "CREATE";
+          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+        else
+        {
+          if (this.hierarchyEntry.endDate === endDate)
+          {
+            return;
+          }
+          
+          let immediateParent: GeoObject = this.hierarchyEntry.parents[this.component.hierarchy.types[this.component.hierarchy.types.length-1].code].geoObject;
+          let oldValue: string = immediateParent == null ? null : immediateParent.properties.type + "_~VST~_" + immediateParent.properties.code;
+        
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "UPDATE";
+          this.diff.oid = this.hierarchyEntry.oid;
+          this.diff.oldValue = oldValue;
+          this.diff.oldStartDate = this.hierarchyEntry.startDate;
+          this.diff.oldEndDate = this.hierarchyEntry.endDate;
+          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+      }
+      
+      this.diff.newEndDate = endDate;
+    }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      this.hierarchyEntry.endDate = endDate;
+    }
+    
+    this.view.endDate = endDate;
+    
+    this.component.onActionChange(this.action);
+  }
+  
+  get endDate()
+  {
+    return this.view.endDate;
+  }
+  
+  setParentValue(parent: HierarchyOverTimeEntryParent)
+  {
+    let incomingImmediateParent: GeoObject = parent.geoObject;
+    let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length-1].code;
+  
+    if (this.action instanceof UpdateAttributeAction)
+    {
+      if (this.diff == null)
+      {
+        if (this.hierarchyEntry == null)
+        {
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "CREATE";
+          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+        else
+        {
+          let currentImmediateParent: GeoObject = this.hierarchyEntry.parents[immediateType].geoObject;
+          let oldValue: string = currentImmediateParent == null ? null : currentImmediateParent.properties.type + "_~VST~_" + currentImmediateParent.properties.code;
+        
+          if (
+            (currentImmediateParent == null && incomingImmediateParent == null)
+            || ((currentImmediateParent != null && incomingImmediateParent != null)
+            && currentImmediateParent.properties.code === incomingImmediateParent.properties.code))
+          {
+            return;
+          }
+          
+          this.diff = new ValueOverTimeDiff();
+          this.diff.action = "UPDATE";
+          this.diff.oid = this.hierarchyEntry.oid;
+          this.diff.oldValue = oldValue;
+          this.diff.oldStartDate = this.valueOverTime.startDate;
+          this.diff.oldEndDate = this.valueOverTime.endDate;
+          this.action.attributeDiff.valuesOverTime.push(this.diff);
+        }
+      }
+      
+      this.diff.newValue = incomingImmediateParent.properties.type + "_~VST~_" + incomingImmediateParent.properties.code;
+    }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      this.hierarchyEntry.parents[immediateType] = parent;
+    }
+    
+    this.view.value.parents[parent.geoObject.properties.type] = parent;
+    
+    this.component.onActionChange(this.action);
+  }
+  
+  set value(val: any)
+  {
+    this.view.value = val;
+  }
+  
+  get value()
+  {
+    return this.view.value;
+  }
+  
+  public removeType(type): void
+  {
+    this.hierarchyEntry.parents[type.code].text = '';
+    delete this.hierarchyEntry.parents[type.code].geoObject;
+    delete this.hierarchyEntry.parents[type.code].goCode;
+  }
+  
+  getTypeAheadObservable(date: string, type: any, entry: any, index: number): Observable<any> {
+
+    let geoObjectTypeCode = type.code;
+
+    let parentCode = null;
+    let parentTypeCode = null;
+    let hierarchyCode = null;
+
+    if (index > 0) {
+      let pType = this.component.hierarchy.types[index - 1];
+      const parent = entry.parents[pType.code];
+
+      if (parent.geoObject != null && parent.geoObject.properties.code != null) {
+        hierarchyCode = this.component.hierarchy.code;
+        parentCode = parent.geoObject.properties.code;
+        parentTypeCode = parent.geoObject.properties.type;
+      }
+    }
+
+    return Observable.create((observer: any) => {
+      if (parentCode == null)
+      {
+        let loopI = index;
+      
+        while (parentCode == null && loopI > 0)
+        {
+          loopI = loopI - 1;
+          
+          let parent = entry.parents[this.component.hierarchy.types[loopI].code];
+          
+          if (parent != null)
+          {
+            if (parent.geoObject != null && parent.geoObject.properties.code != null)
+            {
+              parentCode = parent.geoObject.properties.code;
+              hierarchyCode = this.component.hierarchy.code;
+              parentTypeCode = this.component.hierarchy.types[loopI].code;
+            }
+            else if (parent.goCode != null)
+            {
+              parentCode = parent.goCode;
+              hierarchyCode = this.component.hierarchy.code;
+              parentTypeCode = this.component.hierarchy.types[loopI].code;
+            }
+          }
+        }
+      }
+    
+      this.component.service.getGeoObjectSuggestions(entry.parents[type.code].text, geoObjectTypeCode, parentCode, parentTypeCode, hierarchyCode, date).then(results => {
+        observer.next(results);
+      });
+    });
+  }
+
+  typeaheadOnSelect(e: TypeaheadMatch, type: any, entry: any, date: string): void {
+    //        let ptn: ParentTreeNode = parent.ptn;
+
+    entry.parents[type.code].text = e.item.name + " : " + e.item.code;
+    entry.parents[type.code].goCode = e.item.code;
+
+    let parentTypes = [];
+
+    for (let i = 0; i < this.component.hierarchy.types.length; i++) {
+      let current = this.component.hierarchy.types[i];
+
+      parentTypes.push(current.code);
+
+      if (current.code === type.code) {
+        break;
+      }
+    }
+
+    this.component.service.getParentGeoObjects(e.item.uid, type.code, parentTypes, true, date).then(ancestors => {
+
+      delete entry.parents[type.code].goCode;
+      entry.parents[type.code].geoObject = ancestors.geoObject;
+      entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue + ' : ' + ancestors.geoObject.properties.code;
+      
+      this.setParentValue(entry.parents[type.code]);
+
+      for (let i = 0; i < this.component.hierarchy.types.length; i++) {
+        let current = this.component.hierarchy.types[i];
+        let ancestor = ancestors;
+
+        while (ancestor != null && ancestor.geoObject.properties.type != current.code) {
+          if (ancestor.parents.length > 0) {
+            ancestor = ancestor.parents[0];
+          }
+          else {
+            ancestor = null;
+          }
+        }
+
+        if (ancestor != null) {
+          entry.parents[current.code].geoObject = ancestor.geoObject;
+          entry.parents[current.code].text = ancestor.geoObject.properties.displayLabel.localizedValue + ' : ' + ancestor.geoObject.properties.code;
+        }
+      }
+
+    });
+  }
+  
+  createEmptyHierarchyEntry(): HierarchyOverTimeEntry {
+    let hierarchyEntry = new HierarchyOverTimeEntry();
+    hierarchyEntry.loading = {};
+    hierarchyEntry.oid = this.component.generateUUID();
+    
+    hierarchyEntry.parents = {};
+    
+    for (let i = 0; i < this.component.hierarchy.types.length; i++) {
+      let current = this.component.hierarchy.types[i];
+
+      hierarchyEntry.parents[current.code] = { text: '', geoObject: null };
+
+      hierarchyEntry.loading = {};
+    }
+    
+    return hierarchyEntry;
+  }
+  
+  onAddNewVersion(): void {
+    this.view.summaryKey = SummaryKey.NEW;
+  
+    this.view.value = this.createEmptyHierarchyEntry();
+  
+    if (this.component.editAction instanceof CreateGeoObjectAction)
+    {
+      this.hierarchyEntry = this.createEmptyHierarchyEntry();
+    
+      this.component.editAction.parentJson.entries.push(this.hierarchyEntry);
+    }
+  }
+  
+  public remove(): void
+  {
+    let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length-1].code;
+  
+    if (this.action instanceof UpdateAttributeAction)
+    {
+      if (this.hierarchyEntry != null && this.diff == null)
+      {
+        let currentImmediateParent: GeoObject = this.hierarchyEntry.parents[immediateType].geoObject;
+        let oldValue: string = currentImmediateParent == null ? null : currentImmediateParent.properties.type + "_~VST~_" + currentImmediateParent.properties.code;
+      
+        this.diff = new ValueOverTimeDiff();
+        this.diff.action = "DELETE";
+        this.diff.oid = this.valueOverTime.oid;
+        this.diff.oldValue = oldValue;
+        this.diff.oldStartDate = this.valueOverTime.startDate;
+        this.diff.oldEndDate = this.valueOverTime.endDate;
+        this.action.attributeDiff.valuesOverTime.push(this.diff);
+      }
+      else if (this.diff != null)
+      {
+        let index = -1;
+        
+        let len = this.action.attributeDiff.valuesOverTime.length;
+        for (let i = 0; i < len; ++i)
+        {
+          let diff = this.action.attributeDiff.valuesOverTime[i];
+        
+          if (diff.oid === this.diff.oid)
+          {
+            index = i;
+          }
+        }
+      
+        if (index != -1)
+        {
+          this.action.attributeDiff.valuesOverTime.splice(index, 1);
+        }
+      }
+    }
+    else if (this.action instanceof CreateGeoObjectAction)
+    {
+      let votc = this.action.parentJson.entries[immediateType];
+      
+      let index = votc.findIndex((vot) => {return vot.oid === this.hierarchyEntry.oid});
+      
+      if (index != -1)
+      {
+        votc.splice(index, 1);
+      }
+    }
+    
+    this.component.onActionChange(this.action);
+  }
 }
 
 class VersionDiffView extends ValueOverTime {
@@ -320,7 +776,15 @@ class VersionDiffView extends ValueOverTime {
   constructor(component: ManageVersionsComponent, action: AbstractAction)
   {
     super();
-    this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
+    
+    if (component.attributeType.type === '_PARENT_')
+    {
+      this.editPropagator = new HierarchyEditPropagator(component, action, this, null);
+    }
+    else
+    {
+      this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
+    }
   }
 }
 
@@ -417,7 +881,7 @@ export class ManageVersionsComponent implements OnInit {
     editAction: AbstractAction;
     
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: RegistryService, private lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
+    constructor(public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
 
     ngOnInit(): void {
       this.calculateViewModels();
@@ -466,6 +930,10 @@ export class ManageVersionsComponent implements OnInit {
 
     }
     
+    public stringify(obj: any): string {
+      return JSON.stringify(obj);
+    }
+    
     remove(view: VersionDiffView): void {
 
       view.editPropagator.remove();
@@ -492,81 +960,8 @@ export class ManageVersionsComponent implements OnInit {
 
         let view: VersionDiffView = new VersionDiffView(this, this.editAction);
         view.oid = this.generateUUID();
-
-        if (this.attributeType.type === "local") {
-
-            //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
-            view.value = this.lService.create();
-
-        } else if (this.attributeType.type === "geometry") {
-
-          /*
-            if (votArr.length > 0) {
-
-                if (this.editingGeometry !== -1 && this.editingGeometry != null) {
-
-                    vot.newValue = votArr[this.editingGeometry].oldValue;
-
-                } else {
-
-                    vot.newValue = votArr[0].oldValue;
-
-                }
-
-            } else {
-
-                vot.newValue = { type: this.geoObjectType.geometryType, coordinates: [] };
-
-                if (this.geoObjectType.geometryType === "MULTIPOLYGON") {
-
-                    vot.newValue.type = "MultiPolygon";
-
-                } else if (this.geoObjectType.geometryType === "POLYGON") {
-
-                    vot.newValue.type = "Polygon";
-
-                } else if (this.geoObjectType.geometryType === "POINT") {
-
-                    vot.newValue.type = "Point";
-
-                } else if (this.geoObjectType.geometryType === "MULTIPOINT") {
-
-                    vot.newValue.type = "MultiPoint";
-
-                } else if (this.geoObjectType.geometryType === "LINE") {
-
-                    vot.newValue.type = "Line";
-
-                } else if (this.geoObjectType.geometryType === "MULTILINE") {
-
-                    vot.newValue.type = "MultiLine";
-
-                }
-
-            }
-            */
-
-        } else if (this.attributeType.type === "term") {
-
-            let terms = this.getGeoObjectTypeTermAttributeOptions(this.attributeType.code);
-
-            if (terms && terms.length > 0) {
-
-                view.value = terms[0].code;
-
-            }
-
-        }
         
-        if (this.editAction instanceof CreateGeoObjectAction)
-        {
-          let vot = new ValueOverTime();
-          vot.oid = this.generateUUID();
-          
-          this.editAction.geoObjectJson.attributes[this.attributeType.code].values.push(vot);
-        
-          view.editPropagator.valueOverTime = vot;
-        }
+        view.editPropagator.onAddNewVersion();
 
         this.viewModels.push(view);
 
@@ -791,6 +1186,7 @@ export class ManageVersionsComponent implements OnInit {
       {
         let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
         createAction.geoObjectJson = this.postGeoObject;
+        createAction.parentJson = this.hierarchy;
         this.actions[0] = createAction;
         this.editAction = createAction;
       }
@@ -817,7 +1213,7 @@ export class ManageVersionsComponent implements OnInit {
       
       // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
       // on the GeoObject
-      if (this.attributeType.code === '_PARENT_')
+      if (this.attributeType.type === '_PARENT_')
       {
         this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
           let view = new VersionDiffView(this, this.editAction);
@@ -826,11 +1222,10 @@ export class ManageVersionsComponent implements OnInit {
           view.summaryKey = SummaryKey.UNMODIFIED;
           view.startDate = entry.startDate;
           view.endDate = entry.endDate;
+          view.value = JSON.parse(JSON.stringify(entry));
+          view.value.loading = {};
           
-          // TODO
-          //view.value = JSON.parse(JSON.stringify(entry.value));
-          
-          //view.editPropagator.valueOverTime = entry;
+          view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry);
           
           this.viewModels.push(view);
         });

@@ -53,6 +53,7 @@ export class AbstractAction {
 
 export class CreateGeoObjectAction extends AbstractAction {
     geoObjectJson: GeoObjectOverTime;
+    parentJson: HierarchyOverTime;
     
     constructor() {
       super();
@@ -62,7 +63,7 @@ export class CreateGeoObjectAction extends AbstractAction {
 
 export class UpdateAttributeAction extends AbstractAction {
     attributeName: string;
-    attributeDiff: { "valuesOverTime": ValueOverTimeDiff[] };
+    attributeDiff: { "valuesOverTime": ValueOverTimeDiff[], hierarchyCode?: string };
     
     constructor(attributeName: string) {
       super();

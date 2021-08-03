@@ -365,10 +365,16 @@ export class HierarchyOverTimeEntry {
   startDate: string;
   endDate: string;
   oid: string;
-  parents: { [k: string]: { text: string; geoObject: GeoObject } };
+  parents: { [k: string]: HierarchyOverTimeEntryParent };
   loading?: any;
   conflictType?: string;
   conflictMessage?: any[];
+}
+
+export class HierarchyOverTimeEntryParent {
+  text: string;
+  geoObject: GeoObject;
+  goCode?: string;
 }
 
 export class MasterListByOrg {
