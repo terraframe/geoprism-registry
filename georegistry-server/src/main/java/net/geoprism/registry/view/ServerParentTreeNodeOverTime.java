@@ -114,7 +114,7 @@ public class ServerParentTreeNodeOverTime
     this.type = type;
     this.hierarchies = new TreeMap<String, ServerParentTreeNodeOverTime.Hierarchy>();
   }
-
+  
   public void add(ServerHierarchyType type)
   {
     if (!this.hierarchies.containsKey(type.getCode()))

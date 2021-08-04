@@ -52,6 +52,11 @@ public class UpdateAttributeAction extends UpdateAttributeActionBase
     
     
   }
+  
+  public AbstractUpdateAttributeView getUpdateView()
+  {
+    return UpdateAttributeViewJsonAdapters.deserialize(this.getJson(), this.getAttributeName(), this.getChangeRequest().getGeoObjectType());
+  }
 
   @Override
   protected String getMessage()

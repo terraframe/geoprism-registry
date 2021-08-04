@@ -1293,7 +1293,7 @@ export class ManageVersionsComponent implements OnInit {
                   view.conflictMessage = [{severity: "ERROR", message: "Could not find expected reference?", type: ConflictType.MISSING_REFERENCE}]; // TODO : Localize
                 }
                 
-                view.oid = votDiff.oid;
+                this.populateViewFromDiff(view, votDiff);
                 
                 if (votDiff.newStartDate != null)
                 {
@@ -1303,16 +1303,6 @@ export class ManageVersionsComponent implements OnInit {
                 {
                   view.endDate = votDiff.newEndDate;
                 }
-                
-                if (votDiff.newValue != null)
-                {
-                  view.value = votDiff.newValue;
-                }
-                
-                view.oldStartDate = votDiff.oldStartDate;
-                view.oldEndDate = votDiff.oldEndDate;
-                view.oldValue = votDiff.oldValue;
-                view.editPropagator.diff = votDiff;
                 
                 let hasTime = votDiff.newStartDate != null || votDiff.newEndDate != null;
                 let hasValue = votDiff.newValue != null;
@@ -1338,22 +1328,15 @@ export class ManageVersionsComponent implements OnInit {
               {
                 if (view != null)
                 {
-                  // This action doesn't make sense. We're trying to create something that already exists?
+                  console.log("This action doesn't make sense. We're trying to create something that already exists?", votDiff)
                 }
                 else
                 {
                   view = new VersionDiffView(this, action);
                   
-                  view.oid = votDiff.oid;
-                  view.startDate = votDiff.newStartDate;
-                  view.endDate = votDiff.newEndDate;
-                  view.oldStartDate = votDiff.oldStartDate;
-                  view.oldEndDate = votDiff.oldEndDate;
-                  view.value = votDiff.newValue;
-                  view.oldValue = votDiff.oldValue;
-                  view.summaryKey = SummaryKey.NEW;
+                  this.populateViewFromDiff(view, votDiff);
                   
-                  view.editPropagator.diff = votDiff;
+                  view.summaryKey = SummaryKey.NEW;
                   
                   this.viewModels.push(view);
                 }
@@ -1375,6 +1358,62 @@ export class ManageVersionsComponent implements OnInit {
 
       });
 
+    }
+    
+    populateViewFromDiff(view: VersionDiffView, votDiff: ValueOverTimeDiff) {
+      if (votDiff.newValue != null)
+      {
+        if (this.attributeType.type === "local") {
+          view.value = votDiff.newValue; // TODO
+        }
+        else if (this.attributeType.type === "_PARENT_") {
+          //let codeArray = incomingImmediateParent.properties.type + "_~VST~_" + incomingImmediateParent.properties.code;
+          
+          let codeArray: string[] = votDiff.newValue.split("_~VST~_");
+          let typeCode: string = codeArray[0];
+          let goCode: string = codeArray[1];
+          
+          view.value = (view.editPropagator as HierarchyEditPropagator).createEmptyHierarchyEntry();
+          view.value.oid = votDiff.oid;
+          view.value.startDate = votDiff.newStartDate;
+          view.value.endDate = votDiff.newEndDate;
+          view.value.parents = votDiff.parents;
+          
+          /*
+          this.hierarchy.entries.forEach(entry => {
+            for (let i = 0; i < this.hierarchy.types.length; i++) {
+              let current = this.hierarchy.types[i];
+      
+              view.value.parents[current.code] = { text: goCode + " : " + typeCode, geoObject: null };
+            }
+          });
+          */
+          view.value.loading = {};
+        }
+        else
+        {
+          view.value = votDiff.newValue;
+        }
+      }
+      else
+      {
+        if (this.attributeType.type === "_PARENT_") {
+          this.hierarchy.entries.forEach(entry => {
+            if (entry.oid === votDiff.oid)
+            {
+              view.value = JSON.parse(JSON.stringify(entry));
+            }
+          });
+        }
+      }
+      
+      view.oid = votDiff.oid;
+      view.startDate = votDiff.newStartDate;
+      view.endDate = votDiff.newEndDate;
+      view.oldStartDate = votDiff.oldStartDate;
+      view.oldEndDate = votDiff.oldEndDate;
+      view.oldValue = votDiff.oldValue;
+      view.editPropagator.diff = votDiff;
     }
 
     isStatusChanged(post, pre) {

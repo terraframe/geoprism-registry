@@ -23,12 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Optional;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
@@ -50,7 +45,10 @@ import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ChangeRequestService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
+import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
+import net.geoprism.registry.view.action.UpdateParentView;
+import net.geoprism.registry.view.action.UpdateValueOverTimeView;
 
 public class ActionJsonAdapters
 {
@@ -136,8 +134,19 @@ public class ActionJsonAdapters
       
       jo.addProperty("attributeName", action.getAttributeName());
       
-      JsonObject attributeDiff = JsonParser.parseString(action.getJson()).getAsJsonObject();
-      jo.add("attributeDiff", attributeDiff);
+      if (action.getAttributeName().equals("_PARENT_"))
+      {
+        AbstractUpdateAttributeView view = action.getUpdateView();
+        
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(UpdateValueOverTimeView.class, new UpdateAttributeViewJsonAdapters.UpdateParentValueOverTimeViewSerializer(action, (UpdateParentView) view));
+  
+        jo.add("attributeDiff", builder.create().toJsonTree(view));
+      }
+      else
+      {
+        jo.add("attributeDiff", JsonParser.parseString(action.getJson()));
+      }
       
       return jo;
     }
@@ -148,7 +157,11 @@ public class ActionJsonAdapters
     @Override
     public JsonElement serialize(CreateGeoObjectAction action, Type typeOfSrc, JsonSerializationContext context)
     {
-      return super.serialize(action, typeOfSrc, context);
+      JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
+      
+      jo.add(CreateGeoObjectAction.PARENTJSON, JsonParser.parseString(action.getParentJson()).getAsJsonArray());
+      
+      return jo;
     }
 
     @Override
@@ -163,7 +176,8 @@ public class ActionJsonAdapters
     @Override
     public JsonElement serialize(UpdateGeoObjectAction action, Type typeOfSrc, JsonSerializationContext context)
     {
-      return super.serialize(action, typeOfSrc, context);
+      JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
+      return jo;
     }
 
     @Override

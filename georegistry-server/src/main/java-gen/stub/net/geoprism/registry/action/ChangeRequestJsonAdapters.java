@@ -39,7 +39,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.runwaysdk.localization.LocalizedValueStore;
-import com.runwaysdk.localization.LocalizedValueStoreStoreValue;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.SingleActor;
@@ -50,6 +49,7 @@ import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequest
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.cache.ServerMetadataCache;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -223,7 +223,7 @@ public class ChangeRequestJsonAdapters
           current.add("geoObject", context.serialize(go.toGeoObjectOverTime()));
           
           // Add hierarchies
-          current.add("hierarchies", go.getHierarchiesForGeoObject());
+          current.add("hierarchies", new HierarchyService().getHierarchiesForGeoObjectOverTime(Session.getCurrentSession().getOid(), go.getCode(), go.getType().getCode()));
         }
         else
         {
