@@ -89,7 +89,16 @@ class ValueOverTimeEditPropagator {
         }
       }
       
-      this.diff.newStartDate = startDate;
+      if (startDate === this.diff.oldStartDate)
+      {
+        delete this.diff.newStartDate;
+        delete this.view.oldStartDate;
+      }
+      else
+      {
+        this.diff.newStartDate = startDate;
+        this.view.oldStartDate = this.diff.oldStartDate;
+      }
     }
     else if (this.action instanceof CreateGeoObjectAction)
     {
@@ -97,6 +106,8 @@ class ValueOverTimeEditPropagator {
     }
     
     this.view.startDate = startDate;
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -135,7 +146,16 @@ class ValueOverTimeEditPropagator {
         }
       }
       
-      this.diff.newEndDate = endDate;
+      if (endDate === this.diff.oldEndDate)
+      {
+        delete this.diff.newEndDate;
+        delete this.view.oldEndDate;
+      }
+      else
+      {
+        this.diff.newEndDate = endDate;
+        this.view.oldEndDate = this.diff.oldEndDate;
+      }
     }
     else if (this.action instanceof CreateGeoObjectAction)
     {
@@ -143,6 +163,8 @@ class ValueOverTimeEditPropagator {
     }
     
     this.view.endDate = endDate;
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -193,7 +215,16 @@ class ValueOverTimeEditPropagator {
         }
       }
       
-      this.diff.newValue = value;
+      if (this.areValuesEqual(this.diff.oldValue, value))
+      {
+        delete this.diff.newValue;
+        delete this.view.oldValue;
+      }
+      else
+      {
+        this.diff.newValue = value;
+        this.view.oldValue = this.diff.oldValue;
+      }
     }
     else if (this.action instanceof CreateGeoObjectAction)
     {
@@ -201,6 +232,8 @@ class ValueOverTimeEditPropagator {
     }
     
     this.view.value = value;
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -236,12 +269,24 @@ class ValueOverTimeEditPropagator {
         }
       }
       
-      this.diff.newValue = this.view.value;
+      let areValuesEqual: boolean = this.component.getValueAtLocale(this.diff.oldValue, localeValue.locale) === this.component.getValueAtLocale(this.view.value, localeValue.locale)
+      if (areValuesEqual)
+      {
+        delete this.diff.newValue;
+        delete this.view.oldValue;
+      }
+      else
+      {
+        this.diff.newValue = this.view.value;
+        this.view.oldValue = this.diff.oldValue;
+      }
     }
     else if (this.action instanceof CreateGeoObjectAction)
     {
       this.valueOverTime.value = this.view.value;
     }
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -440,7 +485,16 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         }
       }
       
-      this.diff.newStartDate = startDate;
+      if (startDate === this.diff.oldStartDate)
+      {
+        delete this.diff.newStartDate;
+        delete this.view.oldStartDate;
+      }
+      else
+      {
+        this.diff.newStartDate = startDate;
+        this.view.oldStartDate = this.diff.oldStartDate;
+      }
     }
     else if (this.action instanceof CreateGeoObjectAction)
     {
@@ -448,6 +502,8 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
     }
     
     this.view.startDate = startDate;
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -491,7 +547,16 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         }
       }
       
-      this.diff.newEndDate = endDate;
+      if (endDate === this.diff.oldEndDate)
+      {
+        delete this.diff.newEndDate;
+        delete this.view.oldEndDate;
+      }
+      else
+      {
+        this.diff.newEndDate = endDate;
+        this.view.oldEndDate = this.diff.oldEndDate;
+      }
     }
     else if (this.action instanceof CreateGeoObjectAction)
     {
@@ -499,6 +564,8 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
     }
     
     this.view.endDate = endDate;
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -547,7 +614,18 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         }
       }
       
-      this.diff.newValue = incomingImmediateParent.properties.type + "_~VST~_" + incomingImmediateParent.properties.code;
+      let newValueStrConcat: string = incomingImmediateParent.properties.type + "_~VST~_" + incomingImmediateParent.properties.code
+      
+      if (newValueStrConcat === this.diff.oldValue)
+      {
+        delete this.diff.newValue;
+        delete this.view.oldValue;
+      }
+      else
+      {
+        this.diff.newValue = newValueStrConcat;
+        this.view.oldValue = this.diff.oldValue;
+      }
     }
     else if (this.action instanceof CreateGeoObjectAction)
     {
@@ -555,6 +633,8 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
     }
     
     this.view.value.parents[parent.geoObject.properties.type] = parent;
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -767,8 +847,14 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   }
 }
 
+/*
+ * This class exists purely for the purpose of storing what data to be rendered to the front-end. Any storage or submission of this data to the back-end must be translated
+ * using the edit propagator.
+ */
 class VersionDiffView extends ValueOverTime {
-  summaryKey: SummaryKey;
+  component: ManageVersionsComponent;
+  summaryKeyData: SummaryKey;
+  summaryKeyLocalized: string; // If we try to localize this in the html with a localize element then it won't update as frequently as we need so we're doing stuff manually here.
   conflictMessage?: [ConflictMessage];
   oldValue?: any;
   oldStartDate?: string;
@@ -779,6 +865,8 @@ class VersionDiffView extends ValueOverTime {
   {
     super();
     
+    this.component = component;
+    
     if (component.attributeType.type === '_PARENT_')
     {
       this.editPropagator = new HierarchyEditPropagator(component, action, this, null);
@@ -787,6 +875,55 @@ class VersionDiffView extends ValueOverTime {
     {
       this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
     }
+  }
+  
+  calculateSummaryKey(diff: ValueOverTimeDiff)
+  {
+    if (diff == null)
+    {
+      return SummaryKey.NEW;
+    }
+    
+    if (diff.action === 'CREATE')
+    {
+      return SummaryKey.NEW;
+    }
+    
+    let hasTime = diff.newStartDate != null || diff.newEndDate != null;
+    let hasValue = diff.newValue != null;
+    
+    if (hasTime && hasValue)
+    {
+      this.summaryKey = SummaryKey.UPDATE;
+    }
+    else if (hasTime)
+    {
+      this.summaryKey = SummaryKey.TIME_CHANGE;
+    }
+    else if (hasValue)
+    {
+      this.summaryKey = SummaryKey.VALUE_CHANGE;
+    }
+    else
+    {
+      this.summaryKey = SummaryKey.UNMODIFIED;
+    }
+  }
+  
+  set summaryKey(newKey: SummaryKey)
+  {
+    this.summaryKeyData = newKey;
+    this.localizeSummaryKey();
+  }
+  
+  get summaryKey(): SummaryKey
+  {
+    return this.summaryKeyData;
+  }
+  
+  private localizeSummaryKey(): void
+  {
+    this.summaryKeyLocalized = this.component.lService.decode('changeovertime.manageVersions.summaryKey.' + this.summaryKeyData);
   }
 }
 
@@ -885,7 +1022,7 @@ export class ManageVersionsComponent implements OnInit {
     isRootOfHierarchy: boolean = false;
     
     // eslint-disable-next-line no-useless-constructor
-    constructor(public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
+    constructor(public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
 
     ngOnInit(): void {
       this.calculateViewModels();
@@ -1308,25 +1445,7 @@ export class ManageVersionsComponent implements OnInit {
                 
                 this.populateViewFromDiff(view, votDiff);
                 
-                let hasTime = votDiff.newStartDate != null || votDiff.newEndDate != null;
-                let hasValue = votDiff.newValue != null;
-                
-                if (hasTime && hasValue)
-                {
-                  view.summaryKey = SummaryKey.UPDATE;
-                }
-                else if (hasTime)
-                {
-                  view.summaryKey = SummaryKey.TIME_CHANGE;
-                }
-                else if (hasValue)
-                {
-                  view.summaryKey = SummaryKey.VALUE_CHANGE;
-                }
-                else
-                {
-                  view.summaryKey = SummaryKey.UPDATE;
-                }
+                view.calculateSummaryKey(votDiff);
               }
               else if (votDiff.action === "CREATE")
               {
@@ -1368,7 +1487,7 @@ export class ManageVersionsComponent implements OnInit {
       if (votDiff.newValue != null)
       {
         if (this.attributeType.type === "local") {
-          view.value = votDiff.newValue; // TODO
+          view.value = votDiff.newValue;
         }
         else if (this.attributeType.type === "_PARENT_") {
           view.value = (view.editPropagator as HierarchyEditPropagator).createEmptyHierarchyEntry();
@@ -1393,6 +1512,8 @@ export class ManageVersionsComponent implements OnInit {
         {
           view.value = votDiff.newValue;
         }
+        
+        view.oldValue = votDiff.oldValue;
       }
       else
       {

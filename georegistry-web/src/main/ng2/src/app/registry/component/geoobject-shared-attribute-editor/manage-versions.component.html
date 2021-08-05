@@ -32,7 +32,10 @@
 	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row" 
 	                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'WARNING'}">
 	                        <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
-	                          <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
+	                          <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator">
+	                            <!-- <localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize> -->
+	                            {{viewModel.summaryKeyLocalized}}
+	                          </span>
 	                          
 	                          <table>
 	                          
