@@ -624,7 +624,7 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       else
       {
         this.diff.newValue = newValueStrConcat;
-        this.view.oldValue = this.diff.oldValue;
+        this.view.oldValue = this.diff.oldValue.split("_~VST~_")[1];
       }
     }
     else if (this.action instanceof CreateGeoObjectAction)
