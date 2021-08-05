@@ -188,7 +188,7 @@
                 -->
                 <div *ngIf="attributeType.type === 'geometry' && selectedTab === 2">
                 
-                  <p class="message" *ngIf="postGeoObject.attributes['geometry'].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
+                  <p class="message" *ngIf="viewModels.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
                   
                   <table class="table table-striped">
                     <thead style="font-size: 14px;">
@@ -203,7 +203,7 @@
                           <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button">
                             <localize key="changeovertime.manageVersions.geometry.edit"></localize>
                           </button> 
-                          <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
+                          <geoobject-editor-map *ngIf="isGeometryInlined && this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
                               (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly" [postGeometry]="viewModel.value" 
                               [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="viewModel.startDate">
                           </geoobject-editor-map>
@@ -213,7 +213,7 @@
                         </td>
                         <td style="vertical-align: middle;">
 
-                          <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                          <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                               [required]="true" [disable]="readonly" [placement]="'bottom'" ></date-field>
                     
                         </td>

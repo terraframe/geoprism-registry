@@ -127,6 +127,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @ViewChild("attributeForm") attributeForm;
     
     parentAttributeType: AttributeType;
+    
+    geometryAttributeType: AttributeType;
 
     constructor(private lService: LocalizationService, private authService: AuthService, private dateService: DateService) {
 
@@ -164,8 +166,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
         if (geomAttr == null) {
 
-            let geometry: AttributeType = new AttributeType("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
-            this.geoObjectType.attributes.push(geometry);
+            this.geometryAttributeType = new AttributeType("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
 
         }
         

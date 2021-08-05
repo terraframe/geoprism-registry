@@ -1013,6 +1013,8 @@ export class ManageVersionsComponent implements OnInit {
     @Input() readonly: boolean = false;
 
     @Input() selectedTab: number = 0;
+    
+    @Input() isGeometryInlined: boolean = false;
 
     // Observable subject for MasterList changes.  Called when an update is successful
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
