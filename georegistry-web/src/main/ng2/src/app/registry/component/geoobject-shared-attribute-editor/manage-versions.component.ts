@@ -571,9 +571,9 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   
   public removeType(type): void
   {
-    this.hierarchyEntry.parents[type.code].text = '';
-    delete this.hierarchyEntry.parents[type.code].geoObject;
-    delete this.hierarchyEntry.parents[type.code].goCode;
+    this.view.value.parents[type.code].text = '';
+    delete this.view.value.parents[type.code].geoObject;
+    delete this.view.value.parents[type.code].goCode;
   }
   
   getTypeAheadObservable(date: string, type: any, entry: any, index: number): Observable<any> {
@@ -674,6 +674,8 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
           entry.parents[current.code].text = ancestor.geoObject.properties.displayLabel.localizedValue + ' : ' + ancestor.geoObject.properties.code;
         }
       }
+      
+      this.diff.parents = entry.parents;
 
     });
   }
@@ -1242,7 +1244,7 @@ export class ManageVersionsComponent implements OnInit {
           view.summaryKey = SummaryKey.UNMODIFIED;
           view.startDate = vot.startDate;
           view.endDate = vot.endDate;
-          view.value = JSON.parse(JSON.stringify(vot.value));
+          view.value = vot.value == null ? null : JSON.parse(JSON.stringify(vot.value));
           
           view.editPropagator.valueOverTime = vot;
           
@@ -1402,31 +1404,37 @@ export class ManageVersionsComponent implements OnInit {
             }
           });
           
-          if (votDiff.oldValue != null)
-          {
-            let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
-            let oldTypeCode: string = oldCodeArray[0];
-            let oldGoCode: string = oldCodeArray[1];
+          //if (votDiff.oldValue != null)
+          //{
+          //  let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
+          //  let oldTypeCode: string = oldCodeArray[0];
+          //  let oldGoCode: string = oldCodeArray[1];
             
-            view.oldValue = oldGoCode;
-          }
+          //  view.oldValue = oldGoCode;
+          //}
         }
         else
         {
-          view.value = votDiff.newValue || votDiff.oldValue;
+          view.value = votDiff.oldValue;
           
-          if (votDiff.oldValue != null)
-          {
-            view.oldValue = votDiff.oldValue;
-          }
+          //if (votDiff.oldValue != null)
+          //{
+          //  view.oldValue = votDiff.oldValue;
+          //}
         }
       }
       
       view.oid = votDiff.oid;
       view.startDate = votDiff.newStartDate || votDiff.oldStartDate;
       view.endDate = votDiff.newEndDate || votDiff.oldEndDate;
-      view.oldStartDate = votDiff.oldStartDate;
-      view.oldEndDate = votDiff.oldEndDate;
+      if (votDiff.newStartDate !== votDiff.oldStartDate)
+      {
+        view.oldStartDate = votDiff.newStartDate == null ? null : votDiff.oldStartDate;
+      }
+      if (votDiff.newEndDate !== votDiff.oldEndDate)
+      {
+        view.oldEndDate = votDiff.newEndDate == null ? null : votDiff.oldEndDate;
+      }
       view.editPropagator.diff = votDiff;
     }
 
