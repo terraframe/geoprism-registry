@@ -122,6 +122,7 @@ public class ChangeRequestJsonAdapters
       object.addProperty(ChangeRequest.CREATEDATE, format.format(cr.getCreateDate()));
       object.addProperty(ChangeRequest.APPROVALSTATUS, status.getEnumName());
       object.addProperty(ChangeRequest.MAINTAINERNOTES, cr.getMaintainerNotes());
+      object.addProperty(ChangeRequest.CONTRIBUTORNOTES, cr.getContributorNotes());
       object.addProperty("statusLabel", status.getDisplayLabel());
       
       ChangeRequestJsonAdapters.serializeCreatedBy(cr.getCreatedBy(), object);
