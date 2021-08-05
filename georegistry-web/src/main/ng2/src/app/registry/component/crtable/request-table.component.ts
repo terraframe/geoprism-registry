@@ -66,6 +66,13 @@ export class RequestTableComponent {
     objectKeys = Object.keys;
 
     bsModalRef: BsModalRef;
+    
+    page: any = {
+      count: 0,
+      pageNumber: 1,
+      pageSize: 10,
+      resultSet: []
+    };
 
     requests: ChangeRequest[] = [];
 
@@ -271,10 +278,11 @@ export class RequestTableComponent {
 
     }
 
-    refresh(): void {
+    refresh(pageNumber: number = 1): void {
 
-        this.service.getAllRequests(10, 1, "ALL").then(requests => {
+        this.service.getAllRequests(10, pageNumber, "ALL").then(requests => {
 
+            this.page = requests;
             this.requests = requests.resultSet;
 
             // Copying the Geo-Object to add consistency for template processing

@@ -52,6 +52,7 @@
         </tr>
       </thead>
       <tbody>
+        <!-- TODO : Paginate -->
         <ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
         
           <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
@@ -302,5 +303,10 @@
         </ng-template>
       </tbody>
     </table>
+    <div class="solid-table-footer">
+	    <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
+        <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
+	    </div>
+    </div>
   </div>   
 </div>

@@ -332,22 +332,33 @@ class ValueOverTimeEditPropagator {
       }
       else if (this.diff != null)
       {
-        let index = -1;
-        
-        let len = this.action.attributeDiff.valuesOverTime.length;
-        for (let i = 0; i < len; ++i)
+        if (this.diff.action === 'DELETE')
         {
-          let diff = this.action.attributeDiff.valuesOverTime[i];
+          let index = this.action.attributeDiff.valuesOverTime.findIndex(diff => {return diff.oid === this.diff.oid});
         
-          if (diff.oid === this.diff.oid)
+          if (index != -1)
           {
-            index = i;
+            this.action.attributeDiff.valuesOverTime.splice(index, 1);
+            this.diff = null;
           }
         }
-      
-        if (index != -1)
+        else if (this.valueOverTime != null)
         {
-          this.action.attributeDiff.valuesOverTime.splice(index, 1);
+          this.diff.action = "DELETE";
+          this.diff.oid = this.valueOverTime.oid;
+          delete this.diff.newValue;
+          delete this.diff.newStartDate;
+          delete this.diff.newEndDate;
+          this.diff.oldValue = this.valueOverTime.value;
+          this.diff.oldStartDate = this.valueOverTime.startDate;
+          this.diff.oldEndDate = this.valueOverTime.endDate;
+          
+          this.view.startDate = this.diff.oldStartDate;
+          this.view.endDate = this.diff.oldEndDate;
+          this.view.value = this.diff.oldValue;
+          delete this.view.oldStartDate;
+          delete this.view.oldEndDate;
+          delete this.view.oldValue;
         }
       }
     }
@@ -362,6 +373,8 @@ class ValueOverTimeEditPropagator {
         votc.splice(index, 1);
       }
     }
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -818,25 +831,40 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         this.diff.oldStartDate = this.hierarchyEntry.startDate;
         this.diff.oldEndDate = this.hierarchyEntry.endDate;
         this.action.attributeDiff.valuesOverTime.push(this.diff);
+        this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
       }
       else if (this.diff != null)
       {
-        let index = -1;
-        
-        let len = this.action.attributeDiff.valuesOverTime.length;
-        for (let i = 0; i < len; ++i)
+        if (this.diff.action === 'DELETE')
         {
-          let diff = this.action.attributeDiff.valuesOverTime[i];
+          let index = this.action.attributeDiff.valuesOverTime.findIndex(diff => {return diff.oid === this.diff.oid});
         
-          if (diff.oid === this.diff.oid)
+          if (index != -1)
           {
-            index = i;
+            this.action.attributeDiff.valuesOverTime.splice(index, 1);
+            this.diff = null;
           }
         }
-      
-        if (index != -1)
+        else if (this.hierarchyEntry != null)
         {
-          this.action.attributeDiff.valuesOverTime.splice(index, 1);
+          let currentImmediateParent: GeoObject = this.hierarchyEntry.parents[immediateType].geoObject;
+          let oldValue: string = currentImmediateParent == null ? null : currentImmediateParent.properties.type + "_~VST~_" + currentImmediateParent.properties.code;
+        
+          this.diff.action = "DELETE";
+          this.diff.oid = this.hierarchyEntry.oid;
+          delete this.diff.newValue;
+          delete this.diff.newStartDate;
+          delete this.diff.newEndDate;
+          this.diff.oldValue = oldValue;
+          this.diff.oldStartDate = this.hierarchyEntry.startDate;
+          this.diff.oldEndDate = this.hierarchyEntry.endDate;
+          
+          this.view.startDate = this.diff.oldStartDate;
+          this.view.endDate = this.diff.oldEndDate;
+          this.view.value = this.diff.oldValue;
+          delete this.view.oldStartDate;
+          delete this.view.oldEndDate;
+          delete this.view.oldValue;
         }
       }
     }
@@ -851,6 +879,8 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         votc.splice(index, 1);
       }
     }
+    
+    this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
   }
@@ -890,12 +920,19 @@ class VersionDiffView extends ValueOverTime {
   {
     if (diff == null)
     {
-      return SummaryKey.NEW;
+      this.summaryKey = SummaryKey.UNMODIFIED;
+      return;
     }
     
     if (diff.action === 'CREATE')
     {
-      return SummaryKey.NEW;
+      this.summaryKey = SummaryKey.NEW;
+      return;
+    }
+    else if (diff.action === 'DELETE')
+    {
+      this.summaryKey = SummaryKey.DELETE;
+      return;
     }
     
     let hasTime = diff.newStartDate != null || diff.newEndDate != null;
@@ -1089,20 +1126,6 @@ export class ManageVersionsComponent implements OnInit {
 
       view.editPropagator.remove();
 
-      let position = -1;
-      let len = this.viewModels.length;
-      for (let i = 0; i < len; i++) {
-          let loopView = this.viewModels[i];
-
-          if (loopView.oid === view.oid) {
-              position = i;
-          }
-      }
-
-      if (position > -1) {
-        this.viewModels.splice(position, 1);
-      }
-      
       this.onDateChange();
 
     }
@@ -1412,6 +1435,7 @@ export class ManageVersionsComponent implements OnInit {
   
             if (this.attributeType.type === '_PARENT_' && updateAttrAction.attributeDiff.hierarchyCode != this.hierarchy.code)
             {
+              console.log("Skipping because not equal", updateAttrAction.attributeDiff.hierarchyCode, this.hierarchy.code);
               continue;
             }
   
@@ -1429,14 +1453,16 @@ export class ManageVersionsComponent implements OnInit {
                   view.conflictMessage = [{severity: "ERROR", message: "Could not find expected reference?", type: ConflictType.MISSING_REFERENCE}]; // TODO : Localize
                 }
                 
+                this.populateViewFromDiff(view, votDiff);
+                
                 delete view.oldValue;
                 delete view.oldStartDate;
                 delete view.oldEndDate;
                 
-                view.startDate = votDiff.oldStartDate;
-                view.endDate = votDiff.oldEndDate;
-                view.oid = votDiff.oid;
-                view.value = votDiff.oldValue;
+                //view.startDate = votDiff.oldStartDate;
+                //view.endDate = votDiff.oldEndDate;
+                //view.oid = votDiff.oid;
+                //view.value = votDiff.oldValue;
                 
                 view.summaryKey = SummaryKey.DELETE;
                 
