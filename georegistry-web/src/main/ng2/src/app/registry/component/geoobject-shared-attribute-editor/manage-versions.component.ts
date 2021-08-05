@@ -291,7 +291,7 @@ class ValueOverTimeEditPropagator {
           }
         }
       
-        if (index != -1)
+        if (index !== -1)
         {
           this.action.attributeDiff.valuesOverTime.splice(index, 1);
         }
@@ -303,7 +303,7 @@ class ValueOverTimeEditPropagator {
       
       let index = votc.findIndex((vot) => {return vot.oid === this.valueOverTime.oid});
       
-      if (index != -1)
+      if (index !== -1)
       {
         votc.splice(index, 1);
       }
@@ -1121,7 +1121,7 @@ export class ManageVersionsComponent implements OnInit {
       {
         let updateAction: UpdateAttributeAction = action as UpdateAttributeAction;
         
-        if (updateAction.attributeDiff.valuesOverTime.length == 0)
+        if (updateAction.attributeDiff.valuesOverTime.length === 0)
         {
           hasChanges = false;
         }

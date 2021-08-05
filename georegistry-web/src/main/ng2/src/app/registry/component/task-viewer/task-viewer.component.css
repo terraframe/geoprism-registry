@@ -15,21 +15,3 @@ li.list-group-item {
 }
 
 
-
-.btn-group.geobject-editor-tab-holder 
-label.btn.full-width-radio-button.disabled {
-    border-color: #a7a7a7 !important;
-    font-weight: normal;
-    color: #a7a7a7;
-}
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button.disabled:active, 
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button.disabled:focus {
-    background: white !important;
-    background: var(--theme-button-color) !important;
-    outline: 0px !important;
-}
-
-
-label.btn.full-width-radio-button.error {
-    border-color: #8c0000;
-}

@@ -10,6 +10,8 @@
     font-size: 14px;
     font-weight: bold;
     padding: 0 6px;
+    width: fit-content;
+    top: -1px;
 }
 
 .list-group {

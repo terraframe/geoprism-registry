@@ -150,7 +150,7 @@ export class AttributeOverTime {
 }
 
 export class AttributeType {
-  code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept, for some reason we just rename the field to 'code' when serializing.
+  code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept.
   type: string;
   label: LocalizedValue;
   description: LocalizedValue;

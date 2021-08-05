@@ -127,6 +127,7 @@
 	                                 </p>
 	                               </div>
 	                             </td>
+
 	                            </tr>
 	                            <tr class="attribute-date-input-row">
 	                              <td>
@@ -227,6 +228,20 @@
               </li>
               
             </ul>
+
+              <div class="button-holder">
+                <!-- TODO: add disabled checks -->
+                <button type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
+                  <localize key="change.request.accept.btn"></localize>
+                </button>
+                <button type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                  <localize key="change.request.reject.btn"></localize>
+                </button>
+                <button type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                  <localize key="change.request.pending.btn"></localize>
+                </button>
+              </div>
+              
           </div>
         </div>
       </div>
