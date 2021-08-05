@@ -128,9 +128,9 @@ import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
-import net.geoprism.registry.etl.export.fhir.FhirDataPopulator;
-import net.geoprism.registry.etl.export.fhir.FhirExportFactory;
-import net.geoprism.registry.etl.export.fhir.MasterListFhirExporter;
+import net.geoprism.registry.etl.fhir.FhirDataPopulator;
+import net.geoprism.registry.etl.fhir.FhirFactory;
+import net.geoprism.registry.etl.fhir.MasterListFhirExporter;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.MasterListAttributeComparator;
@@ -745,7 +745,7 @@ public class MasterListVersion extends MasterListVersionBase
 
   public void exportToFhir(FhirExternalSystem system)
   {
-    FhirDataPopulator populator = FhirExportFactory.getPopulator(this);
+    FhirDataPopulator populator = FhirFactory.getPopulator(this);
 
     MasterListFhirExporter exporter = new MasterListFhirExporter(this, system, populator, true);
     exporter.export();

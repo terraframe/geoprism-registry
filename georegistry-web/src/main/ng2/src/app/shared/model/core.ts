@@ -51,6 +51,7 @@ export class ExternalSystem {
 	username?: string;
 	password?: string;
 	url?: string;
+	system?: string;
 	version?: string;
 	oAuthServer?: OAuthServer;
 }

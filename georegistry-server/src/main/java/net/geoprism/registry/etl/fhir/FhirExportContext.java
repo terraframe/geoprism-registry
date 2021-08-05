@@ -1,4 +1,4 @@
-package net.geoprism.registry.etl.export.fhir;
+package net.geoprism.registry.etl.fhir;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
@@ -34,6 +34,6 @@ public class FhirExportContext
 
   public String getSystem()
   {
-    return "terraframe.com";
+    return this.externalSystem.getSystem();
   }
 }

@@ -1,4 +1,4 @@
-package net.geoprism.registry.etl.export.fhir;
+package net.geoprism.registry.etl.fhir;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -12,6 +12,8 @@ import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.HealthcareService;
 import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Reference;
 
 import com.runwaysdk.business.Business;
@@ -25,13 +27,13 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
 {
   private int                          count = 0;
 
-  private ArrayList<HealthcareService> list;
+  private ArrayList<HealthcareService> services;
 
   public TestFhirDataPopulator()
   {
     super();
 
-    this.list = new ArrayList<HealthcareService>();
+    this.services = new ArrayList<HealthcareService>();
   }
 
   @Override
@@ -48,10 +50,10 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
   {
     super.configure(context, version, resolveIds);
 
-    this.list.add(createService("GEN", "General Practice", "17"));
-    this.list.add(createService("ED", "Emergency Department", "14"));
-    this.list.add(createService("DEN", "Dental", "10"));
-    this.list.add(createService("MEN", "Mental Health", "22"));
+    this.services.add(createService("GEN", "General Practice", "17"));
+    this.services.add(createService("ED", "Emergency Department", "14"));
+    this.services.add(createService("DEN", "Dental", "10"));
+    this.services.add(createService("MEN", "Mental Health", "22"));
   }
 
   @Override
@@ -59,16 +61,26 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
   {
     super.populate(row, facility);
 
+    ServerGeoObjectType type = this.getList().getGeoObjectType();
+    String label = type.getLabel().getValue();
+    String system = this.getContext().getSystem();
+    CodeableConcept concept = new CodeableConcept().setText(label).addCoding(new Coding(system, type.getCode(), label));
+
+    Location location = facility.getLocation();
+    location.addType(concept);
+
+    Organization organization = facility.getOrganization();
+    organization.addType(concept);
+
     this.addHierarchyValue(row, facility, ServerHierarchyType.get("Around"));
   }
 
   @Override
   public void createExtraResources(Business row, Bundle bundle, Facility facility)
   {
+    int index = this.count % this.services.size();
 
-    int index = this.count % this.list.size();
-
-    HealthcareService service = list.get(index);
+    HealthcareService service = services.get(index);
     service.addLocation(new Reference(facility.getLocation().getIdElement()));
 
     this.count++;
@@ -77,7 +89,7 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
   @Override
   public void finish(Bundle bundle)
   {
-    for (HealthcareService resource : list)
+    for (HealthcareService resource : services)
     {
       IdType resourceID = resource.getIdElement();
       Identifier identifier = resource.getIdentifier().get(0);

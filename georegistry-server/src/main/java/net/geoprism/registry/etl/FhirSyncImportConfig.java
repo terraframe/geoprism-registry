@@ -16,28 +16,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.graph;
+package net.geoprism.registry.etl;
 
-import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.graph.FhirExternalSystem;
 
-public class RevealExternalSystem extends RevealExternalSystemBase
+public class FhirSyncImportConfig extends ExternalSystemSyncConfig
 {
-  private static final long serialVersionUID = -1372834544;
-
-  public RevealExternalSystem()
-  {
-    super();
-  }
-
   @Override
-  public boolean isExportSupported()
+  public FhirExternalSystem getSystem()
   {
-    return false;
-  }
-
-  @Override
-  public ExternalSystemSyncConfig configuration(Boolean isImport)
-  {
-    throw new UnsupportedOperationException();
+    return (FhirExternalSystem) super.getSystem();
   }
 }

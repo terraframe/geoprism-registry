@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl.export.fhir;
+package net.geoprism.registry.etl.fhir;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -234,7 +234,7 @@ public class MasterListFhirExporter
 
       BundleEntryRequestComponent request = entry.getRequest();
       request.setMethod(HTTPVerb.PUT);
-      request.setUrl(resource.getResourceType().name() + "?identifier=" + identifier.getValue());
+      request.setUrl(resource.getResourceType().name() + "?identifier=" + identifier.getSystem() + "|" + identifier.getValue());
       entry.setRequest(request);
     }
   }

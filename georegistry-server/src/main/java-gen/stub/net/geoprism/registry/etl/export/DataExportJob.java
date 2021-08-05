@@ -40,9 +40,11 @@ import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
-import net.geoprism.registry.etl.FhirSyncConfig;
+import net.geoprism.registry.etl.FhirSyncExportConfig;
+import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
-import net.geoprism.registry.etl.export.fhir.FhirSynchronizationManager;
+import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
+import net.geoprism.registry.etl.fhir.FhirImportSynchronizationManager;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
@@ -104,7 +106,8 @@ public class DataExportJob extends DataExportJobBase
 
     this.setStage(history, ExportStage.EXPORT);
 
-    ExternalSystemSyncConfig config = this.getConfig().buildConfiguration();
+    SynchronizationConfig c = this.getConfig();
+    ExternalSystemSyncConfig config = c.buildConfiguration();
 
     if (config instanceof DHIS2SyncConfig)
     {
@@ -117,9 +120,14 @@ public class DataExportJob extends DataExportJobBase
 
       new DHIS2SynchronizationManager(dhis2, dhis2Config, history).synchronize();
     }
-    else if (config instanceof FhirSyncConfig)
+    else if (config instanceof FhirSyncExportConfig)
     {
-      FhirSynchronizationManager manager = new FhirSynchronizationManager((FhirSyncConfig) config, history);
+      FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config, history);
+      manager.synchronize();
+    }
+    else if (config instanceof FhirSyncImportConfig)
+    {
+      FhirImportSynchronizationManager manager = new FhirImportSynchronizationManager(c, (FhirSyncImportConfig) config, history);
       manager.synchronize();
     }
   }

@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -1488787036)
+@com.runwaysdk.business.ClassSignature(hash = 816558371)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,12 +11,29 @@ package net.geoprism.registry.graph;
 public abstract class FhirExternalSystemBase extends net.geoprism.registry.graph.ExternalSystem
 {
   public final static String CLASS = "net.geoprism.registry.graph.FhirExternalSystem";
+  public static java.lang.String SYSTEM = "system";
   public static java.lang.String URL = "url";
-  private static final long serialVersionUID = -1488787036;
+  private static final long serialVersionUID = 816558371;
   
   public FhirExternalSystemBase()
   {
     super();
+  }
+  
+  public String getSystem()
+  {
+    return (String) this.getObjectValue(SYSTEM);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getSystemMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.FhirExternalSystem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(SYSTEM);
+  }
+  
+  public void setSystem(String value)
+  {
+    this.setValue(SYSTEM, value);
   }
   
   public String getUrl()

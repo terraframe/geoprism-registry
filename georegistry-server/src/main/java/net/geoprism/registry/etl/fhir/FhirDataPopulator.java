@@ -1,4 +1,4 @@
-package net.geoprism.registry.etl.export.fhir;
+package net.geoprism.registry.etl.fhir;
 
 import org.hl7.fhir.r4.model.Bundle;
 

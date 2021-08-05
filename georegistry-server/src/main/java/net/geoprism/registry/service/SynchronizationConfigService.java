@@ -58,7 +58,7 @@ import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
-import net.geoprism.registry.etl.FhirSyncConfig;
+import net.geoprism.registry.etl.FhirSyncExportConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.DataExportJobQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -66,7 +66,7 @@ import net.geoprism.registry.etl.export.ExportHistoryQuery;
 import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
-import net.geoprism.registry.etl.export.fhir.FhirSynchronizationManager;
+import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -253,11 +253,11 @@ public class SynchronizationConfigService
 
     ExternalSystemSyncConfig config = synchorinzation.buildConfiguration();
 
-    if (config instanceof FhirSyncConfig)
+    if (config instanceof FhirSyncExportConfig)
     {
       try
       {
-        FhirSynchronizationManager manager = new FhirSynchronizationManager((FhirSyncConfig) config, null);
+        FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config, null);
         return manager.generateZipFile();
       }
       catch (IOException e)

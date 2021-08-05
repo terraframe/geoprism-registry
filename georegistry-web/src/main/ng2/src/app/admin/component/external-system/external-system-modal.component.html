@@ -123,6 +123,16 @@
               </span>
             </div>
           </div>
+          <div *ngIf="system.type === 'FhirExternalSystem'" class="row-holder">
+            <div class="label-holder">
+              <label><localize key="external.system.system"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="system.system" name="system" required>
+              </span>
+            </div>
+          </div>
           
 <!--           <div class="row-holder"> -->
 <!-- 	        <div  class="label-holder"> -->

@@ -51,7 +51,7 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     super();
   }
 
-  public abstract ExternalSystemSyncConfig configuration();
+  public abstract ExternalSystemSyncConfig configuration(Boolean isImport);
 
   public abstract boolean isExportSupported();
 

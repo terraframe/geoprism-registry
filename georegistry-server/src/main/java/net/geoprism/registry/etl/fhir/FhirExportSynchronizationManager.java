@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl.export.fhir;
+package net.geoprism.registry.etl.fhir;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +44,7 @@ import ca.uhn.fhir.parser.IParser;
 import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.etl.ExportJobHasErrors;
-import net.geoprism.registry.etl.FhirSyncConfig;
+import net.geoprism.registry.etl.FhirSyncExportConfig;
 import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -54,13 +54,13 @@ import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
 import net.geoprism.registry.ws.NotificationFacade;
 
-public class FhirSynchronizationManager
+public class FhirExportSynchronizationManager
 {
-  private FhirSyncConfig config;
+  private FhirSyncExportConfig config;
 
   private ExportHistory  history;
 
-  public FhirSynchronizationManager(FhirSyncConfig config, ExportHistory history)
+  public FhirExportSynchronizationManager(FhirSyncExportConfig config, ExportHistory history)
   {
     this.config = config;
     this.history = history;
@@ -89,7 +89,7 @@ public class FhirSynchronizationManager
 
       MasterListVersion version = MasterListVersion.get(level.getVersionId());
 
-      FhirDataPopulator populator = FhirExportFactory.getPopulator(version);
+      FhirDataPopulator populator = FhirFactory.getPopulator(version);
 
       MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, true);
       long results = exporter.export();
@@ -200,7 +200,7 @@ public class FhirSynchronizationManager
 
       MasterListVersion version = MasterListVersion.get(level.getVersionId());
 
-      FhirDataPopulator populator = FhirExportFactory.getPopulator(version);
+      FhirDataPopulator populator = FhirFactory.getPopulator(version);
 
       MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, false);
       exporter.populateBundle(bundle);

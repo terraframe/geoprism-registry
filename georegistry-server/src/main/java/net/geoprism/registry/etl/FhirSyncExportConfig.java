@@ -29,7 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.FhirExternalSystem;
 
-public class FhirSyncConfig extends ExternalSystemSyncConfig
+public class FhirSyncExportConfig extends ExternalSystemSyncConfig
 {
   public static final String       LEVELS = "levels";
 

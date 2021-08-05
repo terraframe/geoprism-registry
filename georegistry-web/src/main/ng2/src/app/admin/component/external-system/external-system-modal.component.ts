@@ -23,7 +23,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { ExternalSystem, Organization, OAuthServer } from '@shared/model/core';
+import { ExternalSystem, Organization } from '@shared/model/core';
 
 import { LocalizationService, AuthService, ExternalSystemService } from '@shared/service';
 

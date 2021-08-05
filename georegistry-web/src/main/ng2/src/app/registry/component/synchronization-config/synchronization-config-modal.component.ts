@@ -21,6 +21,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
     organization: null,
     system: null,
     hierarchy: null,
+    isImport: false,
     label: this.lService.create(),
     configuration: {}
   };
@@ -66,7 +67,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
     }
   }
 
-  handleFieldChange(field:string): void {
+  handleFieldChange(field: string): void {
     this.fieldChange.next(field);
   }
 
@@ -79,7 +80,7 @@ export class SynchronizationConfigModalComponent implements OnInit {
     else {
       this.cOrg = null;
     }
-    
+
     this.cSystem = null;
 
     this.handleFieldChange('organization');

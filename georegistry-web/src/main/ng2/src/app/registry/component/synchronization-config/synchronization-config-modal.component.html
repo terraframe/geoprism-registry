@@ -50,7 +50,25 @@
         <dhis2-synchronization-config [(config)]="config" [cOrg]="cOrg" [fieldChange]="fieldChange" (onError)="error($event)"></dhis2-synchronization-config>
       </div>
       <div *ngIf="cSystem != null && cSystem.type === 'FhirExternalSystem'">
-        <fhir-synchronization-config [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-synchronization-config>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>Synchronization Type</label>
+          </div>
+          <div class="holder">
+            <div class="col-md-3" style="display: flex; align-items: center;">
+              <label class="radio-inline radio">
+                <input class="inline-radio-input" style="height:auto;" type="radio" [(ngModel)]="config.isImport" [checked]="!config.isImport" name="isImport" [value]="false">
+                <span>Export</span>
+              </label>                
+              <label class="radio-inline radio">
+                <input class="inline-radio-input" style="height:auto;" type="radio" [(ngModel)]="config.isImport" [checked]="config.isImport" name="isImport" [value]="true">
+                <span>Import</span>
+              </label>                
+            </div>          
+          </div>
+        </div>
+      
+        <fhir-synchronization-config *ngIf="config.isImport !== true" [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-synchronization-config>
       </div>
 
       <div class="row-holder">

@@ -1,4 +1,4 @@
-package net.geoprism.registry.etl.export.fhir;
+package net.geoprism.registry.etl.fhir;
 
 import java.util.Collections;
 import java.util.HashMap;

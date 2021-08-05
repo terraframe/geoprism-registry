@@ -386,6 +386,7 @@ export class SynchronizationConfig {
 	oid?: string;
 	type?: string;
 	systemLabel?: string;
+	isImport?: boolean;
 	organization: string;
 	system: string;
 	hierarchy: string;

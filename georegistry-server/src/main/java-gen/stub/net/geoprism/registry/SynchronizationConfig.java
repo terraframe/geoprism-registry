@@ -36,7 +36,6 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
@@ -101,6 +100,15 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     this.setSystem(json.get(SynchronizationConfig.SYSTEM).getAsString());
     this.setConfiguration(json.get(SynchronizationConfig.CONFIGURATION).getAsJsonObject().toString());
 
+    if (json.has(SynchronizationConfig.ISIMPORT))
+    {
+      this.setIsImport(json.get(SynchronizationConfig.ISIMPORT).getAsBoolean());
+    }
+    else
+    {
+      this.setIsImport(false);
+    }
+
     LocalizedValue label = LocalizedValue.fromJSON(json.get(SynchronizationConfig.LABEL).getAsJsonObject());
 
     LocalizedValueConverter.populate(this.getLabel(), label);
@@ -109,13 +117,13 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   @Override
   public JsonObject toJSON()
   {
-
     JsonObject object = new JsonObject();
     object.addProperty(SynchronizationConfig.OID, this.getOid());
     object.addProperty(SynchronizationConfig.ORGANIZATION, this.getOrganization().getCode());
     object.addProperty(SynchronizationConfig.SYSTEM, this.getSystem());
     object.add(SynchronizationConfig.LABEL, LocalizedValueConverter.convert(this.getLabel()).toJSON());
     object.add(SynchronizationConfig.CONFIGURATION, this.getConfigurationJson());
+    object.addProperty(SynchronizationConfig.ISIMPORT, this.getIsImport() != null ? this.getIsImport() : false);
 
     ExternalSystem system = this.getExternalSystem();
 
@@ -146,7 +154,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   {
     ExternalSystem system = this.getExternalSystem();
 
-    ExternalSystemSyncConfig config = system.configuration();
+    ExternalSystemSyncConfig config = system.configuration(this.getIsImport());
     config.setSystem(system);
     config.populate(this);
 
