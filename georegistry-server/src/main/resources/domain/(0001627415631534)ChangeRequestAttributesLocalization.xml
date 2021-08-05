@@ -40,7 +40,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="changeovertime.manageVersions.rootOfHierarchy.message" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="This Geo-Object is at the root if it's hierarchy. Parent selection is not necessary." />
+          <attribute name="defaultLocale" value="This Geo-Object is at the root if its hierarchy. Parent selection is not necessary." />
         </attributeStruct>
       </object>
     </createOrUpdate>

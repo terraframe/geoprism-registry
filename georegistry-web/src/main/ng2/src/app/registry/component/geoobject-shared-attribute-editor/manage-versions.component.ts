@@ -880,11 +880,14 @@ export class ManageVersionsComponent implements OnInit {
     // The 'current' action which is to be used whenever we're applying new edits.
     editAction: AbstractAction;
     
+    isRootOfHierarchy: boolean = false;
+    
     // eslint-disable-next-line no-useless-constructor
     constructor(public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
 
     ngOnInit(): void {
       this.calculateViewModels();
+      this.isRootOfHierarchy = this.attributeType.type === '_PARENT_' && (this.hierarchy == null || this.hierarchy.types == null || this.hierarchy.types.length == 0);
     }
 
     ngAfterViewInit() {
@@ -1248,13 +1251,21 @@ export class ManageVersionsComponent implements OnInit {
       }
       
       // Next, we must apply all changes which may exist in the actions.
-      this.actions.forEach((action: AbstractAction) => {
+      let len = this.actions.length;
+      for (let i = 0; i < len; ++i)
+      {
+        let action: AbstractAction = this.actions[i];
       
         if (action.actionType === 'UpdateAttributeAction')
         {
           let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
           
           if (this.attributeType.code === updateAttrAction.attributeName) {
+  
+            if (this.attributeType.type === '_PARENT_' && updateAttrAction.attributeDiff.hierarchyCode != this.hierarchy.code)
+            {
+              continue;
+            }
   
             updateAttrAction.attributeDiff.valuesOverTime.forEach((votDiff: ValueOverTimeDiff) => {
   
@@ -1294,15 +1305,6 @@ export class ManageVersionsComponent implements OnInit {
                 }
                 
                 this.populateViewFromDiff(view, votDiff);
-                
-                if (votDiff.newStartDate != null)
-                {
-                  view.startDate = votDiff.newStartDate;
-                }
-                if (votDiff.newEndDate != null)
-                {
-                  view.endDate = votDiff.newEndDate;
-                }
                 
                 let hasTime = votDiff.newStartDate != null || votDiff.newEndDate != null;
                 let hasValue = votDiff.newValue != null;
@@ -1356,7 +1358,7 @@ export class ManageVersionsComponent implements OnInit {
           console.log("Unexpected action : " + action.actionType, action);
         }
 
-      });
+      };
 
     }
     
@@ -1367,28 +1369,23 @@ export class ManageVersionsComponent implements OnInit {
           view.value = votDiff.newValue; // TODO
         }
         else if (this.attributeType.type === "_PARENT_") {
-          //let codeArray = incomingImmediateParent.properties.type + "_~VST~_" + incomingImmediateParent.properties.code;
-          
-          let codeArray: string[] = votDiff.newValue.split("_~VST~_");
-          let typeCode: string = codeArray[0];
-          let goCode: string = codeArray[1];
-          
           view.value = (view.editPropagator as HierarchyEditPropagator).createEmptyHierarchyEntry();
           view.value.oid = votDiff.oid;
-          view.value.startDate = votDiff.newStartDate;
-          view.value.endDate = votDiff.newEndDate;
+          view.value.startDate = votDiff.newStartDate || votDiff.oldStartDate;
+          view.value.endDate = votDiff.newEndDate || votDiff.oldEndDate;
           view.value.parents = votDiff.parents;
           
-          /*
-          this.hierarchy.entries.forEach(entry => {
-            for (let i = 0; i < this.hierarchy.types.length; i++) {
-              let current = this.hierarchy.types[i];
-      
-              view.value.parents[current.code] = { text: goCode + " : " + typeCode, geoObject: null };
-            }
-          });
-          */
           view.value.loading = {};
+          
+          
+          if (votDiff.oldValue != null)
+          {
+            let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
+            let oldTypeCode: string = oldCodeArray[0];
+            let oldGoCode: string = oldCodeArray[1];
+            
+            view.oldValue = oldGoCode;
+          }
         }
         else
         {
@@ -1404,15 +1401,32 @@ export class ManageVersionsComponent implements OnInit {
               view.value = JSON.parse(JSON.stringify(entry));
             }
           });
+          
+          if (votDiff.oldValue != null)
+          {
+            let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
+            let oldTypeCode: string = oldCodeArray[0];
+            let oldGoCode: string = oldCodeArray[1];
+            
+            view.oldValue = oldGoCode;
+          }
+        }
+        else
+        {
+          view.value = votDiff.newValue || votDiff.oldValue;
+          
+          if (votDiff.oldValue != null)
+          {
+            view.oldValue = votDiff.oldValue;
+          }
         }
       }
       
       view.oid = votDiff.oid;
-      view.startDate = votDiff.newStartDate;
-      view.endDate = votDiff.newEndDate;
+      view.startDate = votDiff.newStartDate || votDiff.oldStartDate;
+      view.endDate = votDiff.newEndDate || votDiff.oldEndDate;
       view.oldStartDate = votDiff.oldStartDate;
       view.oldEndDate = votDiff.oldEndDate;
-      view.oldValue = votDiff.oldValue;
       view.editPropagator.diff = votDiff;
     }
 
