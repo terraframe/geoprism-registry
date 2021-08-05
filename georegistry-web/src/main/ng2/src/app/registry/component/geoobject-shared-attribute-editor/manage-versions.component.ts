@@ -269,7 +269,16 @@ class ValueOverTimeEditPropagator {
         }
       }
       
-      let areValuesEqual: boolean = this.component.getValueAtLocale(this.diff.oldValue, localeValue.locale) === this.component.getValueAtLocale(this.view.value, localeValue.locale)
+      let areValuesEqual: boolean = false;
+      if (this.diff.oldValue != null)
+      {
+        areValuesEqual = this.component.getValueAtLocale(this.diff.oldValue, localeValue.locale) === this.component.getValueAtLocale(this.view.value, localeValue.locale);
+      }
+      else
+      {
+        areValuesEqual = this.diff.oldValue === this.component.getValueAtLocale(this.view.value, localeValue.locale);
+      }
+      
       if (areValuesEqual)
       {
         delete this.diff.newValue;
@@ -624,7 +633,7 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       else
       {
         this.diff.newValue = newValueStrConcat;
-        this.view.oldValue = this.diff.oldValue.split("_~VST~_")[1];
+        this.view.oldValue = this.diff.oldValue == null ? null : this.diff.oldValue.split("_~VST~_")[1];
       }
     }
     else if (this.action instanceof CreateGeoObjectAction)
@@ -804,10 +813,10 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       
         this.diff = new ValueOverTimeDiff();
         this.diff.action = "DELETE";
-        this.diff.oid = this.valueOverTime.oid;
+        this.diff.oid = this.hierarchyEntry.oid;
         this.diff.oldValue = oldValue;
-        this.diff.oldStartDate = this.valueOverTime.startDate;
-        this.diff.oldEndDate = this.valueOverTime.endDate;
+        this.diff.oldStartDate = this.hierarchyEntry.startDate;
+        this.diff.oldEndDate = this.hierarchyEntry.endDate;
         this.action.attributeDiff.valuesOverTime.push(this.diff);
       }
       else if (this.diff != null)
