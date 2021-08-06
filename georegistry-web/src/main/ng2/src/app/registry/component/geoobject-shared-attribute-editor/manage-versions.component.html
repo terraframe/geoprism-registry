@@ -32,7 +32,10 @@
 	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row" 
 	                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'WARNING'}">
 	                        <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
-	                          <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator"><localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize></span>
+	                          <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator">
+	                            <!-- <localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize> -->
+	                            {{viewModel.summaryKeyLocalized}}
+	                          </span>
 	                          
 	                          <table>
 	                          
@@ -44,7 +47,7 @@
 		                             <td colspan="2">
 		                               <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
 		                               
-		                               <input [disabled]="readonly" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editPropagator.setLocalizedValue(loc)" [required]="loc.locale === 'defaultLocale'">
+		                               <input [disabled]="readonly || viewModel.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editPropagator.setLocalizedValue(loc)" [required]="loc.locale === 'defaultLocale'">
 		                               
 		                               <div class="form-input-validation-error-message-wrapper">
 		                                 <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">
@@ -64,13 +67,13 @@
 	                            <tr *ngIf="attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'boolean'" class="attribute-value-row">
 	                             <td colspan="2">
 	                               <div *ngIf="attributeType.type === 'term'">
-	                                 <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly">
+	                                 <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
 	                                     <option value=""></option>
 	                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attributeType.code)" [value]="option.code">{{option.label.localizedValue}}</option>
 	                                 </select>
 	                               </div>
 	                               <div *ngIf="attributeType.type === 'character'">
-	                                 <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly" required>
+	                                 <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'date'">
@@ -79,16 +82,16 @@
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'integer' || attributeType.type === 'float'">
-	                                 <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly" required>
+	                                 <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'boolean'">
 	                                   <label class="radio radio-inline" style="padding-left:0;"> 
-	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === true" [value]="true" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly"> 
+	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === true" [value]="true" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
 	                                     <span><localize key="change.request.boolean.option.true"></localize></span>
 	                                   </label> 
 	                                   <label class="radio radio-inline"> 
-	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === false" [value]="false" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly"> 
+	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === false" [value]="false" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
 	                                     <span><localize key="change.request.boolean.option.false"></localize></span>
 	                                   </label>
 	                               </div>
@@ -100,7 +103,7 @@
 			                                 <div class="input-group">
 			                                    <input style="width:100%;" type="text" class="form-control" autocomplete="off"
 			                                      [name]="type.code + '-' + i"
-			                                      [disabled]="viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
+			                                      [disabled]="viewModel.summaryKey === 'DELETE' || viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
 			                                      [(ngModel)]="viewModel.editPropagator.value.parents[type.code].text" 
 			                                      [typeaheadAsync]="true"
 			                                      [typeahead]="viewModel.editPropagator.getTypeAheadObservable(viewModel.editPropagator.startDate, type, viewModel.editPropagator.value, j)"
@@ -135,7 +138,7 @@
 	                                  <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
 	                                </h5>
 	                            
-	                                <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
+	                                <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
 	                                  <p class="warning-text">
@@ -150,8 +153,8 @@
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
 	                              
-	                                  <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
-	                                      [required]="true" [placement]="'bottom'" [disable]="readonly" ></date-field>
+	                                  <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readOnly" [allowFutureDates]="true" 
+	                                      [required]="true" [placement]="'bottom'" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                    
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">
 	                                    <p class="warning-text">
@@ -172,7 +175,8 @@
 	                        </td>
 	                        
 	                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize">
-	                          <i class="fa fa-times" ></i>
+	                          <i *ngIf="viewModel.summaryKey !== 'DELETE'" class="fa fa-times" ></i>
+	                          <i *ngIf="viewModel.summaryKey === 'DELETE'" class="fa fa-undo" ></i>
 	                        </td>
 	                      </tr>
 	                    </ng-container>
@@ -185,7 +189,7 @@
                 -->
                 <div *ngIf="attributeType.type === 'geometry' && selectedTab === 2">
                 
-                  <p class="message" *ngIf="postGeoObject.attributes['geometry'].values.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
+                  <p class="message" *ngIf="viewModels.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
                   
                   <table class="table table-striped">
                     <thead style="font-size: 14px;">
@@ -200,7 +204,7 @@
                           <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button">
                             <localize key="changeovertime.manageVersions.geometry.edit"></localize>
                           </button> 
-                          <geoobject-editor-map *ngIf="this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
+                          <geoobject-editor-map *ngIf="isGeometryInlined && this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
                               (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly" [postGeometry]="viewModel.value" 
                               [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="viewModel.startDate">
                           </geoobject-editor-map>
@@ -210,7 +214,7 @@
                         </td>
                         <td style="vertical-align: middle;">
 
-                          <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
+                          <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
                               [required]="true" [disable]="readonly" [placement]="'bottom'" ></date-field>
                     
                         </td>

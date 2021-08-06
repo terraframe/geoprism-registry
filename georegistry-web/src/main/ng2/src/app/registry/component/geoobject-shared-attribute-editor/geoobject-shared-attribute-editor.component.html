@@ -44,7 +44,7 @@
             <li *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index" class="list-group-item" style="text-align:left;border:none;padding:0;">
               <div class="panel panel-default">
                 <div class="panel-heading">
-                  <h4 *ngIf="attr.code !== 'geometry'" style="margin:0;">
+                  <h4 style="margin:0;">
                     <span *ngIf="attr.code === 'code'"> 
                       <localize key="geoobject.code.alternate.label"></localize>
                     </span> 
@@ -53,11 +53,6 @@
                     </span> 
                     <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
                   </h4>
-
-                  <h4 *ngIf="attr.code === 'geometry'">
-                    <localize key="shared.attributes.attribute.geometry.label"></localize>
-                  </h4>
-
                 </div>
 
                 <div class="panel-body">
@@ -69,27 +64,6 @@
                   <div *ngIf="attr.code !== 'code'">
                     <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'geoObject':postGeoObject}"
                         [readonly]="readOnly" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex"></manage-versions>
-                  </div>
-
-                  <div *ngIf="attr.type === 'geometry' && this.isGeometryInlined">
-<!--                     <geoobject-editor-map  -->
-<!--                       #geometryEditor  -->
-<!--                       [geometryType]="this.geoObjectType.geometryType"  -->
-<!--                       [readOnly]="readOnly" -->
-<!--                       [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null" -->
-<!--                       [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null"  -->
-<!--                       [bboxCode]="this.preGeoObject.attributes.code" -->
-<!--                       [bboxType]="this.geoObjectType.code" -->
-<!--                       (onClickEdit)="this.onManageGeometryVersions()"  -->
-<!--                       [bboxDate]="this.forDate.toISOString().split('T')[0]">  -->
-<!--                     </geoobject-editor-map> -->
-
-<!--                       <div class="button-holder text-left" style="margin:0;"> -->
-<!--                         <button type="submit" style="width:100%;" (click)="this.onManageGeometryVersions()" class="btn btn-primary" role="button"> -->
-<!--                           <localize *ngIf="!readOnly" key="modal.button.edit"></localize> -->
-<!--                           <localize *ngIf="readOnly" key="modal.button.view"></localize> -->
-<!--                         </button> -->
-<!--                       </div> -->
                   </div>
 
                   <!--                   <div *ngIf="attr.isChangeOverTime && !readOnly" class="button-holder" > -->
@@ -122,19 +96,14 @@
 	        </li>
         </ul>
       </div>
-      <div *ngIf="tabIndex === 2 && this.isEditingGeometries && !this.isGeometryInlined">
-        TODO: enable
-<!--           <geoobject-editor-map  -->
-<!--             #geometryEditor -->
-<!--             [geometryType]="this.geoObjectType.geometryType" -->
-<!--             [readOnly]="readOnly"  -->
-<!--             [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null" -->
-<!--             [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null" -->
-<!--             [bboxCode]="this.preGeoObject.attributes.code" -->
-<!--             [bboxType]="this.geoObjectType.code" -->
-<!--             (onClickEdit)="this.onManageGeometryVersions()" -->
-<!--             [bboxDate]="this.forDate.toISOString().split('T')[0]" -->
-<!--           > </geoobject-editor-map> -->
+      
+      <div *ngIf="tabIndex === 2">
+        <h4>
+          <localize key="shared.attributes.attribute.geometry.label"></localize>
+        </h4>
+
+        <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'geoObject':postGeoObject}"
+          [readonly]="readOnly" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
       </div>
     </div>
     <!-- </div> -->
