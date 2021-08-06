@@ -17,7 +17,7 @@ import {
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, GeoObject, AttributeTermType, PRESENT, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, VersionOverTimeLayer, GeoObject, AttributeTermType, PRESENT, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { ConflictType, ActionTypes, GovernanceStatus } from '@registry/model/constants';
@@ -25,7 +25,7 @@ import { AuthService } from "@shared/service/auth.service";
 
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 
-import { RegistryService } from "@registry/service";
+import { RegistryService, GeometryService } from "@registry/service";
 import { ChangeRequestService } from "@registry/service/change-request.service";
 import { DateService } from "@shared/service/date.service";
 
@@ -899,6 +899,7 @@ class VersionDiffView extends ValueOverTime {
   oldValue?: any;
   oldStartDate?: string;
   oldEndDate?: string;
+  layer?: VersionOverTimeLayer;
   editPropagator: ValueOverTimeEditPropagator;
   
   constructor(component: ManageVersionsComponent, action: AbstractAction)
@@ -1017,9 +1018,13 @@ export class ManageVersionsComponent implements OnInit {
 
     @Input() isGeometryInlined: boolean = false;
 
-    // Observable subject for MasterList changes.  Called when an update is successful
+    // Observable subject for MasterList changes.  Called when an update is successful // TODO : This probably doesn't work anymore
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
-
+    
+    @Output() onEditLayer = new EventEmitter<VersionOverTimeLayer>();
+    
+    @Output() onRenderedLayersChange = new EventEmitter<VersionOverTimeLayer[]>();
+    
     attributeType: AttributeType;
     actions: AbstractAction[] = [];
 
@@ -1032,12 +1037,6 @@ export class ManageVersionsComponent implements OnInit {
 
         this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
         this.postGeoObject = value.geoObject;
-
-        if (this.attributeType.code === "geometry" && this.postGeoObject.attributes[this.attributeType.code].values.length === 1) {
-
-            this.editingGeometry = 0;
-
-        }
     }
 
     @Input() geoObjectType: GeoObjectType;
@@ -1053,8 +1052,6 @@ export class ManageVersionsComponent implements OnInit {
 
     newVersion: ValueOverTime;
 
-    editingGeometry: number = -1;
-
     hasDuplicateDate: boolean = false;
 
     conflict: string;
@@ -1065,18 +1062,21 @@ export class ManageVersionsComponent implements OnInit {
     
     viewModels: VersionDiffView[] = [];
     
+    renderedLayers: VersionOverTimeLayer[] = [];
+    
     // The 'current' action which is to be used whenever we're applying new edits.
     editAction: AbstractAction;
     
     isRootOfHierarchy: boolean = false;
     
     // eslint-disable-next-line no-useless-constructor
-    constructor(public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
+    constructor(private geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
         private requestService: ChangeRequestService) { }
 
     ngOnInit(): void {
       this.calculateViewModels();
       this.isRootOfHierarchy = this.attributeType.type === '_PARENT_' && (this.hierarchy == null || this.hierarchy.types == null || this.hierarchy.types.length == 0);
+      this.geomService.setRenderedLayers(this.renderedLayers);
     }
 
     ngAfterViewInit() {
@@ -1084,7 +1084,7 @@ export class ManageVersionsComponent implements OnInit {
 
     geometryChange(vAttribute, event): void {
 
-        vAttribute.value = event;
+        //vAttribute.value = event; // TODO
 
     }
 
@@ -1163,10 +1163,45 @@ export class ManageVersionsComponent implements OnInit {
       });
     }
 
-    editGeometry(index: number) {
-
-        this.editingGeometry = index;
-
+    toggleGeometryEditing(view: VersionDiffView) {
+      view.layer.editing = !view.layer.editing;
+      
+      //if (this.geometryEditor != null)
+      //{
+      //  this.geometryEditor.reload();
+      //}
+      
+      this.geomService.setRenderedLayers(this.renderedLayers);
+    }
+    
+    toggleGeometryView(view: VersionDiffView) {
+      
+      if (view.layer != null)
+      {
+        let index = this.renderedLayers.findIndex(find => {return find.oid === view.layer.oid;});
+        
+        if (index != null)
+        {
+          this.renderedLayers.splice(index, 1);
+          delete view.layer;
+        }
+      }
+      else
+      {
+        let layer = {
+          view: view,
+          oid: view.oid,
+          startDate: view.startDate,
+          endDate: view.endDate,
+          geojson: view.value
+        } as VersionOverTimeLayer;
+        
+        this.renderedLayers.push(layer);
+        
+        view.layer = layer;
+      }
+      
+      this.geomService.setRenderedLayers(this.renderedLayers);
     }
 
     getVersionData(attribute: AttributeType) {
@@ -1454,7 +1489,7 @@ export class ManageVersionsComponent implements OnInit {
                   view = new VersionDiffView(this, action);
                   this.viewModels.push(view);
                   
-                  view.conflictMessage = [{severity: "ERROR", message: "Could not find expected reference?", type: ConflictType.MISSING_REFERENCE}]; // TODO : Localize
+                  view.conflictMessage = [{severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE}];
                 }
                 
                 this.populateViewFromDiff(view, votDiff);
@@ -1479,7 +1514,7 @@ export class ManageVersionsComponent implements OnInit {
                   view = new VersionDiffView(this, action);
                   this.viewModels.push(view);
                   
-                  view.conflictMessage = [{severity: "ERROR", message: "Could not find expected reference?", type: ConflictType.MISSING_REFERENCE}]; // TODO : Localize
+                  view.conflictMessage = [{severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE}];
                 }
                 
                 this.populateViewFromDiff(view, votDiff);
@@ -1519,7 +1554,7 @@ export class ManageVersionsComponent implements OnInit {
         }
 
       };
-
+      
     }
     
     populateViewFromDiff(view: VersionDiffView, votDiff: ValueOverTimeDiff) {

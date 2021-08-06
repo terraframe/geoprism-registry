@@ -14,11 +14,11 @@
       <div class="row">
 
         <!-- <div class="label-holder"></div> -->
-        <div class="col-md-12">
+        <div [ngStyle]="{'width' : (isGeometryInlined && renderedLayers.length > 0) ? '45%' : '100%'}" style="display:inline-block;" class="col">
           <div *ngIf="postGeoObject" class="attribute-version-wrapper">
             <ul class="list-group">
               <li class="list-group-item" style="text-align:left;padding:0;">
-                <div *ngIf="attributeType && actions && attributeType.type !== 'geometry'">
+                <div *ngIf="attributeType && actions">
                   <table class="table table-striped">
                     <tbody class="attribute-element-wrapper" >
                       <p class="message" *ngIf="!isRootOfHierarchy && viewModels.length === 0">
@@ -63,7 +63,7 @@
 		                             </td>
 		                           </tr>
 	                            </ng-container>
-	                            <tr *ngIf="attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'boolean'" class="attribute-value-row">
+	                            <tr *ngIf="attributeType.type === 'geometry' || attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'boolean'" class="attribute-value-row">
 	                             <td colspan="2">
 	                               <div *ngIf="attributeType.type === 'term'">
 	                                 <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
@@ -121,6 +121,22 @@
 			                               </div>
 			                             </ng-container>
 	                               </div>
+	                               
+	                               <!-- 
+								                    Geometry 
+								                 -->
+								                 <div *ngIf="attributeType.type === 'geometry'">
+								                
+					                         <td style="vertical-align: middle;">
+					                           <button class="btn btn-primary" (click)="toggleGeometryView(viewModel)" role="button">
+					                             <localize *ngIf="viewModel.layer == null" key="changeovertime.manageVersions.geometry.view"></localize>
+					                             <localize *ngIf="viewModel.layer != null" key="changeovertime.manageVersions.geometry.hide"></localize>
+					                           </button>
+					                           <button *ngIf="viewModel.layer != null" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button">
+                                       <localize key="changeovertime.manageVersions.geometry.edit"></localize>
+                                     </button>
+					                         </td>
+								                 </div>
 	                               
 	                               <div *ngIf="viewModel.oldValue && !isNew">
 	                                 <p class="warning-text">
@@ -182,46 +198,6 @@
                     </tbody>
                   </table>
                 </div>
-
-                <!-- 
-                    Geometry 
-                -->
-                <div *ngIf="attributeType.type === 'geometry' && selectedTab === 2">
-                
-                  <p class="message" *ngIf="viewModels.length === 0"><localize key="changeovertime.manageVersions.no.versions.message"></localize> </p>
-                  
-                  <table class="table table-striped">
-                    <thead style="font-size: 14px;">
-                      <th style="width: 60%;"><localize key="changeovertime.manageVersions.tableHeader.label.value"></localize></th>
-                      <th style="width: 20%;"><localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize></th>
-                      <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize></th>
-                      <th style="width: 10%;"><localize key="changeovertime.manageVersions.tableHeader.label.actions"></localize></th>
-                    </thead>
-                    <tbody style="text-align: center;">
-                      <tr @fadeInOut [ngClass]="{'active' : i === editingGeometry}" *ngFor="let viewModel of viewModels; let i = index;">
-                        <td style="vertical-align: middle;">
-                          <button *ngIf="this.editingGeometry != i" class="btn" (click)="editGeometry(i)" role="button">
-                            <localize key="changeovertime.manageVersions.geometry.edit"></localize>
-                          </button> 
-                          <geoobject-editor-map *ngIf="isGeometryInlined && this.editingGeometry === i" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
-                              (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly" [postGeometry]="viewModel.value" 
-                              [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="viewModel.startDate">
-                          </geoobject-editor-map>
-                        </td>
-                        <td style="vertical-align: middle;">
-                          <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate-' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly" ></date-field>
-                        </td>
-                        <td style="vertical-align: middle;">
-
-                          <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="true" [allowFutureDates]="true" 
-                              [required]="true" [disable]="readonly" [placement]="'bottom'" ></date-field>
-                    
-                        </td>
-                        <td *ngIf="!readonly" style="vertical-align: middle;"><i class="fa fa-times delete-btn" [ngClass]="{'clickable' : !readonly, 'disabled' : readonly}" (click)="!readonly && remove(viewModel)"></i></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
               </li>
 
               <li *ngIf="!readonly && !isRootOfHierarchy" class="list-group-item" style="text-align: left;">
@@ -246,6 +222,10 @@
               
           </div>
         </div>
+	      <geoobject-editor-map style="width:55%; display:inline-block;" *ngIf="isGeometryInlined && renderedLayers.length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
+	        (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
+	        [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="renderedLayers[0].startDate">
+	      </geoobject-editor-map>
       </div>
 
     </fieldset>

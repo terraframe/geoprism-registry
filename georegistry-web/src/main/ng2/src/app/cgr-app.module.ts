@@ -30,6 +30,8 @@ import { HttpErrorInterceptor } from '@core/service/http-error.interceptor';
 import { ForgotPasswordService } from '@core/service/forgotpassword.service';
 import { HubService } from '@core/service/hub.service';
 
+import { GeometryService } from '@registry/service/geometry.service';
+
 import { SharedModule } from '@shared/shared.module';
 
 import './rxjs-extensions';
@@ -75,6 +77,7 @@ import './rxjs-extensions';
         },
         ForgotPasswordService,
         HubService,
+        GeometryService
     ],
     exports: [
         CgrAppComponent,

@@ -40,7 +40,28 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="changeovertime.manageVersions.rootOfHierarchy.message" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="This Geo-Object is at the root if its hierarchy. Parent selection is not necessary." />
+          <attribute name="defaultLocale" value="This Geo-Object is at the root of its hierarchy. Parent selection is not necessary." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.view">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Show Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.hide">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.hide" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.missingReference">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.missingReference" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Could not find an expected reference." />
         </attributeStruct>
       </object>
     </createOrUpdate>

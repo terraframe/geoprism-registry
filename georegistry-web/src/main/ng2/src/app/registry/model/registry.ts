@@ -427,3 +427,12 @@ export class ContextLayerGroup {
     displayLabel: string;
     contextLayers: ContextLayer[];
 }
+
+export class VersionOverTimeLayer {
+  view: any; // TODO : We might be able to get rid of this. It shouldn't be used anywhere other than the manage versions component
+  oid: string;
+  startDate: string;
+  endDate: string;
+  geojson: any;
+  editing: boolean;
+}
