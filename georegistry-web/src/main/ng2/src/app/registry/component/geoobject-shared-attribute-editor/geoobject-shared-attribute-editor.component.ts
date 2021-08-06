@@ -353,4 +353,32 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         // return this.postGeoObject;
     }
 
+    onApprove(attr: any): void
+    {
+        console.log(attr)
+
+//        this.requestService.setActionStatus(actionOid, status).then(results => {
+//            console.log(results)
+//        })
+//        .catch((err: HttpErrorResponse) => {
+//            this.error(err);
+//        });
+
+//        TODO
+//        this.onChange.emit(this.postGeoObject);
+        // this.isValidChange.emit(this.isValid);
+
+    }
+
+    onReject(): void {
+
+//        TODO
+//        this.onChange.emit(this.originalGeoObjectOverTime);
+
+    }
+
+    onPending(): void {
+//        TODO
+    }
+
 }

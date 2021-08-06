@@ -20,12 +20,13 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, GeoObject, AttributeTermType, PRESENT, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
-import { ConflictType } from '@registry/model/constants';
+import { ConflictType, ActionTypes, GovernanceStatus } from '@registry/model/constants';
 import { AuthService } from "@shared/service/auth.service";
 
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 
 import { RegistryService } from "@registry/service";
+import { ChangeRequestService } from "@registry/service/change-request.service";
 import { DateService } from "@shared/service/date.service";
 
 import { LocalizationService } from "@shared/service";
@@ -1013,7 +1014,7 @@ export class ManageVersionsComponent implements OnInit {
     @Input() readonly: boolean = false;
 
     @Input() selectedTab: number = 0;
-    
+
     @Input() isGeometryInlined: boolean = false;
 
     // Observable subject for MasterList changes.  Called when an update is successful
@@ -1070,7 +1071,8 @@ export class ManageVersionsComponent implements OnInit {
     isRootOfHierarchy: boolean = false;
     
     // eslint-disable-next-line no-useless-constructor
-    constructor(public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService) { }
+    constructor(public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
+        private requestService: ChangeRequestService) { }
 
     ngOnInit(): void {
       this.calculateViewModels();
@@ -1369,7 +1371,7 @@ export class ManageVersionsComponent implements OnInit {
       else
       {
         this.actions.forEach((action: AbstractAction) => {
-          if (action.actionType === 'UpdateAttributeAction')
+          if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION)
           {
             let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
             
@@ -1429,7 +1431,7 @@ export class ManageVersionsComponent implements OnInit {
       {
         let action: AbstractAction = this.actions[i];
       
-        if (action.actionType === 'UpdateAttributeAction')
+        if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION)
         {
           let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
           
@@ -1506,7 +1508,7 @@ export class ManageVersionsComponent implements OnInit {
     
           }
         }
-        else if (action.actionType === 'CreateGeoObjectAction')
+        else if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION)
         {
           // TODO
           //let postGoVot = this.findPostGeoObjectVOT(votDiff.oid);
@@ -1595,6 +1597,7 @@ export class ManageVersionsComponent implements OnInit {
       }
       view.editPropagator.diff = votDiff;
     }
+    
 
     isStatusChanged(post, pre) {
 
@@ -1632,23 +1635,44 @@ export class ManageVersionsComponent implements OnInit {
 
     }
 
-    onApprove(): void {
+    onApprove(): void
+    {
 
-//        TODO
-//        this.onChange.emit(this.postGeoObject);
-        // this.isValidChange.emit(this.isValid);
+        this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.ACCEPTED).then(results => {
+
+            console.log("accepted");
+
+        });
+//        .catch((err: HttpErrorResponse) => {
+//            this.error(err);
+//        });
 
     }
 
     onReject(): void {
 
-//        TODO
-//        this.onChange.emit(this.originalGeoObjectOverTime);
+        this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.REJECTED).then(results => {
+
+            console.log("rejected");
+
+        });
+//        .catch((err: HttpErrorResponse) => {
+//            this.error(err);
+//        });
 
     }
 
     onPending(): void {
-//        TODO
+
+        this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.PENDING).then(results => {
+
+            console.log("pending");
+
+        });
+//        .catch((err: HttpErrorResponse) => {
+//            this.error(err);
+//        });
+
     }
 
 }

@@ -32,10 +32,9 @@
 	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row" 
 	                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'WARNING'}">
 	                        <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
-	                          <span *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator">
-	                            <!-- <localize [key]="'changeovertime.manageVersions.summaryKey.' + viewModel.summaryKey"></localize> -->
-	                            {{viewModel.summaryKeyLocalized}}
-	                          </span>
+	                          <div *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator">
+                                {{viewModel.summaryKeyLocalized}}
+                              </div>
 	                          
 	                          <table>
 	                          
@@ -233,37 +232,18 @@
               
             </ul>
 
-              <div class="button-holder">
-                <!-- TODO: add disabled checks -->
-                <button type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
+              <div *ngIf="!readonly">
+                <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
                   <localize key="change.request.accept.btn"></localize>
                 </button>
-                <button type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                <button [disabled]="editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
                   <localize key="change.request.reject.btn"></localize>
                 </button>
-                <button type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                <button [disabled]="editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
                   <localize key="change.request.pending.btn"></localize>
                 </button>
               </div>
               
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="!readonly" class="row-holder">
-        <!-- <div class="label-holder"></div> -->
-        <div class="holder" style="border: none; width: 100%;">
-          <div class="button-holder pull-right">
-
-<!--              <button [disabled]="attribute.governanceStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.accept.btn"></localize> -->
-<!--             </button> -->
-<!--             <button [disabled]="attribute.governanceStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.reject.btn"></localize> -->
-<!--             </button>   -->
-<!--             <button [disabled]="attribute.governanceStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.reject.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.pending.btn"></localize> -->
-<!--             </button>   -->
           </div>
         </div>
       </div>
