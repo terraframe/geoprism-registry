@@ -52,18 +52,12 @@ public class FhirImportSynchronizationManager
   {
     final FhirExternalSystem system = (FhirExternalSystem) this.details.getSystem();
 
-    int expectedLevel = 0;
-    long exportCount = 0;
-
     FhirResourceProcessor processor = FhirFactory.getProcessor(this.details);
 
-    FhirResourceImporter importer = new FhirResourceImporter(system, processor, this.config.getLastSynchDate());
+    FhirResourceImporter importer = new FhirResourceImporter(system, processor, this.history, this.config.getLastSynchDate());
     importer.synchronize();
 
     history.appLock();
-    history.setWorkTotal((long) expectedLevel);
-    history.setWorkProgress((long) expectedLevel);
-    history.setExportedRecords(exportCount);
     history.clearStage();
     history.addStage(ExportStage.COMPLETE);
     history.apply();

@@ -127,7 +127,7 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-        path: 'sync/details/:oid',
+        path: 'sync/details/:config/:oid',
         component: SyncDetailsComponent,
         canActivate: [MaintainerGuard]
     },

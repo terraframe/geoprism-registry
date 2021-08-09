@@ -8,6 +8,7 @@ import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.etl.FhirSyncImportConfig;
@@ -30,6 +31,7 @@ public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor imp
     value.setValue(LocalizedValue.DEFAULT_LOCALE, location.getName());
 
     geoObject.setDisplayLabel(value, lastUpdated, ValueOverTime.INFINITY_END_DATE);
+//    throw new ProgrammingErrorException("Test");
   }
 
   @Override

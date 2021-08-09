@@ -2,11 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { AuthService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
 
-import { RegistryService, IOService } from '@registry/service';
-import { ScheduledJob } from '@registry/model/registry';
+import { RegistryService, IOService, SynchronizationConfigService } from '@registry/service';
+import { ScheduledJob, SynchronizationConfig } from '@registry/model/registry';
 
 @Component({
   selector: 'job',
@@ -18,6 +17,8 @@ export class SyncDetailsComponent implements OnInit {
   job: ScheduledJob;
   historyId: string = "";
 
+  config: SynchronizationConfig = null;
+
   page: any = {
     count: 0,
     pageNumber: 1,
@@ -25,22 +26,20 @@ export class SyncDetailsComponent implements OnInit {
     results: []
   };
 
-  isAdmin: boolean;
-  isMaintainer: boolean;
-  isContributor: boolean;
-
-  constructor(public service: RegistryService, private route: ActivatedRoute, authService: AuthService, public ioService: IOService) {
-    this.isAdmin = authService.isAdmin();
-    this.isMaintainer = this.isAdmin || authService.isMaintainer();
-    this.isContributor = this.isAdmin || this.isMaintainer || authService.isContributer();
+  constructor(private configService: SynchronizationConfigService, public service: RegistryService, private route: ActivatedRoute, public ioService: IOService) {
   }
 
   ngOnInit(): void {
 
     this.historyId = this.route.snapshot.params["oid"];
 
-    this.onPageChange(1);
+    const configOid = this.route.snapshot.paramMap.get('config');
 
+    this.configService.get(configOid).then(config => {
+      this.config = config;
+
+      this.onPageChange(1);
+    });
   }
 
   ngOnDestroy() {
@@ -61,7 +60,7 @@ export class SyncDetailsComponent implements OnInit {
     this.service.getExportDetails(this.historyId, this.page.pageSize, pageNumber).then(response => {
 
       this.job = response;
-      
+
       this.page = this.job.exportErrors;
 
     }).catch((err: HttpErrorResponse) => {
@@ -71,7 +70,7 @@ export class SyncDetailsComponent implements OnInit {
   }
 
   error(err: HttpErrorResponse): void {
-      this.message = ErrorHandler.getMessageFromError(err);
+    this.message = ErrorHandler.getMessageFromError(err);
   }
 
 }
