@@ -31,7 +31,6 @@ public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor imp
     value.setValue(LocalizedValue.DEFAULT_LOCALE, location.getName());
 
     geoObject.setDisplayLabel(value, lastUpdated, ValueOverTime.INFINITY_END_DATE);
-//    throw new ProgrammingErrorException("Test");
   }
 
   @Override
