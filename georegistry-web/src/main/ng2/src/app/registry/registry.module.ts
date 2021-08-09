@@ -14,9 +14,6 @@ import { CollapseModule } from "ngx-bootstrap/collapse";
 import { TabsModule } from "ngx-bootstrap/tabs";
 import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
 import { ExportSystemModalComponent } from './component/master-list/export-system-modal.component';
-import { AddRemoveChildDetailComponent } from './component/crtable/action-detail/add-remove-child/detail.component';
-import { SetParentDetailComponent } from './component/crtable/action-detail/set-parent/set-parent-detail.component';
-import { ManageVersionsModalComponent } from './component/geoobject-shared-attribute-editor/manage-versions-modal.component';
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
@@ -76,10 +73,6 @@ import { ImportProblemWidgetComponent } from "./component/scheduled-jobs/conflic
 import { TaskViewerComponent } from "./component/task-viewer/task-viewer.component";
 import { FhirSynchronizationConfigComponent } from './component/synchronization-config/fhir-synchronization-config.component';
 import { Dhis2SynchronizationConfigComponent } from './component/synchronization-config/dhis2-synchronization-config.component';
-import { SynchronizationConfigManagerComponent } from './component/synchronization-config/synchronization-config-manager.component';
-import { SynchronizationConfigModalComponent } from './component/synchronization-config/synchronization-config-modal.component';
-import { SynchronizationConfigComponent } from './component/synchronization-config/synchronization-config.component';
-import { SyncDetailsComponent } from './component/synchronization-config/details.component';
 import { SynchronizationConfigManagerComponent } from "./component/synchronization-config/synchronization-config-manager.component";
 import { SynchronizationConfigModalComponent } from "./component/synchronization-config/synchronization-config-modal.component";
 import { SynchronizationConfigComponent } from "./component/synchronization-config/synchronization-config.component";
@@ -133,31 +126,11 @@ import "../rxjs-extensions";
 		SharedModule,
 		RegistryRoutingModule,
 		AccordionModule.forRoot(),
-        CommonModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        FileUploadModule,
-        TreeModule,
-        ContextMenuModule,
-        BsDropdownModule,
-        ButtonsModule,
-        TypeaheadModule,
-        ProgressbarModule,
-        TabsModule,
-        CollapseModule,
-        NgxPaginationModule,
-        SharedModule,
-        RegistryRoutingModule,
-        AccordionModule.forRoot()
-    
 	],
 	declarations: [
 		HierarchyComponent,
 		RequestTableComponent,
 		CreateUpdateGeoObjectDetailComponent,
-		AddRemoveChildDetailComponent,
-		SetParentDetailComponent,
     ImportTypesModalComponent,
 		CreateHierarchyTypeModalComponent,
 		AddChildToHierarchyModalComponent,
@@ -185,7 +158,6 @@ import "../rxjs-extensions";
 		LocalizedTextComponent,
 		GeoObjectSharedAttributeEditorComponent,
 		ManageVersionsComponent,
-		ManageVersionsModalComponent,
 		SubmitChangeRequestComponent,
 		GeoObjectEditorComponent,
 		GeoObjectAttributeExcludesPipe,
@@ -199,7 +171,7 @@ import "../rxjs-extensions";
 		ManageParentVersionsModalComponent,
 		ManageParentVersionsComponent,
 		ActionDetailModalComponent,
-		HierarchyComponent,
+
 		DataImporterComponent,
 		DataExportComponent,
 		// Master List screens
@@ -237,83 +209,6 @@ import "../rxjs-extensions";
 		FeaturePanelComponent,
 		GeometryPanelComponent,
 
-        HierarchyComponent,
-        RequestTableComponent,
-        CreateUpdateGeoObjectDetailComponent,
-        CreateHierarchyTypeModalComponent,
-        AddChildToHierarchyModalComponent,
-        CreateGeoObjTypeModalComponent,
-        ManageAttributesModalComponent,
-        DefineAttributeModalContentComponent,
-        ShapefileModalComponent,
-        AttributesPageComponent,
-        LocationPageComponent,
-        LocationProblemPageComponent,
-        LocationProblemComponent,
-        TermProblemPageComponent,
-        TermProblemComponent,
-        SpreadsheetModalComponent,
-        GeoObjectTypePipe,
-        GeoObjectAttributeCodeValidator,
-        EditAttributeModalContentComponent,
-        TermOptionWidgetComponent,
-        AttributeInputComponent,
-        EditTermOptionInputComponent,
-        ManageGeoObjectTypeModalComponent,
-        GeoObjectTypeInputComponent,
-        ManageTermOptionsComponent,
-        LocalizedInputComponent,
-        LocalizedTextComponent,
-        GeoObjectSharedAttributeEditorComponent,
-        ManageVersionsComponent,
-        SubmitChangeRequestComponent,
-        GeoObjectEditorComponent,
-        GeoObjectAttributeExcludesPipe,
-        ToEpochDateTimePipe,
-        GeoObjectEditorMapComponent,
-        SimpleEditControl,
-        DataPageComponent,
-        ChangeRequestPageComponent,
-        CascadingGeoSelector,
-        TreeGeoSelector,
-        ManageParentVersionsModalComponent,
-        ManageParentVersionsComponent,
-        ActionDetailModalComponent,
-        HierarchyComponent,
-        DataImporterComponent,
-        DataExportComponent,
-        // Master List screens
-        MasterListManagerComponent,
-        MasterListComponent,
-        MasterListHistoryComponent,
-        PublishedMasterListHistoryComponent,
-        PublishModalComponent,
-        MasterListViewComponent,
-        // Scheduled jobs
-        ExportFormatModalComponent,
-        ScheduledJobsComponent,
-        JobComponent,
-        JobConflictModalComponent,
-        ReuploadModalComponent,
-        ParentReferenceProblemWidgetComponent,
-        TermReferenceProblemWidgetComponent,
-        RowValidationProblemWidgetComponent,
-        StepIndicatorComponent,
-        ImportProblemWidgetComponent,
-        TaskViewerComponent,
-        // Synchronization Config
-        SynchronizationConfigManagerComponent,
-        SynchronizationConfigModalComponent,
-        SynchronizationConfigComponent,
-        SyncDetailsComponent,
-        // Location manager
-        LocationManagerComponent,
-        DatasetLocationManagerComponent,
-        ContextLayerModalComponent,
-        LayerPanelComponent,
-        FeaturePanelComponent,
-        GeometryPanelComponent
-    
 	],
 	providers: [
 		MapService,
@@ -328,20 +223,6 @@ import "../rxjs-extensions";
 		ToEpochDateTimePipe,
 		StepIndicatorComponent,
 		SynchronizationConfigService,
-
-        MapService,
-        HierarchyService,
-        LocalizationManagerService,
-        ChangeRequestService,
-        IOService,
-        GeoObjectTypeManagementService,
-        RegistryService,
-        TaskService,
-        DatePipe,
-        ToEpochDateTimePipe,
-        StepIndicatorComponent,
-        SynchronizationConfigService
-    
 	],
 	entryComponents: [
 		AddChildToHierarchyModalComponent,
@@ -360,7 +241,6 @@ import "../rxjs-extensions";
 		GeoObjectTypeInputComponent,
 		ManageTermOptionsComponent,
 		GeoObjectSharedAttributeEditorComponent,
-		ManageVersionsModalComponent,
 		ManageParentVersionsModalComponent,
 		SubmitChangeRequestComponent,
 		GeoObjectEditorComponent,
@@ -374,36 +254,7 @@ import "../rxjs-extensions";
 		ReuploadModalComponent,
 		StepIndicatorComponent,
 		SynchronizationConfigModalComponent,
-		ContextLayerModalComponent,
-    
-        AddChildToHierarchyModalComponent,
-        CreateGeoObjTypeModalComponent,
-        ManageAttributesModalComponent,
-        DefineAttributeModalContentComponent,
-        EditAttributeModalContentComponent,
-        CreateHierarchyTypeModalComponent,
-        ShapefileModalComponent,
-        SpreadsheetModalComponent,
-        TermOptionWidgetComponent,
-        AttributeInputComponent,
-        EditTermOptionInputComponent,
-        ManageGeoObjectTypeModalComponent,
-        GeoObjectTypeInputComponent,
-        ManageTermOptionsComponent,
-        GeoObjectSharedAttributeEditorComponent,
-        ManageParentVersionsModalComponent,
-        SubmitChangeRequestComponent,
-        GeoObjectEditorComponent,
-        PublishModalComponent,
-        ExportFormatModalComponent,
-        DataPageComponent,
-        ChangeRequestPageComponent,
-        ActionDetailModalComponent,
-        JobConflictModalComponent,
-        ReuploadModalComponent,
-        StepIndicatorComponent,
-        SynchronizationConfigModalComponent,
-        ContextLayerModalComponent    
+		ContextLayerModalComponent    
 	]
 })
 export class RegistryModule { }

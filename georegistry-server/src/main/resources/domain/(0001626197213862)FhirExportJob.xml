@@ -24,6 +24,7 @@
       <mdVertex name="net.geoprism.registry.graph.FhirExternalSystem" label="FHIR"  extends="net.geoprism.registry.graph.ExternalSystem">
         <attributes>
           <text name="url" label="URL" required="true" />
+          <text name="system" label="System" required="true" />
         </attributes>
       </mdVertex>   
     
@@ -54,6 +55,13 @@
         <attribute name="storeKey" value="external.system.fhir" />
         <attributeStruct name="storeValue">
           <attribute name="defaultLocale" value="FHIR" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="external.system.system">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="external.system.system" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="System" />
         </attributeStruct>
       </object>    
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.export-to-fhir">
@@ -90,6 +98,12 @@
           <attributes>
             <reference name="hierarchy" required="false" />
           </attributes>
+          <create>
+            <attributes>
+              <boolean name="isImport" label="Is Import" required="false" />
+              <dateTime name="lastSynchDate" label="Last Synch Date" required="false" />
+             </attributes>
+          </create>
       </mdBusiness>   
     </update>    
     <permissions>
@@ -111,6 +125,8 @@
   </doIt>
   <undoIt>
     <delete>
+      <object key="net.geoprism.registry.SynchronizationConfig.lastSynchDate" type="com.runwaysdk.system.metadata.MdAttribute"/>    
+      <object key="net.geoprism.registry.SynchronizationConfig.isImport" type="com.runwaysdk.system.metadata.MdAttribute"/>    
       <object key="net.geoprism.registry.etl.UnresolvableResourceException" type="com.runwaysdk.system.metadata.MdException"/>    
       <object key="net.geoprism.registry.etl.FhirResponseException" type="com.runwaysdk.system.metadata.MdException"/>    
       <object key="net.geoprism.registry.etl.FhirExportJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
