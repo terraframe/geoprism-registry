@@ -297,9 +297,9 @@ public class DHIS2ServiceTest
       mapping.setAttributeMappingStrategy(DHIS2TermAttributeMapping.class.getName());
       
       Map<String, String> terms = new HashMap<String, String>();
-      terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getClassifierId(), "TEST_EXTERNAL_ID");
-      terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getClassifierId(), "TEST_EXTERNAL_ID");
-      terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getClassifierId(), "TEST_EXTERNAL_ID");
+      terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
+      terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
+      terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "TEST_EXTERNAL_ID");
       ( (DHIS2TermAttributeMapping) mapping ).setTerms(terms);
     }
     else
@@ -667,7 +667,7 @@ public class DHIS2ServiceTest
           JsonObject term = cgrTerms.get(k).getAsJsonObject();
 
           String label = term.get("label").getAsString();
-          Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getLabel().getValue().equals(label) || AllAttributesDataset.TERM_ALL_VAL2.getLabel().getValue().equals(label));
+          Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getLabel().equals(label) || AllAttributesDataset.TERM_ALL_VAL2.getLabel().equals(label));
 
           String code = term.get("code").getAsString();
           Assert.assertTrue(AllAttributesDataset.TERM_ALL_VAL1.getCode().equals(code) || AllAttributesDataset.TERM_ALL_VAL2.getCode().equals(code));

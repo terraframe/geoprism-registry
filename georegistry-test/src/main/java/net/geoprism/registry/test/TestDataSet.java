@@ -983,7 +983,7 @@ abstract public class TestDataSet
     return new TestAttributeTypeInfo(at, got);
   }
 
-  public static TestAttributeTypeInfo createTermAttribute(String name, String label, TestGeoObjectTypeInfo got, Term attrRoot)
+  public static TestAttributeTermTypeInfo createTermAttribute(String name, String label, TestGeoObjectTypeInfo got, Term attrRoot)
   {
     final String type = AttributeTermType.TYPE;
 
@@ -997,12 +997,12 @@ abstract public class TestDataSet
 
     att = (AttributeTermType) got.getServerObject().createAttributeType(attributeTypeJSON);
 
-    return new TestAttributeTypeInfo(att, got);
+    return new TestAttributeTermTypeInfo(att, got);
   }
 
-  public static Term createTerm(TestAttributeTypeInfo termAttr, String classifierId, String displayLabel)
+  public static Term createTerm(TestAttributeTermTypeInfo termAttr, String classifierId, String displayLabel)
   {
-    Classifier parentTerm = TestDataSet.getClassifierIfExist(termAttr.getRootTerm().getCode());
+    Classifier parentTerm = termAttr.fetchRootAsClassifier();
 
     Classifier child = TestDataSet.getClassifierIfExist(classifierId);
     if (child == null)

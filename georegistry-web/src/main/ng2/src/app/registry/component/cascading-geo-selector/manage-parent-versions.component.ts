@@ -19,6 +19,8 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 
 import { HierarchyOverTime, PRESENT, ValueOverTime } from '@registry/model/registry';
 
+import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
+
 import{ DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
 import { RegistryService } from '@registry/service';
@@ -61,6 +63,8 @@ export class ManageParentVersionsComponent implements OnInit {
 
 	originalHierarchy: HierarchyOverTime;
 	@Input() hierarchy: HierarchyOverTime = null;
+	
+	@Input() actions: AbstractAction[] = [];
 
 	@Output() onChange = new EventEmitter<HierarchyOverTime>();
 
@@ -99,6 +103,7 @@ export class ManageParentVersionsComponent implements OnInit {
 
 		const entry = {
 			startDate: null,
+			oid: null,
 			endDate: null,
 			parents: parents,
 			loading: {}

@@ -171,6 +171,7 @@ export class SubmitChangeRequestComponent implements OnInit {
     });
   }
 
+/*
   submit(): void {
 
     let goSubmit: GeoObjectOverTime = this.attributeEditor.getGeoObject();
@@ -201,6 +202,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     this.isValid = false;
   }
+  */
 
   cancel(): void {
     this.isValid = false;

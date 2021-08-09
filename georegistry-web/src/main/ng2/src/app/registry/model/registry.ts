@@ -1,252 +1,260 @@
-import { LocalizedValue } from '@shared/model/core';
-import { LocalizationService } from '@shared/service';
-import { ImportConfiguration } from './io';
+/* eslint-disable no-use-before-define */
+/* eslint-disable padded-blocks */
+import { LocalizedValue } from "@shared/model/core";
+import { LocalizationService } from "@shared/service";
+import { ImportConfiguration } from "./io";
+import { GovernanceStatus, ConflictType } from "./constants";
 
-export const PRESENT: string = '5000-12-31'
+export const PRESENT: string = "5000-12-31";
 
 export class TreeEntity {
-	id: string;
-	name: string;
-	hasChildren: boolean;
+    id: string;
+    name: string;
+    hasChildren: boolean;
 }
 
 export class Term {
-	code: string;
-	label: LocalizedValue;
-	description: LocalizedValue;
+    code: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
 
-	constructor(code: string, label: LocalizedValue, description: LocalizedValue) {
-		this.code = code;
-		this.label = label;
-		this.description = description;
-	}
-	children: Term[] = [];
+    constructor(code: string, label: LocalizedValue, description: LocalizedValue) {
+        this.code = code;
+        this.label = label;
+        this.description = description;
+    }
 
-	addChild(term: Term) {
-		this.children.push(term);
-	}
+    children: Term[] = [];
+
+    addChild(term: Term) {
+        this.children.push(term);
+    }
 }
 
 export class GeoObject {
-	type: string;
-	geometry: any;
-	properties: {
-		uid: string,
-		code: string,
-		displayLabel: LocalizedValue,
-		type: string,
-		status: string[],
-		sequence: string
-		createDate: string,
-		lastUpdateDate: string,
-		writable?: boolean
-	};
+    type: string;
+    geometry: any;
+    properties: {
+        uid: string,
+        code: string,
+        displayLabel: LocalizedValue,
+        type: string,
+        status: string[],
+        sequence: string
+        createDate: string,
+        lastUpdateDate: string,
+        writable?: boolean
+    };
 }
 
 export class GeoObjectType {
-	code: string;
-	label: LocalizedValue;
-	description: LocalizedValue;
-	geometryType?: string;
-	isLeaf: boolean;
-	isGeometryEditable: boolean;
-	organizationCode: string;
-	attributes: Array<Attribute | AttributeTerm | AttributeDecimal> = [];
-	relatedHierarchies?: string[];
-	superTypeCode?: string;
-	isAbstract?: boolean;
-	isPrivate?: boolean;
-	canDrag?: boolean;
-	permissions?: string[];
+    code: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    geometryType?: string;
+    isLeaf: boolean;
+    isGeometryEditable: boolean;
+    organizationCode: string;
+    attributes: Array<AttributeType | AttributeTermType | AttributeDecimalType> = [];
+    relatedHierarchies?: string[];
+    superTypeCode?: string;
+    isAbstract?: boolean;
+    isPrivate?: boolean;
+    canDrag?: boolean;
+    permissions?: string[];
 }
 
 export class Task {
-	id: string;
-	templateKey: string;
-	msg: string;
-	title: string;
-	status: string;
-	createDate: number;
-	completedDate: number;
+    id: string;
+    templateKey: string;
+    msg: string;
+    title: string;
+    status: string;
+    createDate: number;
+    completedDate: number;
 }
 
 export class GeoObjectOverTime {
 
-	geoObjectType: GeoObjectType;
+    geoObjectType: GeoObjectType;
 
-	attributes: any;
+    attributes: any;
 
-	public constructor(geoObjectType: GeoObjectType, attributes: any) {
-		this.geoObjectType = geoObjectType;
-		this.attributes = attributes;
-	}
+    public constructor(geoObjectType: GeoObjectType, attributes: any) {
+        this.geoObjectType = geoObjectType;
+        this.attributes = attributes;
+    }
 
-	public getVotAtDate(date: Date, attrCode: string, lService: LocalizationService) {
-		let retVot = { startDate: date, endDate: null, value: null };
+    public getVotAtDate(date: Date, attrCode: string, lService: LocalizationService) {
+        let retVot = { startDate: date, endDate: null, value: null };
 
-		const time = date.getTime();
+        const time = date.getTime();
 
-		for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
-			let attr = this.geoObjectType.attributes[i];
+        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
+            let attr = this.geoObjectType.attributes[i];
 
-			if (attr.code === attrCode) {
-				if (attr.type === 'local') {
-					retVot.value = lService.create();
-				}
+            if (attr.code === attrCode) {
+                if (attr.type === "local") {
+                    retVot.value = lService.create();
+                }
 
-				if (attr.isChangeOverTime) {
-					let values = this.attributes[attr.code].values;
+                if (attr.isChangeOverTime) {
+                    let values = this.attributes[attr.code].values;
 
-					values.forEach(vot => {
+                    values.forEach(vot => {
 
-						const startDate = Date.parse(vot.startDate);
-						const endDate = Date.parse(vot.endDate);
+                        const startDate = Date.parse(vot.startDate);
+                        const endDate = Date.parse(vot.endDate);
 
-						if (time >= startDate && time <= endDate) {
+                        if (time >= startDate && time <= endDate) {
 
-							if (attr.type === 'local') {
-								retVot.value = JSON.parse(JSON.stringify(vot.value));
-							}
-							else if (attr.type === 'term' && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0) {
-								retVot.value = vot.value[0];
-							}
-							else {
-								retVot.value = vot.value;
-							}
-						}
-					});
-				}
-				else {
-					retVot.value = this.attributes[attr.code];
-				}
+                            if (attr.type === "local") {
+                                retVot.value = JSON.parse(JSON.stringify(vot.value));
+                            } else if (attr.type === "term" && vot.value != null && Array.isArray(vot.value) && vot.value.length > 0) {
+                                retVot.value = vot.value[0];
+                            } else {
+                                retVot.value = vot.value;
+                            }
+                        }
+                    });
+                } else {
+                    retVot.value = this.attributes[attr.code];
+                }
 
-				break;
-			}
-		}
+                break;
+            }
+        }
 
-		return retVot;
-	}
+        return retVot;
+    }
+}
+
+export class ConflictMessage {
+  message: string;
+  severity: string;
+  type: ConflictType;
 }
 
 export class ValueOverTime {
-	startDate: string;
-	endDate: string;
-	value: any;
-	removable?: boolean;
+  oid: string;
+  startDate: string;
+  endDate: string;
+  value: any;
+  removable?: boolean;
 }
 
-export class Attribute {
-	code: string;
-	type: string;
-	label: LocalizedValue;
-	description: LocalizedValue;
-	isDefault: boolean;
-	required: boolean;
-	unique: boolean;
-	isChangeOverTime?: boolean;
-	precision?: number;
-	scale?: number;
+export class AttributeOverTime {
+  name: string;
+  type: string;
+  values: ValueOverTime[];
+}
 
-	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
+export class AttributeType {
+  code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept.
+  type: string;
+  label: LocalizedValue;
+  description: LocalizedValue;
+  isDefault: boolean;
+  required: boolean;
+  unique: boolean;
+  governanceStatus: GovernanceStatus;
+  isChangeOverTime?: boolean;
+  precision?: number;
+  scale?: number;
 
-		this.code = code;
-		this.type = type;
-		this.label = label;
-		this.description = description;
-		this.isDefault = isDefault;
-		this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
-		this.unique = unique;
-		this.isChangeOverTime = isChangeOverTime;
-	}
+  constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
+
+    this.code = code;
+    this.type = type;
+    this.label = label;
+    this.description = description;
+    this.isDefault = isDefault;
+    this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
+    this.unique = unique;
+    this.isChangeOverTime = isChangeOverTime;
+  }
 
 }
 
-export class AttributeTerm extends Attribute {
-	//descendants: Attribute[];
+export class AttributeTermType extends AttributeType {
 
-	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
-		super(code, type, label, description, isDefault, required, unique, isChange);
-	}
+    // descendants: Attribute[];
 
-	rootTerm: Term = new Term(null, null, null);
+    // eslint-disable-next-line no-useless-constructor
+    constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
+        super(code, type, label, description, isDefault, required, unique, isChange);
+    }
 
-	termOptions: Term[] = [];
+    rootTerm: Term = new Term(null, null, null);
 
-	setRootTerm(term: Term) {
-		this.rootTerm = term;
-	}
+    termOptions: Term[] = [];
+
+    setRootTerm(term: Term) {
+        this.rootTerm = term;
+    }
 }
 
-export class AttributeDecimal extends Attribute {
-	constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
-		super(code, type, label, description, isDefault, required, unique, isChange);
+export class AttributeDecimalType extends AttributeType {
+    constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChange: boolean) {
+        super(code, type, label, description, isDefault, required, unique, isChange);
 
-		this.precision = 32;
-		this.scale = 8;
-	}
-}
-
-export enum GeoObjectTypeModalStates {
-	"manageAttributes" = "MANAGE-ATTRIBUTES",
-	"editAttribute" = "EDIT-ATTRIBUTE",
-	"defineAttribute" = "DEFINE-ATTRIBUTE",
-	"manageTermOption" = "MANAGE-TERM-OPTION",
-	"editTermOption" = "EDIT-TERM-OPTION",
-	"manageGeoObjectType" = "MANAGE-GEO-OBJECT-TYPE"
+        this.precision = 32;
+        this.scale = 8;
+    }
 }
 
 export class TreeNode {
-	geoObject: GeoObject;
-	hierarchyType: string;
+    geoObject: GeoObject;
+    hierarchyType: string;
 }
 
 export class ChildTreeNode extends TreeNode {
-	children: ChildTreeNode[];
+    children: ChildTreeNode[];
 }
 
 export class ParentTreeNode extends TreeNode {
-	parents: ParentTreeNode[];
+    parents: ParentTreeNode[];
 }
 
 export class ManageGeoObjectTypeModalState {
-	state: string;
-	attribute: any;
-	termOption: any;
+    state: string;
+    attribute: any;
+    termOption: any;
 }
 
 export class PaginationPage {
-	pageNumber: number;
-	count: number;
-	pageSize: number;
-	results: any[];
+    pageNumber: number;
+    count: number;
+    pageSize: number;
+    results: any[];
 }
 
 export class AbstractScheduledJob {
-	jobId: string;
-	historyId: string;
-	stage: string;
-	status: string;
-	author: string;
-	createDate: string;
-	lastUpdateDate: string;
-	workProgress: number;
-	workTotal: number;
-	startDate: string;
-	endDate: string;
+    jobId: string;
+    historyId: string;
+    stage: string;
+    status: string;
+    author: string;
+    createDate: string;
+    lastUpdateDate: string;
+    workProgress: number;
+    workTotal: number;
+    startDate: string;
+    endDate: string;
 }
 
 export class ScheduledJob extends AbstractScheduledJob {
-	importedRecords: number;
-	exportedRecords: number;
-	configuration: ImportConfiguration;
-	importErrors: PaginationPage;
-	exportErrors: PaginationPage;
-	problems: PaginationPage;
-	fileName: string;
+    importedRecords: number;
+    exportedRecords: number;
+    configuration: ImportConfiguration;
+    importErrors: PaginationPage;
+    exportErrors: PaginationPage;
+    problems: PaginationPage;
+    fileName: string;
 }
 
 export class ScheduledJobOverview extends ScheduledJob {
-	stepConfig: StepConfig;
+    stepConfig: StepConfig;
 }
 
 // export class ScheduledJobDetail extends ScheduledJob {
@@ -255,165 +263,178 @@ export class ScheduledJobOverview extends ScheduledJob {
 // }
 
 export class ImportError {
-	exception: ServerException;
-	object: ImportErrorObject;
-	objectType: string;
-	id: string;
-	resolution: string;
-	selected?: boolean;
+    exception: ServerException;
+    object: ImportErrorObject;
+    objectType: string;
+    id: string;
+    resolution: string;
+    selected?: boolean;
 }
 
 export class ServerException {
-	attributes: ServerExceptionAttribute[];
-	type: string;
-	message: string;
+    attributes: ServerExceptionAttribute[];
+    type: string;
+    message: string;
 }
 
 export class ServerExceptionAttribute {
-	value: string;
-	key: string;
+    value: string;
+    key: string;
 }
 
 export class ImportErrorObject {
-	geoObject: GeoObjectOverTime;
-	parents: HierarchyOverTime[];
-	isNew: boolean;
+    geoObject: GeoObjectOverTime;
+    parents: HierarchyOverTime[];
+    isNew: boolean;
 }
 
 export class StepConfig {
-	steps: Step[];
+    steps: Step[];
 }
 
 export class Step {
-	label: string;
-	complete?: boolean;
-	enabled?: boolean;
-	status?: string;
+    label: string;
+    complete?: boolean;
+    enabled?: boolean;
+    status?: string;
 }
 
 export class MasterList {
-	oid: string;
-	typeCode: string;
-	typeLabel?: LocalizedValue;
-	displayLabel: LocalizedValue;
-	code: string;
-	representativityDate: Date;
-	publishingStartDate?: Date;
-	publishDate: Date;
-	listAbstract: string;
-	process: string;
-	progress: string;
-	accessConstraints: string;
-	useConstraints: string;
-	acknowledgements: string;
-	disclaimer: string;
-	contactName: string;
-	organization: string;
-	telephoneNumber: string;
-	email: string;
-	hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
-	leaf: boolean;
-	frequency: string;
-	isMaster: boolean;
-	visibility: string;
-	write?: boolean;
-	read?: boolean;
-	exploratory?: boolean;
-	versions?: MasterListVersion[];
-	subtypes?: { label:string, code: string }[];
+    oid: string;
+    typeCode: string;
+    typeLabel?: LocalizedValue;
+    displayLabel: LocalizedValue;
+    code: string;
+    representativityDate: Date;
+    publishingStartDate?: Date;
+    publishDate: Date;
+    listAbstract: string;
+    process: string;
+    progress: string;
+    accessConstraints: string;
+    useConstraints: string;
+    acknowledgements: string;
+    disclaimer: string;
+    contactName: string;
+    organization: string;
+    telephoneNumber: string;
+    email: string;
+    hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+    leaf: boolean;
+    frequency: string;
+    isMaster: boolean;
+    visibility: string;
+    write?: boolean;
+    read?: boolean;
+    exploratory?: boolean;
+    versions?: MasterListVersion[];
+    subtypes?: { label:string, code: string }[];
 }
 
 export class MasterListVersion {
-	displayLabel: string;
-	oid: string;
-	typeCode: string;
-	orgCode: string;
-	masterlist: string;
-	forDate: string;
-	createDate: string;
-	publishDate: string;
-	attributes: any[];
-	isGeometryEditable: boolean;
-	locales?: string[];
-	shapefile?: boolean;
-	isAbstract?: boolean;
-	superTypeCode?: string;
-	refreshProgress?: any;
-	subtypes?: { label:string, code: string }[];
+    displayLabel: string;
+    oid: string;
+    typeCode: string;
+    orgCode: string;
+    masterlist: string;
+    forDate: string;
+    createDate: string;
+    publishDate: string;
+    attributes: any[];
+    isGeometryEditable: boolean;
+    locales?: string[];
+    shapefile?: boolean;
+    isAbstract?: boolean;
+    superTypeCode?: string;
+    refreshProgress?: any;
+    subtypes?: { label:string, code: string }[];
 }
 
 export class HierarchyOverTime {
-	code: string;
-	label: string;
-	types: {
-		code: string;
-		label: string;
-	}[];
-	entries: {
-		startDate: string;
-		endDate: string;
-		parents: { [k: string]: { text: string; geoObject: GeoObject } };
-		loading?: any;
-		conflictType?: string;
-		conflictMessage?: any[];
-	}[];
+    code: string;
+    label: string;
+    types: {
+        code: string;
+        label: string;
+    }[];
+
+    entries: HierarchyOverTimeEntry[];
 }
 
-export enum ImportStrategy {
-	"NEW_AND_UPDATE" = "NEW_AND_UPDATE",
-	"NEW_ONLY" = "NEW_ONLY",
-	"UPDATE_ONLY" = "UPDATE_ONLY"
+export class HierarchyOverTimeEntry {
+  startDate: string;
+  endDate: string;
+  oid: string;
+  parents: { [k: string]: HierarchyOverTimeEntryParent };
+  loading?: any;
+  conflictType?: string;
+  conflictMessage?: any[];
+}
+
+export class HierarchyOverTimeEntryParent {
+  text: string;
+  geoObject: GeoObject;
+  goCode?: string;
 }
 
 export class MasterListByOrg {
-	oid: string;
+    oid: string;
 	code: string;
-	label: string;
-	write: boolean;
-	lists: {
-		label: string,
-		oid: string,
-		createDate: string,
-		lastUpdateDate: string,
-		isMaster: boolean,
-		write: boolean,
-		read: boolean,
-		visibility: string
-	}[];
+    label: string;
+    write: boolean;
+    lists: {
+        label: string,
+        oid: string,
+        createDate: string,
+        lastUpdateDate: string,
+        isMaster: boolean,
+        write: boolean,
+        read: boolean,
+        visibility: string
+    }[];
 }
 
 export class SynchronizationConfig {
-	oid?: string;
-	type?: string;
-	systemLabel?: string;
+    oid?: string;
+    type?: string;
+    systemLabel?: string;
 	isImport?: boolean;
-	organization: string;
-	system: string;
-	hierarchy: string;
-	label: LocalizedValue;
-	configuration: any;
+    organization: string;
+    system: string;
+    hierarchy: string;
+    label: LocalizedValue;
+    configuration: any;
 }
 
 export class OrgSyncInfo {
-	label: string;
-	code: string;
-	hierarchies: { label: string, code: string }[];
-	systems: { label: string, oid: string, type: string }[];
-};
+    label: string;
+    code: string;
+    hierarchies: { label: string, code: string }[];
+    systems: { label: string, oid: string, type: string }[];
+}
 
 export class ExportScheduledJob extends AbstractScheduledJob {
-	stepConfig?: StepConfig;
+    stepConfig?: StepConfig;
 }
 
 export class ContextLayer {
-	oid: string;
-	displayLabel: string;
-	active: boolean;
-	enabled: boolean;
+    oid: string;
+    displayLabel: string;
+    active: boolean;
+    enabled: boolean;
 }
 
 export class ContextLayerGroup {
-	oid: string;
-	displayLabel: string;
-	contextLayers: ContextLayer[];
+    oid: string;
+    displayLabel: string;
+    contextLayers: ContextLayer[];
+}
+
+export class VersionOverTimeLayer {
+  view: any; // TODO : We might be able to get rid of this. It shouldn't be used anywhere other than the manage versions component
+  oid: string;
+  startDate: string;
+  endDate: string;
+  geojson: any;
+  editing: boolean;
 }

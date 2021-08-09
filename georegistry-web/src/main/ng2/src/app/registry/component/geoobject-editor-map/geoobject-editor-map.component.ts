@@ -1,7 +1,9 @@
 import { Component, OnInit, ViewChild, SimpleChanges, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { RegistryService, MapService} from '@registry/service';
+import { RegistryService, MapService, GeometryService} from '@registry/service';
+
+import { VersionOverTimeLayer } from '@registry/model/registry';
 
 import { Map, LngLatBounds, NavigationControl } from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -16,8 +18,7 @@ declare var acp: string;
 })
 
 /**
- * This component is used in the master list when editing a row. In the future it will also be used by the navigator and has
- * potential to also be used in the submit change request and manage change requests.
+ * This component is used when viewing change requests
  */
 export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
@@ -37,9 +38,9 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 	@Input() preGeometry: any;
 
     /*
-     * Optional. If we are read-only, this will be displayed as a layer. If we are not, it will be editable.
+     * Render these layers
      */
-	@Input() postGeometry: any;
+	layers: VersionOverTimeLayer[];
 
     /*
      * Optional. If specified, we will fetch the bounding box from this GeoObject code.
@@ -71,12 +72,16 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
 	editingControl: any;
 
-	constructor(private registryService: RegistryService, private mapService: MapService) {
+	constructor(private geomService: GeometryService, private registryService: RegistryService, private mapService: MapService) {
 
 	}
 
 	ngOnInit(): void {
-		
+	  this.layers = this.geomService.getRenderedLayers();
+		this.geomService.layersChange.subscribe(layers => {
+	    this.layers = layers;
+      this.reload();
+    });
 	}
 
 	ngAfterViewInit() {
@@ -118,7 +123,24 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 		if (this.map != null) {
 			this.removeLayers();
 			this.addLayers();
+			this.editingControl.deleteAll();
+			this.addEditingLayers();
 		}
+	}
+	
+	addEditingLayers(): void {
+	  if (this.layers.length > 0) {
+      let len = this.layers.length;
+      for (let i = 0; i < len; ++i)
+      {
+        let layer = this.layers[i];
+        
+        if (layer.editing)
+        {
+          this.editingControl.add(layer.geojson);
+        }
+      }
+    }
 	}
 
 	ngOnDestroy(): void {
@@ -157,10 +179,6 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
 		this.addLayers();
 
-		if (this.preGeometry != null && this.preGeometry !== "") {
-			this.zoomToBbox();
-		}
-
 		// Add zoom and rotation controls to the map.
 		this.map.addControl(new NavigationControl());
 
@@ -170,8 +188,10 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 		else {
 			this.addEditButton();
 		}
-
+		
 		this.onValidChange();
+		
+		this.zoomToBbox();
 	}
 
 	addEditButton(): void {
@@ -221,9 +241,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 		}
 		this.map.addControl(this.editingControl);
 
-		if (this.postGeometry != null) {
-			this.editingControl.add(this.postGeometry);
-		}
+		this.addEditingLayers();
 	}
 
 	removeSource(prefix: string): void {
@@ -243,28 +261,34 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 	}
 
 	removeLayers(): void {
-		if (this.map.getSource("pre-geoobject")) {
-			this.removeSource("pre");
-		}
-		if (this.map.getSource("post-geoobject")) {
-			this.removeSource("post");
-		}
+	  if (this.layers != null && this.layers.length > 0) {
+      let len = this.layers.length;
+      
+      for (let i = 0; i < len; ++i)
+      {
+        let layer = this.layers[i];
+        this.removeSource(layer.oid);
+      }
+    }
 	}
 
 	addLayers(): void {
-		if (this.preGeometry != null && this.preGeometry !== "") {
-			this.renderGeometryAsLayer(this.preGeometry, "pre", "#EFA22E")
-		}
-		if (this.readOnly && this.postGeometry != null && this.postGeometry !== "") {
-			this.renderGeometryAsLayer(this.postGeometry, "post", "#800000");
+	  // red : "#800000"
+	  // brown : "#EFA22E"
+	  
+		if (this.layers != null && this.layers.length > 0) {
+		  let len = this.layers.length;
+		  for (let i = 0; i < len; ++i)
+		  {
+		    let layer = this.layers[i];
+			  this.renderGeometryAsLayer(layer.geojson, layer.oid, "#EFA22E");
+			}
 		}
 	}
 
 	renderGeometryAsLayer(geometry: any, prefix: string, color: string) {
 		let sourceName: string = prefix + "-geoobject";
 		
-		console.log("test")
-
 		this.map.addSource(sourceName, {
 			type: 'geojson',
 			data: {
@@ -419,10 +443,10 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 				}
 			}
 
-			return this.postGeometry;
+			//return this.postGeometry; // TODO
 		}
 
-		return this.postGeometry;
+		//return this.postGeometry; // TODO
 	}
 
 	public error(err: HttpErrorResponse): void {

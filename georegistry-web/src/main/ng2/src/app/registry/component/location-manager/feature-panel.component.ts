@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
+import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
 import { AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
@@ -32,6 +32,8 @@ export class FeaturePanelComponent implements OnInit {
 	@Input() set code(value: string) {
 		this.updateCode(value);
 	}
+	
+	@ViewChild('attributeEditor') attributeEditor;
 
 	_code: string = null;
 
@@ -57,7 +59,7 @@ export class FeaturePanelComponent implements OnInit {
 	// The state of the GeoObject after our edit has been applied
 	postGeoObject: GeoObjectOverTime;
 
-	attribute: Attribute = null;
+	attribute: AttributeType = null;
 
 	isNew: boolean = false;
 
@@ -101,6 +103,7 @@ export class FeaturePanelComponent implements OnInit {
 				this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
 					this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
 					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+					console.log("Setting postGeoObject", this.postGeoObject);
 				}).catch((err: HttpErrorResponse) => {
 					this.error(err);
 				});
@@ -188,19 +191,35 @@ export class FeaturePanelComponent implements OnInit {
 	}
 	
 	onSubmit(): void {
-		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
-		  if (!applyInfo.isChangeRequest)
-      {
-			  this.featureChange.emit(this.postGeoObject);
-			  this.updateCode(this._code);
-			}
-			this.panelSubmit.emit(applyInfo);
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
+	  if (this.isNew)
+	  {
+	    this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+        if (!applyInfo.isChangeRequest)
+        {
+          this.featureChange.emit(this.postGeoObject);
+          this.updateCode(this._code);
+        }
+        this.panelSubmit.emit(applyInfo);
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+	  }
+	  else
+	  {
+  		this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason).then((applyInfo: any) => {
+  		  if (!applyInfo.isChangeRequest)
+        {
+  			  this.featureChange.emit(this.postGeoObject);
+  			  this.updateCode(this._code);
+  			}
+  			this.panelSubmit.emit(applyInfo);
+  		}).catch((err: HttpErrorResponse) => {
+  			this.error(err);
+  		});
+		}
 	}
 
-	onManageAttributeVersion(attribute: Attribute): void {
+	onManageAttributeVersion(attribute: AttributeType): void {
 		this.attribute = attribute;
 		this.mode = this.MODE.VERSIONS;
 	}

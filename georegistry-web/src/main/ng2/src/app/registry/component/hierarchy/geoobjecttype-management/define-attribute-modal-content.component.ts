@@ -1,107 +1,131 @@
-import { Component, OnInit, ViewChild, Input, EventEmitter, Output } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { HttpErrorResponse } from '@angular/common/http';
-import { ErrorHandler } from '@shared/component';
-import { StepConfig } from '@shared/model/modal';
+import { Component, OnInit, ViewChild, Input, EventEmitter, Output } from "@angular/core";
+import { BsModalRef } from "ngx-bootstrap/modal";
+import { HttpErrorResponse } from "@angular/common/http";
+import { ErrorHandler } from "@shared/component";
+import { StepConfig } from "@shared/model/modal";
 
-import { LocalizationService, ModalStepIndicatorService } from '@shared/service';
+import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { GeoObjectType, Attribute, AttributeTerm, AttributeDecimal, ManageGeoObjectTypeModalState, GeoObjectTypeModalStates } from '@registry/model/registry';
-import { RegistryService, GeoObjectTypeManagementService } from '@registry/service';
-import { AttributeInputComponent } from '../geoobjecttype-management/attribute-input.component';
-
+import { GeoObjectType, AttributeType, AttributeTermType, AttributeDecimalType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectTypeModalStates } from "@registry/model/constants";
+import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
+import { AttributeInputComponent } from "../geoobjecttype-management/attribute-input.component";
 
 @Component({
-	selector: 'define-attribute-modal-content',
-	templateUrl: './define-attribute-modal-content.component.html',
-	styleUrls: ['./define-attribute-modal-content.css']
+    selector: "define-attribute-modal-content",
+    templateUrl: "./define-attribute-modal-content.component.html",
+    styleUrls: ["./define-attribute-modal-content.css"]
 })
 export class DefineAttributeModalContentComponent implements OnInit {
 
-	@Input() geoObjectType: GeoObjectType;
-	@Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+    @Input() geoObjectType: GeoObjectType;
+    @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
 
-	message: string = null;
-	newAttribute: Attribute = null;
-	modalStepConfig: StepConfig = {
-		"steps": [
-			{ "label": this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), "active": true, "enabled": false },
-			{ "label": this.localizeService.decode("modal.step.indicator.manage.attributes"), "active": true, "enabled": false },
-			{ "label": this.localizeService.decode("modal.step.indicator.create.attribute"), "active": true, "enabled": true }
-		]
-	};
-	modalState: ManageGeoObjectTypeModalState = { "state": GeoObjectTypeModalStates.defineAttribute, "attribute": "", "termOption": "" };
+    message: string = null;
+    newAttribute: AttributeType = null;
+    modalStepConfig: StepConfig = {
+        steps: [
+            { label: this.localizeService.decode("modal.step.indicator.manage.geoobjecttype"), active: true, enabled: false },
+            { label: this.localizeService.decode("modal.step.indicator.manage.attributes"), active: true, enabled: false },
+            { label: this.localizeService.decode("modal.step.indicator.create.attribute"), active: true, enabled: true }
+        ]
+    };
 
-	@ViewChild(AttributeInputComponent) attributeInputComponent: AttributeInputComponent;
+    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" };
 
+    @ViewChild(AttributeInputComponent) attributeInputComponent: AttributeInputComponent;
 
-	constructor(
-		public bsModalRef: BsModalRef,
-		private modalStepIndicatorService: ModalStepIndicatorService,
-		private geoObjectTypeManagementService: GeoObjectTypeManagementService,
-		private localizeService: LocalizationService,
-		private registryService: RegistryService) {
+    // eslint-disable-next-line no-useless-constructor
+    constructor(
+        public bsModalRef: BsModalRef,
+        private modalStepIndicatorService: ModalStepIndicatorService,
+        private geoObjectTypeManagementService: GeoObjectTypeManagementService,
+        private localizeService: LocalizationService,
+        private registryService: RegistryService) { }
 
-	}
+    ngOnInit(): void {
 
-	ngOnInit(): void {
-		this.setAttribute("character");
-		this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-	}
+        this.setAttribute("character");
+        this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
 
-	ngAfterViewInit(): void {
+    }
 
-		if (this.attributeInputComponent) {
-			this.attributeInputComponent.animate();
-		}
-	}
+    ngAfterViewInit(): void {
 
-	handleOnSubmit(): void {
+        if (this.attributeInputComponent) {
 
-		this.registryService.addAttributeType(this.geoObjectType.code, this.newAttribute).then(data => {
-			this.geoObjectType.attributes.push(data);
+            this.attributeInputComponent.animate();
 
-			this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": "", "termOption": "" })
+        }
 
-			this.geoObjectTypeChange.emit(this.geoObjectType);
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
-	}
+    }
 
-	setAttribute(type: string): void {
-		if (type === 'term') {
-			this.newAttribute = new AttributeTerm("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
-		}
-		else if (type === 'float') {
-			this.newAttribute = new AttributeDecimal("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
-		}
-		else {
-			this.newAttribute = new Attribute("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
-		}
-	}
+    handleOnSubmit(): void {
 
-	isFormValid(): boolean {
+        this.registryService.addAttributeType(this.geoObjectType.code, this.newAttribute).then(data => {
 
-		let isAttrValid: boolean = false;
+            this.geoObjectType.attributes.push(data);
 
-		if (this.attributeInputComponent) {
-			isAttrValid = this.attributeInputComponent.isValid();
-		}
+            this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
 
-		if (isAttrValid) {
-			return true;
-		}
+            this.geoObjectTypeChange.emit(this.geoObjectType);
 
-		return false;
-	}
+        }).catch((err: HttpErrorResponse) => {
 
-	cancel(): void {
-		this.geoObjectTypeManagementService.setModalState({ "state": GeoObjectTypeModalStates.manageGeoObjectType, "attribute": "", "termOption": "" })
-	}
+            this.error(err);
 
-	error(err: HttpErrorResponse): void {
-		this.message = ErrorHandler.getMessageFromError(err);
-	}
+        });
+
+    }
+
+    setAttribute(type: string): void {
+
+        if (type === "term") {
+
+            this.newAttribute = new AttributeTermType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+
+        } else if (type === "float") {
+
+            this.newAttribute = new AttributeDecimalType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+
+        } else {
+
+            this.newAttribute = new AttributeType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
+
+        }
+
+    }
+
+    isFormValid(): boolean {
+
+        let isAttrValid: boolean = false;
+
+        if (this.attributeInputComponent) {
+
+            isAttrValid = this.attributeInputComponent.isValid();
+
+        }
+
+        if (isAttrValid) {
+
+            return true;
+
+        }
+
+        return false;
+
+    }
+
+    cancel(): void {
+
+        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
+
+    }
+
+    error(err: HttpErrorResponse): void {
+
+        this.message = ErrorHandler.getMessageFromError(err);
+
+    }
 
 }

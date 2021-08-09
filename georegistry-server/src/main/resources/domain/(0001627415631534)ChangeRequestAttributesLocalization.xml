@@ -1,0 +1,74 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.summaryKey.NEW">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.summaryKey.NEW" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.summaryKey.UPDATE">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.summaryKey.UPDATE" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Update" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.summaryKey.DELETE">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.summaryKey.DELETE" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Delete" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.summaryKey.TIME_CHANGE">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.summaryKey.TIME_CHANGE" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Time Change" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.summaryKey.VALUE_CHANGE">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.summaryKey.VALUE_CHANGE" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Value Change" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.rootOfHierarchy.message">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.rootOfHierarchy.message" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="This Geo-Object is at the root of its hierarchy. Parent selection is not necessary." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.view">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Show Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.hide">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.hide" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.missingReference">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.missingReference" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Could not find an expected reference." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

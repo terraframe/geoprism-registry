@@ -9,7 +9,10 @@
         <fieldset>
             <div class="row">
                 <div class="col-md-12">
-                    <div class="attribute-version-wrapper">
+                    <div *ngIf="hierarchy == null || hierarchy.types == null || hierarchy.types.length == 0">
+                      <localize key="changeovertime.manageVersions.rootOfHierarchy.message"></localize>
+                    </div>
+                    <div *ngIf="hierarchy != null && hierarchy.types != null && hierarchy.types.length > 0" class="attribute-version-wrapper">
                             <ul class="list-group" *ngIf="hierarchy != null">
                                 <li class="list-group-item" style="text-align:left;padding:0;">
                                     <table class="table table-striped">
@@ -95,8 +98,8 @@
 
             </div>
 
+            <!--
             <div class="row-holder">
-                <!-- <div class="label-holder"></div> -->
                 <div class="holder" style="border: none; width: 100%;">
                     <div class="button-holder pull-right">
                         <button type="button" (click)="onCancel()" class="btn btn-default" role="button" >
@@ -108,6 +111,7 @@
                     </div>
                 </div>
             </div>
+            -->
 
         </fieldset>
     </form>

@@ -59,6 +59,7 @@ import net.geoprism.dhis2.dhis2adapter.response.MetadataGetResponse;
 import net.geoprism.dhis2.dhis2adapter.response.MetadataImportResponse;
 import net.geoprism.dhis2.dhis2adapter.response.model.Attribute;
 import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnit;
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
 import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
@@ -380,9 +381,9 @@ public class RemoteDHIS2APITest
     level3.setMappings(mappings);
     
     Map<String, String> terms = new HashMap<String, String>();
-    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_ROOT.getCode()).getClassifierId(), "HNaxl8GKadp");
-    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL1.getCode()).getClassifierId(), "HNaxl8GKadp");
-    terms.put(TestDataSet.getClassifierIfExist(AllAttributesDataset.TERM_TERM_VAL2.getCode()).getClassifierId(), "fSdvGdkbjH2");
+    terms.put(AllAttributesDataset.AT_GO_TERM.fetchRootAsClassifier().getClassifierId(), "HNaxl8GKadp");
+    terms.put(AllAttributesDataset.TERM_TERM_VAL1.fetchClassifier().getClassifierId(), "HNaxl8GKadp");
+    terms.put(AllAttributesDataset.TERM_TERM_VAL2.fetchClassifier().getClassifierId(), "fSdvGdkbjH2");
     mapping.setTerms(terms);
 
     dhis2Config.setLevels(levels);

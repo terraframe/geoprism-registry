@@ -23,12 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Set;
 
-import org.commongeoregistry.adapter.Optional;
-import org.commongeoregistry.adapter.constants.GeometryType;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
-
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
@@ -44,12 +39,16 @@ import com.runwaysdk.system.Users;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.SetParentAction;
+import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
 import net.geoprism.registry.action.tree.AddChildAction;
 import net.geoprism.registry.action.tree.RemoveChildAction;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.service.ChangeRequestService;
-import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
+import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
+import net.geoprism.registry.view.action.UpdateParentView;
+import net.geoprism.registry.view.action.UpdateValueOverTimeView;
 
 public class ActionJsonAdapters
 {
@@ -77,7 +76,7 @@ public class ActionJsonAdapters
       JsonObject jo = new JsonObject();
 
       jo.addProperty(AbstractAction.OID, action.getOid());
-      jo.addProperty("actionType", action.getType());
+      jo.addProperty("actionType", action.getClass().getSimpleName());
       jo.addProperty("actionLabel", action.getMdClass().getDisplayLabel(Session.getCurrentLocale()));
       jo.addProperty(AbstractAction.CREATEACTIONDATE, format.format(action.getCreateActionDate()));
       jo.addProperty(AbstractAction.CONTRIBUTORNOTES, action.getContributorNotes());
@@ -106,7 +105,7 @@ public class ActionJsonAdapters
     
     protected JsonArray serializePermissions(AbstractAction action, JsonSerializationContext context)
     {
-      Set<ChangeRequestPermissionAction> crPerms = this.perms.getPermissions(action);
+      Set<ChangeRequestPermissionAction> crPerms = this.perms.getPermissions(action.getAllRequest().next());
       
       return context.serialize(crPerms).getAsJsonArray();
     }
@@ -122,30 +121,34 @@ public class ActionJsonAdapters
       
       jo.add(CreateGeoObjectAction.GEOOBJECTJSON, this.getGeoObjectJson(action));
       
-      this.addGeoObjectType(action, jo);
-      
       return jo;
     }
-    
-    private void addGeoObjectType(AbstractAction action, JsonObject object)
-    {
-      JsonObject json = this.getGeoObjectJson(action);
-      
-      String typeCode = GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer.getTypeCode(json.toString());
-      
-      Optional<GeoObjectType> op = ServiceFactory.getAdapter().getMetadataCache().getGeoObjectType(typeCode);
+  }
   
-      GeoObjectType got;
-      if (op.isPresent())
+  public static class UpdateAttributeActionSerializer extends AbstractActionSerializer implements JsonSerializer<UpdateAttributeAction>
+  {
+    @Override
+    public JsonElement serialize(UpdateAttributeAction action, Type typeOfSrc, JsonSerializationContext context)
+    {
+      JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
+      
+      jo.addProperty("attributeName", action.getAttributeName());
+      
+      if (action.getAttributeName().equals("_PARENT_"))
       {
-        got = op.get();
+        AbstractUpdateAttributeView view = action.getUpdateView();
+        
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(UpdateValueOverTimeView.class, new UpdateAttributeViewJsonAdapters.UpdateParentValueOverTimeViewSerializer(action, (UpdateParentView) view));
+  
+        jo.add("attributeDiff", builder.create().toJsonTree(view));
       }
       else
       {
-        got = new GeoObjectType(typeCode, GeometryType.POLYGON, new LocalizedValue(typeCode), new LocalizedValue(""), false, "", ServiceFactory.getAdapter());
+        jo.add("attributeDiff", JsonParser.parseString(action.getJson()));
       }
       
-      object.add("geoObjectType", got.toJSON());
+      return jo;
     }
   }
   
@@ -154,7 +157,11 @@ public class ActionJsonAdapters
     @Override
     public JsonElement serialize(CreateGeoObjectAction action, Type typeOfSrc, JsonSerializationContext context)
     {
-      return super.serialize(action, typeOfSrc, context);
+      JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
+      
+      jo.add(CreateGeoObjectAction.PARENTJSON, JsonParser.parseString(action.getParentJson()).getAsJsonArray());
+      
+      return jo;
     }
 
     @Override
@@ -169,7 +176,8 @@ public class ActionJsonAdapters
     @Override
     public JsonElement serialize(UpdateGeoObjectAction action, Type typeOfSrc, JsonSerializationContext context)
     {
-      return super.serialize(action, typeOfSrc, context);
+      JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
+      return jo;
     }
 
     @Override

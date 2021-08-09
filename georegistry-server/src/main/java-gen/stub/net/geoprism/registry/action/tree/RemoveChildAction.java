@@ -18,13 +18,9 @@
  */
 package net.geoprism.registry.action.tree;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.action.tree.RemoveChildActionDTO;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.MetadataCache;
 import org.json.JSONObject;
@@ -37,8 +33,6 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.ActionJsonAdapters;
-import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
-import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -62,18 +56,6 @@ public class RemoveChildAction extends RemoveChildActionBase
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanRemoveChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     parent.removeChild(child, this.getHierarchyTypeCode());
-  }
-  
-  @Override
-  public boolean referencesType(ServerGeoObjectType type)
-  {
-    return this.getChildTypeCode().equals(type.getCode()) || this.getParentTypeCode().equals(type.getCode());
-  }
-  
-  @Override
-  public String getGeoObjectType()
-  {
-    return this.getChildTypeCode();
   }
 
   @Override

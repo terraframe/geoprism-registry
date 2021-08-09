@@ -85,24 +85,23 @@ public class RegistryController
     return new ViewResponse(JSP_DIR + INDEX_JSP);
   }
 
-  /**
-   * Submits a change request to the GeoRegistry. These actions will be reviewed
-   * by an Administrator and if the actions are approved they may be executed
-   * and accepted as formal changes to the GeoRegistry.
-   * 
-   * @param request
-   * @param uid
-   * @return
-   * @throws JSONException
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.SUBMIT_CHANGE_REQUEST)
-  public ResponseIF submitChangeRequest(ClientRequestIF request, @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS) String actions) throws JSONException
-  {
-    new ChangeRequestService().submitChangeRequest(request.getSessionId(), actions);
-
-    return new RestResponse();
-  }
-
+//  /**
+//   * Submits a change request to the GeoRegistry. These actions will be reviewed
+//   * by an Administrator and if the actions are approved they may be executed
+//   * and accepted as formal changes to the GeoRegistry.
+//   * 
+//   * @param request
+//   * @param uid
+//   * @return
+//   * @throws JSONException
+//   */
+//  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.SUBMIT_CHANGE_REQUEST)
+//  public ResponseIF submitChangeRequest(ClientRequestIF request, @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS) String actions) throws JSONException
+//  {
+//    new ChangeRequestService().submitChangeRequest(request.getSessionId(), actions);
+//
+//    return new RestResponse();
+//  }
   /**
    * Returns an OauthServer configuration with the specified id. If an id is not
    * provided, this endpoint will return all configurations (in your

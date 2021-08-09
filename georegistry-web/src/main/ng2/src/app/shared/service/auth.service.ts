@@ -208,7 +208,7 @@ export class AuthService {
 		return this.isOrganizationRA(orgCode);
 	}
 	
-	isGeoObjectTypeOrSuperRM(got: any): boolean {
+	isGeoObjectTypeOrSuperRM(got: {organizationCode: string, superTypeCode?: string, code: string}, allowRoleSuper: boolean = true): boolean {
 	  if (this.isGeoObjectTypeRM(got.organizationCode, got.code))
 	  {
 	    return true;
@@ -234,6 +234,22 @@ export class AuthService {
 
 		return this.isGeoObjectTypeRM(orgCode, gotCode);
 	}
+	
+	isGeoObjectTypeOrSuperRC(got: {organizationCode: string, superTypeCode?: string, code: string}, allowRoleSuper: boolean = true): boolean {
+    if (allowRoleSuper && this.isSRA()) {
+      return true;
+    }
+
+    for (let i = 0; i < this.user.roles.length; ++i) {
+      let role: RegistryRole = this.user.roles[i];
+
+      if (role.type === RegistryRoleType.RC && role.orgCode === got.organizationCode && role.geoObjectTypeCode === got.code) {
+        return true;
+      }
+    }
+
+    return allowRoleSuper && this.isGeoObjectTypeOrSuperRM(got);
+  }
 
 	isRC(isRCOnly: boolean): boolean {
 		if (this.isSRA() && !isRCOnly) {

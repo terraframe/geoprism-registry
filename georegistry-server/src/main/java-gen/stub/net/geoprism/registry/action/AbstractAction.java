@@ -18,8 +18,6 @@
  */
 package net.geoprism.registry.action;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -27,22 +25,14 @@ import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.json.JSONObject;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.runwaysdk.session.Session;
-import com.runwaysdk.system.SingleActor;
-import com.runwaysdk.system.Users;
 
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
-public abstract class AbstractAction extends AbstractActionBase implements GovernancePermissionEntity
+public abstract class AbstractAction extends AbstractActionBase
 {
 
   private static final long serialVersionUID = 1324056554;
@@ -58,26 +48,6 @@ public abstract class AbstractAction extends AbstractActionBase implements Gover
 
   abstract public void execute();
 
-  public abstract boolean referencesType(ServerGeoObjectType type);
-  
-  public String getOrganization()
-  {
-    String gotCode = this.getGeoObjectType();
-    
-    Optional<ServerGeoObjectType> optional = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
-    
-    if (optional.isPresent())
-    {
-      ServerGeoObjectType type = optional.get();
-      
-      return type.getOrganization().getCode();
-    }
-    else
-    {
-      return null;
-    }
-  }
-  
   public AllGovernanceStatus getGovernanceStatus()
   {
     return this.getApprovalStatus().get(0);
@@ -103,6 +73,11 @@ public abstract class AbstractAction extends AbstractActionBase implements Gover
 
     return action;
   }
+  
+  public ChangeRequest getChangeRequest()
+  {
+    return this.getAllRequest().next();
+  }
 
   protected void buildFromDTO(AbstractActionDTO dto)
   {
@@ -124,7 +99,7 @@ public abstract class AbstractAction extends AbstractActionBase implements Gover
    */
   public void buildFromJson(JSONObject joAction)
   {
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
     
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS

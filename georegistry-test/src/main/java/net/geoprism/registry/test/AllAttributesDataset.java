@@ -77,43 +77,39 @@ public class AllAttributesDataset extends TestDataSet
 
   public static final TestGeoObjectInfo     GO_TERM                      = new TestGeoObjectInfo(TEST_DATA_KEY + "GO_TERM", GOT_TERM);
 
-  public TestAttributeTypeInfo              AT_ALL_CHAR;
+  public static final TestAttributeTypeInfo              AT_ALL_CHAR = new TestAttributeTypeInfo("testcharacter", "testcharacter", GOT_ALL, AttributeCharacterType.TYPE);
 
-  public TestAttributeTypeInfo              AT_GO_CHAR;
+  public static final TestAttributeTypeInfo              AT_GO_CHAR = new TestAttributeTypeInfo("testcharacter", "testcharacter", GOT_CHAR, AttributeCharacterType.TYPE);
 
-  public TestAttributeTypeInfo              AT_ALL_INT;
+  public static final TestAttributeTypeInfo              AT_ALL_INT = new TestAttributeTypeInfo("testinteger", "testinteger", GOT_ALL, AttributeIntegerType.TYPE);
 
-  public TestAttributeTypeInfo              AT_GO_INT;
+  public static final TestAttributeTypeInfo              AT_GO_INT = new TestAttributeTypeInfo("testinteger", "testinteger", GOT_INT, AttributeIntegerType.TYPE);
 
-  public TestAttributeTypeInfo              AT_ALL_FLOAT;
+  public static final TestAttributeTypeInfo              AT_ALL_FLOAT = new TestAttributeTypeInfo("testfloat", "testfloat", GOT_ALL, AttributeFloatType.TYPE);
 
-  public TestAttributeTypeInfo              AT_GO_FLOAT;
+  public static final TestAttributeTypeInfo              AT_GO_FLOAT = new TestAttributeTypeInfo("testfloat", "testfloat", GOT_FLOAT, AttributeFloatType.TYPE);
 
-  public TestAttributeTypeInfo              AT_ALL_BOOL;
+  public static final TestAttributeTypeInfo              AT_ALL_BOOL = new TestAttributeTypeInfo("testboolean", "testboolean", GOT_ALL, AttributeBooleanType.TYPE);
 
-  public TestAttributeTypeInfo              AT_GO_BOOL;
+  public static final TestAttributeTypeInfo              AT_GO_BOOL = new TestAttributeTypeInfo("testboolean", "testboolean", GOT_BOOL, AttributeBooleanType.TYPE);
 
-  public TestAttributeTypeInfo              AT_ALL_DATE;
+  public static final TestAttributeTypeInfo              AT_ALL_DATE = new TestAttributeTypeInfo("testdate", "testdate", GOT_ALL, AttributeDateType.TYPE);
 
-  public TestAttributeTypeInfo              AT_GO_DATE;
+  public static final TestAttributeTypeInfo              AT_GO_DATE = new TestAttributeTypeInfo("testdate", "testdate", GOT_DATE, AttributeDateType.TYPE);
 
-  public TestAttributeTypeInfo              AT_ALL_TERM;
+  public static final TestAttributeTermTypeInfo          AT_ALL_TERM = new TestAttributeTermTypeInfo("testterm", "testterm", GOT_ALL);
 
-  public TestAttributeTypeInfo              AT_GO_TERM;
+  public static final TestAttributeTermTypeInfo          AT_GO_TERM = new TestAttributeTermTypeInfo("testterm", "testterm", GOT_TERM);
 
   // Terms for the ALL GOT
-  public static Term                        TERM_ALL_ROOT;
+  public static final TestTermInfo                TERM_ALL_VAL1 = new TestTermInfo(TEST_DATA_KEY + "ALL_VAL1", AT_ALL_TERM);
 
-  public static Term                        TERM_ALL_VAL1;
-
-  public static Term                        TERM_ALL_VAL2;
+  public static final TestTermInfo                TERM_ALL_VAL2 = new TestTermInfo(TEST_DATA_KEY + "ALL_VAL2", AT_ALL_TERM);
 
   // Terms for the Term GOT
-  public static Term                        TERM_TERM_ROOT;
+  public static final TestTermInfo                TERM_TERM_VAL1 = new TestTermInfo(TEST_DATA_KEY + "GO_VAL1", AT_GO_TERM);
 
-  public static Term                        TERM_TERM_VAL1;
-
-  public static Term                        TERM_TERM_VAL2;
+  public static final TestTermInfo                TERM_TERM_VAL2 = new TestTermInfo(TEST_DATA_KEY + "GO_VAL2", AT_GO_TERM);
 
   private final static String               ROOT_TEST_TERM_CLASSIFIER_ID = TEST_DATA_KEY + "_ROOT";
 
@@ -141,6 +137,11 @@ public class AllAttributesDataset extends TestDataSet
     managedGeoObjectInfos.add(GO_TERM);
 
     managedUsers.add(USER_ORG_RA);
+    
+    AT_ALL_TERM.addManagedTerm(TERM_ALL_VAL1);
+    AT_ALL_TERM.addManagedTerm(TERM_ALL_VAL2);
+    AT_GO_TERM.addManagedTerm(TERM_TERM_VAL1);
+    AT_GO_TERM.addManagedTerm(TERM_TERM_VAL2);
   }
 
   public static AllAttributesDataset newTestData()
@@ -154,116 +155,36 @@ public class AllAttributesDataset extends TestDataSet
   {
     super.setUpMetadataInTrans();
 
-    this.AT_ALL_CHAR = TestDataSet.createAttribute("testcharacter", "testcharacter", GOT_ALL, AttributeCharacterType.TYPE);
-    this.GO_ALL.setDefaultValue(this.AT_ALL_CHAR.getAttributeName(), "Test Attribute Text Value 123");
-    this.AT_GO_CHAR = TestDataSet.createAttribute("testcharacter", "testcharacter", GOT_CHAR, AttributeCharacterType.TYPE);
-    this.GO_CHAR.setDefaultValue(this.AT_GO_CHAR.getAttributeName(), "Test Attribute Text Value 123");
+    AT_ALL_CHAR.apply();
+    GO_ALL.setDefaultValue(AT_ALL_CHAR.getAttributeName(), "Test Attribute Text Value 123");
+    AT_GO_CHAR.apply();
+    GO_CHAR.setDefaultValue(AT_GO_CHAR.getAttributeName(), "Test Attribute Text Value 123");
 
-    this.AT_ALL_INT = TestDataSet.createAttribute("testinteger", "testinteger", GOT_ALL, AttributeIntegerType.TYPE);
-    this.GO_ALL.setDefaultValue(this.AT_ALL_INT.getAttributeName(), 123L);
-    this.AT_GO_INT = TestDataSet.createAttribute("testinteger", "testinteger", GOT_INT, AttributeIntegerType.TYPE);
-    this.GO_INT.setDefaultValue(this.AT_GO_INT.getAttributeName(), 123L);
+    AT_ALL_INT.apply();
+    GO_ALL.setDefaultValue(AT_ALL_INT.getAttributeName(), 123L);
+    AT_GO_INT.apply();
+    GO_INT.setDefaultValue(AT_GO_INT.getAttributeName(), 123L);
 
-    this.AT_ALL_FLOAT = TestDataSet.createAttribute("testfloat", "testfloat", GOT_ALL, AttributeFloatType.TYPE);
-    this.GO_ALL.setDefaultValue(this.AT_ALL_FLOAT.getAttributeName(), 123.123D);
-    this.AT_GO_FLOAT = TestDataSet.createAttribute("testfloat", "testfloat", GOT_FLOAT, AttributeFloatType.TYPE);
-    this.GO_FLOAT.setDefaultValue(this.AT_GO_FLOAT.getAttributeName(), 123.123D);
+    AT_ALL_FLOAT.apply();
+    GO_ALL.setDefaultValue(AT_ALL_FLOAT.getAttributeName(), 123.123D);
+    AT_GO_FLOAT.apply();
+    GO_FLOAT.setDefaultValue(AT_GO_FLOAT.getAttributeName(), 123.123D);
 
-    this.AT_ALL_BOOL = TestDataSet.createAttribute("testboolean", "testboolean", GOT_ALL, AttributeBooleanType.TYPE);
-    this.GO_ALL.setDefaultValue(this.AT_ALL_BOOL.getAttributeName(), true);
-    this.AT_GO_BOOL = TestDataSet.createAttribute("testboolean", "testboolean", GOT_BOOL, AttributeBooleanType.TYPE);
-    this.GO_BOOL.setDefaultValue(this.AT_GO_BOOL.getAttributeName(), true);
+    AT_ALL_BOOL.apply();
+    GO_ALL.setDefaultValue(AT_ALL_BOOL.getAttributeName(), true);
+    AT_GO_BOOL.apply();
+    GO_BOOL.setDefaultValue(AT_GO_BOOL.getAttributeName(), true);
 
-    this.AT_ALL_DATE = TestDataSet.createAttribute("testdate", "testdate", GOT_ALL, AttributeDateType.TYPE);
-    this.GO_ALL.setDefaultValue(this.AT_ALL_DATE.getAttributeName(), GO_DATE_VALUE);
-    this.AT_GO_DATE = TestDataSet.createAttribute("testdate", "testdate", GOT_DATE, AttributeDateType.TYPE);
-    this.GO_DATE.setDefaultValue(this.AT_GO_DATE.getAttributeName(), GO_DATE_VALUE);
+    AT_ALL_DATE.apply();
+    GO_ALL.setDefaultValue(AT_ALL_DATE.getAttributeName(), GO_DATE_VALUE);
+    AT_GO_DATE.apply();
+    GO_DATE.setDefaultValue(AT_GO_DATE.getAttributeName(), GO_DATE_VALUE);
 
-    createTestTerms();
-
-    this.AT_ALL_TERM = TestDataSet.createTermAttribute("testterm", "testterm", GOT_ALL, TERM_ALL_ROOT);
-    this.AT_GO_TERM = TestDataSet.createTermAttribute("testterm", "testterm", GOT_TERM, TERM_TERM_ROOT);
-
-    // TODO : Delete this test?
-    AttributeTermType att = (AttributeTermType) this.AT_ALL_TERM.fetchDTO();
-    // TestDataSet.refreshTerms(att);
-    Assert.assertEquals(2, att.getRootTerm().getChildren().size());
-
-    // TODO : Delete this test?
-    AttributeTermType att2 = (AttributeTermType) this.AT_GO_TERM.fetchDTO();
-    // TestDataSet.refreshTerms(att2);
-    Assert.assertEquals(2, att2.getRootTerm().getChildren().size());
-
-    // TERM_TERM_ROOT = ((AttributeTermType)AT_GO_TERM.toDTO()).getRootTerm();
-
-    this.GO_ALL.setDefaultValue(this.AT_ALL_TERM.getAttributeName(), TERM_ALL_VAL1);
-    this.GO_TERM.setDefaultValue(this.AT_GO_TERM.getAttributeName(), TERM_TERM_VAL1);
-  }
-
-  public void createTestTerms()
-  {
-    /*
-     * Build terms for All GOT
-     */
-    MdBusiness allMdBiz = this.GOT_ALL.getServerObject().getMdBusiness();
-
-    Classifier allRootClass = TermConverter.buildIfNotExistdMdBusinessClassifier(allMdBiz);
-
-    Classifier allRoot = TermConverter.buildIfNotExistAttribute(allMdBiz, "testterm", allRootClass);
-    TERM_ALL_ROOT = new TermConverter(allRoot.getKeyName()).build();
-
-    Classifier allVal1 = new Classifier();
-    allVal1.setClassifierId(TEST_DATA_KEY + "ALL_VAL1");
-    allVal1.setClassifierPackage(allRoot.getKey());
-    allVal1.getDisplayLabel().setDefaultValue("All Value 1");
-    allVal1.apply();
-
-    allVal1.addLink(allRoot, ClassifierIsARelationship.CLASS).apply();
-    TERM_ALL_VAL1 = new TermConverter(allVal1.getKeyName()).build();
-
-    Classifier allVal2 = new Classifier();
-    allVal2.setClassifierId(TEST_DATA_KEY + "_ALLVAL2");
-    allVal2.setClassifierPackage(allRoot.getKey());
-    allVal2.getDisplayLabel().setDefaultValue("All Value 2");
-    allVal2.apply();
-
-    allVal2.addLink(allRoot, ClassifierIsARelationship.CLASS).apply();
-    TERM_ALL_VAL2 = new TermConverter(allVal2.getKeyName()).build();
-
-    List<? extends Classifier> childClassifiers = allRoot.getAllIsAChild().getAll();
-    Assert.assertEquals(2, childClassifiers.size());
-
-    /*
-     * Build terms for Term GOT
-     */
-    MdBusiness termMdBiz = this.GOT_TERM.getServerObject().getMdBusiness();
-
-    Classifier termRootClass = TermConverter.buildIfNotExistdMdBusinessClassifier(termMdBiz);
-
-    Classifier termRoot = TermConverter.buildIfNotExistAttribute(termMdBiz, "testterm", termRootClass);
-    System.out.println("Created termRoot with key [" + termRoot.getKey() + "]");
-    TERM_TERM_ROOT = new TermConverter(termRoot.getKeyName()).build();
-
-    Classifier termVal1 = new Classifier();
-    termVal1.setClassifierId(TEST_DATA_KEY + "_TERMVAL1");
-    termVal1.setClassifierPackage(termRoot.getKey());
-    termVal1.getDisplayLabel().setDefaultValue("All Value 1");
-    termVal1.apply();
-
-    termVal1.addLink(termRoot, ClassifierIsARelationship.CLASS).apply();
-    TERM_TERM_VAL1 = new TermConverter(termVal1.getKeyName()).build();
-
-    Classifier termVal2 = new Classifier();
-    termVal2.setClassifierId(TEST_DATA_KEY + "_TERMVAL2");
-    termVal2.setClassifierPackage(termRoot.getKey());
-    termVal2.getDisplayLabel().setDefaultValue("All Value 2");
-    termVal2.apply();
-
-    allVal2.addLink(termRoot, ClassifierIsARelationship.CLASS).apply();
-    TERM_TERM_VAL2 = new TermConverter(termVal2.getKeyName()).build();
-
-    List<? extends Classifier> childClassifiers2 = termRoot.getAllIsAChild().getAll();
-    Assert.assertEquals(2, childClassifiers2.size());
+    AT_ALL_TERM.apply();
+    AT_GO_TERM.apply();
+    
+    GO_ALL.setDefaultValue(AT_ALL_TERM.getAttributeName(), TERM_ALL_VAL1.fetchTerm());
+    GO_TERM.setDefaultValue(AT_GO_TERM.getAttributeName(), TERM_TERM_VAL1.fetchTerm());
   }
 
   @Transaction

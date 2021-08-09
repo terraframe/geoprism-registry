@@ -15,7 +15,7 @@ import {
 	transition,
 } from '@angular/animations';
 
-import { GeoObjectType, Attribute, ValueOverTime, GeoObjectOverTime, PRESENT } from '@registry/model/registry';
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, PRESENT } from '@registry/model/registry';
 
 import { DateFieldComponent } from '../../../shared/component/form-fields/date-field/date-field.component';
 
@@ -163,7 +163,7 @@ export class GeometryPanelComponent implements OnInit {
 		this.changeDetectorRef.detectChanges();
 	}
 
-	getVersionData(attribute: Attribute) {
+	getVersionData(attribute: AttributeType) {
 		let versions: ValueOverTime[] = [];
 
 		this.geoObjectOverTime.attributes[attribute.code].values.forEach(vAttribute => {
