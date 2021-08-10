@@ -14,7 +14,7 @@ import { Subject } from 'rxjs';
 import { GeoObject, ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
 import { ModalState } from '@registry/model/location-manager';
 
-import { MapService, RegistryService } from '@registry/service';
+import { MapService, RegistryService, GeometryService } from '@registry/service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent, SuccessModalComponent } from '@shared/component';
 
@@ -139,12 +139,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	   */
 	subject: Subject<MapboxEvent<MouseEvent | TouchEvent | WheelEvent>>;
 
-
-	// 
-	// Editing of geomemtries
-	//
-	geometryChange: Subject<any> = new Subject();
-
 	vot: ValueOverTime = null;
 
 	@ViewChild("simpleEditControl") simpleEditControl: IControl;
@@ -152,7 +146,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	editingControl: any;
 
 
-	constructor(private modalService: BsModalService, private mapService: MapService, public service: RegistryService, private route: ActivatedRoute, private router: Router, private lService: LocalizationService) {
+	constructor(private modalService: BsModalService, private mapService: MapService, private geomService: GeometryService, public service: RegistryService, private route: ActivatedRoute, private router: Router, private lService: LocalizationService) {
 
 	}
 
@@ -256,7 +250,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		});
 
 		this.addLayers();
-
+		
 		// Add zoom and rotation controls to the map.
 		this.map.addControl(new NavigationControl({ 'visualizePitch': true }));
 		this.map.addControl(new AttributionControl({ compact: true }), 'bottom-right');
@@ -268,7 +262,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.map.on('click', 'children-polygon', (event: any) => {
 			this.handleMapClickEvent(event);
 		});
-
+    
+    /*
 		this.map.on('draw.create', (e) => {
 		  this.refreshInputsFromDraw();
 		  this.editSessionEnabled = true;
@@ -280,6 +275,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.map.on('draw.delete', (e) => {
 		  this.coordinate = { longitude: null, latitude: null };
 		});
+		*/
 		
 //		this.map.on('draw.selectionchange', (e: any) => {
 //			if (e.features.length > 0 || e.points.length > 0) {
@@ -341,7 +337,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 	onPanelSubmit(applyInfo: { isChangeRequest: boolean, geoObject?: any, changeRequestId?: string }): void {
 
 		// Save everything first
-		this.onMapSave();
+		this.geomService.saveEdits();
 
 		if (applyInfo.isChangeRequest) {
 			if (this.backReference != null && this.backReference.length >= 2 && this.backReference.substring(0, 2) === "CR") {
@@ -574,6 +570,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.type = types[0];
 			this.current = node;
 			this.mode = this.MODE.VIEW;
+			
+			this.geomService.initialize(this.map, this.type.geometryType, !this.isEdit);
 
 			//      const code = this.current.properties.code;
 			//
@@ -717,38 +715,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.editSessionEnabled = false;
 	}
 
-
-	onGeometryEdit(vot: {vot:ValueOverTime, allVOT: ValueOverTime[]}): void {
-
-		// Save everything first
-		this.onMapSave();
-		this.clearGeometryEditing();
-
-		let theVOT = vot ? vot.vot : null;
-		if(theVOT){
-			this.vot = theVOT;
-			
-			this.hideOriginalGeometry();
-
-			this.addEditLayers(theVOT);
-		
-			var bounds = new LngLatBounds();
-	
-			if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT"){
-				vot.allVOT.forEach(function(feature) {
-					let pt = new LngLat(feature.value.coordinates[0][0], feature.value.coordinates[0][1]);
-				    bounds.extend(pt);
-				});
-				
-				this.map.fitBounds(bounds, {padding: 50});
-				//this.map.jumpTo({ center: [vot.value.coordinates[0][0], vot.value.coordinates[0][1]] })
-			}
-		}
-		else {
-			this.showOriginalGeometry();
-		}
-	}
-
 	addEditLayers(vot: ValueOverTime): void {
 		if (vot != null) {
 			//      this.renderGeometryAsLayer(this.calculatedPreObject.geometry.value, "pre", "#EFA22E");
@@ -838,104 +804,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		}
 	}
 
-	onMapSave(): void {
-		if(this.editingControl){
-			const geometry = this.getDrawGeometry();
-	
-			this.editingControl.deleteAll();
-			this.map.removeControl(this.editingControl);
-			//    this.geometryChange.next(geometry);
-	
-			this.vot.value = geometry;
-			this.vot = null;
-	
-			this.editingControl = null;
-	
-			this.editSessionEnabled = false;
-		}
-	}
-
-	getDrawGeometry(): any {
-		if (this.editingControl != null) {
-			let featureCollection: any = this.editingControl.getAll();
-
-			if (featureCollection.features.length > 0) {
-
-				// The first Feature is our GeoObject.
-
-				// Any additional features were created using the draw editor. Combine them into the GeoObject if its a multi-polygon.
-				if (this.type.geometryType === "MULTIPOLYGON") {
-					let polygons = [];
-
-					for (let i = 0; i < featureCollection.features.length; i++) {
-						let feature = featureCollection.features[i];
-
-						if (feature.geometry.type === 'MultiPolygon') {
-							for (let j = 0; j < feature.geometry.coordinates.length; j++) {
-								polygons.push(feature.geometry.coordinates[j]);
-							}
-						}
-						else {
-							polygons.push(feature.geometry.coordinates);
-						}
-					}
-
-					return {
-						coordinates: polygons,
-						type: 'MultiPolygon'
-					};
-				}
-				else if (this.type.geometryType === "MULTIPOINT") {
-					let points = [];
-
-					for (let i = 0; i < featureCollection.features.length; i++) {
-						let feature = featureCollection.features[i];
-
-						if (feature.geometry.type === 'MultiPoint') {
-							for (let j = 0; j < feature.geometry.coordinates.length; j++) {
-								points.push(feature.geometry.coordinates[j]);
-							}
-						}
-						else {
-							points.push(feature.geometry.coordinates);
-						}
-					}
-
-					return {
-						coordinates: points,
-						type: 'MultiPoint'
-					};
-				}
-				else if (this.type.geometryType === "MULTILINE") {
-					let lines = [];
-
-					for (let i = 0; i < featureCollection.features.length; i++) {
-						let feature = featureCollection.features[i];
-
-						if (feature.geometry.type === 'MultiLineString') {
-							for (let j = 0; j < feature.geometry.coordinates.length; j++) {
-								lines.push(feature.geometry.coordinates[j]);
-							}
-						}
-						else {
-							lines.push(feature.geometry.coordinates);
-						}
-					}
-
-					return {
-						coordinates: lines,
-						type: 'MultiLineString'
-					};
-				}
-				else {
-					return featureCollection.features[0].geometry;
-				}
-			}
-		}
-
-		return null;
-	}
-
+// TODO : Not sure what the point of this code was
+/*
 	refreshInputsFromDraw(): void {
 		let geom = this.getDrawGeometry();
 		let point = geom.coordinates[0];
@@ -970,6 +840,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.editSessionEnabled = true;
         }
     }
+    */
 
 	error(err: HttpErrorResponse): void {
 		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

@@ -14,7 +14,7 @@
       <div class="row">
 
         <!-- <div class="label-holder"></div> -->
-        <div [ngStyle]="{'width' : (isGeometryInlined && renderedLayers.length > 0) ? '45%' : '100%'}" style="display:inline-block;" class="col">
+        <div [ngStyle]="{'width' : (isGeometryInlined && getRenderedLayers().length > 0) ? '45%' : '100%'}" style="display:inline-block;" class="col">
           <div *ngIf="postGeoObject" class="attribute-version-wrapper">
             <ul class="list-group">
               <li class="list-group-item" style="text-align:left;padding:0;">
@@ -129,11 +129,12 @@
 								                
 					                         <td style="vertical-align: middle;">
 					                           <button class="btn btn-primary" (click)="toggleGeometryView(viewModel)" role="button">
-					                             <localize *ngIf="viewModel.layer == null" key="changeovertime.manageVersions.geometry.view"></localize>
-					                             <localize *ngIf="viewModel.layer != null" key="changeovertime.manageVersions.geometry.hide"></localize>
+					                             <localize *ngIf="!viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.view"></localize>
+					                             <localize *ngIf="viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.hide"></localize>
 					                           </button>
-					                           <button *ngIf="viewModel.layer != null" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button">
-                                       <localize key="changeovertime.manageVersions.geometry.edit"></localize>
+					                           <button *ngIf="viewModel.isRenderingLayer" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button">
+                                       <localize *ngIf="!viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.edit"></localize>
+                                       <localize *ngIf="viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.save"></localize>
                                      </button>
 					                         </td>
 								                 </div>
@@ -222,9 +223,9 @@
               
           </div>
         </div>
-	      <geoobject-editor-map style="width:55%; display:inline-block;" *ngIf="isGeometryInlined && renderedLayers.length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
+	      <geoobject-editor-map style="width:55%; display:inline-block;" *ngIf="isGeometryInlined && getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
 	        (geometryChange)="this.geometryChange(viewModel, $event);" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
-	        [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="renderedLayers[0].startDate">
+	        [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="getRenderedLayers()[0].startDate">
 	      </geoobject-editor-map>
       </div>
 

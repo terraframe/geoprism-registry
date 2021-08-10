@@ -64,6 +64,13 @@
           <attribute name="defaultLocale" value="Could not find an expected reference." />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.save">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.save" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Save Geometry Edits" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>
