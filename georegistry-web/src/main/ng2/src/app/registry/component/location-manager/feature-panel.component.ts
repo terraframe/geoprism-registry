@@ -37,9 +37,6 @@ export class FeaturePanelComponent implements OnInit {
 
 	_code: string = null;
 
-	@Input() geometryChange: Subject<any>;
-
-	@Output() geometryEdit = new EventEmitter<{vot:ValueOverTime, allVOT:ValueOverTime[]}>();
 	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
 	@Output() modeChange = new EventEmitter<boolean>();
 	@Output() panelCancel = new EventEmitter<void>();
@@ -77,9 +74,6 @@ export class FeaturePanelComponent implements OnInit {
 	ngOnInit(): void {
 	  this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
 		this.mode = 'ATTRIBUTES';
-		this.geometryChange.subscribe(v => {
-			this.updateGeometry(v);
-		});
 	}
 	
 	setValid(valid: boolean): void {
@@ -129,53 +123,6 @@ export class FeaturePanelComponent implements OnInit {
 		}
 	}
 	
-
-	onEditGeometryVersion(vot: ValueOverTime): void {
-		this.geometryEdit.emit({vot:vot, allVOT: this.preGeoObject.attributes.geometry ? this.preGeoObject.attributes.geometry.values : [] });
-	}
-
-	updateGeometry(updatedVot: any): void {
-		// Check if the geometry has been updated
-		if(updatedVot.value != null && this.postGeoObject != null) {
-
-			let values = this.postGeoObject.attributes['geometry'].values;
-			const time = this.forDate.getTime();
-
-			values.forEach(vot => {
-
-				const startDate = Date.parse(vot.startDate);
-				const endDate = Date.parse(vot.endDate);
-
-//				if (time >= startDate && time <= endDate) {
-//					vot.value = geometry;
-//				}
-
-				if (new Date(updatedVot.startDate).getTime() ===  startDate && new Date(updatedVot.endDate).getTime() === endDate) {
-					vot.value = updatedVot.value;
-				}
-			});
-		}
-	}
-
-	calculateGeometry(goot: GeoObjectOverTime): any {
-
-		const time = this.forDate.getTime();
-
-		let values = goot.attributes['geometry'].values;
-
-		for (let i = 0; i < values.length; i++) {
-			const vot = values[i];
-
-			const startDate = Date.parse(vot.startDate);
-			const endDate = Date.parse(vot.endDate);
-
-			if (time >= startDate && time <= endDate) {
-				return vot.value;
-			}
-		};
-
-		return null;
-	}
 
 	onCancelInternal(): void {
 
@@ -234,8 +181,6 @@ export class FeaturePanelComponent implements OnInit {
 		this.postGeoObject = postGeoObject;
 
 		this.mode = this.MODE.ATTRIBUTES;
-
-		this.geometryEdit.emit(null);
 	}
 
 	onHierarchyChange(hierarchy: HierarchyOverTime): void {
@@ -245,10 +190,6 @@ export class FeaturePanelComponent implements OnInit {
 		}
 
 		this.mode = this.MODE.ATTRIBUTES;
-	}
-	
-	onCloneGeometry(any): void {
-		console.log("emitted")
 	}
 
 	onEditAttributes(): void {

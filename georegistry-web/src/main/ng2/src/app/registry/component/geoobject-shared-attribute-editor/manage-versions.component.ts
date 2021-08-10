@@ -17,7 +17,8 @@ import {
 import { HttpErrorResponse } from "@angular/common/http";
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, VersionOverTimeLayer, GeoObject, AttributeTermType, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent, SummaryKey } from "@registry/model/registry";
+import { v4 as uuid } from 'uuid';
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, GeoObject, AttributeTermType, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent, SummaryKey } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { ConflictType, ActionTypes, GovernanceStatus } from '@registry/model/constants';
@@ -35,7 +36,9 @@ import { LocalizationService } from "@shared/service";
 
 import Utils from "../../utility/Utils";
 
-class ValueOverTimeEditPropagator {
+import turf_booleanequal from '@turf/boolean-equal';
+
+export class ValueOverTimeEditPropagator {
   view: VersionDiffView;
   diff: ValueOverTimeDiff; // Any existing diff which may be associated with this view object.
   valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set and the action is UpdateAttribute, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
@@ -49,6 +52,11 @@ class ValueOverTimeEditPropagator {
     this.component = component;
   }
   
+  get oid(): string
+  {
+    return this.view.oid;
+  }
+  
   get startDate()
   {
     return this.view.startDate;
@@ -56,7 +64,7 @@ class ValueOverTimeEditPropagator {
   
   set startDate(startDate: string)
   {
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.diff == null)
       {
@@ -64,7 +72,7 @@ class ValueOverTimeEditPropagator {
         {
           this.diff = new ValueOverTimeDiff();
           this.diff.action = "CREATE";
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
         else
         {
@@ -79,7 +87,7 @@ class ValueOverTimeEditPropagator {
           this.diff.oldValue = this.valueOverTime.value;
           this.diff.oldStartDate = this.valueOverTime.startDate;
           this.diff.oldEndDate = this.valueOverTime.endDate;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
       }
       
@@ -94,7 +102,7 @@ class ValueOverTimeEditPropagator {
         this.view.oldStartDate = this.diff.oldStartDate;
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
       this.valueOverTime.startDate = startDate;
     }
@@ -113,15 +121,16 @@ class ValueOverTimeEditPropagator {
   
   set endDate(endDate: string)
   {
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.diff == null)
       {
         if (this.valueOverTime == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();
           this.diff.action = "CREATE";
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
         else
         {
@@ -136,7 +145,7 @@ class ValueOverTimeEditPropagator {
           this.diff.oldValue = this.valueOverTime.value;
           this.diff.oldStartDate = this.valueOverTime.startDate;
           this.diff.oldEndDate = this.valueOverTime.endDate;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
       }
       
@@ -151,7 +160,7 @@ class ValueOverTimeEditPropagator {
         this.view.oldEndDate = this.diff.oldEndDate;
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
       this.valueOverTime.endDate = endDate;
     }
@@ -173,7 +182,7 @@ class ValueOverTimeEditPropagator {
     if (value != null)
     {
       if (this.component.attributeType.type === "term")
-      {
+      {        
         value = [value];
       }
       else if (this.component.attributeType.type === "date")
@@ -182,15 +191,16 @@ class ValueOverTimeEditPropagator {
       }
     }
   
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.diff == null)
       {
         if (this.valueOverTime == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
         else
         {
@@ -205,7 +215,7 @@ class ValueOverTimeEditPropagator {
           this.diff.oldValue = this.valueOverTime.value;
           this.diff.oldStartDate = this.valueOverTime.startDate;
           this.diff.oldEndDate = this.valueOverTime.endDate;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
       }
       
@@ -220,7 +230,7 @@ class ValueOverTimeEditPropagator {
         this.view.oldValue = this.diff.oldValue;
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
       this.valueOverTime.value = value;
     }
@@ -234,15 +244,16 @@ class ValueOverTimeEditPropagator {
   
   public setLocalizedValue(localeValue: {locale: string, value: string})
   {
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.diff == null)
       {
         if (this.valueOverTime == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
         else
         {
@@ -259,7 +270,7 @@ class ValueOverTimeEditPropagator {
           this.diff.oldValue = this.valueOverTime.value;
           this.diff.oldStartDate = this.valueOverTime.startDate;
           this.diff.oldEndDate = this.valueOverTime.endDate;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
       }
       
@@ -284,7 +295,7 @@ class ValueOverTimeEditPropagator {
         this.view.oldValue = this.diff.oldValue;
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
       this.valueOverTime.value = this.view.value;
     }
@@ -296,6 +307,13 @@ class ValueOverTimeEditPropagator {
   
   areValuesEqual(val1: any, val2: any): boolean
   {
+    if (!val1 && !val2) {
+      return true;
+    }
+    else if ( (!val1 && val2) || (!val2 && val1 ) ) {
+      return false;
+    }
+  
     // TODO Test all attribute types here. We might need a case for geometries here.
     
     //if (this.component.attributeType.type === "local")
@@ -304,7 +322,14 @@ class ValueOverTimeEditPropagator {
     //}
     if (this.component.attributeType.type === "term")
     {
-      return val1.length === val2.length && val1[0] === val2[0];
+      if(val1 != null && val2 != null)
+      {
+        return val1.length === val2.length && val1[0] === val2[0];        
+      }
+    }
+    else if (this.component.attributeType.type === 'geometry')
+    {
+      return turf_booleanequal(val1, val2);
     }
     
     return val1 === val2;
@@ -312,9 +337,19 @@ class ValueOverTimeEditPropagator {
   
   public remove(): void
   {
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
-      if (this.valueOverTime != null && this.diff == null)
+      if(this.diff != null && this.diff.action === 'CREATE') {
+        // Its a new entry, just remove the diff from the diff array
+        let updateAction: UpdateAttributeAction = this.action as UpdateAttributeAction;
+        
+        const index = updateAction.attributeDiff.valuesOverTime.findIndex(vot => vot.oid === this.diff.oid);
+        
+        if(index > -1) {
+          updateAction.attributeDiff.valuesOverTime.splice(index, 1);
+        }
+      }
+      else if (this.valueOverTime != null && this.diff == null)
       {
         this.diff = new ValueOverTimeDiff();
         this.diff.action = "DELETE";
@@ -322,17 +357,17 @@ class ValueOverTimeEditPropagator {
         this.diff.oldValue = this.valueOverTime.value;
         this.diff.oldStartDate = this.valueOverTime.startDate;
         this.diff.oldEndDate = this.valueOverTime.endDate;
-        this.action.attributeDiff.valuesOverTime.push(this.diff);
+        (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
       }
       else if (this.diff != null)
       {
         if (this.diff.action === 'DELETE')
         {
-          let index = this.action.attributeDiff.valuesOverTime.findIndex(diff => {return diff.oid === this.diff.oid});
+          let index = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.findIndex(diff => {return diff.oid === this.diff.oid});
         
           if (index != -1)
           {
-            this.action.attributeDiff.valuesOverTime.splice(index, 1);
+            (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.splice(index, 1);
             this.diff = null;
           }
         }
@@ -356,9 +391,9 @@ class ValueOverTimeEditPropagator {
         }
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
-      let votc = this.action.geoObjectJson.attributes[this.component.attributeType.code].values;
+      let votc = (this.action as CreateGeoObjectAction).geoObjectJson.attributes[this.component.attributeType.code].values;
       
       let index = votc.findIndex((vot) => {return vot.oid === this.valueOverTime.oid});
       
@@ -433,7 +468,7 @@ class ValueOverTimeEditPropagator {
 
         if (terms && terms.length > 0) {
 
-            this.view.value = terms[0].code;
+            this.value = terms[0].code;
 
         }
 
@@ -453,7 +488,7 @@ class ValueOverTimeEditPropagator {
   }
 }
 
-class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
+export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   hierarchyEntry: HierarchyOverTimeEntry;
 
   constructor(component: ManageVersionsComponent, action: AbstractAction, view: VersionDiffView, hierarchyEntry: HierarchyOverTimeEntry)
@@ -469,16 +504,17 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   
   set startDate(startDate: string)
   {
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.diff == null)
       {
         if (this.hierarchyEntry == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
-          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
         else
         {
@@ -496,8 +532,8 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
           this.diff.oldValue = oldValue;
           this.diff.oldStartDate = this.hierarchyEntry.startDate;
           this.diff.oldEndDate = this.hierarchyEntry.endDate;
-          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
       }
       
@@ -512,7 +548,7 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         this.view.oldStartDate = this.diff.oldStartDate;
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
       this.hierarchyEntry.startDate = startDate;
     }
@@ -531,16 +567,17 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   
   set endDate(endDate: string)
   {
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.diff == null)
       {
         if (this.hierarchyEntry == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
-          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
         else
         {
@@ -558,8 +595,8 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
           this.diff.oldValue = oldValue;
           this.diff.oldStartDate = this.hierarchyEntry.startDate;
           this.diff.oldEndDate = this.hierarchyEntry.endDate;
-          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
       }
       
@@ -574,7 +611,7 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         this.view.oldEndDate = this.diff.oldEndDate;
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
       this.hierarchyEntry.endDate = endDate;
     }
@@ -596,16 +633,17 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
     let incomingImmediateParent: GeoObject = parent.geoObject;
     let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length-1].code;
   
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.diff == null)
       {
         if (this.hierarchyEntry == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
-          this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
         else
         {
@@ -626,7 +664,7 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
           this.diff.oldValue = oldValue;
           this.diff.oldStartDate = this.valueOverTime.startDate;
           this.diff.oldEndDate = this.valueOverTime.endDate;
-          this.action.attributeDiff.valuesOverTime.push(this.diff);
+          (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
       }
       
@@ -643,7 +681,7 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         this.view.oldValue = this.diff.oldValue == null ? null : this.diff.oldValue.split("_~VST~_")[1];
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
       this.hierarchyEntry.parents[immediateType] = parent;
     }
@@ -811,7 +849,7 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   {
     let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length-1].code;
   
-    if (this.action instanceof UpdateAttributeAction)
+    if (this.action.actionType === 'UpdateAttributeAction')
     {
       if (this.hierarchyEntry != null && this.diff == null)
       {
@@ -824,18 +862,18 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         this.diff.oldValue = oldValue;
         this.diff.oldStartDate = this.hierarchyEntry.startDate;
         this.diff.oldEndDate = this.hierarchyEntry.endDate;
-        this.action.attributeDiff.valuesOverTime.push(this.diff);
-        this.action.attributeDiff.hierarchyCode = this.component.hierarchy.code;
+        (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+        (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
       }
       else if (this.diff != null)
       {
         if (this.diff.action === 'DELETE')
         {
-          let index = this.action.attributeDiff.valuesOverTime.findIndex(diff => {return diff.oid === this.diff.oid});
+          let index = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.findIndex(diff => {return diff.oid === this.diff.oid});
         
           if (index != -1)
           {
-            this.action.attributeDiff.valuesOverTime.splice(index, 1);
+            (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.splice(index, 1);
             this.diff = null;
           }
         }
@@ -862,9 +900,9 @@ class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         }
       }
     }
-    else if (this.action instanceof CreateGeoObjectAction)
+    else if (this.action.actionType === 'CreateGeoObjectAction')
     {
-      let votc = this.action.parentJson.entries[immediateType];
+      let votc = (this.action as CreateGeoObjectAction).parentJson.entries[immediateType];
       
       let index = votc.findIndex((vot) => {return vot.oid === this.hierarchyEntry.oid});
       
@@ -892,7 +930,8 @@ class VersionDiffView extends ValueOverTime {
   oldValue?: any;
   oldStartDate?: string;
   oldEndDate?: string;
-  layer?: VersionOverTimeLayer;
+  isEditingGeometries: boolean = false;
+  isRenderingLayer: boolean = false;
   editPropagator: ValueOverTimeEditPropagator;
   
   constructor(component: ManageVersionsComponent, action: AbstractAction)
@@ -1016,10 +1055,6 @@ export class ManageVersionsComponent implements OnInit {
     // Observable subject for MasterList changes.  Called when an update is successful // TODO : This probably doesn't work anymore
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
     
-    @Output() onEditLayer = new EventEmitter<VersionOverTimeLayer>();
-    
-    @Output() onRenderedLayersChange = new EventEmitter<VersionOverTimeLayer[]>();
-    
     attributeType: AttributeType;
     actions: AbstractAction[] = [];
 
@@ -1060,8 +1095,6 @@ export class ManageVersionsComponent implements OnInit {
     
     viewModels: VersionDiffView[] = [];
     
-    renderedLayers: VersionOverTimeLayer[] = [];
-    
     // The 'current' action which is to be used whenever we're applying new edits.
     editAction: AbstractAction;
     
@@ -1075,10 +1108,28 @@ export class ManageVersionsComponent implements OnInit {
     ngOnInit(): void {
       this.calculateViewModels();
       this.isRootOfHierarchy = this.attributeType.type === '_PARENT_' && (this.hierarchy == null || this.hierarchy.types == null || this.hierarchy.types.length == 0);
-      this.geomService.setRenderedLayers(this.renderedLayers);
+      this.geomService.setLayers(this.getRenderedLayers());
     }
 
     ngAfterViewInit() {
+    }
+    
+    getRenderedLayers(): ValueOverTimeEditPropagator[]
+    {
+      let renderedLayers: ValueOverTimeEditPropagator[] = [];
+      
+      let len = this.viewModels.length;
+      for (let i = 0; i < len; ++i)
+      {
+        let view: VersionDiffView = this.viewModels[i];
+        
+        if (view.isRenderingLayer)
+        {
+          renderedLayers.push(view.editPropagator);
+        }
+      }
+      
+      return renderedLayers;
     }
 
     geometryChange(vAttribute, event): void {
@@ -1127,11 +1178,18 @@ export class ManageVersionsComponent implements OnInit {
     }
     
     remove(view: VersionDiffView): void {
-
-      view.editPropagator.remove();
+      
+      view.editPropagator.remove();      
+      
+      if(view.summaryKey === SummaryKey.NEW) {
+        const index = this.viewModels.findIndex(v => v.oid === view.oid);       
+        
+        if(index > -1) {
+          this.viewModels.splice(index, 1);
+        }
+      }
 
       this.onDateChange();
-
     }
 
     onAddNewVersion(): void {
@@ -1155,53 +1213,42 @@ export class ManageVersionsComponent implements OnInit {
 
     }
     
-    // https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
     generateUUID() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+      return uuid();
     }
 
     toggleGeometryEditing(view: VersionDiffView) {
-      view.layer.editing = !view.layer.editing;
+      //view.layer.editing = !view.layer.editing;
       
       //if (this.geometryEditor != null)
       //{
       //  this.geometryEditor.reload();
       //}
       
-      this.geomService.setRenderedLayers(this.renderedLayers);
-    }
-    
-    toggleGeometryView(view: VersionDiffView) {
+      //this.geomService.setLayers(this.renderedLayers);
       
-      if (view.layer != null)
+      if (view.isEditingGeometries)
       {
-        let index = this.renderedLayers.findIndex(find => {return find.oid === view.layer.oid;});
-        
-        if (index != null)
-        {
-          this.renderedLayers.splice(index, 1);
-          delete view.layer;
-        }
+        this.geomService.stopEditing();
       }
       else
       {
-        let layer = {
-          view: view,
-          oid: view.oid,
-          startDate: view.startDate,
-          endDate: view.endDate,
-          geojson: view.value
-        } as VersionOverTimeLayer;
-        
-        this.renderedLayers.push(layer);
-        
-        view.layer = layer;
+        this.geomService.startEditing(view.editPropagator);
       }
       
-      this.geomService.setRenderedLayers(this.renderedLayers);
+      view.isEditingGeometries = !view.isEditingGeometries;
+    }
+    
+    toggleGeometryView(view: VersionDiffView) {
+    
+      if (view.isEditingGeometries)
+      {
+        this.toggleGeometryEditing(view);
+      }
+      
+      view.isRenderingLayer = !view.isRenderingLayer;
+      
+      this.geomService.setLayers(this.getRenderedLayers());
     }
 
     getVersionData(attribute: AttributeType) {
