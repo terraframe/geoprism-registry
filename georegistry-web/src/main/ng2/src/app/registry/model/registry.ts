@@ -135,7 +135,7 @@ export class ConflictMessage {
   type: ConflictType;
 }
 
-export class ValueOverTime {
+export class ValueOverTime implements TimeRangeEntry {
   oid: string;
   startDate: string;
   endDate: string;
@@ -161,6 +161,7 @@ export class AttributeType {
   isChangeOverTime?: boolean;
   precision?: number;
   scale?: number;
+  isValid?: boolean;
 
   constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 
@@ -350,6 +351,22 @@ export class MasterListVersion {
     subtypes?: { label:string, code: string }[];
 }
 
+export enum SummaryKey {
+  NEW = "NEW",
+  UNMODIFIED = "UNMODIFIED",
+  DELETE = "DELETE",
+  UPDATE = "UPDATE",
+  TIME_CHANGE = "TIME_CHANGE",
+  VALUE_CHANGE = "VALUE_CHANGE",
+}
+
+export interface TimeRangeEntry {
+  startDate: string;
+  endDate: string;
+  conflictMessage?: any[];  
+  summaryKeyData?: SummaryKey;
+}
+
 export class HierarchyOverTime {
     code: string;
     label: string;
@@ -361,7 +378,7 @@ export class HierarchyOverTime {
     entries: HierarchyOverTimeEntry[];
 }
 
-export class HierarchyOverTimeEntry {
+export class HierarchyOverTimeEntry implements TimeRangeEntry  {
   startDate: string;
   endDate: string;
   oid: string;

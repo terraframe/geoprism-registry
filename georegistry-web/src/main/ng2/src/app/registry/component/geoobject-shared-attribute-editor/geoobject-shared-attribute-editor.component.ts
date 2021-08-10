@@ -233,7 +233,26 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     }
 
+    // Invoked when the dates have changed on an attribute
+    // After each change we must check to see if all attributes
+    // are now valid or not
+    onIsValidChange(valid:boolean, attribute: AttributeType): void {
+      attribute.isValid = valid;
+      
+      let allValid:boolean = true;
+      
+      this.geoObjectType.attributes.forEach(att => {
+        if(att.isValid != null && !att.isValid) {
+          allValid = false;
+        }
+      });
+      
+      this.valid.emit(allValid);
+    }
+
     onVersionChange(event:any, attribute: AttributeType): void {
+      
+      console.log(event);
 
         if (attribute) {
 

@@ -4,16 +4,9 @@ import { LocalizationService } from './localization.service';
 
 import Utils from '../../registry/utility/Utils';
 
-import { PRESENT, ValueOverTime, ConflictMessage } from '@registry/model/registry';
+import { PRESENT, SummaryKey, ConflictMessage, TimeRangeEntry } from '@registry/model/registry';
 
 import { ConflictType } from '@registry/model/constants';
-
-import * as moment from 'moment';
-
-declare var Globalize: any;
-declare var com: any
-declare var registry: any
-
 
 @Injectable()
 export class DateService {
@@ -81,7 +74,7 @@ export class DateService {
 		return null;
 	}
 	
-	checkRanges(vAttributes: any[]): boolean {
+	checkRanges(vAttributes: TimeRangeEntry[]): boolean {
 		
 		let hasConflict = false;
 		
@@ -100,10 +93,13 @@ export class DateService {
 			  }
 			}
 		});
-		
+    
+    // Filter DELETE entries from overlap and gap consideration
+    const filtered = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+    
 		// Check for overlaps
-		for (let j = 0; j < vAttributes.length; j++) {
-			const h1 = vAttributes[j];
+		for (let j = 0; j < filtered.length; j++) {
+			const h1 = filtered[j];
 
 			if (h1.startDate && h1.endDate) {
 				let s1: any = this.getDateFromDateString(h1.startDate);
@@ -119,11 +115,11 @@ export class DateService {
 					hasConflict = true;
 				}
 
-				for (let i = 0; i < vAttributes.length; i++) {
+				for (let i = 0; i < filtered.length; i++) {
 
 					if (j !== i) {
 						
-						const h2 = vAttributes[i];
+						const h2 = filtered[i];
 						
 						// If all dates set
 						if (h2.startDate && h2.endDate) {
@@ -158,12 +154,12 @@ export class DateService {
 			}
 		}
 		
-		this.sort(vAttributes);
+		this.sort(filtered);
 		
 		// Check for gaps
 		let current = null;
-		for (let j = 0; j < vAttributes.length; j++) {
-			let next = vAttributes[j];
+		for (let j = 0; j < filtered.length; j++) {
+			let next = filtered[j];
 
 			if (j > 0) {
 				if (current.endDate && next.startDate) {
@@ -180,11 +176,13 @@ export class DateService {
 
 			current = next;
 		}
+    
+    this.sort(vAttributes);
 		
 		return hasConflict;
 	}
 	
-	sort(votArr: ValueOverTime[]): void {
+	sort(votArr: TimeRangeEntry[]): void {
 
 		// Sort the data by start date 
 		votArr.sort(function(a, b) {

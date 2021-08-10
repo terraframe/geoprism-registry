@@ -63,7 +63,7 @@
 
                   <div *ngIf="attr.code !== 'code'">
                     <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex"></manage-versions>
+                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex"></manage-versions>
                   </div>
 
                   <!--                   <div *ngIf="attr.isChangeOverTime && !readOnly" class="button-holder" > -->
