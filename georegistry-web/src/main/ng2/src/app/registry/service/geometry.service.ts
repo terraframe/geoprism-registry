@@ -36,7 +36,7 @@ export class GeometryService {
   initialize(map: Map, geometryType: String, readOnly: boolean) {
     this.map = map;
     this.geometryType = geometryType;
-    this.editingControl = null;
+    //this.editingControl = null;
     
     this.addLayers();
     
@@ -85,7 +85,7 @@ export class GeometryService {
     this.addEditingLayers();
   }
   
-  stopEditing(editPropagator: ValueOverTimeEditPropagator)
+  stopEditing()
   {
     this.saveEdits();
   
@@ -118,6 +118,9 @@ export class GeometryService {
       let geoJson = this.getDrawGeometry();
       
       this.editable.value = geoJson;
+      
+      this.removeLayers();
+      this.addLayers();
     }
   }
   
@@ -138,7 +141,7 @@ export class GeometryService {
     this.removeLayers();
     if (this.editingControl != null)
     {
-      this.editingControl.deleteAll();
+      this.stopEditing();
     }
   
     this.layers = layers;
@@ -164,6 +167,7 @@ export class GeometryService {
       }
       else if (this.geometryType === "POINT" || this.geometryType === "MULTIPOINT") {
         this.editingControl = new MapboxDraw({
+          userProperties: true,
           controls: {
             point: true,
             line_string: false,
@@ -171,7 +175,37 @@ export class GeometryService {
             trash: true,
             combine_features: false,
             uncombine_features: false
-          }
+          },
+          styles: [
+            {
+              'id': 'highlight-active-points',
+              'type': 'circle',
+              'filter': ['all',
+                ['==', '$type', 'Point'],
+                ['==', 'meta', 'feature'],
+                ['==', 'active', 'true']],
+              'paint': {
+                'circle-radius': 13,
+                'circle-color': '#33FFF9',
+            'circle-stroke-width': 4,
+            'circle-stroke-color': 'white'
+              }
+            },
+            {
+              'id': 'points-are-blue',
+              'type': 'circle',
+              'filter': ['all',
+                ['==', '$type', 'Point'],
+                ['==', 'meta', 'feature'],
+                ['==', 'active', 'false']],
+              'paint': {
+                'circle-radius': 10,
+                'circle-color': '#800000',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': 'white'
+              }
+            }
+          ]
         });
       }
       else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
@@ -186,15 +220,22 @@ export class GeometryService {
           }
         });
       }
-      this.map.addControl(this.editingControl);
+      
+      if (this.map.getSource("mapbox-gl-draw-cold") == null)
+      {
+        this.map.addControl(this.editingControl);
+      }
     }
-
-    this.addEditingLayers();
   }
   
   addEditingLayers(): void {
     if (this.editable != null && this.editingControl != null) {
-      this.editingControl.add(this.editable.value);
+      let val = this.editable.value;
+      
+      if (val)
+      {
+        this.editingControl.add(this.editable.value);
+      }
     }
   }
   
@@ -260,6 +301,10 @@ export class GeometryService {
     let sourceName: string = prefix + "-geoobject";
     
     if (!this.map) {
+      return;
+    }
+    if (!geometry)
+    {
       return;
     }
     

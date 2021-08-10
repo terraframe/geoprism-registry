@@ -1203,7 +1203,7 @@ export class ManageVersionsComponent implements OnInit {
       
       if (view.isEditingGeometries)
       {
-        this.geomService.stopEditing(view.editPropagator);
+        this.geomService.stopEditing();
       }
       else
       {
@@ -1214,6 +1214,11 @@ export class ManageVersionsComponent implements OnInit {
     }
     
     toggleGeometryView(view: VersionDiffView) {
+    
+      if (view.isEditingGeometries)
+      {
+        this.toggleGeometryEditing(view);
+      }
       
       view.isRenderingLayer = !view.isRenderingLayer;
       
