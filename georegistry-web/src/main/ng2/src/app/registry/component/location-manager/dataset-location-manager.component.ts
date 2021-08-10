@@ -38,7 +38,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     HIERARCHY: 'HIERARCHY'
   }
   
-  editSessionEnabled: boolean = false;
   toolsIconHover: boolean = false;
   datasetId: string;
   typeCode: string;
@@ -137,8 +136,8 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
   }
   
   onPanelSubmit(applyInfo: {isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}): void {
-  // Save everything first
-  this.onMapSave();
+    // Save everything first
+    this.geomService.saveEdits();
   
     this.bsModalRef = this.modalService.show(ConfirmModalComponent, { backdrop: true, class:"error-white-space-pre" });
       
@@ -173,6 +172,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
   ngOnDestroy(): void {
     this.map.remove();
+    this.geomService.destroy();
   }
 
   ngAfterViewInit() {
@@ -262,28 +262,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
       this.handleMapClickEvent(event);
     });
 
-/*
-    this.map.on('draw.create', (e) => {
-      this.refreshInputsFromDraw();
-      this.editSessionEnabled = true;
-    });
-    this.map.on('draw.update', (e) => {
-      this.refreshInputsFromDraw();
-          this.editSessionEnabled = true;
-    });
-    this.map.on('draw.delete', (e) => {
-      this.coordinate = { longitude: null, latitude: null };
-    });
-    */
-//    this.map.on('draw.selectionchange', (e: any) => {
-//      if(e.features.length > 0 || e.points.length > 0) {
-//        this.editSessionEnabled = true;
-//      }
-//      else {
-//        this.editSessionEnabled = false;
-//      }
-//    });
-
     this.showOriginalGeometry();
   }
   
@@ -306,11 +284,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     this.vectorLayers.forEach(vLayer => {
       this.addVectorLayer(vLayer);
     });
-    
-    // TODO
-    //this.geomService.getLayers().forEach(layer => {
-      //this.addVectorLayer(vLayer);
-    //});
   }
 
   handleBasemapStyle(layer: any): void {
@@ -487,22 +460,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     }
   }
 
-
-  /*
-   * EDIT FUNCTIONALITY
-   */
-
-  clearGeometryEditing(): void {
-    if (this.editingControl != null) {
-      this.editingControl.deleteAll();
-      this.map.removeControl(this.editingControl);
-    }
-
-    this.editingControl = null;
-    
-    this.editSessionEnabled = false;
-  }
-
   onFeatureChange(): void {
     // Refresh the layer
     this.hideOriginalGeometry();
@@ -528,223 +485,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
         ]);
       }
     }
-  }
-
-  onMapSave(): void {
-    if(this.editingControl){
-      const geometry = this.getDrawGeometry();
-  
-      this.editingControl.deleteAll();
-      this.map.removeControl(this.editingControl);
-  
-      this.vot.value = geometry;
-      this.geometryChange.next(this.vot);
-  
-      this.editingControl = null;
-      
-      this.editSessionEnabled = false;
-    }
-  }
-
-  onGeometryEdit(vot: {vot:ValueOverTime, allVOT: ValueOverTime[]}): void {
-    
-    // Save everything first
-    this.onMapSave();
-    this.clearGeometryEditing();
-
-    let theVOT = vot ? vot.vot : null;
-    if(theVOT){
-      this.vot = theVOT;
-      
-      this.hideOriginalGeometry();
-
-      this.addEditLayers(theVOT);
-    
-      var bounds = new LngLatBounds();
-  
-      if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT"){
-        vot.allVOT.forEach(function(feature) {
-          let pt = new LngLat(feature.value.coordinates[0][0], feature.value.coordinates[0][1]);
-            bounds.extend(pt);
-        });
-        
-        this.map.fitBounds(bounds, {padding: 50});
-        //this.map.jumpTo({ center: [vot.value.coordinates[0][0], vot.value.coordinates[0][1]] })
-      }
-    }
-    else {
-      this.showOriginalGeometry();
-    }
-  }
-
-  addEditLayers(vot: ValueOverTime): void {
-    if (vot != null) {
-      this.enableEditing(vot);
-    }
-  }
-
-  enableEditing(vot: ValueOverTime): void {
-    if (this.type.geometryType === "MULTIPOLYGON" || this.type.geometryType === "POLYGON") {
-      this.editingControl = new MapboxDraw({
-        controls: {
-          point: false,
-          line_string: false,
-          polygon: true,
-          trash: true,
-          combine_features: false,
-          uncombine_features: false
-        }
-      });
-      
-    }
-    else if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
-      this.editingControl = new MapboxDraw({
-        userProperties: true,
-        controls: {
-          point: true,
-          line_string: false,
-          polygon: false,
-          trash: true,
-          combine_features: false,
-          uncombine_features: false
-        },
-        styles: [
-            {
-              'id': 'highlight-active-points',
-              'type': 'circle',
-              'filter': ['all',
-                ['==', '$type', 'Point'],
-                ['==', 'meta', 'feature'],
-                ['==', 'active', 'true']],
-              'paint': {
-                'circle-radius': 13,
-                'circle-color': '#33FFF9',
-            'circle-stroke-width': 4,
-            'circle-stroke-color': 'white'
-              }
-            },
-            {
-              'id': 'points-are-blue',
-              'type': 'circle',
-              'filter': ['all',
-                ['==', '$type', 'Point'],
-                ['==', 'meta', 'feature'],
-                ['==', 'active', 'false']],
-              'paint': {
-                'circle-radius': 10,
-                'circle-color': '#800000',
-            'circle-stroke-width': 2,
-            'circle-stroke-color': 'white'
-              }
-            }
-          ]
-      });
-    }
-    else if (this.type.geometryType === "LINE" || this.type.geometryType === "MULTILINE") {
-      this.editingControl = new MapboxDraw({
-        controls: {
-          point: false,
-          line_string: true,
-          polygon: false,
-          trash: true,
-          combine_features: false,
-          uncombine_features: false
-        }
-      });
-    }
-    this.map.addControl(this.editingControl);
-
-    if (vot.value != null) {
-      this.editingControl.add(vot.value);
-      
-      if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
-        if(vot.value.coordinates && vot.value.coordinates.length > 0){
-          this.coordinate = { longitude: vot.value.coordinates[0][0], latitude: vot.value.coordinates[0][1] };
-        }
-      }
-    }
-  }
-
-
-  getDrawGeometry(): any {
-    if (this.editingControl != null) {
-      let featureCollection: any = this.editingControl.getAll();
-
-      if (featureCollection.features.length > 0) {
-
-        // The first Feature is our GeoObject.
-
-        // Any additional features were created using the draw editor. Combine them into the GeoObject if its a multi-polygon.
-        if (this.type.geometryType === "MULTIPOLYGON") {
-          let polygons = [];
-
-          for (let i = 0; i < featureCollection.features.length; i++) {
-            let feature = featureCollection.features[i];
-
-            if (feature.geometry.type === 'MultiPolygon') {
-              for (let j = 0; j < feature.geometry.coordinates.length; j++) {
-                polygons.push(feature.geometry.coordinates[j]);
-              }
-            }
-            else {
-              polygons.push(feature.geometry.coordinates);
-            }
-          }
-
-          return {
-            coordinates: polygons,
-            type: 'MultiPolygon'
-          };
-        }
-        else if (this.type.geometryType === "MULTIPOINT") {
-          let points = [];
-
-          for (let i = 0; i < featureCollection.features.length; i++) {
-            let feature = featureCollection.features[i];
-
-            if (feature.geometry.type === 'MultiPoint') {
-              for (let j = 0; j < feature.geometry.coordinates.length; j++) {
-                points.push(feature.geometry.coordinates[j]);
-              }
-            }
-            else {
-              points.push(feature.geometry.coordinates);
-            }
-          }
-
-          return {
-            coordinates: points,
-            type: 'MultiPoint'
-          };
-        }
-        else if (this.type.geometryType === "MULTILINE") {
-          let lines = [];
-
-          for (let i = 0; i < featureCollection.features.length; i++) {
-            let feature = featureCollection.features[i];
-
-            if (feature.geometry.type === 'MultiLineString') {
-              for (let j = 0; j < feature.geometry.coordinates.length; j++) {
-                lines.push(feature.geometry.coordinates[j]);
-              }
-            }
-            else {
-              lines.push(feature.geometry.coordinates);
-            }
-          }
-
-          return {
-            coordinates: lines,
-            type: 'MultiLineString'
-          };
-        }
-        else {
-          return featureCollection.features[0].geometry;
-        }
-      }
-    }
-
-    return null;
   }
 
   onNewGeoObject(): void {

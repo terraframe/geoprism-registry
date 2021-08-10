@@ -173,6 +173,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 	ngOnDestroy(): void {
 		this.map.remove();
+		this.geomService.destroy();
 		this.urlSubscriber.unsubscribe();
 	}
 
@@ -227,7 +228,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 			this.isEdit = false;
 		}
 
-		this.clearGeometryEditing();
+    this.geomService.stopEditing();
 
 		this.vot = null;
 	}
@@ -262,29 +263,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 		this.map.on('click', 'children-polygon', (event: any) => {
 			this.handleMapClickEvent(event);
 		});
-    
-    /*
-		this.map.on('draw.create', (e) => {
-		  this.refreshInputsFromDraw();
-		  this.editSessionEnabled = true;
-		});
-		this.map.on('draw.update', (e) => {
-		  this.refreshInputsFromDraw();
-          this.editSessionEnabled = true;
-		});
-		this.map.on('draw.delete', (e) => {
-		  this.coordinate = { longitude: null, latitude: null };
-		});
-		*/
-		
-//		this.map.on('draw.selectionchange', (e: any) => {
-//			if (e.features.length > 0 || e.points.length > 0) {
-//				this.editSessionEnabled = true;
-//			}
-//			else {
-//				this.editSessionEnabled = false;
-//			}
-//		});
 
 		// Set map data on page load with URL params (single Geo-Object)
 		if (this.data) {
@@ -696,111 +674,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
 
 			this.vectorLayers.push(source);
-		}
-	}
-
-
-	//
-	// Editing of features
-	//
-	clearGeometryEditing(): void {
-		if (this.editingControl != null) {
-			this.editingControl.deleteAll();
-			this.map.removeControl(this.editingControl);
-		}
-
-		this.editingControl = null;
-//		this.map.addControl(this.simpleEditControl);
-
-		this.editSessionEnabled = false;
-	}
-
-	addEditLayers(vot: ValueOverTime): void {
-		if (vot != null) {
-			//      this.renderGeometryAsLayer(this.calculatedPreObject.geometry.value, "pre", "#EFA22E");
-
-			this.enableEditing(vot);
-		}
-	}
-
-	enableEditing(vot: ValueOverTime): void {
-		if (this.type.geometryType === "MULTIPOLYGON" || this.type.geometryType === "POLYGON") {
-			this.editingControl = new MapboxDraw({
-				controls: {
-					point: false,
-					line_string: false,
-					polygon: true,
-					trash: true,
-					combine_features: false,
-					uncombine_features: false
-				}
-			});
-		}
-		else if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
-			this.editingControl = new MapboxDraw({
-				userProperties: true,
-				controls: {
-					point: true,
-					line_string: false,
-					polygon: false,
-					trash: true,
-					combine_features: false,
-					uncombine_features: false
-				},
-				styles: [
-				    {
-				      'id': 'highlight-active-points',
-				      'type': 'circle',
-				      'filter': ['all',
-				        ['==', '$type', 'Point'],
-				        ['==', 'meta', 'feature'],
-				        ['==', 'active', 'true']],
-				      'paint': {
-				        'circle-radius': 13,
-				        'circle-color': '#33FFF9',
-						'circle-stroke-width': 4,
-						'circle-stroke-color': 'white'
-				      }
-				    },
-				    {
-				      'id': 'points-are-blue',
-				      'type': 'circle',
-				      'filter': ['all',
-				        ['==', '$type', 'Point'],
-				        ['==', 'meta', 'feature'],
-				        ['==', 'active', 'false']],
-				      'paint': {
-				        'circle-radius': 10,
-				        'circle-color': '#800000',
-						'circle-stroke-width': 2,
-						'circle-stroke-color': 'white'
-				      }
-				    }
-				  ]
-			});
-		}
-		else if (this.type.geometryType === "LINE" || this.type.geometryType === "MULTILINE") {
-			this.editingControl = new MapboxDraw({
-				controls: {
-					point: false,
-					line_string: true,
-					polygon: false,
-					trash: true,
-					combine_features: false,
-					uncombine_features: false
-				}
-			});
-		}
-		this.map.addControl(this.editingControl);
-
-		if (vot.value != null) {
-			this.editingControl.add(vot.value);
-			
-			if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
-				if(vot.value.coordinates && vot.value.coordinates.length > 0){
-					this.coordinate = { longitude: vot.value.coordinates[0][0], latitude: vot.value.coordinates[0][1] };
-				}
-			}
 		}
 	}
 
