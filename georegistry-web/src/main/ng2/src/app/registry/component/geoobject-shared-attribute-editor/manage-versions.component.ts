@@ -17,7 +17,7 @@ import {
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
-import { GeoObjectType, AttributeType, AttributeOverTime, ValueOverTime, GeoObjectOverTime, GeoObject, AttributeTermType, PRESENT, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, GeoObject, AttributeTermType, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent, SummaryKey } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { ConflictType, ActionTypes, GovernanceStatus } from '@registry/model/constants';
@@ -34,15 +34,6 @@ import { LocalizationService } from "@shared/service";
 import Utils from "../../utility/Utils";
 
 import turf_booleanequal from '@turf/boolean-equal';
-
-export enum SummaryKey {
-  NEW = "NEW",
-  UNMODIFIED = "UNMODIFIED",
-  DELETE = "DELETE",
-  UPDATE = "UPDATE",
-  TIME_CHANGE = "TIME_CHANGE",
-  VALUE_CHANGE = "VALUE_CHANGE",
-}
 
 export class ValueOverTimeEditPropagator {
   view: VersionDiffView;
@@ -1148,7 +1139,8 @@ export class ManageVersionsComponent implements OnInit {
             this.isValid = this.checkDateFieldValidity();
 
             this.hasConflict = this.dateService.checkRanges(this.viewModels);
-
+            
+            this.isValidChange.emit(this.isValid && !this.hasConflict);
         }, 0);
 
     }
