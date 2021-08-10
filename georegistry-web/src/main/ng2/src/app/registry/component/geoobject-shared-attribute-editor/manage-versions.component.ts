@@ -175,10 +175,12 @@ export class ValueOverTimeEditPropagator {
   
   set value(value: any)
   {
+    console.log('TEST', value)
+    
     if (value != null)
     {
       if (this.component.attributeType.type === "term")
-      {
+      {        
         value = [value];
       }
       else if (this.component.attributeType.type === "date")
@@ -316,7 +318,10 @@ export class ValueOverTimeEditPropagator {
     //}
     if (this.component.attributeType.type === "term")
     {
-      return val1.length === val2.length && val1[0] === val2[0];
+      if(val1 != null && val2 != null)
+      {
+        return val1.length === val2.length && val1[0] === val2[0];        
+      }
     }
     else if (this.component.attributeType.type === 'geometry')
     {
@@ -449,7 +454,7 @@ export class ValueOverTimeEditPropagator {
 
         if (terms && terms.length > 0) {
 
-            this.view.value = terms[0].code;
+            this.value = terms[0].code;
 
         }
 
