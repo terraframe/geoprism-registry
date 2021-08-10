@@ -1065,7 +1065,7 @@ export class ManageVersionsComponent implements OnInit {
 
         this.changeRequest = value.changeRequest;
         
-        if(this.changeRequest != null) {          
+        if(this.changeRequest != null) {
           this.actions = value.changeRequest.actions;
         }
         else {
