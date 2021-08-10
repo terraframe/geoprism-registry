@@ -1064,7 +1064,13 @@ export class ManageVersionsComponent implements OnInit {
         this.attributeType = value.attributeType;
 
         this.changeRequest = value.changeRequest;
-        this.actions = value.changeRequest.actions;
+        
+        if(this.changeRequest != null) {          
+          this.actions = value.changeRequest.actions;
+        }
+        else {
+          this.actions = [];
+        }
 
         this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
         this.postGeoObject = value.geoObject;
