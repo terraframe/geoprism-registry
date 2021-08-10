@@ -18,7 +18,7 @@ import {
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, VersionOverTimeLayer, GeoObject, AttributeTermType, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent, SummaryKey } from "@registry/model/registry";
-import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
+import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { ConflictType, ActionTypes, GovernanceStatus } from '@registry/model/constants';
 import { AuthService } from "@shared/service/auth.service";
@@ -1038,6 +1038,8 @@ export class ManageVersionsComponent implements OnInit {
     @Input() isNewGeoObject: boolean = false;
     
     @Input() hierarchy: HierarchyOverTime = null;
+    
+    @Input() changeRequest: ChangeRequest;
 
     goGeometries: GeoObjectOverTime;
 
@@ -1660,6 +1662,22 @@ export class ManageVersionsComponent implements OnInit {
 
         return preCompare !== postCompare;
 
+    }
+    
+    hasAttributeChanges(): boolean {
+//        for (let i = 0; i < this.actions.length; i++) {
+//            let action = this.actions[i];
+//
+//            if (action instanceof UpdateAttributeAction && action.attributeName === this.attributeType.code) {
+//                return true;
+//            }
+//        }
+
+        if (this.editAction instanceof UpdateAttributeAction && this.editAction.attributeName === this.attributeType.code) {
+            return true;
+        }
+
+        return false;
     }
 
     onApprove(): void

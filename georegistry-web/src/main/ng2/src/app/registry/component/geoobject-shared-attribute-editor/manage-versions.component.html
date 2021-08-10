@@ -31,8 +31,8 @@
                       <ng-container *ngIf="!isRootOfHierarchy">
 	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row" 
 	                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'WARNING'}">
-	                        <td [ngClass]="{'version-column-wrapper' : viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'}">
-	                          <div *ngIf="viewModel.summaryKey && viewModel.summaryKey != 'UNMODIFIED'" class="version-column-indicator">
+                            <td class="version-column-wrapper" [ngClass]="{'warning' : viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'}" >
+	                          <div *ngIf="viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'" class="version-column-indicator">
                                 {{viewModel.summaryKeyLocalized}}
                               </div>
 	                          
@@ -208,7 +208,7 @@
               
             </ul>
 
-              <div *ngIf="!readonly">
+              <div *ngIf="!readonly && changeRequest && changeRequest.approvalStatus === 'PENDING' && editAction && hasAttributeChanges()" style="margin-left: 15px;">
                 <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
                   <localize key="change.request.accept.btn"></localize>
                 </button>

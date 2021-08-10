@@ -13,7 +13,7 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeOverTime, AttributeTermType, Term, ValueOverTime, HierarchyOverTime } from "@registry/model/registry";
-import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
+import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 
 import Utils from "../../utility/Utils";
@@ -104,6 +104,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     @Input() isEditingGeometries = false;
 
     @Input() isGeometryInlined = false;
+
+    @Input() changeRequest: ChangeRequest;
 
     @ViewChild("geometryEditor") geometryEditor;
 

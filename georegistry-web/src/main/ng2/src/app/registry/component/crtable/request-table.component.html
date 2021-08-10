@@ -208,6 +208,7 @@
                               [readOnly]="req.permissions.includes('WRITE_DETAILS')"  
                               [geoObjectType]="req.current.geoObjectType"
                               [geoObjectData]="{'geoObject': req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson, 'actions': req.actions}"
+                              [changeRequest]="req"
                               [forDate]="today"
                               [readOnly]="false"
                               [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
