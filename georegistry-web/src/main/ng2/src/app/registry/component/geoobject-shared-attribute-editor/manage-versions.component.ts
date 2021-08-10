@@ -14,7 +14,7 @@ import {
     animate,
     transition
 } from "@angular/animations";
-
+import { HttpErrorResponse } from "@angular/common/http";
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, VersionOverTimeLayer, GeoObject, AttributeTermType, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent, SummaryKey } from "@registry/model/registry";
@@ -24,6 +24,8 @@ import { ConflictType, ActionTypes, GovernanceStatus } from '@registry/model/con
 import { AuthService } from "@shared/service/auth.service";
 
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
+import { ErrorHandler } from "@shared/component";
+import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
 import { RegistryService, GeometryService } from "@registry/service";
 import { ChangeRequestService } from "@registry/service/change-request.service";
@@ -992,6 +994,8 @@ class VersionDiffView extends ValueOverTime {
 })
 export class ManageVersionsComponent implements OnInit {
 
+    bsModalRef: BsModalRef;
+    
     @Input() isNew: boolean = false;
 
     @ViewChildren("dateFieldComponents") dateFieldComponentsArray: QueryList<DateFieldComponent>;
@@ -1020,11 +1024,12 @@ export class ManageVersionsComponent implements OnInit {
     actions: AbstractAction[] = [];
 
     // eslint-disable-next-line accessor-pairs
-    @Input() set attributeData(value: {"attributeType":AttributeType, "actions":AbstractAction[], geoObject:GeoObjectOverTime}) {
+    @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, geoObject:GeoObjectOverTime}) {
 
         this.attributeType = value.attributeType;
 
-        this.actions = value.actions;
+        this.changeRequest = value.changeRequest;
+        this.actions = value.changeRequest.actions;
 
         this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
         this.postGeoObject = value.geoObject;
@@ -1039,7 +1044,7 @@ export class ManageVersionsComponent implements OnInit {
     
     @Input() hierarchy: HierarchyOverTime = null;
     
-    @Input() changeRequest: ChangeRequest;
+    changeRequest: ChangeRequest;
 
     goGeometries: GeoObjectOverTime;
 
@@ -1063,8 +1068,9 @@ export class ManageVersionsComponent implements OnInit {
     isRootOfHierarchy: boolean = false;
     
     // eslint-disable-next-line no-useless-constructor
-    constructor(private geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
-        private requestService: ChangeRequestService) { }
+    constructor(private geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, 
+        public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
+        private requestService: ChangeRequestService, private modalService: BsModalService) { }
 
     ngOnInit(): void {
       this.calculateViewModels();
@@ -1663,18 +1669,21 @@ export class ManageVersionsComponent implements OnInit {
         return preCompare !== postCompare;
 
     }
-    
-    hasAttributeChanges(): boolean {
-//        for (let i = 0; i < this.actions.length; i++) {
-//            let action = this.actions[i];
-//
-//            if (action instanceof UpdateAttributeAction && action.attributeName === this.attributeType.code) {
-//                return true;
-//            }
-//        }
 
-        if (this.editAction instanceof UpdateAttributeAction && this.editAction.attributeName === this.attributeType.code) {
-            return true;
+    hasAttributeChanges(): boolean {
+        if (this.attributeType.isChangeOverTime) {
+            for (let i = 0; i < this.actions.length; i++) {
+                let action = this.actions[i];
+
+
+                if (action.actionType === "UpdateAttributeAction") {
+                    let uAction = action as UpdateAttributeAction;
+                    
+                    if(uAction.attributeName === this.attributeType.code) {
+                        return true;
+                    }
+                }
+            }
         }
 
         return false;
@@ -1687,10 +1696,9 @@ export class ManageVersionsComponent implements OnInit {
 
             console.log("accepted");
 
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
         });
-//        .catch((err: HttpErrorResponse) => {
-//            this.error(err);
-//        });
 
     }
 
@@ -1700,10 +1708,9 @@ export class ManageVersionsComponent implements OnInit {
 
             console.log("rejected");
 
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
         });
-//        .catch((err: HttpErrorResponse) => {
-//            this.error(err);
-//        });
 
     }
 
@@ -1713,10 +1720,15 @@ export class ManageVersionsComponent implements OnInit {
 
             console.log("pending");
 
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
         });
-//        .catch((err: HttpErrorResponse) => {
-//            this.error(err);
-//        });
+
+    }
+    
+    public error(err: any): void {
+
+        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 
     }
 

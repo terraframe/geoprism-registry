@@ -203,7 +203,7 @@
                     <div class="row" style="background: white;">
                       <div class="col-md-12">
                       
-                         <geoobject-shared-attribute-editor 
+                         <geoobject-shared-attribute-editor *ngIf="req"
                               #attributeEditor
                               [readOnly]="req.permissions.includes('WRITE_DETAILS')"  
                               [geoObjectType]="req.current.geoObjectType"
