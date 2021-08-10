@@ -17,6 +17,7 @@ import {
 
 import { Observable } from 'rxjs';
 import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
+import { v4 as uuid } from 'uuid';
 import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, GeoObject, AttributeTermType, ConflictMessage, HierarchyOverTime, HierarchyOverTimeEntry, HierarchyOverTimeEntryParent, SummaryKey } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
@@ -125,6 +126,7 @@ export class ValueOverTimeEditPropagator {
         if (this.valueOverTime == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();
           this.diff.action = "CREATE";
           (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
@@ -175,8 +177,6 @@ export class ValueOverTimeEditPropagator {
   
   set value(value: any)
   {
-    console.log('TEST', value)
-    
     if (value != null)
     {
       if (this.component.attributeType.type === "term")
@@ -196,6 +196,7 @@ export class ValueOverTimeEditPropagator {
         if (this.valueOverTime == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
           (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
@@ -248,6 +249,7 @@ export class ValueOverTimeEditPropagator {
         if (this.valueOverTime == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
           (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
         }
@@ -335,7 +337,17 @@ export class ValueOverTimeEditPropagator {
   {
     if (this.action.actionType === 'UpdateAttributeAction')
     {
-      if (this.valueOverTime != null && this.diff == null)
+      if(this.diff != null && this.diff.action === 'CREATE') {
+        // Its a new entry, just remove the diff from the diff array
+        let updateAction: UpdateAttributeAction = this.action as UpdateAttributeAction;
+        
+        const index = updateAction.attributeDiff.valuesOverTime.findIndex(vot => vot.oid === this.diff.oid);
+        
+        if(index > -1) {
+          updateAction.attributeDiff.valuesOverTime.splice(index, 1);
+        }
+      }
+      else if (this.valueOverTime != null && this.diff == null)
       {
         this.diff = new ValueOverTimeDiff();
         this.diff.action = "DELETE";
@@ -497,6 +509,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         if (this.hierarchyEntry == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
           (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
           (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
@@ -559,6 +572,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         if (this.hierarchyEntry == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
           (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
           (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
@@ -624,6 +638,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
         if (this.hierarchyEntry == null)
         {
           this.diff = new ValueOverTimeDiff();
+          this.diff.oid = uuid();          
           this.diff.action = "CREATE";
           (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
           (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
@@ -1155,11 +1170,18 @@ export class ManageVersionsComponent implements OnInit {
     }
     
     remove(view: VersionDiffView): void {
-
-      view.editPropagator.remove();
+      
+      view.editPropagator.remove();      
+      
+      if(view.summaryKey === SummaryKey.NEW) {
+        const index = this.viewModels.findIndex(v => v.oid === view.oid);       
+        
+        if(index > -1) {
+          this.viewModels.splice(index, 1);
+        }
+      }
 
       this.onDateChange();
-
     }
 
     onAddNewVersion(): void {
@@ -1183,12 +1205,8 @@ export class ManageVersionsComponent implements OnInit {
 
     }
     
-    // https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
     generateUUID() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+      return uuid();
     }
 
     toggleGeometryEditing(view: VersionDiffView) {
