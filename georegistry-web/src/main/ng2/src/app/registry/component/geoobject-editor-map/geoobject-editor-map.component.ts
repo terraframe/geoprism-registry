@@ -51,10 +51,6 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		//this.geomService.layersChange.subscribe(layers => {
-	  //  this.layers = layers;
-    //  this.reload();
-    //});
 	}
 
 	ngAfterViewInit() {

@@ -62,7 +62,7 @@
                   </div>
 
                   <div *ngIf="attr.code !== 'code'">
-                    <manage-versions *ngIf="changeRequest"
+                    <manage-versions
                         [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
                         [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" >
                     </manage-versions>

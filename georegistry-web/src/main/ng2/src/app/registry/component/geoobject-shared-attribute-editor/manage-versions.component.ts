@@ -409,6 +409,17 @@ export class ValueOverTimeEditPropagator {
   }
   
   public onAddNewVersion(): void {
+    if (this.component.editAction instanceof CreateGeoObjectAction)
+    {
+      let vot = new ValueOverTime();
+      vot.oid = this.component.generateUUID();
+      
+      this.component.editAction.geoObjectJson.attributes[this.component.attributeType.code].values.push(vot);
+    
+      this.valueOverTime = vot;
+    }
+  
+  
     if (this.component.attributeType.type === "local") {
 
         //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
@@ -475,16 +486,6 @@ export class ValueOverTimeEditPropagator {
     }
     
     this.view.summaryKey = SummaryKey.NEW;
-    
-    if (this.component.editAction instanceof CreateGeoObjectAction)
-    {
-      let vot = new ValueOverTime();
-      vot.oid = this.component.generateUUID();
-      
-      this.component.editAction.geoObjectJson.attributes[this.component.attributeType.code].values.push(vot);
-    
-      this.valueOverTime = vot;
-    }
   }
 }
 

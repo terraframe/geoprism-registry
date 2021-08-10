@@ -138,8 +138,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     }
     
-    stringify(): string {
-      return JSON.stringify(this.postGeoObject);
+    stringify(input: any): string {
+      return JSON.stringify(input);
     }
 
     ngOnInit(): void {
