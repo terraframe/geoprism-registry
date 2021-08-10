@@ -1059,7 +1059,7 @@ export class ManageVersionsComponent implements OnInit {
     actions: AbstractAction[] = [];
 
     // eslint-disable-next-line accessor-pairs
-    @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, geoObject:GeoObjectOverTime}) {
+    @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, "actions":AbstractAction[], geoObject:GeoObjectOverTime}) {
 
         this.attributeType = value.attributeType;
 
@@ -1069,7 +1069,7 @@ export class ManageVersionsComponent implements OnInit {
           this.actions = value.changeRequest.actions;
         }
         else {
-          this.actions = [];
+          this.actions = value.actions;
         }
 
         this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
