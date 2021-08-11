@@ -53,7 +53,7 @@
       </thead>
       <tbody>
         <!-- TODO : Paginate -->
-        <ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
+        <ng-template ngFor let-req [ngForOf]="requests | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" [ngForTrackBy]="requestTrackBy">
         
           <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
             <td class="col-md-3">

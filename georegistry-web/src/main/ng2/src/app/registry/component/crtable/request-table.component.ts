@@ -280,7 +280,7 @@ export class RequestTableComponent {
 
     refresh(pageNumber: number = 1): void {
 
-        this.service.getAllRequests(100, pageNumber, "ALL").then(requests => {
+        this.service.getAllRequests(this.page.pageSize, pageNumber, "ALL").then(requests => {
 
             this.page = requests;
             this.requests = requests.resultSet;
