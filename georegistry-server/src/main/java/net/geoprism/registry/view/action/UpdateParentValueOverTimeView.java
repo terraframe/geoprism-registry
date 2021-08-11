@@ -1,9 +1,15 @@
 package net.geoprism.registry.view.action;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.constants.Constants;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
@@ -53,11 +59,24 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       if (this.newValue != null
           && (currentCode != parentCode))
       {
+        Date _newStartDate = this.newStartDate;
+        Date _newEndDate = this.newEndDate;
+        
+        if (_newStartDate == null)
+        {
+          _newStartDate = edge.getObjectValue(GeoVertex.START_DATE);
+        }
+        
+        if (_newEndDate == null)
+        {
+          _newEndDate = edge.getObjectValue(GeoVertex.END_DATE);
+        }
+        
         edge.delete();
         
         if (newParent != null)
         {
-          go.addParent(newParent, hierarchyType, this.newStartDate, this.newEndDate);
+          go.addParent(newParent, hierarchyType, _newStartDate, _newEndDate);
         }
         
         return;
