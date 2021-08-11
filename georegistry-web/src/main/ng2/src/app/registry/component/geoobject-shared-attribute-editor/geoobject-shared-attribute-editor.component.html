@@ -105,7 +105,7 @@
         </h4>
 
         <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'geoObject':postGeoObject}"
-          [readonly]="readOnly" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" (change)="onVersionChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
       </div>
     </div>
     <!-- </div> -->

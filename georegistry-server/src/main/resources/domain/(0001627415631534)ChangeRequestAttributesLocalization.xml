@@ -71,6 +71,21 @@
           <attribute name="defaultLocale" value="Save Geometry Edits" />
         </attributeStruct>
       </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.geometry.invalidLatitude">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.geometry.invalidLatitude" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Latitude must be a number between -90 and 90." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.geometry.invalidLongitude">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.geometry.invalidLongitude" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Longitude must be a number between -180 and 180." />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

@@ -256,40 +256,6 @@ export class ManageVersionsComponent implements OnInit {
       return uuid();
     }
 
-    toggleGeometryEditing(view: VersionDiffView) {
-      //view.layer.editing = !view.layer.editing;
-      
-      //if (this.geometryEditor != null)
-      //{
-      //  this.geometryEditor.reload();
-      //}
-      
-      //this.geomService.setLayers(this.renderedLayers);
-      
-      if (view.isEditingGeometries)
-      {
-        this.geomService.stopEditing();
-      }
-      else
-      {
-        this.geomService.startEditing(view.editPropagator);
-      }
-      
-      view.isEditingGeometries = !view.isEditingGeometries;
-    }
-    
-    toggleGeometryView(view: VersionDiffView) {
-    
-      if (view.isEditingGeometries)
-      {
-        this.toggleGeometryEditing(view);
-      }
-      
-      view.isRenderingLayer = !view.isRenderingLayer;
-      
-      this.geomService.setLayers(this.getRenderedLayers());
-    }
-
     getVersionData(attribute: AttributeType) {
 
         let versions: ValueOverTime[] = [];
@@ -816,6 +782,68 @@ export class ManageVersionsComponent implements OnInit {
 
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
 
+    }
+    
+    
+    /**
+     * GEOMETRY EDITING
+     */
+     
+     toggleGeometryEditing(view: VersionDiffView) {
+      //view.layer.editing = !view.layer.editing;
+      
+      //if (this.geometryEditor != null)
+      //{
+      //  this.geometryEditor.reload();
+      //}
+      
+      //this.geomService.setLayers(this.renderedLayers);
+      
+      if (view.isEditingGeometries)
+      {
+        this.geomService.stopEditing();
+      }
+      else
+      {
+        this.geomService.startEditing(view.editPropagator);
+      }
+      
+      view.isEditingGeometries = !view.isEditingGeometries;
+      
+      if (this.geoObjectType.geometryType === 'POINT' || this.geoObjectType.geometryType === 'MULTIPOINT')
+      {
+        view.coordinate = {};
+      }
+    }
+    
+    toggleGeometryView(view: VersionDiffView) {
+    
+      if (view.isEditingGeometries)
+      {
+        this.toggleGeometryEditing(view);
+      }
+      
+      view.isRenderingLayer = !view.isRenderingLayer;
+      
+      this.geomService.setLayers(this.getRenderedLayers());
+    }
+    
+    manualCoordinateChange(view: VersionDiffView): void {
+      
+      const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
+      const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
+      
+      view.coordinate.latValid = isLatitude(view.value.coordinates[0][1]);
+      view.coordinate.longValid = isLongitude(view.value.coordinates[0][0]);
+  
+      if( !view.coordinate.latValid || !view.coordinate.longValid ){
+        // outside EPSG bounds
+        this.isValid = false;
+        this.isValidChange.emit(this.isValid);
+        return;
+      }
+      
+      this.geomService.setPointCoordinates(view.value.coordinates[0][1], view.value.coordinates[0][0])
     }
 
 }

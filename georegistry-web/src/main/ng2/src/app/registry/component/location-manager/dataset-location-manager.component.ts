@@ -11,7 +11,6 @@ import { DateService } from '@shared/service/date.service';
 import { AuthService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
 import { ConfirmModalComponent } from '@shared/component';
-import { Subject } from 'rxjs';
 
 import { LocalizationService } from '@shared/service';
 
@@ -83,13 +82,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
   isMaintainer: boolean;
   forDate: Date = new Date();
 
-  @ViewChild("simpleEditControl") simpleEditControl: IControl;
-  editingControl: any;
-
-  geometryChange: Subject<any> = new Subject();
   vot: ValueOverTime;
 
-  constructor(private mapService: MapService, private geomService: GeometryService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
+  constructor(private mapService: MapService, public geomService: GeometryService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
     authService: AuthService, private lService: LocalizationService, private dateService: DateService, private router: Router) {
       this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
   }
@@ -212,10 +207,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     this.map.on('load', () => {
       this.initMap();
     });
-
-    if(this.simpleEditControl) {
-      this.map.addControl(this.simpleEditControl);
-    };
   }
 
   onModeChange(value: boolean): void {
@@ -495,44 +486,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     return this.dateService.formatDateForDisplay(date);
   }
   
-// TODO : Not sure what the point of this code was
-  /*
-  refreshInputsFromDraw(): void {
-    let geom = this.getDrawGeometry();
-    let point = geom.coordinates[0];
-    
-    this.coordinate.latitude = point[1];
-    this.coordinate.longitude = point[0];
-  }
-  
-  refreshDrawFromInput(): void {
-    
-    if( this.coordinate.longitude != null && this.coordinate.latitude != null ) {
-  
-      const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
-      const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
-  
-      if( !isLatitude(this.coordinate.latitude) || !isLongitude(this.coordinate.longitude)){
-        // outside EPSG bounds
-      }
-  
-      this.editingControl.set({
-        type: 'FeatureCollection',
-        features: [{
-        id: this.code,
-          type: 'Feature',
-          properties: {},
-          geometry: { type: 'Point', coordinates: [ this.coordinate.longitude, this.coordinate.latitude ] }
-        }]
-      });
-  
-      this.editingControl.changeMode( 'simple_select', { featureIds: this.code } );
-  
-      this.editSessionEnabled = true;
-    }
-  }
-  */
-
   public error(err: HttpErrorResponse): void {
     this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
   }

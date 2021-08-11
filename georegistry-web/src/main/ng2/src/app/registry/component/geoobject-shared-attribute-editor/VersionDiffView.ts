@@ -19,6 +19,7 @@ export class VersionDiffView extends ValueOverTime {
   oldEndDate?: string;
   isEditingGeometries: boolean = false;
   isRenderingLayer: boolean = false;
+  coordinate?: any;
   editPropagator: ValueOverTimeEditPropagator;
   
   constructor(component: ManageVersionsComponent, action: AbstractAction)

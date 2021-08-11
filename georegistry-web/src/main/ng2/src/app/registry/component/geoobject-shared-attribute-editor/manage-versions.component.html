@@ -128,14 +128,44 @@
 								                 <div *ngIf="attributeType.type === 'geometry'">
 								                
 					                         <td style="vertical-align: middle;">
-					                           <button class="btn btn-primary" (click)="toggleGeometryView(viewModel)" role="button">
+					                           <button class="btn btn-primary" (click)="toggleGeometryView(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
 					                             <localize *ngIf="!viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.view"></localize>
 					                             <localize *ngIf="viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.hide"></localize>
 					                           </button>
-					                           <button *ngIf="viewModel.isRenderingLayer" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button">
+					                           <button *ngIf="viewModel.isRenderingLayer" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
                                        <localize *ngIf="!viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.edit"></localize>
                                        <localize *ngIf="viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.save"></localize>
                                      </button>
+                                     
+                                     <div *ngIf="viewModel.isRenderingLayer && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates">
+														            <div>
+														                <div><label><localize key="geoobject.editor.geometry.latitude.label"></localize></label></div>
+														                <div>
+														                <div class="text-left">
+														                  <input [disabled]="readonly || !viewModel.isEditingGeometries || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][1]" (change)="manualCoordinateChange(viewModel)" required />
+														                </div>
+														                <div *ngIf="viewModel.coordinate && viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid">
+					                                    <p class="error-message">
+					                                      <localize key="change.request.geometry.invalidLatitude"></localize>
+					                                    </p>
+					                                  </div>
+														              </div>
+														            </div>
+														            <div>
+														              <div><label><localize key="geoobject.editor.geometry.longitude.label"></localize></label></div>
+														              <div>
+														                <div class="text-left">
+														                  <input [disabled]="readonly || !viewModel.isEditingGeometries || viewModel.summaryKey === 'DELETE'" name="longitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][0]" (change)="manualCoordinateChange(viewModel)" required />
+														                </div>
+														                <div *ngIf="viewModel.coordinate && viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid">
+                                              <p class="error-message">
+                                                <localize key="change.request.geometry.invalidLongitude"></localize>
+                                              </p>
+                                            </div>
+														              </div>
+														            </div>
+													            
+													          </div>
 					                         </td>
 								                 </div>
 	                             </td>
