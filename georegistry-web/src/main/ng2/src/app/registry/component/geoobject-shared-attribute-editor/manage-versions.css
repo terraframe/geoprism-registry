@@ -3,6 +3,12 @@ table {
  padding: 15px;
 }
 
+.geometry-edit-active {
+  background-color: #f4fcef !important;
+  border: solid 1px #6BA542 !important;
+  /* display:inline-block; */
+}
+
 .version-column-wrapper {
 	padding-top: 0px;
 	padding-left: 0px;

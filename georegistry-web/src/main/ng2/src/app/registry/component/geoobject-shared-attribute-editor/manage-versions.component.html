@@ -29,8 +29,10 @@
                       </div>
                       
                       <ng-container *ngIf="!isRootOfHierarchy">
-	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row" 
-	                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'ERROR', 'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'WARNING'}">
+	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row"
+	                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'ERROR',
+	                          'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'WARNING',
+	                          'geometry-edit-active' : viewModel.isEditingGeometries }">
                             <td class="version-column-wrapper" [ngClass]="{'warning' : viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'}" >
 	                          <div *ngIf="viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'" class="version-column-indicator">
                                 {{viewModel.summaryKeyLocalized}}
@@ -137,7 +139,7 @@
                                        <localize *ngIf="viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.save"></localize>
                                      </button>
                                      
-                                     <div *ngIf="viewModel.isRenderingLayer && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates">
+                                     <div *ngIf="viewModel.isRenderingLayer && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
 														            <div>
 														                <div><label><localize key="geoobject.editor.geometry.latitude.label"></localize></label></div>
 														                <div>
