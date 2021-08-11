@@ -63,7 +63,7 @@
 		                             </td>
 		                           </tr>
 	                            </ng-container>
-	                            <tr *ngIf="attributeType.type === 'geometry' || attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'boolean'" class="attribute-value-row">
+	                            <tr *ngIf="attributeType.type === 'geometry' || attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'float' || attributeType.type === 'boolean'" class="attribute-value-row">
 	                             <td colspan="2">
 	                               <div *ngIf="attributeType.type === 'term'">
 	                                 <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">

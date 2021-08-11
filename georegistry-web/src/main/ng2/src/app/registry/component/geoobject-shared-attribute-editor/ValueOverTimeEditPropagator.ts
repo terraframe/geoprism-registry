@@ -275,6 +275,11 @@ export class ValueOverTimeEditPropagator {
   
   areValuesEqual(val1: any, val2: any): boolean
   {
+    if (this.component.attributeType.type === "boolean")
+    {
+      return val1 === val2;        
+    }
+    
     if (!val1 && !val2) {
       return true;
     }
