@@ -93,8 +93,6 @@ export class ManageVersionsComponent implements OnInit {
     @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, "actions":AbstractAction[], geoObject:GeoObjectOverTime}) {
 
         this.attributeType = value.attributeType;
-        
-        console.log(this.attributeType);
 
         this.changeRequest = value.changeRequest;
         
