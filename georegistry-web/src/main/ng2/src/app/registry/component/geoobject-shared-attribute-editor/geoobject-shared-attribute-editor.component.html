@@ -92,7 +92,7 @@
 			      
 			        <div class="panel-body">
 			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
+                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" (change)="onVersionChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
 			        </div>
 		        </div>
 	        </li>

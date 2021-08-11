@@ -150,6 +150,8 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   
   setParentValue(parent: HierarchyOverTimeEntryParent)
   {
+    console.log(this.diff);    
+    
     let incomingImmediateParent: GeoObject = parent.geoObject;
     let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length-1].code;
   
@@ -182,6 +184,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
           this.diff.action = "UPDATE";
           this.diff.oid = this.hierarchyEntry.oid;
           this.diff.oldValue = oldValue;
+          this.diff.oldParents = this.hierarchyEntry.parents;
           this.diff.oldStartDate = this.hierarchyEntry.startDate;
           this.diff.oldEndDate = this.hierarchyEntry.endDate;
           (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
@@ -368,6 +371,8 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   
   public remove(): void
   {
+    console.log(this);    
+    
     let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length-1].code;
   
     if (this.action.actionType === 'UpdateAttributeAction')
@@ -414,7 +419,9 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
           
           this.view.startDate = this.diff.oldStartDate;
           this.view.endDate = this.diff.oldEndDate;
-          this.view.value = this.diff.oldValue;
+//          this.view.value = this.diff.oldValue;
+          this.view.value = {parents: this.diff.oldParents, loading: {}};
+          
           delete this.view.oldStartDate;
           delete this.view.oldEndDate;
           delete this.view.oldValue;
@@ -436,5 +443,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
     this.view.calculateSummaryKey(this.diff);
     
     this.component.onActionChange(this.action);
+    
+    console.log('Test', this);
   }
 }

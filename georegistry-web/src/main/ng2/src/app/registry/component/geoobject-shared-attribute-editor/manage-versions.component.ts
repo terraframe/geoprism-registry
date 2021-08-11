@@ -225,8 +225,10 @@ export class ManageVersionsComponent implements OnInit {
           this.viewModels.splice(index, 1);
         }
       }
+      
+            console.log(view);
 
-      this.onDateChange();
+      this.onDateChange();      
     }
 
     onAddNewVersion(): void {

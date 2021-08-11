@@ -32,6 +32,7 @@ export class ValueOverTimeDiff {
     oldStartDate: string;
     oldEndDate: string;
     parents?: any;
+    oldParents?: any;
 }
 
 // export class AbstractAction {

@@ -249,6 +249,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
       });
       
+      if(this.parentAttributeType.isValid != null && !this.parentAttributeType.isValid) {
+        allValid = false;
+      }      
+      
+      if(this.geometryAttributeType.isValid != null && !this.geometryAttributeType.isValid) {
+        allValid = false;
+      }      
+      
       this.valid.emit(allValid);
     }
 
