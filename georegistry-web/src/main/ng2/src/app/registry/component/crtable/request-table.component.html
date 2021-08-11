@@ -1,19 +1,3 @@
-<!-- <div class="row text-center">
-    <div class="text-center">
-        <h2>
-            <localize key="change.request.title"></localize>
-        </h2>
-    </div>
-</div> -->
-
-<!-- <div class="row text-center">
-    <div class="col-md-12 text-left" style="margin-top: 40px;">
-        <h3>
-            <localize key="change.request.table.title"></localize>
-        </h3>
-    </div>
-</div> -->
-
 <div class="row">
   <div class="col-md-12">
     <div class="form-group button-row">
@@ -52,8 +36,7 @@
         </tr>
       </thead>
       <tbody>
-        <!-- TODO : Paginate -->
-        <ng-template ngFor let-req [ngForOf]="requests" [ngForTrackBy]="requestTrackBy">
+        <ng-template ngFor let-req [ngForOf]="requests | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" [ngForTrackBy]="requestTrackBy">
         
           <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
             <td class="col-md-3">
@@ -89,37 +72,10 @@
                     </div>
               </div>
                   
-<!--               <div class="row"> -->
-<!--               <div class="col-md-12" style="background: white;"> -->
-<!--                 <div class="geoobject-panel-header"> -->
-<!--                   <h2>{{req.actions[0].geoObjectJson.attributes.displayLabel.values[0].value.localizedValue}}</h2> -->
-<!--                   <h4>{{req.actions[0].geoObjectJson.attributes.code}}</h4> -->
-<!--                 </div> -->
-  
-                
-<!--                 <div *ngIf="req.permissions.includes('READ_CONTRIBUTOR_NOTES')" class="form-group" style="margin-top:20px;"> -->
-<!--                    <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label> -->
-<!--                    <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="req.contributorNotes" disabled></textarea> -->
-<!--                 </div>   -->
-                
-<!--                 <div> -->
-<!--                   <p>Contributor: <strong>{{req.createdBy}}</strong></p> -->
-<!--                   <p>Contributor Email: <strong>{{req.email}}</strong></p> -->
-<!--                   <p>Contributor Phone: <strong>{{req.phoneNumber}}</strong></p> -->
-<!--                 </div> -->
-<!--               </div> -->
-<!--               </div> -->
-              
               <div class="row" style="margin:0;background: white;">
                 <!-- <div class="col-md-1"></div> -->
                 <div class="col-md-12">
                 
-<!--                   <div class="geoobject-panel-header"> -->
-<!--                     <h2>{{req.actions[0].geoObjectJson.attributes.displayLabel.values[0].value.localizedValue}}</h2> -->
-<!--                     <h4>{{req.actions[0].geoObjectJson.attributes.code}}</h4> -->
-<!--                   </div> -->
-    
-                  
                   <div *ngIf="req.permissions.includes('READ_CONTRIBUTOR_NOTES')" class="form-group" style="margin-top:20px;">
                      <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
                      <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="req.contributorNotes" disabled></textarea>
@@ -131,75 +87,7 @@
                     <p><localize key="change.request.contributor.phone.prefix.label"></localize>&nbsp;<strong>{{req.phoneNumber}}</strong></p>
                   </div>
   
-<!--                   *ngFor="let action of actions" -->
                   <div class="action-card" style="margin-bottom:10px; background-color:white;"> 
-<!--                     <div class="row" style="margin:0; padding-top:5px; padding-bottom:5px;"> -->
-<!--                       <div class="col-md-3" style="border-right:2px grey solid; height:50px;"> -->
-<!--                         <i class="fa fa-circle" style="float:left; line-height: 50px;" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" aria-hidden="true"></i> -->
-<!--                         <h4 class="vertical-center" style="margin:0; float:left; padding-left:20px;">{{req.createdBy}}</h4> -->
-<!--                       </div> -->
-<!--                       <div class="col-md-9" style="height: 50px;"> -->
-<!--                         <i *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'" class="fa fa-refresh vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i> -->
-<!--                         <i *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'" class="fa fa-plus vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i> -->
-<!--                         <i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'" class="fa fa-link vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i> -->
-<!--                         <i *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'" class="fa fa-chain-broken vertical-center" style="float:left; line-height: 50px;" aria-hidden="true"></i> -->
-  
-<!--                         <ul class="vertical-center" style="list-style-type:none; float:left; padding-left:20px;"> -->
-<!--                           <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.UpdateGeoObjectAction'"> -->
-<!--                             <localize key="change.request.table.update" -->
-<!--                              [params]="{ -->
-<!--                                '{0}':getGOTLabel(action), -->
-<!--                                '{1}':req.current.geoObjectType.label.localizedValue -->
-<!--                               }"></localize> -->
-<!--                           </li> -->
-<!--                           <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.CreateGeoObjectAction'"> -->
-<!--                             <localize key="change.request.table.create" -->
-<!--                              [params]="{ -->
-<!--                                '{0}':getGOTLabel(action), -->
-<!--                                '{1}':req.current.geoObjectType.label.localizedValue -->
-<!--                               }"></localize> -->
-<!--                           </li> -->
-<!--                           <li *ngIf="action.actionType === 'net.geoprism.registry.action.geoobject.SetParentAction'"> -->
-<!--                             <localize key="change.request.table.setparent" [params]="{'{0}':action.childCode}"></localize> -->
-<!--                           </li>         -->
-<!--                           <li *ngIf="action.actionType === 'net.geoprism.registry.action.tree.AddChildAction'"> -->
-<!--                             <localize key="change.request.table.setchild" -->
-<!--                              [params]="{ -->
-<!--                                '{0}':action.childTypeCode,  -->
-<!--                                 '{1}':action.parentTypeCode  -->
-<!--                                }"></localize> --> 
-<!--                           </li> -->
-<!--                           <li *ngIf="action.actionType === 'net.geoprism.registry.action.tree.RemoveChildAction'"> -->
-<!--                             <localize key="change.request.table.removechild" -->
-<!--                              [params]="{ -->
-<!--                                 '{0}':action.childTypeCode,  -->
-<!--                                 '{1}':action.parentTypeCode  -->
-<!--                               }"></localize>  -->
-<!--                           </li>                                         -->
-<!--                           <li> -->
-<!--                             <localize key="change.request.table.on"></localize> -->
-<!--                             <span class="date-string-display" style="margin-left:5px;"> -->
-<!--                                 {{formatDate(action.createActionDate)}} -->
-<!--                             </span> -->
-<!--                           </li> -->
-<!--                         </ul> -->
-<!--                       </div> -->
-<!--                       <div class="col-md-4" style="height: 50px;text-align: center;"> -->
-<!--                         <h4 *ngIf="req.approvalStatus !== 'PENDING'" class="vertical-center" [ngClass]="{'status-pending':action.approvalStatus === 'PENDING', 'status-accepted':action.approvalStatus === 'ACCEPTED', 'status-rejected':action.approvalStatus === 'REJECTED'}" style="margin: 0;">{{action.approvalStatus}}</h4> -->
-<!--                         <span *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS')"> -->
-<!--                           <button type="submit" [disabled]="action.approvalStatus === 'ACCEPTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'ACCEPTED')" class="btn btn-primary vertical-center" style="width:30%;" role="button"> -->
-<!--                             <localize style="text-transform:uppercase;" key="change.request.accept.btn"></localize> -->
-<!--                           </button> -->
-<!--                           <button type="submit" [disabled]="action.approvalStatus === 'REJECTED'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'REJECTED')" class="btn btn-danger vertical-center" style="width:30%;" role="button"> -->
-<!--                             <localize style="text-transform:uppercase;" key="change.request.reject.btn"></localize> -->
-<!--                           </button> -->
-<!--                           <button type="submit" [disabled]="action.approvalStatus === 'PENDING'" *ngIf="req.approvalStatus === 'PENDING'" (click)="setActionStatus(action, 'PENDING')" class="btn btn-warning vertical-center" style="width:30%;" role="button"> -->
-<!--                             <localize style="text-transform:uppercase;" key="change.request.pending.btn"></localize> -->
-<!--                           </button> -->
-<!--                         </span> -->
-<!--                       </div> -->
-<!--                     </div> -->
-                    
                     <div class="row" style="background: white;">
                       <div class="col-md-12">
                       
@@ -219,19 +107,6 @@
                     </div>
   
                     <div class="row" style="border-top: 1px grey solid;margin:0;padding: 10px 0;">
-                      
-  <!--                     <div class="col-md-6" > -->
-  <!--                       TODO: remove method -->
-  <!--                       <button type="submit" (click)="showActionDetail(action, req)" class="btn btn-default pull-right" style="margin:0;" role="button" [disabled]="!req.permissions.includes('READ_DETAILS')" [title]="'change.request.details.btn.hover' | localize"> -->
-  <!--                         <localize style="text-transform:uppercase;" key="change.request.action.details.label"></localize> -->
-  <!--                       </button> -->
-  
-  <!--                           TODO: add back -->
-  <!--                       <a *ngIf="(req.approvalStatus === 'ACCEPTED' || req.approvalStatus === 'REJECTED') && action.actionType != 'net.geoprism.registry.action.geoobject.SetParentAction'" class="pull-right" target="_blank" [routerLink]="['/registry/location-manager', action.geoObjectJson.attributes.uid, action.geoObjectType.code, today, true]"> -->
-  <!--                           <localize key="change.request.open.geoobject.in.editor.link.btn"></localize> -->
-  <!--                       </a> -->
-  <!--                     </div> -->
-                      
                       <div class="col-md-6" >
                         <div *ngIf="req.permissions.includes('READ_MAINTAINER_NOTES')" class="form-group">
                           <label for="maintainerNotesInput-{{req.oid}}"> <localize key="change.request.maintainer.notes.label"></localize> </label>
@@ -242,14 +117,6 @@
                               <label for="additionalNotes-{{req.oid}}"> <localize key="change.request.action.detail.additionalNotes"></localize> </label>
                               <input type="text" id="additionalNotes-{{req.oid}}" class="form-control" style="width:100%;" [(ngModel)]="req.additionalNotes" [disabled]="!req.permissions.includes('WRITE_MAINTAINER_NOTES')">
                         </div>  
-                            
-  <!--                       <div *ngIf="action.approvalStatus !== 'PENDING' && action.decisionMaker !== ''"> -->
-  <!--                             <span style="font-style: italic;"> -->
-  <!--                                 <localize *ngIf="action.approvalStatus !== 'REJECTED'" key="change.request.status.approvedBy"></localize> -->
-  <!--                                 <localize *ngIf="action.approvalStatus === 'REJECTED'" key="change.request.status.rejectedBy"></localize>: -->
-  <!--                             </span> -->
-  <!--                             <label> {{action.decisionMaker}} </label> -->
-  <!--                        </div> -->
                       </div>
                       
                       <div class="col-md-6" >
