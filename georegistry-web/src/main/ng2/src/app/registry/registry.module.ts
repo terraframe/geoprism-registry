@@ -51,8 +51,6 @@ import { GeoObjectEditorMapComponent } from "./component/geoobject-editor-map/ge
 import { SimpleEditControl } from "./component/geoobject-editor-map/simple-edit-control/simple-edit-control.component";
 import { CascadingGeoSelector } from "./component/cascading-geo-selector/cascading-geo-selector";
 import { TreeGeoSelector } from "./component/tree-geo-selector/tree-geo-selector";
-import { ManageParentVersionsModalComponent } from "./component/cascading-geo-selector/manage-parent-versions-modal.component";
-import { ManageParentVersionsComponent } from "./component/cascading-geo-selector/manage-parent-versions.component";
 import { ActionDetailModalComponent } from "./component/crtable/action-detail/action-detail-modal.component";
 import { DataImporterComponent } from "./component/importer/dataimporter.component";
 import { DataExportComponent } from "./component/data-export/data-export.component";
@@ -165,8 +163,6 @@ import "../rxjs-extensions";
         ChangeRequestPageComponent,
         CascadingGeoSelector,
         TreeGeoSelector,
-        ManageParentVersionsModalComponent,
-        ManageParentVersionsComponent,
         ActionDetailModalComponent,
         HierarchyComponent,
         DataImporterComponent,
@@ -233,7 +229,6 @@ import "../rxjs-extensions";
         GeoObjectTypeInputComponent,
         ManageTermOptionsComponent,
         GeoObjectSharedAttributeEditorComponent,
-        ManageParentVersionsModalComponent,
         SubmitChangeRequestComponent,
         GeoObjectEditorComponent,
         PublishModalComponent,

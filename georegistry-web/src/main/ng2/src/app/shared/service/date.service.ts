@@ -4,7 +4,9 @@ import { LocalizationService } from './localization.service';
 
 import Utils from '../../registry/utility/Utils';
 
-import { PRESENT, SummaryKey, ConflictMessage, TimeRangeEntry } from '@registry/model/registry';
+import { PRESENT, ConflictMessage, TimeRangeEntry } from '@registry/model/registry';
+
+import { SummaryKey } from "@registry/model/crtable";
 
 import { ConflictType } from '@registry/model/constants';
 

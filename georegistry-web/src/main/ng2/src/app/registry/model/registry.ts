@@ -4,6 +4,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
 import { GovernanceStatus, ConflictType } from "./constants";
+import { SummaryKey } from "./crtable";
 
 export const PRESENT: string = "5000-12-31";
 
@@ -133,6 +134,13 @@ export class ConflictMessage {
   message: string;
   severity: string;
   type: ConflictType;
+}
+
+export interface TimeRangeEntry {
+  startDate: string;
+  endDate: string;
+  conflictMessage?: any[];  
+  summaryKeyData?: SummaryKey;
 }
 
 export class ValueOverTime implements TimeRangeEntry {
@@ -349,22 +357,6 @@ export class MasterListVersion {
     superTypeCode?: string;
     refreshProgress?: any;
     subtypes?: { label:string, code: string }[];
-}
-
-export enum SummaryKey {
-  NEW = "NEW",
-  UNMODIFIED = "UNMODIFIED",
-  DELETE = "DELETE",
-  UPDATE = "UPDATE",
-  TIME_CHANGE = "TIME_CHANGE",
-  VALUE_CHANGE = "VALUE_CHANGE",
-}
-
-export interface TimeRangeEntry {
-  startDate: string;
-  endDate: string;
-  conflictMessage?: any[];  
-  summaryKeyData?: SummaryKey;
 }
 
 export class HierarchyOverTime {

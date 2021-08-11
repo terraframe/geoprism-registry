@@ -3,7 +3,7 @@ import { Injectable, Output, EventEmitter } from "@angular/core";
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { Map, IControl } from 'mapbox-gl';
 
-import { ValueOverTimeEditPropagator } from '../component/geoobject-shared-attribute-editor/manage-versions.component';
+import { ValueOverTimeEditPropagator } from "../component/geoobject-shared-attribute-editor/ValueOverTimeEditPropagator";
 
 declare var acp: any;
 

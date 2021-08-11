@@ -6,7 +6,6 @@ import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { HierarchyOverTime } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
-import { ManageParentVersionsModalComponent } from './manage-parent-versions-modal.component';
 
 import { ErrorHandler, ErrorModalComponent } from '@shared/component';
 
@@ -122,7 +121,7 @@ export class CascadingGeoSelector {
 			this.onManageVersion.emit(hierarchy);
 		}
 		else {
-
+/*
 			this.bsModalRef = this.modalService.show(ManageParentVersionsModalComponent, {
 				animated: true,
 				backdrop: true,
@@ -132,6 +131,7 @@ export class CascadingGeoSelector {
 			this.bsModalRef.content.onVersionChange.subscribe(hierarchy => {
 				this.calculate();
 			});
+			*/
 		}
 	}
 

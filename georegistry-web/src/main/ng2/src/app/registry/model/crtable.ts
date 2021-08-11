@@ -3,6 +3,15 @@ import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType } from "./registry"
 import { LocalizedValue } from "@shared/model/core";
 import { ActionTypes } from "./constants";
 
+export enum SummaryKey {
+  NEW = "NEW",
+  UNMODIFIED = "UNMODIFIED",
+  DELETE = "DELETE",
+  UPDATE = "UPDATE",
+  TIME_CHANGE = "TIME_CHANGE",
+  VALUE_CHANGE = "VALUE_CHANGE",
+}
+
 export class Document {
     fileName: string;
     oid: string;
