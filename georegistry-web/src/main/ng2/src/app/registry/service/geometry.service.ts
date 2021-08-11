@@ -53,6 +53,7 @@ export class GeometryService {
   
   destroy(): void {
     this.map = null;
+    this.editable = null;
     this.editingControl = null;
   }
   
@@ -92,6 +93,53 @@ export class GeometryService {
     this.editable = null;
     
     this.editingControl.deleteAll();
+  }
+  
+  isEditing(): boolean {
+    return this.editable != null;
+  }
+  
+  setPointCoordinates(lat: any, long: any) {
+    if (this.editable != null)
+    {
+      this.editingControl.set({
+        type: 'FeatureCollection',
+        features: [{
+        id: this.editable.oid,
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'Point', coordinates: [ long, lat ] }
+        }]
+      });
+      
+      this.editingControl.changeMode( 'simple_select', { featureIds: this.editable.oid } );
+      
+      this.saveEdits();
+      
+      /*
+      this.editable.value = {
+        type: 'FeatureCollection',
+        features: [{
+        id: this.editable.oid,
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'Point', coordinates: [ long, lat ] }
+        }]
+      };
+      */
+      
+      
+      /*
+      this.editable.value.coordinates = [ -97.4870830718814, 41.84836050415993 ];
+      
+      this.editingControl.set(this.editable.value);
+      
+      this.removeLayers();
+      this.addLayers();
+  
+      this.editingControl.changeMode( 'simple_select', { featureIds: this.editable.oid } );
+      */
+    }
   }
   
   isValid(): boolean {
@@ -187,8 +235,8 @@ export class GeometryService {
               'paint': {
                 'circle-radius': 13,
                 'circle-color': '#33FFF9',
-            'circle-stroke-width': 4,
-            'circle-stroke-color': 'white'
+                'circle-stroke-width': 4,
+                'circle-stroke-color': 'white'
               }
             },
             {
@@ -201,8 +249,8 @@ export class GeometryService {
               'paint': {
                 'circle-radius': 10,
                 'circle-color': '#800000',
-            'circle-stroke-width': 2,
-            'circle-stroke-color': 'white'
+                'circle-stroke-width': 2,
+                'circle-stroke-color': 'white'
               }
             }
           ]
