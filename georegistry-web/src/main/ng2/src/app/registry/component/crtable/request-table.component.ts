@@ -147,8 +147,12 @@ export class RequestTableComponent {
         };
         this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {          
           
-          if(this.uploadRequest != null) {            
-            this.uploadRequest.documents.push(JSON.parse(response));
+          const doc = JSON.parse(response)
+          
+          const index = this.requests.findIndex(request => request.oid === doc.requestId);
+          
+          if(index !== -1) {                        
+            this.requests[index].documents.push(doc);
           }
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {

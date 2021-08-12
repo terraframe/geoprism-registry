@@ -123,6 +123,7 @@ public class ChangeRequestService
 
         jo.addProperty("fileName", vf.getName());
         jo.addProperty("oid", vf.getOid());
+        jo.addProperty("requestId", requestId);
 
         ja.add(jo);
       }
@@ -159,7 +160,7 @@ public class ChangeRequestService
 
     jo.addProperty("fileName", vf.getName());
     jo.addProperty("oid", vf.getOid());
-    jo.addProperty("request", request.getOid());
+    jo.addProperty("requestId", requestId);
 
     return jo.toString();
   }
