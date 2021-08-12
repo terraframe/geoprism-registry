@@ -396,55 +396,14 @@ export class ValueOverTimeEditPropagator {
     if (this.component.attributeType.type === "local") {
 
         //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
-        this.view.value = this.component.lService.create();
+        this.value = this.component.lService.create();
 
     } else if (this.component.attributeType.type === "geometry") {
 
-      /*
-        if (votArr.length > 0) {
-
-            if (this.editingGeometry !== -1 && this.editingGeometry != null) {
-
-                vot.newValue = votArr[this.editingGeometry].oldValue;
-
-            } else {
-
-                vot.newValue = votArr[0].oldValue;
-
-            }
-
-        } else {
-
-            vot.newValue = { type: this.geoObjectType.geometryType, coordinates: [] };
-
-            if (this.geoObjectType.geometryType === "MULTIPOLYGON") {
-
-                vot.newValue.type = "MultiPolygon";
-
-            } else if (this.geoObjectType.geometryType === "POLYGON") {
-
-                vot.newValue.type = "Polygon";
-
-            } else if (this.geoObjectType.geometryType === "POINT") {
-
-                vot.newValue.type = "Point";
-
-            } else if (this.geoObjectType.geometryType === "MULTIPOINT") {
-
-                vot.newValue.type = "MultiPoint";
-
-            } else if (this.geoObjectType.geometryType === "LINE") {
-
-                vot.newValue.type = "Line";
-
-            } else if (this.geoObjectType.geometryType === "MULTILINE") {
-
-                vot.newValue.type = "MultiLine";
-
-            }
-
-        }
-        */
+      if (this.component.viewModels.length > 0)
+      {
+        this.value = JSON.parse(JSON.stringify(this.component.viewModels[this.component.viewModels.length -1].value));
+      }
 
     } else if (this.component.attributeType.type === "term") {
 
