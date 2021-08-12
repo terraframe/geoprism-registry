@@ -43,6 +43,8 @@ import com.runwaysdk.system.VaultFile;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
+import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ServiceFactory;
@@ -194,9 +196,22 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
       for (AbstractAction action : actions)
       {
-        if (action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        if (action instanceof UpdateAttributeAction && action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
         {
           throw new ActionExecuteException("Unable to execute an action with the pending status");
+        }
+        else if (action instanceof CreateGeoObjectAction && action.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
+        {
+          action.appLock();
+          action.clearApprovalStatus();
+          action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
+          action.apply();
+          
+          action.execute();
+
+          accepted.add(action.getMessage()); // TODO ?
+
+          status = AllGovernanceStatus.ACCEPTED;
         }
         else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
         {
