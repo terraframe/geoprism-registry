@@ -95,8 +95,7 @@ public class ActionJsonAdapters
         jo.addProperty(AbstractAction.DECISIONMAKER, ( (Users) decisionMaker ).getUsername());
       }
       
-      JsonArray jaDocuments = JsonParser.parseString(this.service.listDocumentsAction(Session.getCurrentSession().getOid(), action.getOid())).getAsJsonArray();
-      jo.add("documents", jaDocuments);
+      jo.add("documents", new JsonArray());
 
       jo.add("permissions", this.serializePermissions(action, context));
       

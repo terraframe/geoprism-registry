@@ -117,7 +117,7 @@ export class ChangeRequestService {
 
     }
 
-    deleteFile(actionId: string, fileId: string): Promise<ImportConfiguration> {
+    deleteFile(crOid: string, fileId: string): Promise<ImportConfiguration> {
 
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
@@ -126,7 +126,7 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ImportConfiguration>(acp + "/changerequest/delete-file-action", JSON.stringify({ actionOid: actionId, vfOid: fileId }), { headers: headers })
+            .post<ImportConfiguration>(acp + "/changerequest/delete-file-cr", JSON.stringify({ crOid: crOid, vfOid: fileId }), { headers: headers })
             .pipe(finalize(() => {
 
                 this.eventService.complete();

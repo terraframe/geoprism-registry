@@ -82,7 +82,7 @@ export class RequestTableComponent {
 
     @Input() toggleId: string;
 
-    targetActionId: string
+    uploadRequest: ChangeRequest;
 
     filterCriteria: string = "ALL";
 
@@ -119,7 +119,7 @@ export class RequestTableComponent {
         this.toggleId = this.oid;
       }
 
-        let getUrl = acp + "/changerequest/upload-file-action";
+        let getUrl = acp + "/changerequest/upload-file-cr";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -131,7 +131,7 @@ export class RequestTableComponent {
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
 
-            form.append("actionOid", this.targetActionId);
+            form.append("crOid", this.uploadRequest.oid);
 
         };
         this.uploader.onBeforeUploadItem = (fileItem: any) => {
@@ -145,22 +145,11 @@ export class RequestTableComponent {
             this.eventService.complete();
 
         };
-        this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {
-
-            for (let i = 0; i < this.actions.length; i++) {
-
-                let action = this.actions[i];
-
-                if (action.oid === this.targetActionId) {
-
-                    action.documents.push(JSON.parse(response));
-
-                    break;
-
-                }
-
-            }
-
+        this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {          
+          
+          if(this.uploadRequest != null) {            
+            this.uploadRequest.documents.push(JSON.parse(response));
+          }
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
 
@@ -213,9 +202,9 @@ export class RequestTableComponent {
 
     }
 
-    onUpload(action: CreateGeoObjectAction | UpdateAttributeAction): void {
+    onUpload(request: ChangeRequest): void {
 
-        this.targetActionId = action.oid;
+        this.uploadRequest = request;
 
         if (this.uploader.queue != null && this.uploader.queue.length > 0) {
 
@@ -232,45 +221,21 @@ export class RequestTableComponent {
 
     }
 
-    onDownloadFile(actionOid: string, fileOid: string): void {
+    onDownloadFile(request: ChangeRequest, fileOid: string): void {
 
-        window.location.href = acp + "/changerequest/download-file-action?actionOid=" + actionOid + "&" + "vfOid=" + fileOid;
+        window.location.href = acp + "/changerequest/download-file-cr?crOid=" + request.oid + "&" + "vfOid=" + fileOid;
 
     }
 
-    onDeleteFile(actionOid: string, fileOid: string): void {
+    onDeleteFile(request: ChangeRequest, fileOid: string): void {
 
-        this.service.deleteFile(actionOid, fileOid).then(() => {
-
-            let docPos = -1;
-            for (let i = 0; i < this.actions.length; i++) {
-
-                let action = this.actions[i];
-                if (action.oid === actionOid) {
-
-                    for (let index = 0; index < action.documents.length; index++) {
-
-                        let doc = action.documents[index];
-                        if (doc.oid === fileOid) {
-
-                            docPos = index;
-                            break;
-
-                        }
-
-                    }
-
-                    if (docPos > -1) {
-
-                        action.documents.splice(docPos, 1);
-
-                    }
-
-                    break;
-
-                }
-
-            }
+        this.service.deleteFile(request.oid, fileOid).then(() => {
+          
+          const index = request.documents.findIndex(doc => doc.oid === fileOid);
+          
+          if(index !== -1) {
+            request.documents.splice(index, 1);
+          }
 
         }).catch((response: HttpErrorResponse) => {
 

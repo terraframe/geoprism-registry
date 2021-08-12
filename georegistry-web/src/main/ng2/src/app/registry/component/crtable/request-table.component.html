@@ -125,8 +125,8 @@
                           <div *ngIf="req.documents.length > 0" style="border:1px solid #ccc;border-radius: 4px;">
                             <ul style="padding:10px;margin:0;">
                                 <li *ngFor="let doc of req.documents" class="list-group-item" style="padding:0;font-size:inherit;">
-                                  <a (click)="onDownloadFile(req.oid, doc.oid)" >{{doc.fileName}}</a>
-                                  <i (click)="onDeleteFile(req.oid, doc.oid)" class="fa fa-times ico-remove" style="margin-left:10px;" aria-hidden="true"></i>
+                                  <a (click)="onDownloadFile(req, doc.oid)" >{{doc.fileName}}</a>
+                                  <i (click)="onDeleteFile(req, doc.oid)" class="fa fa-times ico-remove" style="margin-left:10px;" aria-hidden="true"></i>
                                 </li>
                             </ul>
                           </div>

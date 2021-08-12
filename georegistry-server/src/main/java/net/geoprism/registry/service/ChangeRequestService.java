@@ -78,27 +78,6 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public void deleteDocumentAction(String sessionId, String actionOid, String vfOid)
-  {
-    this.deleteDocumentActionInTrans(actionOid, vfOid);
-  }
-
-  @Transaction
-  void deleteDocumentActionInTrans(String actionOid, String vfOid)
-  {
-    AbstractAction action = AbstractAction.get(actionOid);
-
-    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
-    {
-      throw new CGRPermissionException();
-    }
-
-    VaultFile vf = VaultFile.get(vfOid);
-
-    vf.delete();
-  }
-
-  @Request(RequestType.SESSION)
   public ApplicationResource downloadDocumentCR(String sessionId, String crOid, String vfOid)
   {
     return this.downloadDocumentCR(crOid, vfOid);
@@ -109,26 +88,6 @@ public class ChangeRequestService
     ChangeRequest request = ChangeRequest.get(crOid);
 
     if (!this.permService.getPermissions(request).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
-    {
-      throw new CGRPermissionException();
-    }
-
-    VaultFile vf = VaultFile.get(vfOid);
-
-    return vf;
-  }
-
-  @Request(RequestType.SESSION)
-  public ApplicationResource downloadDocumentAction(String sessionId, String actionOid, String vfOid)
-  {
-    return this.downloadDocumentAction(actionOid, vfOid);
-  }
-
-  ApplicationResource downloadDocumentAction(String actionOid, String vfOid)
-  {
-    AbstractAction action = AbstractAction.get(actionOid);
-
-    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
     {
       throw new CGRPermissionException();
     }
@@ -177,44 +136,6 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public String listDocumentsAction(String sessionId, String actionOid)
-  {
-    return this.listDocumentsAction(actionOid);
-  }
-
-  String listDocumentsAction(String actionOid)
-  {
-    JsonArray ja = new JsonArray();
-
-    AbstractAction action = AbstractAction.get(actionOid);
-
-    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.READ_DOCUMENTS))
-    {
-      throw new CGRPermissionException();
-    }
-
-    OIterator<? extends VaultFile> it = action.getAllDocument();
-    try
-    {
-      for (VaultFile vf : it)
-      {
-        JsonObject jo = new JsonObject();
-
-        jo.addProperty("fileName", vf.getName());
-        jo.addProperty("oid", vf.getOid());
-
-        ja.add(jo);
-      }
-    }
-    finally
-    {
-      it.close();
-    }
-
-    return ja.toString();
-  }
-
-  @Request(RequestType.SESSION)
   public String uploadFileCR(String sessionId, String requestId, String fileName, InputStream fileStream)
   {
     return uploadFileInTransactionCR(requestId, fileName, fileStream);
@@ -238,34 +159,7 @@ public class ChangeRequestService
 
     jo.addProperty("fileName", vf.getName());
     jo.addProperty("oid", vf.getOid());
-
-    return jo.toString();
-  }
-
-  @Request(RequestType.SESSION)
-  public String uploadFileAction(String sessionId, String actionOid, String fileName, InputStream fileStream)
-  {
-    return uploadFileActionInTransaction(actionOid, fileName, fileStream);
-  }
-
-  @Transaction
-  String uploadFileActionInTransaction(String actionOid, String fileName, InputStream fileStream)
-  {
-    AbstractAction action = AbstractAction.get(actionOid);
-
-    if (!this.permService.getPermissions(action.getAllRequest().next()).contains(ChangeRequestPermissionAction.WRITE_DOCUMENTS))
-    {
-      throw new CGRPermissionException();
-    }
-
-    VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
-
-    action.addDocument(vf).apply();
-
-    JsonObject jo = new JsonObject();
-
-    jo.addProperty("fileName", vf.getName());
-    jo.addProperty("oid", vf.getOid());
+    jo.addProperty("request", request.getOid());
 
     return jo.toString();
   }
