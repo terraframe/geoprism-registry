@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation, ViewChild, ElementRef, Input } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import {
@@ -89,6 +89,8 @@ export class RequestTableComponent {
     hasBaseDropZoneOver:boolean = false;
 
     waitingOnScroll: boolean = false;
+    
+    oid:string = null;
 
     /*
      * File uploader
@@ -99,7 +101,7 @@ export class RequestTableComponent {
     fileRef: ElementRef;
 
     constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-                private eventService: EventService, private router: Router, private dateService: DateService) {
+                private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
 
         this.columns = [
             { name: localizationService.decode("change.request.user"), prop: "createdBy", sortable: false },
@@ -107,11 +109,15 @@ export class RequestTableComponent {
             { name: localizationService.decode("change.request.status"), prop: "approvalStatus", sortable: false }
         ];
 
-        this.refresh();
-
     }
 
     ngOnInit(): void {
+      
+      this.oid = this.route.snapshot.paramMap.get('oid');
+      
+      if(this.oid != null) {
+        this.toggleId = this.oid;
+      }
 
         let getUrl = acp + "/changerequest/upload-file-action";
 
@@ -170,6 +176,8 @@ export class RequestTableComponent {
             this.waitingOnScroll = true;
 
         }
+
+        this.refresh();
 
     }
 
@@ -280,7 +288,7 @@ export class RequestTableComponent {
 
     refresh(pageNumber: number = 1): void {
 
-        this.service.getAllRequests(this.page.pageSize, pageNumber, "ALL").then(requests => {
+        this.service.getAllRequests(this.page.pageSize, pageNumber, "ALL", this.oid).then(requests => {
 
             this.page = requests;
             this.requests = requests.resultSet;
@@ -322,7 +330,7 @@ export class RequestTableComponent {
 
         // this.request = selected.selected;
 
-        this.service.getAllRequests(10, 1, "ALL").then(requests => {
+        this.service.getAllRequests(this.page.pageSize, 1, "ALL", this.oid).then(requests => {
 
             this.requests = requests.resultSet;
 
@@ -522,7 +530,7 @@ export class RequestTableComponent {
 
     filter(criteria: string): void {
 
-        this.service.getAllRequests(10, 1, criteria).then(requests => {
+        this.service.getAllRequests(this.page.pageSize, 1, criteria, this.oid).then(requests => {
             this.requests = requests.resultSet;
             
             if (this.waitingOnScroll) {
