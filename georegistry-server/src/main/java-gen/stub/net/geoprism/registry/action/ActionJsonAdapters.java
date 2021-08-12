@@ -158,7 +158,10 @@ public class ActionJsonAdapters
     {
       JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
       
-      jo.add(CreateGeoObjectAction.PARENTJSON, JsonParser.parseString(action.getParentJson()).getAsJsonArray());
+      if (action.getParentJson() != null && action.getParentJson().length() > 0)
+      {
+        jo.add(CreateGeoObjectAction.PARENTJSON, JsonParser.parseString(action.getParentJson()).getAsJsonArray());
+      }
       
       return jo;
     }
