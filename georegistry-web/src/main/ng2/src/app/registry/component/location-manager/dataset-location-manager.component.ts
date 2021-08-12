@@ -1,9 +1,8 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Map, NavigationControl, AttributionControl, LngLatBounds, LngLat, IControl } from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { Map, NavigationControl, AttributionControl, LngLatBounds } from 'mapbox-gl';
 
 import { ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
 import { MapService, RegistryService, GeometryService } from '@registry/service';
