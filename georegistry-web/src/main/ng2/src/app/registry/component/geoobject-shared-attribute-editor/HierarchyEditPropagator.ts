@@ -4,7 +4,7 @@ import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
 import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
 import { HierarchyOverTimeEntry, GeoObject, HierarchyOverTimeEntryParent } from "@registry/model/registry";
 import { ManageVersionsComponent } from "./manage-versions.component";
-import { VersionDiffView } from "./VersionDiffView";
+import { VersionDiffView } from "./manage-versions-model";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { v4 as uuid } from 'uuid';
 

@@ -3,6 +3,7 @@ import { Injectable, Output, EventEmitter } from "@angular/core";
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { Map, IControl } from 'mapbox-gl';
 
+import { Layer } from "../component/geoobject-shared-attribute-editor/manage-versions-model";
 import { ValueOverTimeEditPropagator } from "../component/geoobject-shared-attribute-editor/ValueOverTimeEditPropagator";
 
 declare var acp: any;
@@ -14,7 +15,7 @@ declare var acp: any;
 export class GeometryService {
   map: Map;
   
-  layers: ValueOverTimeEditPropagator[] = [];
+  layers: Layer[] = [];
   
   geometryType: String;
   
@@ -69,7 +70,7 @@ export class GeometryService {
   {
     if (this.editable != null && this.editingControl != null)
     {
-      this.saveEdits();
+      this.saveEdits(false);
     
       this.editingControl.deleteAll();
     }
@@ -86,9 +87,9 @@ export class GeometryService {
     this.addEditingLayers();
   }
   
-  stopEditing()
+  stopEditing(rerender: boolean = true)
   {
-    this.saveEdits();
+    this.saveEdits(rerender);
   
     this.editable = null;
     
@@ -160,15 +161,18 @@ export class GeometryService {
     return true;
   }
   
-  saveEdits(): void {
+  saveEdits(rerender: boolean = true): void {
     if (this.editable != null)
     {
       let geoJson = this.getDrawGeometry();
       
       this.editable.value = geoJson;
       
-      this.removeLayers();
-      this.addLayers();
+      if (rerender)
+      {
+        this.removeLayers();
+        this.addLayers();
+      }
     }
   }
   
@@ -181,21 +185,16 @@ export class GeometryService {
     }
   }
 
-  getLayers(): ValueOverTimeEditPropagator[] {
+  getLayers(): Layer[] {
     return this.layers;
   }
   
-  setLayers(layers: ValueOverTimeEditPropagator[]): void {
+  setLayers(layers: Layer[]): void {
     this.removeLayers();
-    if (this.editingControl != null)
-    {
-      this.stopEditing();
-    }
-  
-    this.layers = layers;
+    
+    this.layers = layers.sort( (a,b) => {return a.zindex - b.zindex;} );
     
     this.addLayers();
-    this.addEditingLayers();
   }
   
   enableEditing(): void {
@@ -332,21 +331,18 @@ export class GeometryService {
   }
 
   addLayers(): void {
-    // red : "#800000"
-    // brown : "#EFA22E"
-    
     if (this.layers != null && this.layers.length > 0) {
       let len = this.layers.length;
       for (let i = 0; i < len; ++i)
       {
         let layer = this.layers[i];
-        this.renderGeometryAsLayer(layer.value, layer.oid, "#EFA22E");
+        this.renderGeometryAsLayer(layer.editPropagator == null ? layer.geojson : layer.editPropagator.value, layer.oid, layer.color);
       }
     }
   }
 
-  renderGeometryAsLayer(geometry: any, prefix: string, color: string) {
-    let sourceName: string = prefix + "-geoobject";
+  renderGeometryAsLayer(geometry: any, sourceName: string, color: string) {
+    let finalSourceName: string = sourceName + "-geoobject";
     
     if (!this.map) {
       return;
@@ -356,7 +352,7 @@ export class GeometryService {
       return;
     }
     
-    this.map.addSource(sourceName, {
+    this.map.addSource(finalSourceName, {
       type: 'geojson',
       data: {
         "type": "FeatureCollection",
@@ -367,9 +363,9 @@ export class GeometryService {
     if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
       // Polygon Layer
       this.map.addLayer({
-        "id": sourceName + "-polygon",
+        "id": finalSourceName + "-polygon",
         "type": "fill",
-        "source": sourceName,
+        "source": finalSourceName,
         "paint": {
           "fill-color": color,
           "fill-outline-color": "black",
@@ -380,9 +376,9 @@ export class GeometryService {
     else if (this.geometryType === "POINT" || this.geometryType === "MULTIPOINT") {
       // Point layer
       this.map.addLayer({
-        "id": sourceName + "-point",
+        "id": finalSourceName + "-point",
         "type": "circle",
-        "source": sourceName,
+        "source": finalSourceName,
         "paint": {
           "circle-radius": 3,
           "circle-color": color,
@@ -393,8 +389,8 @@ export class GeometryService {
     }
     else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
       this.map.addLayer({
-        "id": sourceName + "-line",
-        "source": sourceName,
+        "id": finalSourceName + "-line",
+        "source": finalSourceName,
         "type": "line",
         "layout": {
           "line-join": "round",
@@ -407,7 +403,7 @@ export class GeometryService {
       });
     }
 
-    (<any>this.map.getSource(sourceName)).setData(geometry);
+    (<any>this.map.getSource(finalSourceName)).setData(geometry);
   }
   
   getDrawGeometry(): any {

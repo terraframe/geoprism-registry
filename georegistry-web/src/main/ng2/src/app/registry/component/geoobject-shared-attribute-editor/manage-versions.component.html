@@ -8,7 +8,7 @@
   </div>
 
   <!-- <div class="col-md-12 order-md-1"> -->
-  <form #versionsform="ngForm" autocomplete="off">
+  <form #versionsform="ngForm"class="modal-form" autocomplete="off">
 
     <fieldset>
       <div class="row">
@@ -122,6 +122,7 @@
 			                                      </span>
 			                                  </div>
 			                               </div>
+
 			                          </ng-container>
 	                               </div> 
                                  
@@ -135,15 +136,18 @@
 <!--                                     <td style="vertical-align: middle;padding-left:0;"> -->
                                       <tr>
                                         <td colspan="2">
+                                        
+                                          <button *ngIf="viewModel.oldValue" class="btn btn-primary" (click)="toggleOldGeometryView(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
+                                           <localize *ngIf="!viewModel.isRenderingOldLayer" key="changeovertime.manageVersions.geometry.viewOld"></localize>
+                                           <localize *ngIf="viewModel.isRenderingOldLayer" key="changeovertime.manageVersions.geometry.hideOld"></localize>
+                                          </button>
                                           <button class="btn btn-primary" style="margin-left:0;" (click)="toggleGeometryView(viewModel)" role="button"
-                                            [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )"
-                                          >
+                                            [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
                                             <localize *ngIf="!viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.view"></localize>
                                             <localize *ngIf="viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.hide"></localize>
                                           </button>
                                           <button *ngIf="viewModel.isRenderingLayer" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button"
-                                            [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )"
-                                          >
+                                            [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
                                             <localize *ngIf="!viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.edit"></localize>
                                             <localize *ngIf="viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.save"></localize>
                                           </button>

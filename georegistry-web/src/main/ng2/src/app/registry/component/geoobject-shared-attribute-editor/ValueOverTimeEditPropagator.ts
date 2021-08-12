@@ -1,7 +1,7 @@
 
 import { ValueOverTime } from "@registry/model/registry";
 import { ManageVersionsComponent } from "./manage-versions.component";
-import { VersionDiffView } from "./VersionDiffView";
+import { VersionDiffView } from "./manage-versions-model";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
 import { v4 as uuid } from 'uuid';
 import turf_booleanequal from '@turf/boolean-equal';
@@ -303,6 +303,13 @@ export class ValueOverTimeEditPropagator {
     else if (this.component.attributeType.type === 'geometry')
     {
       return turf_booleanequal(val1, val2);
+    }
+    else if (this.component.attributeType.type === 'date')
+    {
+      let casted1 = (typeof val1 === 'string') ? parseInt(val1) : val1;
+      let casted2 = (typeof val2 === 'string') ? parseInt(val2) : val2;
+      
+      return casted1 === casted2;
     }
     
     return val1 === val2;

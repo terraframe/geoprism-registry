@@ -86,6 +86,21 @@
           <attribute name="defaultLocale" value="Longitude must be a number between -180 and 180." />
         </attributeStruct>
       </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.viewOld">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.viewOld" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Show Old Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.hideOld">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.hideOld" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide Old Geometries" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

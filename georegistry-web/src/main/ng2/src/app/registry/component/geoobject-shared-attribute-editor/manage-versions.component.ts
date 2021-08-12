@@ -35,7 +35,7 @@ import { LocalizationService } from "@shared/service";
 
 import Utils from "../../utility/Utils";
 
-import { VersionDiffView } from "./VersionDiffView";
+import { VersionDiffView, Layer, LayerColor } from "./manage-versions-model";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
 import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
 
@@ -154,9 +154,9 @@ export class ManageVersionsComponent implements OnInit {
     ngAfterViewInit() {
     }
     
-    getRenderedLayers(): ValueOverTimeEditPropagator[]
+    getRenderedLayers(): Layer[]
     {
-      let renderedLayers: ValueOverTimeEditPropagator[] = [];
+      let renderedLayers: Layer[] = [];
       
       let len = this.viewModels.length;
       for (let i = 0; i < len; ++i)
@@ -165,7 +165,23 @@ export class ManageVersionsComponent implements OnInit {
         
         if (view.isRenderingLayer)
         {
-          renderedLayers.push(view.editPropagator);
+          renderedLayers.push({
+            oid: "NEW_" + view.oid,
+            zindex: 1,
+            color: LayerColor.NEW,
+            geojson: view.value,
+            editPropagator: view.editPropagator
+          });
+        }
+        if (view.isRenderingOldLayer)
+        {
+          renderedLayers.push({
+            oid: "OLD_" + view.oid,
+            zindex: 0,
+            color: LayerColor.OLD,
+            geojson: view.oldValue,
+            editPropagator: null
+          });
         }
       }
       
@@ -740,9 +756,7 @@ export class ManageVersionsComponent implements OnInit {
     {
 
         this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.ACCEPTED).then(results => {
-
-            console.log("accepted");
-
+          this.editAction.approvalStatus = GovernanceStatus.ACCEPTED;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -752,9 +766,7 @@ export class ManageVersionsComponent implements OnInit {
     onReject(): void {
 
         this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.REJECTED).then(results => {
-
-            console.log("rejected");
-
+          this.editAction.approvalStatus = GovernanceStatus.REJECTED;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -764,9 +776,7 @@ export class ManageVersionsComponent implements OnInit {
     onPending(): void {
 
         this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.PENDING).then(results => {
-
-            console.log("pending");
-
+          this.editAction.approvalStatus = GovernanceStatus.PENDING;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -824,6 +834,13 @@ export class ManageVersionsComponent implements OnInit {
       }
       
       view.isRenderingLayer = !view.isRenderingLayer;
+      
+      this.geomService.setLayers(this.getRenderedLayers());
+    }
+    
+    toggleOldGeometryView(view: VersionDiffView) {
+    
+      view.isRenderingOldLayer = !view.isRenderingOldLayer;
       
       this.geomService.setLayers(this.getRenderedLayers());
     }

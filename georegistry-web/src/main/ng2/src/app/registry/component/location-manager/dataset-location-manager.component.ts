@@ -1,16 +1,15 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Map, NavigationControl, AttributionControl, LngLatBounds, LngLat, IControl } from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { Map, NavigationControl, AttributionControl, LngLatBounds } from 'mapbox-gl';
 
 import { ContextLayer, GeoObjectType, ValueOverTime } from '@registry/model/registry';
 import { MapService, RegistryService, GeometryService } from '@registry/service';
 import { DateService } from '@shared/service/date.service';
 import { AuthService } from '@shared/service';
 import { ErrorHandler } from '@shared/component';
-import { ConfirmModalComponent } from '@shared/component';
+import { GenericModalComponent } from '@shared/component';
 
 import { LocalizationService } from '@shared/service';
 
@@ -25,18 +24,18 @@ const SELECTED_COLOR = "#800000";
   styleUrls: ['./dataset-location-manager.css']
 })
 export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, OnDestroy {
-  
+
   coordinate: {
-        longitude: number,
-        latitude: number
-    } = { longitude: null, latitude: null };
-  
+    longitude: number,
+    latitude: number
+  } = { longitude: null, latitude: null };
+
   MODE = {
     VERSIONS: 'VERSIONS',
     ATTRIBUTES: 'ATTRIBUTES',
     HIERARCHY: 'HIERARCHY'
   }
-  
+
   toolsIconHover: boolean = false;
   datasetId: string;
   typeCode: string;
@@ -49,16 +48,16 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
   bsModalRef: BsModalRef;
   backReference: string;
 
-    /* 
-     * mapbox-gl map
-     */
+  /* 
+   * mapbox-gl map
+   */
   map: Map;
 
   vectorLayers: string[] = [];
 
-    /* 
-     * List of base layers
-     */
+  /* 
+   * List of base layers
+   */
   baseLayers: any[] = [
     {
       name: 'Satellite',
@@ -68,13 +67,13 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
       url: 'mapbox://mapbox.satellite',
       selected: true
     },
-//     {
-//       name: 'Streets',
-//       label: 'Streets',
-//       id: 'streets-v11',
-//       sprite: 'mapbox://sprites/mapbox/basic-v11',
-//       url: 'mapbox://styles/mapbox/streets-v11'
-//     }
+    //     {
+    //       name: 'Streets',
+    //       label: 'Streets',
+    //       id: 'streets-v11',
+    //       sprite: 'mapbox://sprites/mapbox/basic-v11',
+    //       url: 'mapbox://styles/mapbox/streets-v11'
+    //     }
   ];
 
 
@@ -84,9 +83,9 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
   vot: ValueOverTime;
 
-  constructor(private mapService: MapService, public geomService: GeometryService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute, 
+  constructor(private mapService: MapService, public geomService: GeometryService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute,
     authService: AuthService, private lService: LocalizationService, private dateService: DateService, private router: Router) {
-      this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
+    this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
   }
 
   ngOnInit(): void {
@@ -102,7 +101,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
       this.code = this.route.snapshot.params["code"];
     }
 
-    this.forDate = this.dateService.getDateFromDateString(this.date) 
+    this.forDate = this.dateService.getDateFromDateString(this.date)
 
     this.service.getGeoObjectTypes([this.typeCode], null).then(types => {
       this.type = types[0];
@@ -112,57 +111,78 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     });
 
   }
-  
+
   onPanelCancel(): void {
-    if (this.backReference != null && this.backReference.length >= 2)
-    {
-      let ref = this.backReference.substring(0,2);
-      
-      if (ref === "ML")
-      {
-        let published = this.backReference.substring(3,3) === "T";
+    if (this.backReference != null && this.backReference.length >= 2) {
+      let ref = this.backReference.substring(0, 2);
+
+      if (ref === "ML") {
+        let published = this.backReference.substring(3, 3) === "T";
         let oid = this.backReference.substring(3);
-      
+
         this.router.navigate(['/registry/master-list', oid, published]);
       }
     }
 
     this.showOriginalGeometry();
   }
-  
-  onPanelSubmit(applyInfo: {isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}): void {
+
+  onPanelSubmit(applyInfo: { isChangeRequest: boolean, geoObject?: any, changeRequestId?: string }): void {
     // Save everything first
     this.geomService.saveEdits();
-  
-    this.bsModalRef = this.modalService.show(ConfirmModalComponent, { backdrop: true, class:"error-white-space-pre" });
-      
-    if (applyInfo.isChangeRequest)
-    {
-      this.bsModalRef.content.message = this.lService.decode("geoobject-editor.changerequest.submitted");
-      this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.cancel.returnList");
-      this.bsModalRef.content.cancelText = this.lService.decode("geoobject-editor.changerequest.view");
+
+    this.bsModalRef = this.modalService.show(GenericModalComponent, { backdrop: true, class: "error-white-space-pre" });
+
+    if (applyInfo.isChangeRequest) {
+      const message = this.lService.decode("geoobject-editor.changerequest.submitted");
+      const buttons = [];
+
+      buttons.push({
+        label: this.lService.decode("geoobject-editor.cancel.returnList"),
+        onClick: () => { this.onPanelCancel() },
+        shouldClose: true,
+        class: 'btn-primary'
+      });
+
+      buttons.push({
+        label: this.lService.decode("geoobject-editor.changerequest.view"),
+        onClick: () => {
+          this.router.navigate(['/registry/change-requests', applyInfo.changeRequestId]);
+        },
+        shouldClose: true,
+        class: 'btn-default'
+      });
+
+      buttons.push({
+        label: this.lService.decode("geoobject-editor.continueEditing"),
+        onClick: () => { },
+        shouldClose: true,
+        class: 'btn-secondary'
+      });
+
+      this.bsModalRef.content.init(message, buttons);
     }
-    else
-    {
-      this.bsModalRef.content.message = this.lService.decode("geoobject-editor.edit.submitted");
-      this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.cancel.returnList");
-      this.bsModalRef.content.cancelText = this.lService.decode("geoobject-editor.continueEditing");
+    else {
+      const message = this.lService.decode("geoobject-editor.edit.submitted");
+      const buttons = [];
+
+      buttons.push({
+        label: this.lService.decode("geoobject-editor.cancel.returnList"),
+        onClick: () => { this.onPanelCancel() },
+        shouldClose: true,
+        class: 'btn-primary'
+      });
+
+      buttons.push({
+        label: this.lService.decode("geoobject-editor.continueEditing"),
+        onClick: () => { },
+        shouldClose: true,
+        class: 'btn-default'
+      });
+
+
+      this.bsModalRef.content.init(message, buttons);
     }
-    
-    this.bsModalRef.content.onConfirm.subscribe( () => {
-      this.onPanelCancel();
-    } );
-    
-    this.bsModalRef.content.onCancel.subscribe( () => {
-      if (applyInfo.isChangeRequest)
-      {
-        this.router.navigate(['/registry/change-requests', applyInfo.changeRequestId]);
-      }
-      else
-      {
-        // do nothing
-      }
-    } );
   }
 
   ngOnDestroy(): void {
@@ -192,11 +212,11 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
         "sprite": layer.sprite,
         "glyphs": window.location.protocol + '//' + window.location.host + acp + '/glyphs/{fontstack}/{range}.pbf',
         "layers": [
-//          {
-//            "id": layer.id,
-//            "type": 'raster',
-//            "source": 'mapbox-satellite',
-//          }
+          //          {
+          //            "id": layer.id,
+          //            "type": 'raster',
+          //            "source": 'mapbox-satellite',
+          //          }
         ]
       },
       zoom: 2,
@@ -214,31 +234,30 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
   }
 
   initMap(): void {
-    if (this.code !== '__NEW__')
-    {
+    if (this.code !== '__NEW__') {
       this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
-      if(bounds){
+        if (bounds) {
           let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
-    
+
           let padding = 50;
           let maxZoom = 20;
-    
+
           // Zoom level was requested to be reduced when displaying point types as per #420
           if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
             padding = 100;
             maxZoom = 12;
           }
-    
+
           this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
-      }
-        });
+        }
+      });
     }
 
 
     this.map.on('style.load', () => {
       this.addLayers();
     });
-    
+
     this.addLayers();
 
     // Add zoom and rotation controls to the map.
@@ -255,23 +274,23 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
     this.showOriginalGeometry();
   }
-  
+
   showOriginalGeometry() {
     this.addVectorLayer(this.datasetId);
   }
-  
+
   hideOriginalGeometry() {
     this.removeVectorLayer(this.datasetId);
   }
 
   addLayers(): void {
-      
+
     this.map.addLayer({
       "type": "raster",
       "id": 'satellite-map',
       "source": "mapbox-satellite"
     });
-      
+
     this.vectorLayers.forEach(vLayer => {
       this.addVectorLayer(vLayer);
     });
@@ -279,10 +298,10 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
   handleBasemapStyle(layer: any): void {
 
-    if(layer.id === "streets-v11"){
+    if (layer.id === "streets-v11") {
       this.map.setStyle(layer.url);
     }
-    else if(layer.id === "satellite-v9"){
+    else if (layer.id === "satellite-v9") {
       this.map.setStyle({
         "version": 8,
         "name": layer.name,
@@ -481,11 +500,11 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
   onNewGeoObject(): void {
     this.code = '__NEW__';
   }
-  
+
   formatDate(date: Date): string {
     return this.dateService.formatDateForDisplay(date);
   }
-  
+
   public error(err: HttpErrorResponse): void {
     this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
   }
