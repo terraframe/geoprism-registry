@@ -233,7 +233,7 @@
               </li>
               
             </ul>
-              <div *ngIf="!readonly && changeRequest && changeRequest.approvalStatus === 'PENDING' && editAction && hasAttributeChanges()" style="margin-left: 15px;">
+              <div *ngIf="changeRequest && changeRequest.approvalStatus === 'PENDING' && editAction && hasAttributeChanges()" style="margin-left: 15px;">
                 <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
                   <localize key="change.request.accept.btn"></localize>
                 </button>

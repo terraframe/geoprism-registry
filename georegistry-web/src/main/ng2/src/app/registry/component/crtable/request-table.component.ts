@@ -90,6 +90,7 @@ export class RequestTableComponent {
 
     waitingOnScroll: boolean = false;
     
+    // Restrict page to the specified oid
     oid:string = null;
 
     /*
@@ -551,17 +552,6 @@ export class RequestTableComponent {
         //   }
 
         return action;
-
-    }
-
-    showActionDetail(action: any, cr: any) {
-
-        this.bsModalRef = this.modalService.show(ActionDetailModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.curAction(action, !cr.permissions.includes("WRITE_DETAILS"));
 
     }
 
