@@ -395,7 +395,6 @@ export class ValueOverTimeEditPropagator {
   
     if (this.component.attributeType.type === "local") {
 
-        //   vot.value = {"localizedValue":null,"localeValues":[{"locale":"defaultLocale","value":null},{"locale":"km_KH","value":null}]};
         this.value = this.component.lService.create();
 
     } else if (this.component.attributeType.type === "geometry") {
