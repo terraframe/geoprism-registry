@@ -11,6 +11,7 @@ import { SuccessModalComponent } from './modals/success-modal.component';
 import { PasswordStrengthBarComponent } from './password-strength-bar/password-strength-bar.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
+import { GenericModalComponent } from './modals/generic-modal.component';
 
 export const components: any[] = [
 	ErrorHandler,
@@ -20,6 +21,7 @@ export const components: any[] = [
 	ErrorMessageComponent,
 	MessageComponent,
 	ConfirmModalComponent,
+  GenericModalComponent,
 	ErrorModalComponent,
 	ModalStepIndicatorComponent,
 	SuccessModalComponent,
@@ -35,6 +37,7 @@ export * from './localize/localize.component';
 export * from './message/error-message.component';
 export * from './message/message.component';
 export * from './modals/confirm-modal.component';
+export * from './modals/generic-modal.component';
 export * from './modals/error-modal.component';
 export * from './modals/modal-step-indicator.component';
 export * from './modals/success-modal.component';
