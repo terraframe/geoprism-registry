@@ -304,6 +304,13 @@ export class ValueOverTimeEditPropagator {
     {
       return turf_booleanequal(val1, val2);
     }
+    else if (this.component.attributeType.type === 'date')
+    {
+      let casted1 = (typeof val1 === 'string') ? parseInt(val1) : val1;
+      let casted2 = (typeof val2 === 'string') ? parseInt(val2) : val2;
+      
+      return casted1 === casted2;
+    }
     
     return val1 === val2;
   }
