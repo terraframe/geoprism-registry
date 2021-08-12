@@ -737,9 +737,7 @@ export class ManageVersionsComponent implements OnInit {
     {
 
         this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.ACCEPTED).then(results => {
-
-            console.log("accepted");
-
+          this.editAction.approvalStatus = GovernanceStatus.ACCEPTED;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -749,9 +747,7 @@ export class ManageVersionsComponent implements OnInit {
     onReject(): void {
 
         this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.REJECTED).then(results => {
-
-            console.log("rejected");
-
+          this.editAction.approvalStatus = GovernanceStatus.REJECTED;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -761,9 +757,7 @@ export class ManageVersionsComponent implements OnInit {
     onPending(): void {
 
         this.requestService.setActionStatus(this.editAction.oid, GovernanceStatus.PENDING).then(results => {
-
-            console.log("pending");
-
+          this.editAction.approvalStatus = GovernanceStatus.PENDING;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
