@@ -20,6 +20,8 @@ declare var acp: string;
  */
 export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
+    @Input() mapHeight: number = 400;
+
     /*
      * Required. The GeometryType of the GeoJSON. Expected to be in uppercase (because that's how it is in the GeoObjectType for some reason)
      */

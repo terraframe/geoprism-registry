@@ -6,7 +6,8 @@ import {
     ChangeDetectorRef,
     EventEmitter,
     ViewChildren,
-    QueryList
+    QueryList,
+    ElementRef
 } from "@angular/core";
 import {
     trigger,
@@ -63,7 +64,9 @@ import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
         ]]
 })
 export class ManageVersionsComponent implements OnInit {
-
+    // height (as number) in pixels
+    mapRowHeight: number;
+    
     bsModalRef: BsModalRef;
     
     @Input() isNew: boolean = false;
@@ -140,7 +143,7 @@ export class ManageVersionsComponent implements OnInit {
     // eslint-disable-next-line no-useless-constructor
     constructor(private geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService, 
         public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
-        private requestService: ChangeRequestService, private modalService: BsModalService) { }
+        private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
 
     ngOnInit(): void {
       this.calculateViewModels();
@@ -817,6 +820,8 @@ export class ManageVersionsComponent implements OnInit {
     }
     
     toggleGeometryView(view: VersionDiffView) {
+        
+      this.mapRowHeight = this.elementRef.nativeElement.children[0].offsetHeight;
     
       if (view.isEditingGeometries)
       {
