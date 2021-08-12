@@ -820,8 +820,11 @@ export class ManageVersionsComponent implements OnInit {
     }
     
     toggleGeometryView(view: VersionDiffView) {
-        
-      this.mapRowHeight = this.elementRef.nativeElement.children[0].offsetHeight;
+    
+      // Using setTimeout() to pull the calc out of the animation stack so the dom can finish mutating before getting final height.
+      setTimeout(() => { 
+        this.mapRowHeight = this.elementRef.nativeElement.children[0].getElementsByClassName("attribute-element-wrapper")[0].offsetHeight;
+      }, 0)
     
       if (view.isEditingGeometries)
       {
