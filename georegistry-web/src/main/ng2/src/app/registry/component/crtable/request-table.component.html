@@ -93,12 +93,11 @@
                       
                          <geoobject-shared-attribute-editor *ngIf="req"
                               #attributeEditor
-                              [readOnly]="req.permissions.includes('WRITE_DETAILS')"  
+                              [readOnly]="!req.permissions.includes('WRITE_DETAILS')"  
                               [geoObjectType]="req.current.geoObjectType"
                               [geoObjectData]="{'geoObject': req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson, 'actions': req.actions}"
                               [changeRequest]="req"
                               [forDate]="today"
-                              [readOnly]="false"
                               [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
                               [isGeometryInlined]="true">
                          </geoobject-shared-attribute-editor>
@@ -125,8 +124,8 @@
                           <div *ngIf="req.documents.length > 0" style="border:1px solid #ccc;border-radius: 4px;">
                             <ul style="padding:10px;margin:0;">
                                 <li *ngFor="let doc of req.documents" class="list-group-item" style="padding:0;font-size:inherit;">
-                                  <a (click)="onDownloadFile(req.oid, doc.oid)" >{{doc.fileName}}</a>
-                                  <i (click)="onDeleteFile(req.oid, doc.oid)" class="fa fa-times ico-remove" style="margin-left:10px;" aria-hidden="true"></i>
+                                  <a (click)="onDownloadFile(req, doc.oid)" >{{doc.fileName}}</a>
+                                  <i (click)="onDeleteFile(req, doc.oid)" class="fa fa-times ico-remove" style="margin-left:10px;" aria-hidden="true"></i>
                                 </li>
                             </ul>
                           </div>

@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation, ViewChild, ElementRef, Input } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, ActivatedRoute } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import {
@@ -82,13 +82,16 @@ export class RequestTableComponent {
 
     @Input() toggleId: string;
 
-    targetActionId: string
+    uploadRequest: ChangeRequest;
 
     filterCriteria: string = "ALL";
 
     hasBaseDropZoneOver:boolean = false;
 
     waitingOnScroll: boolean = false;
+    
+    // Restrict page to the specified oid
+    oid:string = null;
 
     /*
      * File uploader
@@ -99,7 +102,7 @@ export class RequestTableComponent {
     fileRef: ElementRef;
 
     constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-                private eventService: EventService, private router: Router, private dateService: DateService) {
+                private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
 
         this.columns = [
             { name: localizationService.decode("change.request.user"), prop: "createdBy", sortable: false },
@@ -107,13 +110,17 @@ export class RequestTableComponent {
             { name: localizationService.decode("change.request.status"), prop: "approvalStatus", sortable: false }
         ];
 
-        this.refresh();
-
     }
 
     ngOnInit(): void {
+      
+      this.oid = this.route.snapshot.paramMap.get('oid');
+      
+      if(this.oid != null) {
+        this.toggleId = this.oid;
+      }
 
-        let getUrl = acp + "/changerequest/upload-file-action";
+        let getUrl = acp + "/changerequest/upload-file-cr";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -125,7 +132,7 @@ export class RequestTableComponent {
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
 
-            form.append("actionOid", this.targetActionId);
+            form.append("crOid", this.uploadRequest.oid);
 
         };
         this.uploader.onBeforeUploadItem = (fileItem: any) => {
@@ -139,22 +146,15 @@ export class RequestTableComponent {
             this.eventService.complete();
 
         };
-        this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {
-
-            for (let i = 0; i < this.actions.length; i++) {
-
-                let action = this.actions[i];
-
-                if (action.oid === this.targetActionId) {
-
-                    action.documents.push(JSON.parse(response));
-
-                    break;
-
-                }
-
-            }
-
+        this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {          
+          
+          const doc = JSON.parse(response)
+          
+          const index = this.requests.findIndex(request => request.oid === doc.requestId);
+          
+          if(index !== -1) {                        
+            this.requests[index].documents.push(doc);
+          }
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
 
@@ -170,6 +170,8 @@ export class RequestTableComponent {
             this.waitingOnScroll = true;
 
         }
+
+        this.refresh();
 
     }
 
@@ -205,9 +207,9 @@ export class RequestTableComponent {
 
     }
 
-    onUpload(action: CreateGeoObjectAction | UpdateAttributeAction): void {
+    onUpload(request: ChangeRequest): void {
 
-        this.targetActionId = action.oid;
+        this.uploadRequest = request;
 
         if (this.uploader.queue != null && this.uploader.queue.length > 0) {
 
@@ -224,45 +226,21 @@ export class RequestTableComponent {
 
     }
 
-    onDownloadFile(actionOid: string, fileOid: string): void {
+    onDownloadFile(request: ChangeRequest, fileOid: string): void {
 
-        window.location.href = acp + "/changerequest/download-file-action?actionOid=" + actionOid + "&" + "vfOid=" + fileOid;
+        window.location.href = acp + "/changerequest/download-file-cr?crOid=" + request.oid + "&" + "vfOid=" + fileOid;
 
     }
 
-    onDeleteFile(actionOid: string, fileOid: string): void {
+    onDeleteFile(request: ChangeRequest, fileOid: string): void {
 
-        this.service.deleteFile(actionOid, fileOid).then(() => {
-
-            let docPos = -1;
-            for (let i = 0; i < this.actions.length; i++) {
-
-                let action = this.actions[i];
-                if (action.oid === actionOid) {
-
-                    for (let index = 0; index < action.documents.length; index++) {
-
-                        let doc = action.documents[index];
-                        if (doc.oid === fileOid) {
-
-                            docPos = index;
-                            break;
-
-                        }
-
-                    }
-
-                    if (docPos > -1) {
-
-                        action.documents.splice(docPos, 1);
-
-                    }
-
-                    break;
-
-                }
-
-            }
+        this.service.deleteFile(request.oid, fileOid).then(() => {
+          
+          const index = request.documents.findIndex(doc => doc.oid === fileOid);
+          
+          if(index !== -1) {
+            request.documents.splice(index, 1);
+          }
 
         }).catch((response: HttpErrorResponse) => {
 
@@ -280,7 +258,7 @@ export class RequestTableComponent {
 
     refresh(pageNumber: number = 1): void {
 
-        this.service.getAllRequests(this.page.pageSize, pageNumber, "ALL").then(requests => {
+        this.service.getAllRequests(this.page.pageSize, pageNumber, "ALL", this.oid).then(requests => {
 
             this.page = requests;
             this.requests = requests.resultSet;
@@ -322,7 +300,7 @@ export class RequestTableComponent {
 
         // this.request = selected.selected;
 
-        this.service.getAllRequests(10, 1, "ALL").then(requests => {
+        this.service.getAllRequests(this.page.pageSize, 1, "ALL", this.oid).then(requests => {
 
             this.requests = requests.resultSet;
 
@@ -522,7 +500,7 @@ export class RequestTableComponent {
 
     filter(criteria: string): void {
 
-        this.service.getAllRequests(10, 1, criteria).then(requests => {
+        this.service.getAllRequests(this.page.pageSize, 1, criteria, this.oid).then(requests => {
             this.requests = requests.resultSet;
             
             if (this.waitingOnScroll) {
@@ -574,17 +552,6 @@ export class RequestTableComponent {
         //   }
 
         return action;
-
-    }
-
-    showActionDetail(action: any, cr: any) {
-
-        this.bsModalRef = this.modalService.show(ActionDetailModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true
-        });
-        this.bsModalRef.content.curAction(action, !cr.permissions.includes("WRITE_DETAILS"));
 
     }
 

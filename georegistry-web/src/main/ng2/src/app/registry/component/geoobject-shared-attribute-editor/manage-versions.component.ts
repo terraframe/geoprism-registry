@@ -242,14 +242,6 @@ export class ManageVersionsComponent implements OnInit {
         view.editPropagator.onAddNewVersion();
 
         this.viewModels.push(view);
-
-        /*
-        if (this.attributeType.code === "geometry") {
-
-            this.editingGeometry = votArr.length - 1;
-
-        }
-        */
         
         this.changeDetectorRef.detectChanges();
 
