@@ -51,6 +51,7 @@ input.form-control {
   border-color: var(--theme-input-text-border);
   border-radius: 5px;
   background:white;
+  background-color: white;
   outline:none;
   box-shadow:none;
 }
@@ -86,13 +87,21 @@ input[type="text"] {
 	width:100%;
 	margin:0;
 }
-input[disabled],
+input.form-control[disabled], 
+input.form-control[readonly], 
+fieldset[disabled] input.form-control,
+input[readonly],
+input[disabled].form-control,
+input[readonly].form-control,
 input[type="text"][disabled],
+input[type="text"][readonly],
 input[type="textarea"][disabled],
 input[type="number"][disabled],
+input[type="number"][readonly],
 input[type="email"][disabled],
 select[disabled],
 input[disabled]:focus,
+input[readonly]:focus,
 input[type="text"]:-ms-input-placeholder,
 input[type="textarea"]:-ms-input-placeholder,
 input[type="number"]:-ms-input-placeholder,
@@ -108,6 +117,7 @@ select[disabled]:-moz-placeholder {color:#333;}
 input[type="text"]:disabled,
 input[type="textarea"]:disabled,
 input[type="number"]:disabled,
+input[type="number"]:readonly,
 input[type="date"]:disabled,
 input[type="email"]:disabled,
 select[disabled]:disabled,
@@ -119,6 +129,7 @@ input[type="text"]:disabled:-webkit-autofill:focus {
     box-shadow: none;
     border-color: #ccc;
     border-color: var(--theme-input-text-border-disabled);
+    background-color: white;
 }
 input[disabled]:hover,
 select[disabled]:hover {

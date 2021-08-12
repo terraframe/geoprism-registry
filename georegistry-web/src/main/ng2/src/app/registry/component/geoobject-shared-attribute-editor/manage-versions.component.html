@@ -8,7 +8,7 @@
   </div>
 
   <!-- <div class="col-md-12 order-md-1"> -->
-  <form #versionsform="ngForm" class="modal-form" autocomplete="off">
+  <form #versionsform="ngForm" autocomplete="off">
 
     <fieldset>
       <div class="row">
@@ -67,6 +67,7 @@
 	                            </ng-container>
 	                            <tr *ngIf="attributeType.type === 'geometry' || attributeType.type === '_PARENT_' || attributeType.type === 'term' || attributeType.type === 'character' || attributeType.type === 'date' || attributeType.type === 'integer' || attributeType.type === 'float' || attributeType.type === 'boolean'" class="attribute-value-row">
 	                             <td colspan="2">
+                               
 	                               <div *ngIf="attributeType.type === 'term'">
 	                                 <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
 	                                     <option value=""></option>
@@ -98,7 +99,7 @@
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === '_PARENT_'">
-								                   <ng-container *ngIf="hierarchy != null && hierarchy.types != null && hierarchy.types.length > 0">
+								      <ng-container *ngIf="hierarchy != null && hierarchy.types != null && hierarchy.types.length > 0">
 		                                 <div style="float:left;width:100%;" *ngFor="let type of hierarchy.types; let j = index"> 
 			                                 {{type.label}}
 			                                 <div class="input-group">
@@ -121,56 +122,70 @@
 			                                      </span>
 			                                  </div>
 			                               </div>
-			                             </ng-container>
-	                               </div>
-	                               
-	                               <!-- 
-								                    Geometry 
-								                 -->
-								                 <div *ngIf="attributeType.type === 'geometry'">
-								                
-					                         <td style="vertical-align: middle;">
-					                           <button class="btn btn-primary" (click)="toggleGeometryView(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
-					                             <localize *ngIf="!viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.view"></localize>
-					                             <localize *ngIf="viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.hide"></localize>
-					                           </button>
-					                           <button *ngIf="viewModel.isRenderingLayer" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
-                                       <localize *ngIf="!viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.edit"></localize>
-                                       <localize *ngIf="viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.save"></localize>
-                                     </button>
-                                     
-                                     <div *ngIf="viewModel.isRenderingLayer && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
-														            <div>
-														                <div><label><localize key="geoobject.editor.geometry.latitude.label"></localize></label></div>
-														                <div>
-														                <div class="text-left">
-														                  <input [disabled]="readonly || !viewModel.isEditingGeometries || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][1]" (change)="manualCoordinateChange(viewModel)" required />
-														                </div>
-														                <div *ngIf="viewModel.coordinate && viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid">
-					                                    <p class="error-message">
-					                                      <localize key="change.request.geometry.invalidLatitude"></localize>
-					                                    </p>
-					                                  </div>
-														              </div>
-														            </div>
-														            <div>
-														              <div><label><localize key="geoobject.editor.geometry.longitude.label"></localize></label></div>
-														              <div>
-														                <div class="text-left">
-														                  <input [disabled]="readonly || !viewModel.isEditingGeometries || viewModel.summaryKey === 'DELETE'" name="longitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][0]" (change)="manualCoordinateChange(viewModel)" required />
-														                </div>
-														                <div *ngIf="viewModel.coordinate && viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid">
+			                          </ng-container>
+	                               </div> 
+                                 
+                                 
+                                 <table *ngIf="attributeType.type === 'geometry'" style="padding:0;">
+                                 <!-- 
+								    Geometry 
+								 -->
+<!--                                   <div *ngIf="attributeType.type === 'geometry'"> -->
+  
+<!--                                     <td style="vertical-align: middle;padding-left:0;"> -->
+                                      <tr>
+                                        <td colspan="2">
+                                          <button class="btn btn-primary" style="margin-left:0;" (click)="toggleGeometryView(viewModel)" role="button"
+                                            [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )"
+                                          >
+                                            <localize *ngIf="!viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.view"></localize>
+                                            <localize *ngIf="viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.hide"></localize>
+                                          </button>
+                                          <button *ngIf="viewModel.isRenderingLayer" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button"
+                                            [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )"
+                                          >
+                                            <localize *ngIf="!viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.edit"></localize>
+                                            <localize *ngIf="viewModel.isEditingGeometries" key="changeovertime.manageVersions.geometry.save"></localize>
+                                          </button>
+                                        </td>
+                                      </tr>
+  
+                                      <tr *ngIf="viewModel.isRenderingLayer && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
+                                        
+                                        <td style="width:50%;">
+                                          <h5>
+                                            <localize key="geoobject.editor.geometry.latitude.label"></localize>
+                                          </h5>
+                                          <div class="text-left">
+                                              <input [readonly]="!viewModel.isEditingGeometries || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][1]"
+                                                (change)="manualCoordinateChange(viewModel)" required />
+                                          </div>
+                                          <div *ngIf="viewModel.coordinate && viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid">
+                                              <p class="error-message">
+                                                <localize key="change.request.geometry.invalidLatitude"></localize>
+                                              </p>
+                                          </div>
+                                        </td>
+                                        <td style="width:50%;">
+                                          <h5>
+                                            <localize key="geoobject.editor.geometry.longitude.label"></localize>
+                                          </h5>
+                                          <div class="text-left">
+                                              <input [readonly]="!viewModel.isEditingGeometries || viewModel.summaryKey === 'DELETE'" name="longitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][0]"
+                                                (change)="manualCoordinateChange(viewModel)" required />
+                                          </div>
+                                          <div *ngIf="viewModel.coordinate && viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid">
                                               <p class="error-message">
                                                 <localize key="change.request.geometry.invalidLongitude"></localize>
                                               </p>
-                                            </div>
-														              </div>
-														            </div>
-													            
-													          </div>
-					                         </td>
-								                 </div>
-	                             </td>
+                                          </div>
+                                        </td>
+  
+                                      </tr>
+<!--                                     </td> -->
+<!--                                   </div> -->
+                                  </table>
+                              </td>
 
 	                            </tr>
 	                            <tr class="attribute-date-input-row">
