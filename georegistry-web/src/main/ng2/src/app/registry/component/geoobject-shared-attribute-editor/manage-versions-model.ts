@@ -5,6 +5,19 @@ import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOver
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
 import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
 
+export enum LayerColor {
+  "OLD" = "#A4A4A4",
+  "NEW" = "#0062AA"
+}
+
+export class Layer {
+  oid: string;
+  color: LayerColor;
+  zindex: number;
+  geojson: any;
+  editPropagator: ValueOverTimeEditPropagator;
+}
+
 /*
  * This class exists purely for the purpose of storing what data to be rendered to the front-end. Any storage or submission of this data to the back-end must be translated
  * using the edit propagator.
@@ -19,6 +32,7 @@ export class VersionDiffView extends ValueOverTime {
   oldEndDate?: string;
   isEditingGeometries: boolean = false;
   isRenderingLayer: boolean = false;
+  isRenderingOldLayer: boolean = false;
   coordinate?: any;
   editPropagator: ValueOverTimeEditPropagator;
   

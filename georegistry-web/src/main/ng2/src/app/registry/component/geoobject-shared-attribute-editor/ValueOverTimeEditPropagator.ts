@@ -1,7 +1,7 @@
 
 import { ValueOverTime } from "@registry/model/registry";
 import { ManageVersionsComponent } from "./manage-versions.component";
-import { VersionDiffView } from "./VersionDiffView";
+import { VersionDiffView } from "./manage-versions-model";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
 import { v4 as uuid } from 'uuid';
 import turf_booleanequal from '@turf/boolean-equal';

@@ -130,6 +130,10 @@
 								                 <div *ngIf="attributeType.type === 'geometry'">
 								                
 					                         <td style="vertical-align: middle;">
+					                           <button *ngIf="viewModel.oldValue" class="btn btn-primary" (click)="toggleOldGeometryView(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
+                                       <localize *ngIf="!viewModel.isRenderingOldLayer" key="changeovertime.manageVersions.geometry.viewOld"></localize>
+                                       <localize *ngIf="viewModel.isRenderingOldLayer" key="changeovertime.manageVersions.geometry.hideOld"></localize>
+                                     </button>
 					                           <button class="btn btn-primary" (click)="toggleGeometryView(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
 					                             <localize *ngIf="!viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.view"></localize>
 					                             <localize *ngIf="viewModel.isRenderingLayer" key="changeovertime.manageVersions.geometry.hide"></localize>
