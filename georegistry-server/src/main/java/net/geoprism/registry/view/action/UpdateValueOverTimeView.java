@@ -1,6 +1,7 @@
 package net.geoprism.registry.view.action;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -12,7 +13,6 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
-import org.commongeoregistry.adapter.metadata.AttributeNumericType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.wololo.jts2geojson.GeoJSONReader;
@@ -21,14 +21,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.JsonAdapter;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.MdAttributeEmbeddedDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryJsonTimeFormatter;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
@@ -65,15 +68,15 @@ public class UpdateValueOverTimeView
   @JsonAdapter(RegistryJsonTimeFormatter.class)
   protected Date oldEndDate;
   
-  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
+  /*
+   * You should NOT be directly setting values on the VOTC contained within the GeoObject here. Use the looseVotc instead.
+   * For reasons why, {{@see UpdateChangeOverTimeAttributeView.execute}}
+   */
+  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
   {
-    String attributeName = this.getAttributeName(cotView, go);
-    
-    ValueOverTimeCollection votc = go.getValuesOverTime(attributeName);
-    
     if (this.action.equals(UpdateActionType.DELETE))
     {
-      ValueOverTime vot = votc.getValueByOid(this.getOid());
+      ValueOverTime vot = this.getValueByOid(looseVotc, this.getOid());
       
       if (vot == null)
       {
@@ -81,11 +84,11 @@ public class UpdateValueOverTimeView
         throw ex;
       }
       
-      votc.remove(vot);
+      looseVotc.remove(vot);
     }
     else if (this.action.equals(UpdateActionType.UPDATE))
     {
-      ValueOverTime vot = votc.getValueByOid(this.getOid());
+      ValueOverTime vot = this.getValueByOid(looseVotc, this.getOid());
       
       if (vot == null)
       {
@@ -108,11 +111,11 @@ public class UpdateValueOverTimeView
         vot.setEndDate(newEndDate);
       }
       
-      this.persistValue(vot, cotView, go);
+      this.persistValue(vot, cotView, go, looseVotc);
     }
     else if (this.action.equals(UpdateActionType.CREATE))
     {
-      ValueOverTime vot = votc.getValueOverTime(this.newStartDate, this.newEndDate);
+      ValueOverTime vot = this.getValueByDate(looseVotc, this.newStartDate, this.newEndDate);
       
       if (vot != null)
       {
@@ -125,7 +128,7 @@ public class UpdateValueOverTimeView
         throw new InvalidChangeRequestException();
       }
       
-      this.persistValue(null, cotView, go);
+      this.persistValue(null, cotView, go, looseVotc);
     }
     else
     {
@@ -133,19 +136,33 @@ public class UpdateValueOverTimeView
     }
   }
   
-  private String getAttributeName(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
+  protected ValueOverTime getValueByOid(List<ValueOverTime> looseVotc, String oid)
   {
-    String attributeName = cotView.getAttributeName();
-    
-    if (attributeName.equals("geometry"))
+    for (ValueOverTime vot : looseVotc)
     {
-      attributeName = go.getGeometryAttributeName();
+      if (vot.getOid().equals(oid))
+      {
+        return vot;
+      }
     }
     
-    return attributeName;
+    return null;
   }
   
-  private void persistValue(ValueOverTime vot, UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
+  protected ValueOverTime getValueByDate(List<ValueOverTime> looseVotc, Date startDate, Date endDate)
+  {
+    for (ValueOverTime vt : looseVotc)
+    {
+      if (vt.getStartDate().equals(startDate) && vt.getEndDate().equals(endDate))
+      {
+        return vt;
+      }
+    }
+
+    return null;
+  }
+  
+  private void persistValue(ValueOverTime vot, UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
   {
     if (this.newValue == null)
     {
@@ -160,6 +177,15 @@ public class UpdateValueOverTimeView
       {
         GeoJSONReader reader = new GeoJSONReader();
         convertedValue = reader.read(this.newValue.toString());
+        
+        if (!go.isValidGeometry(convertedValue))
+        {
+          GeometryTypeException ex = new GeometryTypeException();
+          ex.setActualType(convertedValue.getGeometryType());
+          ex.setExpectedType(go.getType().getGeometryType().name());
+
+          throw ex;
+        }
       }
       
       if (vot != null)
@@ -168,7 +194,7 @@ public class UpdateValueOverTimeView
       }
       else
       {
-        go.setGeometry(convertedValue, this.newStartDate, this.newEndDate);
+        looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, convertedValue));
       }
     }
     else
@@ -211,14 +237,41 @@ public class UpdateValueOverTimeView
         }
         else
         {
-          go.setDisplayLabel(convertedValue, this.newStartDate, this.newEndDate);
+          if (convertedValue != null)
+          {
+            MdAttributeEmbeddedDAOIF mdAttrEmbedded = (MdAttributeEmbeddedDAOIF) go.getMdAttributeDAO(attype.getName());
+            VertexObjectDAO votEmbeddedValue = VertexObjectDAO.newInstance((MdVertexDAOIF) mdAttrEmbedded.getEmbeddedMdClassDAOIF());
+            
+            votEmbeddedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, convertedValue.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
+            
+            for (Locale locale : locales)
+            {
+              if (convertedValue.contains(locale))
+              {
+                votEmbeddedValue.setValue(locale.toString(), convertedValue.getValue(locale));
+              }
+            }
+            
+            looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, votEmbeddedValue));
+          }
+          else
+          {
+            looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, null));
+          }
         }
       }
       else if (attype.getName().equals(DefaultAttribute.STATUS.getName()))
       {
         if (this.newValue.isJsonNull())
         {
-          vot.setValue(null);
+          if (vot != null)
+          {
+            vot.setValue(null);
+          }
+          else
+          {
+            looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, null));
+          }
         }
         else
         {
@@ -230,7 +283,14 @@ public class UpdateValueOverTimeView
             
             if (code == null || code.length() == 0)
             {
-              vot.setValue(null);
+              if (vot != null)
+              {
+                vot.setValue(null);
+              }
+              else
+              {
+                looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, null));
+              }
             }
             else
             {
@@ -243,7 +303,7 @@ public class UpdateValueOverTimeView
               }
               else
               {
-                go.setStatus(gos, this.newStartDate, this.newEndDate);
+                looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, gos.getOid()));
               }
             }
           }
@@ -302,7 +362,7 @@ public class UpdateValueOverTimeView
         }
         else
         {
-          go.setValue(attype.getName(), convertedValue, this.newStartDate, this.newEndDate);
+          looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, convertedValue));
         }
       }
     }

@@ -1,15 +1,13 @@
 package net.geoprism.registry.view.action;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.SortedSet;
 
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 
 import com.runwaysdk.business.graph.EdgeObject;
-import com.runwaysdk.business.graph.GraphQuery;
-import com.runwaysdk.constants.Constants;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
 import net.geoprism.registry.action.InvalidChangeRequestException;
@@ -17,6 +15,7 @@ import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.graph.VertexComponent;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
@@ -24,14 +23,19 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
   public static final String VALUE_SPLIT_TOKEN = "_~VST~_";
   
   @Override
-  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go)
+  public void execute(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, List<ValueOverTime> looseVotc)
+  {
+    throw new UnsupportedOperationException();
+  }
+  
+  public void executeParent(UpdateChangeOverTimeAttributeView cotView, VertexServerGeoObject go, SortedSet<EdgeObject> looseVotc)
   {
     UpdateParentView parentView = (UpdateParentView) cotView;
     final ServerHierarchyType hierarchyType = ServerHierarchyType.get(parentView.getHierarchyCode());
     
     if (this.action.equals(UpdateActionType.DELETE))
     {
-      EdgeObject edge = this.getEdgeByOid(this.oid, go, hierarchyType);
+      EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid);
       
       if (edge == null)
       {
@@ -40,10 +44,11 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       }
       
       edge.delete();
+      looseVotc.remove(edge);
     }
     else if (this.action.equals(UpdateActionType.UPDATE))
     {
-      EdgeObject edge = this.getEdgeByOid(this.oid, go, hierarchyType);
+      EdgeObject edge = this.getEdgeByOid(looseVotc, this.oid);
       
       if (edge == null)
       {
@@ -56,6 +61,7 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
       
       String currentCode = edge.getParent().getObjectValue(DefaultAttribute.CODE.getName());
       
+      // Parent values can only be changed by deleting the current edge and creating a new one unfortunately
       if (this.newValue != null
           && (currentCode != parentCode))
       {
@@ -73,10 +79,19 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         }
         
         edge.delete();
+        looseVotc.remove(edge);
         
         if (newParent != null)
         {
-          go.addParent(newParent, hierarchyType, _newStartDate, _newEndDate);
+          // We unfortunately can't use this method because we have to bypass the votc reordering and validation
+//          go.addParent(newParent, hierarchyType, _newStartDate, _newEndDate);
+          
+          EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getMdEdge());
+          newEdge.setValue(GeoVertex.START_DATE, _newStartDate);
+          newEdge.setValue(GeoVertex.END_DATE, _newEndDate);
+          newEdge.apply();
+          
+          looseVotc.add(newEdge);
         }
         
         return;
@@ -111,12 +126,49 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
         throw ex;
       }
       
-      go.addParent(newParent, hierarchyType, this.newStartDate, this.newEndDate);
+      // We unfortunately can't use this method because we have to bypass the votc reordering and validation
+//      go.addParent(newParent, hierarchyType, this.newStartDate, this.newEndDate);
+      
+      EdgeObject newEdge = go.getVertex().addParent( ( (VertexComponent) newParent ).getVertex(), hierarchyType.getMdEdge());
+      newEdge.setValue(GeoVertex.START_DATE, this.newStartDate);
+      newEdge.setValue(GeoVertex.END_DATE, this.newEndDate);
+      newEdge.apply();
+      
+      looseVotc.add(newEdge);
     }
     else
     {
       throw new UnsupportedOperationException("Unsupported action type [" + this.action + "].");
     }
+  }
+  
+  protected EdgeObject getEdgeByOid(SortedSet<EdgeObject> looseVotc, String oid)
+  {
+    for (EdgeObject vot : looseVotc)
+    {
+      if (vot.getOid().equals(oid))
+      {
+        return vot;
+      }
+    }
+    
+    return null;
+  }
+  
+  protected EdgeObject getEdgeByDate(SortedSet<EdgeObject> looseVotc, Date startDate, Date endDate)
+  {
+    for (EdgeObject edge : looseVotc)
+    {
+      Date edgeStartDate = edge.getObjectValue(GeoVertex.START_DATE);
+      Date edgeEndDate = edge.getObjectValue(GeoVertex.END_DATE);
+      
+      if (edgeStartDate.equals(startDate) && edgeEndDate.equals(endDate))
+      {
+        return edge;
+      }
+    }
+
+    return null;
   }
   
   public VertexServerGeoObject getNewValueAsGO()
@@ -134,18 +186,5 @@ public class UpdateParentValueOverTimeView extends UpdateValueOverTimeView
     }
     
     return null;
-  }
-  
-  private EdgeObject getEdgeByOid(String edgeOid, VertexServerGeoObject go, ServerHierarchyType hierarchyType)
-  {
-    String statement = "SELECT FROM (";
-    statement += "SELECT expand(inE('" + hierarchyType.getMdEdge().getDBClassName() + "')) FROM :child";
-    statement += ") WHERE :edgeoid = oid";
-
-    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement);
-    query.setParameter("child", go.getVertex().getRID());
-    query.setParameter("edgeoid", edgeOid);
-    
-    return query.getSingleResult();
   }
 }
