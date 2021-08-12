@@ -1,18 +1,18 @@
-import { Component, OnInit, ViewChild, SimpleChanges, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Input } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { RegistryService, MapService, GeometryService} from '@registry/service';
+import { RegistryService, MapService, GeometryService } from "@registry/service";
 
-import { Map, LngLatBounds, NavigationControl } from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import { Map, LngLatBounds, NavigationControl } from "mapbox-gl";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
 
-declare var acp: string;
-
+// eslint-disable-next-line no-unused-vars
+declare let acp: string;
 
 @Component({
-	selector: 'geoobject-editor-map[geometryType]',
-	templateUrl: './geoobject-editor-map.component.html',
-	styleUrls: ['./geoobject-editor-map.component.css']
+    selector: "geoobject-editor-map[geometryType]",
+    templateUrl: "./geoobject-editor-map.component.html",
+    styleUrls: ["./geoobject-editor-map.component.css"]
 })
 
 /**
@@ -25,106 +25,100 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     /*
      * Required. The GeometryType of the GeoJSON. Expected to be in uppercase (because that's how it is in the GeoObjectType for some reason)
      */
-	@Input() geometryType: string;
+    @Input() geometryType: string;
 
     /*
      * Optional. If specified, we will fetch the bounding box from this GeoObject code.
      */
-	@Input() bboxCode: string;
+    @Input() bboxCode: string;
 
     /*
      * Optional. If specified, we will fetch the bounding box from this GeoObjectType at the date.
      */
-	@Input() bboxType: string;
+    @Input() bboxType: string;
 
-	@Input() bboxDate: string;
+    @Input() bboxDate: string;
 
     /*
      * Optional. If set to true the edit controls will not be displayed. Defaults to false.
      */
-	@Input() readOnly: boolean = false;
+    @Input() readOnly: boolean = false;
 
-	@ViewChild("mapDiv") mapDiv;
+    @ViewChild("mapDiv") mapDiv;
 
-	map: Map;
+    map: Map;
 
-	constructor(private geomService: GeometryService, private registryService: RegistryService, private mapService: MapService) {
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private geomService: GeometryService, private registryService: RegistryService, private mapService: MapService) { }
 
-	}
+    ngOnInit(): void {
+    }
 
-	ngOnInit(): void {
-	}
+    ngAfterViewInit() {
+        setTimeout(() => {
+            this.mapDiv.nativeElement.id = Math.floor(Math.random() * (899999)) + 100000;
 
-	ngAfterViewInit() {
-		setTimeout(() => {
+            this.map = new Map({
+                container: this.mapDiv.nativeElement.id,
+                style: "mapbox://styles/mapbox/satellite-v9",
+                zoom: 2,
+                center: [110.880453, 10.897852]
+            });
 
-			this.mapDiv.nativeElement.id = Math.floor(Math.random() * (899999)) + 100000;
+            this.map.on("load", () => {
+                this.initMap();
+            });
+        }, 0);
+    }
 
-			this.map = new Map({
-				container: this.mapDiv.nativeElement.id,
-				style: 'mapbox://styles/mapbox/satellite-v9',
-				zoom: 2,
-				center: [110.880453, 10.897852]
-			});
+    ngOnDestroy(): void {
+        this.map.remove();
+        this.geomService.destroy();
+    }
 
-			this.map.on('load', () => {
-				this.initMap();
-			});
-			
-		}, 0);
-	}
+    getIsValid(): boolean {
+        return this.geomService.isValid();
+    }
 
-	ngOnDestroy(): void {
-		this.map.remove();
-		this.geomService.destroy();
-	}
+    initMap(): void {
+        this.map.on("style.load", () => {
+            // this.addLayers();
+            // this.geomService.initialize(this.map, this.geometryType, this.readOnly);
+        });
 
-	getIsValid(): boolean {
-		return this.geomService.isValid();
-	}
+        this.geomService.initialize(this.map, this.geometryType, this.readOnly);
 
-	initMap(): void {
+        // Add zoom and rotation controls to the map.
+        this.map.addControl(new NavigationControl());
 
-		this.map.on('style.load', () => {
-			//this.addLayers();
-			//this.geomService.initialize(this.map, this.geometryType, this.readOnly);
-		});
+        this.zoomToBbox();
+    }
 
-    this.geomService.initialize(this.map, this.geometryType, this.readOnly);
+    zoomToBbox(): void {
+        if (this.bboxCode != null && this.bboxType != null) {
+            if (this.bboxDate == null) {
+                this.registryService.getGeoObjectBounds(this.bboxCode, this.bboxType).then(boundArr => {
+                    let bounds = new LngLatBounds([boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]]);
 
-		// Add zoom and rotation controls to the map.
-		this.map.addControl(new NavigationControl());
-		
-		this.zoomToBbox();
-	}
+                    this.map.fitBounds(bounds, { padding: 50 });
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            } else {
+                this.registryService.getGeoObjectBoundsAtDate(this.bboxCode, this.bboxType, this.bboxDate).then(boundArr => {
+                    let bounds = new LngLatBounds([boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]]);
 
-	zoomToBbox(): void {
-		if (this.bboxCode != null && this.bboxType != null) {
-			if (this.bboxDate == null) {
-				this.registryService.getGeoObjectBounds(this.bboxCode, this.bboxType).then(boundArr => {
-					let bounds = new LngLatBounds([boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]]);
+                    this.map.fitBounds(bounds, { padding: 50 });
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            }
+        }
+    }
 
-					this.map.fitBounds(bounds, { padding: 50 });
-				}).catch((err: HttpErrorResponse) => {
-					this.error(err);
-				});
-			}
-			else {
-				this.registryService.getGeoObjectBoundsAtDate(this.bboxCode, this.bboxType, this.bboxDate).then(boundArr => {
-					let bounds = new LngLatBounds([boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]]);
-
-					this.map.fitBounds(bounds, { padding: 50 });
-				}).catch((err: HttpErrorResponse) => {
-					this.error(err);
-				});
-			}
-		}
-	}
-
-	public error(err: HttpErrorResponse): void {
-		// TODO
-		console.log("ERROR", err);
-	}
-
+    public error(err: HttpErrorResponse): void {
+        // TODO
+        console.log("ERROR", err);
+    }
 
 }
