@@ -147,40 +147,9 @@ export class ManageVersionsComponent implements OnInit {
     ngOnInit(): void {
         this.calculateViewModels();
         this.isRootOfHierarchy = this.attributeType.type === "_PARENT_" && (this.hierarchy == null || this.hierarchy.types == null || this.hierarchy.types.length === 0);
-        this.geomService.setLayers(this.getRenderedLayers());
     }
 
     ngAfterViewInit() {
-    }
-
-    getRenderedLayers(): Layer[] {
-        let renderedLayers: Layer[] = [];
-
-        let len = this.viewModels.length;
-        for (let i = 0; i < len; ++i) {
-            let view: VersionDiffView = this.viewModels[i];
-
-            if (view.isRenderingLayer) {
-                renderedLayers.push({
-                    oid: "NEW_" + view.oid,
-                    zindex: 1,
-                    color: LayerColor.NEW,
-                    geojson: view.value,
-                    editPropagator: view.editPropagator
-                });
-            }
-            if (view.isRenderingOldLayer) {
-                renderedLayers.push({
-                    oid: "OLD_" + view.oid,
-                    zindex: 0,
-                    color: LayerColor.OLD,
-                    geojson: view.oldValue,
-                    editPropagator: null
-                });
-            }
-        }
-
-        return renderedLayers;
     }
 
     geometryChange(vAttribute, event): void {
@@ -656,22 +625,7 @@ export class ManageVersionsComponent implements OnInit {
      */
 
     toggleGeometryEditing(view: VersionDiffView) {
-      // view.layer.editing = !view.layer.editing;
-
-      // if (this.geometryEditor != null)
-      // {
-      //  this.geometryEditor.reload();
-      // }
-
-      // this.geomService.setLayers(this.renderedLayers);
-
-        if (view.isEditingGeometries) {
-            this.geomService.stopEditing();
-        } else {
-            this.geomService.startEditing(view.editPropagator);
-        }
-
-        view.isEditingGeometries = !view.isEditingGeometries;
+        this.geomService.setEditing(!view.newLayer.isEditing, view.newLayer);
 
         if (this.geoObjectType.geometryType === "POINT" || this.geoObjectType.geometryType === "MULTIPOINT") {
             view.coordinate = {};
@@ -684,19 +638,54 @@ export class ManageVersionsComponent implements OnInit {
             this.mapRowHeight = this.elementRef.nativeElement.children[0].getElementsByClassName("attribute-element-wrapper")[0].offsetHeight;
         }, 0);
 
-        if (view.isEditingGeometries) {
-            this.toggleGeometryEditing(view);
+        let layer: Layer = this.getOrCreateLayer(view, "NEW");
+        
+        if (layer.isEditing) {
+          this.geomService.stopEditing();
         }
-
-        view.isRenderingLayer = !view.isRenderingLayer;
-
-        this.geomService.setLayers(this.getRenderedLayers());
+        
+        this.geomService.setRendering(!layer.isRendering, layer);
     }
 
     toggleOldGeometryView(view: VersionDiffView) {
-        view.isRenderingOldLayer = !view.isRenderingOldLayer;
-
-        this.geomService.setLayers(this.getRenderedLayers());
+        let layer: Layer = this.getOrCreateLayer(view, "OLD");
+        
+        this.geomService.setRendering(!layer.isRendering, layer);
+    }
+    
+    getOrCreateLayer(view: VersionDiffView, context: string): Layer {
+      if (context === "NEW") {
+          if (view.newLayer != null) {
+            return view.newLayer;
+          }
+      
+          view.newLayer = new Layer();
+          view.newLayer.oid = "NEW_" + view.oid;
+          view.newLayer.isEditing = false;
+          view.newLayer.isRendering = false;
+          view.newLayer.zindex = 1;
+          view.newLayer.color = LayerColor.NEW;
+          view.newLayer.geojson = view.value;
+          view.newLayer.editPropagator = view.editPropagator;
+          
+          return view.newLayer;
+      }
+      else {
+          if (view.oldLayer != null) {
+            return view.oldLayer;
+          }
+      
+          view.oldLayer = new Layer();
+          view.oldLayer.oid = "OLD_" + view.oid;
+          view.oldLayer.isEditing = false;
+          view.oldLayer.isRendering = false;
+          view.oldLayer.zindex = 0;
+          view.oldLayer.color = LayerColor.OLD;
+          view.oldLayer.geojson = view.oldValue;
+          view.oldLayer.editPropagator = null;
+          
+          return view.oldLayer;
+      }
     }
 
     manualCoordinateChange(view: VersionDiffView): void {
