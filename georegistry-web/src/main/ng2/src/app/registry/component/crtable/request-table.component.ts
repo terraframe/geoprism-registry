@@ -12,6 +12,7 @@ import {
 import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 
 import { ChangeRequest, CreateGeoObjectAction, UpdateAttributeAction } from "@registry/model/crtable";
+import { ActionTypes } from "@registry/model/constants";
 import { GeoObjectOverTime } from "@registry/model/registry";
 
 import { ChangeRequestService } from "@registry/service";
@@ -159,16 +160,6 @@ export class RequestTableComponent {
         this.refresh();        
     }
 
-    scrollToBottom(): void {
-    // try {
-      // This is a hack but I expect it will need to be redone when we have pagination anyway.
-        $(".new-admin-design-main")[0].scrollTop = $(".new-admin-design-main")[0].scrollHeight;
-
-    // } catch(err) {
-    //  console.log(err);
-    // }
-    }
-
     getGOTLabel(action: any): string {
         if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values &&
           action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues &&
@@ -230,12 +221,6 @@ export class RequestTableComponent {
                     }
                 }
             });
-
-            if (this.waitingOnScroll) {
-                let that = this;
-                setTimeout(function() { that.scrollToBottom(); }, 100);
-                this.waitingOnScroll = false;
-            }
         }).catch((response: HttpErrorResponse) => {
             this.error(response);
         })
@@ -249,14 +234,6 @@ export class RequestTableComponent {
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
-
-        if (this.waitingOnScroll) {
-            let that = this;
-            setTimeout(function() {
-                that.scrollToBottom();
-            }, 100);
-            this.waitingOnScroll = false;
-        }
     }
 
     onExecute(changeRequest: ChangeRequest): void {
@@ -424,6 +401,25 @@ export class RequestTableComponent {
 
     getUsername(): string {
         return this.authService.getUsername();
+    }
+    
+    isRequestTooOld(request: ChangeRequest): boolean {
+      if (request.actions && request.actions.length > 0)
+      {
+        let firstAction = request.actions[0];
+        
+        if (firstAction.actionType === ActionTypes.UPDATEGEOOBJECTACTION) {
+          return true;
+        }
+        else
+        {
+          return false;
+        }
+      }
+      else
+      {
+        return true;
+      }
     }
 
 }

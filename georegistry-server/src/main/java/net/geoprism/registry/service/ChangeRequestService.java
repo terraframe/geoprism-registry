@@ -176,7 +176,7 @@ public class ChangeRequestService
   public Page<ChangeRequest> getAllRequests(String sessionId, int pageSize, int pageNumber, String filter, String oid)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
-    query.ORDER_BY_ASC(query.getCreateDate());
+    query.ORDER_BY_DESC(query.getCreateDate());
 
     if (filter != null && !filter.equals("ALL"))
     {

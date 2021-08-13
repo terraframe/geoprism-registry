@@ -187,9 +187,9 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   {
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-      List<String> accepted = new LinkedList<String>();
+//      List<String> accepted = new LinkedList<String>();
 
-      List<String> rejected = new LinkedList<String>();
+//      List<String> rejected = new LinkedList<String>();
 
       List<AbstractAction> actions = this.getOrderedActions();
 
@@ -210,7 +210,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
           action.execute();
 
-          accepted.add(action.getMessage()); // TODO ?
+//          accepted.add(action.getMessage());
 
           statuses.add(AllGovernanceStatus.ACCEPTED);
         }
@@ -218,14 +218,12 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
         {
           action.execute();
 
-          accepted.add(action.getMessage());
+//          accepted.add(action.getMessage());
 
           statuses.add(AllGovernanceStatus.ACCEPTED);
         }
         else if (action.getApprovalStatus().contains(AllGovernanceStatus.REJECTED) || action.getApprovalStatus().contains(AllGovernanceStatus.INVALID))
         {
-          rejected.add(action.getMessage());
-
           statuses.add(AllGovernanceStatus.REJECTED);
         }
       }
@@ -243,54 +241,54 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       this.apply();
 
       // Email the contributor
-      SingleActor actor = this.getCreatedBy();
-
-      if (sendEmail && actor instanceof GeoprismUser)
-      {
-        String email = ( (GeoprismUser) actor ).getEmail();
-
-        if (email != null && email.length() > 0)
-        {
-          String subject = LocalizationFacade.getFromBundles("change.request.email.subject");
-          subject = subject.replaceAll("\\{0\\}", status.getDisplayLabel());
-
-          String body = new String();
-
-          if (accepted.size() > 0)
-          {
-            body += append(accepted, "change.request.email.body.approved");
-          }
-
-          if (rejected.size() > 0)
-          {
-            if (accepted.size() > 0)
-            {
-              body += "\n";
-              body += "\n";
-            }
-
-            body += append(rejected, "change.request.email.body.rejected");
-          }
-
-          // EmailSetting.sendEmail(subject, body, new String[] { email });
-        }
-      }
+//      SingleActor actor = this.getCreatedBy();
+//
+//      if (sendEmail && actor instanceof GeoprismUser)
+//      {
+//        String email = ( (GeoprismUser) actor ).getEmail();
+//
+//        if (email != null && email.length() > 0)
+//        {
+//          String subject = LocalizationFacade.getFromBundles("change.request.email.subject");
+//          subject = subject.replaceAll("\\{0\\}", status.getDisplayLabel());
+//
+//          String body = new String();
+//
+//          if (accepted.size() > 0)
+//          {
+//            body += append(accepted, "change.request.email.body.approved");
+//          }
+//
+//          if (rejected.size() > 0)
+//          {
+//            if (accepted.size() > 0)
+//            {
+//              body += "\n";
+//              body += "\n";
+//            }
+//
+//            body += append(rejected, "change.request.email.body.rejected");
+//          }
+//
+//          // EmailSetting.sendEmail(subject, body, new String[] { email });
+//        }
+//      }
     }
   }
 
-  private String append(List<String> list, String key)
-  {
-    String body = LocalizationFacade.getFromBundles(key);
-
-    String messages = "\n";
-
-    for (String message : list)
-    {
-      messages += message + "\n";
-    }
-
-    return body.replaceAll("\\{0\\}", messages);
-  }
+//  private String append(List<String> list, String key)
+//  {
+//    String body = LocalizationFacade.getFromBundles(key);
+//
+//    String messages = "\n";
+//
+//    for (String message : list)
+//    {
+//      messages += message + "\n";
+//    }
+//
+//    return body.replaceAll("\\{0\\}", messages);
+//  }
 
   @Transaction
   public void setAllActionsStatus(AllGovernanceStatus status)
