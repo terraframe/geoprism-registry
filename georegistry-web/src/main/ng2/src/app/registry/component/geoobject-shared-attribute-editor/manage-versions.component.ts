@@ -140,7 +140,7 @@ export class ManageVersionsComponent implements OnInit {
     isRootOfHierarchy: boolean = false;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
+    constructor(public geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
         public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
         private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
 
