@@ -178,21 +178,9 @@ public class ChangeRequestService
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_ASC(query.getCreateDate());
 
-    if (filter != null && filter.equals("PENDING"))
+    if (filter != null && !filter.equals("ALL"))
     {
-      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.PENDING));
-    }
-    else if (filter != null && filter.equals("REJECTED"))
-    {
-      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.REJECTED));
-    }
-    else if (filter != null && filter.equals("ACCEPTED"))
-    {
-      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.ACCEPTED));
-    }
-    else if (filter != null && filter.equals("INVALID"))
-    {
-      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.INVALID));
+      query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.valueOf(filter)));
     }
 
     if (oid != null)

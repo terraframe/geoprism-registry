@@ -4,23 +4,25 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.action;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
@@ -106,7 +108,6 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     {
       action.delete();
     }
-    
 
     OIterator<? extends ChangeRequestHasDocument> it = this.getAllDocumentRel();
     for (ChangeRequestHasDocument rel : it)
@@ -118,24 +119,24 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
     super.delete();
   }
-  
+
   public ServerGeoObjectType getGeoObjectType()
   {
     return ServerGeoObjectType.get(this.getGeoObjectTypeCode(), true);
   }
-  
+
   public VertexServerGeoObject getGeoObject()
   {
     ServerGeoObjectType type = this.getGeoObjectType();
-    
+
     if (type == null)
     {
       return null;
     }
-    
+
     return (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), type);
   }
-  
+
   public JsonObject toJSON()
   {
     GsonBuilder builder = new GsonBuilder();
@@ -192,7 +193,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
       List<AbstractAction> actions = this.getOrderedActions();
 
-      AllGovernanceStatus status = AllGovernanceStatus.REJECTED;
+      Set<AllGovernanceStatus> statuses = new TreeSet<AllGovernanceStatus>();
 
       for (AbstractAction action : actions)
       {
@@ -206,12 +207,12 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
           action.clearApprovalStatus();
           action.addApprovalStatus(AllGovernanceStatus.ACCEPTED);
           action.apply();
-          
+
           action.execute();
 
           accepted.add(action.getMessage()); // TODO ?
 
-          status = AllGovernanceStatus.ACCEPTED;
+          statuses.add(AllGovernanceStatus.ACCEPTED);
         }
         else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
         {
@@ -219,12 +220,21 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
           accepted.add(action.getMessage());
 
-          status = AllGovernanceStatus.ACCEPTED;
+          statuses.add(AllGovernanceStatus.ACCEPTED);
         }
         else if (action.getApprovalStatus().contains(AllGovernanceStatus.REJECTED) || action.getApprovalStatus().contains(AllGovernanceStatus.INVALID))
         {
           rejected.add(action.getMessage());
+
+          statuses.add(AllGovernanceStatus.REJECTED);
         }
+      }
+
+      AllGovernanceStatus status = AllGovernanceStatus.REJECTED;
+
+      if (statuses.size() > 0)
+      {
+        status = statuses.size() == 1 ? statuses.iterator().next() : AllGovernanceStatus.PARTIAL;
       }
 
       this.appLock();
@@ -316,25 +326,25 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     // this.apply();
     // }
   }
-  
+
   public boolean isCurrentUserOwner()
   {
     return this.getOwnerId().equals(Session.getCurrentSession().getUser().getOid());
   }
-  
+
   public AllGovernanceStatus getGovernanceStatus()
   {
     return this.getApprovalStatus().get(0);
   }
-  
+
   @Transaction
   public void invalidate(String localizedReason)
   {
     this.lock();
-    
+
     this.clearApprovalStatus();
     this.addApprovalStatus(AllGovernanceStatus.INVALID);
-    
+
     if (this.getMaintainerNotes() != null && this.getMaintainerNotes().length() > 0)
     {
       this.setMaintainerNotes(this.getMaintainerNotes() + " " + localizedReason);
@@ -343,13 +353,13 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     {
       this.setMaintainerNotes(localizedReason);
     }
-    
+
     List<AbstractAction> actions = this.getOrderedActions();
-    
+
     for (AbstractAction action : actions)
     {
       action.lock();
-      
+
       if (action.getMaintainerNotes() != null && action.getMaintainerNotes().length() > 0)
       {
         action.setMaintainerNotes(action.getMaintainerNotes() + " " + localizedReason);
@@ -358,10 +368,10 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       {
         action.setMaintainerNotes(localizedReason);
       }
-      
+
       action.apply();
     }
-    
+
     this.apply();
   }
 

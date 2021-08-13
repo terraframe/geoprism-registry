@@ -11,11 +11,12 @@
       <a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
         <localize key="change.request.accepted.filter.link"></localize>
       </a>
-<!-- 
+      <a [routerLink]="" (click)="filter('PARTIAL')" [ngClass]="filterCriteria === 'PARTIAL' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
+        <localize key="change.request.partial.filter.link"></localize>
+      </a>
       <a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
         <localize key="change.request.rejected.filter.link"></localize>
       </a>
- -->      
 
     </div>
 
