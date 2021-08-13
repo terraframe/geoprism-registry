@@ -100,12 +100,19 @@
       </div>
       
       <div *ngIf="tabIndex === 2">
-        <h4>
-          <localize key="shared.attributes.attribute.geometry.label"></localize>
-        </h4>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span> <localize key="shared.attributes.attribute.geometry.label"></localize> </span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" (change)="onVersionChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+          </div>
+        </div>
 
-        <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" (change)="onVersionChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
       </div>
     </div>
     <!-- </div> -->
