@@ -91,7 +91,7 @@
               </div>
 			      
 			        <div class="panel-body">
-			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'geoObject':postGeoObject}"
+			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
                         [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" (change)="onVersionChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
 			        </div>
 		        </div>
@@ -104,7 +104,7 @@
           <localize key="shared.attributes.attribute.geometry.label"></localize>
         </h4>
 
-        <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'geoObject':postGeoObject}"
+        <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
           [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" (change)="onVersionChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
       </div>
     </div>

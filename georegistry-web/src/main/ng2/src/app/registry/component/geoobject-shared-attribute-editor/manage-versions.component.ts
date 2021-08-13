@@ -148,6 +148,8 @@ export class ManageVersionsComponent implements OnInit {
         this.calculateViewModels();
         this.isRootOfHierarchy = this.attributeType.type === "_PARENT_" && (this.hierarchy == null || this.hierarchy.types == null || this.hierarchy.types.length === 0);
         this.geomService.setLayers(this.getRenderedLayers());
+        
+        console.log("Test", this.readonly);
     }
 
     ngAfterViewInit() {
