@@ -29,7 +29,7 @@ export class GeometryService {
 
   simpleEditControl: any = null;
 
-  editable: ValueOverTimeEditPropagator;
+  editingLayer: Layer;
 
   @Output() geometryChange = new EventEmitter<any>();
 
@@ -56,7 +56,7 @@ export class GeometryService {
 
   destroy(): void {
       this.map = null;
-      this.editable = null;
+      this.editingLayer = null;
       this.editingControl = null;
   }
 
@@ -68,14 +68,13 @@ export class GeometryService {
       this.map.addControl(this.simpleEditControl);
   }
 
-  startEditing(editPropagator: ValueOverTimeEditPropagator) {
-      if (this.editable != null && this.editingControl != null) {
-          this.saveEdits(false);
-
-          this.editingControl.deleteAll();
+  startEditing(layer: Layer) {
+      if (this.isEditing()) {
+          this.stopEditing();
       }
 
-      this.editable = editPropagator;
+      this.editingLayer = layer;
+      this.editingLayer.isEditing = true;
 
       if (!this.readOnly) {
           this.enableEditing();
@@ -88,37 +87,38 @@ export class GeometryService {
 
   stopEditing(rerender: boolean = true) {
       this.saveEdits(rerender);
-
-      this.editable = null;
+      
+      this.editingLayer.isEditing = false;
+      this.editingLayer = null;
 
       this.editingControl.deleteAll();
   }
 
   isEditing(): boolean {
-      return this.editable != null;
+      return this.editingLayer != null;
   }
 
   setPointCoordinates(lat: any, long: any) {
-      if (this.editable != null) {
+      if (this.editingLayer != null) {
           this.editingControl.set({
               type: "FeatureCollection",
               features: [{
-                  id: this.editable.oid,
+                  id: this.editingLayer.oid,
                   type: "Feature",
                   properties: {},
                   geometry: { type: "Point", coordinates: [long, lat] }
               }]
           });
 
-          this.editingControl.changeMode("simple_select", { featureIds: this.editable.oid });
+          this.editingControl.changeMode("simple_select", { featureIds: this.editingLayer.oid });
 
           this.saveEdits();
 
       /*
-      this.editable.value = {
+      this.editingLayer.value = {
         type: 'FeatureCollection',
         features: [{
-        id: this.editable.oid,
+        id: this.editingLayer.oid,
           type: 'Feature',
           properties: {},
           geometry: { type: 'Point', coordinates: [ long, lat ] }
@@ -127,14 +127,14 @@ export class GeometryService {
       */
 
       /*
-      this.editable.value.coordinates = [ -97.4870830718814, 41.84836050415993 ];
+      this.editingLayer.value.coordinates = [ -97.4870830718814, 41.84836050415993 ];
 
-      this.editingControl.set(this.editable.value);
+      this.editingControl.set(this.editingLayer.value);
 
       this.removeLayers();
       this.addLayers();
 
-      this.editingControl.changeMode( 'simple_select', { featureIds: this.editable.oid } );
+      this.editingControl.changeMode( 'simple_select', { featureIds: this.editingLayer.oid } );
       */
       }
   }
@@ -158,10 +158,10 @@ export class GeometryService {
   }
 
   saveEdits(rerender: boolean = true): void {
-      if (this.editable != null) {
+      if (this.editingLayer != null) {
           let geoJson = this.getDrawGeometry();
 
-          this.editable.value = geoJson;
+          this.editingLayer.editPropagator.value = geoJson;
 
           if (rerender) {
               this.removeLayers();
@@ -169,7 +169,7 @@ export class GeometryService {
           }
       }
   }
-
+  
   public reload(): void {
       if (this.map != null) {
           this.removeLayers();
@@ -178,9 +178,52 @@ export class GeometryService {
           this.addEditingLayers();
       }
   }
-
+  
+  setEditing(isEditing: boolean, layer: Layer) {
+    if (this.isEditing())
+    {
+      this.stopEditing();
+    }
+    
+    layer.isEditing = isEditing;
+    
+    if (isEditing) {
+      this.startEditing(layer);
+    }
+  }
+  
+  setRendering(isRendering: boolean, layer: Layer) {
+    layer.isRendering = isRendering;
+    this.addLayer(layer);
+  }
+  
+  addLayer(newLayer: Layer) {
+    let existingIndex = this.layers.findIndex( (findLayer: Layer) => {return findLayer.oid === newLayer.oid} );
+    
+    if (existingIndex != -1) {
+      this.layers.splice(existingIndex, 1);
+      this.layers.push(newLayer);
+    }
+    else {
+      this.layers.push(newLayer);
+    }
+    
+    if (newLayer.isEditing) {
+      this.startEditing(newLayer);
+    }
+    
+    this.layers = this.layers.sort((a, b) => { return a.zindex - b.zindex; });
+    
+    this.removeLayers();
+    this.addLayers();
+  }
+  
   getLayers(): Layer[] {
       return this.layers;
+  }
+  
+  getRenderedLayers(): Layer[] {
+      return this.layers.filter(layer => layer.isRendering);
   }
 
   setLayers(layers: Layer[]): void {
@@ -266,11 +309,11 @@ export class GeometryService {
   }
 
   addEditingLayers(): void {
-      if (this.editable != null && this.editingControl != null) {
-          let val = this.editable.value;
+      if (this.editingLayer != null && this.editingControl != null) {
+          let val = this.editingLayer.editPropagator.value;
 
           if (val) {
-              this.editingControl.add(this.editable.value);
+              this.editingControl.add(this.editingLayer.editPropagator.value);
           }
       }
   }
@@ -317,7 +360,11 @@ export class GeometryService {
           let len = this.layers.length;
           for (let i = 0; i < len; ++i) {
               let layer = this.layers[i];
-              this.renderGeometryAsLayer(layer.editPropagator == null ? layer.geojson : layer.editPropagator.value, layer.oid, layer.color);
+              
+              if (layer.isRendering)
+              {
+                this.renderGeometryAsLayer(layer.editPropagator == null ? layer.geojson : layer.editPropagator.value, layer.oid, layer.color);
+              }
           }
       }
   }

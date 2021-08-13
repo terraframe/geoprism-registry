@@ -12,6 +12,8 @@ export enum LayerColor {
 
 export class Layer {
   oid: string;
+  isEditing: boolean;
+  isRendering: boolean;
   color: LayerColor;
   zindex: number;
   geojson: any;
@@ -30,9 +32,8 @@ export class VersionDiffView extends ValueOverTime {
   oldValue?: any;
   oldStartDate?: string;
   oldEndDate?: string;
-  isEditingGeometries: boolean = false;
-  isRenderingLayer: boolean = false;
-  isRenderingOldLayer: boolean = false;
+  newLayer: Layer = null;
+  oldLayer: Layer = null;
   coordinate?: any;
   editPropagator: ValueOverTimeEditPropagator;
   
