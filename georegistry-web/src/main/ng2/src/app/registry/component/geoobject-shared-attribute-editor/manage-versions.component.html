@@ -48,7 +48,7 @@
 		                             <td colspan="2">
 		                               <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
 		                               
-		                               <input [ngClass]="{'has-changed': (viewModel.oldValue && getValueAtLocale(viewModel.oldValue, loc.locale) && !isNew)}" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editPropagator.setLocalizedValue(loc)" [required]="loc.locale === 'defaultLocale'">
+		                               <input [ngClass]="{'has-changed': (hasLocalizationChanged(viewModel, loc.locale) && !isNew)}" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editPropagator.setLocalizedValue(loc)" [required]="loc.locale === 'defaultLocale'">
 		                               
 		                               <div class="form-input-validation-error-message-wrapper">
 		                                 <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">
@@ -56,7 +56,7 @@
 		                                 </p>
 		                               </div>
 		                               
-		                               <div *ngIf="viewModel.oldValue && getValueAtLocale(viewModel.oldValue, loc.locale) && !isNew">
+		                               <div *ngIf="hasLocalizationChanged(viewModel, loc.locale) && !isNew">
 		                                 <p class="warning-text">
 		                                   <localize key="change.request.changed.value.prefix"></localize>
 		                                   {{ getValueAtLocale(viewModel.oldValue, loc.locale) }}

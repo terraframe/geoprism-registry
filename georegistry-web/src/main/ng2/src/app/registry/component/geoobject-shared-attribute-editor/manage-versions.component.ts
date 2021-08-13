@@ -171,8 +171,8 @@ export class ManageVersionsComponent implements OnInit {
         return true;
     }
     
-    hasDateChanged(viewModel: any): boolean {
-      return viewModel.oldStartDate != null && !this.isNew;
+    hasLocalizationChanged(viewModel: VersionDiffView, locale: string): boolean {
+      return viewModel.oldValue != null && this.getValueAtLocale(viewModel.oldValue, locale) !== this.getValueAtLocale(viewModel.value, locale);
     }
 
     onDateChange(): any {
