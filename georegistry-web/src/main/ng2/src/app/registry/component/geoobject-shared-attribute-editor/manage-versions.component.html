@@ -267,6 +267,14 @@
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              
+            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left: 15px;">
+              <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
+                <localize key="change.request.accept.btn"></localize>
+              </button>
+              <button *ngIf="editAction.approvalStatus === 'REJECTED'" disabled type="submit" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                <localize key="change.request.reject.btn"></localize>
+              </button>
+            </div>              
           </div>
         </div>
 	      <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
