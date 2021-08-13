@@ -105,7 +105,7 @@
 			                                 <div class="input-group">
 			                                    <input style="width:100%;" type="text" class="form-control" autocomplete="off"
 			                                      [name]="type.code + '-' + i"
-			                                      [disabled]="viewModel.summaryKey === 'DELETE' || viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
+			                                      [disabled]="readonly || viewModel.summaryKey === 'DELETE' || viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
 			                                      [(ngModel)]="viewModel.editPropagator.value.parents[type.code].text" 
 			                                      [typeaheadAsync]="true"
 			                                      [typeahead]="viewModel.editPropagator.getTypeAheadObservable(viewModel.editPropagator.startDate, type, viewModel.editPropagator.value, j)"
@@ -117,8 +117,12 @@
 			                                      [typeaheadMinLength]="0"
 			                                      [typeaheadWaitMs]="300">
 			                                    
-			                                      <span class="input-group-addon clickable addon-alert" (click)="viewModel.editPropagator.removeType(type)"> 
+			                                      <span *ngIf="!readonly" class="input-group-addon clickable addon-alert" (click)="viewModel.editPropagator.removeType(type)"> 
 			                                        <i class="fa fa-times" aria-hidden="true"></i>
+			                                      </span>
+                                                  
+                                            <!-- Hack: This is needed for formatting  -->
+			                                      <span *ngIf="readonly" class="input-group-addon addon-alert"> 
 			                                      </span>
 			                                  </div>
 			                               </div>
