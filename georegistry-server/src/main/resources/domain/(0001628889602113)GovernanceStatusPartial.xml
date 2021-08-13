@@ -20,26 +20,28 @@
 -->
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
-    <update>
+    <create>
       <object
-        key="net.geoprism.registry.action.GovernanceStatus.ACCEPTED"
+        key="net.geoprism.registry.action.GovernanceStatus.PARTIAL"
         type="net.geoprism.registry.action.GovernanceStatus">
+          <attribute
+            name="enumName"
+            value="PARTIAL" />
         <attributeStruct
           name="displayLabel">
           <attribute
             name="defaultLocale"
-            value="IMPLEMENTED" />
+            value="PARTIAL" />
         </attributeStruct>
       </object>
-      
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.accepted.filter.link">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.partial.filter.link">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="change.request.accepted.filter.link" />
+        <attribute name="storeKey" value="change.request.partial.filter.link" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Implemented" />
+          <attribute name="defaultLocale" value="Partial" />
         </attributeStruct>
       </object>      
-    </update>      
+    </create>
   </doIt>
   <undoIt>
     <delete>

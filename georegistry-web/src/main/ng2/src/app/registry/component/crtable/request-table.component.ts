@@ -206,7 +206,7 @@ export class RequestTableComponent {
     }
 
     refresh(pageNumber: number = 1): void {
-        this.service.getAllRequests(this.page.pageSize, pageNumber, "ALL", this.oid).then(requests => {
+        this.service.getAllRequests(this.page.pageSize, pageNumber, this.filterCriteria, this.oid).then(requests => {
             this.page = requests;
             this.requests = requests.resultSet;
 
@@ -363,13 +363,9 @@ export class RequestTableComponent {
     }
 
     filter(criteria: string): void {
-        this.service.getAllRequests(this.page.pageSize, 1, criteria, this.oid).then(requests => {
-            this.requests = requests.resultSet;
-
-            this.filterCriteria = criteria;
-        }).catch((response: HttpErrorResponse) => {
-            this.error(response);
-        });
+        this.filterCriteria = criteria;
+        
+        this.refresh(1);      
     }
 
     setActionStatus(action: CreateGeoObjectAction | UpdateAttributeAction, status: string): void {
