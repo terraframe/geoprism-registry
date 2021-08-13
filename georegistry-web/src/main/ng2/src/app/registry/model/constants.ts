@@ -1,6 +1,7 @@
 export enum ActionTypes {
     "CREATEGEOOBJECTACTION" = "CreateGeoObjectAction", 
-    "UPDATEATTRIBUTETACTION" = "UpdateAttributeAction"
+    "UPDATEATTRIBUTETACTION" = "UpdateAttributeAction",
+    "UPDATEGEOOBJECTACTION" = "UpdateGeoObjectAction" // Deprecated DO NOT USE
 }
 
 export enum GovernanceStatus {
