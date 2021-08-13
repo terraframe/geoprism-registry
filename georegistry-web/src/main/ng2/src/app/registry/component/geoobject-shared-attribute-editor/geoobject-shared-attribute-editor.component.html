@@ -8,13 +8,16 @@
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
       <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0}" (click)="changePage(0);"> 
-        <localize key="geoobject.editor.tabZero"></localize>
+        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
+        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1}" (click)="changePage(1);"> 
-          <localize key="geoobject.editor.tabOne"></localize>
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, tabHasChanges: hasChanges(2)}" (click)="changePage(1);"> 
+        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
+        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2}" (click)="changePage(2);"> 
-        <localize key="geoobject.editor.tabTwo"></localize>
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, tabHasChanges: hasChanges(3)}" (click)="changePage(2);"> 
+        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
+        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
       </label>
     </div>
   </div>
