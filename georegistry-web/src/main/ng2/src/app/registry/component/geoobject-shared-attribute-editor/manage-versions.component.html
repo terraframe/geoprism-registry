@@ -99,13 +99,13 @@
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === '_PARENT_'">
-								      <ng-container *ngIf="hierarchy != null && hierarchy.types != null && hierarchy.types.length > 0">
+                                   <ng-container *ngIf="hierarchy != null && hierarchy.types != null && hierarchy.types.length > 0">
 		                                 <div style="float:left;width:100%;" *ngFor="let type of hierarchy.types; let j = index"> 
 			                                 {{type.label}}
 			                                 <div class="input-group">
 			                                    <input style="width:100%;" type="text" class="form-control" autocomplete="off"
 			                                      [name]="type.code + '-' + i"
-			                                      [disabled]="viewModel.summaryKey === 'DELETE' || viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
+			                                      [disabled]="readonly || viewModel.summaryKey === 'DELETE' || viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
 			                                      [(ngModel)]="viewModel.editPropagator.value.parents[type.code].text" 
 			                                      [typeaheadAsync]="true"
 			                                      [typeahead]="viewModel.editPropagator.getTypeAheadObservable(viewModel.editPropagator.startDate, type, viewModel.editPropagator.value, j)"
@@ -117,8 +117,12 @@
 			                                      [typeaheadMinLength]="0"
 			                                      [typeaheadWaitMs]="300">
 			                                    
-			                                      <span class="input-group-addon clickable addon-alert" (click)="viewModel.editPropagator.removeType(type)"> 
+			                                      <span *ngIf="!readonly" class="input-group-addon clickable addon-alert" (click)="viewModel.editPropagator.removeType(type)"> 
 			                                        <i class="fa fa-times" aria-hidden="true"></i>
+			                                      </span>
+                                                  
+                                            <!-- Hack: This is needed for formatting  -->
+			                                      <span *ngIf="readonly" class="input-group-addon addon-alert"> 
 			                                      </span>
 			                                  </div>
 			                               </div>
@@ -252,18 +256,17 @@
               </li>
               
             </ul>
-              <div *ngIf="changeRequest && changeRequest.approvalStatus === 'PENDING' && editAction && hasAttributeChanges()" style="margin-left: 15px;">
-                <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
-                  <localize key="change.request.accept.btn"></localize>
-                </button>
-                <button [disabled]="editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
-                  <localize key="change.request.reject.btn"></localize>
-                </button>
-                <button [disabled]="editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
-                  <localize key="change.request.pending.btn"></localize>
-                </button>
-              </div>
-              
+            <div *ngIf="changeRequest && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
+              <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
+                <localize key="change.request.accept.btn"></localize>
+              </button>
+              <button [disabled]="editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                <localize key="change.request.reject.btn"></localize>
+              </button>
+              <button [disabled]="editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                <localize key="change.request.pending.btn"></localize>
+              </button>
+            </div>              
           </div>
         </div>
 	      <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 

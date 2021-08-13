@@ -74,6 +74,8 @@ export class FeaturePanelComponent implements OnInit {
 	ngOnInit(): void {
 	  this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
 		this.mode = 'ATTRIBUTES';
+    
+    this.isEdit = !this.readOnly;
 	}
 	
 	setValid(valid: boolean): void {
