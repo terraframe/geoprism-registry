@@ -48,7 +48,7 @@
 		                             <td colspan="2">
 		                               <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
 		                               
-		                               <input [disabled]="readonly || viewModel.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editPropagator.setLocalizedValue(loc)" [required]="loc.locale === 'defaultLocale'">
+		                               <input [ngClass]="{'has-changed': (viewModel.oldValue && getValueAtLocale(viewModel.oldValue, loc.locale) && !isNew)}" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editPropagator.setLocalizedValue(loc)" [required]="loc.locale === 'defaultLocale'">
 		                               
 		                               <div class="form-input-validation-error-message-wrapper">
 		                                 <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">
@@ -56,7 +56,7 @@
 		                                 </p>
 		                               </div>
 		                               
-		                               <div *ngIf="viewModel.oldValue && !isNew">
+		                               <div *ngIf="viewModel.oldValue && getValueAtLocale(viewModel.oldValue, loc.locale) && !isNew">
 		                                 <p class="warning-text">
 		                                   <localize key="change.request.changed.value.prefix"></localize>
 		                                   {{ getValueAtLocale(viewModel.oldValue, loc.locale) }}
@@ -69,32 +69,32 @@
 	                             <td colspan="2">
                                
 	                               <div *ngIf="attributeType.type === 'term'">
-	                                 <select id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
+	                                 <select [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
 	                                     <option value=""></option>
 	                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attributeType.code)" [value]="option.code">{{option.label.localizedValue}}</option>
 	                                 </select>
 	                               </div>
 	                               <div *ngIf="attributeType.type === 'character'">
-	                                 <input type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
+	                                 <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'date'">
-	                                 <date-field [(value)]="viewModel.editPropagator.value" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
+	                                 <date-field [customStyles]="(viewModel.oldValue && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.value" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
 	                                     [required]="true" [placement]="'right'" [(valid)]="isValid" [disable]="readonly" ></date-field>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'integer' || attributeType.type === 'float'">
-	                                 <input type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
+	                                 <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'boolean'">
 	                                   <label class="radio radio-inline" style="padding-left:0;"> 
 	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === true" [value]="true" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
-	                                     <span><localize key="change.request.boolean.option.true"></localize></span>
+	                                     <span [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}"><localize key="change.request.boolean.option.true"></localize></span>
 	                                   </label> 
 	                                   <label class="radio radio-inline"> 
-	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === false" [value]="false" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
-	                                     <span><localize key="change.request.boolean.option.false"></localize></span>
+	                                     <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" class="inline-radio-input" type="radio" [checked]="viewModel.value === false" [value]="false" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
+	                                     <span [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}"><localize key="change.request.boolean.option.false"></localize></span>
 	                                   </label>
 	                               </div>
 	                               
@@ -111,7 +111,7 @@
 			                                      [typeahead]="viewModel.editPropagator.getTypeAheadObservable(viewModel.editPropagator.startDate, type, viewModel.editPropagator.value, j)"
 			                                      (typeaheadOnSelect)="viewModel.editPropagator.typeaheadOnSelect($event, type, viewModel.editPropagator.value, viewModel.editPropagator.startDate)" 
 			                                      (typeaheadLoading)="viewModel.editPropagator.value.loading[type.code] = $event"
-			                                      [ngClass]="{'inline-loading':viewModel.editPropagator.value.loading[type.code]}"                                                                
+			                                      [ngClass]="{'inline-loading':viewModel.editPropagator.value.loading[type.code], 'has-changed': (viewModel.oldValue && !isNew)}"                                                                
 			                                      [typeaheadOptionsLimit]="7"
 			                                      [typeaheadItemTemplate]="customItemTemplate" 
 			                                      [typeaheadMinLength]="0"
@@ -202,7 +202,7 @@
 	                                  <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
 	                                </h5>
 	                            
-	                                <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
+	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
 	                                  <p class="warning-text">
@@ -217,7 +217,7 @@
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
 	                              
-	                                  <date-field #dateFieldComponents [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readOnly" [allowFutureDates]="true" 
+	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readOnly" [allowFutureDates]="true" 
 	                                      [required]="true" [placement]="'bottom'" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                    
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">

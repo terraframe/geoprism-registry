@@ -42,6 +42,10 @@ table {
  border-color: orange;
 }
 
+.has-changed {
+	color: orange;
+}
+
 .version-row tr {
  padding-left: 10px;
 }

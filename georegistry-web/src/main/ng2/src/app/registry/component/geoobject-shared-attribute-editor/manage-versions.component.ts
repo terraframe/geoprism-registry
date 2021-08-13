@@ -170,6 +170,10 @@ export class ManageVersionsComponent implements OnInit {
 
         return true;
     }
+    
+    hasDateChanged(viewModel: any): boolean {
+      return viewModel.oldStartDate != null && !this.isNew;
+    }
 
     onDateChange(): any {
         setTimeout(() => {
