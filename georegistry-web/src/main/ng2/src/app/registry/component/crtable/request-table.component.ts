@@ -156,7 +156,7 @@ export class RequestTableComponent {
             this.waitingOnScroll = true;
         }
 
-        this.refresh();
+        this.refresh();        
     }
 
     scrollToBottom(): void {
@@ -277,24 +277,31 @@ export class RequestTableComponent {
                 bsModalRef.content.cancelText = this.localizationService.decode("change.requests.more.geoobject.updates.cancel.btn");
                 bsModalRef.content.message = this.localizationService.decode("change.requests.more.geoobject.updates.message");
 
-                bsModalRef.content.onConfirm.subscribe(data => {
-                    let firstGeoObject = this.getFirstGeoObjectInActions();
+                bsModalRef.content.onConfirm.subscribe(() => {
+                  const object =  this.getFirstGeoObjectInActions(request);
+                  
+                  if (object != null) {
+                    this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
+                  }
+                  else {
+                    let object = request.current.geoObject;
+                    let type = request.current.geoObjectType;
 
-                    if (firstGeoObject) {
-                        this.router.navigate(["/registry/location-manager", firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, this.today, true]);
-                    } else {
-                        this.router.navigate(["/registry/location-manager", firstGeoObject.attributes.uid, firstGeoObject.geoObjectType.code, this.today, true]);
-                    }
+                    if (object != null && type != null) {
+                        this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
+                    }                    
+                  }
                 });
             }).catch((response: HttpErrorResponse) => {
                 this.error(response);
             });
         }
     }
-
-    getFirstGeoObjectInActions(): GeoObjectOverTime {
-        for (let i = 0; i < this.actions.length; i++) {
-            let action = this.actions[i];
+    
+    getFirstGeoObjectInActions(request: ChangeRequest): GeoObjectOverTime {
+      
+        for (let i = 0; i < request.actions.length; i++) {
+            let action = request.actions[i];
 
             // eslint-disable-next-line no-prototype-builtins
             if (action.hasOwnProperty("geoObjectJson")) {
@@ -304,6 +311,7 @@ export class RequestTableComponent {
 
         return null;
     }
+    
 
     onDelete(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
