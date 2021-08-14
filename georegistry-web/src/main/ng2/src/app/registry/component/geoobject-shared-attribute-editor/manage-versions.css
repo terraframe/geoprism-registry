@@ -1,0 +1,55 @@
+table {
+ border-collapse: separate;
+ padding: 15px;
+}
+
+.geometry-edit-active {
+  background-color: #f4fcef !important;
+  border: solid 1px #6BA542 !important;
+  /* display:inline-block; */
+}
+
+.version-column-wrapper {
+	padding-top: 0px;
+	padding-left: 0px;
+	border: solid 1px lightgrey;
+}
+.version-column-wrapper.warning {
+    background-color: inherit;
+    border-color: orange;
+    border-left: solid 5px orange;
+}
+
+.version-column-wrapper .version-column-indicator {
+	position: relative;
+	background: grey;
+    color: white;
+    left: -1px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0 6px;
+    width: fit-content;
+    top: -1px;
+}
+.version-column-wrapper.warning .version-column-indicator {
+    background-color: orange;
+}
+
+.version-column-wrapper .manage-version-button {
+    border: solid 1px lightgrey;
+}
+.version-column-wrapper.warning .manage-version-button {
+ border-color: orange;
+}
+
+.version-row tr {
+ padding-left: 10px;
+}
+.version-row tr td {
+ padding-left: 5px;
+}
+
+.list-group {
+ margin-bottom: 0;
+}
+

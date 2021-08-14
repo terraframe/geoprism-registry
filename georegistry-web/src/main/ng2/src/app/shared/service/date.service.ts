@@ -4,25 +4,24 @@ import { LocalizationService } from './localization.service';
 
 import Utils from '../../registry/utility/Utils';
 
-import { PRESENT, ValueOverTime } from '@registry/model/registry';
+import { PRESENT, ConflictMessage, TimeRangeEntry } from '@registry/model/registry';
 
-import * as moment from 'moment';
+import { SummaryKey } from "@registry/model/crtable";
 
-declare var Globalize: any;
-declare var com: any
-declare var registry: any
-
+import { ConflictType } from '@registry/model/constants';
 
 @Injectable()
 export class DateService {
-	overlapMessage = { 
-		"type": "ERROR",	
-		"message":this.localizationService.decode("manage.versions.overlap.message")
+	overlapMessage: ConflictMessage = { 
+		"severity": "ERROR",	
+		"message":this.localizationService.decode("manage.versions.overlap.message"),
+		type: ConflictType.TIME_RANGE
 	}
 	
-	gapMessage = {
-		"type": "WARNING",	
-		"message":this.localizationService.decode("manage.versions.gap.message")
+	gapMessage: ConflictMessage = {
+		"severity": "WARNING",	
+		"message":this.localizationService.decode("manage.versions.gap.message"),
+		type: ConflictType.TIME_RANGE
 	}
 
 	constructor(private localizationService: LocalizationService) {}
@@ -77,18 +76,32 @@ export class DateService {
 		return null;
 	}
 	
-	checkRanges(vAttributes: any[]): boolean {
+	checkRanges(vAttributes: TimeRangeEntry[]): boolean {
 		
 		let hasConflict = false;
 		
 		// clear all messages
 		vAttributes.forEach(attr => {
-			attr.conflictMessage = [];
-		})
-		
+		  if (!attr.conflictMessage)
+		  {
+			  attr.conflictMessage = [];
+			}
+			
+			for (let i = attr.conflictMessage.length-1; i >= 0; --i)
+			{
+			  if (attr.conflictMessage[i].type == ConflictType.TIME_RANGE)
+			  {
+			    attr.conflictMessage.splice(i, 1);
+			  }
+			}
+		});
+    
+    // Filter DELETE entries from overlap and gap consideration
+    const filtered = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+    
 		// Check for overlaps
-		for (let j = 0; j < vAttributes.length; j++) {
-			const h1 = vAttributes[j];
+		for (let j = 0; j < filtered.length; j++) {
+			const h1 = filtered[j];
 
 			if (h1.startDate && h1.endDate) {
 				let s1: any = this.getDateFromDateString(h1.startDate);
@@ -96,18 +109,19 @@ export class DateService {
 
 				if (Utils.dateEndBeforeStart(s1, e1)) {
 					h1.conflictMessage.push({
-						"type": "ERROR",	
-						"message": this.localizationService.decode("manage.versions.startdate.later.enddate.message")
-					});
+						"severity": "ERROR",	
+						"message": this.localizationService.decode("manage.versions.startdate.later.enddate.message"),
+						type: ConflictType.TIME_RANGE
+					} as ConflictMessage);
 					
 					hasConflict = true;
 				}
 
-				for (let i = 0; i < vAttributes.length; i++) {
+				for (let i = 0; i < filtered.length; i++) {
 
 					if (j !== i) {
 						
-						const h2 = vAttributes[i];
+						const h2 = filtered[i];
 						
 						// If all dates set
 						if (h2.startDate && h2.endDate) {
@@ -142,12 +156,12 @@ export class DateService {
 			}
 		}
 		
-		this.sort(vAttributes);
+		this.sort(filtered);
 		
 		// Check for gaps
 		let current = null;
-		for (let j = 0; j < vAttributes.length; j++) {
-			let next = vAttributes[j];
+		for (let j = 0; j < filtered.length; j++) {
+			let next = filtered[j];
 
 			if (j > 0) {
 				if (current.endDate && next.startDate) {
@@ -164,11 +178,13 @@ export class DateService {
 
 			current = next;
 		}
+    
+    this.sort(vAttributes);
 		
 		return hasConflict;
 	}
 	
-	sort(votArr: ValueOverTime[]): void {
+	sort(votArr: TimeRangeEntry[]): void {
 
 		// Sort the data by start date 
 		votArr.sort(function(a, b) {

@@ -110,24 +110,53 @@
     display: block;
     margin-bottom: 50px;
 }
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button {
-    width: 33.3%;
+
+
+/*  Full width radio buttons */
+
+.btn-group .btn.full-width-radio-button {
+    width: 33.33%;
     background: white; /* IE fallback */
     background: var(--theme-button-color);
-
+    
     color: #767676; /* IE fallback */
     color: var(--theme-button-text-color);  
     border-color: var(--theme-button-color-border);
 }
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button:active{
-    background: #EDF4E8 !important; /* IE fallback */
-    background: var(--theme-submit-button-color-light) !important;
-}
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button.active,
-.btn-group.geobject-editor-tab-holder .btn.full-width-radio-button:focus{
-    color: #6BA542 !important; /* IE fallback */
-    color: var(--theme-button-color-hover) !important;
+.btn-group .btn.full-width-radio-button.active{
+    color: white !important; 
+
+    background-color: #6BA542 !important; /* IE fallback */
+    background-color: var(--theme-button-color-hover) !important;
     box-shadow: none;
+    outline: 0;
+    box-shadow: none;
+}
+.btn-group .btn.full-width-radio-button:focus,
+.btn-group .btn.full-width-radio-button:active{
+    outline: 0;
+    box-shadow: none;
+}
+
+.btn-group.define-attribute-btns .full-width-radio-button {
+    width: 16.5%;
+}
+
+label.btn.full-width-radio-button.disabled {
+    border-color: #a7a7a7 !important;
+    font-weight: normal;
+    color: #a7a7a7;
+}
+.btn-group .btn.full-width-radio-button.disabled:active, 
+.btn-group .btn.full-width-radio-button.disabled:focus {
+/*     background: white !important; */
+    background: var(--theme-button-color) !important;
+    outline: 0px !important;
+}
+
+
+label.btn.full-width-radio-button.error {
+    border-color: #8c0000;
 }
 
 
@@ -247,15 +276,6 @@
 
 a.navbar-brand {
     font-size: 23px;
-}
-
-
-
-/**
-Error Modal
-**/
-.error-white-space-pre {
-	white-space: pre
 }
 
 

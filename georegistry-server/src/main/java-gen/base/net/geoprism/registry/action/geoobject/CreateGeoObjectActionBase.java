@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.action.geoobject;
 
-@com.runwaysdk.business.ClassSignature(hash = 1266073895)
+@com.runwaysdk.business.ClassSignature(hash = 2104958592)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -30,7 +12,8 @@ public abstract class CreateGeoObjectActionBase extends net.geoprism.registry.ac
 {
   public final static String CLASS = "net.geoprism.registry.action.geoobject.CreateGeoObjectAction";
   public static java.lang.String GEOOBJECTJSON = "geoObjectJson";
-  private static final long serialVersionUID = 1266073895;
+  public static java.lang.String PARENTJSON = "parentJson";
+  private static final long serialVersionUID = 2104958592;
   
   public CreateGeoObjectActionBase()
   {
@@ -62,6 +45,34 @@ public abstract class CreateGeoObjectActionBase extends net.geoprism.registry.ac
     else
     {
       setValue(GEOOBJECTJSON, value);
+    }
+  }
+  
+  public String getParentJson()
+  {
+    return getValue(PARENTJSON);
+  }
+  
+  public void validateParentJson()
+  {
+    this.validateAttribute(PARENTJSON);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getParentJsonMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(PARENTJSON);
+  }
+  
+  public void setParentJson(String value)
+  {
+    if(value == null)
+    {
+      setValue(PARENTJSON, "");
+    }
+    else
+    {
+      setValue(PARENTJSON, value);
     }
   }
   

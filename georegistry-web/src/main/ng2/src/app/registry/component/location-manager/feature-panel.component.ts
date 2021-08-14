@@ -1,8 +1,8 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { GeoObjectType, GeoObjectOverTime, Attribute, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
+import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
 import { RegistryService } from '@registry/service';
 import { AuthService } from '@shared/service';
 import { ErrorModalComponent, ErrorHandler } from '@shared/component';
@@ -32,12 +32,11 @@ export class FeaturePanelComponent implements OnInit {
 	@Input() set code(value: string) {
 		this.updateCode(value);
 	}
+	
+	@ViewChild('attributeEditor') attributeEditor;
 
 	_code: string = null;
 
-	@Input() geometryChange: Subject<any>;
-
-	@Output() geometryEdit = new EventEmitter<{vot:ValueOverTime, allVOT:ValueOverTime[]}>();
 	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
 	@Output() modeChange = new EventEmitter<boolean>();
 	@Output() panelCancel = new EventEmitter<void>();
@@ -57,7 +56,7 @@ export class FeaturePanelComponent implements OnInit {
 	// The state of the GeoObject after our edit has been applied
 	postGeoObject: GeoObjectOverTime;
 
-	attribute: Attribute = null;
+	attribute: AttributeType = null;
 
 	isNew: boolean = false;
 
@@ -75,9 +74,8 @@ export class FeaturePanelComponent implements OnInit {
 	ngOnInit(): void {
 	  this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
 		this.mode = 'ATTRIBUTES';
-		this.geometryChange.subscribe(v => {
-			this.updateGeometry(v);
-		});
+    
+    this.isEdit = !this.readOnly;
 	}
 	
 	setValid(valid: boolean): void {
@@ -101,6 +99,7 @@ export class FeaturePanelComponent implements OnInit {
 				this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
 					this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
 					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+					console.log("Setting postGeoObject", this.postGeoObject);
 				}).catch((err: HttpErrorResponse) => {
 					this.error(err);
 				});
@@ -127,53 +126,6 @@ export class FeaturePanelComponent implements OnInit {
 	}
 	
 
-	onEditGeometryVersion(vot: ValueOverTime): void {
-		this.geometryEdit.emit({vot:vot, allVOT: this.preGeoObject.attributes.geometry ? this.preGeoObject.attributes.geometry.values : [] });
-	}
-
-	updateGeometry(updatedVot: any): void {
-		// Check if the geometry has been updated
-		if(updatedVot.value != null && this.postGeoObject != null) {
-
-			let values = this.postGeoObject.attributes['geometry'].values;
-			const time = this.forDate.getTime();
-
-			values.forEach(vot => {
-
-				const startDate = Date.parse(vot.startDate);
-				const endDate = Date.parse(vot.endDate);
-
-//				if (time >= startDate && time <= endDate) {
-//					vot.value = geometry;
-//				}
-
-				if (new Date(updatedVot.startDate).getTime() ===  startDate && new Date(updatedVot.endDate).getTime() === endDate) {
-					vot.value = updatedVot.value;
-				}
-			});
-		}
-	}
-
-	calculateGeometry(goot: GeoObjectOverTime): any {
-
-		const time = this.forDate.getTime();
-
-		let values = goot.attributes['geometry'].values;
-
-		for (let i = 0; i < values.length; i++) {
-			const vot = values[i];
-
-			const startDate = Date.parse(vot.startDate);
-			const endDate = Date.parse(vot.endDate);
-
-			if (time >= startDate && time <= endDate) {
-				return vot.value;
-			}
-		};
-
-		return null;
-	}
-
 	onCancelInternal(): void {
 
     	this.panelCancel.emit();
@@ -188,19 +140,35 @@ export class FeaturePanelComponent implements OnInit {
 	}
 	
 	onSubmit(): void {
-		this.service.applyGeoObjectEdit(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
-		  if (!applyInfo.isChangeRequest)
-      {
-			  this.featureChange.emit(this.postGeoObject);
-			  this.updateCode(this._code);
-			}
-			this.panelSubmit.emit(applyInfo);
-		}).catch((err: HttpErrorResponse) => {
-			this.error(err);
-		});
+	  if (this.isNew)
+	  {
+	    this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+        if (!applyInfo.isChangeRequest)
+        {
+          this.featureChange.emit(this.postGeoObject);
+          this.updateCode(this._code);
+        }
+        this.panelSubmit.emit(applyInfo);
+      }).catch((err: HttpErrorResponse) => {
+        this.error(err);
+      });
+	  }
+	  else
+	  {
+  		this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason).then((applyInfo: any) => {
+  		  if (!applyInfo.isChangeRequest)
+        {
+  			  this.featureChange.emit(this.postGeoObject);
+  			  this.updateCode(this._code);
+  			}
+  			this.panelSubmit.emit(applyInfo);
+  		}).catch((err: HttpErrorResponse) => {
+  			this.error(err);
+  		});
+		}
 	}
 
-	onManageAttributeVersion(attribute: Attribute): void {
+	onManageAttributeVersion(attribute: AttributeType): void {
 		this.attribute = attribute;
 		this.mode = this.MODE.VERSIONS;
 	}
@@ -215,8 +183,6 @@ export class FeaturePanelComponent implements OnInit {
 		this.postGeoObject = postGeoObject;
 
 		this.mode = this.MODE.ATTRIBUTES;
-
-		this.geometryEdit.emit(null);
 	}
 
 	onHierarchyChange(hierarchy: HierarchyOverTime): void {
@@ -226,10 +192,6 @@ export class FeaturePanelComponent implements OnInit {
 		}
 
 		this.mode = this.MODE.ATTRIBUTES;
-	}
-	
-	onCloneGeometry(any): void {
-		console.log("emitted")
 	}
 
 	onEditAttributes(): void {

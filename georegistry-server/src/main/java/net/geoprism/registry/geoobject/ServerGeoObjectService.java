@@ -29,7 +29,9 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -43,8 +45,7 @@ import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
-import net.geoprism.registry.action.geoobject.SetParentAction;
-import net.geoprism.registry.action.geoobject.UpdateGeoObjectAction;
+import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectStrategyIF;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
@@ -63,6 +64,8 @@ import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.GeoObjectSplitView;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.view.action.AbstractUpdateAttributeView;
+import net.geoprism.registry.view.action.UpdateAttributeViewJsonAdapters;
 
 public class ServerGeoObjectService extends LocalizedValueConverter
 {
@@ -331,15 +334,15 @@ public class ServerGeoObjectService extends LocalizedValueConverter
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject masterListEdit(String sessionId, String ptn, String sGO, Boolean isNew, String masterListId, String notes)
+  public JsonObject createGeoObject(String sessionId, String ptn, String sTimeGo, String masterListId, String notes)
   {
-    return this.masterListEditTrans(sessionId, ptn, sGO, isNew, masterListId, notes);
+    return this.createGeoObjectInTrans(ptn, sTimeGo, masterListId, notes);
   }
 
   @Transaction
-  public JsonObject masterListEditTrans(String sessionId, String sPtn, String sGO, Boolean isNew, String masterListId, String notes)
+  public JsonObject createGeoObjectInTrans(String sPtn, String sTimeGo, String masterListId, String notes)
   {
-    GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sGO);
+    GeoObjectOverTime timeGO = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), sTimeGo);
 
     ServerGeoObjectType serverGOT = ServerGeoObjectType.get(timeGO.getType());
 
@@ -351,7 +354,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     {
       ServerGeoObjectService service = new ServerGeoObjectService();
 
-      ServerGeoObjectIF serverGO = service.apply(timeGO, isNew, false);
+      ServerGeoObjectIF serverGO = service.apply(timeGO, true, false);
       final ServerGeoObjectType type = serverGO.getType();
 
       if (sPtn != null)
@@ -364,14 +367,14 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       // Update the master list record
       if (masterListId != null)
       {
-        if (!isNew)
-        {
-          MasterListVersion.get(masterListId).updateRecord(serverGO);
-        }
-        else
-        {
+//        if (!isNew)
+//        {
+//          MasterListVersion.get(masterListId).updateRecord(serverGO);
+//        }
+//        else
+//        {
           MasterListVersion.get(masterListId).publishRecord(serverGO);
-        }
+//        }
       }
 
       JsonObject resp = new JsonObject();
@@ -389,46 +392,21 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       ChangeRequest request = new ChangeRequest();
       request.addApprovalStatus(AllGovernanceStatus.PENDING);
       request.setContributorNotes(notes);
+      request.setGeoObjectCode(timeGO.getCode());
+      request.setGeoObjectTypeCode(timeGO.getType().getCode());
+      request.setOrganizationCode(orgCode);
       request.apply();
 
-      if (!isNew)
-      {
-        UpdateGeoObjectAction action = new UpdateGeoObjectAction();
-        action.addApprovalStatus(AllGovernanceStatus.PENDING);
-        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setGeoObjectJson(sGO);
-        action.setApiVersion(CGRAdapterProperties.getApiVersion());
-        action.setContributorNotes(notes);
-        action.apply();
-        request.addAction(action).apply();
-      }
-      else
-      {
-        CreateGeoObjectAction action = new CreateGeoObjectAction();
-        action.addApprovalStatus(AllGovernanceStatus.PENDING);
-        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setGeoObjectJson(sGO);
-        action.setApiVersion(CGRAdapterProperties.getApiVersion());
-        action.setContributorNotes(notes);
-        action.apply();
+      CreateGeoObjectAction action = new CreateGeoObjectAction();
+      action.addApprovalStatus(AllGovernanceStatus.PENDING);
+      action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+      action.setGeoObjectJson(sTimeGo);
+      action.setParentJson(sPtn);
+      action.setApiVersion(CGRAdapterProperties.getApiVersion());
+      action.setContributorNotes(notes);
+      action.apply();
 
-        request.addAction(action).apply();
-      }
-
-      if (sPtn != null && ( isNew || this.hasChanged(timeGO, sPtn) ))
-      {
-        SetParentAction action = new SetParentAction();
-        action.addApprovalStatus(AllGovernanceStatus.PENDING);
-        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
-        action.setChildCode(timeGO.getCode());
-        action.setChildTypeCode(timeGO.getType().getCode());
-        action.setJson(sPtn);
-        action.setApiVersion(CGRAdapterProperties.getApiVersion());
-        action.setContributorNotes(notes);
-        action.apply();
-
-        request.addAction(action).apply();
-      }
+      request.addAction(action).apply();
       
       JsonObject resp = new JsonObject();
       
@@ -442,15 +420,90 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       throw new CGRPermissionException();
     }
   }
-
-  private boolean hasChanged(GeoObjectOverTime timeGO, String sPtn)
+  
+  @Request(RequestType.SESSION)
+  public JsonObject updateGeoObject(String sessionId, String geoObjectCode, String geoObjectTypeCode, String actions, String masterListId, String notes)
   {
-    ServerGeoObjectService service = new ServerGeoObjectService();
-    ServerGeoObjectIF sGO = service.getGeoObjectByCode(timeGO.getCode(), timeGO.getType().getCode());
+    return this.updateGeoObjectInTrans(geoObjectCode, geoObjectTypeCode, actions, masterListId, notes);
+  }
+  
+  @Transaction
+  public JsonObject updateGeoObjectInTrans(String geoObjectCode, String geoObjectTypeCode, String actions, String masterListId, String notes)
+  {
+    final RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    final ServerGeoObjectType type = ServerGeoObjectType.get(geoObjectTypeCode);
+    final String orgCode = type.getOrganization().getCode();
+    final VertexServerGeoObject go = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(geoObjectCode, geoObjectTypeCode);
+    
+    final JsonArray jaActions = JsonParser.parseString(actions).getAsJsonArray();
+    
+    if (perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, type))
+    {
+      for (int i = 0; i < jaActions.size(); ++i)
+      {
+        JsonObject action = jaActions.get(i).getAsJsonObject();
+        
+        String attributeName = action.get("attributeName").getAsString();
+        JsonObject attributeDiff = action.get("attributeDiff").getAsJsonObject();
+        
+        AbstractUpdateAttributeView view = UpdateAttributeViewJsonAdapters.deserialize(attributeDiff.toString(), attributeName, type);
+        
+        view.execute(go);
+      }
+      
+      go.apply(false);
+      
+      JsonObject resp = new JsonObject();
+      
+      resp.addProperty("isChangeRequest", false);
+      resp.add("geoObject", go.toGeoObjectOverTime().toJSON(ServiceFactory.getRegistryService().serializer(Session.getCurrentSession().getOid())));
+      
+      return resp;
+    }
+    else if (ServiceFactory.getRolePermissionService().isRC(orgCode, type))
+    {
+      Instant base = Instant.now();
+      int sequence = 0;
 
-    ServerParentTreeNodeOverTime sPto = ServerParentTreeNodeOverTime.fromJSON(sGO.getType(), sPtn);
-    ServerParentTreeNodeOverTime ePto = sGO.getParentsOverTime(null, false);
+      ChangeRequest request = new ChangeRequest();
+      request.addApprovalStatus(AllGovernanceStatus.PENDING);
+      request.setContributorNotes(notes);
+      request.setGeoObjectCode(geoObjectCode);
+      request.setGeoObjectTypeCode(geoObjectTypeCode);
+      request.setOrganizationCode(orgCode);
+      request.apply();
 
-    return !ePto.isSame(sPto, sGO);
+      for (int i = 0; i < jaActions.size(); ++i)
+      {
+        JsonObject joAction = jaActions.get(i).getAsJsonObject();
+        
+        String attributeName = joAction.get("attributeName").getAsString();
+        JsonObject attributeDiff = joAction.get("attributeDiff").getAsJsonObject();
+        
+        UpdateAttributeAction action = new UpdateAttributeAction();
+        action.addApprovalStatus(AllGovernanceStatus.PENDING);
+        action.setCreateActionDate(Date.from(base.plus(sequence++, ChronoUnit.MINUTES)));
+        action.setAttributeName(attributeName);
+        action.setJson(attributeDiff.toString());
+        action.setApiVersion(CGRAdapterProperties.getApiVersion());
+        action.setContributorNotes(notes);
+        action.apply();
+        
+        request.addAction(action).apply();
+      }
+      
+      request.apply();
+      
+      JsonObject resp = new JsonObject();
+      
+      resp.addProperty("isChangeRequest", true);
+      resp.addProperty("changeRequestId", request.getOid());
+      
+      return resp;
+    }
+    else
+    {
+      throw new CGRPermissionException();
+    }
   }
 }

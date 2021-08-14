@@ -24,7 +24,7 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 import {
-	GeoObject, GeoObjectType, Attribute, Term, MasterList, MasterListVersion, ParentTreeNode,
+	GeoObject, GeoObjectType, AttributeType, Term, MasterList, MasterListVersion, ParentTreeNode,
 	ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage,
 	MasterListByOrg
 } from '@registry/model/registry';
@@ -157,7 +157,7 @@ export class RegistryService {
 			.toPromise()
 	}
 
-	addAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+	addAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType> {
 
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
@@ -166,14 +166,14 @@ export class RegistryService {
 		this.eventService.start();
 
 		return this.http
-			.post<Attribute>(acp + '/cgr/geoobjecttype/addattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
+			.post<AttributeType>(acp + '/cgr/geoobjecttype/addattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
 			.toPromise();
 	}
 
-	updateAttributeType(geoObjTypeId: string, attribute: Attribute): Promise<Attribute> {
+	updateAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType> {
 
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
@@ -183,7 +183,7 @@ export class RegistryService {
 
 
 		return this.http
-			.post<Attribute>(acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
+			.post<AttributeType>(acp + '/cgr/geoobjecttype/updateattribute', JSON.stringify({ 'geoObjTypeId': geoObjTypeId, 'attributeType': attribute }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -241,7 +241,7 @@ export class RegistryService {
 			.toPromise();
 	}
 
-	deleteAttributeTermTypeOption(parentTermCode: string, termCode: string): Promise<Attribute> {
+	deleteAttributeTermTypeOption(parentTermCode: string, termCode: string): Promise<AttributeType> {
 
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
@@ -251,7 +251,7 @@ export class RegistryService {
 
 
 		return this.http
-			.post<Attribute>(acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify({ 'parentTermCode': parentTermCode, 'termCode': termCode }), { headers: headers })
+			.post<AttributeType>(acp + '/cgr/geoobjecttype/deleteterm', JSON.stringify({ 'parentTermCode': parentTermCode, 'termCode': termCode }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -673,27 +673,28 @@ export class RegistryService {
     /*
      * Not really part of the RegistryService
      */
-	applyGeoObjectEdit(parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string, notes: string): Promise<void> {
+	applyGeoObjectEdit(geoObjectCode: string, geoObjectTypeCode: string, actions: string, masterListId: string, notes: string): Promise<void> {
 		let headers = new HttpHeaders({
 			'Content-Type': 'application/json'
 		});
 
-			
+	
+	  // TODO
 		// Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
 		// This conversion allows the date picker to work while ensuring the server recieves the correct format. 
-		for(const prop in geoObject.attributes) { 
-			let attr = geoObject.attributes[prop];
- 			if(attr.type === "date"){ 
-				attr.values.forEach( val => { 
-					val.value = new Date(val.value).getTime().toString();
-				}) 
-			}
-		}
+		//for(const prop in geoObject.attributes) { 
+		//	let attr = geoObject.attributes[prop];
+ 		//	if(attr.type === "date"){ 
+		//		attr.values.forEach( val => { 
+		//			val.value = new Date(val.value).getTime().toString();
+		//		}) 
+		//	}
+		//}
 
-		let params = { geoObject: geoObject, isNew: isNew, masterListId: masterListId };
+		let params = { geoObjectCode: geoObjectCode, geoObjectTypeCode: geoObjectTypeCode, actions: actions };
 
-		if (parentTreeNode != null) {
-			params['parentTreeNode'] = parentTreeNode;
+		if (masterListId != null) {
+			params['masterListId'] = masterListId;
 		}
 		if (notes != null) {
 			params['notes'] = notes;
@@ -702,12 +703,51 @@ export class RegistryService {
 		this.eventService.start();
 
 		return this.http
-			.post<void>(acp + '/geoobject-editor/apply', JSON.stringify(params), { headers: headers })
+			.post<void>(acp + '/geoobject-editor/updateGeoObject', JSON.stringify(params), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
 			.toPromise();
 	}
+	
+	/*
+   * Not really part of the RegistryService
+   */
+	applyGeoObjectCreate(parentTreeNode: HierarchyOverTime[], geoObject: GeoObjectOverTime, isNew: boolean, masterListId: string, notes: string): Promise<void> {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+      
+    // Custom attributes of Date type need to be encoded to date/time. The Date picker requires this format to be yyyy-mm-dd.
+    // This conversion allows the date picker to work while ensuring the server recieves the correct format. 
+    for(const prop in geoObject.attributes) { 
+      let attr = geoObject.attributes[prop];
+      if(attr.type === "date"){ 
+        attr.values.forEach( val => { 
+          val.value = new Date(val.value).getTime().toString();
+        }) 
+      }
+    }
+
+    let params = { geoObject: geoObject, isNew: isNew, masterListId: masterListId };
+
+    if (parentTreeNode != null) {
+      params['parentTreeNode'] = parentTreeNode;
+    }
+    if (notes != null) {
+      params['notes'] = notes;
+    }
+
+    this.eventService.start();
+
+    return this.http
+      .post<void>(acp + '/geoobject-editor/createGeoObject', JSON.stringify(params), { headers: headers })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
 
 	data(oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string }): Promise<any> {
 		let headers = new HttpHeaders({

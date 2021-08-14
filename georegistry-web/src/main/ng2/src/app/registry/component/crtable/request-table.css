@@ -113,3 +113,11 @@ textarea[readonly]:focus {
 	border: 1px solid #ccc;
 	cursor: not-allowed;
 }
+
+
+.geoobject-panel-header{
+    width: 100%;
+    background: grey;
+    color: white;
+    padding: 10px;
+}

@@ -18,6 +18,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { ErrorModalComponent } from './component/modals/error-modal.component';
 import { SuccessModalComponent } from './component/modals/success-modal.component';
 import { ConfirmModalComponent } from './component/modals/confirm-modal.component';
+import { GenericModalComponent } from './component/modals/generic-modal.component';
 import { ErrorMessageComponent } from './component/message/error-message.component';
 import { MessageComponent } from './component/message/message.component';
 import { BooleanFieldComponent } from './component/form-fields/boolean-field/boolean-field.component';
@@ -81,6 +82,7 @@ import '../rxjs-extensions';
 		ErrorMessageComponent,
 		MessageComponent,
 		ConfirmModalComponent,
+    GenericModalComponent,
 		ErrorModalComponent,
 		SuccessModalComponent,
 		PasswordStrengthBarComponent,
@@ -102,6 +104,7 @@ import '../rxjs-extensions';
 		ErrorMessageComponent,
 		MessageComponent,
 		ConfirmModalComponent,
+    GenericModalComponent,
 		ErrorModalComponent,
 		SuccessModalComponent,
 		PasswordStrengthBarComponent,
@@ -121,6 +124,7 @@ import '../rxjs-extensions';
 		ErrorModalComponent,
 		SuccessModalComponent,
 		ConfirmModalComponent,
+    GenericModalComponent,
 		ModalStepIndicatorComponent,
 		ErrorMessageComponent,
 		LoadingBarComponent,

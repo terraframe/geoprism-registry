@@ -82,31 +82,6 @@ public class SetParentAction extends SetParentActionBase
       return null;
     }
   }
-  
-  @Override
-  public boolean referencesType(ServerGeoObjectType type)
-  {
-    if (this.getChildTypeCode().equals(type.getCode()))
-    {
-      return true;
-    }
-    
-    ReferencesGOTGeoObjectNullDeserializer customGoDeserializer = new ReferencesGOTGeoObjectNullDeserializer(type);
-    
-    GsonBuilder builder = new GsonBuilder();
-    builder.registerTypeAdapter(GeoObject.class, new GeoObjectJsonAdapters.GeoObjectDeserializer(ServiceFactory.getAdapter()));
-    builder.registerTypeAdapter(ServerParentTreeNodeOverTime.class, customGoDeserializer);
-
-    builder.create().fromJson(this.getJson(), ServerParentTreeNodeOverTime.class);
-    
-    return customGoDeserializer.referencesType;
-  }
-  
-  @Override
-  public String getGeoObjectType()
-  {
-    return this.getChildTypeCode();
-  }
 
   @Override
   public void execute()
@@ -147,7 +122,7 @@ public class SetParentAction extends SetParentActionBase
   {
     super.buildFromJson(joAction);
     
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
 
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_DETAILS

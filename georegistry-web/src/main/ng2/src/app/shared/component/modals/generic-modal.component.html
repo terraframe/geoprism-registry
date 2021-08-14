@@ -1,0 +1,20 @@
+<div class="modal-body">
+  <form class="modal-form">
+
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <h3>{{message}}</h3>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button *ngFor="let button of buttons" type="button" (click)="onClick(button)" class="btn" [class]="button.class" role="button" aria-disabled="false">
+            <span>{{button.label}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

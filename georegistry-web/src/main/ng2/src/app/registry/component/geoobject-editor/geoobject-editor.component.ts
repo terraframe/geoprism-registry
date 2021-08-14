@@ -363,6 +363,7 @@ export class GeoObjectEditorComponent implements OnInit {
 			this.persistModelChanges();
 
 			if (this.submitFunction == null) {
+			/*
 				this.registryService.applyGeoObjectEdit(this.hierarchies, this.goSubmit, this.isNewGeoObject, this.masterListId, this.notes)
 					.then(() => {
 
@@ -373,6 +374,7 @@ export class GeoObjectEditorComponent implements OnInit {
 					}).catch((err: HttpErrorResponse) => {
 						this.error(err);
 					});
+					*/
 			}
 			else {
 				this.submitFunction();

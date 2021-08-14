@@ -22,8 +22,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
-
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -34,12 +32,12 @@ public class ChangeRequestPermissionService
     EXECUTE, WRITE_APPROVAL_STATUS, READ_APPROVAL_STATUS, READ_DETAILS, WRITE_DETAILS, READ_DOCUMENTS, WRITE_DOCUMENTS, READ_CONTRIBUTOR_NOTES, WRITE_CONTRIBUTOR_NOTES, READ_MAINTAINER_NOTES, WRITE_MAINTAINER_NOTES, READ, WRITE, SUBMIT, DELETE
   }
 
-  public Set<ChangeRequestPermissionAction> getPermissions(GovernancePermissionEntity cr)
+  public Set<ChangeRequestPermissionAction> getPermissions(ChangeRequest cr)
   {
     final RolePermissionService perms = ServiceFactory.getRolePermissionService();
 
-    final String orgCode = cr.getOrganization();
-    final String gotCode = cr.getGeoObjectType();
+    final String orgCode = cr.getOrganizationCode();
+    final String gotCode = cr.getGeoObjectTypeCode();
     ServerGeoObjectType type = null;
 
     if (gotCode != null)
