@@ -1,7 +1,10 @@
 import { Injectable, Output, EventEmitter } from "@angular/core";
 
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import { Map } from "mapbox-gl";
+import { Map, LngLat, LngLatBounds } from "mapbox-gl";
+import { AllGeoJSON } from '@turf/helpers';
+import bbox from '@turf/bbox';
+import * as turf from '@turf/turf';
 
 import { Layer } from "../component/geoobject-shared-attribute-editor/manage-versions-model";
 
@@ -503,6 +506,66 @@ export class GeometryService {
     }
 
     return null;
+  }
+  
+  zoomToLayersExtent(): void {
+    
+    this.layers.forEach(layer => {
+        
+        if(layer.geojson.type.toUpperCase() === "MULTIPOINT" || layer.geojson.type.toUpperCase() === "POINT") {
+            let coords = layer.geojson.coordinates;
+            
+            if(coords){
+                var bounds = new LngLatBounds();
+                coords.forEach(coord => {
+                    bounds.extend(coord);
+                })
+                
+                let center = bounds.getCenter();
+                let pt = new LngLat(center.lng, center.lat);
+
+                this.map.flyTo({
+                    center: pt,
+                    zoom: 9,
+                    essential: true
+                });
+            }
+        } else if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
+            let coords = layer.geojson.coordinates;
+            
+            if(coords){
+                var bounds = new LngLatBounds();
+                coords.forEach(polys => {
+                    polys.forEach(subpoly => {
+                        subpoly.forEach(coord => {
+                            bounds.extend(coord);
+                        })
+                    })
+                })
+            }
+            this.map.fitBounds(bounds, {
+                padding: 20
+            });
+            
+        } else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
+            let coords = layer.geojson.coordinates;
+            
+            if(coords){
+                var bounds = new LngLatBounds();
+                coords.forEach(lines => {
+                    lines.forEach(subline => {
+                        subline.forEach(coord => {
+                            bounds.extend(coord);
+                        })
+                    })
+                })
+            }
+            this.map.fitBounds(bounds, {
+                padding: 20
+            });
+        }
+            
+    });
   }
 
 }

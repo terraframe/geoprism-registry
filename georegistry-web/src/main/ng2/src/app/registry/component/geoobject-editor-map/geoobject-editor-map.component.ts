@@ -20,7 +20,12 @@ declare let acp: string;
  */
 export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
-    @Input() mapHeight: number = 400;
+    _mapHeight: number = 400;
+    @Input() set mapHeight(height: number) {
+        if(height > 400) {
+            this._mapHeight = height;
+        }
+    }
 
     /*
      * Required. The GeometryType of the GeoJSON. Expected to be in uppercase (because that's how it is in the GeoObjectType for some reason)
@@ -95,25 +100,7 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     zoomToBbox(): void {
-        if (this.bboxCode != null && this.bboxType != null) {
-            if (this.bboxDate == null) {
-                this.registryService.getGeoObjectBounds(this.bboxCode, this.bboxType).then(boundArr => {
-                    let bounds = new LngLatBounds([boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]]);
-
-                    this.map.fitBounds(bounds, { padding: 50 });
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-            } else {
-                this.registryService.getGeoObjectBoundsAtDate(this.bboxCode, this.bboxType, this.bboxDate).then(boundArr => {
-                    let bounds = new LngLatBounds([boundArr[0], boundArr[1]], [boundArr[2], boundArr[3]]);
-
-                    this.map.fitBounds(bounds, { padding: 50 });
-                }).catch((err: HttpErrorResponse) => {
-                    this.error(err);
-                });
-            }
-        }
+        this.geomService.zoomToLayersExtent();
     }
 
     public error(err: HttpErrorResponse): void {

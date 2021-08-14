@@ -157,7 +157,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
         label: this.lService.decode("geoobject-editor.continueEditing"),
         onClick: () => { },
         shouldClose: true,
-        class: 'btn-secondary'
+        class: 'btn-default'
       });
 
       this.bsModalRef.content.init(message, buttons);
