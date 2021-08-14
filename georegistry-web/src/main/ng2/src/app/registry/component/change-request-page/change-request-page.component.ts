@@ -1,21 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Component, OnInit } from "@angular/core";
+import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from "@angular/router";
 
-import { LocalizationService, AuthService } from '@shared/service';
+import { LocalizationService, AuthService } from "@shared/service";
 
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler, ErrorModalComponent } from "@shared/component";
 
-declare var acp: string;
+declare let acp: string;
 
-@Component( {
+@Component({
 
-    selector: 'change-request-page',
-    templateUrl: './change-request-page.component.html',
-    styleUrls: ['./change-request-page.css']
-} )
+    selector: "change-request-page",
+    templateUrl: "./change-request-page.component.html",
+    styleUrls: ["./change-request-page.css"]
+})
 export class ChangeRequestPageComponent implements OnInit {
 
   pageTitle: string;
@@ -24,30 +23,30 @@ export class ChangeRequestPageComponent implements OnInit {
   isMaintainer: boolean;
   isContributor: boolean;
   isContributorOnly: boolean;
-  
+
   urlSubscriber: any;
-  
+
   highlightOid: string;
-    
-  constructor( private localizationService: LocalizationService, private modalService: BsModalService, private service: AuthService, private route: ActivatedRoute ) {
-    this.isAdmin = service.isAdmin();
-    this.isMaintainer = this.isAdmin || service.isMaintainer();
-    this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
-    this.isContributorOnly = service.isContributerOnly();
+
+  constructor(private localizationService: LocalizationService, private modalService: BsModalService, private service: AuthService, private route: ActivatedRoute) {
+      this.isAdmin = service.isAdmin();
+      this.isMaintainer = this.isAdmin || service.isMaintainer();
+      this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+      this.isContributorOnly = service.isContributerOnly();
   }
 
   ngOnInit(): void {
-    this.urlSubscriber = this.route.params.subscribe(params => {
-      this.highlightOid = params['oid'];
-    });
-  }
-  
-  ngOnDestroy(): void {
-    this.urlSubscriber.unsubscribe();
+      this.urlSubscriber = this.route.params.subscribe(params => {
+          this.highlightOid = params["oid"];
+      });
   }
 
-  public error( err: HttpErrorResponse ): void {
-    this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+  ngOnDestroy(): void {
+      this.urlSubscriber.unsubscribe();
+  }
+
+  public error(err: HttpErrorResponse): void {
+      this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
   }
 
 }

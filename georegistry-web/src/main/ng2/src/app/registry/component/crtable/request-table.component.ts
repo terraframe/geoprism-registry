@@ -138,7 +138,7 @@ export class RequestTableComponent {
             this.eventService.complete();
         };
         this.uploader.onSuccessItem = (item: any, response: any, status: number, headers: any) => {
-            const doc = JSON.parse(response)
+            const doc = JSON.parse(response);
 
             const index = this.requests.findIndex(request => request.oid === doc.requestId);
 
@@ -157,7 +157,7 @@ export class RequestTableComponent {
             this.waitingOnScroll = true;
         }
 
-        this.refresh();        
+        this.refresh();
     }
 
     getGOTLabel(action: any): string {
@@ -223,7 +223,7 @@ export class RequestTableComponent {
             });
         }).catch((response: HttpErrorResponse) => {
             this.error(response);
-        })
+        });
     }
 
     onSelect(selected: any): void {
@@ -255,28 +255,26 @@ export class RequestTableComponent {
                 bsModalRef.content.message = this.localizationService.decode("change.requests.more.geoobject.updates.message");
 
                 bsModalRef.content.onConfirm.subscribe(() => {
-                  const object =  this.getFirstGeoObjectInActions(request);
-                  
-                  if (object != null) {
-                    this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
-                  }
-                  else {
-                    let object = request.current.geoObject;
-                    let type = request.current.geoObjectType;
+                    const object = this.getFirstGeoObjectInActions(request);
 
-                    if (object != null && type != null) {
-                        this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
-                    }                    
-                  }
+                    if (object != null) {
+                        this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
+                    } else {
+                        let object = request.current.geoObject;
+                        let type = request.current.geoObjectType;
+
+                        if (object != null && type != null) {
+                            this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
+                        }
+                    }
                 });
             }).catch((response: HttpErrorResponse) => {
                 this.error(response);
             });
         }
     }
-    
+
     getFirstGeoObjectInActions(request: ChangeRequest): GeoObjectOverTime {
-      
         for (let i = 0; i < request.actions.length; i++) {
             let action = request.actions[i];
 
@@ -288,7 +286,6 @@ export class RequestTableComponent {
 
         return null;
     }
-    
 
     onDelete(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
@@ -364,8 +361,8 @@ export class RequestTableComponent {
 
     filter(criteria: string): void {
         this.filterCriteria = criteria;
-        
-        this.refresh(1);      
+
+        this.refresh(1);
     }
 
     setActionStatus(action: CreateGeoObjectAction | UpdateAttributeAction, status: string): void {
@@ -402,24 +399,19 @@ export class RequestTableComponent {
     getUsername(): string {
         return this.authService.getUsername();
     }
-    
+
     isRequestTooOld(request: ChangeRequest): boolean {
-      if (request.actions && request.actions.length > 0)
-      {
-        let firstAction = request.actions[0];
-        
-        if (firstAction.actionType === ActionTypes.UPDATEGEOOBJECTACTION) {
-          return true;
+        if (request.actions && request.actions.length > 0) {
+            let firstAction = request.actions[0];
+
+            if (firstAction.actionType === ActionTypes.UPDATEGEOOBJECTACTION) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
         }
-        else
-        {
-          return false;
-        }
-      }
-      else
-      {
-        return true;
-      }
     }
 
 }
