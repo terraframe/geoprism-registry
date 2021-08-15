@@ -170,9 +170,9 @@ export class ManageVersionsComponent implements OnInit {
 
         return true;
     }
-    
+
     hasLocalizationChanged(viewModel: VersionDiffView, locale: string): boolean {
-      return viewModel.oldValue != null && this.getValueAtLocale(viewModel.oldValue, locale) !== this.getValueAtLocale(viewModel.value, locale);
+        return viewModel.oldValue != null && this.getValueAtLocale(viewModel.oldValue, locale) !== this.getValueAtLocale(viewModel.value, locale);
     }
 
     onDateChange(): any {
@@ -202,8 +202,6 @@ export class ManageVersionsComponent implements OnInit {
                 this.viewModels.splice(index, 1);
             }
         }
-
-        console.log(view);
 
         this.onDateChange();
     }
@@ -501,7 +499,6 @@ export class ManageVersionsComponent implements OnInit {
 
                 view.value.loading = {};
 
-
                 if (votDiff.oldValue != null) {
                     let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
                     let oldTypeCode: string = oldCodeArray[0];
@@ -552,7 +549,6 @@ export class ManageVersionsComponent implements OnInit {
         view.editPropagator.diff = votDiff;
     }
 
-
     isStatusChanged(post, pre) {
         if ((pre != null && post == null) || (post != null && pre == null)) {
             return true;
@@ -581,7 +577,6 @@ export class ManageVersionsComponent implements OnInit {
         if (this.attributeType.isChangeOverTime) {
             for (let i = 0; i < this.actions.length; i++) {
                 let action = this.actions[i];
-
 
                 if (action.actionType === "UpdateAttributeAction") {
                     let uAction = action as UpdateAttributeAction;
@@ -643,53 +638,53 @@ export class ManageVersionsComponent implements OnInit {
         }, 0);
 
         let layer: Layer = this.getOrCreateLayer(view, "NEW");
-        
+
         if (layer.isEditing) {
-          this.geomService.stopEditing();
+            this.geomService.stopEditing();
         }
-        
+
         this.geomService.setRendering(!layer.isRendering, layer);
     }
 
     toggleOldGeometryView(view: VersionDiffView) {
         let layer: Layer = this.getOrCreateLayer(view, "OLD");
-        
+
         this.geomService.setRendering(!layer.isRendering, layer);
     }
-    
+
     getOrCreateLayer(view: VersionDiffView, context: string): Layer {
-      if (context === "NEW") {
-          if (view.newLayer != null) {
+        if (context === "NEW") {
+            if (view.newLayer != null) {
+                return view.newLayer;
+            }
+
+            view.newLayer = new Layer();
+            view.newLayer.oid = "NEW_" + view.oid;
+            view.newLayer.isEditing = false;
+            view.newLayer.isRendering = false;
+            view.newLayer.zindex = 1;
+            view.newLayer.color = LayerColor.NEW;
+            view.newLayer.geojson = view.value;
+            view.newLayer.editPropagator = view.editPropagator;
+
             return view.newLayer;
-          }
-      
-          view.newLayer = new Layer();
-          view.newLayer.oid = "NEW_" + view.oid;
-          view.newLayer.isEditing = false;
-          view.newLayer.isRendering = false;
-          view.newLayer.zindex = 1;
-          view.newLayer.color = LayerColor.NEW;
-          view.newLayer.geojson = view.value;
-          view.newLayer.editPropagator = view.editPropagator;
-          
-          return view.newLayer;
-      }
-      else {
-          if (view.oldLayer != null) {
+        }
+        else {
+            if (view.oldLayer != null) {
+                return view.oldLayer;
+            }
+
+            view.oldLayer = new Layer();
+            view.oldLayer.oid = "OLD_" + view.oid;
+            view.oldLayer.isEditing = false;
+            view.oldLayer.isRendering = false;
+            view.oldLayer.zindex = 0;
+            view.oldLayer.color = LayerColor.OLD;
+            view.oldLayer.geojson = view.oldValue;
+            view.oldLayer.editPropagator = null;
+
             return view.oldLayer;
-          }
-      
-          view.oldLayer = new Layer();
-          view.oldLayer.oid = "OLD_" + view.oid;
-          view.oldLayer.isEditing = false;
-          view.oldLayer.isRendering = false;
-          view.oldLayer.zindex = 0;
-          view.oldLayer.color = LayerColor.OLD;
-          view.oldLayer.geojson = view.oldValue;
-          view.oldLayer.editPropagator = null;
-          
-          return view.oldLayer;
-      }
+        }
     }
 
     manualCoordinateChange(view: VersionDiffView): void {

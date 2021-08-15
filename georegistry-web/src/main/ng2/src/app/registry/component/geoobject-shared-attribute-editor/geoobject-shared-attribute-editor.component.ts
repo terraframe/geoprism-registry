@@ -184,35 +184,31 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     formatDate(date: string): string {
         return this.dateService.formatDateForDisplay(date);
     }
-    
+
     hasChanges(tabIndex: number) {
-      let len = this.actions.length;
-      
-      if (len > 0) {
-        for (let i = 0; i < len; ++i)
-        {
-          let action: AbstractAction = this.actions[i];
-          
-          if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
-            return false;
-          }
-          else if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-            let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
-            
-            if (updateAttrAction.attributeName === "_PARENT_" && tabIndex === 1) {
-              return true;
+        let len = this.actions.length;
+
+        if (len > 0) {
+            for (let i = 0; i < len; ++i) {
+                let action: AbstractAction = this.actions[i];
+
+                if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
+                    return false;
+                } else if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
+                    let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+
+                    if (updateAttrAction.attributeName === "_PARENT_" && tabIndex === 1) {
+                        return true;
+                    } else if (updateAttrAction.attributeName === "geometry" && tabIndex === 2) {
+                        return true;
+                    } else if (tabIndex === 0 && updateAttrAction.attributeName !== "_PARENT_" && updateAttrAction.attributeName !== "geometry") {
+                        return true;
+                    }
+                }
             }
-            else if (updateAttrAction.attributeName === "geometry" && tabIndex === 2) {
-              return true;
-            }
-            else if (tabIndex === 0 && updateAttrAction.attributeName !== "_PARENT_" && updateAttrAction.attributeName !== "geometry") {
-              return true;
-            }
-          }
         }
-      }
-      
-      return false;
+
+        return false;
     }
 
     onManageGeometryVersions(): void {

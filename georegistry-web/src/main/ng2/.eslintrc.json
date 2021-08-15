@@ -31,7 +31,8 @@
         "prefer-const": "off",
         "accessor-pairs": ["error", { "getWithoutSet": true }],
         "angular/timeout-service": 0,
-        "dot-notation": "off"
+        "dot-notation": "off",
+        "no-trailing-spaces": ["error"]
     },
     "globals": {
         "angular": true

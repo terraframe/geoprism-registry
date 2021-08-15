@@ -4,18 +4,17 @@ import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 
-import { ErrorHandler, ErrorModalComponent, SuccessModalComponent } from "@shared/component";
+import { ErrorHandler, ErrorModalComponent } from "@shared/component";
 import { LocalizationService, AuthService, EventService, ExternalSystemService } from "@shared/service";
 import { HierarchyService, IOService } from "@registry/service";
 import { ExternalSystem } from "@shared/model/core";
 
 import { SpreadsheetModalComponent } from "./modals/spreadsheet-modal.component";
 import { ShapefileModalComponent } from "./modals/shapefile-modal.component";
-import { PRESENT } from "@registry/model/registry";
 import { ImportStrategy } from "@registry/model/constants";
 import { HierarchyGroupedTypeView } from "@registry/model/hierarchy";
 
-declare var acp: string;
+declare let acp: string;
 
 @Component({
 
@@ -114,43 +113,30 @@ export class DataImporterComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-
         this.sysService.getExternalSystems(1, 100).then(paginatedSystems => {
-
             this.externalSystems = paginatedSystems.resultSet;
 
             if (this.externalSystems.length === 0) {
-
                 this.isExternal = false;
                 this.showImportConfig = true; // Show the upload widget if there are no external systems registered
-
             }
 
             this.isLoading = false;
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
 
         this.hierarchyService.getHierarchyGroupedTypes().then(views => {
-
             this.hierarchyViews = views;
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
 
         let getUrl = acp + "/excel/get-configuration";
         if (this.format === "SHAPEFILE") {
-
             getUrl = acp + "/shapefile/get-shapefile-configuration";
 
             // this.showImportConfig = true; // show the upload widget if shapefile because external system from shapefile isn't supported
-
         }
 
         let options: FileUploaderOptions = {
@@ -162,40 +148,27 @@ export class DataImporterComponent implements OnInit {
         this.uploader = new FileUploader(options);
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-
             form.append("type", this.code);
             form.append("copyBlank", this.copyBlank);
 
             if (this.startDate != null) {
-
                 form.append("startDate", this.startDate);
-
             }
             if (this.endDate != null) {
-
                 form.append("endDate", this.endDate);
-
             }
             if (this.importStrategy) {
-
                 form.append("strategy", this.importStrategy);
-
             }
-
         };
         this.uploader.onBeforeUploadItem = (fileItem: any) => {
-
             this.eventService.start();
-
         };
         this.uploader.onCompleteItem = (item: any, response: any, status: any, headers: any) => {
-
             this.fileRef.nativeElement.value = "";
             this.eventService.complete();
-
         };
         this.uploader.onSuccessItem = (item: any, response: string, status: number, headers: any) => {
-
             const configuration = JSON.parse(response);
 
             configuration.isExternal = this.isExternal;
@@ -203,114 +176,76 @@ export class DataImporterComponent implements OnInit {
 
             let externalSystem: ExternalSystem = null;
             for (let i = 0; i < this.externalSystems.length; ++i) {
-
                 let sys: ExternalSystem = this.externalSystems[i];
 
                 if (sys.oid === this.externalSystemId) {
-
                     externalSystem = sys;
-
                 }
-
             }
 
             configuration.externalSystemId = this.externalSystemId;
             configuration.externalSystem = externalSystem;
 
             if (this.format === "SHAPEFILE") {
-
                 this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
-
             } else {
-
                 this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-
             }
 
             this.bsModalRef.content.configuration = configuration;
-
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
-
             const error = JSON.parse(response);
 
             this.error({ error: error });
-
         };
-
     }
 
     onSelectHierarchy(): void {
-
         let view = null;
 
         let len = this.hierarchyViews.length;
         for (let i = 0; i < len; ++i) {
-
             if (this.hierarchyViews[i].code === this.hierarchyCode) {
-
                 view = this.hierarchyViews[i];
                 break;
-
             }
-
         }
 
         this.code = null;
 
         if (view != null) {
-
             this.types = view.types;
-
         } else {
-
             this.types = null;
-
         }
-
     }
 
     onClick(): void {
-
         if (this.uploader.queue != null && this.uploader.queue.length > 0) {
-
             this.uploader.uploadAll();
-
         } else {
-
             this.error({
                 message: this.localizationService.decode("io.missing.file"),
                 error: {}
             });
-
         }
-
     }
 
     setImportSource(event, type): void {
-
         if (type === "EXTERNAL") {
-
             this.isExternal = true;
-
         } else {
-
             this.isExternal = false;
-
         }
-
     }
 
     onNext(): void {
-
         this.showImportConfig = true;
-
     }
 
     onBack(): void {
-
         this.showImportConfig = false;
-
     }
 
 //    setInfinity(endDate: any): void {
@@ -324,55 +259,39 @@ export class DataImporterComponent implements OnInit {
 //    }
 
     checkDates(): any {
-
         setTimeout(() => {
-
             this.isValid = this.checkDateFieldValidity();
-
         }, 0);
-
     }
 
     checkDateFieldValidity(): boolean {
-
         let dateFields = this.dateFieldComponentsArray.toArray();
 
         let startDateField: DateFieldComponent;
         for (let i = 0; i < dateFields.length; i++) {
-
             let field = dateFields[i];
 
             if (field.inputName === "startDate") {
-
                 // set startDateField so we can use it in the next check
                 startDateField = field;
-
             }
 
             if (!field.valid) {
-
                 return false;
-
             }
-
         }
 
         if (this.startDate > this.endDate) {
-
             startDateField.setInvalid(this.localizationService.decode("date.input.startdate.after.enddate.error.message"));
 
             this.changeDetectorRef.detectChanges();
-
         }
 
         return true;
-
     }
 
     public error(err: any): void {
-
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-
     }
 
 }

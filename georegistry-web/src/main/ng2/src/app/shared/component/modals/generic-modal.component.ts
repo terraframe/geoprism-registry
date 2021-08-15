@@ -1,41 +1,46 @@
-import { Component } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { LocalizationService } from '@shared/service';
+import { Component } from "@angular/core";
+import { BsModalRef } from "ngx-bootstrap/modal";
+import { LocalizationService } from "@shared/service";
 
 export class GenericButton {
-  label: string;
-  onClick: Function;
-  shouldClose: boolean;
-  class: string;
+
+    label: string;
+    onClick: Function;
+    shouldClose: boolean;
+    class: string;
+
 }
 
 @Component({
-  selector: 'generic-modal',
-  templateUrl: './generic-modal.component.html',
-  styleUrls: ['./modal.css']
+    selector: "generic-modal",
+    templateUrl: "./generic-modal.component.html",
+    styleUrls: ["./modal.css"]
 })
 export class GenericModalComponent {
-  /*
-   * Message
-   */
-  message: string = this.localizeService.decode("confirm.modal.default.message");
 
-  buttons: GenericButton[] = [];
+    /*
+     * Message
+     */
+    message: string = this.localizeService.decode("confirm.modal.default.message");
 
-  data: any;
+    buttons: GenericButton[] = [];
 
-  constructor(public bsModalRef: BsModalRef, private localizeService: LocalizationService) { }
+    data: any;
 
-  init(message: string, buttons: GenericButton[]): void {
-    this.message = message;
-    this.buttons = buttons;
-  }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(public bsModalRef: BsModalRef, private localizeService: LocalizationService) { }
 
-  onClick(button: GenericButton): void {
-    if (button.shouldClose) {
-      this.bsModalRef.hide();
+    init(message: string, buttons: GenericButton[]): void {
+        this.message = message;
+        this.buttons = buttons;
     }
 
-    button.onClick(this.data);
-  }
+    onClick(button: GenericButton): void {
+        if (button.shouldClose) {
+            this.bsModalRef.hide();
+        }
+
+        button.onClick(this.data);
+    }
+
 }

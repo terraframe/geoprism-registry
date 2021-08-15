@@ -14,7 +14,7 @@ import { LocalizationService, ModalStepIndicatorService } from "@shared/service"
 
 import { GeoObjectType, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { RegistryService, GeoObjectTypeManagementService, HierarchyService } from "@registry/service";
+import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
 
 @Component({
     selector: "geoobjecttype-input",
@@ -52,13 +52,9 @@ export class GeoObjectTypeInputComponent implements OnInit {
     // eslint-disable-next-line accessor-pairs
     @Input("setGeoObjectType")
     set in(geoObjectType: GeoObjectType) {
-
         if (geoObjectType) {
-
             this.editGeoObjectType = JSON.parse(JSON.stringify(geoObjectType));
-
         }
-
     }
 
     message: string = null;
@@ -72,75 +68,51 @@ export class GeoObjectTypeInputComponent implements OnInit {
     };
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private hierarchyService: HierarchyService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService,
+    constructor(public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService,
         private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
         private localizationService: LocalizationService, private registryService: RegistryService) { }
 
     ngOnInit(): void {
-
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
         this.geoObjectTypeManagementService.setModalState(this.modalState);
 
         this.fetchOrganizationLabel();
-
     }
 
     defineAttributeModal(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
-
     }
 
     fetchOrganizationLabel(): void {
-
         this.registryService.getOrganizations().then(orgs => {
-
             for (let i = 0; i < orgs.length; ++i) {
-
                 if (orgs[i].code === this.editGeoObjectType.organizationCode) {
-
                     this.organizationLabel = orgs[i].label.localizedValue;
-
                 }
-
             }
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     manageAttributes(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageAttributes, attribute: "", termOption: "" });
-
     }
 
     onModalStateChange(state: ManageGeoObjectTypeModalState): void {
-
         this.modalState = state;
-
     }
 
     update(): void {
-
         this.registryService.updateGeoObjectType(this.editGeoObjectType).then(geoObjectType => {
-
             // emit the persisted geoobjecttype to the parent widget component (manage-geoobjecttype.component)
             // so that the change can be updated in the template
             this.geoObjectTypeChange.emit(geoObjectType);
 
             this.close();
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     // resetGeoObjectType(): void {
@@ -148,14 +120,11 @@ export class GeoObjectTypeInputComponent implements OnInit {
     // }
 
     close(): void {
-
         // this.resetGeoObjectType();
         this.bsModalRef.hide();
-
     }
 
     isValid(): boolean {
-
         // if(this.attribute.code && this.attribute.label) {
 
         //     // if code has a space
@@ -174,17 +143,13 @@ export class GeoObjectTypeInputComponent implements OnInit {
         // return false;
 
         return true;
-
     }
 
     editAttribute(attr: AttributeType, e: any): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
-
     }
 
     removeAttributeType(attr: AttributeType, e: any): void {
-
         this.confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: true,
             backdrop: true,
@@ -196,37 +161,24 @@ export class GeoObjectTypeInputComponent implements OnInit {
         this.confirmBsModalRef.content.type = ModalTypes.danger;
 
         (<ConfirmModalComponent> this.confirmBsModalRef.content).onConfirm.subscribe(data => {
-
             this.deleteAttributeType(data.geoObjectType.code, data.attributeType);
-
         });
-
     }
 
     deleteAttributeType(geoObjectTypeCode: string, attr: AttributeType): void {
-
         this.registryService.deleteAttributeType(geoObjectTypeCode, attr.code).then(data => {
-
             if (data) {
-
                 this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
-
             }
 
             this.geoObjectTypeChange.emit(this.geoObjectType);
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     error(err: HttpErrorResponse): void {
-
         this.message = ErrorHandler.getMessageFromError(err);
-
     }
 
 }

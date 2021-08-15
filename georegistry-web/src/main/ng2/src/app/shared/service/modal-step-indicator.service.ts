@@ -1,12 +1,8 @@
-import { Injectable } from '@angular/core';
-// import { Subject } from 'rxjs'
-import { Subject } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { Subject } from "rxjs";
+import { Step, StepConfig } from "@shared/model/modal";
 
-
-import { Step, StepConfig } from '@shared/model/modal';
-
-
-declare var acp: string;
+declare let acp: string;
 
 @Injectable()
 export class ModalStepIndicatorService {
@@ -17,7 +13,8 @@ export class ModalStepIndicatorService {
     modalStepChange = this.modalStepChangedSource.asObservable();
 
 
-    constructor(  ) { }
+    // eslint-disable-next-line no-useless-constructor
+    constructor() { }
 
     public getStepConfig(): StepConfig {
         return this.stepConfig;
@@ -25,7 +22,7 @@ export class ModalStepIndicatorService {
 
     public setStepConfig(config: StepConfig): void {
         this.stepConfig = config;
-        
+
         this.modalStepChangedSource.next(this.stepConfig);
     }
 

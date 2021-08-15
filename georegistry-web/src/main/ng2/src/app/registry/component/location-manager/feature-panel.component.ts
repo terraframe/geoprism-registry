@@ -1,212 +1,199 @@
-import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, ViewChild } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
+import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 
-import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime, ValueOverTime } from '@registry/model/registry';
-import { RegistryService } from '@registry/service';
-import { AuthService } from '@shared/service';
-import { ErrorModalComponent, ErrorHandler } from '@shared/component';
-import { Subject } from 'rxjs';
+import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime } from "@registry/model/registry";
+import { RegistryService } from "@registry/service";
+import { AuthService } from "@shared/service";
+import { ErrorModalComponent, ErrorHandler } from "@shared/component";
 
 @Component({
-	selector: 'feature-panel',
-	templateUrl: './feature-panel.component.html',
-	styleUrls: ['./dataset-location-manager.css']
+    selector: "feature-panel",
+    templateUrl: "./feature-panel.component.html",
+    styleUrls: ["./dataset-location-manager.css"]
 })
 export class FeaturePanelComponent implements OnInit {
-	MODE = {
-		VERSIONS: 'VERSIONS',
-		ATTRIBUTES: 'ATTRIBUTES',
-		HIERARCHY: 'HIERARCHY',
-		GEOMETRY: 'GEOMETRY'
-	}
 
-	@Input() datasetId: string;
+    MODE = {
+        VERSIONS: "VERSIONS",
+        ATTRIBUTES: "ATTRIBUTES",
+        HIERARCHY: "HIERARCHY",
+        GEOMETRY: "GEOMETRY"
+    }
 
-	@Input() type: GeoObjectType;
+    @Input() datasetId: string;
 
-	@Input() forDate: Date = new Date();
+    @Input() type: GeoObjectType;
 
-	@Input() readOnly: boolean = false;
+    @Input() forDate: Date = new Date();
 
-	@Input() set code(value: string) {
-		this.updateCode(value);
-	}
-	
-	@ViewChild('attributeEditor') attributeEditor;
+    @Input() readOnly: boolean = false;
 
-	_code: string = null;
+    // eslint-disable-next-line accessor-pairs
+    @Input() set code(value: string) {
+        this.updateCode(value);
+    }
 
-	@Output() featureChange = new EventEmitter<GeoObjectOverTime>();
-	@Output() modeChange = new EventEmitter<boolean>();
-	@Output() panelCancel = new EventEmitter<void>();
-	@Output() panelSubmit = new EventEmitter<{isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}>();
-	
-	isValid: boolean = true;
+    @ViewChild("attributeEditor") attributeEditor;
 
-	bsModalRef: BsModalRef;
+    _code: string = null;
 
-	mode: string = null;
+    @Output() featureChange = new EventEmitter<GeoObjectOverTime>();
+    @Output() modeChange = new EventEmitter<boolean>();
+    @Output() panelCancel = new EventEmitter<void>();
+    @Output() panelSubmit = new EventEmitter<{isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}>();
 
-	isMaintainer: boolean;
+    isValid: boolean = true;
 
-	// The current state of the GeoObject in the GeoRegistry
-	preGeoObject: GeoObjectOverTime;
+    bsModalRef: BsModalRef;
 
-	// The state of the GeoObject after our edit has been applied
-	postGeoObject: GeoObjectOverTime;
+    mode: string = null;
 
-	attribute: AttributeType = null;
+    isMaintainer: boolean;
 
-	isNew: boolean = false;
+    // The current state of the GeoObject in the GeoRegistry
+    preGeoObject: GeoObjectOverTime;
 
-	isEdit: boolean = true;
+    // The state of the GeoObject after our edit has been applied
+    postGeoObject: GeoObjectOverTime;
 
-	hierarchies: HierarchyOverTime[];
+    attribute: AttributeType = null;
 
-	hierarchy: HierarchyOverTime = null;
-	
-	reason: string = "";
+    isNew: boolean = false;
 
-	constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService) {
-	}
+    isEdit: boolean = true;
 
-	ngOnInit(): void {
-	  this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
-		this.mode = 'ATTRIBUTES';
-    
-    this.isEdit = !this.readOnly;
-	}
-	
-	setValid(valid: boolean): void {
-		this.isValid = valid;
-	}
+    hierarchies: HierarchyOverTime[];
 
-	updateCode(code: string): void {
-		this._code = code;
-		this.postGeoObject = null;
-		this.preGeoObject = null;
-		this.hierarchies = null;
-		
-		//this.setEditMode(false);
-		this.setEditMode(true);
+    hierarchy: HierarchyOverTime = null;
 
-		if (code != null && this.type != null) {
+    reason: string = "";
 
-			if (code !== '__NEW__') {
-				this.isNew = false;
+    // eslint-disable-next-line no-useless-constructor
+    constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService) { }
 
-				this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
-					this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
-					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
-					console.log("Setting postGeoObject", this.postGeoObject);
-				}).catch((err: HttpErrorResponse) => {
-					this.error(err);
-				});
+    ngOnInit(): void {
+        this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
+        this.mode = "ATTRIBUTES";
 
-				this.service.getHierarchiesForGeoObject(code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
-					this.hierarchies = hierarchies;
-				}).catch((err: HttpErrorResponse) => {
-					this.error(err);
-				});
-			}
-			else {
-				this.isNew = true;
+        this.isEdit = !this.readOnly;
+    }
 
-				this.service.newGeoObjectOverTime(this.type.code).then(retJson => {
-					this.preGeoObject = new GeoObjectOverTime(this.type, retJson.geoObject.attributes);
-					this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+    setValid(valid: boolean): void {
+        this.isValid = valid;
+    }
 
-					this.hierarchies = retJson.hierarchies;
-					this.setEditMode(true);
-				});
-			}
+    updateCode(code: string): void {
+        this._code = code;
+        this.postGeoObject = null;
+        this.preGeoObject = null;
+        this.hierarchies = null;
 
-		}
-	}
-	
+        this.setEditMode(true);
 
-	onCancelInternal(): void {
+        if (code != null && this.type != null) {
+            if (code !== "__NEW__") {
+                this.isNew = false;
 
-    	this.panelCancel.emit();
+                this.service.getGeoObjectOverTime(code, this.type.code).then(geoObject => {
+                    this.preGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(geoObject)).attributes);
+                    this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
 
+                this.service.getHierarchiesForGeoObject(code, this.type.code).then((hierarchies: HierarchyOverTime[]) => {
+                    this.hierarchies = hierarchies;
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            } else {
+                this.isNew = true;
 
-		//if (this._code === '__NEW__') {
-		//	this.updateCode(null);
-		//}
-		//else {
-		//	this.updateCode(this._code);
-		//}
-	}
-	
-	onSubmit(): void {
-	  if (this.isNew)
-	  {
-	    this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
-        if (!applyInfo.isChangeRequest)
-        {
-          this.featureChange.emit(this.postGeoObject);
-          this.updateCode(this._code);
+                this.service.newGeoObjectOverTime(this.type.code).then(retJson => {
+                    this.preGeoObject = new GeoObjectOverTime(this.type, retJson.geoObject.attributes);
+                    this.postGeoObject = new GeoObjectOverTime(this.type, JSON.parse(JSON.stringify(this.preGeoObject)).attributes);
+
+                    this.hierarchies = retJson.hierarchies;
+                    this.setEditMode(true);
+                });
+            }
         }
-        this.panelSubmit.emit(applyInfo);
-      }).catch((err: HttpErrorResponse) => {
-        this.error(err);
-      });
-	  }
-	  else
-	  {
-  		this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason).then((applyInfo: any) => {
-  		  if (!applyInfo.isChangeRequest)
-        {
-  			  this.featureChange.emit(this.postGeoObject);
-  			  this.updateCode(this._code);
-  			}
-  			this.panelSubmit.emit(applyInfo);
-  		}).catch((err: HttpErrorResponse) => {
-  			this.error(err);
-  		});
-		}
-	}
+    }
 
-	onManageAttributeVersion(attribute: AttributeType): void {
-		this.attribute = attribute;
-		this.mode = this.MODE.VERSIONS;
-	}
+    onCancelInternal(): void {
+        this.panelCancel.emit();
 
-	onManageHiearchyVersion(hierarchy: HierarchyOverTime): void {
-		this.hierarchy = hierarchy;
-		this.mode = this.MODE.HIERARCHY;
-	}
+        // if (this._code === '__NEW__') {
+        //    this.updateCode(null);
+        // }
+        // else {
+        //    this.updateCode(this._code);
+        // }
+    }
 
-	onAttributeChange(postGeoObject: GeoObjectOverTime): void {
-		
-		this.postGeoObject = postGeoObject;
+    onSubmit(): void {
+        if (this.isNew) {
+            this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
+                if (!applyInfo.isChangeRequest) {
+                    this.featureChange.emit(this.postGeoObject);
+                    this.updateCode(this._code);
+                }
+                this.panelSubmit.emit(applyInfo);
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        } else {
+            this.service.applyGeoObjectEdit(this.postGeoObject.attributes.code, this.type.code, this.attributeEditor.getActions(), this.datasetId, this.reason).then((applyInfo: any) => {
+                if (!applyInfo.isChangeRequest) {
+                    this.featureChange.emit(this.postGeoObject);
+                    this.updateCode(this._code);
+                }
+                this.panelSubmit.emit(applyInfo);
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        }
+    }
 
-		this.mode = this.MODE.ATTRIBUTES;
-	}
+    onManageAttributeVersion(attribute: AttributeType): void {
+        this.attribute = attribute;
+        this.mode = this.MODE.VERSIONS;
+    }
 
-	onHierarchyChange(hierarchy: HierarchyOverTime): void {
-		const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
-		if (index !== -1) {
-			this.hierarchies[index] = hierarchy;
-		}
+    onManageHiearchyVersion(hierarchy: HierarchyOverTime): void {
+        this.hierarchy = hierarchy;
+        this.mode = this.MODE.HIERARCHY;
+    }
 
-		this.mode = this.MODE.ATTRIBUTES;
-	}
+    onAttributeChange(postGeoObject: GeoObjectOverTime): void {
+        this.postGeoObject = postGeoObject;
 
-	onEditAttributes(): void {
-		this.setEditMode(!this.isEdit);
-	}
+        this.mode = this.MODE.ATTRIBUTES;
+    }
 
-	setEditMode(value: boolean): void {
-		this.isEdit = value;
-		this.reason = null;
+    onHierarchyChange(hierarchy: HierarchyOverTime): void {
+        const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
+        if (index !== -1) {
+            this.hierarchies[index] = hierarchy;
+        }
 
-		this.modeChange.emit(this.isEdit)
-	}
+        this.mode = this.MODE.ATTRIBUTES;
+    }
 
-	public error(err: HttpErrorResponse): void {
-		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-	}
+    onEditAttributes(): void {
+        this.setEditMode(!this.isEdit);
+    }
+
+    setEditMode(value: boolean): void {
+        this.isEdit = value;
+        this.reason = null;
+
+        this.modeChange.emit(this.isEdit);
+    }
+
+    public error(err: HttpErrorResponse): void {
+        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+    }
 
 }
