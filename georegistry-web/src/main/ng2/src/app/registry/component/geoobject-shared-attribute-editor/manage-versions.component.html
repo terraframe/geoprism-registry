@@ -141,7 +141,7 @@
                                       <tr>
                                         <td colspan="2" style="padding-left:0;">
                                         
-                                          <button *ngIf="viewModel.oldValue" class="btn btn-primary" (click)="toggleOldGeometryView(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
+                                          <button *ngIf="viewModel.oldValue && viewModel.newLayer" class="btn btn-primary" (click)="toggleOldGeometryView(viewModel)" role="button" [disabled]="viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
                                            <localize *ngIf="!viewModel.oldLayer || !viewModel.oldLayer.isRendering" key="changeovertime.manageVersions.geometry.viewOld"></localize>
                                            <localize *ngIf="viewModel.oldLayer && viewModel.oldLayer.isRendering" key="changeovertime.manageVersions.geometry.hideOld"></localize>
                                           </button>
@@ -267,13 +267,19 @@
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              
-            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left: 15px;">
-              <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
-                <localize key="change.request.accept.btn"></localize>
-              </button>
-              <button *ngIf="editAction.approvalStatus === 'REJECTED'" disabled type="submit" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
-                <localize key="change.request.reject.btn"></localize>
-              </button>
+            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;font-style: italic;">
+<!--               <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize"> -->
+<!--                 <localize key="change.request.accept.btn"></localize> -->
+<!--               </button> -->
+<!--               <button *ngIf="editAction.approvalStatus === 'REJECTED'" disabled type="submit" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize"> -->
+<!--                 <localize key="change.request.reject.btn"></localize> -->
+<!--               </button> -->
+                <strong style="color:#6BA542;" *ngIf="editAction.approvalStatus === 'ACCEPTED'">
+                    <localize key="change.request.status.accepted"></localize>
+                </strong>
+                <strong style="color:#6d0400;" *ngIf="editAction.approvalStatus === 'REJECTED'">
+                    <localize key="change.request.status.rejected"></localize>
+                </strong>
             </div>              
           </div>
         </div>
