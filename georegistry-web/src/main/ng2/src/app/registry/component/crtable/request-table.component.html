@@ -162,8 +162,11 @@
 	                  <div *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS') || req.permissions.includes('DELETE')" class="button-holder" style="margin-bottom:20px;">
 	                    <span *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS')">
 	                      <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onExecute(req)" class="btn btn-primary" style="margin:0;" role="button" [title]="'change.request.implement.decisions.btn.hover' | localize">
-	                        <localize key="change.request.accept.changes.btn"></localize>
+	                        <localize [key]="req.type === 'UpdateGeoObject' ? 'change.request.accept.changes.btn' : 'change.request.accept.newGeoObject.btn'"></localize>
 	                      </button>
+	                      <button [disabled]="req.approvalStatus !== 'PENDING'" *ngIf="req.type === 'CreateGeoObject'" type="submit" (click)="onReject(req)" class="btn btn-danger" style="margin:0;" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                          <localize key="change.request.reject.all.btn"></localize>
+                        </button>
 	                    </span>
 	                    
 	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >

@@ -1,6 +1,6 @@
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 595008608)
+@com.runwaysdk.business.ClassSignature(hash = -1332859592)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -37,6 +37,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public String getClassType()
   {
     return net.geoprism.registry.action.ChangeRequest.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, displayLabel);
+
   }
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus()
   {
@@ -690,6 +707,9 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public interface ChangeRequestQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes();
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus();
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel);
@@ -835,6 +855,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
       return this.NE(changeRequest.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, displayLabel);
+
+  }
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus()
   {
     return getApprovalStatus(null);
@@ -1428,6 +1465,9 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public interface ChangeRequestQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes();
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus();
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel);
@@ -1565,6 +1605,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
       }
 
       return this.containsExactly(itemIdArray);
+  }
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, displayLabel);
+
   }
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus()
   {

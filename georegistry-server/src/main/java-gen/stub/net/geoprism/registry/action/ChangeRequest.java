@@ -19,14 +19,12 @@
 package net.geoprism.registry.action;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
-import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -40,11 +38,8 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
-import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.VaultFile;
 
-import net.geoprism.GeoprismUser;
-import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -145,6 +140,15 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
     return (JsonObject) builder.create().toJsonTree(this);
   }
+  
+  public static ChangeRequest fromJSON(String json)
+  {
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(ChangeRequest.class, new ChangeRequestJsonAdapters.ChangeRequestDeserializer());
+    builder.registerTypeAdapter(GeoObjectOverTime.class, new GeoObjectOverTimeJsonAdapters.GeoObjectDeserializer(ServiceFactory.getAdapter()));
+
+    return builder.create().fromJson(json, ChangeRequest.class);
+  }
 
   public JsonObject getDetails()
   {
@@ -181,9 +185,22 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
     return object;
   }
+  
+  @Transaction
+  public void reject(String maintainerNotes, String additionalNotes)
+  {
+    this.appLock();
+    this.setMaintainerNotes(maintainerNotes);
+    this.setAdditionalNotes(additionalNotes);
+    this.clearApprovalStatus();
+    this.addApprovalStatus(AllGovernanceStatus.REJECTED);
+    this.apply();
+    
+    this.setAllActionsStatus(AllGovernanceStatus.REJECTED);
+  }
 
   @Transaction
-  public void execute(boolean sendEmail)
+  public void execute(String maintainerNotes, String additionalNotes)
   {
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
@@ -236,6 +253,8 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       }
 
       this.appLock();
+      this.setMaintainerNotes(maintainerNotes);
+      this.setAdditionalNotes(additionalNotes);
       this.clearApprovalStatus();
       this.addApprovalStatus(status);
       this.apply();

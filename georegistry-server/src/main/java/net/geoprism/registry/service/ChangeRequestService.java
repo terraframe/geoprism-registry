@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -55,6 +56,23 @@ import net.geoprism.registry.view.Page;
 public class ChangeRequestService
 {
   public ChangeRequestPermissionService permService = new ChangeRequestPermissionService();
+  
+  @Request(RequestType.SESSION)
+  public void reject(String sessionId, String request)
+  {
+    ChangeRequest input = ChangeRequest.fromJSON(request);
+    ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
+    
+    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(
+        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
+        ChangeRequestPermissionAction.READ_DETAILS
+      )))
+    {
+      throw new CGRPermissionException();
+    }
+    
+    current.reject(input.getMaintainerNotes(), input.getAdditionalNotes());
+  }
 
   @Request(RequestType.SESSION)
   public void deleteDocumentCR(String sessionId, String crOid, String vfOid)
@@ -307,18 +325,19 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject implementDecisions(String sessionId, String requestId)
+  public JsonObject implementDecisions(String sessionId, String request)
   {
-    ChangeRequest request = ChangeRequest.get(requestId);
-
-    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE)))
+    ChangeRequest input = ChangeRequest.fromJSON(request);
+    ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
+    
+    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE)))
     {
       throw new CGRPermissionException();
     }
+    
+    current.execute(input.getMaintainerNotes(), input.getAdditionalNotes());
 
-    request.execute(true);
-
-    return request.getDetails();
+    return current.getDetails();
   }
 
   @Request(RequestType.SESSION)
