@@ -99,6 +99,14 @@ public class ChangeRequestController
 
     return new RestResponse();
   }
+  
+  @Endpoint(url = "reject", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF reject(ClientRequestIF request, @RequestParamter(name = "request") String cr)
+  {
+    service.reject(request.getSessionId(), cr);
+
+    return new RestResponse();
+  }
 
   /**
    * Returns a paginated response of all change requests that your user has
@@ -158,9 +166,9 @@ public class ChangeRequestController
    * @return Empty response
    */
   @Endpoint(error = ErrorSerialization.JSON, url = "implement-decisions", method = ServletMethod.POST)
-  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
+  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "request") String cr)
   {
-    JsonObject details = service.implementDecisions(request.getSessionId(), requestId);
+    JsonObject details = service.implementDecisions(request.getSessionId(), cr);
 
     return new RestBodyResponse(details);
   }

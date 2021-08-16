@@ -11,7 +11,7 @@ import {
 
 import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 
-import { ChangeRequest, CreateGeoObjectAction, UpdateAttributeAction } from "@registry/model/crtable";
+import { AbstractAction, ChangeRequest, CreateGeoObjectAction, UpdateAttributeAction } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 import { GeoObjectOverTime } from "@registry/model/registry";
 
@@ -22,7 +22,6 @@ import { DateService } from "@shared/service/date.service";
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 
 declare var acp: string;
-declare var $: any;
 
 @Component({
 
@@ -76,7 +75,7 @@ export class RequestTableComponent {
 
     requests: ChangeRequest[] = [];
 
-    actions: CreateGeoObjectAction[] | UpdateAttributeAction[];
+    actions: AbstractAction[];
 
     columns: any[] = [];
 
@@ -238,7 +237,7 @@ export class RequestTableComponent {
 
     onExecute(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
-            this.service.implementDecisions(changeRequest.oid).then(request => {
+            this.service.implementDecisions(changeRequest).then(request => {
                 changeRequest = request;
 
                 // TODO: Determine if there is a way to update an individual record
@@ -272,6 +271,27 @@ export class RequestTableComponent {
                 this.error(response);
             });
         }
+    }
+
+    onReject(cr: ChangeRequest): void {
+        this.service.rejectChangeRequest(cr).then(() => {
+            // TODO: Determine if there is a way to update an individual record
+            // TODO : cr.statusLabel needs to be updated...
+            /*
+            cr.approvalStatus = "REJECTED";
+
+            let len = this.actions.length;
+            for (let i = 0; i < len; ++i) {
+                let action: AbstractAction = this.actions[i];
+
+                action.approvalStatus = "REJECTED";
+            }
+            */
+
+            this.refresh();
+        }).catch((response: HttpErrorResponse) => {
+            this.error(response);
+        });
     }
 
     getFirstGeoObjectInActions(request: ChangeRequest): GeoObjectOverTime {

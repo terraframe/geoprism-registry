@@ -38,6 +38,9 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.constants.EntityInfo;
+import com.runwaysdk.dataaccess.EntityDAO;
 import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.session.Session;
@@ -93,7 +96,21 @@ public class ChangeRequestJsonAdapters
     @Override
     public ChangeRequest deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {
-      return null;
+      JsonObject jo = json.getAsJsonObject();
+      
+      ChangeRequest cr = new ChangeRequest();
+      
+      if (jo.has(ChangeRequest.MAINTAINERNOTES))
+      {
+        cr.setMaintainerNotes(jo.get(ChangeRequest.MAINTAINERNOTES).getAsString());
+      }
+      
+      if (jo.has(ChangeRequest.ADDITIONALNOTES))
+      {
+        cr.setAdditionalNotes(jo.get(ChangeRequest.ADDITIONALNOTES).getAsString());
+      }
+      
+      return cr;
     }
   }
   
@@ -123,6 +140,7 @@ public class ChangeRequestJsonAdapters
       object.addProperty(ChangeRequest.APPROVALSTATUS, status.getEnumName());
       object.addProperty(ChangeRequest.MAINTAINERNOTES, cr.getMaintainerNotes());
       object.addProperty(ChangeRequest.CONTRIBUTORNOTES, cr.getContributorNotes());
+      object.addProperty(ChangeRequest.ADDITIONALNOTES, cr.getAdditionalNotes());
       object.addProperty("statusLabel", status.getDisplayLabel());
       
       ChangeRequestJsonAdapters.serializeCreatedBy(cr.getCreatedBy(), object);
