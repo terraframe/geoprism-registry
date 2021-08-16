@@ -195,7 +195,7 @@ export class ManageVersionsComponent implements OnInit {
     remove(view: VersionDiffView): void {
         view.editPropagator.remove();
 
-        if (view.summaryKey === SummaryKey.NEW) {
+        if (view.summaryKey === SummaryKey.NEW || view.editPropagator.action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
             const index = this.viewModels.findIndex(v => v.oid === view.oid);
 
             if (index > -1) {
