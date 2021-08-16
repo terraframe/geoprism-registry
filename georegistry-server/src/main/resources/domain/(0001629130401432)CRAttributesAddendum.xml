@@ -39,14 +39,14 @@
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action.accept.btn.hover">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="change.request.action.reject.btn.hover" />
+        <attribute name="storeKey" value="change.request.action.accept.btn.hover" />
         <attributeStruct name="storeValue">
           <attribute name="defaultLocale" value="Accept all changes for this attribute. Request will not be finalized until changes are implemented." />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action.pending.btn.hover">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="change.request.action.reject.btn.hover" />
+        <attribute name="storeKey" value="change.request.action.pending.btn.hover" />
         <attributeStruct name="storeValue">
           <attribute name="defaultLocale" value="Reset all changes for this attribute back to pending status. Request cannot be implemented while attributes are at pending status." />
         </attributeStruct>
