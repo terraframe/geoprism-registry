@@ -20,12 +20,16 @@ package net.geoprism.registry;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -33,7 +37,9 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.service.ServiceFactory;
@@ -117,13 +123,21 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   @Override
   public JsonObject toJSON()
   {
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(FhirSyncLevel.class, new FhirSyncLevel.Serializer());
+    builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingDeserializer());
+
+    Gson gson = builder.create();
+
     JsonObject object = new JsonObject();
     object.addProperty(SynchronizationConfig.OID, this.getOid());
     object.addProperty(SynchronizationConfig.ORGANIZATION, this.getOrganization().getCode());
     object.addProperty(SynchronizationConfig.SYSTEM, this.getSystem());
     object.add(SynchronizationConfig.LABEL, LocalizedValueConverter.convert(this.getLabel()).toJSON());
-    object.add(SynchronizationConfig.CONFIGURATION, this.getConfigurationJson());
     object.addProperty(SynchronizationConfig.ISIMPORT, this.getIsImport() != null ? this.getIsImport() : false);
+
+    ExternalSystemSyncConfig config = this.buildConfiguration();
+    object.add(SynchronizationConfig.CONFIGURATION, gson.toJsonTree(config));
 
     ExternalSystem system = this.getExternalSystem();
 

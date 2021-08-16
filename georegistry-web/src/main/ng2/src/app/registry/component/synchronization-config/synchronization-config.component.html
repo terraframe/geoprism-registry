@@ -18,60 +18,105 @@
         <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
           <div class="row">
             <div class="col-md-8">
-              <label style="vertical-align: middle;">CGR</label> 
-              <i class="fa" [ngClass]="{'fa-long-arrow-right' : !config.isImport, 'fa-long-arrow-left' : config.isImport}" aria-hidden="true" style="font-size: 23px;padding: 0 7px;vertical-align: middle; color: #bdbdbd;margin-bottom: 4px;"></i> 
+              <label style="vertical-align: middle;">CGR</label>
+              <i class="fa"
+                [ngClass]="{'fa-long-arrow-right' : !config.isImport, 'fa-long-arrow-left' : config.isImport}"
+                aria-hidden="true"
+                style="font-size: 23px;padding: 0 7px;vertical-align: middle; color: #bdbdbd;margin-bottom: 4px;"></i>
               <label style="vertical-align: middle;">{{config.systemLabel}}</label>
             </div>
             <div class="col-md-4">
               <div class="form-group text-right" style="margin: 0;">
                 <form>
-                  <button type="submit" style="margin-left: 15px;" (click)="onRun()" class="btn btn-primary" role="button" [title]="'synchronization.config.run' | localize">
+                  <button type="submit" style="margin-left: 15px;" (click)="onRun()" class="btn btn-primary"
+                    role="button" [title]="'synchronization.config.run' | localize">
                     <localize key="synchronization.config.run"></localize>
                   </button>
-                  <button *ngIf="config != null && config.type === 'FhirExternalSystem' && !config.isImport" type="submit" style="margin-left: 15px;" (click)="onGenerateFile()" class="btn btn-secondary" role="button" [title]="'synchronization.config.run' | localize">
+                  <button *ngIf="config != null && config.type === 'FhirExternalSystem' && !config.isImport"
+                    type="submit" style="margin-left: 15px;" (click)="onGenerateFile()" class="btn btn-secondary"
+                    role="button" [title]="'synchronization.config.run' | localize">
                     <localize key="synchronization.config.generateBundle"></localize>
-                  </button>                  
-                 </form>
-               </div>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
 
           <div class="row" *ngIf="config != null && config.type === 'DHIS2ExternalSystem'">
             <div class="col-md-12">
 
-                <h4>
-                    <localize key="synchronization.config.units"></localize>
-                </h4>
-                <table class="table">
-                    <thead>
-                      <tr>
-                        <th>
-                          <localize key="settings.external.synchronization.level.label"></localize>
-                        </th>
-                        <th>
-                          <localize key="settings.external.synchronization.geoobjecttype.label"></localize>
-                        </th>
-                        <th style="text-align: right;">
-                          <localize key="settings.external.synchronization.dhis2.synch.type.label"></localize>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let level of this.config.configuration['levels']; let i = index;" >
-                        <td style="vertical-align: middle;">
-                          <localize key="settings.external.synchronization.level.label"></localize> {{i + 1}}
-                        </td>
-                        <td style="">
-                          {{level.geoObjectType}}
-                        </td>
-                        <td style="text-align: right;">
-                          <localize *ngIf="level.type === 'ORG_UNITS'" key="synchronization.config.units"></localize>
-                          <localize *ngIf="level.type === 'RELATIONSHIPS'" key="synchronization.config.relationships"></localize>
-                          <localize *ngIf="level.type === 'ALL'" key="synchronization.config.all"></localize>
-                        </td>
-                      </tr>
-                    </tbody>
-                </table>
+              <h4>
+                <localize key="synchronization.config.units"></localize>
+              </h4>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>
+                      <localize key="settings.external.synchronization.level.label"></localize>
+                    </th>
+                    <th>
+                      <localize key="settings.external.synchronization.geoobjecttype.label"></localize>
+                    </th>
+                    <th style="text-align: right;">
+                      <localize key="settings.external.synchronization.dhis2.synch.type.label"></localize>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let level of this.config.configuration['levels']; let i = index;">
+                    <td style="vertical-align: middle;">
+                      <localize key="settings.external.synchronization.level.label"></localize> {{i + 1}}
+                    </td>
+                    <td style="">
+                      {{level.geoObjectType}}
+                    </td>
+                    <td style="text-align: right;">
+                      <localize *ngIf="level.type === 'ORG_UNITS'" key="synchronization.config.units"></localize>
+                      <localize *ngIf="level.type === 'RELATIONSHIPS'" key="synchronization.config.relationships">
+                      </localize>
+                      <localize *ngIf="level.type === 'ALL'" key="synchronization.config.all"></localize>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+
+          <div class="row" *ngIf="config != null && config.type === 'FhirExternalSystem' && !config.isImport">
+            <div class="col-md-12">
+
+              <h4>
+                <localize key="synchronization.config.units"></localize>
+              </h4>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>
+                      <localize key="settings.external.synchronization.level.label"></localize>
+                    </th>
+                    <th>
+                      <localize key="masterlist.field"></localize>
+                    </th>
+                    <th style="text-align: right;">
+                      <localize key="masterlist.forDate"></localize>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let level of this.config.configuration['levels']; let i = index;">
+                    <td style="vertical-align: middle;">
+                      <localize key="settings.external.synchronization.level.label"></localize> {{i + 1}}
+                    </td>
+                    <td style="">
+                      {{level.typeLabel}}
+                    </td>
+                    <td style="text-align: right;">
+                      {{level.forDate}}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
 
             </div>
           </div>
@@ -84,12 +129,15 @@
                   <table class="table table-striped">
                     <thead>
                       <tr style="height: 56px;">
-                        <th style="vertical-align: middle;"><localize key="masterlist.jobs"></localize></th>
+                        <th style="vertical-align: middle;">
+                          <localize key="masterlist.jobs"></localize>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       <!-- <tr *ngFor="let job of jobs; let i = index;">  -->
-                      <tr *ngFor="let job of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
+                      <tr
+                        *ngFor="let job of page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
                         <td style="vertical-align: middle;">
                           <div class="wrapper">
                             <i style="position: absolute; font-size: 40px;" class="fa fa-file" aria-hidden="true"></i>
@@ -97,24 +145,29 @@
                               <span style="display: block;"> {{job.fileName}} </span>
                               <span style="display: block;"> {{job.createDate}} </span>
                               <span style="display: block;"> {{formatJobStatus(job)}} </span>
-                              <span *ngIf="job.exception != null && job.exception.type != 'java.lang.RuntimeException'" style="display: block;">
+                              <span *ngIf="job.exception != null && job.exception.type != 'java.lang.RuntimeException'"
+                                style="display: block;">
                                 {{job.exception.message}}
                               </span>
                             </p>
 
-                            <step-indicator *ngIf="job.status !== 'SUCCESS' && job.status !== 'FAILURE' && job.status !== 'CANCELED'" [steps]="job.stepConfig"></step-indicator>
+                            <step-indicator
+                              *ngIf="job.status !== 'SUCCESS' && job.status !== 'FAILURE' && job.status !== 'CANCELED'"
+                              [steps]="job.stepConfig"></step-indicator>
 
                           </div>
                         </td>
                         <td style="text-align: right; vertical-align: middle;">
                           <div class="button-holder" style="float: right;">
-                            <a *ngIf="job.status === 'FAILURE'" [routerLink]="'/registry/sync/details/' + config.oid + '/' + job.historyId" routerLinkActive="active">
+                            <a *ngIf="job.status === 'FAILURE'"
+                              [routerLink]="'/registry/sync/details/' + config.oid + '/' + job.historyId"
+                              routerLinkActive="active">
                               <button class="btn btn-primary" role="button">
                                 <localize key="scheduledjobs.detail.button"></localize>
                               </button>
                             </a>
-                           </div>
-                         </td>
+                          </div>
+                        </td>
                       </tr>
 
                     </tbody>

@@ -1,5 +1,4 @@
 import { Component, Input } from "@angular/core";
-import { LocalizationService } from "@shared/service";
 
 import { Step, StepConfig } from "@registry/model/registry";
 
@@ -19,7 +18,7 @@ export class StepIndicatorComponent {
     _stepConfig: StepConfig;
     step: Step;
 
-    constructor(private localizeService: LocalizationService) {
+    constructor() {
         this._stepConfig = { steps: [] };
     }
 

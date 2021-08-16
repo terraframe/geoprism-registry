@@ -18,30 +18,67 @@
  */
 package net.geoprism.registry.etl;
 
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.model.ServerGeoObjectType;
+
 public class FhirSyncLevel implements Comparable<FhirSyncLevel>
 {
+  public static class Serializer implements JsonSerializer<FhirSyncLevel>
+  {
+    public static String formatDate(Date date)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-  public static enum Type {
-    ALL
+      if (date != null)
+      {
+        return format.format(date);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+    @Override
+    public JsonElement serialize(FhirSyncLevel src, Type typeOfSrc, JsonSerializationContext context)
+    {
+      JsonObject jo = new JsonObject();
+      jo.addProperty("masterListId", src.masterListId);
+      jo.addProperty("versionId", src.versionId);
+      jo.addProperty("level", src.level);
+
+      if (src.versionId != null)
+      {
+        MasterListVersion version = MasterListVersion.get(src.getVersionId());
+        MasterList list = version.getMasterlist();
+        ServerGeoObjectType serverGeoObject = list.getGeoObjectType();
+
+        jo.addProperty("forDate", formatDate(version.getForDate()));
+        jo.addProperty("typeLabel", serverGeoObject.getLabel().getValue());
+      }
+
+      return jo;
+    }
+
   }
 
   private String  masterListId;
 
   private String  versionId;
 
-  private Type    syncType;
-
   private Integer level;
-
-  public Type getSyncType()
-  {
-    return syncType;
-  }
-
-  public void setSyncType(Type syncType)
-  {
-    this.syncType = syncType;
-  }
 
   public Integer getLevel()
   {
@@ -76,7 +113,7 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
   @Override
   public int hashCode()
   {
-    return new String(versionId + syncType.name()).hashCode() + level;
+    return new String(versionId).hashCode() + level;
   }
 
   @Override

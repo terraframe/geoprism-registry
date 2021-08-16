@@ -119,22 +119,27 @@ export class SynchronizationConfigComponent implements OnInit {
 
     page.resultSet.forEach((job: ExportScheduledJob) => {
 
-      job.stepConfig = {
-        "steps": [
-          {
-            "label": this.lService.decode("synchronization.step.Queued"),
-            "status": job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
-          },
+      const steps = [
+        {
+          "label": this.lService.decode("synchronization.step.Queued"),
+          "status": job.stage === "NEW" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "NEW")
+        },
 
-          {
-            "label": this.lService.decode("synchronization.step.Connecting"),
-            "status": job.stage === "CONNECTING" || job.stage === "CONNECTION_FAILED" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "CONNECTION_FAILED")
-          },
-          {
-            "label": this.lService.decode("synchronization.step.DatabaseExport"),
-            "status": job.stage === "EXPORT" || job.stage === "EXPORT_RESOLVE" || job.stage === "RESUME_EXPORT" ? this.getJobStatus(job) : ""
-          }
-        ]
+        {
+          "label": this.lService.decode("synchronization.step.Connecting"),
+          "status": job.stage === "CONNECTING" || job.stage === "CONNECTION_FAILED" ? this.getJobStatus(job) : this.getCompletedStatus(job.stage, "CONNECTION_FAILED")
+        }
+      ];
+
+      const stepLabel = this.config.isImport ? "Importing" : this.lService.decode("synchronization.step.DatabaseExport");
+
+      steps.push({
+        "label": stepLabel,
+        "status": job.stage === "EXPORT" || job.stage === "EXPORT_RESOLVE" || job.stage === "RESUME_EXPORT" ? this.getJobStatus(job) : ""
+      });
+
+      job.stepConfig = {
+        "steps": steps
       }
     });
   }
