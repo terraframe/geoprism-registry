@@ -71,7 +71,10 @@
               
                     <div>
                         <h3 style="margin-top: 10px;">{{req.geoObject.label}}</h3>
-                        <h4>{{req.geoObject.code}}</h4>
+                        <h4 style="font-style: italic;">{{req.geoObject.code}}</h4>
+                        
+                        <h4 *ngIf="req.type === 'UpdateGeoObject'" style="font-style: italic;"><localize key="change.request.type.update.geoobject.label"></localize></h4>
+                        <h4 *ngIf="req.type === 'CreateGeoObject'" style="font-style: italic;"><localize key="change.request.type.create.geoobject.label"></localize></h4>
                     </div>
               </div>
                   
