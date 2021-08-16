@@ -1,9 +1,10 @@
+/* eslint-disable padded-blocks */
 export class LocaleInfo {
-  key: string;
-  label: string;
+    key: string;
+    label: string;
 }
 
 export class AllLocaleInfo {
-  countries: LocaleInfo[];
-  languages: LocaleInfo[];
+    countries: LocaleInfo[];
+    languages: LocaleInfo[];
 }

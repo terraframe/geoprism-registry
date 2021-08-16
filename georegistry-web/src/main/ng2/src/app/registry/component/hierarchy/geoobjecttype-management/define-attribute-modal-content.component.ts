@@ -44,88 +44,58 @@ export class DefineAttributeModalContentComponent implements OnInit {
         private registryService: RegistryService) { }
 
     ngOnInit(): void {
-
         this.setAttribute("character");
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-
     }
 
     ngAfterViewInit(): void {
-
         if (this.attributeInputComponent) {
-
             this.attributeInputComponent.animate();
-
         }
-
     }
 
     handleOnSubmit(): void {
-
         this.registryService.addAttributeType(this.geoObjectType.code, this.newAttribute).then(data => {
-
             this.geoObjectType.attributes.push(data);
 
             this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
 
             this.geoObjectTypeChange.emit(this.geoObjectType);
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     setAttribute(type: string): void {
-
         if (type === "term") {
-
             this.newAttribute = new AttributeTermType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
-
         } else if (type === "float") {
-
             this.newAttribute = new AttributeDecimalType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
-
         } else {
-
             this.newAttribute = new AttributeType("", type, this.localizeService.create(), this.localizeService.create(), false, false, false, true);
-
         }
-
     }
 
     isFormValid(): boolean {
-
         let isAttrValid: boolean = false;
 
         if (this.attributeInputComponent) {
-
             isAttrValid = this.attributeInputComponent.isValid();
-
         }
 
         if (isAttrValid) {
-
             return true;
-
         }
 
         return false;
-
     }
 
     cancel(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
-
     }
 
     error(err: HttpErrorResponse): void {
-
         this.message = ErrorHandler.getMessageFromError(err);
-
     }
 
 }

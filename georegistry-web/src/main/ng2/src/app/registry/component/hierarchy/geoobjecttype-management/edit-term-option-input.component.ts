@@ -32,8 +32,7 @@ import { RegistryService, GeoObjectTypeManagementService } from "@registry/servi
                 transition(
                     ":leave", [
                         style({ opacity: 1 }),
-                        animate("0ms", style({ opacity: 0 })),
-
+                        animate("0ms", style({ opacity: 0 }))
                     ]
                 )]
         )
@@ -63,9 +62,7 @@ export class EditTermOptionInputComponent implements OnInit {
         private localizeService: LocalizationService, private registryService: RegistryService) { }
 
     ngOnInit(): void {
-
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-
     }
 
     ngAfterViewInit() {
@@ -76,30 +73,21 @@ export class EditTermOptionInputComponent implements OnInit {
     }
 
     handleOnSubmit(): void {
-
         this.registryService.updateAttributeTermTypeOption(this.attribute.rootTerm.code, this.termOption).then(data => {
-
             // Update the term definition on the attribute
             const index = this.attribute.rootTerm.children.findIndex(t => t.code === data.code);
 
             if (index !== -1) {
-
                 this.attribute.rootTerm.children[index] = data;
-
             }
 
             this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: this.attribute, termOption: null });
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     isFormValid(): boolean {
-
         // let isAttrValid: boolean = this.attributeInputComponent.isValid();
 
         // if(isAttrValid){
@@ -108,19 +96,14 @@ export class EditTermOptionInputComponent implements OnInit {
 
         // return false;
         return true;
-
     }
 
     cancel(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: null });
-
     }
 
     error(err: HttpErrorResponse): void {
-
         this.message = ErrorHandler.getMessageFromError(err);
-
     }
 
 }

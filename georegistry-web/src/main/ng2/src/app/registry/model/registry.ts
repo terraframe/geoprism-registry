@@ -4,6 +4,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
 import { GovernanceStatus, ConflictType } from "./constants";
+import { SummaryKey } from "./crtable";
 
 export const PRESENT: string = "5000-12-31";
 
@@ -130,49 +131,57 @@ export class GeoObjectOverTime {
 }
 
 export class ConflictMessage {
-  message: string;
-  severity: string;
-  type: ConflictType;
+    message: string;
+    severity: string;
+    type: ConflictType;
 }
 
-export class ValueOverTime {
-  oid: string;
-  startDate: string;
-  endDate: string;
-  value: any;
-  removable?: boolean;
+export interface TimeRangeEntry {
+    startDate: string;
+    endDate: string;
+    conflictMessage?: any[];
+    summaryKeyData?: SummaryKey;
+}
+
+export class ValueOverTime implements TimeRangeEntry {
+    oid: string;
+    startDate: string;
+    endDate: string;
+    value: any;
+    removable?: boolean;
 }
 
 export class AttributeOverTime {
-  name: string;
-  type: string;
-  values: ValueOverTime[];
+    name: string;
+    type: string;
+    values: ValueOverTime[];
 }
 
 export class AttributeType {
-  code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept.
-  type: string;
-  label: LocalizedValue;
-  description: LocalizedValue;
-  isDefault: boolean;
-  required: boolean;
-  unique: boolean;
-  governanceStatus: GovernanceStatus;
-  isChangeOverTime?: boolean;
-  precision?: number;
-  scale?: number;
+    code: string; // On the back-end this is referred to as the AttributeType's 'name'. They are the same concept.
+    type: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    isDefault: boolean;
+    required: boolean;
+    unique: boolean;
+    governanceStatus: GovernanceStatus;
+    isChangeOverTime?: boolean;
+    precision?: number;
+    scale?: number;
+    isValid?: boolean;
 
-  constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
+    constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 
-    this.code = code;
-    this.type = type;
-    this.label = label;
-    this.description = description;
-    this.isDefault = isDefault;
-    this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
-    this.unique = unique;
-    this.isChangeOverTime = isChangeOverTime;
-  }
+        this.code = code;
+        this.type = type;
+        this.label = label;
+        this.description = description;
+        this.isDefault = isDefault;
+        this.required = false; // Hardcoded to false because this functionality is disabled until later evaluation.
+        this.unique = unique;
+        this.isChangeOverTime = isChangeOverTime;
+    }
 
 }
 
@@ -328,7 +337,7 @@ export class MasterList {
     read?: boolean;
     exploratory?: boolean;
     versions?: MasterListVersion[];
-    subtypes?: { label:string, code: string }[];
+    subtypes?: { label: string, code: string }[];
 }
 
 export class MasterListVersion {
@@ -347,7 +356,7 @@ export class MasterListVersion {
     isAbstract?: boolean;
     superTypeCode?: string;
     refreshProgress?: any;
-    subtypes?: { label:string, code: string }[];
+    subtypes?: { label: string, code: string }[];
 }
 
 export class HierarchyOverTime {
@@ -361,20 +370,20 @@ export class HierarchyOverTime {
     entries: HierarchyOverTimeEntry[];
 }
 
-export class HierarchyOverTimeEntry {
-  startDate: string;
-  endDate: string;
-  oid: string;
-  parents: { [k: string]: HierarchyOverTimeEntryParent };
-  loading?: any;
-  conflictType?: string;
-  conflictMessage?: any[];
+export class HierarchyOverTimeEntry implements TimeRangeEntry {
+    startDate: string;
+    endDate: string;
+    oid: string;
+    parents: { [k: string]: HierarchyOverTimeEntryParent };
+    loading?: any;
+    conflictType?: string;
+    conflictMessage?: any[];
 }
 
 export class HierarchyOverTimeEntryParent {
-  text: string;
-  geoObject: GeoObject;
-  goCode?: string;
+    text: string;
+    geoObject: GeoObject;
+    goCode?: string;
 }
 
 export class MasterListByOrg {
@@ -428,13 +437,4 @@ export class ContextLayerGroup {
     oid: string;
     displayLabel: string;
     contextLayers: ContextLayer[];
-}
-
-export class VersionOverTimeLayer {
-  view: any; // TODO : We might be able to get rid of this. It shouldn't be used anywhere other than the manage versions component
-  oid: string;
-  startDate: string;
-  endDate: string;
-  geojson: any;
-  editing: boolean;
 }

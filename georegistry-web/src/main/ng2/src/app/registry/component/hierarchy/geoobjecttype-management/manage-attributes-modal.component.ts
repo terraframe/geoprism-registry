@@ -43,32 +43,23 @@ export class ManageAttributesModalComponent implements OnInit {
         private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, private registryService: RegistryService) { }
 
     ngOnInit(): void {
-
         this.onDeleteAttribute = new Subject();
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-
     }
 
     ngOnDestroy() {
-
         this.onDeleteAttribute.unsubscribe();
-
     }
 
     defineAttributeModal(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
-
     }
 
     editAttribute(attr: AttributeType, e: any): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
-
     }
 
     removeAttributeType(attr: AttributeType, e: any): void {
-
         this.confirmBsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: true,
             backdrop: true,
@@ -80,45 +71,30 @@ export class ManageAttributesModalComponent implements OnInit {
         this.confirmBsModalRef.content.type = ModalTypes.danger;
 
         (<ConfirmModalComponent> this.confirmBsModalRef.content).onConfirm.subscribe(data => {
-
             this.deleteAttributeType(data.geoObjectType.code, data.attributeType);
-
         });
-
     }
 
     deleteAttributeType(geoObjectTypeCode: string, attr: AttributeType): void {
-
         this.registryService.deleteAttributeType(geoObjectTypeCode, attr.code).then(data => {
-
             this.onDeleteAttribute.next(data);
 
             if (data) {
-
                 this.geoObjectType.attributes.splice(this.geoObjectType.attributes.indexOf(attr), 1);
-
             }
 
             this.geoObjectTypeChange.emit(this.geoObjectType);
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     close(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: this.attribute, termOption: "" });
-
     }
 
     error(err: HttpErrorResponse): void {
-
         this.message = ErrorHandler.getMessageFromError(err);
-
     }
 
 }

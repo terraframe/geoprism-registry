@@ -1,7 +1,16 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable padded-blocks */
 import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType } from "./registry";
-import { LocalizedValue } from "@shared/model/core";
 import { ActionTypes } from "./constants";
+
+export enum SummaryKey {
+    NEW = "NEW",
+    UNMODIFIED = "UNMODIFIED",
+    DELETE = "DELETE",
+    UPDATE = "UPDATE",
+    TIME_CHANGE = "TIME_CHANGE",
+    VALUE_CHANGE = "VALUE_CHANGE",
+}
 
 export class Document {
     fileName: string;
@@ -10,7 +19,7 @@ export class Document {
 
 export class Geometry {
     type: string;
-    coordinates: number[][] | number [];
+    coordinates: number[][] | number[];
 }
 
 export class ValueOverTimeDiff {
@@ -23,6 +32,7 @@ export class ValueOverTimeDiff {
     oldStartDate: string;
     oldEndDate: string;
     parents?: any;
+    oldParents?: any;
 }
 
 // export class AbstractAction {
@@ -35,7 +45,6 @@ export class ValueOverTimeDiff {
 //    decisionMaker?: string;
 //    documents: Document[];
 // }
-
 
 export class AbstractAction {
     oid: string;
@@ -55,22 +64,22 @@ export class AbstractAction {
 export class CreateGeoObjectAction extends AbstractAction {
     geoObjectJson: GeoObjectOverTime;
     parentJson: HierarchyOverTime;
-    
+
     constructor() {
-      super();
-      this.actionType = ActionTypes.CREATEGEOOBJECTACTION;
+        super();
+        this.actionType = ActionTypes.CREATEGEOOBJECTACTION;
     }
 }
 
 export class UpdateAttributeAction extends AbstractAction {
     attributeName: string;
     attributeDiff: { "valuesOverTime": ValueOverTimeDiff[], hierarchyCode?: string };
-    
+
     constructor(attributeName: string) {
-      super();
-      this.actionType = ActionTypes.UPDATEATTRIBUTETACTION;
-      this.attributeName = attributeName;
-      this.attributeDiff = { "valuesOverTime": [] };
+        super();
+        this.actionType = ActionTypes.UPDATEATTRIBUTETACTION;
+        this.attributeName = attributeName;
+        this.attributeDiff = { valuesOverTime: [] };
     }
 }
 
@@ -141,5 +150,3 @@ export class PageEvent {
     type: string;
     data: any;
 }
-
-

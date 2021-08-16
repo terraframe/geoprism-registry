@@ -1,13 +1,13 @@
-import { Component, Input } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs';
+import { Component } from "@angular/core";
+import { BsModalRef } from "ngx-bootstrap/modal";
+import { Subject } from "rxjs";
 
 
-@Component( {
-    selector: 'export-format-modal',
-    templateUrl: './export-format-modal.component.html',
+@Component({
+    selector: "export-format-modal",
+    templateUrl: "./export-format-modal.component.html",
     styleUrls: []
-} )
+})
 export class ExportFormatModalComponent {
 
     format: string;
@@ -17,7 +17,8 @@ export class ExportFormatModalComponent {
      */
     public onFormat: Subject<any>;
 
-    constructor( public bsModalRef: BsModalRef ) { }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(public bsModalRef: BsModalRef) { }
 
     ngOnInit(): void {
         this.onFormat = new Subject();
@@ -25,6 +26,6 @@ export class ExportFormatModalComponent {
 
     confirm(): void {
         this.bsModalRef.hide();
-        this.onFormat.next( this.format );
+        this.onFormat.next(this.format);
     }
 }

@@ -95,8 +95,7 @@ public class ActionJsonAdapters
         jo.addProperty(AbstractAction.DECISIONMAKER, ( (Users) decisionMaker ).getUsername());
       }
       
-      JsonArray jaDocuments = JsonParser.parseString(this.service.listDocumentsAction(Session.getCurrentSession().getOid(), action.getOid())).getAsJsonArray();
-      jo.add("documents", jaDocuments);
+      jo.add("documents", new JsonArray());
 
       jo.add("permissions", this.serializePermissions(action, context));
       
@@ -159,7 +158,10 @@ public class ActionJsonAdapters
     {
       JsonObject jo = super.serialize(action, typeOfSrc, context).getAsJsonObject();
       
-      jo.add(CreateGeoObjectAction.PARENTJSON, JsonParser.parseString(action.getParentJson()).getAsJsonArray());
+      if (action.getParentJson() != null && action.getParentJson().length() > 0)
+      {
+        jo.add(CreateGeoObjectAction.PARENTJSON, JsonParser.parseString(action.getParentJson()).getAsJsonArray());
+      }
       
       return jo;
     }

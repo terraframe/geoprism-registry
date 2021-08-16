@@ -11,6 +11,14 @@
     background: #eee;
 }
 
+.full-width-radio-button .tabHasChanges:after {
+	content: ' \25CF';
+  font-size: 20px;
+  line-height:12px;
+  text-align: right;
+  color: orange;
+}
+
 li.list-group-item {
     font-size: 18px;
 }

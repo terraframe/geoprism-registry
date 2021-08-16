@@ -17,187 +17,179 @@
 /// License along with Runway SDK(tm).  If not, see <ehttp://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
 
-import { finalize } from 'rxjs/operators';
+import { finalize } from "rxjs/operators";
 
-import { EventService } from '@shared/service';
+import { EventService } from "@shared/service";
 
-import { PageResult } from '@shared/model/core'
-import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from '@registry/model/registry'
-import { AttributeConfigInfo, DHIS2AttributeMapping } from '@registry/model/sync'
+import { PageResult } from "@shared/model/core";
+import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from "@registry/model/registry";
+import { AttributeConfigInfo } from "@registry/model/sync";
 
-declare var acp: any;
+declare let acp: any;
 
 @Injectable()
 export class SynchronizationConfigService {
 
-	constructor(private http: HttpClient, private eventService: EventService) { }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private http: HttpClient, private eventService: EventService) { }
 
-	getPage(pageNumber: number, pageSize: number): Promise<PageResult<SynchronizationConfig>> {
+    getPage(pageNumber: number, pageSize: number): Promise<PageResult<SynchronizationConfig>> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("pageSize", pageSize.toString());
 
-		let params: HttpParams = new HttpParams();
-		params = params.set('pageNumber', pageNumber.toString());
-		params = params.set('pageSize', pageSize.toString());
+        this.eventService.start();
 
-		this.eventService.start();
+        return this.http
+            .get<PageResult<SynchronizationConfig>>(acp + "/synchronization-config/get-all", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		return this.http
-			.get<PageResult<SynchronizationConfig>>(acp + '/synchronization-config/get-all', { params: params })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+    get(oid: string): Promise<SynchronizationConfig> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", oid);
 
-	get(oid: string): Promise<SynchronizationConfig> {
+        this.eventService.start();
 
-		let params: HttpParams = new HttpParams();
-		params = params.set('oid', oid);
+        return this.http
+            .get<SynchronizationConfig>(acp + "/synchronization-config/get", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		this.eventService.start();
+    getCustomAttrCfg(geoObjectTypeCode: string, externalId: string): Promise<AttributeConfigInfo[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("externalId", externalId);
+        params = params.set("geoObjectTypeCode", geoObjectTypeCode);
 
-		return this.http
-			.get<SynchronizationConfig>(acp + '/synchronization-config/get', { params: params })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
-	
-	getCustomAttrCfg(geoObjectTypeCode: string, externalId: string): Promise<AttributeConfigInfo[]> {
+        this.eventService.start();
 
-    let params: HttpParams = new HttpParams();
-    params = params.set('externalId', externalId);
-    params = params.set('geoObjectTypeCode', geoObjectTypeCode);
+        return this.http
+            .get<AttributeConfigInfo[]>(acp + "/synchronization-config/get-custom-attr", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-    this.eventService.start();
+    getConfigForES(externalSystemId: string, hierarchyTypeCode: string): Promise<any> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("externalSystemId", externalSystemId);
+        params = params.set("hierarchyTypeCode", hierarchyTypeCode);
 
-    return this.http
-      .get<AttributeConfigInfo[]>(acp + '/synchronization-config/get-custom-attr', { params: params })
-      .pipe(finalize(() => {
-        this.eventService.complete();
-      }))
-      .toPromise();
-  }
-	
-	getConfigForES(externalSystemId: string, hierarchyTypeCode: string): Promise<any> {
+        this.eventService.start();
 
-    let params: HttpParams = new HttpParams();
-    params = params.set('externalSystemId', externalSystemId);
-    params = params.set('hierarchyTypeCode', hierarchyTypeCode);
+        return this.http
+            .get<any[]>(acp + "/synchronization-config/get-config-for-es", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-    this.eventService.start();
+    apply(config: SynchronizationConfig): Promise<SynchronizationConfig> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-    return this.http
-      .get<any[]>(acp + '/synchronization-config/get-config-for-es', { params: params })
-      .pipe(finalize(() => {
-        this.eventService.complete();
-      }))
-      .toPromise();
-  }
+        this.eventService.start();
 
-	apply(config: SynchronizationConfig): Promise<SynchronizationConfig> {
+        return this.http
+            .post<SynchronizationConfig>(acp + "/synchronization-config/apply", JSON.stringify({ config: config }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
+    edit(oid: string): Promise<{ config: SynchronizationConfig, orgs: OrgSyncInfo[] }> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-		this.eventService.start();
+        let params = {};
 
-		return this.http
-			.post<SynchronizationConfig>(acp + '/synchronization-config/apply', JSON.stringify({ config: config }), { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+        if (oid != null) {
+            params = { oid: oid };
+        }
 
-	edit(oid: string): Promise<{ config: SynchronizationConfig, orgs: OrgSyncInfo[] }> {
+        this.eventService.start();
 
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
+        return this.http
+            .post<{ config: SynchronizationConfig, orgs: OrgSyncInfo[] }>(acp + "/synchronization-config/edit", JSON.stringify(params), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		let params = {};
+    remove(oid: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-		if (oid != null) {
-			params = { oid: oid };
-		}
+        this.eventService.start();
 
-		this.eventService.start();
+        return this.http
+            .post<any>(acp + "/synchronization-config/remove", JSON.stringify({ oid: oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		return this.http
-			.post<{ config: SynchronizationConfig, orgs: OrgSyncInfo[] }>(acp + '/synchronization-config/edit', JSON.stringify(params), { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+    unlock(oid: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-	remove(oid: string): Promise<void> {
+        this.eventService.start();
 
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
+        return this.http
+            .post<any>(acp + "/synchronization-config/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		this.eventService.start();
+    run(oid: string): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-		return this.http
-			.post<any>(acp + '/synchronization-config/remove', JSON.stringify({ oid: oid }), { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+        this.eventService.start();
 
-	unlock(oid: string): Promise<void> {
+        return this.http
+            .post<any>(acp + "/synchronization-config/run", JSON.stringify({ oid: oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
+    getJobs(oid:string, pageNumber: number, pageSize: number): Promise<PageResult<ExportScheduledJob>> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", oid);
+        params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("pageSize", pageSize.toString());
 
-		this.eventService.start();
+//        this.eventService.start();
 
-		return this.http
-			.post<any>(acp + '/synchronization-config/unlock', JSON.stringify({ oid: oid }), { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+        return this.http
+            .get<PageResult<ExportScheduledJob>>(acp + "/synchronization-config/get-jobs", { params: params })
+//            .pipe(finalize(() => {
+//                this.eventService.complete();
+//            }))
+            .toPromise();
+    }
 
-	run(oid: string): Promise<void> {
-
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
-
-		this.eventService.start();
-
-		return this.http
-			.post<any>(acp + '/synchronization-config/run', JSON.stringify({ oid: oid }), { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
-
-	getJobs(oid:string, pageNumber: number, pageSize: number): Promise<PageResult<ExportScheduledJob>> {
-
-		let params: HttpParams = new HttpParams();
-		params = params.set('oid', oid);
-		params = params.set('pageNumber', pageNumber.toString());
-		params = params.set('pageSize', pageSize.toString());
-
-//		this.eventService.start();
-
-		return this.http
-			.get<PageResult<ExportScheduledJob>>(acp + '/synchronization-config/get-jobs', { params: params })
-//			.pipe(finalize(() => {
-//				this.eventService.complete();
-//			}))
-			.toPromise();
-	}
 }

@@ -48,39 +48,27 @@ export class ManageGeoObjectTypeModalComponent implements OnInit {
     readOnly: boolean = false;
 
     constructor(public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, geoObjectTypeManagementService: GeoObjectTypeManagementService) {
-
         this.modalStateSubscription = geoObjectTypeManagementService.modalStepChange.subscribe(modalState => {
-
             this.modalState = modalState;
-
         });
-
     }
 
     ngOnInit(): void {
-
         this.onGeoObjectTypeSubmitted = new Subject();
-
     }
 
     ngOnDestroy() {
-
         this.modalStateSubscription.unsubscribe();
-
     }
 
     onModalStateChange(state: any): void {
-
         this.modalState = state;
-
     }
 
     onGeoObjectTypeChange(data: any): void {
-
         // send persisted geoobjecttype to the parent calling component (hierarchy.component) so the
         // updated GeoObjectType can be reflected in the template
         this.onGeoObjectTypeSubmitted.next(data);
-
     }
 
     update(): void {
@@ -88,15 +76,11 @@ export class ManageGeoObjectTypeModalComponent implements OnInit {
     }
 
     close(): void {
-
         this.bsModalRef.hide();
-
     }
 
     error(err: HttpErrorResponse): void {
-
         this.message = ErrorHandler.getMessageFromError(err);
-
     }
 
 }

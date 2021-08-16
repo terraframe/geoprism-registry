@@ -73,7 +73,7 @@ export class PublishedMasterListHistoryComponent implements OnInit, OnDestroy {
   }
 
   //isGeoObjectTypeRM(type: string): boolean {
-  //	return this.authService.isGeoObjectTypeRM(type);
+  //  return this.authService.isGeoObjectTypeRM(type);
   //}
 
   onDeleteMasterListVersion(version: MasterListVersion): void {

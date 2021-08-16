@@ -1,142 +1,137 @@
-import { Component, Input, EventEmitter, Output, ViewChild, SimpleChanges } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Component, Input, EventEmitter, Output, ViewChild, SimpleChanges } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
 
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal';
+import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { HierarchyOverTime } from '@registry/model/registry';
-import { RegistryService } from '@registry/service';
-import { ManageParentVersionsModalComponent } from './manage-parent-versions-modal.component';
+import { HierarchyOverTime } from "@registry/model/registry";
+import { RegistryService } from "@registry/service";
 
-import { ErrorHandler, ErrorModalComponent } from '@shared/component';
+import { ErrorHandler, ErrorModalComponent } from "@shared/component";
 
 @Component({
 
-	selector: 'cascading-geo-selector',
-	templateUrl: './cascading-geo-selector.html',
+    selector: "cascading-geo-selector",
+    templateUrl: "./cascading-geo-selector.html"
 })
 export class CascadingGeoSelector {
 
-	@Input() hierarchies: HierarchyOverTime[];
+    @Input() hierarchies: HierarchyOverTime[];
 
-	@Output() valid = new EventEmitter<boolean>();
+    @Output() valid = new EventEmitter<boolean>();
 
-	@Input() isValid: boolean = true;
-	@Input() readOnly: boolean = false;
+    @Input() isValid: boolean = true;
+    @Input() readOnly: boolean = false;
 
-	@ViewChild("mainForm") mainForm;
+    @ViewChild("mainForm") mainForm;
 
-	@Input() forDate: Date = new Date();
+    @Input() forDate: Date = new Date();
 
-	@Input() customEvent: boolean = false;
+    @Input() customEvent: boolean = false;
 
-	@Output() onManageVersion = new EventEmitter<HierarchyOverTime>();
+    @Output() onManageVersion = new EventEmitter<HierarchyOverTime>();
 
-	dateStr: string;
+    dateStr: string;
 
-	cHierarchies: any[] = [];
+    cHierarchies: any[] = [];
 
-	parentMap: any = {};
+    parentMap: any = {};
 
-	bsModalRef: BsModalRef;
+    bsModalRef: BsModalRef;
 
-	constructor(private modalService: BsModalService, private registryService: RegistryService) {
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private modalService: BsModalService, private registryService: RegistryService) { }
 
-	}
+    ngOnInit(): void {
+        const day = this.forDate.getUTCDate();
 
-	ngOnInit(): void {
-		const day = this.forDate.getUTCDate();
+        this.dateStr = this.forDate.getUTCFullYear() + "-" + (this.forDate.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
 
-		this.dateStr = this.forDate.getUTCFullYear() + "-" + (this.forDate.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
+        // Truncate any hours/minutes/etc which may be part of the date
+        this.forDate = new Date(Date.parse(this.dateStr));
 
-		// Truncate any hours/minutes/etc which may be part of the date
-		this.forDate = new Date(Date.parse(this.dateStr));
+        this.calculate();
+    }
 
-		this.calculate();
-	}
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes["forDate"]) {
+            this.calculate();
+        }
+    }
 
-	ngOnChanges(changes: SimpleChanges) {
+    calculate(): any {
+        const time = this.forDate.getTime();
 
-		if (changes['forDate']) {
-			this.calculate();
-		}
-	}
+        this.isValid = true;
 
-	calculate(): any {
-		const time = this.forDate.getTime();
+        this.cHierarchies = [];
+        this.hierarchies.forEach(hierarchy => {
+            const object = {};
+            object["label"] = hierarchy.label;
+            object["code"] = hierarchy.code;
 
-		this.isValid = true;
+            this.isValid = this.isValid && (this.hierarchies.length > 0);
 
-		this.cHierarchies = [];
-		this.hierarchies.forEach(hierarchy => {
-			const object = {};
-			object['label'] = hierarchy.label;
-			object['code'] = hierarchy.code;
+            hierarchy.entries.forEach(pot => {
+                const startDate = Date.parse(pot.startDate);
+                const endDate = Date.parse(pot.endDate);
 
-			this.isValid = this.isValid && (this.hierarchies.length > 0);
+                if (time >= startDate && time <= endDate) {
+                    let parents = [];
 
-			hierarchy.entries.forEach(pot => {
-				const startDate = Date.parse(pot.startDate);
-				const endDate = Date.parse(pot.endDate);
+                    hierarchy.types.forEach(type => {
+                        let parent: any = {
+                            code: type.code,
+                            label: type.label
+                        }
 
-				if (time >= startDate && time <= endDate) {
-					let parents = [];
+                        if (pot.parents[type.code] != null) {
+                            parent.text = pot.parents[type.code].text;
+                            parent.geoObject = pot.parents[type.code].geoObject;
+                        }
 
-					hierarchy.types.forEach(type => {
-						let parent: any = {
-							code: type.code,
-							label: type.label
-						}
+                        parents.push(parent);
+                    });
 
-						if (pot.parents[type.code] != null) {
-							parent.text = pot.parents[type.code].text;
-							parent.geoObject = pot.parents[type.code].geoObject;
-						}
+                    object["parents"] = parents;
+                }
+            });
 
-						parents.push(parent);
-					});
+            this.cHierarchies.push(object);
+        });
 
-					object['parents'] = parents;
-				}
-			});
+        this.valid.emit();
+    }
 
-			this.cHierarchies.push(object);
+    public getIsValid(): boolean {
+        return true;
+    }
 
-		});
+    public getHierarchies(): any {
+        return this.hierarchies;
+    }
 
-		this.valid.emit();
-	}
+    onManageVersions(code: string): void {
+        const hierarchy = this.hierarchies.find(h => h.code === code);
 
-	public getIsValid(): boolean {
-		return true;
-	}
+        if (this.customEvent) {
+            this.onManageVersion.emit(hierarchy);
+        } else {
+/*
+            this.bsModalRef = this.modalService.show(ManageParentVersionsModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true,
+            });
+            this.bsModalRef.content.init(hierarchy);
+            this.bsModalRef.content.onVersionChange.subscribe(hierarchy => {
+                this.calculate();
+            });
+            */
+        }
+    }
 
-	public getHierarchies(): any {
-		return this.hierarchies;
-	}
-
-	onManageVersions(code: string): void {
-		const hierarchy = this.hierarchies.find(h => h.code === code);
-
-		if (this.customEvent) {
-			this.onManageVersion.emit(hierarchy);
-		}
-		else {
-
-			this.bsModalRef = this.modalService.show(ManageParentVersionsModalComponent, {
-				animated: true,
-				backdrop: true,
-				ignoreBackdropClick: true,
-			});
-			this.bsModalRef.content.init(hierarchy);
-			this.bsModalRef.content.onVersionChange.subscribe(hierarchy => {
-				this.calculate();
-			});
-		}
-	}
-
-	public error(err: HttpErrorResponse): void {
-		this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
-	}
+    public error(err: HttpErrorResponse): void {
+        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+    }
 
 }

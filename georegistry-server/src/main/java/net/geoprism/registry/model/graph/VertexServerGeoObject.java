@@ -891,7 +891,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return (MdVertexDAOIF) this.vertex.getMdClass();
   }
 
-  protected boolean isValidGeometry(Geometry geometry)
+  public boolean isValidGeometry(Geometry geometry)
   {
     if (geometry != null)
     {
@@ -1896,7 +1896,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return query.getSingleResult();
   }
 
-  private SortedSet<EdgeObject> getEdges(ServerHierarchyType hierarchyType)
+  public SortedSet<EdgeObject> getEdges(ServerHierarchyType hierarchyType)
   {
     TreeSet<EdgeObject> set = new TreeSet<EdgeObject>(new EdgeComparator());
 

@@ -1,137 +1,123 @@
-import { Component, Input } from '@angular/core';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Component, Input } from "@angular/core";
+import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { ProfileComponent } from '../profile/profile.component';
+import { ProfileComponent } from "../profile/profile.component";
 
-import { AuthService, ProfileService, LocalizationService } from '@shared/service';
+import { AuthService, ProfileService, LocalizationService } from "@shared/service";
 
-import { RegistryRoleType, LocaleView } from '@shared/model/core';
+import { RegistryRoleType, LocaleView } from "@shared/model/core";
 
-declare var acp: string;
-declare var registry: any
+declare let acp: string;
+declare let registry: any;
 
 @Component({
 
-	selector: 'cgr-header',
-	templateUrl: './header.component.html',
-	styleUrls: []
+    selector: "cgr-header",
+    templateUrl: "./header.component.html",
+    styleUrls: []
 })
 export class CgrHeaderComponent {
-	context: string;
-	isAdmin: boolean;
-	isMaintainer: boolean;
-	isContributor: boolean;
-	bsModalRef: BsModalRef;
 
-  defaultLocaleView: LocaleView;
-	locales: LocaleView[];
-	locale: string;
+    context: string;
+    isAdmin: boolean;
+    isMaintainer: boolean;
+    isContributor: boolean;
+    bsModalRef: BsModalRef;
 
-	@Input() loggedIn: boolean = true;
+    defaultLocaleView: LocaleView;
+    locales: LocaleView[];
+    locale: string;
 
-	constructor(
-		private modalService: BsModalService,
-		private profileService: ProfileService,
-		private service: AuthService,
-		localizationService: LocalizationService
-	) {
-		this.context = acp;
-		this.isAdmin = service.isAdmin();
-		this.isMaintainer = this.isAdmin || service.isMaintainer();
-		this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
+    @Input() loggedIn: boolean = true;
 
-		if(localizationService.getLocales()){
-			this.locales = localizationService.getLocales().filter(locale => locale.toString !== 'defaultLocale');
-			this.defaultLocaleView = localizationService.getLocales().filter(locale => locale.toString === 'defaultLocale')[0];
-		}
-		else{
-			this.locales = [];
-			this.defaultLocaleView = null;
-		}
-		this.locale = localizationService.getLocale();
-		
-		let found: boolean = false;
-		
-		for (let i = 0; i < this.locales.length; ++i)
-		{
-  		if (this.locales[i].toString === this.locale) {
-  			found = true;
-  		}
-		}
-		
-		if (!found)
-		{
-		  this.locale = '';
-		}
-	}
+    constructor(
+        private modalService: BsModalService,
+        private profileService: ProfileService,
+        private service: AuthService,
+        localizationService: LocalizationService
+    ) {
+        this.context = acp;
+        this.isAdmin = service.isAdmin();
+        this.isMaintainer = this.isAdmin || service.isMaintainer();
+        this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
 
-	shouldShowMenuItem(item: string): boolean {
-		if (item === "HIERARCHIES") {
-			return true;
-		}
-		else if (item === "LISTS") {
-			//return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
-			return true;
-		}
-		else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
-			return true;
-		}
-		else if (item === "IMPORT") {
-			return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-		}
-		else if (item === "SCHEDULED-JOBS") {
-			return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-		}
-		else if (item === "NAVIGATOR") {
-			return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
-		}
-		else if (item === "CHANGE-REQUESTS") {
-			return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
-		}
-		else if (item === "TASKS") {
-			return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
-		}
-		else if (item === "CONFIGS") {
-			return this.service.hasExactRole(RegistryRoleType.RA);
-		}
-		else if (item === "SETTINGS") {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+        if (localizationService.getLocales()) {
+            this.locales = localizationService.getLocales().filter(locale => locale.toString !== "defaultLocale");
+            this.defaultLocaleView = localizationService.getLocales().filter(locale => locale.toString === "defaultLocale")[0];
+        } else {
+            this.locales = [];
+            this.defaultLocaleView = null;
+        }
+        this.locale = localizationService.getLocale();
 
-	logout(): void {
-	
-	  sessionStorage.removeItem("locales");
+        let found: boolean = false;
 
-		window.location.href = acp + '/session/logout';
+        for (let i = 0; i < this.locales.length; ++i) {
+            if (this.locales[i].toString === this.locale) {
+                found = true;
+            }
+        }
 
-		//        this.sessionService.logout().then( response => {
-		//            this.router.navigate( ['/login'] );
-		//        } );
-	}
+        if (!found) {
+            this.locale = "";
+        }
+    }
 
-	getUsername() {
-		let name: string = this.service.getUsername();
+    shouldShowMenuItem(item: string): boolean {
+        if (item === "HIERARCHIES") {
+            return true;
+        } else if (item === "LISTS") {
+            // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
+            return true;
+        } else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
+            return true;
+        } else if (item === "IMPORT") {
+            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+        } else if (item === "SCHEDULED-JOBS") {
+            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+        } else if (item === "NAVIGATOR") {
+            return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
+        } else if (item === "CHANGE-REQUESTS") {
+            return this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC);
+        } else if (item === "TASKS") {
+            return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM);
+        } else if (item === "CONFIGS") {
+            return this.service.hasExactRole(RegistryRoleType.RA);
+        } else if (item === "SETTINGS") {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-		return name;
-	}
+    logout(): void {
+        sessionStorage.removeItem("locales");
 
-	setLocale() {
-		this.profileService.setLocale(this.locale).then(() => {
-			// Refresh the page			
-			window.location.reload();
-		});
-	}
+        window.location.href = acp + "/session/logout";
 
-	account(): void {
-		this.profileService.get().then(profile => {
-			this.bsModalRef = this.modalService.show(ProfileComponent, { backdrop: 'static', class: 'gray modal-lg' });
-			this.bsModalRef.content.profile = profile;
-		});
-	}
+        //        this.sessionService.logout().then( response => {
+        //            this.router.navigate( ['/login'] );
+        //        } );
+    }
+
+    getUsername() {
+        let name: string = this.service.getUsername();
+
+        return name;
+    }
+
+    setLocale() {
+        this.profileService.setLocale(this.locale).then(() => {
+            // Refresh the page
+            window.location.reload();
+        });
+    }
+
+    account(): void {
+        this.profileService.get().then(profile => {
+            this.bsModalRef = this.modalService.show(ProfileComponent, { backdrop: "static", class: "gray modal-lg" });
+            this.bsModalRef.content.profile = profile;
+        });
+    }
 
 }

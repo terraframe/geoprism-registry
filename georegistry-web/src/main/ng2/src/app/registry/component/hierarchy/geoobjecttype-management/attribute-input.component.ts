@@ -1,113 +1,104 @@
-import { Component, OnInit, AfterViewInit, ElementRef, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from "@angular/core";
 import {
-	trigger,
-	state,
-	style,
-	animate,
-	transition
-} from '@angular/animations'
-import { NgControl, Validators, FormBuilder } from '@angular/forms';
+    trigger,
+    state,
+    style,
+    animate,
+    transition
+} from "@angular/animations";
 
-import { GeoObjectType, AttributeType } from '@registry/model/registry';
-import { HierarchyService } from '@registry/service';
-import { ErrorHandler } from '@shared/component';
-import { GeoObjectAttributeCodeValidator } from '../../../factory/form-validation.factory';
-
-
+import { GeoObjectType, AttributeType } from "@registry/model/registry";
+import { HierarchyService } from "@registry/service";
+import { ErrorHandler } from "@shared/component";
 
 @Component({
-	selector: 'attribute-input',
-	templateUrl: './attribute-input.component.html',
-	styleUrls: ['./attribute-input.css'],
-	animations: [
-		trigger('toggleInputs', [
-			state('none, void',
-				style({ 'opacity': 0 })
-			),
-			state('show',
-				style({ 'opacity': 1 })
-			),
-			transition('none => show', animate('300ms'))
-			//   transition('show => none', animate('100ms'))
-		])
-	]
+    selector: "attribute-input",
+    templateUrl: "./attribute-input.component.html",
+    styleUrls: ["./attribute-input.css"],
+    animations: [
+        trigger("toggleInputs", [
+            state("none, void",
+                style({ opacity: 0 })
+            ),
+            state("show",
+                style({ opacity: 1 })
+            ),
+            transition("none => show", animate("300ms"))
+            // transition('show => none', animate('100ms'))
+        ])
+    ]
 })
 export class AttributeInputComponent implements OnInit {
 
-	@Input() disableCodeField: boolean = false;
-	@Input() excludeDescription: boolean = false;
-	@Input() isDecimal: boolean = false;
-	@Input() geoObjectType: GeoObjectType;
-	@Input() attribute: AttributeType;
-	@Output() attributeChange = new EventEmitter<AttributeType>();
-	message: string = null;
+    @Input() disableCodeField: boolean = false;
+    @Input() excludeDescription: boolean = false;
+    @Input() isDecimal: boolean = false;
+    @Input() geoObjectType: GeoObjectType;
+    @Input() attribute: AttributeType;
+    @Output() attributeChange = new EventEmitter<AttributeType>();
+    message: string = null;
 
-	state: string = 'none';
+    state: string = "none";
 
-	constructor(private hierarchyService: HierarchyService, private cdr: ChangeDetectorRef) {
-	}
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private hierarchyService: HierarchyService, private cdr: ChangeDetectorRef) { }
 
-	ngOnInit(): void {
+    ngOnInit(): void {
 
-	}
+    }
 
-	ngAfterViewInit() {
-		this.state = 'show';
-		this.cdr.detectChanges();
-	}
+    ngAfterViewInit() {
+        this.state = "show";
+        this.cdr.detectChanges();
+    }
 
-	ngOnChanges() {
+    ngOnChanges() {
 
-	}
+    }
 
-	ngOnDestroy() {
+    ngOnDestroy() {
 
-	}
+    }
 
-	handleOnSubmit(): void {
+    handleOnSubmit(): void {
 
-	}
+    }
 
-	toggleIsUnique(): void {
-		this.attribute.unique = !this.attribute.unique;
-	}
+    toggleIsUnique(): void {
+        this.attribute.unique = !this.attribute.unique;
+    }
 
-	animate(): void {
-		this.state = "none";
-	}
+    animate(): void {
+        this.state = "none";
+    }
 
-	onAnimationDone(event: AnimationEvent): void {
-		this.state = "show";
-	}
+    onAnimationDone(event: AnimationEvent): void {
+        this.state = "show";
+    }
 
-	isValid(): boolean {
-		if (this.attribute.code) {
+    isValid(): boolean {
+        if (this.attribute.code) {
+            // if code has a space
+            if (this.attribute.code.indexOf(" ") !== -1) {
+                return false;
+            }
 
-			// if code has a space
-			if (this.attribute.code.indexOf(" ") !== -1) {
-				return false;
-			}
+            if (this.attribute.label.localeValues[0].value.length === 0) {
+                return false;
+            }
 
-			if (this.attribute.label.localeValues[0].value.length === 0) {
-				return false;
-			}
+            if (this.isDecimal && (this.attribute.precision == null || this.attribute.precision.toString() == "")) {
+                return false;
+            }
 
-			if (this.isDecimal) {
-				console.log(this.attribute);
-			}
-			
-			if (this.isDecimal && (this.attribute.precision == null || this.attribute.precision.toString() == '')) {
-				return false;
-			}
+            if (this.isDecimal && (this.attribute.scale == null || this.attribute.scale.toString() == "")) {
+                return false;
+            }
 
-			if (this.isDecimal && (this.attribute.scale == null || this.attribute.scale.toString() == '')) {
-				return false;
-			}
+            return true;
+        }
 
+        return false;
+    }
 
-			return true;
-		}
-
-		return false;
-	}
 }

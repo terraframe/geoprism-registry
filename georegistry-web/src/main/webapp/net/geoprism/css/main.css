@@ -124,10 +124,11 @@
     border-color: var(--theme-button-color-border);
 }
 .btn-group .btn.full-width-radio-button.active{
-    color: white !important; 
+    color: #6BA542 !important; /* IE fallback */
+    color: var(--theme-submit-button-color) !important;
 
-    background-color: #6BA542 !important; /* IE fallback */
-    background-color: var(--theme-button-color-hover) !important;
+    background-color: #EDF4E8 !important; /* IE fallback */
+    background-color: var(--theme-submit-button-color-light) !important;
     box-shadow: none;
     outline: 0;
     box-shadow: none;
@@ -276,15 +277,6 @@ label.btn.full-width-radio-button.error {
 
 a.navbar-brand {
     font-size: 23px;
-}
-
-
-
-/**
-Error Modal
-**/
-.error-white-space-pre {
-	white-space: pre
 }
 
 

@@ -63,9 +63,7 @@ export class EditAttributeModalContentComponent implements OnInit {
         private registryService: RegistryService) { }
 
     ngOnInit(): void {
-
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-
     }
 
     ngAfterViewInit() {
@@ -76,35 +74,24 @@ export class EditAttributeModalContentComponent implements OnInit {
     }
 
     handleOnSubmit(): void {
-
         this.registryService.updateAttributeType(this.geoObjectType.code, this.attribute).then(data => {
-
             for (let i = 0; i < this.geoObjectType.attributes.length; i++) {
-
                 let attr = this.geoObjectType.attributes[i];
                 if (attr.code === data.code) {
-
                     Object.assign(attr, data);
                     break;
-
                 }
-
             }
 
             this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
 
             this.geoObjectTypeChange.emit(this.geoObjectType);
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     isFormValid(): boolean {
-
         // let isAttrValid: boolean = this.attributeInputComponent.isValid();
 
         // if(isAttrValid){
@@ -113,25 +100,18 @@ export class EditAttributeModalContentComponent implements OnInit {
 
         // return false;
         return true;
-
     }
 
     cancel(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
-
     }
 
     back(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
-
     }
 
     error(err: HttpErrorResponse): void {
-
         this.message = ErrorHandler.getMessageFromError(err);
-
     }
 
 }

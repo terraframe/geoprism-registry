@@ -1,11 +1,12 @@
 export enum ActionTypes {
-    "CREATEGEOOBJECTACTION" = "CreateGeoObjectAction", 
-    "UPDATEATTRIBUTETACTION" = "UpdateAttributeAction"
+    "CREATEGEOOBJECTACTION" = "CreateGeoObjectAction",
+    "UPDATEATTRIBUTETACTION" = "UpdateAttributeAction",
+    "UPDATEGEOOBJECTACTION" = "UpdateGeoObjectAction" // Deprecated DO NOT USE
 }
 
 export enum GovernanceStatus {
-    "PENDING" = "PENDING", 
-    "ACCEPTED" = "ACCEPTED", 
+    "PENDING" = "PENDING",
+    "ACCEPTED" = "ACCEPTED",
     "REJECTED" = "REJECTED"
 }
 
@@ -25,6 +26,6 @@ export enum ImportStrategy {
 }
 
 export enum ConflictType {
-  MISSING_REFERENCE = "MISSING_REFERENCE",
-  TIME_RANGE = "TIME_RANGE"
+    MISSING_REFERENCE = "MISSING_REFERENCE",
+    TIME_RANGE = "TIME_RANGE"
 }

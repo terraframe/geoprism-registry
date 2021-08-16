@@ -62,10 +62,8 @@ export class TermOptionWidgetComponent implements OnInit {
     }
 
     ngAfterViewInit() {
-
         this.state = "show";
         this.cdr.detectChanges();
-
     }
 
     ngOnDestroy() {
@@ -77,15 +75,11 @@ export class TermOptionWidgetComponent implements OnInit {
     }
 
     animate(): void {
-
         this.state = "none";
-
     }
 
     onAnimationDone(event: AnimationEvent): void {
-
         this.state = "show";
-
     }
 
     // isValid(): boolean {
@@ -111,9 +105,7 @@ export class TermOptionWidgetComponent implements OnInit {
     // }
 
     openAddTermOptionForm(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: "" });
-
     }
 
 }

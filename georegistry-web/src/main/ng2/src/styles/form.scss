@@ -33,13 +33,14 @@
 }
 
 
+
 /* 
  *
  * Inputs 
  *
  */
 input,
-input.form-control {
+form input.form-control {
   height:40px;
 /*      margin:0 11px 0 0; */
   padding:6px 10px;
@@ -51,9 +52,11 @@ input.form-control {
   border-color: var(--theme-input-text-border);
   border-radius: 5px;
   background:white;
+  background-color: white;
   outline:none;
   box-shadow:none;
 }
+
 input:focus,
 input.form-control:focus,
 textarea:focus,
@@ -67,6 +70,22 @@ input.form-control:active{
     -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6);
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107, 165, 66,.6); 
 }
+
+input[disabled]:focus,
+input.form-control:focus,
+textarea:focus,
+textarea.form-control:focus,
+input:active,
+textarea:active
+input.form-control:active{
+    border-color: inherit;
+    outline: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+
+
 input.ng-invalid:focus,
 textarea.ng-invalid:focus,
 input.form-control.ng-invalid:focus,
@@ -81,33 +100,60 @@ input.form-control.ng-invalid:active{
 }
 
 
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    background-color: white;
+    color:#969696;
+    cursor: not-allowed;
+}
 
 input[type="text"] {
 	width:100%;
 	margin:0;
+    color:#969696;
 }
-input[disabled],
+
+input[readonly],
+input[disabled].form-control,
+input[readonly].form-control,
 input[type="text"][disabled],
+input[type="text"][readonly],
 input[type="textarea"][disabled],
 input[type="number"][disabled],
+input[type="number"][readonly],
 input[type="email"][disabled],
 select[disabled],
 input[disabled]:focus,
+input[readonly]:focus,
 input[type="text"]:-ms-input-placeholder,
 input[type="textarea"]:-ms-input-placeholder,
 input[type="number"]:-ms-input-placeholder,
-select[disabled]:-ms-input-placeholder {color:#333;}
+select[disabled]:-ms-input-placeholder {
+    color:#333;
+    background-color: white;
+}
+
 input[type="text"]::-webkit-input-placeholder,
 input[type="textarea"]::-webkit-input-placeholder,
 input[type="number"]::-webkit-input-placeholder,
-select[disabled]::-webkit-input-placeholder {color:#333;}
+select[disabled]::-webkit-input-placeholder,
 input[type="text"]:-moz-placeholder,
 input[type="textarea"]:-moz-placeholder,
 input[type="number"]:-moz-placeholder,
-select[disabled]:-moz-placeholder {color:#333;}
+select[disabled]:-moz-placeholder {
+    color:#333;
+}
+
+input[type="text"]:-moz-placeholder,
+input[type="textarea"]:-moz-placeholder,
+input[type="number"]:-moz-placeholder,
+select[disabled]:-moz-placeholder {
+    color:#333;
+}
+
 input[type="text"]:disabled,
 input[type="textarea"]:disabled,
 input[type="number"]:disabled,
+input[type="number"]:readonly,
 input[type="date"]:disabled,
 input[type="email"]:disabled,
 select[disabled]:disabled,
@@ -119,6 +165,7 @@ input[type="text"]:disabled:-webkit-autofill:focus {
     box-shadow: none;
     border-color: #ccc;
     border-color: var(--theme-input-text-border-disabled);
+    background-color: white;
 }
 input[disabled]:hover,
 select[disabled]:hover {

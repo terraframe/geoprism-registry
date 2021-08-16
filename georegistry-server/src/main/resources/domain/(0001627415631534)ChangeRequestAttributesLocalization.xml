@@ -64,6 +64,58 @@
           <attribute name="defaultLocale" value="Could not find an expected reference." />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.save">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.save" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Save Geometry Edits" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.geometry.invalidLatitude">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.geometry.invalidLatitude" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Latitude must be a number between -90 and 90." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.geometry.invalidLongitude">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.geometry.invalidLongitude" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Longitude must be a number between -180 and 180." />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.viewOld">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.viewOld" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Show Old Geometries" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.hideOld">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.hideOld" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide Old Geometries" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.invalid">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.invalid" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="This Change Request is invalid. Specific details of the request cannot be displayed and the request cannot be implemented or modified." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.tooOld">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.tooOld" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="This Change Request is too old. Specific details of the request cannot be displayed and the request cannot be implemented or modified." />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>

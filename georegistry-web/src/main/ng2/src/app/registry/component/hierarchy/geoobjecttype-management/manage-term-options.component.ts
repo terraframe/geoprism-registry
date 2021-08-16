@@ -74,17 +74,13 @@ export class ManageTermOptionsComponent implements OnInit {
         private registryService: RegistryService) { }
 
     ngOnInit(): void {
-
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
         this.termOption = new Term("", this.localizeService.create(), this.localizeService.create());
-
     }
 
     ngAfterViewInit() {
-
         this.state = "show";
         this.cdr.detectChanges();
-
     }
 
     ngOnDestroy() {
@@ -96,55 +92,37 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     animate(): void {
-
         this.state = "none";
-
     }
 
     onAnimationDone(event: AnimationEvent): void {
-
         this.state = "show";
-
     }
 
     isValid(): boolean {
-
         if (this.termOption.code && this.termOption.code.length > 0) {
-
             // If code has a space
             if (this.termOption.code.indexOf(" ") !== -1) {
-
                 return false;
-
             }
 
             // If label is only spaces
             for (let i = 0; i < this.termOption.label.localeValues.length; i++) {
-
                 if (this.termOption.label.localeValues[i].value.replace(/\s/g, "").length === 0) {
-
                     return false;
-
                 }
-
             }
 
             return true;
-
         } else if (this.termOption.code && this.termOption.code.indexOf(" ") !== -1) {
-
             return false;
-
         }
 
         return false;
-
     }
 
     addTermOption(): void {
-
         this.registryService.addAttributeTermTypeOption(this.attribute.rootTerm.code, this.termOption).then(data => {
-
             this.attribute.rootTerm.children.push(data);
 
             this.attributeChange.emit(this.attribute);
@@ -152,39 +130,26 @@ export class ManageTermOptionsComponent implements OnInit {
             this.clearTermOption();
 
             this.enableTermOptionForm = false;
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     deleteTermOption(termOption: Term): void {
-
         this.registryService.deleteAttributeTermTypeOption(this.attribute.rootTerm.code, termOption.code).then(data => {
-
             if (this.attribute.rootTerm.children.indexOf(termOption) !== -1) {
-
                 this.attribute.rootTerm.children.splice(this.attribute.rootTerm.children.indexOf(termOption), 1);
-
             }
 
             this.attributeChange.emit(this.attribute);
 
             this.clearTermOption();
-
         }).catch((err: HttpErrorResponse) => {
-
             this.error(err);
-
         });
-
     }
 
     removeTermOption(termOption: Term): void {
-
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: true,
             backdrop: true,
@@ -195,15 +160,11 @@ export class ManageTermOptionsComponent implements OnInit {
         this.bsModalRef.content.type = ModalTypes.danger;
 
         (<ConfirmModalComponent> this.bsModalRef.content).onConfirm.subscribe(data => {
-
             this.deleteTermOption(termOption);
-
         });
-
     }
 
     editTermOption(termOption: Term): void {
-
         const state = {
             state: GeoObjectTypeModalStates.editTermOption,
             attribute: this.attribute,
@@ -211,40 +172,29 @@ export class ManageTermOptionsComponent implements OnInit {
         };
 
         this.geoObjectTypeManagementService.setModalState(state);
-
     }
 
     clearTermOption(): void {
-
         this.termOption.code = "";
         this.termOption.label = this.localizeService.create();
         this.termOption.description = this.localizeService.create();
-
     }
 
     cancelTermOption(): void {
-
         this.clearTermOption();
         this.enableTermOptionForm = false;
-
     }
 
     openAddTermOptionForm(): void {
-
         this.enableTermOptionForm = true;
-
     }
 
     close(): void {
-
         this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.editAttribute, attribute: this.attribute, termOption: "" });
-
     }
 
     error(err: HttpErrorResponse): void {
-
         this.message = ErrorHandler.getMessageFromError(err);
-
     }
 
 }
