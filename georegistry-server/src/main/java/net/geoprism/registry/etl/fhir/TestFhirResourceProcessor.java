@@ -12,11 +12,11 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.etl.FhirSyncImportConfig;
-import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 
 public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor implements FhirResourceProcessor
 {
+  private int i = 0;
 
   @Override
   public boolean supports(FhirSyncImportConfig config)
@@ -27,6 +27,11 @@ public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor imp
   @Override
   protected void populate(ServerGeoObjectIF geoObject, Location location, Date lastUpdated)
   {
+    if (i++ == 50)
+    {
+      throw new ProgrammingErrorException("Test");
+    }
+
     LocalizedValue value = LocalizedValue.createEmptyLocalizedValue();
     value.setValue(LocalizedValue.DEFAULT_LOCALE, location.getName());
 

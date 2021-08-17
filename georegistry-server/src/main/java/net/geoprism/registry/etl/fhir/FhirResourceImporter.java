@@ -55,7 +55,7 @@ public class FhirResourceImporter
     Bundle bundle = client.search().forResource(Location.class).lastUpdated(new DateRangeParam(this.since, null)).include(new Include("Location:organization")).returnBundle(Bundle.class).execute();
 
     this.history.appLock();
-    this.history.setWorkTotal(Long.valueOf(bundle.getTotal()));
+    this.history.setWorkTotal(Long.valueOf(bundle.getTotal() * 2));
     this.history.apply();
 
     long count = 0;
@@ -73,8 +73,8 @@ public class FhirResourceImporter
           handleLocation(location);
 
           this.history.appLock();
-          this.history.setWorkProgress(count);
-          this.history.setExportedRecords(exportCount);
+          this.history.setWorkProgress(count++);
+          this.history.setExportedRecords(exportCount++);
           this.history.apply();
         }
         catch (Exception e)
@@ -82,7 +82,7 @@ public class FhirResourceImporter
           this.recordExportError(e, this.history, location);
 
           this.history.appLock();
-          this.history.setWorkProgress(count);
+          this.history.setWorkProgress(count++);
           this.history.apply();
         }
       }
@@ -96,8 +96,8 @@ public class FhirResourceImporter
           handleOrganization(organization);
 
           this.history.appLock();
-          this.history.setWorkProgress(count);
-          this.history.setExportedRecords(exportCount);
+          this.history.setWorkProgress(count++);
+          this.history.setExportedRecords(exportCount++);
           this.history.apply();
         }
         catch (Exception e)
@@ -105,7 +105,7 @@ public class FhirResourceImporter
           this.recordExportError(e, this.history, organization);
 
           this.history.appLock();
-          this.history.setWorkProgress(count);
+          this.history.setWorkProgress(count++);
           this.history.apply();
         }
       }

@@ -63,10 +63,9 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
       {
         MasterListVersion version = MasterListVersion.get(src.getVersionId());
         MasterList list = version.getMasterlist();
-        ServerGeoObjectType serverGeoObject = list.getGeoObjectType();
 
         jo.addProperty("forDate", formatDate(version.getForDate()));
-        jo.addProperty("typeLabel", serverGeoObject.getLabel().getValue());
+        jo.addProperty("typeLabel", list.getDisplayLabel().getValue());
       }
 
       return jo;
