@@ -31,6 +31,21 @@ export class ChangeRequestService {
             .toPromise();
     }
 
+    update(request: ChangeRequest): Promise<ChangeRequest> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<ChangeRequest>(acp + "/changerequest/update", JSON.stringify({ request: request }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
     setActionStatus(actionOid: String, status: String): Promise<void> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"

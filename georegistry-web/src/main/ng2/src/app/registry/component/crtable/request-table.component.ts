@@ -85,12 +85,12 @@ export class RequestTableComponent {
 
     filterCriteria: string = "ALL";
 
-    hasBaseDropZoneOver:boolean = false;
+    hasBaseDropZoneOver: boolean = false;
 
     waitingOnScroll: boolean = false;
 
     // Restrict page to the specified oid
-    oid:string = null;
+    oid: string = null;
 
     /*
      * File uploader
@@ -101,7 +101,7 @@ export class RequestTableComponent {
     fileRef: ElementRef;
 
     constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-                private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
+        private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
         this.columns = [
             { name: localizationService.decode("change.request.user"), prop: "createdBy", sortable: false },
             { name: localizationService.decode("change.request.createDate"), prop: "createDate", sortable: false, width: 195 },
@@ -161,8 +161,8 @@ export class RequestTableComponent {
 
     getGOTLabel(action: any): string {
         if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values &&
-          action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues &&
-          action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0] && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value) {
+            action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues &&
+            action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0] && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value) {
             return action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value;
         } else if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.code) {
             return action.geoObjectJson.attributes.code;
@@ -200,7 +200,7 @@ export class RequestTableComponent {
         });
     }
 
-    public fileOverBase(e:any):void {
+    public fileOverBase(e: any): void {
         this.hasBaseDropZoneOver = e;
     }
 
@@ -342,6 +342,20 @@ export class RequestTableComponent {
         }
     }
 
+    onUpdate(changeRequest: ChangeRequest): void {
+        if (changeRequest != null) {
+            this.service.update(changeRequest).then(request => {
+
+                // TODO update the individual change request
+                
+                this.refresh();
+            }).catch((response: HttpErrorResponse) => {
+                this.error(response);
+            });
+        }
+    }
+
+
     applyActionStatusProperties(action: any): void {
         // var action = JSON.parse(JSON.stringify(this.action));
         // action.geoObjectJson = this.attributeEditor.getGeoObject();
@@ -369,7 +383,7 @@ export class RequestTableComponent {
                 this.toggleId = null;
             } else {
                 this.toggleId = oid;
-//                this.onSelect({ selected: [{ oid: oid }] });
+                //                this.onSelect({ selected: [{ oid: oid }] });
                 this.requests.forEach(req => {
                     if (req.oid === oid) {
                         this.actions = req.actions;
