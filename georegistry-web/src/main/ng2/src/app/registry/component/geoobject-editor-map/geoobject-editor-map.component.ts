@@ -3,8 +3,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { RegistryService, MapService, GeometryService } from "@registry/service";
 
-import { Map, LngLatBounds, NavigationControl } from "mapbox-gl";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import { Map, NavigationControl } from "mapbox-gl";
 
 // eslint-disable-next-line no-unused-vars
 declare let acp: string;
@@ -21,8 +20,9 @@ declare let acp: string;
 export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
 
     _mapHeight: number = 400;
+    // eslint-disable-next-line accessor-pairs
     @Input() set mapHeight(height: number) {
-        if(height > 400) {
+        if (height > 400) {
             this._mapHeight = height;
         }
     }

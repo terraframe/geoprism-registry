@@ -71,7 +71,10 @@
               
                     <div>
                         <h3 style="margin-top: 10px;">{{req.geoObject.label}}</h3>
-                        <h4>{{req.geoObject.code}}</h4>
+                        <h4 style="font-style: italic;">{{req.geoObject.code}}</h4>
+                        
+                        <h4 *ngIf="req.type === 'UpdateGeoObject'" style="font-style: italic;"><localize key="change.request.type.update.geoobject.label"></localize></h4>
+                        <h4 *ngIf="req.type === 'CreateGeoObject'" style="font-style: italic;"><localize key="change.request.type.create.geoobject.label"></localize></h4>
                     </div>
               </div>
                   
@@ -165,8 +168,8 @@
 	                        <localize [key]="req.type === 'UpdateGeoObject' ? 'change.request.accept.changes.btn' : 'change.request.accept.newGeoObject.btn'"></localize>
 	                      </button>
 	                      <button [disabled]="req.approvalStatus !== 'PENDING'" *ngIf="req.type === 'CreateGeoObject'" type="submit" (click)="onReject(req)" class="btn btn-danger" style="margin:0;" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
-                          <localize key="change.request.reject.all.btn"></localize>
-                        </button>
+                            <localize key="change.request.reject.all.btn"></localize>
+                          </button>
 	                    </span>
 	                    
 	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
