@@ -50,27 +50,25 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.Page;
 
 public class ChangeRequestService
 {
   public ChangeRequestPermissionService permService = new ChangeRequestPermissionService();
-  
+
   @Request(RequestType.SESSION)
   public void reject(String sessionId, String request)
   {
     ChangeRequest input = ChangeRequest.fromJSON(request);
     ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
-    
-    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(
-        ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ,
-        ChangeRequestPermissionAction.READ_DETAILS
-      )))
+
+    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_DETAILS)))
     {
       throw new CGRPermissionException();
     }
-    
+
     current.reject(input.getMaintainerNotes(), input.getAdditionalNotes());
   }
 
@@ -329,13 +327,29 @@ public class ChangeRequestService
   {
     ChangeRequest input = ChangeRequest.fromJSON(request);
     ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
-    
+
     if (!this.permService.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE)))
     {
       throw new CGRPermissionException();
     }
-    
+
     current.execute(input.getMaintainerNotes(), input.getAdditionalNotes());
+
+    return current.getDetails();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject update(String sessionId, String cr)
+  {
+    JsonObject obj = JsonParser.parseString(cr).getAsJsonObject();
+    String oid = obj.get("oid").getAsString();
+    JsonArray actions = obj.get("actions").getAsJsonArray();
+    String notes = obj.get("contributorNotes").getAsString();
+
+    ChangeRequest current = ChangeRequest.get(oid);
+        
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    service.updateChangeRequest(current, notes, actions);
 
     return current.getDetails();
   }
@@ -375,4 +389,5 @@ public class ChangeRequestService
       }
     }
   }
+
 }

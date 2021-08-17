@@ -173,6 +173,14 @@ public class ChangeRequestController
     return new RestBodyResponse(details);
   }
 
+  @Endpoint(error = ErrorSerialization.JSON, url = "update", method = ServletMethod.POST)
+  public ResponseIF update(ClientRequestIF request, @RequestParamter(name = "request") String cr)
+  {
+    JsonObject details = service.update(request.getSessionId(), cr);
+    
+    return new RestBodyResponse(details);
+  }
+  
   @Endpoint(error = ErrorSerialization.JSON, url = "delete", method = ServletMethod.POST)
   public ResponseIF deleteChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {
