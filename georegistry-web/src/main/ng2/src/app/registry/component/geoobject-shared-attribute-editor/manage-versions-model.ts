@@ -36,13 +36,13 @@ export class VersionDiffView extends ValueOverTime {
   oldLayer: Layer = null;
   coordinate?: any;
   editPropagator: ValueOverTimeEditPropagator;
-  
+
   constructor(component: ManageVersionsComponent, action: AbstractAction)
   {
     super();
-    
+
     this.component = component;
-    
+
     if (component.attributeType.type === '_PARENT_')
     {
       this.editPropagator = new HierarchyEditPropagator(component, action, this, null);
@@ -52,7 +52,7 @@ export class VersionDiffView extends ValueOverTime {
       this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
     }
   }
-  
+
   calculateSummaryKey(diff: ValueOverTimeDiff)
   {
     if (diff == null)
@@ -60,7 +60,7 @@ export class VersionDiffView extends ValueOverTime {
       this.summaryKey = SummaryKey.UNMODIFIED;
       return;
     }
-    
+
     if (diff.action === 'CREATE')
     {
       this.summaryKey = SummaryKey.NEW;
@@ -71,10 +71,10 @@ export class VersionDiffView extends ValueOverTime {
       this.summaryKey = SummaryKey.DELETE;
       return;
     }
-    
+
     let hasTime = diff.newStartDate != null || diff.newEndDate != null;
-    let hasValue = diff.newValue != null;
-    
+    let hasValue = Object.prototype.hasOwnProperty.call(diff, "newValue");
+
     if (hasTime && hasValue)
     {
       this.summaryKey = SummaryKey.UPDATE;
@@ -92,18 +92,18 @@ export class VersionDiffView extends ValueOverTime {
       this.summaryKey = SummaryKey.UNMODIFIED;
     }
   }
-  
+
   set summaryKey(newKey: SummaryKey)
   {
     this.summaryKeyData = newKey;
     this.localizeSummaryKey();
   }
-  
+
   get summaryKey(): SummaryKey
   {
     return this.summaryKeyData;
   }
-  
+
   private localizeSummaryKey(): void
   {
     this.summaryKeyLocalized = this.component.lService.decode('changeovertime.manageVersions.summaryKey.' + this.summaryKeyData);

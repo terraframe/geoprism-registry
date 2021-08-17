@@ -230,13 +230,14 @@ public class HierarchyService
 
     Collection<ServerHierarchyType> hierarchies = pot.getHierarchies();
 
-    Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
+    //Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
 
     for (ServerHierarchyType hierarchy : hierarchies)
     {
       Organization organization = hierarchy.getOrganization();
 
-      if ( ( isCR && !service.canAddChildCR(organization.getCode(), null, type) ) || ( !isCR && !service.canAddChild(organization.getCode(), null, type) ))
+      //if ( ( isCR && !service.canAddChildCR(organization.getCode(), null, type) ) || ( !isCR && !service.canAddChild(organization.getCode(), null, type) ))
+      if (!service.canViewChild(organization.getCode(), null, type))
       {
         pot.remove(hierarchy);
       }
