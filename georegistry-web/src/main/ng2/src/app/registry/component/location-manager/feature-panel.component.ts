@@ -3,7 +3,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime } from "@registry/model/registry";
-import { RegistryService } from "@registry/service";
+import { RegistryService, GeometryService } from "@registry/service";
 import { AuthService } from "@shared/service";
 import { ErrorModalComponent, ErrorHandler } from "@shared/component";
 
@@ -70,7 +70,7 @@ export class FeaturePanelComponent implements OnInit {
     reason: string = "";
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService) { }
+    constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService, private geometryService: GeometryService) { }
 
     ngOnInit(): void {
         this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
@@ -154,6 +154,8 @@ export class FeaturePanelComponent implements OnInit {
                 this.error(err);
             });
         }
+
+        this.geometryService.stopEditing();
     }
 
     onManageAttributeVersion(attribute: AttributeType): void {

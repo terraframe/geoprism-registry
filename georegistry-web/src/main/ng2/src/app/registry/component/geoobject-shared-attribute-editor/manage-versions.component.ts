@@ -668,8 +668,7 @@ export class ManageVersionsComponent implements OnInit {
             view.newLayer.editPropagator = view.editPropagator;
 
             return view.newLayer;
-        }
-        else {
+        } else {
             if (view.oldLayer != null) {
                 return view.oldLayer;
             }
