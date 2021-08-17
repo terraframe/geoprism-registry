@@ -56,13 +56,13 @@
                 <div class="panel-body">
                   <div *ngIf="attr.code === 'code'">
                     <input *ngIf="postGeoObject" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
-                        name="mod-{{attr.code}}" [disabled]="!isNew || readOnly" required>
+                        (change)="onCodeChange()" name="mod-{{attr.code}}" [disabled]="!isNew || readOnly" required>
                   </div>
 
                   <div *ngIf="attr.code !== 'code'">
                     <manage-versions
                         [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" >
+                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" >
                     </manage-versions>
                   </div>
 
@@ -84,7 +84,7 @@
 			      
 			        <div class="panel-body">
 			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" (change)="onVersionChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
+                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
 			        </div>
 		        </div>
 	        </li>
@@ -101,7 +101,7 @@
             
           <div class="panel-body">
             <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" (change)="onVersionChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>
 

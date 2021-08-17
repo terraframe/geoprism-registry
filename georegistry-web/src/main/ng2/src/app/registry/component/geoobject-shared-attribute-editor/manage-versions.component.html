@@ -57,7 +57,7 @@
 		                               </div>
 		                               
 		                               <div *ngIf="hasLocalizationChanged(viewModel, loc.locale) && !isNew">
-		                                 <p class="warning-text">
+		                                 <p class="warning-text display-current-value">
 		                                   <localize key="change.request.changed.value.prefix"></localize>
 		                                   {{ getValueAtLocale(viewModel.oldValue, loc.locale) }}
 		                                 </p>
@@ -126,15 +126,19 @@
 			                                      </span>
 			                                  </div>
 			                               </div>
-
-			                          </ng-container>
+                                   </ng-container>
 	                               </div> 
-                                 
+                                 <div *ngIf="viewModel.oldValue && !isNew && attributeType.type !== 'geometry'">
+                                  <p class="warning-text display-current-value">
+                                    <localize key="change.request.changed.value.prefix"></localize>
+                                    {{ viewModel.oldValue }}
+                                  </p>
+                                </div>
                                  
                                  <table *ngIf="attributeType.type === 'geometry'" style="padding:0;">
                                  <!-- 
-								    Geometry 
-								 -->
+                                    Geometry 
+                                 -->
 <!--                                   <div *ngIf="attributeType.type === 'geometry'"> -->
   
 <!--                                     <td style="vertical-align: middle;padding-left:0;"> -->

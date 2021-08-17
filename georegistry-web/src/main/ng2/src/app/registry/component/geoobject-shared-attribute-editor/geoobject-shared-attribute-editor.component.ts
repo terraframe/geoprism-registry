@@ -13,7 +13,7 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeTermType, Term, HierarchyOverTime } from "@registry/model/registry";
-import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ChangeRequest } from "@registry/model/crtable";
+import {  UpdateAttributeAction, AbstractAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 
 import Utils from "../../utility/Utils";
@@ -146,6 +146,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         this.parentAttributeType = new AttributeType("_PARENT_", "_PARENT_", new LocalizedValue("Parents", null), new LocalizedValue("Parents", null), true, false, false, true);
+        this.onCodeChange();
     }
 
     ngAfterViewInit() {
@@ -200,17 +201,13 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         return false;
     }
 
-    onManageGeometryVersions(): void {
-        let geometry = null;
-        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
-            if (this.geoObjectType.attributes[i].code === "geometry") {
-                // eslint-disable-next-line no-unused-vars
-                geometry = this.geoObjectType.attributes[i];
+    onCodeChange(): void {
+        let newVal = this.postGeoObject.attributes["code"];
+        this.geoObjectType.attributes.forEach(att => {
+            if (att.code === "code") {
+                att.isValid = (newVal != null) && newVal.length > 0;
             }
-        }
-
-        // TODO: Determine if this is needed with the new design
-        // this.onManageAttributeVersions(geometry);
+        });
     }
 
     // Invoked when the dates have changed on an attribute
@@ -236,15 +233,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         this.valid.emit(allValid);
-    }
-
-    onVersionChange(event:any, attribute: AttributeType): void {
-        console.log(event);
-
-        if (attribute) {
-            // TODO: Update actions
-            console.log(attribute);
-        }
     }
 
     isNullValue(vot: any) {
