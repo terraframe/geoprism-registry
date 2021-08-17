@@ -37,6 +37,7 @@ import Utils from "../../utility/Utils";
 
 import { VersionDiffView, Layer, LayerColor } from "./manage-versions-model";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
+import { ControlContainer, NgForm } from '@angular/forms';
 
 @Component({
     selector: "manage-versions",
@@ -60,7 +61,9 @@ import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
                     )
                 )
             ])
-        ]]
+        ]],
+        viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+
 })
 export class ManageVersionsComponent implements OnInit {
 

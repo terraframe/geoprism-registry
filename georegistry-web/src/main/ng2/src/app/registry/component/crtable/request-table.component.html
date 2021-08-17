@@ -113,7 +113,8 @@
 	                              [changeRequest]="req"
 	                              [forDate]="today"
 	                              [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
-	                              [isGeometryInlined]="true">
+	                              [isGeometryInlined]="true"
+                                [isNew]="req.type === 'CreateGeoObject'">
 	                         </geoobject-shared-attribute-editor>
 	                         
 	                       </div>
@@ -171,10 +172,13 @@
                             <localize key="change.request.reject.all.btn"></localize>
                           </button>
 	                    </span>
-	                    
+
 	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
-	                      <localize key="change.request.delete.request.btn"></localize>
+                        <localize key="change.request.delete.request.btn"></localize>
 	                    </button>
+                      <button type="submit" role="button" class="btn btn-primary pull-right" [disabled]="!req.permissions.includes('WRITE')" (click)="req.createdBy === getUsername() && onUpdate(req)" [title]="'modal.button.update' | localize" >
+                        <localize key="modal.button.update"></localize>
+                      </button>
 	                    
 	                  </div>
                   </div>
