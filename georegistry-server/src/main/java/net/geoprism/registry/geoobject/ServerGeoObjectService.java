@@ -540,7 +540,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
         if (joAction.has(CreateGeoObjectAction.PARENTJSON) && !joAction.get(CreateGeoObjectAction.PARENTJSON).isJsonNull())
         {
-          action.setParentJson(joAction.get(CreateGeoObjectAction.PARENTJSON).getAsJsonObject().toString());
+          action.setParentJson(joAction.get(CreateGeoObjectAction.PARENTJSON).getAsJsonArray().toString());
         }
 
         action.apply();

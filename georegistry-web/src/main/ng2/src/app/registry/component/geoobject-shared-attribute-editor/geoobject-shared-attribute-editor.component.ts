@@ -58,22 +58,11 @@ import Utils from "../../utility/Utils";
  */
 export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
-    // eslint-disable-next-line accessor-pairs
-    @Input() set geoObjectData(value: {"geoObject": GeoObjectOverTime, "actions": CreateGeoObjectAction[] | UpdateAttributeAction[]}) {
-        this.preGeoObject = value.geoObject;
-        this.postGeoObject = JSON.parse(JSON.stringify(value.geoObject));
-
-        this.actions = value.actions;
-    }
-
-    // The current state of the GeoObject in the GeoRegistry
-    @Input() preGeoObject: GeoObjectOverTime = null;
-
     // The changed state of the GeoObject in the GeoRegistry
     @Input() postGeoObject: GeoObjectOverTime = null;
 
     // Array of Actions that will be part of a Change Request Object
-    actions: AbstractAction[] = [];
+    @Input() actions: AbstractAction[] = [];
 
     calculatedGeoObject: any = {};
 

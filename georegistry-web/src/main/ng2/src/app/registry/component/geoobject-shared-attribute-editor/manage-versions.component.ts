@@ -358,11 +358,26 @@ export class ManageVersionsComponent implements OnInit {
      */
     calculateViewModels(): void {
         if (this.isNew) {
-            let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
-            createAction.geoObjectJson = this.postGeoObject;
-            createAction.parentJson = this.hierarchy;
-            this.actions[0] = createAction;
-            this.editAction = createAction;
+
+            if(this.actions.length > 0 && this.actions[0].actionType === ActionTypes.CREATEGEOOBJECTACTION) {
+                this.editAction = this.actions[0];
+                const action = this.editAction as CreateGeoObjectAction;
+
+                if(action.parentJson == null) {
+                    action.parentJson = this.hierarchy;
+                } 
+
+                if(action.geoObjectJson == null) {
+                    action.geoObjectJson = this.postGeoObject;
+                } 
+            }
+            else {
+                let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
+                createAction.geoObjectJson = this.postGeoObject;
+                createAction.parentJson = this.hierarchy;
+                this.actions[0] = createAction;
+                this.editAction = createAction;
+            }
         } else {
             this.actions.forEach((action: AbstractAction) => {
                 if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
