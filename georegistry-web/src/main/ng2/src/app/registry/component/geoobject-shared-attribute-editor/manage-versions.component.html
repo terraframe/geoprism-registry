@@ -284,7 +284,7 @@
           </div>
         </div>
 	      <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
-	        (geometryChange)="this.geometryChange(viewModel, $event);" [mapHeight]="mapRowHeight" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
+	        [mapHeight]="mapRowHeight" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
 	        [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="geomService.getRenderedLayers()[0].startDate">
 	      </geoobject-editor-map>
       </div>

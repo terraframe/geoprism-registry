@@ -37,7 +37,6 @@ import Utils from "../../utility/Utils";
 
 import { VersionDiffView, Layer, LayerColor } from "./manage-versions-model";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
-import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
 
 @Component({
     selector: "manage-versions",
@@ -394,6 +393,18 @@ export class ManageVersionsComponent implements OnInit {
 
                 view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry);
 
+                // In the corner case where this object isn't assigned to the lowest level, we may have
+                // empty values in our parents array for some of the types. Our front-end assumes there
+                // will always be an entry for all the types.
+                let len = this.hierarchy.types.length;
+                for (let i = 0; i < len; ++i) {
+                    let type = this.hierarchy.types[i];
+
+                    if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
+                        view.value.parents[type.code] = { text: "", geoObject: null };
+                    }
+                }
+
                 this.viewModels.push(view);
             });
         } else {
@@ -422,7 +433,6 @@ export class ManageVersionsComponent implements OnInit {
 
                 if (this.attributeType.code === updateAttrAction.attributeName) {
                     if (this.attributeType.type === "_PARENT_" && updateAttrAction.attributeDiff.hierarchyCode !== this.hierarchy.code) {
-                        console.log("Skipping because not equal", updateAttrAction.attributeDiff.hierarchyCode, this.hierarchy.code);
                         continue;
                     }
 
@@ -478,8 +488,7 @@ export class ManageVersionsComponent implements OnInit {
                     });
                 }
             } else if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
-              // TODO
-              // let postGoVot = this.findPostGeoObjectVOT(votDiff.oid);
+              // Nothing to do here. Create actions don't have diffs.
             } else {
                 console.log("Unexpected action : " + action.actionType, action);
             }
@@ -495,13 +504,26 @@ export class ManageVersionsComponent implements OnInit {
                 view.value.oid = votDiff.oid;
                 view.value.startDate = votDiff.newStartDate || votDiff.oldStartDate;
                 view.value.endDate = votDiff.newEndDate || votDiff.oldEndDate;
+
                 view.value.parents = votDiff.parents;
+
+                // In the corner case where this object isn't assigned to the lowest level, we may have
+                // empty values in our parents array for some of the types. Our front-end assumes there
+                // will always be an entry for all the types.
+                let len = this.hierarchy.types.length;
+                for (let i = 0; i < len; ++i) {
+                    let type = this.hierarchy.types[i];
+
+                    if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
+                        view.value.parents[type.code] = { text: "", geoObject: null };
+                    }
+                }
 
                 view.value.loading = {};
 
                 if (votDiff.oldValue != null) {
                     let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
-                    let oldTypeCode: string = oldCodeArray[0];
+                    // let oldTypeCode: string = oldCodeArray[0];
                     let oldGoCode: string = oldCodeArray[1];
 
                     view.oldValue = oldGoCode;
@@ -513,6 +535,8 @@ export class ManageVersionsComponent implements OnInit {
             view.oldValue = votDiff.oldValue;
         } else {
             if (this.attributeType.type === "_PARENT_") {
+                view.value = this.createEmptyHierarchyEntry();
+
                 this.hierarchy.entries.forEach(entry => {
                     if (entry.oid === votDiff.oid) {
                         view.value = JSON.parse(JSON.stringify(entry));
@@ -547,6 +571,25 @@ export class ManageVersionsComponent implements OnInit {
             view.oldEndDate = votDiff.newEndDate == null ? null : votDiff.oldEndDate;
         }
         view.editPropagator.diff = votDiff;
+    }
+
+    // TODO : This code copy / pasted from HierarchyEditPropagator
+    createEmptyHierarchyEntry(): HierarchyOverTimeEntry {
+        let hierarchyEntry = new HierarchyOverTimeEntry();
+        hierarchyEntry.loading = {};
+        hierarchyEntry.oid = this.generateUUID();
+
+        hierarchyEntry.parents = {};
+
+        for (let i = 0; i < this.hierarchy.types.length; i++) {
+            let current = this.hierarchy.types[i];
+
+            hierarchyEntry.parents[current.code] = { text: "", geoObject: null };
+
+            hierarchyEntry.loading = {};
+        }
+
+        return hierarchyEntry;
     }
 
     isStatusChanged(post, pre) {
@@ -668,8 +711,7 @@ export class ManageVersionsComponent implements OnInit {
             view.newLayer.editPropagator = view.editPropagator;
 
             return view.newLayer;
-        }
-        else {
+        } else {
             if (view.oldLayer != null) {
                 return view.oldLayer;
             }
