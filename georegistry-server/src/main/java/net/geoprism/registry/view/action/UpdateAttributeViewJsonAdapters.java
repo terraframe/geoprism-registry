@@ -214,8 +214,8 @@ public class UpdateAttributeViewJsonAdapters
       else
       {
         JsonObject parent = new JsonObject();
-        parent.addProperty("text", newParent.getDisplayLabel().getValue() + " : " + newParent.getType().getLabel().getValue());
-        parent.add("geoObject", newParent.toGeoObject().toJSON());
+        parent.addProperty(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_TEXT, newParent.getDisplayLabel().getValue() + " : " + newParent.getCode());
+        parent.add(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENT_GEOOBJECT, newParent.toGeoObject().toJSON());
         parents.add(newParent.getType().getCode(), parent);
         
         sptns = newParent.getParentsForHierarchy(sht, true);
