@@ -9,8 +9,9 @@ table {
   /* display:inline-block; */
 }
 
-.display-current-value {
-	font-size: 12px;
+p.warning-text.display-current-value {
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .version-column-wrapper {
