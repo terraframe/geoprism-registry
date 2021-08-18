@@ -165,7 +165,7 @@ export class ValueOverTimeEditPropagator {
               delete this.diff.newValue;
               delete this.view.oldValue;
           } else {
-              this.diff.newValue = value;
+              this.diff.newValue = JSON.parse(JSON.stringify(value));
               this.view.oldValue = this.convertValueForDisplay(this.diff.oldValue);
           }
 
@@ -183,51 +183,8 @@ export class ValueOverTimeEditPropagator {
   }
 
   public setLocalizedValue(localeValue: {locale: string, value: string}) {
-      if (this.action.actionType === "UpdateAttributeAction") {
-          if (this.diff == null) {
-              if (this.valueOverTime == null) {
-                  this.diff = new ValueOverTimeDiff();
-                  this.diff.oid = uuid();
-                  this.diff.action = "CREATE";
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
-              } else {
-                  let areValuesEqual: boolean = this.component.getValueAtLocale(this.valueOverTime.value, localeValue.locale) === this.component.getValueAtLocale(this.view.value, localeValue.locale);
-
-                  if (areValuesEqual) {
-                      return;
-                  }
-
-                  this.diff = new ValueOverTimeDiff();
-                  this.diff.action = "UPDATE";
-                  this.diff.oid = this.valueOverTime.oid;
-                  this.diff.oldValue = this.valueOverTime.value;
-                  this.diff.oldStartDate = this.valueOverTime.startDate;
-                  this.diff.oldEndDate = this.valueOverTime.endDate;
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
-              }
-          }
-
-          let areValuesEqual: boolean = false;
-          if (this.diff.oldValue != null) {
-              areValuesEqual = this.component.getValueAtLocale(this.diff.oldValue, localeValue.locale) === this.component.getValueAtLocale(this.view.value, localeValue.locale);
-          } else {
-              areValuesEqual = this.diff.oldValue === this.component.getValueAtLocale(this.view.value, localeValue.locale);
-          }
-
-          if (areValuesEqual) {
-              delete this.diff.newValue;
-              delete this.view.oldValue;
-          } else {
-              this.diff.newValue = this.view.value;
-              this.view.oldValue = this.convertValueForDisplay(this.diff.oldValue);
-          }
-      } else if (this.action.actionType === "CreateGeoObjectAction") {
-          this.valueOverTime.value = this.view.value;
-      }
-
-      this.view.calculateSummaryKey(this.diff);
-
-      this.component.onActionChange(this.action);
+      // eslint-disable-next-line no-self-assign
+      this.value = this.value;
   }
 
   removeEmptyDiff(): void {
@@ -286,6 +243,26 @@ export class ValueOverTimeEditPropagator {
           let casted2 = (typeof val2 === "string") ? parseInt(val2) : val2;
 
           return casted1 === casted2;
+      } else if (this.component.attributeType.type === "local") {
+          if ((!val1.localeValues || !val2.localeValues) || val1.localeValues.length !== val2.localeValues.length) {
+              return false;
+          }
+
+          let len = val1.localeValues.length;
+          for (let i = 0; i < len; ++i) {
+              let localeValue = val1.localeValues[i];
+
+              let lv2 = this.component.getValueAtLocale(val2, localeValue.locale);
+              let lv1 = localeValue.value;
+
+              if ((lv1 === "" && lv2 == null) || (lv2 === "" && lv1 == null)) {
+                  continue;
+              } else if (lv1 !== lv2) {
+                  return false;
+              }
+          }
+
+          return true;
       }
 
       return val1 === val2;
