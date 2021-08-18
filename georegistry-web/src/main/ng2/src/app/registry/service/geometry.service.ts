@@ -35,6 +35,10 @@ export class GeometryService {
     // eslint-disable-next-line no-useless-constructor
     constructor() { }
 
+    ngOnInit() {
+        window.onbeforeunload = () => this.destroy();
+    }
+
     initialize(map: Map, geometryType: String, readOnly: boolean) {
         this.map = map;
         this.geometryType = geometryType;
@@ -52,6 +56,7 @@ export class GeometryService {
             this.saveEdits();
         });
     }
+
 
     destroy(destroyMap: boolean = true): void {
         if (this.editingControl != null) {
