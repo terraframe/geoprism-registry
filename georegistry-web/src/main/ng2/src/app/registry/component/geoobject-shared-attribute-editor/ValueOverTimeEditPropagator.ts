@@ -56,12 +56,11 @@ export class ValueOverTimeEditPropagator {
               delete this.view.oldStartDate;
           } else {
               this.diff.newStartDate = startDate;
-              this.view.oldStartDate = this.diff.oldStartDate;
+              this.view.oldStartDate = this.convertDateForDisplay(this.diff.oldStartDate);
           }
 
           // If no changes have been made then remove the diff
           this.removeEmptyDiff();
-
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.valueOverTime.startDate = startDate;
       }
@@ -105,12 +104,11 @@ export class ValueOverTimeEditPropagator {
               delete this.view.oldEndDate;
           } else {
               this.diff.newEndDate = endDate;
-              this.view.oldEndDate = this.diff.oldEndDate;
+              this.view.oldEndDate = this.convertDateForDisplay(this.diff.oldEndDate);
           }
 
           // If no changes have been made then remove the diff
           this.removeEmptyDiff();
-
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.valueOverTime.endDate = endDate;
       }
@@ -162,16 +160,14 @@ export class ValueOverTimeEditPropagator {
               delete this.view.oldValue;
           } else {
               this.diff.newValue = value;
-              this.view.oldValue = this.diff.oldValue;
+              this.view.oldValue = this.convertValueForDisplay(this.diff.oldValue);
           }
 
           // If no changes have been made then remove the diff
           this.removeEmptyDiff();
-
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.valueOverTime.value = value;
       }
-
 
       this.view.value = value;
 
@@ -217,7 +213,7 @@ export class ValueOverTimeEditPropagator {
               delete this.view.oldValue;
           } else {
               this.diff.newValue = this.view.value;
-              this.view.oldValue = this.diff.oldValue;
+              this.view.oldValue = this.convertValueForDisplay(this.diff.oldValue);
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.valueOverTime.value = this.view.value;
@@ -229,17 +225,29 @@ export class ValueOverTimeEditPropagator {
   }
 
   removeEmptyDiff(): void {
-    if(this.diff != null && this.diff.newValue === undefined  && this.diff.newStartDate === undefined &&  this.diff.newEndDate === undefined) {
-        const diffs = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime;
-        
-        const index = diffs.findIndex(d => d.oid === this.diff.oid);
-        
-        if(index !== -1) {
-            diffs.splice(index, 1);
-        }
-        
-        this.diff = null;
-    }
+      if (this.diff != null && this.diff.newValue === undefined && this.diff.newStartDate === undefined && this.diff.newEndDate === undefined) {
+          const diffs = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime;
+
+          const index = diffs.findIndex(d => d.oid === this.diff.oid);
+
+          if (index !== -1) {
+              diffs.splice(index, 1);
+          }
+
+          this.diff = null;
+      }
+  }
+
+  convertDateForDisplay(date: string): string {
+      return this.component.dateService.formatDateForDisplay(date);
+  }
+
+  convertValueForDisplay(val: any): any {
+      if (this.component.attributeType.type === "date") {
+          return this.component.dateService.formatDateForDisplay(new Date(val));
+      }
+
+      return val;
   }
 
   areValuesEqual(val1: any, val2: any): boolean {
@@ -252,8 +260,6 @@ export class ValueOverTimeEditPropagator {
       } else if ((!val1 && val2) || (!val2 && val1)) {
           return false;
       }
-
-    // TODO Test all attribute types here. We might need a case for geometries here.
 
     // if (this.component.attributeType.type === "local")
     // {
