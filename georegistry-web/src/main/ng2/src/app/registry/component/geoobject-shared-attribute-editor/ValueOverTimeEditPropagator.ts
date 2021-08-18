@@ -131,9 +131,12 @@ export class ValueOverTimeEditPropagator {
           } else if (this.component.attributeType.type === "date") {
               value = new Date(value).getTime();
           }
-      }
-      if (value == null && this.component.attributeType.type === "geometry") {
-          value = this.component.geomService.createEmptyGeometryValue();
+      } else if (value == null) {
+          if (this.component.attributeType.type === "geometry") {
+              value = this.component.geomService.createEmptyGeometryValue();
+          } else if (this.component.attributeType.type === "character") {
+              value = "";
+          }
       }
 
       if (this.action.actionType === "UpdateAttributeAction") {
@@ -158,7 +161,7 @@ export class ValueOverTimeEditPropagator {
               }
           }
 
-          if (this.areValuesEqual(this.diff.oldValue, value)) {
+          if (this.diff.action !== "CREATE" && this.areValuesEqual(this.diff.oldValue, value)) {
               delete this.diff.newValue;
               delete this.view.oldValue;
           } else {
@@ -256,6 +259,10 @@ export class ValueOverTimeEditPropagator {
   areValuesEqual(val1: any, val2: any): boolean {
       if (this.component.attributeType.type === "boolean") {
           return val1 === val2;
+      }
+
+      if ((val1 === "" && val2 == null) || (val2 === "" && val1 == null)) {
+          return true;
       }
 
       if (!val1 && !val2) {
@@ -375,6 +382,8 @@ export class ValueOverTimeEditPropagator {
           if (terms && terms.length > 0) {
               this.value = terms[0].code;
           }
+      } else {
+          this.value = null;
       }
 
       this.view.summaryKey = SummaryKey.NEW;
