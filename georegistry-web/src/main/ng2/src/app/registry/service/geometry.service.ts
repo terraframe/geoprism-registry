@@ -57,7 +57,6 @@ export class GeometryService {
         });
     }
 
-
     destroy(destroyMap: boolean = true): void {
         if (this.editingControl != null) {
             this.map.removeControl(this.editingControl);
@@ -70,7 +69,6 @@ export class GeometryService {
         } else if (this.map != null) {
             this.removeLayers();
         }
-
 
         this.editingLayer = null;
         this.layers = [];
@@ -97,7 +95,6 @@ export class GeometryService {
 
             this.editingLayer.isEditing = false;
             this.editingLayer = null;
-
 
             this.editingControl.deleteAll();
             this.map.removeControl(this.editingControl);
@@ -439,7 +436,7 @@ export class GeometryService {
             });
         }
 
-        (<any>this.map.getSource(finalSourceName)).setData(geometry);
+        (<any> this.map.getSource(finalSourceName)).setData(geometry);
     }
 
     getDrawGeometry(): any {
