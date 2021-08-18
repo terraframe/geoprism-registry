@@ -378,8 +378,6 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   }
 
   public remove(): void {
-      let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length - 1].code;
-
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff != null && this.diff.action === "CREATE") {
               // Its a new entry, just remove the diff from the diff array
@@ -399,7 +397,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               this.recalculateView();
               return;
           } else if (this.hierarchyEntry != null && this.diff == null) {
-              let currentImmediateParent: GeoObject = this.hierarchyEntry.parents[immediateType].geoObject;
+              let currentImmediateParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry).geoObject;
               let oldValue: string = currentImmediateParent == null ? null : currentImmediateParent.properties.type + "_~VST~_" + currentImmediateParent.properties.code;
 
               this.diff = new ValueOverTimeDiff();
@@ -412,12 +410,10 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
-          let votc = (this.action as CreateGeoObjectAction).parentJson.entries[immediateType];
-
-          let index = votc.findIndex((vot) => { return vot.oid === this.hierarchyEntry.oid; });
+          let index = (this.action as CreateGeoObjectAction).parentJson.entries.findIndex(vot => vot.oid === this.hierarchyEntry.oid);
 
           if (index !== -1) {
-              votc.splice(index, 1);
+              (this.action as CreateGeoObjectAction).parentJson.entries.splice(index, 1);
           }
       }
 
