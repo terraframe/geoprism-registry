@@ -183,7 +183,11 @@ export class GeometryService {
         if (this.map != null) {
             this.removeLayers();
             this.addLayers();
-            this.editingControl.deleteAll();
+
+            if (this.editingControl != null) {
+                this.editingControl.deleteAll();
+            }
+
             this.addEditingLayers();
         }
     }

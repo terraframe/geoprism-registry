@@ -286,6 +286,10 @@ export class ValueOverTimeEditPropagator {
       }
 
       this.view.calculateSummaryKey(this.diff);
+
+      if (this.component.attributeType.type === "geometry") {
+          this.component.geomService.reload();
+      }
   }
 
   public remove(): void {
@@ -333,6 +337,10 @@ export class ValueOverTimeEditPropagator {
       this.view.calculateSummaryKey(this.diff);
 
       this.component.onActionChange(this.action);
+
+      if (this.component.attributeType.type === "geometry") {
+          this.component.geomService.reload();
+      }
   }
 
   public onAddNewVersion(): void {
