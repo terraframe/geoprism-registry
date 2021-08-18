@@ -62,7 +62,7 @@ import { ControlContainer, NgForm } from '@angular/forms';
                 )
             ])
         ]],
-        viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+        viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
 
 })
 export class ManageVersionsComponent implements OnInit {

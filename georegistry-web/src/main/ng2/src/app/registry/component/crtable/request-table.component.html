@@ -163,7 +163,7 @@
 	                  </div> 
 	  
 	  
-	                  <div *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS') || req.permissions.includes('DELETE')" class="button-holder" style="margin-bottom:20px;">
+	                  <div *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS') || req.permissions.includes('DELETE')" class="button-holder" style="margin-bottom:20px;display:flex;flex-direction:row-reverse;">
 	                    <span *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS')">
 	                      <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onExecute(req)" class="btn btn-primary" style="margin:0;" role="button" [title]="'change.request.implement.decisions.btn.hover' | localize">
 	                        <localize [key]="req.type === 'UpdateGeoObject' ? 'change.request.accept.changes.btn' : 'change.request.accept.newGeoObject.btn'"></localize>
@@ -174,7 +174,7 @@
 	                    </span>
 
 	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
-                        <localize key="change.request.delete.request.btn"></localize>
+                            <localize key="change.request.delete.request.btn"></localize>
 	                    </button>
                       <button type="submit" role="button" class="btn btn-primary pull-right" [disabled]="!req.permissions.includes('WRITE')" (click)="req.createdBy === getUsername() && onUpdate(req)" [title]="'modal.button.update' | localize" >
                         <localize key="modal.button.update"></localize>
