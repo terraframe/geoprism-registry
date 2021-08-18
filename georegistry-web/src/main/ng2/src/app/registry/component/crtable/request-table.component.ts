@@ -100,6 +100,8 @@ export class RequestTableComponent {
     @ViewChild("myFile")
     fileRef: ElementRef;
 
+    isValid: boolean = true;    
+
     constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
         private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
         this.columns = [
@@ -169,6 +171,10 @@ export class RequestTableComponent {
         } else {
             return this.localizationService.decode("geoObject.label");
         }
+    }
+
+    setValid(valid: boolean): void {
+        this.isValid = valid;
     }
 
     onUpload(request: ChangeRequest): void {
@@ -347,11 +353,13 @@ export class RequestTableComponent {
     }
 
     onUpdate(changeRequest: ChangeRequest): void {
+        console.log('Request', changeRequest);
+
         if (changeRequest != null) {
             this.service.update(changeRequest).then(request => {
 
                 // TODO update the individual change request
-                
+
                 this.refresh();
             }).catch((response: HttpErrorResponse) => {
                 this.error(response);

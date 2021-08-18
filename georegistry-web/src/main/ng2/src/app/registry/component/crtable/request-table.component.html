@@ -91,7 +91,7 @@
                 
                   <div *ngIf="req.permissions.includes('READ_CONTRIBUTOR_NOTES')" class="form-group" style="margin-top:20px;">
                      <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
-                     <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="req.contributorNotes" disabled></textarea>
+                     <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="req.contributorNotes" [disabled]="!req.permissions.includes('WRITE_DETAILS')"></textarea>
                   </div>  
                   
                   <div>
@@ -109,12 +109,14 @@
 	                              #attributeEditor
 	                              [readOnly]="!req.permissions.includes('WRITE_DETAILS')"  
 	                              [geoObjectType]="req.current.geoObjectType"
-	                              [geoObjectData]="{'geoObject': req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson, 'actions': req.actions}"
+                                [postGeoObject]="req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson" 
+	                              [actions]="req.actions"
 	                              [changeRequest]="req"
 	                              [forDate]="today"
 	                              [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
 	                              [isGeometryInlined]="true"
-                                [isNew]="req.type === 'CreateGeoObject'">
+                                [isNew]="req.type === 'CreateGeoObject'"
+                                (valid)="setValid($event)">
 	                         </geoobject-shared-attribute-editor>
 	                         
 	                       </div>
@@ -176,10 +178,9 @@
 	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
                             <localize key="change.request.delete.request.btn"></localize>
 	                    </button>
-                      <button type="submit" role="button" class="btn btn-primary pull-right" [disabled]="!req.permissions.includes('WRITE')" (click)="req.createdBy === getUsername() && onUpdate(req)" [title]="'modal.button.update' | localize" >
+                      <button type="submit" role="button" class="btn btn-primary pull-right" [disabled]="!isValid || !req.permissions.includes('WRITE_DETAILS')" (click)="req.createdBy === getUsername() && onUpdate(req)" [title]="'modal.button.update' | localize" >
                         <localize key="modal.button.update"></localize>
                       </button>
-	                    
 	                  </div>
                   </div>
                 </div>

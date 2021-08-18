@@ -58,6 +58,10 @@ export class ValueOverTimeEditPropagator {
               this.diff.newStartDate = startDate;
               this.view.oldStartDate = this.diff.oldStartDate;
           }
+
+          // If no changes have been made then remove the diff
+          this.removeEmptyDiff();
+
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.valueOverTime.startDate = startDate;
       }
@@ -103,6 +107,10 @@ export class ValueOverTimeEditPropagator {
               this.diff.newEndDate = endDate;
               this.view.oldEndDate = this.diff.oldEndDate;
           }
+
+          // If no changes have been made then remove the diff
+          this.removeEmptyDiff();
+
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.valueOverTime.endDate = endDate;
       }
@@ -156,9 +164,14 @@ export class ValueOverTimeEditPropagator {
               this.diff.newValue = value;
               this.view.oldValue = this.diff.oldValue;
           }
+
+          // If no changes have been made then remove the diff
+          this.removeEmptyDiff();
+
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.valueOverTime.value = value;
       }
+
 
       this.view.value = value;
 
@@ -213,6 +226,20 @@ export class ValueOverTimeEditPropagator {
       this.view.calculateSummaryKey(this.diff);
 
       this.component.onActionChange(this.action);
+  }
+
+  removeEmptyDiff(): void {
+    if(this.diff != null && this.diff.newValue === undefined  && this.diff.newStartDate === undefined &&  this.diff.newEndDate === undefined) {
+        const diffs = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime;
+        
+        const index = diffs.findIndex(d => d.oid === this.diff.oid);
+        
+        if(index !== -1) {
+            diffs.splice(index, 1);
+        }
+        
+        this.diff = null;
+    }
   }
 
   areValuesEqual(val1: any, val2: any): boolean {

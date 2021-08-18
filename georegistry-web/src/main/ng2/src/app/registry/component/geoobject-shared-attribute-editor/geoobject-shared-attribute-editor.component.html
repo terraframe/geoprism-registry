@@ -56,7 +56,7 @@
                 <div class="panel-body">
                   <div *ngIf="attr.code === 'code'">
                     <input *ngIf="postGeoObject" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
-                        (change)="onCodeChange()" name="mod-{{attr.code}}" [disabled]="!isNew" required>
+                        (change)="onCodeChange()" name="mod-{{attr.code}}" [disabled]="!isNew || readOnly" required>
                   </div>
 
                   <div *ngIf="attr.code !== 'code'">
