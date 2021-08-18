@@ -100,8 +100,6 @@ export class GeometryService {
             this.map.removeControl(this.editingControl);
 
             this.editingControl = null;
-
-            this.removeLayers();
         }
     }
 
