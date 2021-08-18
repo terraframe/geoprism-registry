@@ -298,7 +298,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               let ancestor = ancestors;
 
               while (ancestor != null && ancestor.geoObject.properties.type !== current.code) {
-                  if (ancestor.parents.length > 0) {
+                  if (ancestor.parents.length > 0 && ancestors.parents[0].hierarchyType === this.component.hierarchy.code) {
                       ancestor = ancestor.parents[0];
                   } else {
                       ancestor = null;
