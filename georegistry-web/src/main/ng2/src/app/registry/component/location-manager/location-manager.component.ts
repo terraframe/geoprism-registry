@@ -519,11 +519,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     select(node: GeoObject, event: MouseEvent): void {
+        /*
         if (this.forDate == null) {
             this.displayDateRequiredError = true;
 
             return;
         }
+        */
 
         if (event != null) {
             event.stopPropagation();
