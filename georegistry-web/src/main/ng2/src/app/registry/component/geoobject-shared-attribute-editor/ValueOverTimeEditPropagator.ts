@@ -281,8 +281,38 @@ export class ValueOverTimeEditPropagator {
       return val1 === val2;
   }
 
+  recalculateView(): void {
+      if (this.diff === null) {
+          if (this.action.actionType === "UpdateAttributeAction") {
+              if (this.valueOverTime != null) {
+                  this.view.value = this.valueOverTime.value != null ? JSON.parse(JSON.stringify(this.valueOverTime.value)) : null;
+                  this.view.startDate = this.valueOverTime.startDate;
+                  this.view.endDate = this.valueOverTime.endDate;
+
+                  delete this.view.oldValue;
+                  delete this.view.oldStartDate;
+                  delete this.view.oldEndDate;
+              }
+          } else {
+              // TODO
+          }
+      }
+
+      this.view.calculateSummaryKey(this.diff);
+  }
+
   public remove(): void {
       if (this.action.actionType === "UpdateAttributeAction") {
+          if (this.diff != null) {
+              delete this.diff.newValue;
+              delete this.diff.newStartDate;
+              delete this.diff.newEndDate;
+              this.removeEmptyDiff();
+              this.component.onActionChange(this.action);
+              this.recalculateView();
+              return;
+          }
+
           if (this.diff != null && this.diff.action === "CREATE") {
         // Its a new entry, just remove the diff from the diff array
               let updateAction: UpdateAttributeAction = this.action as UpdateAttributeAction;

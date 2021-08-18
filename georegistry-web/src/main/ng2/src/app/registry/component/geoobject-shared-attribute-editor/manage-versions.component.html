@@ -245,8 +245,7 @@
 	                        </td>
 	                        
 	                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize">
-	                          <i *ngIf="viewModel.summaryKey !== 'DELETE'" class="fa fa-times" ></i>
-	                          <i *ngIf="viewModel.summaryKey === 'DELETE'" class="fa fa-undo" ></i>
+	                          <i class="fa" [class]="{'fa-times' : viewModel.summaryKey === 'UNMODIFIED', 'fa-undo' : viewModel.summaryKey !== 'UNMODIFIED'}" ></i>
 	                        </td>
 	                      </tr>
 	                    </ng-container>
