@@ -303,18 +303,8 @@ export class ValueOverTimeEditPropagator {
 
   public remove(): void {
       if (this.action.actionType === "UpdateAttributeAction") {
-          if (this.diff != null) {
-              delete this.diff.newValue;
-              delete this.diff.newStartDate;
-              delete this.diff.newEndDate;
-              this.removeEmptyDiff();
-              this.component.onActionChange(this.action);
-              this.recalculateView();
-              return;
-          }
-
           if (this.diff != null && this.diff.action === "CREATE") {
-        // Its a new entry, just remove the diff from the diff array
+              // Its a new entry, just remove the diff from the diff array
               let updateAction: UpdateAttributeAction = this.action as UpdateAttributeAction;
 
               const index = updateAction.attributeDiff.valuesOverTime.findIndex(vot => vot.oid === this.diff.oid);
@@ -322,6 +312,14 @@ export class ValueOverTimeEditPropagator {
               if (index > -1) {
                   updateAction.attributeDiff.valuesOverTime.splice(index, 1);
               }
+          } else if (this.diff != null) {
+              delete this.diff.newValue;
+              delete this.diff.newStartDate;
+              delete this.diff.newEndDate;
+              this.removeEmptyDiff();
+              this.component.onActionChange(this.action);
+              this.recalculateView();
+              return;
           } else if (this.valueOverTime != null && this.diff == null) {
               this.diff = new ValueOverTimeDiff();
               this.diff.action = "DELETE";
@@ -330,31 +328,6 @@ export class ValueOverTimeEditPropagator {
               this.diff.oldStartDate = this.valueOverTime.startDate;
               this.diff.oldEndDate = this.valueOverTime.endDate;
               (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
-          } else if (this.diff != null) {
-              if (this.diff.action === "DELETE") {
-                  let index = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.findIndex(diff => { return diff.oid === this.diff.oid; });
-
-                  if (index !== -1) {
-                      (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.splice(index, 1);
-                      this.diff = null;
-                  }
-              } else if (this.valueOverTime != null) {
-                  this.diff.action = "DELETE";
-                  this.diff.oid = this.valueOverTime.oid;
-                  delete this.diff.newValue;
-                  delete this.diff.newStartDate;
-                  delete this.diff.newEndDate;
-                  this.diff.oldValue = this.valueOverTime.value;
-                  this.diff.oldStartDate = this.valueOverTime.startDate;
-                  this.diff.oldEndDate = this.valueOverTime.endDate;
-
-                  this.view.startDate = this.diff.oldStartDate;
-                  this.view.endDate = this.diff.oldEndDate;
-                  this.view.value = this.diff.oldValue;
-                  delete this.view.oldStartDate;
-                  delete this.view.oldEndDate;
-                  delete this.view.oldValue;
-              }
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           let votc = (this.action as CreateGeoObjectAction).geoObjectJson.attributes[this.component.attributeType.code].values;
