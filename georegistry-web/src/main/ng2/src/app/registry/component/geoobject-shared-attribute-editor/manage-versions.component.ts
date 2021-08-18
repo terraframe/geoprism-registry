@@ -62,7 +62,7 @@ import { ControlContainer, NgForm } from '@angular/forms';
                 )
             ])
         ]],
-        viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+        viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
 
 })
 export class ManageVersionsComponent implements OnInit {
@@ -143,7 +143,7 @@ export class ManageVersionsComponent implements OnInit {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(public geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
-        public changeDetectorRef: ChangeDetectorRef, private dateService: DateService, private authService: AuthService,
+        public changeDetectorRef: ChangeDetectorRef, public dateService: DateService, private authService: AuthService,
         private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
 
     ngOnInit(): void {

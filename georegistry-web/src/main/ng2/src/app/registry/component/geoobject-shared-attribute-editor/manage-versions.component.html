@@ -162,7 +162,7 @@
                                         </td>
                                       </tr>
   
-                                      <tr *ngIf="viewModel.isRenderingLayer && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
+                                      <tr *ngIf="(viewModel.newLayer && viewModel.newLayer.isRendering) && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
                                         
                                         <td style="width:50%;padding-left:0;padding-right:5px;" >
                                           <h5>
@@ -209,7 +209,7 @@
 	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
-	                                  <p class="warning-text">
+	                                  <p class="warning-text display-current-value">
 	                                    <localize key="change.request.changed.value.prefix"></localize>
 	                                    {{ viewModel.oldStartDate }}
 	                                  </p>
@@ -222,14 +222,16 @@
 	                                  </h5>
 	                              
 	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
-	                                      [required]="true" [placement]="'bottom'" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
+	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                    
+	                                  <!--
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">
 	                                    <p class="warning-text">
 	                                      <localize key="change.request.changed.value.prefix"></localize>
 	                                      {{ viewModel.oldEndDate }}
 	                                    </p>
 	                                  </div>
+	                                  -->
 	                                </div>
 	                              </td>
 	                            </tr>
@@ -271,7 +273,7 @@
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              
-            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;font-style: italic;">
+            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
 <!--               <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize"> -->
 <!--                 <localize key="change.request.accept.btn"></localize> -->
 <!--               </button> -->

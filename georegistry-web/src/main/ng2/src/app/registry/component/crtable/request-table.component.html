@@ -2,19 +2,19 @@
   <div class="col-md-12">
     <div class="form-group button-row">
 
-      <a [routerLink]="" (click)="filter('ALL')" [ngClass]="filterCriteria === 'ALL' ? 'cr-filter-link-active' : ''" >
+      <a [routerLink]="" (click)="filter('ALL')" [ngClass]="filterCriteria === 'ALL' ? 'cr-filter-link-active' : ''" style="border-bottom: 1px solid;" >
         <localize key="change.request.all.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('PENDING')" [ngClass]="filterCriteria === 'PENDING' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
+      <a [routerLink]="" (click)="filter('PENDING')" [ngClass]="filterCriteria === 'PENDING' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;border-bottom:1px solid;">
         <localize key="change.request.pending.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
+      <a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;border-bottom:1px solid;">
         <localize key="change.request.accepted.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('PARTIAL')" [ngClass]="filterCriteria === 'PARTIAL' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
+      <a [routerLink]="" (click)="filter('PARTIAL')" [ngClass]="filterCriteria === 'PARTIAL' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;border-bottom:1px solid;" >
         <localize key="change.request.partial.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
+      <a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;border-bottom:1px solid;" >
         <localize key="change.request.rejected.filter.link"></localize>
       </a>
 
@@ -54,7 +54,7 @@
                </span>
             </td>
             <td class="col-md-2">
-              <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-rejected':req.approvalStatus === 'REJECTED'}">
+              <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-partial':req.approvalStatus === 'PARTIAL', 'status-rejected':req.approvalStatus === 'REJECTED'}">
                  <strong>{{req.statusLabel}}</strong>
               </h5>
             </td>
@@ -64,7 +64,7 @@
           </tr>
           
           <!-- Action panel only shows when activated with click -->
-          <tr [@fadeInOut] *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;" [ngClass]="{'status-pending-container':req.approvalStatus === 'PENDING', 'status-accepted-container':req.approvalStatus === 'ACCEPTED', 'status-rejected-container':req.approvalStatus === 'REJECTED'}">
+          <tr [@fadeInOut] *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;" [ngClass]="{'status-pending-container':req.approvalStatus === 'PENDING', 'status-accepted-container':req.approvalStatus === 'ACCEPTED', 'status-partial-container':req.approvalStatus === 'PARTIAL', 'status-rejected-container':req.approvalStatus === 'REJECTED'}">
             
             <td colspan="5">
               <div class="geoobject-panel-header">
@@ -176,7 +176,7 @@
 	                    </span>
 
 	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
-                        <localize key="change.request.delete.request.btn"></localize>
+                            <localize key="change.request.delete.request.btn"></localize>
 	                    </button>
                       <button type="submit" role="button" class="btn btn-primary pull-right" [disabled]="!isValid || !req.permissions.includes('WRITE_DETAILS')" (click)="req.createdBy === getUsername() && onUpdate(req)" [title]="'modal.button.update' | localize" >
                         <localize key="modal.button.update"></localize>

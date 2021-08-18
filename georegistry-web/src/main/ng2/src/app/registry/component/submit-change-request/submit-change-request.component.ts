@@ -42,17 +42,7 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     @ViewChild("geometryEditor") geometryEditor;
 
-    /*
-     * The current state of the GeoObject in the GeoRegistry
-     */
-    preGeoObject: GeoObjectOverTime = null;
-
-    /*
-     * The state of the GeoObject after our Change Request has been approved
-     */
-    postGeoObject: GeoObjectOverTime = null;
-
-    showGeoObjectDetails: boolean = false;
+    geoObject: GeoObjectOverTime = null;
 
     isValid: boolean = false;
 
@@ -108,18 +98,8 @@ export class SubmitChangeRequestComponent implements OnInit {
         }
     }
 
-    public clickShowDetails() {
-        this.showGeoObjectDetails = !this.showGeoObjectDetails;
-
-        if (this.forDate == null) {
-            let date = new Date();
-            this.dateStr = date.toISOString().split("T")[0];
-            this.handleDateChange();
-        }
-    }
-
     public onValidChange(newValid: boolean) {
-        if (this.preGeoObject == null) {
+        if (this.geoObject == null) {
             this.isValid = false;
             return;
         }
@@ -154,50 +134,15 @@ export class SubmitChangeRequestComponent implements OnInit {
 
     typeaheadOnSelect(e: TypeaheadMatch): void {
         this.registryService.getGeoObjectOverTime(e.item.code, this.geoObjectType.code).then(geoObject => {
-            this.preGeoObject = geoObject;
-            this.postGeoObject = JSON.parse(JSON.stringify(this.preGeoObject)); // Object.assign is a shallow copy. We want a deep copy.
+            this.geoObject = geoObject;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
     }
 
-    /*
-      submit(): void {
-    
-        let goSubmit: GeoObjectOverTime = this.attributeEditor.getGeoObject();
-    
-        if (this.geometryEditor != null) {
-          //      let goGeometries: GeoObjectOverTime = this.geometryEditor.saveDraw();
-          //            goSubmit.geometry = goGeometries.geometry;
-        }
-    
-        let actions = [{
-          "actionType": "geoobject/update", // TODO: account for create
-          "apiVersion": "1.0-SNAPSHOT", // TODO: make dynamic
-          "createActionDate": new Date().getTime(),
-          "geoObject": goSubmit,
-          "contributorNotes": this.reason
-        }]
-    
-        this.changeRequestService.submitChangeRequest(JSON.stringify(actions))
-          .then(geoObject => {
-            this.cancel();
-    
-            this.bsModalRef = this.modalService.show(SuccessModalComponent, { backdrop: true });
-            this.bsModalRef.content.message = this.localizeService.decode("change.request.success.message");
-    
-          }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-          });
-    
-        this.isValid = false;
-      }
-      */
-
     cancel(): void {
         this.isValid = false;
-        this.preGeoObject = null;
-        this.postGeoObject = null;
+        this.geoObject = null;
         this.geoObjectId = null;
         this.geoObjectType = null;
         this.reason = null;
