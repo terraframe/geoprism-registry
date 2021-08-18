@@ -132,6 +132,9 @@ export class ValueOverTimeEditPropagator {
               value = new Date(value).getTime();
           }
       }
+      if (value == null && this.component.attributeType.type === "geometry") {
+          value = this.component.geomService.createEmptyGeometryValue();
+      }
 
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff == null) {
@@ -302,6 +305,10 @@ export class ValueOverTimeEditPropagator {
   }
 
   public remove(): void {
+      if (this.component.geomService.isEditing()) {
+          this.component.geomService.stopEditing();
+      }
+
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff != null && this.diff.action === "CREATE") {
               // Its a new entry, just remove the diff from the diff array

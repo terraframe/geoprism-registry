@@ -748,6 +748,21 @@ export class ManageVersionsComponent implements OnInit {
     }
 
     manualCoordinateChange(view: VersionDiffView): void {
+        if (view.newCoordinateX || view.newCoordinateY) {
+            let newX = view.newCoordinateX;
+            if (view.value.coordinates && view.value.coordinates[0]) {
+                newX = view.value.coordinates[0];
+            }
+            let newY = view.newCoordinateY;
+            if (view.value.coordinates && view.value.coordinates[0]) {
+                newY = view.value.coordinates[1];
+            }
+            view.value.coordinates = [[newX || 0, newY || 0]];
+            delete view.newCoordinateX;
+            delete view.newCoordinateY;
+            return;
+        }
+
         const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
         const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
 
