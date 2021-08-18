@@ -356,6 +356,8 @@ export class ValueOverTimeEditPropagator {
       } else if (this.component.attributeType.type === "geometry") {
           if (this.component.viewModels.length > 0) {
               this.value = JSON.parse(JSON.stringify(this.component.viewModels[this.component.viewModels.length - 1].value));
+          } else {
+              this.value = this.component.geomService.createEmptyGeometryValue();
           }
       } else if (this.component.attributeType.type === "term") {
           let terms = this.component.getGeoObjectTypeTermAttributeOptions(this.component.attributeType.code);
