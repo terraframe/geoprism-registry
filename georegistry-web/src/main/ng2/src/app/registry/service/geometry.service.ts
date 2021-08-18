@@ -53,19 +53,22 @@ export class GeometryService {
         });
     }
 
-    destroy(): void {
-        this.map = null;
+    destroy(destroyMap: boolean = true): void {
+        if (this.editingControl != null) {
+            this.map.removeControl(this.editingControl);
+            this.editingControl = null;
+        }
+
+        if (this.map != null && destroyMap) {
+            this.map.remove();
+            this.map = null;
+        } else if (this.map != null) {
+            this.removeLayers();
+        }
+
+
         this.editingLayer = null;
-        this.editingControl = null;
-    }
-
-    // TODO: Verify if this can be deprecated because it most likely isn't used anymore
-    addEditButton(): void {
-        this.simpleEditControl.editEmitter.subscribe(versionObj => {
-            // this.onClickEdit.emit();
-        });
-
-        this.map.addControl(this.simpleEditControl);
+        this.layers = [];
     }
 
     startEditing(layer: Layer) {
@@ -78,8 +81,6 @@ export class GeometryService {
 
         if (!this.readOnly) {
             this.enableEditing();
-        } else {
-            this.addEditButton();
         }
 
         this.addEditingLayers();
@@ -136,12 +137,12 @@ export class GeometryService {
 
             /*
             this.editingLayer.value.coordinates = [ -97.4870830718814, 41.84836050415993 ];
-      
+
             this.editingControl.set(this.editingLayer.value);
-      
+
             this.removeLayers();
             this.addLayers();
-      
+
             this.editingControl.changeMode( 'simple_select', { featureIds: this.editingLayer.oid } );
             */
         }
@@ -512,57 +513,59 @@ export class GeometryService {
 
     zoomToLayersExtent(): void {
         this.layers.forEach(layer => {
-            if (layer.geojson.type.toUpperCase() === "MULTIPOINT" || layer.geojson.type.toUpperCase() === "POINT") {
-                let coords = layer.geojson.coordinates;
+            if (layer.geojson != null) {
+                if (this.geometryType === "MULTIPOINT" || this.geometryType === "POINT") {
+                    let coords = layer.geojson.coordinates;
 
-                if (coords) {
-                    let bounds = new LngLatBounds();
-                    coords.forEach(coord => {
-                        bounds.extend(coord);
-                    });
+                    if (coords) {
+                        let bounds = new LngLatBounds();
+                        coords.forEach(coord => {
+                            bounds.extend(coord);
+                        });
 
-                    let center = bounds.getCenter();
-                    let pt = new LngLat(center.lng, center.lat);
+                        let center = bounds.getCenter();
+                        let pt = new LngLat(center.lng, center.lat);
 
-                    this.map.flyTo({
-                        center: pt,
-                        zoom: 9,
-                        essential: true
-                    });
-                }
-            } else if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
-                let coords = layer.geojson.coordinates;
+                        this.map.flyTo({
+                            center: pt,
+                            zoom: 9,
+                            essential: true
+                        });
+                    }
+                } else if (this.geometryType === "MULTIPOLYGON" || this.geometryType === "POLYGON") {
+                    let coords = layer.geojson.coordinates;
 
-                if (coords) {
-                    let bounds = new LngLatBounds();
-                    coords.forEach(polys => {
-                        polys.forEach(subpoly => {
-                            subpoly.forEach(coord => {
-                                bounds.extend(coord);
+                    if (coords) {
+                        let bounds = new LngLatBounds();
+                        coords.forEach(polys => {
+                            polys.forEach(subpoly => {
+                                subpoly.forEach(coord => {
+                                    bounds.extend(coord);
+                                });
                             });
                         });
-                    });
 
-                    this.map.fitBounds(bounds, {
-                        padding: 20
-                    });
-                }
-            } else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
-                let coords = layer.geojson.coordinates;
+                        this.map.fitBounds(bounds, {
+                            padding: 20
+                        });
+                    }
+                } else if (this.geometryType === "LINE" || this.geometryType === "MULTILINE") {
+                    let coords = layer.geojson.coordinates;
 
-                if (coords) {
-                    let bounds = new LngLatBounds();
-                    coords.forEach(lines => {
-                        lines.forEach(subline => {
-                            subline.forEach(coord => {
-                                bounds.extend(coord);
+                    if (coords) {
+                        let bounds = new LngLatBounds();
+                        coords.forEach(lines => {
+                            lines.forEach(subline => {
+                                subline.forEach(coord => {
+                                    bounds.extend(coord);
+                                });
                             });
                         });
-                    });
 
-                    this.map.fitBounds(bounds, {
-                        padding: 20
-                    });
+                        this.map.fitBounds(bounds, {
+                            padding: 20
+                        });
+                    }
                 }
             }
         });

@@ -77,7 +77,6 @@ export class GeoObjectEditorMapComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.map.remove();
         this.geomService.destroy();
     }
 

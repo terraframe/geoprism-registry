@@ -15,7 +15,7 @@ import { AbstractAction, ChangeRequest, CreateGeoObjectAction, UpdateAttributeAc
 import { ActionTypes } from "@registry/model/constants";
 import { GeoObjectOverTime } from "@registry/model/registry";
 
-import { ChangeRequestService } from "@registry/service";
+import { ChangeRequestService, GeometryService } from "@registry/service";
 import { LocalizationService, AuthService, EventService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
@@ -102,7 +102,7 @@ export class RequestTableComponent {
 
     isValid: boolean = true;    
 
-    constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
+    constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
         private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
         this.columns = [
             { name: localizationService.decode("change.request.user"), prop: "createdBy", sortable: false },
@@ -211,6 +211,8 @@ export class RequestTableComponent {
     }
 
     refresh(pageNumber: number = 1): void {
+        this.geomService.destroy();
+
         this.service.getAllRequests(this.page.pageSize, pageNumber, this.filterCriteria, this.oid).then(requests => {
             this.page = requests;
             this.requests = requests.resultSet;
@@ -233,6 +235,8 @@ export class RequestTableComponent {
 
     onSelect(selected: any): void {
         // this.request = selected.selected;
+
+        this.geomService.destroy();
 
         this.service.getAllRequests(this.page.pageSize, 1, "ALL", this.oid).then(requests => {
             this.requests = requests.resultSet;

@@ -10,6 +10,7 @@ import {
 
 import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
+import { GeometryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeTermType, Term, HierarchyOverTime } from "@registry/model/registry";
@@ -118,12 +119,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     geometryAttributeType: AttributeType;
 
-    constructor(private lService: LocalizationService, private authService: AuthService, private dateService: DateService) {
+    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
         this.isContributorOnly = this.authService.isContributerOnly();
-    }
-
-    stringify(input: any): string {
-        return JSON.stringify(input);
     }
 
     ngOnInit(): void {
@@ -158,6 +155,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     changePage(nextPage: number): void {
+        this.geomService.destroy(false);
+        
         this.tabIndex = nextPage;
 
         if (nextPage === 2) {
