@@ -289,6 +289,9 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       }
 
       this.component.service.getParentGeoObjects(e.item.uid, type.code, parentTypes, true, date).then(ancestors => {
+          // First filter the response for ancestors of only the correct hierarchy
+          ancestors.parents = ancestors.parents.filter(p => p.hierarchyType === this.component.hierarchy.code);
+
           delete entry.parents[type.code].goCode;
           entry.parents[type.code].geoObject = ancestors.geoObject;
           entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue + " : " + ancestors.geoObject.properties.code;
@@ -298,7 +301,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               let ancestor = ancestors;
 
               while (ancestor != null && ancestor.geoObject.properties.type !== current.code) {
-                  if (ancestor.parents.length > 0 && ancestors.parents[0].hierarchyType === this.component.hierarchy.code) {
+                  if (ancestor.parents.length > 0) {
                       ancestor = ancestor.parents[0];
                   } else {
                       ancestor = null;
