@@ -131,6 +131,12 @@ export class ValueOverTimeEditPropagator {
           } else if (this.component.attributeType.type === "date") {
               value = new Date(value).getTime();
           }
+      } else if (value == null) {
+          if (this.component.attributeType.type === "geometry") {
+              value = this.component.geomService.createEmptyGeometryValue();
+          } else if (this.component.attributeType.type === "character") {
+              value = "";
+          }
       }
 
       if (this.action.actionType === "UpdateAttributeAction") {
@@ -155,7 +161,7 @@ export class ValueOverTimeEditPropagator {
               }
           }
 
-          if (this.areValuesEqual(this.diff.oldValue, value)) {
+          if (this.diff.action !== "CREATE" && this.areValuesEqual(this.diff.oldValue, value)) {
               delete this.diff.newValue;
               delete this.view.oldValue;
           } else {
@@ -255,6 +261,10 @@ export class ValueOverTimeEditPropagator {
           return val1 === val2;
       }
 
+      if ((val1 === "" && val2 == null) || (val2 === "" && val1 == null)) {
+          return true;
+      }
+
       if (!val1 && !val2) {
           return true;
       } else if ((!val1 && val2) || (!val2 && val1)) {
@@ -281,10 +291,34 @@ export class ValueOverTimeEditPropagator {
       return val1 === val2;
   }
 
+  recalculateView(): void {
+      if (this.diff === null) {
+          if (this.action.actionType === "UpdateAttributeAction") {
+              if (this.valueOverTime != null) {
+                  this.view.value = this.valueOverTime.value != null ? JSON.parse(JSON.stringify(this.valueOverTime.value)) : null;
+                  this.view.startDate = this.valueOverTime.startDate;
+                  this.view.endDate = this.valueOverTime.endDate;
+
+                  delete this.view.oldValue;
+                  delete this.view.oldStartDate;
+                  delete this.view.oldEndDate;
+              }
+          } else {
+              // TODO
+          }
+      }
+
+      this.view.calculateSummaryKey(this.diff);
+  }
+
   public remove(): void {
+      if (this.component.geomService.isEditing()) {
+          this.component.geomService.stopEditing();
+      }
+
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff != null && this.diff.action === "CREATE") {
-        // Its a new entry, just remove the diff from the diff array
+              // Its a new entry, just remove the diff from the diff array
               let updateAction: UpdateAttributeAction = this.action as UpdateAttributeAction;
 
               const index = updateAction.attributeDiff.valuesOverTime.findIndex(vot => vot.oid === this.diff.oid);
@@ -292,6 +326,14 @@ export class ValueOverTimeEditPropagator {
               if (index > -1) {
                   updateAction.attributeDiff.valuesOverTime.splice(index, 1);
               }
+          } else if (this.diff != null) {
+              delete this.diff.newValue;
+              delete this.diff.newStartDate;
+              delete this.diff.newEndDate;
+              this.removeEmptyDiff();
+              this.component.onActionChange(this.action);
+              this.recalculateView();
+              return;
           } else if (this.valueOverTime != null && this.diff == null) {
               this.diff = new ValueOverTimeDiff();
               this.diff.action = "DELETE";
@@ -300,31 +342,6 @@ export class ValueOverTimeEditPropagator {
               this.diff.oldStartDate = this.valueOverTime.startDate;
               this.diff.oldEndDate = this.valueOverTime.endDate;
               (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
-          } else if (this.diff != null) {
-              if (this.diff.action === "DELETE") {
-                  let index = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.findIndex(diff => { return diff.oid === this.diff.oid; });
-
-                  if (index !== -1) {
-                      (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.splice(index, 1);
-                      this.diff = null;
-                  }
-              } else if (this.valueOverTime != null) {
-                  this.diff.action = "DELETE";
-                  this.diff.oid = this.valueOverTime.oid;
-                  delete this.diff.newValue;
-                  delete this.diff.newStartDate;
-                  delete this.diff.newEndDate;
-                  this.diff.oldValue = this.valueOverTime.value;
-                  this.diff.oldStartDate = this.valueOverTime.startDate;
-                  this.diff.oldEndDate = this.valueOverTime.endDate;
-
-                  this.view.startDate = this.diff.oldStartDate;
-                  this.view.endDate = this.diff.oldEndDate;
-                  this.view.value = this.diff.oldValue;
-                  delete this.view.oldStartDate;
-                  delete this.view.oldEndDate;
-                  delete this.view.oldValue;
-              }
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           let votc = (this.action as CreateGeoObjectAction).geoObjectJson.attributes[this.component.attributeType.code].values;
@@ -356,6 +373,8 @@ export class ValueOverTimeEditPropagator {
       } else if (this.component.attributeType.type === "geometry") {
           if (this.component.viewModels.length > 0) {
               this.value = JSON.parse(JSON.stringify(this.component.viewModels[this.component.viewModels.length - 1].value));
+          } else {
+              this.value = this.component.geomService.createEmptyGeometryValue();
           }
       } else if (this.component.attributeType.type === "term") {
           let terms = this.component.getGeoObjectTypeTermAttributeOptions(this.component.attributeType.code);
@@ -363,6 +382,8 @@ export class ValueOverTimeEditPropagator {
           if (terms && terms.length > 0) {
               this.value = terms[0].code;
           }
+      } else {
+          this.value = null;
       }
 
       this.view.summaryKey = SummaryKey.NEW;

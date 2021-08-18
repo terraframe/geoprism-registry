@@ -169,7 +169,9 @@
                                             <localize key="geoobject.editor.geometry.latitude.label"></localize>
                                           </h5>
                                           <div class="text-left">
-                                              <input [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][1]"
+                                              <input *ngIf="viewModel.value.coordinates && viewModel.value.coordinates[0]" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][1]"
+                                                (change)="manualCoordinateChange(viewModel)" required />
+                                              <input *ngIf="viewModel.value.coordinates == null || viewModel.value.coordinates[0] == null" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.newCoordinateY"
                                                 (change)="manualCoordinateChange(viewModel)" required />
                                           </div>
                                           <div *ngIf="viewModel.coordinate && viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid">
@@ -183,7 +185,9 @@
                                             <localize key="geoobject.editor.geometry.longitude.label"></localize>
                                           </h5>
                                           <div class="text-left">
-                                              <input [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="longitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][0]"
+                                              <input *ngIf="viewModel.value.coordinates && viewModel.value.coordinates[0]" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="longitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][0]"
+                                                (change)="manualCoordinateChange(viewModel)" required />
+                                              <input *ngIf="viewModel.value.coordinates == null || viewModel.value.coordinates[0] == null" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.newCoordinateX"
                                                 (change)="manualCoordinateChange(viewModel)" required />
                                           </div>
                                           <div *ngIf="viewModel.coordinate && viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid">
@@ -244,9 +248,8 @@
 	                          
 	                        </td>
 	                        
-	                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize">
-	                          <i *ngIf="viewModel.summaryKey !== 'DELETE'" class="fa fa-times" ></i>
-	                          <i *ngIf="viewModel.summaryKey === 'DELETE'" class="fa fa-undo" ></i>
+	                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
+	                          <i class="fa" [class]="{'fa-times' : viewModel.summaryKey === 'UNMODIFIED', 'fa-undo' : viewModel.summaryKey !== 'UNMODIFIED'}" ></i>
 	                        </td>
 	                      </tr>
 	                    </ng-container>

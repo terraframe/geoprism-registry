@@ -53,8 +53,11 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               delete this.view.oldStartDate;
           } else {
               this.diff.newStartDate = startDate;
-              this.view.oldStartDate = this.diff.oldStartDate;
+              this.view.oldStartDate = this.convertDateForDisplay(this.diff.oldStartDate);
           }
+
+          // If no changes have been made then remove the diff
+          this.removeEmptyDiff();
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.hierarchyEntry.startDate = startDate;
       }
@@ -103,8 +106,11 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               delete this.view.oldEndDate;
           } else {
               this.diff.newEndDate = endDate;
-              this.view.oldEndDate = this.diff.oldEndDate;
+              this.view.oldEndDate = this.convertDateForDisplay(this.diff.oldEndDate);
           }
+
+          // If no changes have been made then remove the diff
+          this.removeEmptyDiff();
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.hierarchyEntry.endDate = endDate;
       }
@@ -172,6 +178,9 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
           }
 
           this.diff.parents = parents;
+
+          // If no changes have been made then remove the diff
+          this.removeEmptyDiff();
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           this.hierarchyEntry.parents = parents;
       }
@@ -289,6 +298,9 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       }
 
       this.component.service.getParentGeoObjects(e.item.uid, type.code, parentTypes, true, date).then(ancestors => {
+          // First filter the response for ancestors of only the correct hierarchy
+          ancestors.parents = ancestors.parents.filter(p => p.hierarchyType === this.component.hierarchy.code);
+
           delete entry.parents[type.code].goCode;
           entry.parents[type.code].geoObject = ancestors.geoObject;
           entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue + " : " + ancestors.geoObject.properties.code;
@@ -345,12 +357,47 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       }
   }
 
-  public remove(): void {
-      let immediateType: string = this.component.hierarchy.types[this.component.hierarchy.types.length - 1].code;
+  recalculateView(): void {
+      if (this.diff === null) {
+          if (this.action.actionType === "UpdateAttributeAction") {
+              if (this.hierarchyEntry != null) {
+                  this.view.value = JSON.parse(JSON.stringify({ parents: this.hierarchyEntry.parents, loading: {} }));
+                  this.view.startDate = this.hierarchyEntry.startDate;
+                  this.view.endDate = this.hierarchyEntry.endDate;
 
+                  delete this.view.oldValue;
+                  delete this.view.oldStartDate;
+                  delete this.view.oldEndDate;
+              }
+          } else {
+              // TODO
+          }
+      }
+
+      this.view.calculateSummaryKey(this.diff);
+  }
+
+  public remove(): void {
       if (this.action.actionType === "UpdateAttributeAction") {
-          if (this.hierarchyEntry != null && this.diff == null) {
-              let currentImmediateParent: GeoObject = this.hierarchyEntry.parents[immediateType].geoObject;
+          if (this.diff != null && this.diff.action === "CREATE") {
+              // Its a new entry, just remove the diff from the diff array
+              let updateAction: UpdateAttributeAction = this.action as UpdateAttributeAction;
+
+              const index = updateAction.attributeDiff.valuesOverTime.findIndex(vot => vot.oid === this.diff.oid);
+
+              if (index > -1) {
+                  updateAction.attributeDiff.valuesOverTime.splice(index, 1);
+              }
+          } else if (this.diff != null) {
+              delete this.diff.newValue;
+              delete this.diff.newStartDate;
+              delete this.diff.newEndDate;
+              this.removeEmptyDiff();
+              this.component.onActionChange(this.action);
+              this.recalculateView();
+              return;
+          } else if (this.hierarchyEntry != null && this.diff == null) {
+              let currentImmediateParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry).geoObject;
               let oldValue: string = currentImmediateParent == null ? null : currentImmediateParent.properties.type + "_~VST~_" + currentImmediateParent.properties.code;
 
               this.diff = new ValueOverTimeDiff();
@@ -361,44 +408,12 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               this.diff.oldEndDate = this.hierarchyEntry.endDate;
               (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
               (this.action as UpdateAttributeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
-          } else if (this.diff != null) {
-              if (this.diff.action === "DELETE") {
-                  let index = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.findIndex(diff => { return diff.oid === this.diff.oid; });
-
-                  if (index !== -1) {
-                      (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.splice(index, 1);
-                      this.diff = null;
-                  }
-              } else if (this.hierarchyEntry != null) {
-                  let currentImmediateParent: GeoObject = this.hierarchyEntry.parents[immediateType].geoObject;
-                  let oldValue: string = currentImmediateParent == null ? null : currentImmediateParent.properties.type + "_~VST~_" + currentImmediateParent.properties.code;
-
-                  this.diff.action = "DELETE";
-                  this.diff.oid = this.hierarchyEntry.oid;
-                  delete this.diff.newValue;
-                  delete this.diff.newStartDate;
-                  delete this.diff.newEndDate;
-                  this.diff.oldValue = oldValue;
-                  this.diff.oldStartDate = this.hierarchyEntry.startDate;
-                  this.diff.oldEndDate = this.hierarchyEntry.endDate;
-
-                  this.view.startDate = this.diff.oldStartDate;
-                  this.view.endDate = this.diff.oldEndDate;
-//          this.view.value = this.diff.oldValue;
-                  this.view.value = { parents: this.diff.oldParents, loading: {} };
-
-                  delete this.view.oldStartDate;
-                  delete this.view.oldEndDate;
-                  delete this.view.oldValue;
-              }
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
-          let votc = (this.action as CreateGeoObjectAction).parentJson.entries[immediateType];
-
-          let index = votc.findIndex((vot) => { return vot.oid === this.hierarchyEntry.oid; });
+          let index = (this.action as CreateGeoObjectAction).parentJson.entries.findIndex(vot => vot.oid === this.hierarchyEntry.oid);
 
           if (index !== -1) {
-              votc.splice(index, 1);
+              (this.action as CreateGeoObjectAction).parentJson.entries.splice(index, 1);
           }
       }
 

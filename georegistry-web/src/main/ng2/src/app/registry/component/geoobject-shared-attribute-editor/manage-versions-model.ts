@@ -35,6 +35,8 @@ export class VersionDiffView extends ValueOverTime {
   newLayer: Layer = null;
   oldLayer: Layer = null;
   coordinate?: any;
+  newCoordinateX?: any;
+  newCoordinateY? : any;
   editPropagator: ValueOverTimeEditPropagator;
 
   constructor(component: ManageVersionsComponent, action: AbstractAction)
