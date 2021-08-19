@@ -21,6 +21,10 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   }
 
   set startDate(startDate: string) {
+      if (this.diff != null && this.diff.action === "DELETE") {
+          return; // There are various view components (like the date widgets) which will invoke this method
+      }
+
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff == null) {
               if (this.hierarchyEntry == null) {
@@ -74,6 +78,10 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   }
 
   set endDate(endDate: string) {
+      if (this.diff != null && this.diff.action === "DELETE") {
+          return; // There are various view components (like the date widgets) which will invoke this method
+      }
+
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff == null) {
               if (this.hierarchyEntry == null) {
@@ -127,6 +135,10 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   }
 
   setParentValue(type: {code: string, label: string}, parents: { [k: string]: HierarchyOverTimeEntryParent }) {
+      if (this.diff != null && this.diff.action === "DELETE") {
+          return; // There are various view components (like the date widgets) which will invoke this method
+      }
+
       let directParent: GeoObject = null;
       if (type != null) {
           directParent = parents[type.code].geoObject;
