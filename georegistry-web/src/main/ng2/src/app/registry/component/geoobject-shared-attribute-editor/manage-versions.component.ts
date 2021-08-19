@@ -16,7 +16,7 @@ import {
     transition
 } from "@angular/animations";
 import { HttpErrorResponse } from "@angular/common/http";
-import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, AttributeTermType, HierarchyOverTime, HierarchyOverTimeEntry } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, AttributeTermType, HierarchyOverTime, HierarchyOverTimeEntry, GeoObject } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { ConflictType, ActionTypes, GovernanceStatus } from "@registry/model/constants";
@@ -515,7 +515,7 @@ export class ManageVersionsComponent implements OnInit {
                 console.log("Unexpected action : " + action.actionType, action);
             }
         }
-        
+
         console.log(this.viewModels);
     }
 
@@ -544,10 +544,24 @@ export class ManageVersionsComponent implements OnInit {
 
             if (votDiff.oldValue != null) {
                 let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
-                // let oldTypeCode: string = oldCodeArray[0];
+                let oldTypeCode: string = oldCodeArray[0];
                 let oldGoCode: string = oldCodeArray[1];
 
                 view.oldValue = oldGoCode;
+
+                let len = this.hierarchy.types.length;
+                for (let i = len - 1; i >= 0; --i) {
+                    let type = this.hierarchy.types[i];
+
+                    if (Object.prototype.hasOwnProperty.call(votDiff.parents, type.code)) {
+                        let lowestLevel = votDiff.parents[type.code];
+
+                        if (lowestLevel.text == null || lowestLevel.text.length === 0) {
+                            lowestLevel.text = oldGoCode + " : " + oldTypeCode;
+                            break;
+                        }
+                    }
+                }
             }
         } else {
             if (votDiff.newValue != null) {

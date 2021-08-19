@@ -154,7 +154,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
                   (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
               } else {
                   // let currentDirectParent: GeoObject = this.hierarchyEntry.parents[type.code].geoObject;
-                  let currentDirectParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry).geoObject;
+                  let currentDirectParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry.parents).geoObject;
                   let oldValue: string = currentDirectParent == null ? null : currentDirectParent.properties.type + "_~VST~_" + currentDirectParent.properties.code;
 
                   if (
@@ -204,13 +204,13 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       this.component.onActionChange(this.action);
   }
 
-  getLowestLevelFromHierarchyEntry(entry: HierarchyOverTimeEntry): {geoObject: GeoObject, text: string} {
+  public getLowestLevelFromHierarchyEntry(parents: any): {geoObject: GeoObject, text: string} {
       let len = this.component.hierarchy.types.length;
       for (let i = len - 1; i >= 0; --i) {
           let type = this.component.hierarchy.types[i];
 
-          if (Object.prototype.hasOwnProperty.call(entry.parents, type.code) && entry.parents[type.code].geoObject) {
-              return entry.parents[type.code];
+          if (Object.prototype.hasOwnProperty.call(parents, type.code) && parents[type.code].geoObject) {
+              return parents[type.code];
           }
       }
 
@@ -409,7 +409,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
               this.recalculateView();
               return;
           } else if (this.hierarchyEntry != null && this.diff == null) {
-              let currentImmediateParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry).geoObject;
+              let currentImmediateParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry.parents).geoObject;
               let oldValue: string = currentImmediateParent == null ? null : currentImmediateParent.properties.type + "_~VST~_" + currentImmediateParent.properties.code;
 
               this.diff = new ValueOverTimeDiff();
