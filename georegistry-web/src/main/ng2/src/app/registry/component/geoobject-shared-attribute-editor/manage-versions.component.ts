@@ -544,7 +544,7 @@ export class ManageVersionsComponent implements OnInit {
 
             if (votDiff.oldValue != null) {
                 let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
-                let oldTypeCode: string = oldCodeArray[0];
+                // let oldTypeCode: string = oldCodeArray[0];
                 let oldGoCode: string = oldCodeArray[1];
 
                 view.oldValue = oldGoCode;
@@ -557,7 +557,7 @@ export class ManageVersionsComponent implements OnInit {
                         let lowestLevel = votDiff.parents[type.code];
 
                         if (lowestLevel.text == null || lowestLevel.text.length === 0) {
-                            lowestLevel.text = oldGoCode + " : " + oldTypeCode;
+                            lowestLevel.text = oldGoCode;
                             break;
                         }
                     }
