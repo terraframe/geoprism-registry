@@ -381,7 +381,7 @@ export class ManageVersionsComponent implements OnInit {
                 if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
                     let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
 
-                    if (this.attributeType.code === updateAttrAction.attributeName) {
+                    if (this.attributeType.code === updateAttrAction.attributeName && (this.attributeType.type !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === this.hierarchy.code)) {
                         this.editAction = action;
                     }
                 }
@@ -515,8 +515,6 @@ export class ManageVersionsComponent implements OnInit {
                 console.log("Unexpected action : " + action.actionType, action);
             }
         }
-
-        console.log(this.viewModels);
     }
 
     populateViewFromDiff(view: VersionDiffView, votDiff: ValueOverTimeDiff) {
