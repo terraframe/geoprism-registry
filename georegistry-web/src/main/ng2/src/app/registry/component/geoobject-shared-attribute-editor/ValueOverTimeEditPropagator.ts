@@ -30,6 +30,10 @@ export class ValueOverTimeEditPropagator {
   }
 
   set startDate(startDate: string) {
+      if (this.diff != null && this.diff.action === "DELETE") {
+          return; // There are various view components (like the date widgets) which will invoke this method
+      }
+
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff == null) {
               if (this.valueOverTime == null) {
@@ -77,6 +81,10 @@ export class ValueOverTimeEditPropagator {
   }
 
   set endDate(endDate: string) {
+      if (this.diff != null && this.diff.action === "DELETE") {
+          return; // There are various view components (like the date widgets) which will invoke this method
+      }
+
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff == null) {
               if (this.valueOverTime == null) {
@@ -125,6 +133,10 @@ export class ValueOverTimeEditPropagator {
   }
 
   set value(value: any) {
+      if (this.diff != null && this.diff.action === "DELETE") {
+          return; // There are various view components (like the date widgets) which will invoke this method
+      }
+
       if (value != null) {
           if (this.component.attributeType.type === "term") {
               value = [value];

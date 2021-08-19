@@ -394,52 +394,54 @@ export class ManageVersionsComponent implements OnInit {
 
         this.viewModels = [];
 
-      // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
-      // on the GeoObject
-        if (this.attributeType.type === "_PARENT_") {
-            this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
-                let view = new VersionDiffView(this, this.editAction);
+        // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
+        // on the GeoObject
+        if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL")) {
+            if (this.attributeType.type === "_PARENT_") {
+                this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
+                    let view = new VersionDiffView(this, this.editAction);
 
-                view.oid = entry.oid;
-                view.summaryKey = SummaryKey.UNMODIFIED;
-                view.startDate = entry.startDate;
-                view.endDate = entry.endDate;
-                view.value = JSON.parse(JSON.stringify(entry));
-                view.value.loading = {};
+                    view.oid = entry.oid;
+                    view.summaryKey = SummaryKey.UNMODIFIED;
+                    view.startDate = entry.startDate;
+                    view.endDate = entry.endDate;
+                    view.value = JSON.parse(JSON.stringify(entry));
+                    view.value.loading = {};
 
-                view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry);
+                    view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry);
 
-                // In the corner case where this object isn't assigned to the lowest level, we may have
-                // empty values in our parents array for some of the types. Our front-end assumes there
-                // will always be an entry for all the types.
-                let len = this.hierarchy.types.length;
-                for (let i = 0; i < len; ++i) {
-                    let type = this.hierarchy.types[i];
+                    // In the corner case where this object isn't assigned to the lowest level, we may have
+                    // empty values in our parents array for some of the types. Our front-end assumes there
+                    // will always be an entry for all the types.
+                    let len = this.hierarchy.types.length;
+                    for (let i = 0; i < len; ++i) {
+                        let type = this.hierarchy.types[i];
 
-                    if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
-                        view.value.parents[type.code] = { text: "", geoObject: null };
+                        if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
+                            view.value.parents[type.code] = { text: "", geoObject: null };
+                        }
                     }
-                }
 
-                this.viewModels.push(view);
-            });
-        } else {
-            this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
-                let view = new VersionDiffView(this, this.editAction);
+                    this.viewModels.push(view);
+                });
+            } else {
+                this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
+                    let view = new VersionDiffView(this, this.editAction);
 
-                view.oid = vot.oid;
-                view.summaryKey = SummaryKey.UNMODIFIED;
-                view.startDate = vot.startDate;
-                view.endDate = vot.endDate;
-                view.value = vot.value == null ? null : JSON.parse(JSON.stringify(vot.value));
+                    view.oid = vot.oid;
+                    view.summaryKey = SummaryKey.UNMODIFIED;
+                    view.startDate = vot.startDate;
+                    view.endDate = vot.endDate;
+                    view.value = vot.value == null ? null : JSON.parse(JSON.stringify(vot.value));
 
-                view.editPropagator.valueOverTime = vot;
+                    view.editPropagator.valueOverTime = vot;
 
-                this.viewModels.push(view);
-            });
+                    this.viewModels.push(view);
+                });
+            }
         }
 
-      // Next, we must apply all changes which may exist in the actions.
+        // Next, we must apply all changes which may exist in the actions.
         let len = this.actions.length;
         for (let i = 0; i < len; ++i) {
             let action: AbstractAction = this.actions[i];
@@ -460,7 +462,9 @@ export class ManageVersionsComponent implements OnInit {
                                 view = new VersionDiffView(this, action);
                                 this.viewModels.push(view);
 
-                                view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
+                                if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL")) {
+                                    view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
+                                }
                             }
 
                             this.populateViewFromDiff(view, votDiff);
@@ -482,7 +486,9 @@ export class ManageVersionsComponent implements OnInit {
                                 view = new VersionDiffView(this, action);
                                 this.viewModels.push(view);
 
-                                view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
+                                if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL")) {
+                                    view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
+                                }
                             }
 
                             this.populateViewFromDiff(view, votDiff);
@@ -509,71 +515,46 @@ export class ManageVersionsComponent implements OnInit {
                 console.log("Unexpected action : " + action.actionType, action);
             }
         }
+        
+        console.log(this.viewModels);
     }
 
     populateViewFromDiff(view: VersionDiffView, votDiff: ValueOverTimeDiff) {
-        if (votDiff.newValue != null) {
-            if (this.attributeType.type === "local") {
-                view.value = votDiff.newValue;
-            } else if (this.attributeType.type === "_PARENT_") {
-                view.value = (view.editPropagator as HierarchyEditPropagator).createEmptyHierarchyEntry();
-                view.value.oid = votDiff.oid;
-                view.value.startDate = votDiff.newStartDate || votDiff.oldStartDate;
-                view.value.endDate = votDiff.newEndDate || votDiff.oldEndDate;
+        if (this.attributeType.type === "_PARENT_") {
+            view.value = (view.editPropagator as HierarchyEditPropagator).createEmptyHierarchyEntry();
+            view.value.oid = votDiff.oid;
+            view.value.startDate = votDiff.newStartDate || votDiff.oldStartDate;
+            view.value.endDate = votDiff.newEndDate || votDiff.oldEndDate;
 
-                view.value.parents = votDiff.parents;
+            view.value.parents = votDiff.parents;
 
-                // In the corner case where this object isn't assigned to the lowest level, we may have
-                // empty values in our parents array for some of the types. Our front-end assumes there
-                // will always be an entry for all the types.
-                let len = this.hierarchy.types.length;
-                for (let i = 0; i < len; ++i) {
-                    let type = this.hierarchy.types[i];
+            // In the corner case where this object isn't assigned to the lowest level, we may have
+            // empty values in our parents array for some of the types. Our front-end assumes there
+            // will always be an entry for all the types.
+            let len = this.hierarchy.types.length;
+            for (let i = 0; i < len; ++i) {
+                let type = this.hierarchy.types[i];
 
-                    if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
-                        view.value.parents[type.code] = { text: "", geoObject: null };
-                    }
+                if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
+                    view.value.parents[type.code] = { text: "", geoObject: null };
                 }
-
-                view.value.loading = {};
-
-                if (votDiff.oldValue != null) {
-                    let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
-                    // let oldTypeCode: string = oldCodeArray[0];
-                    let oldGoCode: string = oldCodeArray[1];
-
-                    view.oldValue = oldGoCode;
-                }
-            } else {
-                view.value = votDiff.newValue;
             }
 
-            view.oldValue = votDiff.oldValue;
+            view.value.loading = {};
+
+            if (votDiff.oldValue != null) {
+                let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
+                // let oldTypeCode: string = oldCodeArray[0];
+                let oldGoCode: string = oldCodeArray[1];
+
+                view.oldValue = oldGoCode;
+            }
         } else {
-            if (this.attributeType.type === "_PARENT_") {
-                view.value = this.createEmptyHierarchyEntry();
-
-                this.hierarchy.entries.forEach(entry => {
-                    if (entry.oid === votDiff.oid) {
-                        view.value = JSON.parse(JSON.stringify(entry));
-                    }
-                });
-
-                  // if (votDiff.oldValue != null)
-                  // {
-                  //  let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
-                  //  let oldTypeCode: string = oldCodeArray[0];
-                  //  let oldGoCode: string = oldCodeArray[1];
-
-                  //  view.oldValue = oldGoCode;
-                  // }
+            if (votDiff.newValue != null) {
+                view.value = JSON.parse(JSON.stringify(votDiff.newValue));
+                view.oldValue = votDiff.oldValue == null ? null : JSON.parse(JSON.stringify(votDiff.oldValue));
             } else {
-                view.value = votDiff.oldValue;
-
-                  // if (votDiff.oldValue != null)
-                  // {
-                  //  view.oldValue = votDiff.oldValue;
-                  // }
+                view.value = votDiff.oldValue == null ? null : JSON.parse(JSON.stringify(votDiff.oldValue));
             }
         }
 
@@ -587,25 +568,6 @@ export class ManageVersionsComponent implements OnInit {
             view.oldEndDate = votDiff.newEndDate == null ? null : votDiff.oldEndDate;
         }
         view.editPropagator.diff = votDiff;
-    }
-
-    // TODO : This code copy / pasted from HierarchyEditPropagator
-    createEmptyHierarchyEntry(): HierarchyOverTimeEntry {
-        let hierarchyEntry = new HierarchyOverTimeEntry();
-        hierarchyEntry.loading = {};
-        hierarchyEntry.oid = this.generateUUID();
-
-        hierarchyEntry.parents = {};
-
-        for (let i = 0; i < this.hierarchy.types.length; i++) {
-            let current = this.hierarchy.types[i];
-
-            hierarchyEntry.parents[current.code] = { text: "", geoObject: null };
-
-            hierarchyEntry.loading = {};
-        }
-
-        return hierarchyEntry;
     }
 
     isStatusChanged(post, pre) {
