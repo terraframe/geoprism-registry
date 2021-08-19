@@ -37,7 +37,7 @@ import Utils from "../../utility/Utils";
 
 import { VersionDiffView, Layer, LayerColor } from "./manage-versions-model";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
-import { ControlContainer, NgForm } from '@angular/forms';
+import { ControlContainer, NgForm } from "@angular/forms";
 
 @Component({
     selector: "manage-versions",
@@ -62,7 +62,7 @@ import { ControlContainer, NgForm } from '@angular/forms';
                 )
             ])
         ]],
-        viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }]
 
 })
 export class ManageVersionsComponent implements OnInit {
@@ -358,20 +358,18 @@ export class ManageVersionsComponent implements OnInit {
      */
     calculateViewModels(): void {
         if (this.isNew) {
-
-            if(this.actions.length > 0 && this.actions[0].actionType === ActionTypes.CREATEGEOOBJECTACTION) {
+            if (this.actions.length > 0 && this.actions[0].actionType === ActionTypes.CREATEGEOOBJECTACTION) {
                 this.editAction = this.actions[0];
                 const action = this.editAction as CreateGeoObjectAction;
 
-                if(action.parentJson == null) {
+                if (action.parentJson == null) {
                     action.parentJson = this.hierarchy;
-                } 
+                }
 
-                if(action.geoObjectJson == null) {
+                if (action.geoObjectJson == null) {
                     action.geoObjectJson = this.postGeoObject;
-                } 
-            }
-            else {
+                }
+            } else {
                 let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
                 createAction.geoObjectJson = this.postGeoObject;
                 createAction.parentJson = this.hierarchy;
