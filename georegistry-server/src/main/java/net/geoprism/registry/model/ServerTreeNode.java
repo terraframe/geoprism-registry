@@ -31,13 +31,16 @@ public abstract class ServerTreeNode
   private Date                startDate;
 
   private Date                endDate;
+  
+  private String              oid;
 
-  public ServerTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType, Date startDate, Date endDate)
+  public ServerTreeNode(ServerGeoObjectIF geoObject, ServerHierarchyType hierarchyType, Date startDate, Date endDate, String oid)
   {
     this.geoObject = geoObject;
     this.hierarchyType = hierarchyType;
     this.startDate = startDate;
     this.endDate = endDate;
+    this.oid = oid;
   }
 
   public ServerGeoObjectIF getGeoObject()
@@ -68,6 +71,16 @@ public abstract class ServerTreeNode
   public Date getEndDate()
   {
     return endDate;
+  }
+  
+  public String getOid()
+  {
+    return oid;
+  }
+
+  public void setOid(String oid)
+  {
+    this.oid = oid;
   }
 
   public abstract TreeNode toNode(boolean enforcePermissions);

@@ -103,11 +103,11 @@
             </div>
         </div>
         <div class="row form-group">
-            <div *ngIf="list"  class="col-md-12 table-responsive" id="list-view-table" style="max-height:calc(100vh - 399px);">
+            <div *ngIf="list"  class="col-md-12 table-responsive text-nowrap" id="list-view-table" style="max-height:calc(100vh - 399px);">
                 <table class="list-table table table-bordered table-striped"  >
                     <thead style="position: sticky;top: 0;background: #ececec;">
                         <tr>
-                            <th style="width: 3%;position: sticky;top: 0 " class="label-column"><localize key="masterlist.view.column"></localize></th>
+                            <th style="width: 3%;position: sticky;top: 0;" class="label-column"><localize key="masterlist.view.column"></localize></th>
                             <th style="position: sticky;top: 0" *ngFor="let attribute of list.attributes" class="label-column">
 
                                 <div style="display: table-cell; padding-right: 10px; vertical-align: middle;" *ngIf="isFilterable(attribute)">

@@ -34,10 +34,46 @@ import net.geoprism.registry.geoobject.ServerGeoObjectService;
 @Controller(url = "geoobject-editor")
 public class GeoObjectEditorController
 {
+  /**
+   * Submits an edit to a Geo-Object. If you are a Registry Contributor, this will create a ChangeRequest with a CreateGeoObjectAction. If you
+   * have edit permissions, this will attempt to create the Geo-Object immediately. If you do not have permissions for either a {@link net.geoprism.registry.CGRPermissionException}
+   * exception will be thrown.
+   * 
+   * @param parentTreeNode A serialized ParentTreeNodeOverTime, which specifies the parent information.
+   * @param geoObject A serialized GeoObjectOverTime, which specifies the GeoObject to create.
+   * @param masterListId If this should also refresh a master list after editing, you may provide that master list id here.
+   * @param notes If you are attempting to create a Change Request, you may provide notes for that request here.
+   * @throws net.geoprism.registry.CGRPermissionException
+   * @return A JsonObject with {isChangeRequest: Boolean, changeRequestId: String}
+   * @throws JSONException
+   * @throws net.geoprism.registry.CGRPermissionException
+   */
   @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "isNew") Boolean isNew, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
+  public ResponseIF createGeoObject(ClientRequestIF request, @RequestParamter(name = "parentTreeNode") String parentTreeNode, @RequestParamter(name = "geoObject") String geoObject, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
   {
-    JsonObject resp = new ServerGeoObjectService().masterListEdit(request.getSessionId(), parentTreeNode, geoObject, isNew, masterListId, notes);
+    JsonObject resp = new ServerGeoObjectService().createGeoObject(request.getSessionId(), parentTreeNode, geoObject, masterListId, notes);
+
+    return new RestBodyResponse(resp);
+  }
+  
+  /**
+   * Submits an update to an existing Geo-Object. If you are a Registry Contributor, this will create a ChangeRequest with an UpdateAttributeAction. If you
+   * have edit permissions, this will attempt to apply the edit immediately. If you do not have permissions for either a {@link net.geoprism.registry.CGRPermissionException}
+   * exception will be thrown.
+   * 
+   * @param geoObjectCode The code of the Geo-Object to update.
+   * @param geoObjectTypeCode The code of the type of the Geo-Object to update.
+   * @param actions A serialized json array containing the actions to perform on the Geo-Object.
+   * @param masterListId If this should also refresh a master list after editing, you may provide that master list id here.
+   * @param notes If you are attempting to create a Change Request, you may provide notes for that request here.
+   * @return A JsonObject with {isChangeRequest: Boolean, changeRequestId: String}
+   * @throws JSONException
+   * @throws net.geoprism.registry.CGRPermissionException
+   */
+  @Endpoint(error = ErrorSerialization.JSON)
+  public ResponseIF updateGeoObject(ClientRequestIF request, @RequestParamter(name = "geoObjectCode") String geoObjectCode, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "actions") String actions, @RequestParamter(name = "masterListId") String masterListId, @RequestParamter(name = "notes") String notes) throws JSONException
+  {
+    JsonObject resp = new ServerGeoObjectService().updateGeoObject(request.getSessionId(), geoObjectCode, geoObjectTypeCode, actions, masterListId, notes);
 
     return new RestBodyResponse(resp);
   }

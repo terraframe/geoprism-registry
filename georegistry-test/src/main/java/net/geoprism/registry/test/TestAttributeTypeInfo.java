@@ -157,9 +157,4 @@ public class TestAttributeTypeInfo
   {
     this.got = got;
   }
-
-  public Term getRootTerm()
-  {
-    return ( (AttributeTermType) this.fetchDTO() ).getRootTerm();
-  }
 }

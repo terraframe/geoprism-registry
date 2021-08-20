@@ -4,12 +4,13 @@
     <geoobject-shared-attribute-editor 
       #attributeEditor 
       [geoObjectType]="type" 
-      [preGeoObject]="preGeoObject" 
       [postGeoObject]="postGeoObject" 
       [forDate]="this.forDate" 
       [isNew]="isNew" 
       [isEditingGeometries]="false" 
+      [isGeometryInlined]="false"
       [customEvent]="true"
+      [hierarchies]="hierarchies"
       (onManageVersion)="onManageAttributeVersion($event)" 
       (onChange)="onAttributeChange($event)" 
       [readOnly]="!isEdit"
@@ -18,6 +19,7 @@
       > 
     </geoobject-shared-attribute-editor>
     
+    <!--
     <div *ngIf="isEdit" class="panel panel-default">
       <div class="panel-heading">
         <h4 style="margin:0;">
@@ -32,10 +34,13 @@
         </div>
       </div>
     </div>
-
+    -->
+    
+    <!--
     <div *ngIf="hierarchies != null">
       <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="this.forDate" [hierarchy]="hierarchy" [readOnly]="!isEdit" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
     </div>
+    -->
     
     <div *ngIf="isEdit && !isMaintainer" class="form-group" style="z-index: 0;">
       <label> 
@@ -58,8 +63,8 @@
 
     </div>
   </div>
+  <!--
   <div *ngIf="mode == MODE.VERSIONS && attribute != null">
-    <!-- Attributes tab -->
     <manage-versions 
       [attribute]="attribute"
       [geoObjectType]="type"
@@ -69,14 +74,12 @@
     </manage-versions>
   </div>
   <div *ngIf="mode == MODE.HIERARCHY && hierarchy != null">
-    <!-- Attributes tab -->
     <manage-parent-versions 
       [hierarchy]="hierarchy"
       (onChange)="onHierarchyChange($event)">
     </manage-parent-versions>
   </div>
   <div *ngIf="mode == MODE.GEOMETRY">
-    <!-- Attributes tab -->
     <geometry-panel 
       [geoObjectType]="type"
       [geoObjectOverTimeInput]="postGeoObject"
@@ -86,4 +89,5 @@
       (onCloneGeometry)="onCloneGeometry($event)">
     </geometry-panel>
   </div>
+  -->
 </div>

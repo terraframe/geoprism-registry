@@ -471,6 +471,12 @@ li.list-group-item.active {
 	vertical-align: middle;
 	padding-top: 0;
     padding-bottom: 0;
+    white-space: normal;
+}
+.list-table thead .label-column {
+	padding-top: 8px;
+    padding-bottom: 8px;
+    white-space: nowrap;
 }
 .list-table .description-column {
 	width: 25%;
@@ -920,6 +926,7 @@ tree-loading-component {
 
 .attribute-version-wrapper table {
 	width: 100%;
+    margin-bottom: 0;
 }
 
 .attribute-version-wrapper .attribute-element-wrapper .attribute-value-row tr td {
@@ -951,7 +958,7 @@ tree-loading-component {
 
 .manage-version-button {
 	vertical-align:middle !important; 
-	width:10%; 
+//	width:10%; 
 	padding:5px; 
 	text-align:center;
 	background-color:#e7e7e7;
@@ -1030,3 +1037,5 @@ td.clickable:focus {
 	display:inline-block;
 	color: grey;
 }
+
+

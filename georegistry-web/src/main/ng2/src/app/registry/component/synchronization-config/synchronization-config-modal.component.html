@@ -120,7 +120,7 @@
 									  </div>
 									  <div>
                       <a *ngIf="levelRow.level.geoObjectType && (levelRow.level.type === 'ORG_UNITS' || levelRow.level.type === 'ALL')" style="padding: 10px;" (click)="configureAttributes(levelRow)" [title]="'sync.attr.configureAttributes.helptext' | localize">
-                        <icon class="fa fa-edit"></icon>
+                        <i class="fa fa-edit"></i>
                         <label style="cursor:pointer; margin-left:3px;"><localize key="sync.attr.attributes.editButton"></localize></label>
                       </a> 
                     </div>
@@ -159,7 +159,7 @@
 	                            <tbody>
 	                              <tr>
 	                                <td style="width:5%">
-	                                  <icon (click)="deleteMapping(levelRow, mappingIndex)" class="fa fa-times"></icon>
+	                                  <i (click)="deleteMapping(levelRow, mappingIndex)" class="fa fa-times"></i>
 	                                </td>
 	                                <td style="width:23%">
 	                                  <select style="width:95%" [(ngModel)]="mapping.cgrAttrName" (change)="mapCgrAttr($event.target.selectedIndex == 0 ? null : levelRow.attrCfg.attrConfigInfos[$event.target.selectedIndex-1], mapping)" [name]="'sourceAttrSelect' + i + '-' + mappingIndex + (mapping.cgrAttrName ? mapping.cgrAttrName : '')">

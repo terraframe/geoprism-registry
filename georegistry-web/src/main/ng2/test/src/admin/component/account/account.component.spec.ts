@@ -71,7 +71,6 @@ describe("AccountComponent", () => {
 		expect(component.bsModalRef).toBeTruthy();
 		expect(component.message).toBeNull();
 		expect(component.isSRA).toBeTrue();
-		expect(component.isRA).toBeFalse();
 	}));
 
 	it(`Test Error`, async(() => {

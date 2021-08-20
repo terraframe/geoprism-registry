@@ -114,7 +114,7 @@ public class ServerParentTreeNodeOverTime
     this.type = type;
     this.hierarchies = new TreeMap<String, ServerParentTreeNodeOverTime.Hierarchy>();
   }
-
+  
   public void add(ServerHierarchyType type)
   {
     if (!this.hierarchies.containsKey(type.getCode()))
@@ -295,6 +295,8 @@ public class ServerParentTreeNodeOverTime
         }
 
         object.add(JSON_ENTRY_PARENTS, pArray);
+        
+        object.addProperty("oid", node.getOid());
 
         entries.add(object);
       }
@@ -400,8 +402,14 @@ public class ServerParentTreeNodeOverTime
             final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
   
             ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
+            
+            String oid = null;
+            if (parent.has("oid"))
+            {
+              oid = parent.get("oid").getAsString();
+            }
   
-            return new ServerParentTreeNode(pSGO, ht, startDate, endDate);
+            return new ServerParentTreeNode(pSGO, ht, startDate, endDate, oid);
           }
         }
       }

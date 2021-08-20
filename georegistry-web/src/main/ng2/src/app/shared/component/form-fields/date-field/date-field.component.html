@@ -35,9 +35,16 @@
   </div>
 </div>
 
+<div *ngIf="oldDate">
+  <p class="warning-text display-current-value">
+    <localize key="change.request.changed.value.prefix"></localize>
+    {{ oldDate }}
+  </p>
+</div>
+
 <p [hidden]="!valueIsPresent" style="font-size:14px;margin:0;"><localize key="changeovertime.manageVersions.infinity.endDate.label"></localize></p>
 
-<div *ngIf="allowInfinity" class="text-right" style="padding: 10px 0;">
+<div *ngIf="allowInfinity && !disable" class="text-right" style="padding: 10px 0;">
   <button class="btn btn-default" style="margin:0;" *ngIf="valueIsPresent" (click)="toggleInfinity()"><localize key="manage.versions.enddate.set.date.button"></localize></button> 
   <button class="btn btn-default" style="margin:0;" *ngIf="!valueIsPresent" (click)="toggleInfinity()"><localize key="manage.versions.enddate.set.current.button"></localize></button>
 </div>

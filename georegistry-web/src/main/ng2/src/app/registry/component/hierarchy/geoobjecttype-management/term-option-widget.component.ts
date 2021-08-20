@@ -1,77 +1,77 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from "@angular/core";
 import {
-  trigger,
-  state,
-  style,
-  animate,
-  transition
-} from '@angular/animations'
-import { BsModalRef } from 'ngx-bootstrap/modal';
+    trigger,
+    state,
+    style,
+    animate,
+    transition
+} from "@angular/animations";
+import { BsModalRef } from "ngx-bootstrap/modal";
 
-import { GeoObjectType, AttributeTerm, GeoObjectTypeModalStates, ManageGeoObjectTypeModalState, Term} from '@registry/model/registry';
-import { HierarchyService } from '@registry/service/hierarchy.service';
-import { GeoObjectTypeManagementService } from '@registry/service/geoobjecttype-management.service'
+import { GeoObjectType, AttributeTermType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectTypeModalStates } from "@registry/model/constants";
+import { GeoObjectTypeManagementService } from "@registry/service/geoobjecttype-management.service";
 
-@Component( {
-    selector: 'term-option-widget',
-    templateUrl: './term-option-widget.component.html',
-    styleUrls: ['./term-option-widget.css'],
+@Component({
+    selector: "term-option-widget",
+    templateUrl: "./term-option-widget.component.html",
+    styleUrls: ["./term-option-widget.css"],
     animations: [
-        trigger('toggleInputs', [
-            state('none, void', 
-                style({ 'opacity': 0})
-              ),
-              state('show', 
-                style({ 'opacity': 1})
-              ),
-              transition('none => show', animate('300ms')),
-              transition('show => none', animate('100ms'))
-        ]),
-        trigger('openClose', 
-            [
-            transition(
-                ':enter', [
-                style({ 'opacity': 0}),
-                animate('500ms', style({ 'opacity': 1}))
-                ]
+        trigger("toggleInputs", [
+            state("none, void",
+                style({ opacity: 0 })
             ),
-            transition(
-                ':leave', [
-                style({ 'opacity': 1}),
-                animate('0ms', style({'opacity': 0})),
-                
-                ]
-            )]
-      )
+            state("show",
+                style({ opacity: 1 })
+            ),
+            transition("none => show", animate("300ms")),
+            transition("show => none", animate("100ms"))
+        ]),
+        trigger("openClose",
+            [
+                transition(
+                    ":enter", [
+                        style({ opacity: 0 }),
+                        animate("500ms", style({ opacity: 1 }))
+                    ]
+                ),
+                transition(
+                    ":leave", [
+                        style({ opacity: 1 }),
+                        animate("0ms", style({ opacity: 0 }))
+
+                    ]
+                )]
+        )
     ]
-} )
+})
 export class TermOptionWidgetComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
-    @Input() attribute: AttributeTerm = null;
-    @Output() attributeChange = new EventEmitter<AttributeTerm>();
+    @Input() attribute: AttributeTermType = null;
+    @Output() attributeChange = new EventEmitter<AttributeTermType>();
     message: string = null;
-    state: string = 'none';
-    modalState: ManageGeoObjectTypeModalState = {"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption":""};
+    state: string = "none";
+    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: "" };
 
-    constructor( public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService ) {
-    }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService) { }
 
     ngOnInit(): void {
 
     }
 
     ngAfterViewInit() {
-        this.state = 'show';
+        this.state = "show";
         this.cdr.detectChanges();
     }
 
-    ngOnDestroy(){
-    
+    ngOnDestroy() {
+
     }
 
     handleOnSubmit(): void {
-        
+
     }
 
     animate(): void {
@@ -84,7 +84,7 @@ export class TermOptionWidgetComponent implements OnInit {
 
     // isValid(): boolean {
     //     if(this.termOption.code && this.termOption.code.length > 0 && this.termOption.label && this.termOption.label.length > 0){
-            
+
     //         // If code has a space
     //         if(this.termOption.code.indexOf(" ") !== -1){
     //             return false;
@@ -100,12 +100,12 @@ export class TermOptionWidgetComponent implements OnInit {
     //     else if(this.termOption.code && this.termOption.code.indexOf(" ") !== -1){
     //         return false;
     //     }
-            
+
     //     return false
     // }
 
     openAddTermOptionForm(): void {
-        this.geoObjectTypeManagementService.setModalState({"state":GeoObjectTypeModalStates.manageTermOption, "attribute":this.attribute, "termOption": ""})
+        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: "" });
+    }
 
-    }    
 }

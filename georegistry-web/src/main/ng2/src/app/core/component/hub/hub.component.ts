@@ -46,7 +46,7 @@ export class HubComponent implements OnInit {
 
     constructor(
         private service: HubService,
-        private authService: AuthService,
+        public authService: AuthService,
         private modalService: BsModalService,
         private router: Router,
         private route: ActivatedRoute,

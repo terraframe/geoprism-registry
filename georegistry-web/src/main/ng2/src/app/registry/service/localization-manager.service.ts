@@ -17,46 +17,45 @@
 /// License along with Runway SDK(tm).  If not, see <ehttp://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpResponse, HttpParams } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpClient, HttpParams } from "@angular/common/http";
 // import 'rxjs/add/operator/toPromise';
 
-import { EventService } from '@shared/service';
+import { EventService } from "@shared/service";
 
-import { AllLocaleInfo } from '@registry/model/localization-manager';
+import { AllLocaleInfo } from "@registry/model/localization-manager";
 
-declare var acp: any;
+declare let acp: any;
 
 @Injectable()
 export class LocalizationManagerService {
 
-
-    constructor( private http: HttpClient, private eventService: EventService ) { }
-
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private http: HttpClient, private eventService: EventService) { }
 
     getNewLocaleInfo(): Promise<AllLocaleInfo> {
         return this.http
-            .get<AllLocaleInfo>( acp + '/localization/getNewLocaleInformation' )
+            .get<AllLocaleInfo>(acp + "/localization/getNewLocaleInformation")
             .toPromise();
     }
 
-    installLocale( language: string, country: string, variant: string ): Promise<void> {
+    installLocale(language: string, country: string, variant: string): Promise<void> {
         let params: HttpParams = new HttpParams();
 
-        if ( language != null ) {
-            params = params.set( 'language', language );
+        if (language != null) {
+            params = params.set("language", language);
         }
 
-        if ( country != null ) {
-            params = params.set( 'country', country );
+        if (country != null) {
+            params = params.set("country", country);
         }
 
-        if ( variant != null ) {
-            params = params.set( 'variant', variant );
+        if (variant != null) {
+            params = params.set("variant", variant);
         }
 
         return this.http
-            .get<void>( acp + '/localization/installLocale', { params: params } )
+            .get<void>(acp + "/localization/installLocale", { params: params })
             .toPromise();
     }
 

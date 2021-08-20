@@ -24,7 +24,7 @@
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>0.15.0-SNAPSHOT</version>
+  <version>0.15.2-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
@@ -37,7 +37,7 @@
   </modules>
 
   <properties>
-    <geoprism.version>0.9.30</geoprism.version>
+    <geoprism.version>0.10.0</geoprism.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>

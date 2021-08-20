@@ -25,7 +25,7 @@
               (geometryEdit)="onGeometryEdit($event)"
               (featureChange)="onFeatureChange()"              
               (modeChange)="onModeChange($event)"
-              (panelCancel)="onPanelCancel($event)"
+              (panelCancel)="onPanelCancel()"
               (panelSubmit)="onPanelSubmit($event)"
             ></feature-panel>
           </div>
@@ -54,29 +54,6 @@
           </article>
 
           <div id="dataset-map" class="map-view-port"></div>     
-<!--           <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control> -->
-          
-          <div *ngIf="editingControl && (type.geometryType === 'POINT' || type.geometryType === 'MULTIPOINT')" style="position:absolute;top:185px;right:10px;color:white;">
-            
-            <div >
-                <div><label><localize key="geoobject.editor.geometry.latitude.label"></localize></label></div>
-                <div>
-                <div class="text-left">
-                  <input name="latitude" type="number" class="form-control" [(ngModel)]="coordinate.latitude" (change)="refreshDrawFromInput()" required />
-                </div>
-              </div>
-            </div>
-            <div >
-                <div><label><localize key="geoobject.editor.geometry.longitude.label"></localize></label></div>
-                <div>
-                <div class="text-left">
-                  <input name="longitude" type="number" class="form-control" [(ngModel)]="coordinate.longitude" (change)="refreshDrawFromInput()" required />
-                </div>
-              </div>
-            </div>
-            
-          </div>
-               
         </div>
       </div>
     </div>

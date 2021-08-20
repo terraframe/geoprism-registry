@@ -6,7 +6,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
-import { LocalizationService, EventService, ProfileService, AuthService } from "@shared/service";
+import { LocalizationService, EventService, ProfileService, AuthService, DateService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
 import { LOCALIZED_LABEL } from "@test/shared/mocks";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
@@ -39,6 +39,7 @@ describe("MasterListViewComponent", () => {
 				ProfileService,
 				AuthService,
 				IOService,
+				DateService,
 				{
 					provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'test-oid' } } }
 				},
