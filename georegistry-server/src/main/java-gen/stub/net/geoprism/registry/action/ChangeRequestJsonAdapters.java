@@ -145,8 +145,10 @@ public class ChangeRequestJsonAdapters
       
       ChangeRequestJsonAdapters.serializeCreatedBy(cr.getCreatedBy(), object);
       
-      JsonArray jaDocuments = JsonParser.parseString(this.service.listDocumentsCR(Session.getCurrentSession().getOid(), cr.getOid())).getAsJsonArray();
-      object.add("documents", jaDocuments);
+      if (Session.getCurrentSession() != null) {
+        JsonArray jaDocuments = JsonParser.parseString(this.service.listDocumentsCR(Session.getCurrentSession().getOid(), cr.getOid())).getAsJsonArray();
+        object.add("documents", jaDocuments);
+      }
       
       object.add("permissions", this.serializePermissions(cr, context));
       
@@ -242,7 +244,7 @@ public class ChangeRequestJsonAdapters
           current.add("geoObject", context.serialize(go.toGeoObjectOverTime()));
           
           // Add hierarchies
-          current.add("hierarchies", new HierarchyService().getHierarchiesForGeoObjectOverTime(Session.getCurrentSession().getOid(), go.getCode(), go.getType().getCode()));
+          current.add("hierarchies", new HierarchyService().getHierarchiesForGeoObjectOverTimeInReq(go.getCode(), go.getType().getCode()));
         }
         else
         {

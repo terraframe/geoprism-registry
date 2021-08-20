@@ -230,7 +230,7 @@ public class ChangeRequestServiceTest
     
     cr.addAction(action).apply();
     
-    return cr.getOid();
+    return cr.toJSON().toString();
   }
   
   @Test
@@ -324,7 +324,7 @@ public class ChangeRequestServiceTest
   @Test
   public void testSetActionStatus()
   {
-    String crOid = createTestChangeRequest(UpdateAttributeAction.CLASS);
+    String serializedCR = createTestChangeRequest(UpdateAttributeAction.CLASS);
     
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM };
 
@@ -333,7 +333,7 @@ public class ChangeRequestServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
-          testSetActionStatus(request, crOid);
+          testSetActionStatus(request, serializedCR);
         });
       }
       catch (SmartExceptionDTO e)
@@ -350,7 +350,7 @@ public class ChangeRequestServiceTest
       try
       {
         FastTestDataset.runAsUser(user, (request, adapter) -> {
-          testSetActionStatus(request, crOid);
+          testSetActionStatus(request, serializedCR);
           
           Assert.fail("Expected a permission exception to be thrown on user [" + user.getUsername() + "].");
         });
@@ -362,8 +362,10 @@ public class ChangeRequestServiceTest
     }
   }
   
-  private void testSetActionStatus(ClientRequestIF request, String crOid)
+  private void testSetActionStatus(ClientRequestIF request, String serializedCR)
   {
+    final String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
+    
     ChangeRequestService service = new ChangeRequestService();
     
     service.setActionStatus(request.getSessionId(), testSetActionStatusGetCRAction(crOid), AllGovernanceStatus.ACCEPTED.name());
@@ -426,13 +428,15 @@ public class ChangeRequestServiceTest
     }
   }
   
-  private void testImplementDecisions(ClientRequestIF request, String crOid) throws Exception
+  private void testImplementDecisions(ClientRequestIF request, String serializedCR) throws Exception
   {
     ChangeRequestService service = new ChangeRequestService();
     
-    testSetActionStatus(request, crOid);
+    String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
     
-    service.implementDecisions(request.getSessionId(), crOid);
+    testSetActionStatus(request, serializedCR);
+    
+    service.implementDecisions(request.getSessionId(), serializedCR);
     
     testImplementDecisionsVerify(crOid);
   }
@@ -510,13 +514,15 @@ public class ChangeRequestServiceTest
     }
   }
   
-  private void testImplementParentDecisions(ClientRequestIF request, String crOid) throws Exception
+  private void testImplementParentDecisions(ClientRequestIF request, String serializedCR) throws Exception
   {
+    final String crOid = JsonParser.parseString(serializedCR).getAsJsonObject().get("oid").getAsString();
+    
     ChangeRequestService service = new ChangeRequestService();
     
-    testSetActionStatus(request, crOid);
+    testSetActionStatus(request, serializedCR);
     
-    service.implementDecisions(request.getSessionId(), crOid);
+    service.implementDecisions(request.getSessionId(), serializedCR);
     
     testImplementParentDecisionsVerify(crOid);
   }
@@ -831,7 +837,9 @@ public class ChangeRequestServiceTest
     
     cr.addAction(action).apply();
     
-    return new String[] {cr.getOid(), votOid};
+    String serializedCR = cr.toJSON().toString();
+    
+    return new String[] {serializedCR, votOid};
   }
   
   @Request
@@ -971,7 +979,9 @@ public class ChangeRequestServiceTest
     
     cr.addAction(action).apply();
     
-    return new String[] {cr.getOid(), vot.getOid()};
+    String serializedCR = cr.toJSON().toString();
+    
+    return new String[] {serializedCR, vot.getOid()};
   }
   
   @Request
@@ -1098,7 +1108,9 @@ public class ChangeRequestServiceTest
     
     cr.addAction(action).apply();
     
-    return new String[] {cr.getOid(), vot.getOid()};
+    String serializedCR = cr.toJSON().toString();
+    
+    return new String[] {serializedCR, vot.getOid()};
   }
   
   @Request
@@ -1223,7 +1235,9 @@ public class ChangeRequestServiceTest
     
     cr.addAction(action).apply();
     
-    return new String[] {cr.getOid(), vot.getOid()};
+    String serializedCR = cr.toJSON().toString();
+    
+    return new String[] {serializedCR, vot.getOid()};
   }
   
   @Request
@@ -1357,7 +1371,9 @@ public class ChangeRequestServiceTest
     
     cr.addAction(action).apply();
     
-    return new Object[] {cr.getOid(), vot.getOid(), newValue};
+    String serializedCR = cr.toJSON().toString();
+    
+    return new Object[] {serializedCR, vot.getOid(), newValue};
   }
   
   @Request
