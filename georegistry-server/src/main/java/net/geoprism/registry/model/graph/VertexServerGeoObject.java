@@ -801,7 +801,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return (MdVertexDAOIF) this.vertex.getMdClass();
   }
 
-  protected boolean isValidGeometry(Geometry geometry)
+  public boolean isValidGeometry(Geometry geometry)
   {
     if (geometry != null)
     {
