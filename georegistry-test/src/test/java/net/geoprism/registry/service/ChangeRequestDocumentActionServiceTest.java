@@ -120,7 +120,7 @@ public class ChangeRequestDocumentActionServiceTest
     this.actionOid = action.getOid();
   }
 
-  @Test
+//  @Test
   public void testDeleteDocument()
   {
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
@@ -191,7 +191,7 @@ public class ChangeRequestDocumentActionServiceTest
     }
   }
 
-  @Test
+//  @Test
   public void testListDocuments()
   {
     uploadDocumentsAsAdmin();
@@ -268,7 +268,7 @@ public class ChangeRequestDocumentActionServiceTest
     return vfOid;
   }
 
-  @Test
+//  @Test
   public void testUploadDocument()
   {
     TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
@@ -312,7 +312,7 @@ public class ChangeRequestDocumentActionServiceTest
     }
   }
 
-  @Test
+//  @Test
   public void testDownloadDocument() throws IOException
   {
     String vfOid = uploadDocumentsAsAdmin();

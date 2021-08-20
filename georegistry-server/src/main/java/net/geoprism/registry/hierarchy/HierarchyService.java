@@ -216,6 +216,11 @@ public class HierarchyService
   @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
   {
+    return this.getHierarchiesForGeoObjectOverTimeInReq(code, typeCode);
+  }
+  
+  public JsonArray getHierarchiesForGeoObjectOverTimeInReq(String code, String typeCode)
+  {
     ServerGeoObjectIF geoObject = ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, typeCode);
     ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
 

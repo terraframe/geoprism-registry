@@ -194,7 +194,7 @@ public class ChangeRequestService
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_DESC(query.getCreateDate());
 
-    if (filter != null && !filter.equals("ALL"))
+    if (filter != null && filter.length() > 0 && !filter.equals("ALL"))
     {
       query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.valueOf(filter)));
     }
