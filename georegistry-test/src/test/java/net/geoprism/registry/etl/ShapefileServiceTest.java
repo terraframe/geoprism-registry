@@ -506,7 +506,7 @@ public class ShapefileServiceTest
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
-    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+    Assert.assertEquals("Alabama2", object.getLocalizedDisplayLabel());
     Assert.assertNull(object.getValue(testInteger.getName()));
   }
 
@@ -550,7 +550,7 @@ public class ShapefileServiceTest
     
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
-    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+    Assert.assertEquals("Alabama2", object.getLocalizedDisplayLabel());
     Assert.assertEquals(131174431216L, object.getValue(testInteger.getName()));
   }
   
