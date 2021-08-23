@@ -33,5 +33,13 @@ export class HierarchyGroupedTypeView {
     code: string;
     label: string;
     orgCode: string;
-    types: [{ code: string, label: string, orgCode: string, permissions: [string] }];
+    types: any[];
+}
+
+export class TypeGroupedHierachyView {
+    code: string;
+    label: string;
+    orgCode: string;
+    permissions: [string];
+    hierarchies: any[];
 }

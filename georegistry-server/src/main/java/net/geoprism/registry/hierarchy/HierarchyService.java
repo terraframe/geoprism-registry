@@ -100,6 +100,21 @@ public class HierarchyService
             
             allHierTypes.add(typeView);
           }
+          
+          if (serverType.getIsAbstract())
+          {
+            List<ServerGeoObjectType> subtypes = serverType.getSubtypes();
+            
+            for (ServerGeoObjectType subtype: subtypes)
+            {
+              JsonObject typeView = new JsonObject();
+              typeView.addProperty("code", subtype.getCode());
+              typeView.addProperty("label", subtype.getLabel().getValue());
+              typeView.addProperty("orgCode", subtype.getOrganization().getCode());
+              
+              allHierTypes.add(typeView);
+            }
+          }
         }
         
         hierView.add("types", allHierTypes);

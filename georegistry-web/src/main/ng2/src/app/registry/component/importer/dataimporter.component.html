@@ -51,22 +51,22 @@
                 </div>
                 <div class="col-md-2"></div>
             </div>
-            <div class="form-group row" *ngIf="hierarchyViews">
+            <div class="form-group row" *ngIf="filteredHierarchyViews">
                 <label class="col-md-2 text-right" for="hierarchyCode"> <localize key="io.modal.hierarchy"></localize></label>
                 <div class="col-md-8">
                     <select id="hierarchyCode" name="hierarchyCode" class="select-area" [(ngModel)]="hierarchyCode" (change)="onSelectHierarchy()" required>
                         <option></option>
-                        <option *ngFor="let view of hierarchyViews" value={{view.code}}>{{view.label}}</option>
+                        <option *ngFor="let view of filteredHierarchyViews" value={{view.code}}>{{view.label}}</option>
                     </select>
                 </div>
                 <div class="col-md-2"></div>
             </div>
-            <div class="form-group row" *ngIf="types">
+            <div class="form-group row" *ngIf="filteredTypeViews">
                 <label class="col-md-2 text-right" for="code"> <localize key="io.geoObjectType"></localize></label>
                 <div class="col-md-8">
-                    <select id="code" name="code" class="select-area" [(ngModel)]="code" (change)="checkDates()" required>
+                    <select id="code" name="code" class="select-area" [(ngModel)]="typeCode" (change)="onSelectType()" required>
                         <option></option>
-                        <option *ngFor="let type of types" value={{type.code}}>{{type.label}}</option>
+                        <option *ngFor="let type of filteredTypeViews" value={{type.code}}>{{type.label}}</option>
                     </select>
                 </div>
                 <div class="col-md-2"></div>
