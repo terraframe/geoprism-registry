@@ -40,6 +40,7 @@ export class TypeGroupedHierachyView {
     code: string;
     label: string;
     orgCode: string;
+    super?: {code: string, label: string, orgCode: string, isAbstract: boolean};
     permissions: [string];
     hierarchies: any[];
 }

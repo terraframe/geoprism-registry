@@ -93,24 +93,33 @@ public class HierarchyService
           if (typePermissions.canRead(type.getOrganizationCode(), serverType, serverType.getIsPrivate())
               && (isSRA || rps.isRA(gotOrgCode) || rps.isRM(gotOrgCode,serverType)))
           {
-            JsonObject typeView = new JsonObject();
-            typeView.addProperty("code", type.getCode());
-            typeView.addProperty("label", type.getLabel().getValue());
-            typeView.addProperty("orgCode", type.getOrganizationCode());
-            
-            allHierTypes.add(typeView);
-          }
-          
-          if (serverType.getIsAbstract())
-          {
-            List<ServerGeoObjectType> subtypes = serverType.getSubtypes();
-            
-            for (ServerGeoObjectType subtype: subtypes)
+            if (serverType.getIsAbstract())
+            {
+              JsonObject superView = new JsonObject();
+              superView.addProperty("code", type.getCode());
+              superView.addProperty("label", type.getLabel().getValue());
+              superView.addProperty("orgCode", type.getOrganizationCode());
+              superView.addProperty("isAbstract", true);
+              
+              List<ServerGeoObjectType> subtypes = serverType.getSubtypes();
+              
+              for (ServerGeoObjectType subtype: subtypes)
+              {
+                JsonObject typeView = new JsonObject();
+                typeView.addProperty("code", subtype.getCode());
+                typeView.addProperty("label", subtype.getLabel().getValue());
+                typeView.addProperty("orgCode", subtype.getOrganization().getCode());
+                typeView.add("super", superView);
+                
+                allHierTypes.add(typeView);
+              }
+            }
+            else
             {
               JsonObject typeView = new JsonObject();
-              typeView.addProperty("code", subtype.getCode());
-              typeView.addProperty("label", subtype.getLabel().getValue());
-              typeView.addProperty("orgCode", subtype.getOrganization().getCode());
+              typeView.addProperty("code", type.getCode());
+              typeView.addProperty("label", type.getLabel().getValue());
+              typeView.addProperty("orgCode", type.getOrganizationCode());
               
               allHierTypes.add(typeView);
             }
