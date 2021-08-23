@@ -175,10 +175,10 @@
                           </button>
 	                    </span>
 
-	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE') || req.createdBy !== getUsername()" (click)="onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
+	                    <button type="submit" role="button" class="btn btn-danger pull-right" *ngIf="req.permissions.includes('DELETE') && req.createdBy === getUsername()" (click)="onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
                             <localize key="change.request.delete.request.btn"></localize>
 	                    </button>
-                      <button type="submit" role="button" class="btn btn-primary pull-right" [disabled]="!isValid || !req.permissions.includes('WRITE_DETAILS') || req.createdBy !== getUsername()" (click)="onUpdate(req)" [title]="'modal.button.update' | localize" >
+                      <button type="submit" role="button" class="btn btn-primary pull-right" *ngIf="isValid && req.permissions.includes('WRITE_DETAILS') && req.createdBy === getUsername()" (click)="onUpdate(req)" [title]="'modal.button.update' | localize" >
                         <localize key="modal.button.update"></localize>
                       </button>
 	                  </div>
