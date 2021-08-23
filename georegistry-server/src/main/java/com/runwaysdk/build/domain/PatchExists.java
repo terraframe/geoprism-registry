@@ -95,7 +95,10 @@ public class PatchExists
       MdGeoVertexDAO mdVertex = GeoVertexType.getMdGeoVertex(uni.getUniversalId());
       
       MdAttributeEnumerationDAO statusMdAttr = (MdAttributeEnumerationDAO) mdVertex.definesAttribute(STATUS_ATTRIBUTE_NAME);
-      statusMdAttr.delete();
+      if (statusMdAttr != null)
+      {
+        statusMdAttr.delete();
+      }
     }
     
     int applied = 0;
