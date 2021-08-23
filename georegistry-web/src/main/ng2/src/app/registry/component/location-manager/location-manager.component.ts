@@ -537,6 +537,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.mode = this.MODE.VIEW;
 
             this.geomService.initialize(this.map, this.type.geometryType, !this.isEdit);
+            this.geomService.zoomToLayersExtent();
 
             //      const code = this.current.properties.code;
             //
