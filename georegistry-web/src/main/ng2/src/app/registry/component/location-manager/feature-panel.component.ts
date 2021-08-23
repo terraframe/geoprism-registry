@@ -61,7 +61,7 @@ export class FeaturePanelComponent implements OnInit {
 
     isNew: boolean = false;
 
-    isEdit: boolean = true;
+    isEdit: boolean = false;
 
     hierarchies: HierarchyOverTime[];
 
@@ -76,7 +76,7 @@ export class FeaturePanelComponent implements OnInit {
         this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
         this.mode = "ATTRIBUTES";
 
-        this.isEdit = !this.readOnly;
+//        this.isEdit = !this.readOnly;
     }
 
     setValid(valid: boolean): void {
@@ -88,8 +88,6 @@ export class FeaturePanelComponent implements OnInit {
         this.postGeoObject = null;
         this.preGeoObject = null;
         this.hierarchies = null;
-
-        this.setEditMode(true);
 
         if (code != null && this.type != null) {
             if (code !== "__NEW__") {
