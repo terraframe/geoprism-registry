@@ -24,7 +24,7 @@
 
   <groupId>net.geoprism</groupId>
   <artifactId>georegistry</artifactId>
-  <version>0.15.2</version>
+  <version>0.15.3-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>GeoRegistry</name>
@@ -91,7 +91,7 @@
     <connection>scm:git:ssh://git@github.com/terraframe/geoprism-registry</connection>
     <developerConnection>scm:git:ssh://git@github.com/terraframe/geoprism-registry</developerConnection>
     <url>scm:git:ssh://git@github.com/terraframe/geoprism-registry</url>
-    <tag>0.15.2</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <build>
