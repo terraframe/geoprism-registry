@@ -308,27 +308,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public String getLabel()
   {
-    String value = this.vertex.getEmbeddedValue(DefaultAttribute.DISPLAY_LABEL.getName(), MdAttributeLocalInfo.DEFAULT_LOCALE, this.date);
-
-    if (value == null)
+    LocalizedValue lv = this.getDisplayLabel();
+    
+    if (lv == null)
     {
       return "";
     }
-
-    return value;
+    
+    return lv.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE);
   }
 
   @Override
   public String getLabel(Locale locale)
   {
-    String value = this.vertex.getEmbeddedValue(DefaultAttribute.DISPLAY_LABEL.getName(), locale.toString(), this.date);
-
-    if (value == null)
+    LocalizedValue lv = this.getDisplayLabel();
+    
+    if (lv == null)
     {
       return "";
     }
-
-    return value;
+    
+    return lv.getValue(locale);
   }
 
   @Override
@@ -900,7 +900,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);
     
-    Object value = this.vertex.getObjectValue(attributeName, this.date);
+    Object value = this.getMostRecentValue(attributeName);
 
     if (value != null && mdAttribute instanceof MdAttributeTermDAOIF)
     {
@@ -1731,17 +1731,45 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return geoObj;
   }
+  
+  protected Object getMostRecentValue(String attributeName)
+  {
+    ValueOverTimeCollection votc = this.getValuesOverTime(attributeName);
+    
+    if (votc.size() > 0)
+    {
+      return votc.get(votc.size()-1).getValue();
+    }
+    else
+    {
+      return null;
+    }
+  }
 
   public LocalizedValue getDisplayLabel()
   {
-    GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), this.date);
+    VertexObjectDAO vertexObjectDAO = null;
+    
+    if (this.date == null)
+    {
+      vertexObjectDAO = (VertexObjectDAO) this.getMostRecentValue(DefaultAttribute.DISPLAY_LABEL.getName());
+    }
+    else
+    {
+      GraphObject graphObject = vertex.getEmbeddedComponent(DefaultAttribute.DISPLAY_LABEL.getName(), this.date);
+      
+      if (graphObject != null)
+      {
+        vertexObjectDAO = (VertexObjectDAO) graphObject.getGraphObjectDAO();
+      }
+    }
 
-    if (graphObject == null)
+    if (vertexObjectDAO == null)
     {
       return new LocalizedValue(null, new HashMap<String, String>());
     }
 
-    return LocalizedValueConverter.convert(graphObject);
+    return LocalizedValueConverter.convert(vertexObjectDAO);
   }
 
   public LocalizedValue getDisplayLabel(Date date)
@@ -1758,34 +1786,20 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
   public Geometry getGeometry()
   {
-    GeometryType geometryType = this.getType().getGeometryType();
-
-    if (geometryType.equals(GeometryType.LINE))
+    String attrName = this.getGeometryAttributeName();
+    
+    Geometry geom = null;
+    
+    if (this.date == null)
     {
-      return (Geometry) vertex.getObjectValue(GeoVertex.GEOLINE, this.date);
+      geom = (Geometry) this.getMostRecentValue(attrName);
     }
-    else if (geometryType.equals(GeometryType.MULTILINE))
+    else
     {
-      return (Geometry) vertex.getObjectValue(GeoVertex.GEOMULTILINE, this.date);
+      geom = vertex.getObjectValue(attrName, this.date);
     }
-    else if (geometryType.equals(GeometryType.POINT))
-    {
-      return (Geometry) vertex.getObjectValue(GeoVertex.GEOPOINT, this.date);
-    }
-    else if (geometryType.equals(GeometryType.MULTIPOINT))
-    {
-      return (Geometry) vertex.getObjectValue(GeoVertex.GEOMULTIPOINT, this.date);
-    }
-    else if (geometryType.equals(GeometryType.POLYGON))
-    {
-      return (Geometry) vertex.getObjectValue(GeoVertex.GEOPOLYGON, this.date);
-    }
-    else if (geometryType.equals(GeometryType.MULTIPOLYGON))
-    {
-      return (Geometry) vertex.getObjectValue(GeoVertex.GEOMULTIPOLYGON, this.date);
-    }
-
-    throw new UnsupportedOperationException("Unsupported geometry type [" + geometryType.name() + "]");
+    
+    return geom;
   }
 
   private boolean exists(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType, Date startDate, Date endDate)

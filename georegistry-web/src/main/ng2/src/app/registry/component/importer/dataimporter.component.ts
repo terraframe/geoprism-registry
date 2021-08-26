@@ -4,7 +4,7 @@ import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 import { HttpErrorResponse } from "@angular/common/http";
 import { DateFieldComponent } from "../../../shared/component/form-fields/date-field/date-field.component";
 
-import { ErrorHandler, ErrorModalComponent } from "@shared/component";
+import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, EventService, ExternalSystemService } from "@shared/service";
 import { HierarchyService, IOService } from "@registry/service";
 import { ExternalSystem } from "@shared/model/core";
@@ -12,7 +12,7 @@ import { ExternalSystem } from "@shared/model/core";
 import { SpreadsheetModalComponent } from "./modals/spreadsheet-modal.component";
 import { ShapefileModalComponent } from "./modals/shapefile-modal.component";
 import { ImportStrategy } from "@registry/model/constants";
-import { HierarchyGroupedTypeView } from "@registry/model/hierarchy";
+import { HierarchyGroupedTypeView, TypeGroupedHierachyView } from "@registry/model/hierarchy";
 
 declare let acp: string;
 
@@ -33,14 +33,18 @@ export class DataImporterComponent implements OnInit {
     isValid: boolean = false;
 
     /*
-     * List of geo object types from the system
-     */
-    types: {code: string, label: string, orgCode: string, permissions: [string]}[]
-
-    /*
     * GeoObjectTypes grouped by hierarchy
     */
-    hierarchyViews: HierarchyGroupedTypeView[];
+    allHierarchyViews: HierarchyGroupedTypeView[];
+
+    filteredHierarchyViews: any[];
+
+    /*
+     * Hierarchies grouped by GeoObjectType
+     */
+    allTypeViews: TypeGroupedHierachyView[];
+
+    filteredTypeViews: any[];
 
     importStrategy: ImportStrategy;
     importStrategies: any[] = [
@@ -52,7 +56,7 @@ export class DataImporterComponent implements OnInit {
     /*
      * Code of the currently selected GeoObjectType
      */
-    code: string = null;
+    typeCode: string = null;
 
     /*
      * Code of the currently selected Hierarchy
@@ -127,7 +131,62 @@ export class DataImporterComponent implements OnInit {
         });
 
         this.hierarchyService.getHierarchyGroupedTypes().then(views => {
-            this.hierarchyViews = views;
+            this.allHierarchyViews = views;
+            this.allTypeViews = [];
+
+            // Make sure we are using the same object references for all types
+            let len0 = this.allHierarchyViews.length;
+            for (let i = 0; i < len0; ++i) {
+                let view = this.allHierarchyViews[i];
+
+                let len2 = view.types.length;
+                for (let j = 0; j < len2; ++j) {
+                    let type = view.types[j];
+
+                    let len9 = this.allHierarchyViews.length;
+                    for (let j = 0; j < len9; ++j) {
+                        let view2 = this.allHierarchyViews[j];
+
+                        let indexOf = view2.types.findIndex(findType => type.code === findType.code);
+
+                        if (indexOf !== -1) {
+                            view2.types[indexOf] = type;
+                        }
+                    }
+                }
+            }
+
+            // Generate a TypeGroupedHierarchy lookup structure from the HierarchyGroupedType structure
+            let len = this.allHierarchyViews.length;
+            for (let i = 0; i < len; ++i) {
+                let view = this.allHierarchyViews[i];
+
+                let len2 = view.types.length;
+                for (let j = 0; j < len2; ++j) {
+                    let type = view.types[j];
+
+                    let indexOf = this.allTypeViews.findIndex(findType => findType.code === type.code);
+
+                    if (indexOf !== -1) {
+                        let findType = this.allTypeViews[indexOf];
+
+                        let existingHierarchyIndex = findType.hierarchies.findIndex(findHier => findHier.code === view.code);
+
+                        if (existingHierarchyIndex === -1) {
+                            findType.hierarchies.push(view);
+                        }
+                    } else {
+                        if (type.hierarchies == null) {
+                            type.hierarchies = [];
+                        }
+                        type.hierarchies.push(view);
+                        this.allTypeViews.push(type);
+                    }
+                }
+            }
+
+            this.filteredHierarchyViews = this.allHierarchyViews;
+            this.filteredTypeViews = this.allTypeViews;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -148,7 +207,7 @@ export class DataImporterComponent implements OnInit {
         this.uploader = new FileUploader(options);
 
         this.uploader.onBuildItemForm = (fileItem: any, form: any) => {
-            form.append("type", this.code);
+            form.append("type", this.typeCode);
             form.append("copyBlank", this.copyBlank);
 
             if (this.startDate != null) {
@@ -202,23 +261,41 @@ export class DataImporterComponent implements OnInit {
     }
 
     onSelectHierarchy(): void {
-        let view = null;
+        let view: HierarchyGroupedTypeView = null;
 
-        let len = this.hierarchyViews.length;
+        let len = this.allHierarchyViews.length;
         for (let i = 0; i < len; ++i) {
-            if (this.hierarchyViews[i].code === this.hierarchyCode) {
-                view = this.hierarchyViews[i];
+            if (this.allHierarchyViews[i].code === this.hierarchyCode) {
+                view = this.allHierarchyViews[i];
                 break;
             }
         }
 
-        this.code = null;
+        if (view != null) {
+            this.filteredTypeViews = view.types;
+        } else {
+            this.filteredTypeViews = this.allTypeViews;
+        }
+    }
+
+    onSelectType(): void {
+        let view: TypeGroupedHierachyView = null;
+
+        let len = this.allTypeViews.length;
+        for (let i = 0; i < len; ++i) {
+            if (this.allTypeViews[i].code === this.typeCode) {
+                view = this.allTypeViews[i];
+                break;
+            }
+        }
 
         if (view != null) {
-            this.types = view.types;
+            this.filteredHierarchyViews = view.hierarchies;
         } else {
-            this.types = null;
+            this.filteredHierarchyViews = this.allHierarchyViews;
         }
+
+        this.checkDates();
     }
 
     onClick(): void {
