@@ -17,8 +17,6 @@ import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTim
 import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 
-import Utils from "../../utility/Utils";
-
 @Component({
     selector: "geoobject-shared-attribute-editor",
     templateUrl: "./geoobject-shared-attribute-editor.component.html",
@@ -61,9 +59,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     // The changed state of the GeoObject in the GeoRegistry
     @Input() postGeoObject: GeoObjectOverTime = null;
-
-    // Array of Actions that will be part of a Change Request Object
-    @Input() actions: AbstractAction[] = [];
 
     showAllInstances: boolean = false;
 
@@ -147,7 +142,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         let cr = new ChangeRequest();
         cr.approvalStatus = "PENDING";
         cr.actions = [];
-        //cr.permissions = [];
 
         if (this.isNew) {
             let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
@@ -184,11 +178,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     hasChanges(tabIndex: number) {
-        let len = this.actions.length;
+        let len = this.changeRequest.actions.length;
 
         if (len > 0) {
             for (let i = 0; i < len; ++i) {
-                let action: AbstractAction = this.actions[i];
+                let action: AbstractAction = this.changeRequest.actions[i];
 
                 if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
                     return false;
@@ -244,7 +238,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     public getActions(): AbstractAction[] {
-        return this.actions;
+        return this.changeRequest.actions;
     }
 
     public getIsValid(): boolean {

@@ -28,7 +28,7 @@
       <button *ngIf="isEdit" type="button" class="btn btn-default" (click)="onCancelInternal()">
         <localize key="modal.button.cancel"></localize>
       </button>
-      <button *ngIf="isEdit" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!isValid || (!isMaintainer && (!reason || (reason && reason.trim().length === 0)))">
+      <button *ngIf="isEdit" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!canSubmit()">
         <localize [key]="!isMaintainer ? 'change.request.page.title' : 'modal.button.submit'"></localize>
       </button>
 

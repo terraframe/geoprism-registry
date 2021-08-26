@@ -132,6 +132,12 @@ export class FeaturePanelComponent implements OnInit {
         // }
     }
 
+    canSubmit(): boolean {
+        return this.isValid &&
+          (this.isMaintainer || (this.reason && this.reason.trim().length > 0)) &&
+          (this.isNew || (this.attributeEditor && this.attributeEditor.getActions().length > 0));
+    }
+
     onSubmit(): void {
         if (this.isNew) {
             this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
