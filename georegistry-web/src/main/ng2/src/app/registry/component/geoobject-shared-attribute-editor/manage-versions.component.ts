@@ -16,10 +16,10 @@ import {
     transition
 } from "@angular/animations";
 import { HttpErrorResponse } from "@angular/common/http";
-import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, AttributeTermType, HierarchyOverTime, HierarchyOverTimeEntry, GeoObject } from "@registry/model/registry";
-import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, AttributeTermType, HierarchyOverTime, HierarchyOverTimeEntry } from "@registry/model/registry";
+import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
-import { ConflictType, ActionTypes, GovernanceStatus } from "@registry/model/constants";
+import { ConflictType, ActionTypes, GovernanceStatus, LayerColor } from "@registry/model/constants";
 import { AuthService } from "@shared/service/auth.service";
 import { v4 as uuid } from "uuid";
 
@@ -35,7 +35,7 @@ import { LocalizationService } from "@shared/service";
 
 import Utils from "../../utility/Utils";
 
-import { VersionDiffView, Layer, LayerColor } from "./manage-versions-model";
+import { VersionDiffView, Layer } from "./manage-versions-model";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
 import { ControlContainer, NgForm } from "@angular/forms";
 
@@ -85,12 +85,7 @@ export class ManageVersionsComponent implements OnInit {
 
     @Input() readonly: boolean = false;
 
-    @Input() selectedTab: number = 0;
-
     @Input() isGeometryInlined: boolean = false;
-
-    // Observable subject for MasterList changes.  Called when an update is successful // TODO : This probably doesn't work anymore
-    @Output() onChange = new EventEmitter<GeoObjectOverTime>();
 
     attributeType: AttributeType;
     actions: AbstractAction[] = [];
@@ -107,32 +102,16 @@ export class ManageVersionsComponent implements OnInit {
             this.actions = value.actions;
         }
 
-        this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
         this.postGeoObject = value.geoObject;
     }
 
     @Input() geoObjectType: GeoObjectType;
 
-    originalGeoObjectOverTime: GeoObjectOverTime;
     postGeoObject: GeoObjectOverTime;
-
-    @Input() isNewGeoObject: boolean = false;
 
     @Input() hierarchy: HierarchyOverTime = null;
 
     changeRequest: ChangeRequest;
-
-    goGeometries: GeoObjectOverTime;
-
-    newVersion: ValueOverTime;
-
-    hasDuplicateDate: boolean = false;
-
-    conflict: string;
-    hasConflict: boolean = false;
-    hasGap: boolean = false;
-
-    originalAttributeState: AttributeType;
 
     viewModels: VersionDiffView[] = [];
 
@@ -154,12 +133,6 @@ export class ManageVersionsComponent implements OnInit {
     ngAfterViewInit() {
     }
 
-    geometryChange(vAttribute, event): void {
-
-        // vAttribute.value = event; // TODO
-
-    }
-
     checkDateFieldValidity(): boolean {
         let dateFields = this.dateFieldComponentsArray.toArray();
 
@@ -179,14 +152,11 @@ export class ManageVersionsComponent implements OnInit {
 
     onDateChange(): any {
         setTimeout(() => {
-            this.hasConflict = false;
-            this.hasGap = false;
-
             this.isValid = this.checkDateFieldValidity();
 
-            this.hasConflict = this.dateService.checkRanges(this.viewModels);
+            let hasConflict = this.dateService.checkRanges(this.viewModels);
 
-            this.isValidChange.emit(this.isValid && !this.hasConflict);
+            this.isValidChange.emit(this.isValid && !hasConflict);
         }, 0);
     }
 
@@ -273,18 +243,6 @@ export class ManageVersionsComponent implements OnInit {
         return null;
     }
 
-    isChangeOverTime(attr: AttributeType): boolean {
-        let isChangeOverTime = false;
-
-        this.geoObjectType.attributes.forEach(attribute => {
-            if (this.attributeType.code === attr.code) {
-                isChangeOverTime = attr.isChangeOverTime;
-            }
-        });
-
-        return isChangeOverTime;
-    }
-
     // TODO: Deprecate becasue it seems to not be used anywhere
     sort(votArr: ValueOverTimeDiff[]): void {
         // Sort the data by start date
@@ -304,8 +262,8 @@ export class ManageVersionsComponent implements OnInit {
     onActionChange(action: AbstractAction) {
         let hasChanges: boolean = true;
 
-        if (action instanceof UpdateAttributeAction) {
-            let updateAction: UpdateAttributeAction = action as UpdateAttributeAction;
+        if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
+            let updateAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
             if (updateAction.attributeDiff.valuesOverTime.length === 0) {
                 hasChanges = false;
@@ -362,24 +320,14 @@ export class ManageVersionsComponent implements OnInit {
                 this.editAction = this.actions[0];
                 const action = this.editAction as CreateGeoObjectAction;
 
-                if (action.parentJson == null) {
-                    action.parentJson = this.hierarchy;
-                }
-
                 if (action.geoObjectJson == null) {
                     action.geoObjectJson = this.postGeoObject;
                 }
-            } else {
-                let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
-                createAction.geoObjectJson = this.postGeoObject;
-                createAction.parentJson = this.hierarchy;
-                this.actions[0] = createAction;
-                this.editAction = createAction;
             }
         } else {
             this.actions.forEach((action: AbstractAction) => {
                 if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-                    let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+                    let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
                     if (this.attributeType.code === updateAttrAction.attributeName && (this.attributeType.type !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === this.hierarchy.code)) {
                         this.editAction = action;
@@ -388,7 +336,7 @@ export class ManageVersionsComponent implements OnInit {
             });
 
             if (this.editAction == null) {
-                this.editAction = new UpdateAttributeAction(this.attributeType.code);
+                this.editAction = new UpdateAttributeOverTimeAction(this.attributeType.code);
             }
         }
 
@@ -408,7 +356,7 @@ export class ManageVersionsComponent implements OnInit {
                     view.value = JSON.parse(JSON.stringify(entry));
                     view.value.loading = {};
 
-                    view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry);
+                    view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry, this.hierarchy);
 
                     // In the corner case where this object isn't assigned to the lowest level, we may have
                     // empty values in our parents array for some of the types. Our front-end assumes there
@@ -447,7 +395,7 @@ export class ManageVersionsComponent implements OnInit {
             let action: AbstractAction = this.actions[i];
 
             if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-                let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+                let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
                 if (this.attributeType.code === updateAttrAction.attributeName) {
                     if (this.attributeType.type === "_PARENT_" && updateAttrAction.attributeDiff.hierarchyCode !== this.hierarchy.code) {
@@ -496,7 +444,7 @@ export class ManageVersionsComponent implements OnInit {
                             view.calculateSummaryKey(votDiff);
                         } else if (votDiff.action === "CREATE") {
                             if (view != null) {
-                                console.log("This action doesn't make sense. We're trying to create something that already exists?", votDiff)
+                                console.log("This action doesn't make sense. We're trying to create something that already exists?", votDiff);
                             } else {
                                 view = new VersionDiffView(this, action);
 
@@ -611,8 +559,8 @@ export class ManageVersionsComponent implements OnInit {
             for (let i = 0; i < this.actions.length; i++) {
                 let action = this.actions[i];
 
-                if (action.actionType === "UpdateAttributeAction") {
-                    let uAction = action as UpdateAttributeAction;
+                if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
+                    let uAction = action as UpdateAttributeOverTimeAction;
 
                     if (uAction.attributeName === this.attributeType.code) {
                         return true;

@@ -54,18 +54,22 @@
                 </div>
 
                 <div class="panel-body">
-                  <div *ngIf="attr.code === 'code'">
-                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
-                        (change)="onCodeChange()" name="mod-{{attr.code}}" [disabled]="!isNew || readOnly" required>
-                  </div>
-
-                  <div *ngIf="attr.code !== 'code'">
+                  <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
                     <manage-versions
-                        [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+                        [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
                         [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" >
                     </manage-versions>
                   </div>
 
+                  <div *ngIf="!attr.isChangeOverTime">
+                    <input *ngIf="postGeoObject && attr.code === 'code'" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
+                        (change)="onNonChangeOverTimeAttributeChange(attr)" name="mod-{{attr.code}}" [disabled]="readOnly || (attr.code === 'code' && !isNew)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" required>
+
+                    <div *ngIf="attr.code !== 'code'">
+                        <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [postGeoObject]="postGeoObject"
+                          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew"></standard-attribute-editor>
+                    </div>
+                  </div>
                 </div>
               </div>
             </li>
@@ -83,7 +87,7 @@
               </div>
 			      
 			        <div class="panel-body">
-			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+			          <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
                         [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
 			        </div>
 		        </div>
@@ -100,7 +104,7 @@
           </div>
             
           <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
               [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>

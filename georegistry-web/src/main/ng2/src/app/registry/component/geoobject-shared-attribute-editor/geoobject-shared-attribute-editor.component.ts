@@ -13,8 +13,8 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { GeometryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
-import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeTermType, Term, HierarchyOverTime } from "@registry/model/registry";
-import {  UpdateAttributeAction, AbstractAction, ChangeRequest } from "@registry/model/crtable";
+import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTime } from "@registry/model/registry";
+import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 
 import Utils from "../../utility/Utils";
@@ -65,15 +65,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     // Array of Actions that will be part of a Change Request Object
     @Input() actions: AbstractAction[] = [];
 
-    calculatedGeoObject: any = {};
-
     showAllInstances: boolean = false;
 
     tabIndex: number = 0;
 
     isContributorOnly: boolean = false;
-
-    @Input() animate: boolean = false;
 
     // The current state of the GeoObject in the GeoRegistry
 //    @Input() action: Action = null;
@@ -82,13 +78,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() attributeExcludes: string[] = [];
 
-    @Input() forDate: Date = new Date();
-
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
-
-    @Input() isEditingGeometries = false;
 
     @Input() isGeometryInlined = false;
 
@@ -102,8 +94,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     // Observable subject for MasterList changes.  Called when an update is successful
     @Output() onChange = new EventEmitter<GeoObjectOverTime>();
-
-    @Input() customEvent: boolean = false;
 
     @Input() hierarchies: HierarchyOverTime[];
 
@@ -132,18 +122,41 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
-        let geomAttr = null;
-        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
-            if (this.geoObjectType.attributes[i].code === "geometry") {
-                geomAttr = this.geoObjectType.attributes[i];
-            }
-        }
-        if (geomAttr == null) {
+        this.geometryAttributeType = this.getAttribute("geometry");
+        if (this.geometryAttributeType == null) {
             this.geometryAttributeType = new AttributeType("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
         }
 
         this.parentAttributeType = new AttributeType("_PARENT_", "_PARENT_", new LocalizedValue("Parents", null), new LocalizedValue("Parents", null), true, false, false, true);
-        this.onCodeChange();
+        this.onNonChangeOverTimeAttributeChange(this.getAttribute("code"));
+
+        if (this.changeRequest == null) {
+            this.changeRequest = this.createNewChangeRequest();
+        } else {
+            if (!this.changeRequest.actions) {
+                this.changeRequest.actions = [];
+            }
+
+            if (this.changeRequest.actions.length === 0 && this.isNew) {
+                this.changeRequest.actions = this.createNewChangeRequest().actions;
+            }
+        }
+    }
+
+    createNewChangeRequest(): ChangeRequest {
+        let cr = new ChangeRequest();
+        cr.approvalStatus = "PENDING";
+        cr.actions = [];
+        //cr.permissions = [];
+
+        if (this.isNew) {
+            let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
+            createAction.geoObjectJson = this.postGeoObject;
+            createAction.parentJson = this.hierarchies;
+            cr.actions[0] = createAction;
+        }
+
+        return cr;
     }
 
     ngAfterViewInit() {
@@ -154,24 +167,20 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         });
     }
 
+    getAttribute(name: string): AttributeType {
+        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
+            if (this.geoObjectType.attributes[i].code === name) {
+                return this.geoObjectType.attributes[i];
+            }
+        }
+
+        return null;
+    }
+
     changePage(nextPage: number): void {
         this.geomService.destroy(false);
-        
+
         this.tabIndex = nextPage;
-
-        if (nextPage === 2) {
-            this.isEditingGeometries = true;
-        } else {
-            this.isEditingGeometries = false;
-        }
-    }
-
-    setBoolean(attribute, value): void {
-        attribute.value = value;
-    }
-
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
     }
 
     hasChanges(tabIndex: number) {
@@ -184,7 +193,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
                     return false;
                 } else if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-                    let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+                    let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
                     if (updateAttrAction.attributeName === "_PARENT_" && tabIndex === 1) {
                         return true;
@@ -200,13 +209,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         return false;
     }
 
-    onCodeChange(): void {
-        let newVal = this.postGeoObject.attributes["code"];
-        this.geoObjectType.attributes.forEach(att => {
-            if (att.code === "code") {
-                att.isValid = (newVal != null) && newVal.length > 0;
-            }
-        });
+    onNonChangeOverTimeAttributeChange(attribute: AttributeType): void {
+        let newVal = this.postGeoObject.attributes[attribute.code];
+        attribute.isValid = (newVal != null) && newVal.length > 0;
     }
 
     // Invoked when the dates have changed on an attribute
@@ -234,67 +239,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.valid.emit(allValid);
     }
 
-    isNullValue(vot: any) {
-        return vot == null || vot.value == null || vot.value === "";
-    }
-
-    onSelectPropertyOption(event: any, option: any): void {
-        this.currentTermOption = JSON.parse(JSON.stringify(this.modifiedTermOption));
-    }
-
-    getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {
-        for (let i = 0; i < this.geoObjectType.attributes.length; i++) {
-            let attr: any = this.geoObjectType.attributes[i];
-
-            if (attr.type === "term" && attr.code === termAttributeCode) {
-                attr = <AttributeTermType>attr;
-                let attrOpts = attr.rootTerm.children;
-
-                if (attr.code === "status") {
-                    return Utils.removeStatuses(attrOpts);
-                } else {
-                    return attrOpts;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    isStatusChanged(post, pre) {
-        if ((pre != null && post == null) || (post != null && pre == null)) {
-            return true;
-        } else if (pre == null && post == null) {
-            return false;
-        }
-
-        if ((pre.length === 0 && post.length > 0) || (post.length === 0 && pre.length > 0)) {
-            return true;
-        }
-
-        let preCompare = pre;
-        if (Array.isArray(pre)) {
-            preCompare = pre[0];
-        }
-
-        let postCompare = post;
-        if (Array.isArray(post)) {
-            postCompare = post[0];
-        }
-
-        return preCompare !== postCompare;
-    }
-
-    getTypeDefinition(key: string): string {
-        for (let i = 0; i < this.geoObjectType.attributes.length; i++) {
-            let attr = this.geoObjectType.attributes[i];
-
-            if (attr.code === key) {
-                return attr.type;
-            }
-        }
-
-        return null;
+    stringify(input: any) {
+        return JSON.stringify(input);
     }
 
     public getActions(): AbstractAction[] {

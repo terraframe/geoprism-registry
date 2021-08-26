@@ -168,21 +168,6 @@ export class FeaturePanelComponent implements OnInit {
         this.mode = this.MODE.HIERARCHY;
     }
 
-    onAttributeChange(postGeoObject: GeoObjectOverTime): void {
-        this.postGeoObject = postGeoObject;
-
-        this.mode = this.MODE.ATTRIBUTES;
-    }
-
-    onHierarchyChange(hierarchy: HierarchyOverTime): void {
-        const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
-        if (index !== -1) {
-            this.hierarchies[index] = hierarchy;
-        }
-
-        this.mode = this.MODE.ATTRIBUTES;
-    }
-
     onEditAttributes(): void {
         this.setEditMode(!this.isEdit);
     }

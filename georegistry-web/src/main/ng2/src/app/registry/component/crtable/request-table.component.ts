@@ -100,7 +100,7 @@ export class RequestTableComponent {
     @ViewChild("myFile")
     fileRef: ElementRef;
 
-    isValid: boolean = true;    
+    isValid: boolean = true;
 
     constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
         private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
@@ -221,9 +221,9 @@ export class RequestTableComponent {
             this.requests.forEach((req) => {
                 if (!req.current.geoObject) {
                     for (let i = 0; i < req.actions.length; i++) {
-                        if (req.actions[0].actionType === "CreateGeoObjectAction") {
+                        if (req.actions[0].actionType === ActionTypes.CREATEGEOOBJECTACTION) {
                             // This is the state of the Geo-Object as the Registry Contributor configured it.
-                            req.current.geoObject = JSON.parse(JSON.stringify(req.actions[0].geoObjectJson));
+                            req.current.geoObject = JSON.parse(JSON.stringify((req.actions[0] as CreateGeoObjectAction).geoObjectJson));
                         }
                     }
                 }

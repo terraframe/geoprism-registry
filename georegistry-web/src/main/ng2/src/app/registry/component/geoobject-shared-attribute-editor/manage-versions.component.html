@@ -3,10 +3,6 @@
     <h5>{{model.name }} : {{ model.code }}</h5>
   </ng-template>
 
-  <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert">
-    <localize key="changeovertime.manageVersions.duplicateDate"></localize>
-  </div>
-
   <!-- <div class="col-md-12 order-md-1"> -->
   <form name="manage-versions-form" autocomplete="off">
 
@@ -265,7 +261,7 @@
               </li>
               
             </ul>
-            <div *ngIf="changeRequest && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
+            <div *ngIf="changeRequest && !changeRequest.isNew && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
               <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
                 <localize key="change.request.accept.btn"></localize>
               </button>
@@ -276,7 +272,7 @@
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              
-            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
+            <div *ngIf="changeRequest && !changeRequest.isNew && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
 <!--               <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize"> -->
 <!--                 <localize key="change.request.accept.btn"></localize> -->
 <!--               </button> -->

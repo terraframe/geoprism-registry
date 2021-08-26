@@ -4,13 +4,10 @@ import { ManageVersionsComponent } from "./manage-versions.component";
 import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
 import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
-
-export enum LayerColor {
-  "OLD" = "#A4A4A4",
-  "NEW" = "#0062AA"
-}
+import { LayerColor } from "@registry/model/constants";
 
 export class Layer {
+
   oid: string;
   isEditing: boolean;
   isRendering: boolean;
@@ -18,6 +15,7 @@ export class Layer {
   zindex: number;
   geojson: any;
   editPropagator: ValueOverTimeEditPropagator;
+
 }
 
 /*
@@ -25,6 +23,7 @@ export class Layer {
  * using the edit propagator.
  */
 export class VersionDiffView extends ValueOverTime {
+
   component: ManageVersionsComponent;
   summaryKeyData: SummaryKey;
   summaryKeyLocalized: string; // If we try to localize this in the html with a localize element then it won't update as frequently as we need so we're doing stuff manually here.
@@ -39,75 +38,57 @@ export class VersionDiffView extends ValueOverTime {
   newCoordinateY? : any;
   editPropagator: ValueOverTimeEditPropagator;
 
-  constructor(component: ManageVersionsComponent, action: AbstractAction)
-  {
-    super();
+  constructor(component: ManageVersionsComponent, action: AbstractAction) {
+      super();
 
-    this.component = component;
+      this.component = component;
 
-    if (component.attributeType.type === '_PARENT_')
-    {
-      this.editPropagator = new HierarchyEditPropagator(component, action, this, null);
-    }
-    else
-    {
-      this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
-    }
+      if (component.attributeType.type === "_PARENT_") {
+          this.editPropagator = new HierarchyEditPropagator(component, action, this, null, null);
+      } else {
+          this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
+      }
   }
 
-  calculateSummaryKey(diff: ValueOverTimeDiff)
-  {
-    if (diff == null)
-    {
-      this.summaryKey = SummaryKey.UNMODIFIED;
-      return;
-    }
+  calculateSummaryKey(diff: ValueOverTimeDiff) {
+      if (diff == null) {
+          this.summaryKey = SummaryKey.UNMODIFIED;
+          return;
+      }
 
-    if (diff.action === 'CREATE')
-    {
-      this.summaryKey = SummaryKey.NEW;
-      return;
-    }
-    else if (diff.action === 'DELETE')
-    {
-      this.summaryKey = SummaryKey.DELETE;
-      return;
-    }
+      if (diff.action === 'CREATE') {
+          this.summaryKey = SummaryKey.NEW;
+          return;
+      } else if (diff.action === 'DELETE') {
+          this.summaryKey = SummaryKey.DELETE;
+          return;
+      }
 
-    let hasTime = diff.newStartDate != null || diff.newEndDate != null;
-    let hasValue = Object.prototype.hasOwnProperty.call(diff, "newValue");
+      let hasTime = diff.newStartDate != null || diff.newEndDate != null;
+      let hasValue = Object.prototype.hasOwnProperty.call(diff, "newValue");
 
-    if (hasTime && hasValue)
-    {
-      this.summaryKey = SummaryKey.UPDATE;
-    }
-    else if (hasTime)
-    {
-      this.summaryKey = SummaryKey.TIME_CHANGE;
-    }
-    else if (hasValue)
-    {
-      this.summaryKey = SummaryKey.VALUE_CHANGE;
-    }
-    else
-    {
-      this.summaryKey = SummaryKey.UNMODIFIED;
-    }
+      if (hasTime && hasValue) {
+          this.summaryKey = SummaryKey.UPDATE;
+      } else if (hasTime) {
+          this.summaryKey = SummaryKey.TIME_CHANGE;
+      } else if (hasValue) {
+          this.summaryKey = SummaryKey.VALUE_CHANGE;
+      } else {
+          this.summaryKey = SummaryKey.UNMODIFIED;
+      }
   }
 
-  set summaryKey(newKey: SummaryKey)
-  {
-    this.summaryKeyData = newKey;
-    this.localizeSummaryKey();
+  set summaryKey(newKey: SummaryKey) {
+      this.summaryKeyData = newKey;
+      this.localizeSummaryKey();
   }
 
-  get summaryKey(): SummaryKey
-  {
-    return this.summaryKeyData;
+  get summaryKey(): SummaryKey {
+      return this.summaryKeyData;
   }
 
-  private localizeSummaryKey(): void
-  {
-    this.summaryKeyLocalized = this.component.lService.decode('changeovertime.manageVersions.summaryKey.' + this.summaryKeyData);
+  private localizeSummaryKey(): void {
+      this.summaryKeyLocalized = this.component.lService.decode("changeovertime.manageVersions.summaryKey." + this.summaryKeyData);
   }
+
 }

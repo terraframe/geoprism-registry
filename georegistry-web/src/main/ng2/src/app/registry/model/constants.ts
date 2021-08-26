@@ -29,3 +29,8 @@ export enum ConflictType {
     MISSING_REFERENCE = "MISSING_REFERENCE",
     TIME_RANGE = "TIME_RANGE"
 }
+
+export enum LayerColor {
+  "OLD" = "#A4A4A4",
+  "NEW" = "#0062AA"
+}
