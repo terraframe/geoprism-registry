@@ -1,6 +1,6 @@
-table {
- border-collapse: separate;
- padding: 15px;
+
+.cr-maintainer-options {
+	padding-top:15px;
 }
 
 p.warning-text.display-current-value {
@@ -17,6 +17,11 @@ p.warning-text.display-current-value {
     background-color: inherit;
     border-color: orange;
     border-left: solid 5px orange;
+}
+
+.value-box {
+ background-color: #f9f9f9;
+ margin-top: 10px;
 }
 
 .value-box .inner-value {
@@ -47,9 +52,5 @@ p.warning-text.display-current-value {
 
 .has-changed {
 	color: orange;
-}
-
-.value-box {
- background-color: #f9f9f9;
 }
 

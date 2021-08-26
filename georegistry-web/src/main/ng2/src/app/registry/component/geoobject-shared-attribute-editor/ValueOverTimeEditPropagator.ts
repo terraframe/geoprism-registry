@@ -358,7 +358,7 @@ export class ValueOverTimeEditPropagator {
   public onAddNewVersion(): void {
       if (this.component.editAction instanceof CreateGeoObjectAction) {
           let vot = new ValueOverTime();
-          vot.oid = this.component.generateUUID();
+          vot.oid = uuid();
 
           this.component.editAction.geoObjectJson.attributes[this.component.attributeType.code].values.push(vot);
 

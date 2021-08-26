@@ -26,4 +26,28 @@
 		  </div>
 	  </div>
   </div>
+  
+  
+  <!-- TODO : This code copy/pasted from manage-versions.component.html -->
+  <div *ngIf="changeRequest && !changeRequest.isNew" class="cr-maintainer-options">
+	  <div *ngIf="changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && model.editAction && model.diff">
+	    <button [disabled]="model.editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
+	      <localize key="change.request.accept.btn"></localize>
+	    </button>
+	    <button [disabled]="model.editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
+	      <localize key="change.request.reject.btn"></localize>
+	    </button>
+	    <button [disabled]="model.editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
+	      <localize key="change.request.pending.btn"></localize>
+	    </button>
+	  </div>              
+	  <div *ngIf="changeRequest.approvalStatus !== 'PENDING'">
+	    <strong style="color:#6BA542;" *ngIf="model.editAction.approvalStatus === 'ACCEPTED'">
+	        <localize key="change.request.status.accepted"></localize>
+	    </strong>
+	    <strong style="color:#6d0400;" *ngIf="model.editAction.approvalStatus === 'REJECTED'">
+	        <localize key="change.request.status.rejected"></localize>
+	    </strong>
+	  </div>
+	</div>
 </div>

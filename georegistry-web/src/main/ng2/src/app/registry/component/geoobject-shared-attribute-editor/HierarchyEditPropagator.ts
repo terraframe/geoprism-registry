@@ -345,7 +345,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   createEmptyHierarchyEntry(): HierarchyOverTimeEntry {
       let hierarchyEntry = new HierarchyOverTimeEntry();
       hierarchyEntry.loading = {};
-      hierarchyEntry.oid = this.component.generateUUID();
+      hierarchyEntry.oid = uuid();
 
       hierarchyEntry.parents = {};
 

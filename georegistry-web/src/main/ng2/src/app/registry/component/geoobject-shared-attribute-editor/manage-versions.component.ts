@@ -180,17 +180,13 @@ export class ManageVersionsComponent implements OnInit {
 
     onAddNewVersion(): void {
         let view: VersionDiffView = new VersionDiffView(this, this.editAction);
-        view.oid = this.generateUUID();
+        view.oid = uuid();
 
         view.editPropagator.onAddNewVersion();
 
         this.viewModels.push(view);
 
         this.changeDetectorRef.detectChanges();
-    }
-
-    generateUUID() {
-        return uuid();
     }
 
     getVersionData(attribute: AttributeType) {

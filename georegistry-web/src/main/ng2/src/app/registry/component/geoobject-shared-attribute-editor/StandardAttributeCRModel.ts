@@ -115,12 +115,4 @@ export class StandardAttributeCRModel {
         return val1 === val2;
     }
 
-    public getDiff(): { oldValue?: any, newValue?: any } {
-        return this.diff;
-    }
-
-    public getEditAction(): AbstractAction {
-        return this.editAction;
-    }
-
 }

@@ -107,7 +107,7 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     calculateView(): void {
-        let diff = this.model.getDiff();
+        let diff = this.model.diff;
 
         if (diff != null) {
             let newVal = diff.newValue == null ? null : JSON.parse(JSON.stringify(diff.newValue));
@@ -134,7 +134,7 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     onApprove(): void {
-        let editAction = this.model.getEditAction();
+        let editAction = this.model.editAction;
 
         this.requestService.setActionStatus(editAction.oid, GovernanceStatus.ACCEPTED).then(results => {
             editAction.approvalStatus = GovernanceStatus.ACCEPTED;
@@ -144,7 +144,7 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     onReject(): void {
-        let editAction = this.model.getEditAction();
+        let editAction = this.model.editAction;
 
         this.requestService.setActionStatus(editAction.oid, GovernanceStatus.REJECTED).then(results => {
             editAction.approvalStatus = GovernanceStatus.REJECTED;
@@ -154,7 +154,7 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     onPending(): void {
-        let editAction = this.model.getEditAction();
+        let editAction = this.model.editAction;
 
         this.requestService.setActionStatus(editAction.oid, GovernanceStatus.PENDING).then(results => {
             editAction.approvalStatus = GovernanceStatus.PENDING;
