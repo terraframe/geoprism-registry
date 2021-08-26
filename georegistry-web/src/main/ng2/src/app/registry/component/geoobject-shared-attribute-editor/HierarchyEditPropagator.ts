@@ -16,7 +16,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
   constructor(component: ManageVersionsComponent, action: AbstractAction, view: VersionDiffView, hierarchyEntry: HierarchyOverTimeEntry, hierarchyOverTime: HierarchyOverTime) {
       super(component, action, view);
       this.hierarchyEntry = hierarchyEntry;
-      this.hierarchyOverTime = hierarchyOverTime;
+      this.hierarchyOverTime = this.component.hierarchy;
 
       if (this.hierarchyEntry != null) {
           this.hierarchyEntry.loading = {};

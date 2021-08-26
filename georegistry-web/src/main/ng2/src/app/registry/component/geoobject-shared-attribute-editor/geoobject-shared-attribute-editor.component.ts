@@ -144,10 +144,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         cr.actions = [];
 
         if (this.isNew) {
+            cr.type = "CreateGeoObject";
+
             let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
             createAction.geoObjectJson = this.postGeoObject;
             createAction.parentJson = this.hierarchies;
             cr.actions[0] = createAction;
+        } else {
+            cr.type = "UpdateGeoObject";
         }
 
         return cr;
