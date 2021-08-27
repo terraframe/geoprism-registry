@@ -504,7 +504,7 @@ public class MasterList extends MasterListBase
 
     for (MasterListVersion version : versions)
     {
-      version.createMdAttributeFromAttributeType(type, attributeType, locales);
+      MasterListVersion.createMdAttributeFromAttributeType(version, type, attributeType, locales);
     }
   }
 

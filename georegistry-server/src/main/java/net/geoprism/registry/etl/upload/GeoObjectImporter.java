@@ -204,10 +204,10 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         if (this.getParent() != null)
         {
-          ServerGeoObjectIF parent = this.getParent();
           // ServerGeoObjectIF serverGo = this.getServerGO();
-
-          List<Location> locations = GeoObjectImporter.this.configuration.getLocations();
+          final ServerGeoObjectIF parent = this.getParent();
+          final List<Location> locations = GeoObjectImporter.this.configuration.getLocations();
+          final ServerHierarchyType hierarchy = GeoObjectImporter.this.configuration.getHierarchy();
 
           String[] types = new String[locations.size() - 1];
 
@@ -217,15 +217,21 @@ public class GeoObjectImporter implements ObjectImporterIF
             types[i] = location.getType().getCode();
           }
 
-          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
-
-          ServerHierarchyType hierarchy = GeoObjectImporter.this.configuration.getHierarchy();
-
-          ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
-
           ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null);
 
-          tnParent.addParent(ptn);
+          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
+          
+          if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
+          {
+            List<ServerParentTreeNode> entries = grandParentsOverTime.getEntries(hierarchy);
+            
+            if (entries != null && entries.size() > 0)
+            {
+              ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
+              
+              tnParent.addParent(ptn);
+            }
+          }
 
           ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(GeoObjectImporter.this.configuration.getType());
           parentsOverTime.add(hierarchy, tnParent);
