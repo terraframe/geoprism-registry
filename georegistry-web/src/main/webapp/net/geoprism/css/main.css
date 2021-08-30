@@ -115,7 +115,7 @@
 /*  Full width radio buttons */
 
 .btn-group .btn.full-width-radio-button {
-    width: calc(33% - 16.66px);
+    width: calc(33.33% - 16.66px);
     background: white; /* IE fallback */
     background: var(--theme-button-color);
     
