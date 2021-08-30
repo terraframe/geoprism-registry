@@ -156,7 +156,12 @@ export class ManageVersionsComponent implements OnInit {
 
             let hasConflict = this.dateService.checkRanges(this.viewModels);
 
-            this.isValidChange.emit(this.isValid && !hasConflict);
+            let hasExistConflict = false;
+            if (this.attributeType.code !== "exists") {
+                hasExistConflict = this.dateService.checkExistRanges(this.viewModels, this.getViewsForAttribute("exists"));
+            }
+
+            this.isValidChange.emit(this.isValid && !(hasConflict || hasExistConflict));
         }, 0);
     }
 
@@ -284,10 +289,14 @@ export class ManageVersionsComponent implements OnInit {
         }
     }
 
-    findViewByOid(oid: string): VersionDiffView {
-        let len = this.viewModels.length;
+    findViewByOid(oid: string, viewModels: VersionDiffView[]): VersionDiffView {
+        if (!viewModels) {
+            viewModels = this.viewModels;
+        }
+
+        let len = viewModels.length;
         for (let i = 0; i < len; ++i) {
-            let view = this.viewModels[i];
+            let view = viewModels[i];
 
             if (view.oid === oid) {
                 return view;
@@ -336,7 +345,11 @@ export class ManageVersionsComponent implements OnInit {
             }
         }
 
-        this.viewModels = [];
+        this.viewModels = this.getViewsForAttribute(this.attributeType.code);
+    }
+
+    getViewsForAttribute(typeCode: string): VersionDiffView[] {
+        let viewModels: VersionDiffView[] = [];
 
         // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
         // on the GeoObject
@@ -366,10 +379,10 @@ export class ManageVersionsComponent implements OnInit {
                         }
                     }
 
-                    this.viewModels.push(view);
+                    viewModels.push(view);
                 });
             } else {
-                this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
+                this.postGeoObject.attributes[typeCode].values.forEach((vot: ValueOverTime) => {
                     let view = new VersionDiffView(this, this.editAction);
 
                     view.oid = vot.oid;
@@ -380,7 +393,7 @@ export class ManageVersionsComponent implements OnInit {
 
                     view.editPropagator.valueOverTime = vot;
 
-                    this.viewModels.push(view);
+                    viewModels.push(view);
                 });
             }
         }
@@ -393,18 +406,18 @@ export class ManageVersionsComponent implements OnInit {
             if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
                 let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
-                if (this.attributeType.code === updateAttrAction.attributeName) {
+                if (typeCode === updateAttrAction.attributeName) {
                     if (this.attributeType.type === "_PARENT_" && updateAttrAction.attributeDiff.hierarchyCode !== this.hierarchy.code) {
                         continue;
                     }
 
                     updateAttrAction.attributeDiff.valuesOverTime.forEach((votDiff: ValueOverTimeDiff) => {
-                        let view = this.findViewByOid(votDiff.oid);
+                        let view = this.findViewByOid(votDiff.oid, viewModels);
 
                         if (votDiff.action === "DELETE") {
                             if (view == null) {
                                 view = new VersionDiffView(this, action);
-                                this.viewModels.push(view);
+                                viewModels.push(view);
 
                                 if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
                                     view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
@@ -428,7 +441,7 @@ export class ManageVersionsComponent implements OnInit {
                         } else if (votDiff.action === "UPDATE") {
                             if (view == null) {
                                 view = new VersionDiffView(this, action);
-                                this.viewModels.push(view);
+                                viewModels.push(view);
 
                                 if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
                                     view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
@@ -448,7 +461,7 @@ export class ManageVersionsComponent implements OnInit {
 
                                 view.summaryKey = SummaryKey.NEW;
 
-                                this.viewModels.push(view);
+                                viewModels.push(view);
                             }
                         }
                     });
@@ -459,6 +472,8 @@ export class ManageVersionsComponent implements OnInit {
                 console.log("Unexpected action : " + action.actionType, action);
             }
         }
+
+        return viewModels;
     }
 
     populateViewFromDiff(view: VersionDiffView, votDiff: ValueOverTimeDiff) {

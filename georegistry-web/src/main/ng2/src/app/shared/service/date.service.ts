@@ -20,6 +20,12 @@ export class DateService {
         type: ConflictType.TIME_RANGE
     }
 
+    outsideExistsMessage: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("manage.versions.outsideExists.message"),
+        type: ConflictType.OUTSIDE_EXISTS
+    }
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private localizationService: LocalizationService) { }
 
@@ -87,7 +93,7 @@ export class DateService {
             }
         });
 
-        // Filter DELETE entries from overlap and gap consideration
+        // Filter DELETE entries from consideration
         const filtered = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
 
         // Check for overlaps
@@ -168,6 +174,56 @@ export class DateService {
         }
 
         this.sort(vAttributes);
+
+        return hasConflict;
+    }
+
+    checkExistRanges(vAttributes: TimeRangeEntry[], existEntries: TimeRangeEntry[]): boolean {
+        let hasConflict = false;
+
+        // clear all messages
+        vAttributes.forEach(attr => {
+            if (!attr.conflictMessage) {
+                attr.conflictMessage = [];
+            }
+
+            for (let i = attr.conflictMessage.length - 1; i >= 0; --i) {
+                if (attr.conflictMessage[i].type === ConflictType.OUTSIDE_EXISTS) {
+                    attr.conflictMessage.splice(i, 1);
+                }
+            }
+        });
+
+        // Filter DELETE entries from consideration
+        const filtered = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+
+        const filteredExists = existEntries.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+
+        // Check for outside exists range
+        for (let j = 0; j < filtered.length; j++) {
+            const h1 = filtered[j];
+
+            if (h1.startDate && h1.endDate) {
+                let s1: any = this.getDateFromDateString(h1.startDate);
+                let e1: any = this.getDateFromDateString(h1.endDate);
+
+                for (let i = 0; i < filteredExists.length; i++) {
+                    const h2 = filteredExists[i];
+
+                    // If all dates set
+                    if (h2.startDate && h2.endDate) {
+                        let s2: Date = this.getDateFromDateString(h2.startDate);
+                        let e2: Date = this.getDateFromDateString(h2.endDate);
+
+                        if (Utils.dateRangeOutside(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+                            h1.conflictMessage.push(this.outsideExistsMessage);
+
+                            hasConflict = true;
+                        }
+                    }
+                }
+            }
+        }
 
         return hasConflict;
     }

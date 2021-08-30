@@ -27,7 +27,8 @@ export enum ImportStrategy {
 
 export enum ConflictType {
     MISSING_REFERENCE = "MISSING_REFERENCE",
-    TIME_RANGE = "TIME_RANGE"
+    TIME_RANGE = "TIME_RANGE",
+    OUTSIDE_EXISTS = "OUTSIDE_EXISTS"
 }
 
 export enum LayerColor {
