@@ -115,13 +115,16 @@
 /*  Full width radio buttons */
 
 .btn-group .btn.full-width-radio-button {
-    width: 33.33%;
+    width: calc(33% - 16.66px);
     background: white; /* IE fallback */
     background: var(--theme-button-color);
     
     color: #767676; /* IE fallback */
     color: var(--theme-button-text-color);  
     border-color: var(--theme-button-color-border);
+}
+.btn-group .btn.full-width-radio-button.settings {
+    width: 50px;
 }
 .btn-group .btn.full-width-radio-button.active{
     color: #6BA542 !important; /* IE fallback */

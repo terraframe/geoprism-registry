@@ -96,7 +96,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     currentTermOption: Term = null;
     isValid: boolean = true;
 
-    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
+    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
     @ViewChild("attributeForm") attributeForm;
 
@@ -197,7 +197,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                         return true;
                     } else if (updateAttrAction.attributeName === "geometry" && tabIndex === 2) {
                         return true;
-                    } else if (tabIndex === 0 && updateAttrAction.attributeName !== "_PARENT_" && updateAttrAction.attributeName !== "geometry") {
+                    } else if ((updateAttrAction.attributeName === "invalid" || updateAttrAction.attributeName === "exists") && tabIndex === 3) {
+                        return true;
+                    } else if (tabIndex === 0 && updateAttrAction.attributeName !== "_PARENT_" && updateAttrAction.attributeName !== "geometry" && updateAttrAction.attributeName !== "exists" && updateAttrAction.attributeName !== "invalid") {
                         return true;
                     }
                 }

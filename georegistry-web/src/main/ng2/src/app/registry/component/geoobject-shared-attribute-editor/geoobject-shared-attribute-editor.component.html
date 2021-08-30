@@ -10,9 +10,13 @@
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
         <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, tabHasChanges: hasChanges(3)}" (click)="changePage(2);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, tabHasChanges: hasChanges(2)}" (click)="changePage(2);"> 
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
         <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+      </label>
+      <label class="btn full-width-radio-button settings" [ngClass]="{active: tabIndex === 3, tabHasChanges: hasChanges(3)}" (click)="changePage(3);"> 
+        <span style="display:inline-block; width:90%;"><i class="fa fa-cog"></i></span>
+        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(3)" class="tabHasChanges"></span></span>
       </label>
     </div>
   </div>
@@ -108,7 +112,33 @@
               [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>
-
+      </div>
+      
+      <div *ngIf="tabIndex === 3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span>{{getAttribute('exists').label.localizedValue}}</span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':getAttribute('exists'), 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span>{{getAttribute('invalid').label.localizedValue}}</span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [postGeoObject]="postGeoObject"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew"></standard-attribute-editor>
+          </div>
+        </div>
       </div>
     </div>
     <!-- </div> -->
