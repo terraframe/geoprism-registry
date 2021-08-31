@@ -38,6 +38,7 @@ import Utils from "../../utility/Utils";
 import { VersionDiffView, Layer } from "./manage-versions-model";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
 import { ControlContainer, NgForm } from "@angular/forms";
+import { GeoObjectSharedAttributeEditorComponent } from "./geoobject-shared-attribute-editor.component";
 
 @Component({
     selector: "manage-versions",
@@ -87,11 +88,14 @@ export class ManageVersionsComponent implements OnInit {
 
     @Input() isGeometryInlined: boolean = false;
 
+    @Input() sharedAttributeEditor: GeoObjectSharedAttributeEditorComponent;
+
     attributeType: AttributeType;
     actions: AbstractAction[] = [];
 
     // eslint-disable-next-line accessor-pairs
-    @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, "actions":AbstractAction[], geoObject:GeoObjectOverTime}) {
+    @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, "actions":AbstractAction[], "editor": any, geoObject:GeoObjectOverTime}) {
+        this.sharedAttributeEditor = value.editor;
         this.attributeType = value.attributeType;
 
         this.changeRequest = value.changeRequest;
@@ -152,16 +156,58 @@ export class ManageVersionsComponent implements OnInit {
 
     onDateChange(): any {
         setTimeout(() => {
+            let geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
+
             this.isValid = this.checkDateFieldValidity();
 
             let hasConflict = this.dateService.checkRanges(this.viewModels);
 
+            let existViews = this.getViewsForAttribute("exists", null);
             let hasExistConflict = false;
             if (this.attributeType.code !== "exists") {
-                hasExistConflict = this.dateService.checkExistRanges(this.viewModels, this.getViewsForAttribute("exists"));
+                hasExistConflict = this.dateService.checkExistRanges(this.viewModels, existViews);
+            } else {
+                let attrs = JSON.parse(JSON.stringify(this.geoObjectType.attributes));
+                console.log(this.sharedAttributeEditor);
+                attrs.push(this.sharedAttributeEditor.geometryAttributeType);
+                attrs.push(this.sharedAttributeEditor.parentAttributeType);
+
+                attrs.forEach((attr: AttributeType) => {
+                    if (geoObjectAttributeExcludes.indexOf(attr.code) === -1 && attr.isChangeOverTime) {
+                        let processAttr = (hierarchy: HierarchyOverTime) => {
+                            let attrViews = this.getViewsForAttribute(attr.code, hierarchy);
+
+                            if (!attr.isValidReason) {
+                                attr.isValidReason = { timeConflict: false, existConflict: false, dateField: false };
+                            }
+                            attr.isValidReason.existConflict = this.dateService.checkExistRanges(attrViews, existViews);
+
+                            if (attr.isValidReason.existConflict) {
+                                attr.isValid = false;
+                                this.isValidChange.emit(false);
+                            } else {
+                                attr.isValidReason.timeConflict = this.dateService.checkRanges(attrViews);
+
+                                attr.isValid = !(attr.isValidReason.dateField || attr.isValidReason.timeConflict || attr.isValidReason.existConflict);
+                                this.isValidChange.emit(attr.isValid);
+                            }
+                        };
+
+                        if (attr.code === "_PARENT_") {
+                            this.sharedAttributeEditor.hierarchies.forEach(hierarchy => {
+                                processAttr(hierarchy);
+                            });
+                        } else {
+                            processAttr(null);
+                        }
+                    }
+                });
             }
 
-            this.isValidChange.emit(this.isValid && !(hasConflict || hasExistConflict));
+            let valid = this.isValid && !(hasConflict || hasExistConflict);
+            this.attributeType.isValid = valid;
+            this.attributeType.isValidReason = { timeConflict: hasConflict, existConflict: hasExistConflict, dateField: !this.isValid };
+            this.isValidChange.emit(valid);
         }, 0);
     }
 
@@ -345,17 +391,17 @@ export class ManageVersionsComponent implements OnInit {
             }
         }
 
-        this.viewModels = this.getViewsForAttribute(this.attributeType.code);
+        this.viewModels = this.getViewsForAttribute(this.attributeType.code, this.hierarchy);
     }
 
-    getViewsForAttribute(typeCode: string): VersionDiffView[] {
+    getViewsForAttribute(typeCode: string, hierarchy: HierarchyOverTime): VersionDiffView[] {
         let viewModels: VersionDiffView[] = [];
 
         // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
         // on the GeoObject
         if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
-            if (this.attributeType.type === "_PARENT_") {
-                this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
+            if (typeCode === "_PARENT_") {
+                hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
                     let view = new VersionDiffView(this, this.editAction);
 
                     view.oid = entry.oid;
@@ -365,14 +411,14 @@ export class ManageVersionsComponent implements OnInit {
                     view.value = JSON.parse(JSON.stringify(entry));
                     view.value.loading = {};
 
-                    view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry, this.hierarchy);
+                    view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry, hierarchy);
 
                     // In the corner case where this object isn't assigned to the lowest level, we may have
                     // empty values in our parents array for some of the types. Our front-end assumes there
                     // will always be an entry for all the types.
-                    let len = this.hierarchy.types.length;
+                    let len = hierarchy.types.length;
                     for (let i = 0; i < len; ++i) {
-                        let type = this.hierarchy.types[i];
+                        let type = hierarchy.types[i];
 
                         if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
                             view.value.parents[type.code] = { text: "", geoObject: null };
@@ -407,7 +453,7 @@ export class ManageVersionsComponent implements OnInit {
                 let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
                 if (typeCode === updateAttrAction.attributeName) {
-                    if (this.attributeType.type === "_PARENT_" && updateAttrAction.attributeDiff.hierarchyCode !== this.hierarchy.code) {
+                    if (typeCode === "_PARENT_" && updateAttrAction.attributeDiff.hierarchyCode !== hierarchy.code) {
                         continue;
                     }
 
@@ -424,7 +470,7 @@ export class ManageVersionsComponent implements OnInit {
                                 }
                             }
 
-                            this.populateViewFromDiff(view, votDiff);
+                            this.populateViewFromDiff(typeCode, hierarchy, view, votDiff);
 
                             delete view.oldValue;
                             delete view.oldStartDate;
@@ -448,7 +494,7 @@ export class ManageVersionsComponent implements OnInit {
                                 }
                             }
 
-                            this.populateViewFromDiff(view, votDiff);
+                            this.populateViewFromDiff(typeCode, hierarchy, view, votDiff);
 
                             view.calculateSummaryKey(votDiff);
                         } else if (votDiff.action === "CREATE") {
@@ -457,7 +503,7 @@ export class ManageVersionsComponent implements OnInit {
                             } else {
                                 view = new VersionDiffView(this, action);
 
-                                this.populateViewFromDiff(view, votDiff);
+                                this.populateViewFromDiff(typeCode, hierarchy, view, votDiff);
 
                                 view.summaryKey = SummaryKey.NEW;
 
@@ -476,8 +522,8 @@ export class ManageVersionsComponent implements OnInit {
         return viewModels;
     }
 
-    populateViewFromDiff(view: VersionDiffView, votDiff: ValueOverTimeDiff) {
-        if (this.attributeType.type === "_PARENT_") {
+    populateViewFromDiff(typeCode: string, hierarchy: HierarchyOverTime, view: VersionDiffView, votDiff: ValueOverTimeDiff) {
+        if (typeCode === "_PARENT_") {
             view.value = (view.editPropagator as HierarchyEditPropagator).createEmptyHierarchyEntry();
             view.value.oid = votDiff.oid;
             view.value.startDate = votDiff.newStartDate || votDiff.oldStartDate;
@@ -488,9 +534,9 @@ export class ManageVersionsComponent implements OnInit {
             // In the corner case where this object isn't assigned to the lowest level, we may have
             // empty values in our parents array for some of the types. Our front-end assumes there
             // will always be an entry for all the types.
-            let len = this.hierarchy.types.length;
+            let len = hierarchy.types.length;
             for (let i = 0; i < len; ++i) {
-                let type = this.hierarchy.types[i];
+                let type = hierarchy.types[i];
 
                 if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
                     view.value.parents[type.code] = { text: "", geoObject: null };
@@ -506,9 +552,9 @@ export class ManageVersionsComponent implements OnInit {
 
                 view.oldValue = oldGoCode;
 
-                let len = this.hierarchy.types.length;
+                let len = hierarchy.types.length;
                 for (let i = len - 1; i >= 0; --i) {
-                    let type = this.hierarchy.types[i];
+                    let type = hierarchy.types[i];
 
                     if (Object.prototype.hasOwnProperty.call(votDiff.parents, type.code)) {
                         let lowestLevel = votDiff.parents[type.code];

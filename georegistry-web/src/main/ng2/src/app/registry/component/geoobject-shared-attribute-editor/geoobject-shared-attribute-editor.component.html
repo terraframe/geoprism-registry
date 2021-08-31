@@ -3,20 +3,24 @@
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
       <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0}" (click)="changePage(0);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(0)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, tabHasChanges: hasChanges(2)}" (click)="changePage(1);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1}" (click)="changePage(1);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(1)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, tabHasChanges: hasChanges(2)}" (click)="changePage(2);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2}" (click)="changePage(2);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(2)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
       </label>
-      <label class="btn full-width-radio-button settings" [ngClass]="{active: tabIndex === 3, tabHasChanges: hasChanges(3)}" (click)="changePage(3);"> 
+      <label class="btn full-width-radio-button settings" [ngClass]="{active: tabIndex === 3}" (click)="changePage(3);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(3)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><i class="fa fa-cog"></i></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(3)" class="tabHasChanges"></span></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(3)" class="tabHasChanges"></span></span>
       </label>
     </div>
   </div>
@@ -60,7 +64,7 @@
                 <div class="panel-body">
                   <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
                     <manage-versions
-                        [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+                        [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':attr, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
                         [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew" >
                     </manage-versions>
                   </div>
@@ -71,7 +75,7 @@
 
                     <div *ngIf="attr.code !== 'code'">
                         <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [postGeoObject]="postGeoObject"
-                          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew"></standard-attribute-editor>
+                          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew"></standard-attribute-editor>
                     </div>
                   </div>
                 </div>
@@ -91,7 +95,7 @@
               </div>
 			      
 			        <div class="panel-body">
-			          <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+			          <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':parentAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
                         [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [hierarchy]="hierarchy"></manage-versions>
 			        </div>
 		        </div>
@@ -108,7 +112,7 @@
           </div>
             
           <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':geometryAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
               [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>
@@ -123,8 +127,8 @@
           </div>
             
           <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':getAttribute('exists'), 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':getAttribute('exists'), 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, getAttribute('exists'))" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>
         <div class="panel panel-default">
@@ -136,7 +140,7 @@
             
           <div class="panel-body">
             <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [postGeoObject]="postGeoObject"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew"></standard-attribute-editor>
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, getAttribute('invalid'))" [isNew]="isNew"></standard-attribute-editor>
           </div>
         </div>
       </div>

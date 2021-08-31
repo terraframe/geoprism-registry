@@ -192,6 +192,10 @@ export class ValueOverTimeEditPropagator {
       this.view.calculateSummaryKey(this.diff);
 
       this.component.onActionChange(this.action);
+
+      if (this.component.attributeType.code === "exists") {
+          this.component.onDateChange();
+      }
   }
 
   public setLocalizedValue(localeValue: {locale: string, value: string}) {

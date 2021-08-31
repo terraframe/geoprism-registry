@@ -207,20 +207,25 @@ export class DateService {
                 let s1: any = this.getDateFromDateString(h1.startDate);
                 let e1: any = this.getDateFromDateString(h1.endDate);
 
+                let inRange = false;
+
                 for (let i = 0; i < filteredExists.length; i++) {
                     const h2 = filteredExists[i];
 
                     // If all dates set
-                    if (h2.startDate && h2.endDate) {
+                    if (h2.value && h2.startDate && h2.endDate) {
                         let s2: Date = this.getDateFromDateString(h2.startDate);
                         let e2: Date = this.getDateFromDateString(h2.endDate);
 
-                        if (Utils.dateRangeOutside(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-                            h1.conflictMessage.push(this.outsideExistsMessage);
-
-                            hasConflict = true;
+                        if (!Utils.dateRangeOutside(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+                            inRange = true;
                         }
                     }
+                }
+
+                if (!inRange) {
+                    h1.conflictMessage.push(this.outsideExistsMessage);
+                    hasConflict = true;
                 }
             }
         }

@@ -96,13 +96,14 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     currentTermOption: Term = null;
     isValid: boolean = true;
 
+    // TODO : This was copy / pasted into manage-versions.component::onDateChange
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
     @ViewChild("attributeForm") attributeForm;
 
-    parentAttributeType: AttributeType;
+    public parentAttributeType: AttributeType;
 
-    geometryAttributeType: AttributeType;
+    public geometryAttributeType: AttributeType;
 
     constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
         this.isContributorOnly = this.authService.isContributerOnly();
@@ -166,6 +167,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     getAttribute(name: string): AttributeType {
+        if (name === "_PARENT_") {
+            return this.parentAttributeType;
+        } else if (name === "geometry") {
+            return this.geometryAttributeType;
+        }
+
         for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
             if (this.geoObjectType.attributes[i].code === name) {
                 return this.geoObjectType.attributes[i];
@@ -209,6 +216,32 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         return false;
     }
 
+    hasErrors(tabIndex: number) {
+        if (tabIndex === 0) {
+            let len = this.geoObjectType.attributes.length;
+
+            for (let i = 0; i < len; ++i) {
+                let attr = this.geoObjectType.attributes[i];
+                if (attr.code !== "invalid" && attr.code !== "exists" &&
+                    (Object.prototype.hasOwnProperty.call(attr, "isValid") && !attr.isValid)) {
+                    return true;
+                }
+            }
+        } else if (tabIndex === 1) {
+            return Object.prototype.hasOwnProperty.call(this.parentAttributeType, "isValid") && !this.parentAttributeType.isValid;
+        } else if (tabIndex === 2) {
+            return Object.prototype.hasOwnProperty.call(this.geometryAttributeType, "isValid") && !this.geometryAttributeType.isValid;
+        } else if (tabIndex === 3) {
+            let invalid = this.getAttribute("invalid");
+            let exists = this.getAttribute("exists");
+
+            return (Object.prototype.hasOwnProperty.call(invalid, "isValid") && !invalid.isValid) ||
+            (Object.prototype.hasOwnProperty.call(exists, "isValid") && !exists.isValid);
+        }
+
+        return false;
+    }
+
     onNonChangeOverTimeAttributeChange(attribute: AttributeType): void {
         let newVal = this.postGeoObject.attributes[attribute.code];
         attribute.isValid = (newVal != null) && newVal.length > 0;
@@ -218,8 +251,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     // After each change we must check to see if all attributes
     // are now valid or not
     onIsValidChange(valid:boolean, attribute: AttributeType): void {
-        attribute.isValid = valid;
-
         let allValid:boolean = true;
 
         this.geoObjectType.attributes.forEach(att => {
