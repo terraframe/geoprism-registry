@@ -536,6 +536,10 @@ export class ManageVersionsComponent implements OnInit {
 
             view.value.parents = votDiff.parents;
 
+            if (!view.value.parents) {
+                view.value.parents = {};
+            }
+
             // In the corner case where this object isn't assigned to the lowest level, we may have
             // empty values in our parents array for some of the types. Our front-end assumes there
             // will always be an entry for all the types.
@@ -561,7 +565,7 @@ export class ManageVersionsComponent implements OnInit {
                 for (let i = len - 1; i >= 0; --i) {
                     let type = hierarchy.types[i];
 
-                    if (Object.prototype.hasOwnProperty.call(votDiff.parents, type.code)) {
+                    if (votDiff.parents && Object.prototype.hasOwnProperty.call(votDiff.parents, type.code)) {
                         let lowestLevel = votDiff.parents[type.code];
 
                         if (lowestLevel.text == null || lowestLevel.text.length === 0) {

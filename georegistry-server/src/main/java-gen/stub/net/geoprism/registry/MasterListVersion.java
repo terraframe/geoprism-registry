@@ -876,7 +876,7 @@ public class MasterListVersion extends MasterListVersionBase
 
       if (this.isValid(attribute))
       {
-        Object value = go.getValue(name);
+        Object value = go.getValue(name, this.getForDate());
 
         if (value != null)
         {
@@ -885,7 +885,10 @@ public class MasterListVersion extends MasterListVersionBase
             continue;
           }
           
-          if (!name.equals(DefaultAttribute.CODE.getName()))
+          if ( !name.equals(DefaultAttribute.CODE.getName())
+              && !name.equals(DefaultAttribute.INVALID.getName())
+              && attribute.isChangeOverTime()
+              && (!name.equals(DefaultAttribute.EXISTS.getName()) || (value instanceof Boolean && ((Boolean) value))) )
           {
             hasData = true;
           }

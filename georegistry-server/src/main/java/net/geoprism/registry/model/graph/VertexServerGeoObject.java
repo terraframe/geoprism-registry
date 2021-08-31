@@ -913,7 +913,43 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public Object getValue(String attributeName, Date date)
   {
-    return this.vertex.getObjectValue(attributeName, date);
+    if (attributeName.equals(DefaultAttribute.CODE.getName()))
+    {
+      return this.getCode();
+    }
+    else if (attributeName.equals(DefaultAttribute.UID.getName()))
+    {
+      return this.getUid();
+    }
+    else if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
+    {
+      return this.getDisplayLabel(date);
+    }
+    else if (attributeName.equals(DefaultAttribute.CREATE_DATE.getName()))
+    {
+      return this.getCreateDate();
+    }
+    else if (attributeName.equals(DefaultAttribute.EXISTS.getName()))
+    {
+      return this.getExists(date);
+    }
+    
+    DefaultAttribute defaultAttr = DefaultAttribute.getByAttributeName(attributeName);
+    if (defaultAttr != null && !defaultAttr.isChangeOverTime())
+    {
+      return this.vertex.getObjectValue(attributeName);
+    }
+    
+    MdAttributeConcreteDAOIF mdAttribute = this.vertex.getMdAttributeDAO(attributeName);
+    
+    Object value = this.vertex.getObjectValue(attributeName, date);
+
+    if (value != null && mdAttribute instanceof MdAttributeTermDAOIF)
+    {
+      return Classifier.get((String) value);
+    }
+    
+    return value;
   }
 
   @Override

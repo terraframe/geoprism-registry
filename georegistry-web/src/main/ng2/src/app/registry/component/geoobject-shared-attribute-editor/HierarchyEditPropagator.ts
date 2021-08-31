@@ -52,6 +52,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
                   this.diff.oldEndDate = this.hierarchyEntry.endDate;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  this.diff.parents = this.hierarchyEntry.parents;
               }
           }
 
@@ -109,6 +110,7 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
                   this.diff.oldEndDate = this.hierarchyEntry.endDate;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  this.diff.parents = this.hierarchyEntry.parents;
               }
           }
 
@@ -349,12 +351,14 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
 
       hierarchyEntry.parents = {};
 
-      for (let i = 0; i < this.component.hierarchy.types.length; i++) {
-          let current = this.component.hierarchy.types[i];
+      if (this.component.hierarchy) {
+          for (let i = 0; i < this.component.hierarchy.types.length; i++) {
+              let current = this.component.hierarchy.types[i];
 
-          hierarchyEntry.parents[current.code] = { text: "", geoObject: null };
+              hierarchyEntry.parents[current.code] = { text: "", geoObject: null };
 
-          hierarchyEntry.loading = {};
+              hierarchyEntry.loading = {};
+          }
       }
 
       return hierarchyEntry;
