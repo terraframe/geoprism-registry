@@ -167,15 +167,15 @@ export class ManageVersionsComponent implements OnInit {
             if (this.attributeType.code !== "exists") {
                 hasExistConflict = this.dateService.checkExistRanges(this.viewModels, existViews);
             } else {
-                let attrs = JSON.parse(JSON.stringify(this.geoObjectType.attributes));
-                console.log(this.sharedAttributeEditor);
+                let attrs = this.geoObjectType.attributes.slice(); // intentionally a shallow copy
+
                 attrs.push(this.sharedAttributeEditor.geometryAttributeType);
                 attrs.push(this.sharedAttributeEditor.parentAttributeType);
 
                 attrs.forEach((attr: AttributeType) => {
                     if (geoObjectAttributeExcludes.indexOf(attr.code) === -1 && attr.isChangeOverTime) {
-                        let processAttr = (hierarchy: HierarchyOverTime) => {
-                            let attrViews = this.getViewsForAttribute(attr.code, hierarchy);
+                        if (attr.code !== "_PARENT_") {
+                            let attrViews = this.getViewsForAttribute(attr.code, null);
 
                             if (!attr.isValidReason) {
                                 attr.isValidReason = { timeConflict: false, existConflict: false, dateField: false };
@@ -184,21 +184,42 @@ export class ManageVersionsComponent implements OnInit {
 
                             if (attr.isValidReason.existConflict) {
                                 attr.isValid = false;
-                                this.isValidChange.emit(false);
                             } else {
                                 attr.isValidReason.timeConflict = this.dateService.checkRanges(attrViews);
 
                                 attr.isValid = !(attr.isValidReason.dateField || attr.isValidReason.timeConflict || attr.isValidReason.existConflict);
-                                this.isValidChange.emit(attr.isValid);
                             }
-                        };
-
-                        if (attr.code === "_PARENT_") {
-                            this.sharedAttributeEditor.hierarchies.forEach(hierarchy => {
-                                processAttr(hierarchy);
-                            });
                         } else {
-                            processAttr(null);
+                            this.sharedAttributeEditor.hierarchies.forEach(hierarchy => {
+                                let attrViews = this.getViewsForAttribute(attr.code, hierarchy);
+
+                                if (!attr.isValidReasonHierarchy) {
+                                    attr.isValidReasonHierarchy = {};
+                                    attr.isValidReasonHierarchy[hierarchy.code] = { timeConflict: false, existConflict: false, dateField: false };
+                                } else if (!attr.isValidReasonHierarchy[hierarchy.code]) {
+                                    attr.isValidReasonHierarchy[hierarchy.code] = { timeConflict: false, existConflict: false, dateField: false };
+                                }
+                                attr.isValidReasonHierarchy[hierarchy.code].existConflict = this.dateService.checkExistRanges(attrViews, existViews);
+
+                                if (attr.isValidReasonHierarchy[hierarchy.code].existConflict) {
+                                    attr.isValid = false;
+                                } else {
+                                    attr.isValidReasonHierarchy[hierarchy.code].timeConflict = this.dateService.checkRanges(attrViews);
+
+                                    attr.isValid = true;
+                                    this.sharedAttributeEditor.hierarchies.forEach(hierarchy2 => {
+                                        if (!attr.isValidReasonHierarchy[hierarchy2.code]) {
+                                            attr.isValidReasonHierarchy[hierarchy2.code] = { timeConflict: false, existConflict: false, dateField: false };
+                                        }
+
+                                        let hierValid = !(attr.isValidReasonHierarchy[hierarchy2.code].dateField || attr.isValidReasonHierarchy[hierarchy2.code].timeConflict || attr.isValidReasonHierarchy[hierarchy2.code].existConflict);
+
+                                        if (!hierValid) {
+                                            attr.isValid = false;
+                                        }
+                                    });
+                                }
+                            });
                         }
                     }
                 });
@@ -288,22 +309,6 @@ export class ManageVersionsComponent implements OnInit {
         }
 
         return null;
-    }
-
-    // TODO: Deprecate becasue it seems to not be used anywhere
-    sort(votArr: ValueOverTimeDiff[]): void {
-        // Sort the data by start date
-        votArr.sort(function(a, b) {
-            if (a.oldStartDate == null || a.oldStartDate === "") {
-                return 1;
-            } else if (b.oldStartDate == null || b.oldStartDate === "") {
-                return -1;
-            }
-
-            let first: any = new Date(a.oldStartDate);
-            let next: any = new Date(b.oldStartDate);
-            return first - next;
-        });
     }
 
     onActionChange(action: AbstractAction) {

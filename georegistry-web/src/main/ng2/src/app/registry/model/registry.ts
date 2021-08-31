@@ -173,6 +173,7 @@ export class AttributeType {
     scale?: number;
     isValid?: boolean;
     isValidReason?: {timeConflict: boolean, existConflict: boolean, dateField: boolean};
+    isValidReasonHierarchy?: any;
 
     constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 
