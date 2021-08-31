@@ -102,6 +102,7 @@ export class ChangeRequest {
     documents: Document[];
     actions: CreateGeoObjectAction[] & UpdateAttributeAction[];
     current: ChangeRequestCurrentObject & UpdateChangeRequestCurrentObject;
+    type?: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
     statusLabel?: string;
     phoneNumber?: string;
     email?: string;
