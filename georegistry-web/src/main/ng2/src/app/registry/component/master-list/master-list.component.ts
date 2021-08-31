@@ -163,6 +163,11 @@ export class MasterListComponent implements OnInit, OnDestroy {
         this.isRefreshing = (progress.current < progress.total);
 
         this.pService.progress(progress);
+
+        if (!this.isRefreshing) {
+            // Refresh the resultSet
+            this.onPageChange(1);
+        }
     }
 
     handleDateChange(attribute: any): void {

@@ -404,7 +404,8 @@ export class ManageVersionsComponent implements OnInit {
 
         // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
         // on the GeoObject
-        if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
+        if (this.changeRequest == null || this.changeRequest.type === "CreateGeoObject" ||
+          (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
             if (typeCode === "_PARENT_") {
                 hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
                     let view = new VersionDiffView(this, this.editAction);
