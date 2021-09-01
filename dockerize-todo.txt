@@ -7,3 +7,4 @@ POSTGRES_ROOT_PASSWORD and POSTGRES_ROOT_USERNAME params to cargo run launch, de
 1. Patching context listener is executing within a request, which doesn't work for fresh db installs
 2. Patching context listener is executing an install and then a patch on boot because it does a weird "initialize" and then "run" paradigm which seems unnecessary
 3. Make sure that we can boot whether or not a database exists, i.e. clean install or patch
+4. Hopefully there is no ramifications from making the DatabaseBuilder do install or patch (but not install and then patch).
