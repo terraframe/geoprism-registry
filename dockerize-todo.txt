@@ -4,8 +4,11 @@ POSTGRES_ROOT_PASSWORD and POSTGRES_ROOT_USERNAME params to cargo run launch, de
 
 
 -- TODO --
+- Write a Dockerfile and docker-compose file and get it to boot from fresh install
+  - server.xml file is missing and thus we aren't currently using https so can't connect to docker server
 - Make sure that we can boot whether or not a database exists, i.e. clean install or patch
 - Hopefully there is no ramifications from making the DatabaseBuilder do install or patch (but not install and then patch).
+- Rewrite ansible scripts
 
 
 -- DONE --
