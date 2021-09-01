@@ -162,7 +162,7 @@ export class ManageVersionsComponent implements OnInit {
 
             let hasConflict = this.dateService.checkRanges(this.viewModels);
 
-            let existViews = this.getViewsForAttribute("exists", null);
+            let existViews = this.getViewsForAttribute("exists", null, true);
             let hasExistConflict = false;
             if (this.attributeType.code !== "exists") {
                 hasExistConflict = this.dateService.checkExistRanges(this.viewModels, existViews);
@@ -399,12 +399,12 @@ export class ManageVersionsComponent implements OnInit {
         this.viewModels = this.getViewsForAttribute(this.attributeType.code, this.hierarchy);
     }
 
-    getViewsForAttribute(typeCode: string, hierarchy: HierarchyOverTime): VersionDiffView[] {
+    getViewsForAttribute(typeCode: string, hierarchy: HierarchyOverTime, includeUnmodified: boolean = false): VersionDiffView[] {
         let viewModels: VersionDiffView[] = [];
 
         // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
         // on the GeoObject
-        if (this.changeRequest == null || this.changeRequest.type === "CreateGeoObject" ||
+        if (includeUnmodified || this.changeRequest == null || this.changeRequest.type === "CreateGeoObject" ||
           (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
             if (typeCode === "_PARENT_") {
                 hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
@@ -434,19 +434,21 @@ export class ManageVersionsComponent implements OnInit {
                     viewModels.push(view);
                 });
             } else {
-                this.postGeoObject.attributes[typeCode].values.forEach((vot: ValueOverTime) => {
-                    let view = new VersionDiffView(this, this.editAction);
+                if (this.postGeoObject.attributes[typeCode]) {
+                    this.postGeoObject.attributes[typeCode].values.forEach((vot: ValueOverTime) => {
+                        let view = new VersionDiffView(this, this.editAction);
 
-                    view.oid = vot.oid;
-                    view.summaryKey = SummaryKey.UNMODIFIED;
-                    view.startDate = vot.startDate;
-                    view.endDate = vot.endDate;
-                    view.value = vot.value == null ? null : JSON.parse(JSON.stringify(vot.value));
+                        view.oid = vot.oid;
+                        view.summaryKey = SummaryKey.UNMODIFIED;
+                        view.startDate = vot.startDate;
+                        view.endDate = vot.endDate;
+                        view.value = vot.value == null ? null : JSON.parse(JSON.stringify(vot.value));
 
-                    view.editPropagator.valueOverTime = vot;
+                        view.editPropagator.valueOverTime = vot;
 
-                    viewModels.push(view);
-                });
+                        viewModels.push(view);
+                    });
+                }
             }
         }
 
