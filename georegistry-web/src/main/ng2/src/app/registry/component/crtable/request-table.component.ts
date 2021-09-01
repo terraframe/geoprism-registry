@@ -355,8 +355,6 @@ export class RequestTableComponent {
     }
 
     onUpdate(changeRequest: ChangeRequest): void {
-        console.log('Request', changeRequest);
-
         if (changeRequest != null) {
             this.service.update(changeRequest).then(request => {
 
@@ -368,7 +366,6 @@ export class RequestTableComponent {
             });
         }
     }
-
 
     applyActionStatusProperties(action: any): void {
         // var action = JSON.parse(JSON.stringify(this.action));
