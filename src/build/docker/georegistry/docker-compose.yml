@@ -37,6 +37,8 @@ services:
     environment:
       JAVA_OPTS: "-Xms1024m -Xmx4000m -Ddatabase.hostURL=georegistry-postgres -Dorientdb.db.url=remote:georegistry-orientdb"
       POSTGRES_PORT: 5432
+      POSTGRES_ROOT_USERNAME: postgres
+      POSTGRES_ROOT_PASSWORD: georegistry
     ports:
       - "8085:8080"
     volumes:
