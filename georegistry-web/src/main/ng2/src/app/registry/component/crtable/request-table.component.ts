@@ -100,7 +100,9 @@ export class RequestTableComponent {
     @ViewChild("myFile")
     fileRef: ElementRef;
 
-    isValid: boolean = true;    
+    isValid: boolean = true;
+
+    isEditing: boolean = false;
 
     constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
         private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
@@ -458,6 +460,14 @@ export class RequestTableComponent {
         } else {
             return true;
         }
+    }
+
+    onEditAttributes(): void {
+        this.isEditing = !this.isEditing;
+    }
+
+    canEdit(request: ChangeRequest) : boolean {
+        return (request.permissions.includes("WRITE_DETAILS") && this.isEditing);
     }
 
 }
