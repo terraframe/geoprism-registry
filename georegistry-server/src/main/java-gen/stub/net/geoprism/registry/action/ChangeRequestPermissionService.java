@@ -22,6 +22,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
+
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -95,7 +98,13 @@ public class ChangeRequestPermissionService
     {
       actions.addAll(Arrays.asList(ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.READ_APPROVAL_STATUS, ChangeRequestPermissionAction.READ_DETAILS, ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.READ_DOCUMENTS, ChangeRequestPermissionAction.WRITE_DOCUMENTS, ChangeRequestPermissionAction.READ_MAINTAINER_NOTES, ChangeRequestPermissionAction.READ_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.SUBMIT, ChangeRequestPermissionAction.DELETE));
 
-      if (status.equals(AllGovernanceStatus.ACCEPTED) || status.equals(AllGovernanceStatus.REJECTED))
+      SessionIF session = Session.getCurrentSession();
+      if (session == null || session.getUser() == null || cr.getCreatedBy() == null || !cr.getCreatedBy().getOid().equals(session.getUser().getOid()))
+      {
+        actions.remove(ChangeRequestPermissionAction.DELETE);
+      }
+      
+      if (status.equals(AllGovernanceStatus.ACCEPTED) || status.equals(AllGovernanceStatus.REJECTED) || status.equals(AllGovernanceStatus.INVALID) || status.equals(AllGovernanceStatus.PARTIAL))
       {
         actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
         actions.remove(ChangeRequestPermissionAction.WRITE_DETAILS);

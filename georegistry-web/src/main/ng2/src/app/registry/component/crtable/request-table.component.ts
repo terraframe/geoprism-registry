@@ -102,6 +102,8 @@ export class RequestTableComponent {
 
     isValid: boolean = true;
 
+    isEditing: boolean = false;
+
     constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
         private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
         this.columns = [
@@ -353,8 +355,6 @@ export class RequestTableComponent {
     }
 
     onUpdate(changeRequest: ChangeRequest): void {
-        console.log('Request', changeRequest);
-
         if (changeRequest != null) {
             this.service.update(changeRequest).then(request => {
 
@@ -366,7 +366,6 @@ export class RequestTableComponent {
             });
         }
     }
-
 
     applyActionStatusProperties(action: any): void {
         // var action = JSON.parse(JSON.stringify(this.action));
@@ -458,6 +457,14 @@ export class RequestTableComponent {
         } else {
             return true;
         }
+    }
+
+    onEditAttributes(): void {
+        this.isEditing = !this.isEditing;
+    }
+
+    canEdit(request: ChangeRequest) : boolean {
+        return (request.permissions.includes("WRITE_DETAILS") && this.isEditing);
     }
 
 }

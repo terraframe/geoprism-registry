@@ -70,6 +70,13 @@ export class GeometryService {
             this.removeLayers();
         }
 
+        if (this.layers != null) {
+            this.layers.forEach(layer => {
+                layer.isEditing = false;
+                layer.isRendering = false;
+            });
+        }
+
         this.editingLayer = null;
         this.layers = [];
     }

@@ -59,4 +59,11 @@ public class GeoregistryProperties
     
     return token;
   }
+  
+  public static String getCustomFont()
+  {
+    String font = Singleton.INSTANCE.props.getString("custom.font", "");
+    
+    return font;
+  }
 }
