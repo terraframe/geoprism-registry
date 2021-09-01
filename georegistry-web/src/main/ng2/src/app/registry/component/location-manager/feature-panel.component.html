@@ -4,12 +4,13 @@
     <geoobject-shared-attribute-editor 
       #attributeEditor 
       [geoObjectType]="type" 
-      [preGeoObject]="preGeoObject" 
       [postGeoObject]="postGeoObject" 
       [forDate]="this.forDate" 
       [isNew]="isNew" 
       [isEditingGeometries]="false" 
+      [isGeometryInlined]="false"
       [customEvent]="true"
+      [hierarchies]="hierarchies"
       (onManageVersion)="onManageAttributeVersion($event)" 
       (onChange)="onAttributeChange($event)" 
       [readOnly]="!isEdit"
@@ -18,6 +19,7 @@
       > 
     </geoobject-shared-attribute-editor>
     
+    <!--
     <div *ngIf="isEdit" class="panel panel-default">
       <div class="panel-heading">
         <h4 style="margin:0;">
@@ -32,10 +34,13 @@
         </div>
       </div>
     </div>
-
+    -->
+    
+    <!--
     <div *ngIf="hierarchies != null">
       <tree-geo-selector *ngFor="let hierarchy of hierarchies" [forDate]="this.forDate" [hierarchy]="hierarchy" [readOnly]="!isEdit" (onManageVersion)="onManageHiearchyVersion($event)"> </tree-geo-selector>
     </div>
+    -->
     
     <div *ngIf="isEdit && !isMaintainer" class="form-group" style="z-index: 0;">
       <label> 
@@ -45,11 +50,12 @@
     </div>
 
     <div class="button-holder text-right" style="margin-bottom: 20px;">
+    
       <button *ngIf="!readOnly && !isEdit" type="submit" (click)="onEditAttributes()" class="btn btn-primary" style="width:100%;" role="button">
         <localize key="changeovertime.manageVersions.button.label"></localize>
       </button>
       
-      <button *ngIf="isEdit" type="button" class="btn btn-default" (click)="onCancel()">
+      <button *ngIf="isEdit" type="button" class="btn btn-default" (click)="onCancelInternal()">
         <localize key="modal.button.cancel"></localize>
       </button>
       <button *ngIf="isEdit" type="submit" (click)="onSubmit()" class="btn btn-primary" role="button" [disabled]="!isValid || (!isMaintainer && (!reason || (reason && reason.trim().length === 0)))">
@@ -58,8 +64,8 @@
 
     </div>
   </div>
+  <!--
   <div *ngIf="mode == MODE.VERSIONS && attribute != null">
-    <!-- Attributes tab -->
     <manage-versions 
       [attribute]="attribute"
       [geoObjectType]="type"
@@ -69,20 +75,20 @@
     </manage-versions>
   </div>
   <div *ngIf="mode == MODE.HIERARCHY && hierarchy != null">
-    <!-- Attributes tab -->
     <manage-parent-versions 
       [hierarchy]="hierarchy"
       (onChange)="onHierarchyChange($event)">
     </manage-parent-versions>
   </div>
   <div *ngIf="mode == MODE.GEOMETRY">
-    <!-- Attributes tab -->
     <geometry-panel 
       [geoObjectType]="type"
       [geoObjectOverTimeInput]="postGeoObject"
       [isNewGeoObject]="false"
       (onChange)="onAttributeChange($event)"
-      (onEdit)="onEditGeometryVersion($event)">
+      (onEdit)="onEditGeometryVersion($event)"
+      (onCloneGeometry)="onCloneGeometry($event)">
     </geometry-panel>
   </div>
+  -->
 </div>

@@ -1,21 +1,48 @@
+<div class="row">
+  <!-- <div class="label-holder"></div> -->
+  <div class="col-md-12">
+    <div class="btn-group geobject-editor-tab-holder">
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0}" (click)="changePage(0);"> 
+        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
+        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
+      </label> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, tabHasChanges: hasChanges(2)}" (click)="changePage(1);"> 
+        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
+        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
+      </label> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, tabHasChanges: hasChanges(3)}" (click)="changePage(2);"> 
+        <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
+        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+      </label>
+    </div>
+  </div>
+</div>
+
 <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
   <fieldset>
     <!-- <div class="col-md-12"> -->
-    <div *ngIf="preGeoObject">
-      <div *ngIf="!this.isEditingGeometries" class="row">
+    <div *ngIf="postGeoObject">
+      <div *ngIf="tabIndex === 0" class="row">
         <!-- <div class="label-holder">
                         <label>
                             <localize key="change.request.geoobject.update.form.label"></localize>
                         </label>
                     </div> -->
+                    
         <div class="col-md-12">
+
+<!--           <div class="row"> -->
+<!--             <div class="col-md-12"> -->
+<!--               <boolean-field [(value)]="showAllInstances" [label]="'Show all instances'" [disable]="false"></boolean-field> -->
+<!--             </div> -->
+<!--           </div> -->
+
           <span class="text"></span>
           <ul class="list-group">
-            <li class="list-group-item" style="text-align:left;border:none;padding:0;" *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index">
-
+            <li *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index" class="list-group-item" style="text-align:left;border:none;padding:0;">
               <div class="panel panel-default">
                 <div class="panel-heading">
-                  <h4 *ngIf="attr.code !== 'geometry'" style="margin:0;">
+                  <h4 style="margin:0;">
                     <span *ngIf="attr.code === 'code'"> 
                       <localize key="geoobject.code.alternate.label"></localize>
                     </span> 
@@ -23,199 +50,21 @@
                       <localize key="geoobject.displayLabel.alternate.label"></localize>
                     </span> 
                     <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
-                    
-<!--                     <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null" style="color:#BABABA;font-style:italic;">  -->
-<!--                       ( <p style="font-size:14px;display:inline-block;"> -->
-<!--                           {{calculatedPostObject[attr.code].startDate}} -->
-<!--                         </p> -->
-<!--                       - -->
-<!--                       <p *ngIf="calculatedPostObject[attr.code].endDate !== 'Present'" style="font-size:14px;display:inline-block;"> -->
-<!--                         {{calculatedPostObject[attr.code].endDate}} -->
-<!--                       </p> -->
-<!--                       <p *ngIf="calculatedPostObject[attr.code].endDate === 'Present'" style="font-size:14px;display:inline-block;"> -->
-<!--                         <localize key="changeovertime.manageVersions.infinity.endDate.label"></localize> -->
-<!--                       </p> -->
-<!--                       ) -->
-<!--                     </span> -->
                   </h4>
-
-                  <h4 *ngIf="attr.code === 'geometry'">
-                    <localize key="shared.attributes.attribute.geometry.label"></localize>
-                    <span *ngIf="attr.isChangeOverTime && calculatedPostObject[attr.code] != null && calculatedPostObject[attr.code].startDate != null"> 
-                      ({{calculatedPostObject[attr.code].startDate}} - {{calculatedPostObject[attr.code].endDate}}) 
-                    </span>
-                  </h4>
-
                 </div>
 
                 <div class="panel-body">
-
                   <div *ngIf="attr.code === 'code'">
-                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="calculatedPostObject[attr.code]" (change)="handleChangeCode($event)" id="mod-{{attr.code}}" name="mod-{{attr.code}}" [disabled]="!isNew" required>
+                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
+                        (change)="onCodeChange()" name="mod-{{attr.code}}" [disabled]="!isNew || readOnly" required>
                   </div>
 
-                  <div *ngIf="attr.type === 'character' && attr.code !== 'code'">
-                    <div class="input-group">
-                      <input *ngIf="postGeoObject" [ngClass]="{'input-group-read-only': readOnly}" type="text" [ngModel]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon">
-                        <i class="fa fa-pencil clickable" (click)="onManageAttributeVersions(attr)" aria-hidden="true"></i>
-                      </span>
-                    </div>
-
-                    <p class="warning-text" *ngIf="!isNew && isDifferentText(attr)">
-                      <localize key="change.request.changed.value.prefix"></localize>
-                      {{calculatedPreObject[attr.code].value}}
-                    </p>
-
+                  <div *ngIf="attr.code !== 'code'">
+                    <manage-versions
+                        [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" >
+                    </manage-versions>
                   </div>
-
-                  <div *ngIf="attr.type === 'local'">
-                    <ul class="list-group" *ngIf="calculatedPostObject[attr.code].value != null">
-                      <li class="list-group-item" *ngFor="let localeValue of calculatedPostObject[attr.code].value.localeValues; let i = index">
-                        <div class="panel panel-default">
-                          <div class="panel-heading">
-                            <h5><convert-key-label [key]="localeValue.locale"></convert-key-label></h5>
-                          </div>
-
-                          <div class="panel-body">
-
-                            <div class="input-group">
-                              <input disabled [ngClass]="{'input-group-read-only': readOnly}" [required]="localeValue.locale === 'defaultLocale'" type="text" [ngModel]="localeValue.value" [name]="'mod-' + attr.code + '-' + localeValue.locale" > 
-                              <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
-                                  <i class="fa fa-pencil" aria-hidden="true"></i>
-                              </span>
-                            </div>
-
-
-                            <p class="warning-text" *ngIf="!isNew && calculatedPreObject[attr.code].value != null && localeValue.value != null && localeValue.value.trim() !== calculatedPreObject[attr.code].value.localeValues[i].value">
-                              <localize key="change.request.changed.value.prefix"></localize>
-                              {{calculatedPreObject[attr.code].value.localeValues[i].value}}
-                            </p>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div *ngIf="attr.type === 'date'">
-
-                    <div class="input-group">
-                      <input type="date" [ngClass]="{'input-group-read-only': readOnly}" [ngModel]="calculatedPostObject[attr.code].value | date:'yyyy-MM-dd'" id="mod-{{attr.code}}" name="mod-{{attr.code}}" disabled> 
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                      </span>
-                    </div>
-
-                    <p class="warning-text" *ngIf="!isNew && isDifferentValue(attr)">
-                      <localize key="change.request.changed.value.prefix"></localize>
-                      {{calculatedPreObject[attr.code].value | date}}
-                    </p>
-
-                  </div>
-
-                  <div *ngIf="attr.type === 'boolean'">
-                  
-
-                    <div class="input-group" >
-                      <div [ngClass]="{'input-group-read-only': readOnly}" class="radio-group">
-                        <label class="radio radio-inline" style="margin:0;"> 
-                          <input class="inline-radio-input" type="radio" [checked]="calculatedPostObject[attr.code].value === true" [value]="true" id="mod-{{attr.code}}-true" name="mod-{{attr.code}}-true" disabled > 
-                          <span><localize key="change.request.boolean.option.true"></localize></span>
-                        </label> 
-                        <label class="radio radio-inline" style="margin:0;"> 
-                          <input class="inline-radio-input" type="radio" [checked]="!calculatedPostObject[attr.code].value === false" [value]="false" id="mod-{{attr.code}}-false" name="mod-{{attr.code}}-false" disabled > 
-                          <span><localize key="change.request.boolean.option.false"></localize></span>
-                        </label> 
-                      </div>
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                      </span>
-                    </div>
-
-                    <p class="warning-text" *ngIf="!isNew && isDifferentValue(attr)">
-                      <localize key="change.request.changed.value.prefix"></localize>
-                      {{calculatedPreObject[attr.code].value}}
-                    </p>
-
-                  </div>
-
-                  <div *ngIf="attr.type === 'float'">
-
-                    <div class="input-group">
-                      <input disabled [ngClass]="{'input-group-read-only': readOnly}" type="number" [(ngModel)]="calculatedPostObject[attr.code].value" id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                      </span>
-                    </div>
-
-                    <p class="warning-text" *ngIf="!isNew && isDifferentValue(attr)">
-                      <localize key="change.request.changed.value.prefix"></localize>
-                      {{calculatedPreObject[attr.code].value}}
-                    </p>
-
-                  </div>
-
-                  <div *ngIf="attr.type === 'integer'">
-                  
-                    <div class="input-group">
-                      <input [ngClass]="{'input-group-read-only': readOnly}" type="number" [(ngModel)]="calculatedPostObject[attr.code].value" disabled id="mod-{{attr.code}}" name="mod-{{attr.code}}"> 
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                      </span>
-                    </div>
-
-                    <p class="warning-text" *ngIf="!isNew && isDifferentValue(attr)">
-                      <localize key="change.request.changed.value.prefix"></localize>
-                      {{calculatedPreObject[attr.code].value}}
-                    </p>
-
-                  </div>
-
-                  <div *ngIf="attr.type === 'term'">
-
-                    <div class="input-group">
-                      <select [ngClass]="{'input-group-read-only': readOnly}" id="mod-{{attr.code}}" name="mod-term-{{attr.code}}" class="select-area" style="float: none;" disabled [(ngModel)]="calculatedPostObject[attr.code].value">
-                        <option value=""></option>
-                        <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attr.code)" [value]="option.code">{{option.label.localizedValue}}</option>
-                      </select> 
-                      <span *ngIf="attr.isChangeOverTime && !readOnly" class="input-group-addon clickable" (click)="onManageAttributeVersions(attr)"> 
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                      </span>
-                    </div>
-
-                    <p class="warning-text" *ngIf="!isNew && isStatusChanged(calculatedPostObject[attr.code].value, calculatedPreObject[attr.code].value)">
-                      <localize key="change.request.changed.value.prefix"></localize>
-                      {{calculatedPreObject[attr.code].value}}
-                    </p>
-
-                  </div>
-
-                  <div *ngIf="attr.type === 'geometry' && this.isGeometryInlined">
-<!--                     <geoobject-editor-map  -->
-<!--                       #geometryEditor  -->
-<!--                       [geometryType]="this.geoObjectType.geometryType"  -->
-<!--                       [readOnly]="readOnly" -->
-<!--                       [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null" -->
-<!--                       [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null"  -->
-<!--                       [bboxCode]="this.preGeoObject.attributes.code" -->
-<!--                       [bboxType]="this.geoObjectType.code" -->
-<!--                       (onClickEdit)="this.onManageGeometryVersions()"  -->
-<!--                       [bboxDate]="this.forDate.toISOString().split('T')[0]">  -->
-<!--                     </geoobject-editor-map> -->
-
-                      <div class="button-holder text-left" style="margin:0;">
-                        <button type="submit" style="width:100%;" (click)="this.onManageGeometryVersions()" class="btn btn-primary" role="button">
-                          <localize *ngIf="!readOnly" key="modal.button.edit"></localize>
-                          <localize *ngIf="readOnly" key="modal.button.view"></localize>
-                        </button>
-                      </div>
-                  </div>
-
-                  <!--                   <div *ngIf="attr.isChangeOverTime && !readOnly" class="button-holder" > -->
-                  <!--                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button"> -->
-                  <!--                       <localize key="changeovertime.manageVersions.button.label"></localize> -->
-                  <!--                     </button> -->
-                  <!--                   </div> -->
 
                 </div>
               </div>
@@ -223,18 +72,39 @@
           </ul>
         </div>
       </div>
-      <div *ngIf="this.isEditingGeometries && !this.isGeometryInlined">
-          <geoobject-editor-map 
-            #geometryEditor
-            [geometryType]="this.geoObjectType.geometryType"
-            [readOnly]="readOnly" 
-            [preGeometry]="calculatedPreObject['geometry'] != null ? calculatedPreObject['geometry'].value : null"
-            [postGeometry]="calculatedPostObject['geometry'] != null ? calculatedPostObject['geometry'].value : null"
-            [bboxCode]="this.preGeoObject.attributes.code"
-            [bboxType]="this.geoObjectType.code"
-            (onClickEdit)="this.onManageGeometryVersions()"
-            [bboxDate]="this.forDate.toISOString().split('T')[0]"
-          > </geoobject-editor-map>
+      <div *ngIf="tabIndex === 1" class="row">
+        <ul class="list-group">
+	        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
+	          <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 style="margin:0;">
+                  <span> {{hierarchy.label}} </span> 
+                </h4>
+              </div>
+			      
+			        <div class="panel-body">
+			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
+			        </div>
+		        </div>
+	        </li>
+        </ul>
+      </div>
+      
+      <div *ngIf="tabIndex === 2">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span> <localize key="shared.attributes.attribute.geometry.label"></localize> </span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+          </div>
+        </div>
+
       </div>
     </div>
     <!-- </div> -->

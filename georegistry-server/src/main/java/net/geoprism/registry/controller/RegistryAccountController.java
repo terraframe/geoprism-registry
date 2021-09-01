@@ -53,17 +53,17 @@ public class RegistryAccountController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "number") Integer number) throws JSONException
+  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize) throws JSONException
   {
-    String json = this.accountService.page(request.getSessionId(), number);
+    String json = this.accountService.page(request.getSessionId(), pageNumber, pageSize);
 
     return new RestBodyResponse(json);
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-sras")
-  public ResponseIF getSRAs(ClientRequestIF request, @RequestParamter(name = "number") Integer number) throws JSONException
+  public ResponseIF getSRAs(ClientRequestIF request, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize) throws JSONException
   {
-    String json = this.accountService.getSRAs(request.getSessionId(), number);
+    String json = this.accountService.getSRAs(request.getSessionId(), pageNumber, pageSize);
 
     return new RestBodyResponse(json);
   }

@@ -27,7 +27,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyNode;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;

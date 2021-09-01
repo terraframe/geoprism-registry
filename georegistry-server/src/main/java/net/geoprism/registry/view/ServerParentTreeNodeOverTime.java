@@ -42,7 +42,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.registry.GeoRegistryUtil;
@@ -115,7 +114,7 @@ public class ServerParentTreeNodeOverTime
     this.type = type;
     this.hierarchies = new TreeMap<String, ServerParentTreeNodeOverTime.Hierarchy>();
   }
-
+  
   public void add(ServerHierarchyType type)
   {
     if (!this.hierarchies.containsKey(type.getCode()))
@@ -296,6 +295,8 @@ public class ServerParentTreeNodeOverTime
         }
 
         object.add(JSON_ENTRY_PARENTS, pArray);
+        
+        object.addProperty("oid", node.getOid());
 
         entries.add(object);
       }
@@ -391,15 +392,25 @@ public class ServerParentTreeNodeOverTime
       {
         final JsonObject type = types.get(k).getAsJsonObject();
         final String code = type.get(JSON_TYPE_CODE).getAsString();
-        final JsonObject parent = parents.get(code).getAsJsonObject();
-
-        if (parent.has(JSON_ENTRY_PARENT_GEOOBJECT))
+        
+        if (parents.has(code))
         {
-          final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
-
-          ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
-
-          return new ServerParentTreeNode(pSGO, ht, startDate, endDate);
+          final JsonObject parent = parents.get(code).getAsJsonObject();
+  
+          if (parent.has(JSON_ENTRY_PARENT_GEOOBJECT) && !parent.get(JSON_ENTRY_PARENT_GEOOBJECT).isJsonNull())
+          {
+            final JsonObject go = parent.get(JSON_ENTRY_PARENT_GEOOBJECT).getAsJsonObject();
+  
+            ServerGeoObjectIF pSGO = deserializeGeoObject(go, code, context);
+            
+            String oid = null;
+            if (parent.has("oid"))
+            {
+              oid = parent.get("oid").getAsString();
+            }
+  
+            return new ServerParentTreeNode(pSGO, ht, startDate, endDate, oid);
+          }
         }
       }
 

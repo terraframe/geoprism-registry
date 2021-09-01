@@ -23,8 +23,10 @@
               [readOnly]="readOnly"
               [geometryChange]="geometryChange"
               (geometryEdit)="onGeometryEdit($event)"
-              (featureChange)="onFeatureChange($event)"              
+              (featureChange)="onFeatureChange()"              
               (modeChange)="onModeChange($event)"
+              (panelCancel)="onPanelCancel()"
+              (panelSubmit)="onPanelSubmit($event)"
             ></feature-panel>
           </div>
         </div>
@@ -52,14 +54,6 @@
           </article>
 
           <div id="dataset-map" class="map-view-port"></div>     
-          <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()"  #simpleEditControl></simple-edit-control>
-          
-<!--           <span *ngIf="!readOnly" (click)="onNewGeoObject()" style="position: absolute; bottom: 70px; right: 10px" role="button"> -->
-<!--             <button class="btn btn-primary"> -->
-<!--               <localize key="masterlist.newGeoObject"></localize>               -->
-<!--             </button> -->
-<!--           </span> -->
-               
         </div>
       </div>
     </div>

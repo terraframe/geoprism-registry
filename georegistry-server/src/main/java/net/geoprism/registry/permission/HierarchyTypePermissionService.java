@@ -18,11 +18,12 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 
@@ -34,36 +35,31 @@ import net.geoprism.registry.roles.UpdateHierarchyPermissionException;
 
 public class HierarchyTypePermissionService extends UserPermissionService implements HierarchyTypePermissionServiceIF
 {
-  /**
-   * Operation must be one of: - WRITE (Update) - READ - DELETE - CREATE
-   * 
-   * @param op
-   */
-  public void enforceActorHasPermission(String orgCode, Operation op)
+  public void enforceActorHasPermission(String orgCode, CGRPermissionAction action)
   {
-    if (!doesActorHavePermission(orgCode, op, null))
+    if (!this.getPermissions(orgCode).contains(action))
     {
       Organization org = Organization.getByCode(orgCode);
 
-      if (op.equals(Operation.WRITE))
+      if (action.equals(CGRPermissionAction.WRITE))
       {
         UpdateHierarchyPermissionException ex = new UpdateHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
-      else if (op.equals(Operation.READ))
+      else if (action.equals(CGRPermissionAction.READ))
       {
         ReadHierarchyPermissionException ex = new ReadHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
-      else if (op.equals(Operation.DELETE))
+      else if (action.equals(CGRPermissionAction.DELETE))
       {
         DeleteHierarchyPermissionException ex = new DeleteHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
         throw ex;
       }
-      else if (op.equals(Operation.CREATE))
+      else if (action.equals(CGRPermissionAction.CREATE))
       {
         CreateHierarchyPermissionException ex = new CreateHierarchyPermissionException();
         ex.setOrganization(org.getDisplayLabel().getValue());
@@ -71,14 +67,20 @@ public class HierarchyTypePermissionService extends UserPermissionService implem
       }
     }
   }
-
-  public boolean doesActorHavePermission(String orgCode, Operation op, PermissionContext context)
+  
+  public Set<CGRPermissionActionIF> getPermissions(String orgCode)
   {
     if (!this.hasSessionUser()) // null actor is assumed to be SYSTEM
     {
-      return true;
+      return new HashSet<CGRPermissionActionIF>(Arrays.asList(CGRPermissionAction.values()));
     }
-
+    
+//    final String orgCode = sht.getOrganization().getCode();
+    
+    HashSet<CGRPermissionActionIF> actions = new HashSet<CGRPermissionActionIF>();
+    
+    actions.add(CGRPermissionAction.READ);
+    
     if (orgCode != null)
     {
       SingleActorDAOIF actor = this.getSessionUser();
@@ -92,81 +94,74 @@ public class HierarchyTypePermissionService extends UserPermissionService implem
         {
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
 
-          if (RegistryRole.Type.isRA_Role(roleName) && orgCode.equals(roleOrgCode))
+          if (orgCode.equals(roleOrgCode))
           {
-            return true;
-          }
-          else if (op.equals(Operation.READ))
-          {
-            if ( ( RegistryRole.Type.isRA_Role(roleName) || RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isAC_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) ))
+            if (RegistryRole.Type.isRA_Role(roleName))
             {
-              if (context != null && context.equals(PermissionContext.WRITE))
-              {
-                return orgCode.equals(roleOrgCode);
-              }
-              else
-              {
-                return true;
-              }
+              actions.add(CGRPermissionAction.WRITE);
+              actions.add(CGRPermissionAction.CREATE);
+              actions.add(CGRPermissionAction.DELETE);
             }
           }
         }
         else if (RegistryRole.Type.isSRA_Role(roleName))
         {
-          return true;
+          actions.add(CGRPermissionAction.WRITE);
+          actions.add(CGRPermissionAction.CREATE);
+          actions.add(CGRPermissionAction.DELETE);
         }
       }
     }
-
-    return false;
+    
+    return actions;
   }
 
   @Override
-  public boolean canRead(String orgCode, PermissionContext context)
+  public boolean canRead(String orgCode)
   {
-    return this.doesActorHavePermission(orgCode, Operation.READ, context);
+    return this.getPermissions(orgCode).contains(CGRPermissionAction.READ);
   }
 
   @Override
   public void enforceCanRead(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, Operation.READ);
+    this.enforceActorHasPermission(orgCode, CGRPermissionAction.READ);
   }
 
   @Override
   public boolean canWrite(String orgCode)
   {
-    return this.doesActorHavePermission(orgCode, Operation.WRITE, null);
+    return this.getPermissions(orgCode).contains(CGRPermissionAction.WRITE);
   }
 
   @Override
   public void enforceCanWrite(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, Operation.WRITE);
+    this.enforceActorHasPermission(orgCode, CGRPermissionAction.WRITE);
   }
 
   @Override
   public boolean canCreate(String orgCode)
   {
-    return this.doesActorHavePermission(orgCode, Operation.CREATE, null);
+    return this.getPermissions(orgCode).contains(CGRPermissionAction.CREATE);
   }
 
   @Override
   public void enforceCanCreate(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, Operation.CREATE);
+    this.enforceActorHasPermission(orgCode, CGRPermissionAction.CREATE);
   }
 
   @Override
   public boolean canDelete(String orgCode)
   {
-    return this.doesActorHavePermission(orgCode, Operation.DELETE, null);
+    return this.getPermissions(orgCode).contains(CGRPermissionAction.DELETE);
   }
 
   @Override
   public void enforceCanDelete(String orgCode)
   {
-    this.enforceActorHasPermission(orgCode, Operation.DELETE);
+    this.enforceActorHasPermission(orgCode, CGRPermissionAction.DELETE);
   }
 
 }

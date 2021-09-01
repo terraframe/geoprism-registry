@@ -100,13 +100,43 @@
                 <div class="holder">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            <ul class="list-group list-group-flush">
-                                <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li>
-                            </ul>
+<!--                             <ul class="list-group list-group-flush"> -->
+<!--                                 <li *ngFor="let attr of editGeoObjectType.attributes" class="list-group-item">{{attr.label.localizedValue}}</li> -->
+<!--                             </ul> -->
 
-                            <button [disabled]="readOnly || geoObjectType.superTypeCode" type="button" class="btn btn-primary full-width" (click)="manageAttributes()">
-                                <localize key="modal.button.manageAttributes"></localize>
-                            </button>
+<!--                             <button [disabled]="readOnly || geoObjectType.superTypeCode" type="button" class="btn btn-primary full-width" (click)="manageAttributes()"> -->
+<!--                                 <localize key="modal.button.manageAttributes"></localize> -->
+<!--                             </button> -->
+
+                        <div class="table-responsive">
+                              <table class="table">
+<!--                                   <thead> -->
+<!--                                       <tr> -->
+<!--                                           <th> -->
+<!--                                               <localize key="data.property.label.label"></localize> -->
+<!--                                           </th> -->
+<!--                                           <th class="button-column-header"> -->
+<!--                                               <localize key="data.property.label.actions"></localize> -->
+<!--                                           </th> -->
+<!--                                       </tr> -->
+<!--                                   </thead> -->
+                                  <tbody>
+                                      <tr *ngFor="let attr of geoObjectType.attributes" >
+                                          <td>{{attr.label.localizedValue}}</td>
+                                          <td class="button-column" style="width: 60px;">
+                                              <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                                                  [title]="'modal.button.edit' | localize"></a>
+                                              <a *ngIf="!attr.isDefault && attr.code !== 'keyName'" class="fa fa-trash-o ico-remove" [routerLink]="" (click)="removeAttributeType(attr, $event)"
+                                                  [title]="'modal.button.remove' | localize"></a>
+                                          </td>
+                                      </tr>
+                                  </tbody>
+                              </table>
+                          </div>
+                          
+                          <i class="fa fa-plus clickable" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true" (click)="defineAttributeModal()">
+                              <localize key="modal.button.add"></localize>
+                          </i>
                         </div>
                     </div>
                 </div>

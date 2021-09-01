@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 1040278248)
+@com.runwaysdk.business.ClassSignature(hash = -1332859592)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -55,6 +55,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public String getClassType()
   {
     return net.geoprism.registry.action.ChangeRequest.CLASS;
+  }
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, displayLabel);
+
   }
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus()
   {
@@ -157,6 +174,40 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.action.ChangeRequest.ENTITYDOMAIN);
 
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.action.ChangeRequest.ENTITYDOMAIN, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode()
+  {
+    return getGeoObjectCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -271,6 +322,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableUUID)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.OID, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getOrganizationCode()
+  {
+    return getOrganizationCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.ORGANIZATIONCODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.ORGANIZATIONCODE, alias, displayLabel);
 
   }
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner()
@@ -657,6 +725,9 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public interface ChangeRequestQueryReferenceIF extends com.runwaysdk.query.SelectableReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes();
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus();
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel);
@@ -672,6 +743,12 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -690,6 +767,9 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.query.SelectableUUID getOid();
     public com.runwaysdk.query.SelectableUUID getOid(String alias);
     public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getOrganizationCode();
+    public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias);
+    public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias, String displayLabel);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
@@ -793,6 +873,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
       return this.NE(changeRequest.getOid());
     }
 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, displayLabel);
+
+  }
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus()
   {
     return getApprovalStatus(null);
@@ -876,6 +973,40 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.action.ChangeRequest.ENTITYDOMAIN,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode()
+  {
+    return getGeoObjectCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -978,6 +1109,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.action.ChangeRequest.OID, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getOrganizationCode()
+  {
+    return getOrganizationCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ORGANIZATIONCODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ORGANIZATIONCODE, alias, displayLabel);
 
   }
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner()
@@ -1335,6 +1483,9 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public interface ChangeRequestQueryMultiReferenceIF extends com.runwaysdk.query.SelectableMultiReference
   {
 
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes();
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias);
+    public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus();
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias);
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus(String alias, String displayLabel);
@@ -1350,6 +1501,12 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
+    public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -1368,6 +1525,9 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.query.SelectableUUID getOid();
     public com.runwaysdk.query.SelectableUUID getOid(String alias);
     public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getOrganizationCode();
+    public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias);
+    public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias, String displayLabel);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner();
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias);
     public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner(String alias, String displayLabel);
@@ -1464,6 +1624,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
 
       return this.containsExactly(itemIdArray);
   }
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes()
+  {
+    return getAdditionalNotes(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getAdditionalNotes(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ADDITIONALNOTES, alias, displayLabel);
+
+  }
   public net.geoprism.registry.action.GovernanceStatusQuery.AllGovernanceStatusQueryIF getApprovalStatus()
   {
     return getApprovalStatus(null);
@@ -1547,6 +1724,40 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF)this.get(net.geoprism.registry.action.ChangeRequest.ENTITYDOMAIN,  alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode()
+  {
+    return getGeoObjectCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
+  {
+    return getGeoObjectTypeCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -1649,6 +1860,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.SelectableUUID getOid(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.action.ChangeRequest.OID, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getOrganizationCode()
+  {
+    return getOrganizationCode(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ORGANIZATIONCODE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getOrganizationCode(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.ORGANIZATIONCODE, alias, displayLabel);
 
   }
   public com.runwaysdk.system.ActorQuery.ActorQueryReferenceIF getOwner()

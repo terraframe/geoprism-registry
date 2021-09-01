@@ -20,10 +20,13 @@ package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
+import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.GeoObjectStatus;
+import net.geoprism.registry.conversion.TermConverter;
 
 public class ConversionService
 {
@@ -42,7 +45,7 @@ public class ConversionService
   // struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE,
   // label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE));
   //
-  // List<Locale> locales = SupportedLocaleCache.getLocales();
+  // List<Locale> locales = LocalizationFacade.getInstalledLocales();
   //
   // for (Locale locale : locales)
   // {
@@ -60,7 +63,7 @@ public class ConversionService
   // struct.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE,
   // label.getValue(MdAttributeLocalInfo.DEFAULT_LOCALE) + suffix);
   //
-  // List<Locale> locales = SupportedLocaleCache.getLocales();
+  // List<Locale> locales = LocalizationFacade.getInstalledLocales();
   //
   // for (Locale locale : locales)
   // {
@@ -167,5 +170,16 @@ public class ConversionService
     {
       throw new ProgrammingErrorException("Unknown Status [" + termCode + "].");
     }
+  }
+  
+  public Classifier termToClassifier(AttributeTermType attr, Term term)
+  {
+    Term root = attr.getRootTerm();
+    String parent = TermConverter.buildClassifierKeyFromTermCode(root.getCode());
+
+    String classifierKey = Classifier.buildKey(parent, term.getCode());
+    Classifier classifier = Classifier.getByKey(classifierKey);
+    
+    return classifier;
   }
 }

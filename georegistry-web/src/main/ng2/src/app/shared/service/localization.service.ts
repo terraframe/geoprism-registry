@@ -1,109 +1,124 @@
-import { Injectable } from '@angular/core';
-import { LocalizedValue } from '@shared/model/core';
+import { Injectable } from "@angular/core";
+import { LocalizedValue, LocaleView } from "@shared/model/core";
 
-import { PRESENT } from '@registry/model/registry';
-
-import * as moment from 'moment';
-
-declare var Globalize: any;
-declare var com: any
-declare var registry: any
+declare let Globalize: any;
+declare let com: any;
+declare let registry: any;
 
 @Injectable()
 export class LocalizationService {
 
-	locales: string[] = ['defaultLocale'];
-	locale: string;
+    locales: LocaleView[] = [];
+    locale: string;
 
-	private parser: any = Globalize.numberParser();
-	private formatter: any = Globalize.numberFormatter();
+    private parser: any = Globalize.numberParser();
+    private formatter: any = Globalize.numberFormatter();
 
-	constructor() {
-		this.locales = registry.locales;
-		this.locale = registry.locale;
-	}
+    constructor() {
+        this.locales = registry.locales;
+        this.locale = registry.locale;
+    }
 
-	getLocales(): string[] {
-		return this.locales;
-	}
+    addLocale(locale: LocaleView): void {
+        let exists: boolean = false;
 
-	getLocale(): string {
-		return this.locale;
-	}
+        for (let i = 0; i < this.locales.length; ++i) {
+            if (this.locales[i].tag === locale.tag) {
+                exists = true;
+                this.locales[i] = locale;
+            }
+        }
 
-	setLocales(locales: string[]): void {
-		// The installed locales are now read from the global registry value on load
-		//		this.locales = locales;
-	}
+        if (!exists) {
+            this.locales.push(locale);
+        }
+    }
 
-	addLocale(locale: string): void {
+    setLocales(locales: LocaleView[]): void {
+        this.locales = locales;
+    }
 
-		if (this.locales.indexOf(locale) === -1) {
-			this.locales.push(locale);
-		}
-	}
+    getLocale(): string {
+        return this.locale;
+    }
 
-	create(): LocalizedValue {
-		const value = { localizedValue: '', localeValues: [] } as LocalizedValue;
+    getLocales(): LocaleView[] {
+        return this.locales;
+    }
 
-		this.locales.forEach(locale => {
-			value.localeValues.push({ locale: locale, value: '' });
-		});
+    create(): LocalizedValue {
+        const value = { localizedValue: "", localeValues: [] } as LocalizedValue;
 
-		return value;
-	}
+        this.locales.forEach(locale => {
+            //if (!locale.isDefaultLocale)
+            //{
+            value.localeValues.push({ locale: locale.toString, value: "" });
+            //}
+        });
 
-	public parseNumber(value: string): number {
-		if (value != null && value.length > 0) {
-			//convert data from view format to model format
-			var number = this.parser(value);
+        return value;
+    }
 
-			return number;
-		}
+    remove(locale: LocaleView): void {
+        for (let i = 0; i < this.locales.length; ++i) {
+            if (this.locales[i].tag === locale.tag) {
+                this.locales.splice(i, 1);
+                return;
+            }
+        }
 
-		return null;
-	}
+        // eslint-disable-next-line no-console
+        console.log("Could not remove locale from array because we could not find it.", locale, this.locales);
+    }
 
-	public formatNumber(value: any): string {
-		if (value != null) {
-			var number = value;
+    public parseNumber(value: string): number {
+        if (value != null && value.length > 0) {
+            // convert data from view format to model format
+            let number = this.parser(value);
 
-			if (typeof number === 'string') {
-				if (number.length > 0 && Number(number)) {
-					number = Number(value);
-				}
-				else {
-					return "";
-				}
-			}
+            return number;
+        }
 
-			//convert data from model format to view format
-			return this.formatter(number);
-		}
+        return null;
+    }
 
-		return null;
-	}
-	
+    public formatNumber(value: any): string {
+        if (value != null) {
+            let number = value;
 
-	public localize(bundle: string, key: string): string {
-		return com.runwaysdk.Localize.localize(bundle, key);
-	}
+            if (typeof number === "string") {
+                if (number.length > 0 && Number(number)) {
+                    number = Number(value);
+                } else {
+                    return "";
+                }
+            }
 
-	public get(key: string): string {
-		return com.runwaysdk.Localize.get(key);
-	}
+            // convert data from model format to view format
+            return this.formatter(number);
+        }
 
-	public decode(key: string): string {
-		let index = key.lastIndexOf('.');
+        return null;
+    }
 
-		if (index !== -1) {
+    public localize(bundle: string, key: string): string {
+        return com.runwaysdk.Localize.localize(bundle, key);
+    }
 
-			let temp = [key.slice(0, index), key.slice(index + 1)]
+    public get(key: string): string {
+        return com.runwaysdk.Localize.get(key);
+    }
 
-			return this.localize(temp[0], temp[1]);
-		}
-		else {
-			return this.get(key);
-		}
-	}
+    public decode(key: string): string {
+        let index = key.lastIndexOf(".");
+
+        if (index !== -1) {
+            let temp = [key.slice(0, index), key.slice(index + 1)];
+
+            return this.localize(temp[0], temp[1]);
+        } else {
+            return this.get(key);
+        }
+    }
+
 }

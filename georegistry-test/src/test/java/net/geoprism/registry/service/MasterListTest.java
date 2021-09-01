@@ -404,7 +404,7 @@ public class MasterListTest
   @Request
   public void testPublishVersion()
   {
-    TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
+    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
       JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
@@ -438,7 +438,7 @@ public class MasterListTest
   @Request
   public void testPublishVersionOfAbstract()
   {
-    TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
+    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
       MasterListBuilder builder = new MasterListBuilder();
       builder.setOrg(USATestData.ORG_NPS.getServerObject());
@@ -557,7 +557,7 @@ public class MasterListTest
   {
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, MasterList.PUBLIC, false, USATestData.COUNTRY);
 
-    TestUserInfo[] users = new TestUserInfo[] { USATestData.ADMIN_USER, USATestData.USER_PPP_RA };
+    TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_ADMIN, USATestData.USER_PPP_RA };
 
     for (TestUserInfo user : users)
     {
@@ -586,7 +586,7 @@ public class MasterListTest
 
     try
     {
-      TestUserInfo[] users = new TestUserInfo[] { USATestData.ADMIN_USER, USATestData.USER_PPP_RA };
+      TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_ADMIN, USATestData.USER_PPP_RA };
 
       for (TestUserInfo user : users)
       {

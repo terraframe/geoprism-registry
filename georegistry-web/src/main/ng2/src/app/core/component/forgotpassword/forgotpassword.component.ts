@@ -17,51 +17,47 @@
 /// License along with Runway SDK(tm).  If not, see <http://www.gnu.org/licenses/>.
 ///
 
-import { Component, EventEmitter, Input, OnInit, OnChanges, Output, Inject, ViewChild } from '@angular/core';
-import { ActivatedRoute, Params, Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { Location } from '@angular/common';
+import { Component } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { Location } from "@angular/common";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { ForgotPasswordService } from '@core/service/forgotpassword.service';
+import { ForgotPasswordService } from "@core/service/forgotpassword.service";
 
-import { ErrorHandler } from '@shared/component';
+import { ErrorHandler } from "@shared/component";
 
 @Component({
-  selector: 'forgotpassword',
-  templateUrl: './forgotpassword.component.html',
-  styleUrls: ['./forgotpassword.component.css']
+    selector: "forgotpassword",
+    templateUrl: "./forgotpassword.component.html",
+    styleUrls: ["./forgotpassword.component.css"]
 })
-export class ForgotPasswordComponent implements OnInit {
-  username: string;
-  emailIsSent: boolean = false;
-  message: string = null;
+export class ForgotPasswordComponent {
 
-  constructor(
-    private service: ForgotPasswordService,
-    private router: Router,      
-    private route: ActivatedRoute,
-    private location: Location) {
-  }
+    username: string;
+    emailIsSent: boolean = false;
+    message: string = null;
 
-  ngOnInit(): void {
-  
-  }
-  
-  cancel(): void {    
-    this.router.navigate(['/']);
-  } 
-  
-  onSubmit(): void {
-    this.service.submit(this.username)
-      .then(response => {
-        this.emailIsSent = true;
-      })
-      .catch(( err: HttpErrorResponse ) => {
-        this.error( err );
-      } );
-  }
-  
-  error( err: HttpErrorResponse ): void {
-      this.message = ErrorHandler.getMessageFromError(err);
-  }
+    constructor(private service: ForgotPasswordService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private location: Location) {}
+
+    cancel(): void {
+        this.router.navigate(["/"]);
+    }
+
+    onSubmit(): void {
+        this.service.submit(this.username)
+            .then(response => {
+                this.emailIsSent = true;
+            })
+            .catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+    }
+
+    error(err: HttpErrorResponse): void {
+        this.message = ErrorHandler.getMessageFromError(err);
+    }
+
 }

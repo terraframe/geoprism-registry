@@ -1,0 +1,107 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+    <createOrUpdate>
+    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.type.update.geoobject.label">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="change.request.type.update.geoobject.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Update" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.type.create.geoobject.label">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="change.request.type.create.geoobject.label" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="New Geo-Object" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.accepted.filter.link">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="change.request.accepted.filter.link" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Fully accepted" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.rejected.filter.link">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="change.request.rejected.filter.link" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Fully rejected" />
+        </attributeStruct>
+      </object>
+      
+    <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.view">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.view" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Show" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.hide">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.hide" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide" />
+        </attributeStruct>
+      </object>
+      
+            <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.hideOld">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.hideOld" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Hide original" />
+        </attributeStruct>
+      </object>
+      
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.viewOld">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.viewOld" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Show original" />
+        </attributeStruct>
+      </object>
+      
+        <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.geometry.save">
+        <attribute name="storeTag" value="Locale" />
+        <attribute name="storeKey" value="changeovertime.manageVersions.geometry.save" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Stop editing" />
+        </attributeStruct>
+      </object>
+      
+      
+    </createOrUpdate>
+    
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

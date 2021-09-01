@@ -20,6 +20,7 @@ package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -170,14 +171,6 @@ public class ExcelServiceTest
     Assert.assertFalse(result.getBoolean(GeoObjectImportConfiguration.HAS_POSTAL_CODE));
 
     Assert.assertNotNull(result.getJSONObject(GeoObjectImportConfiguration.TYPE));
-
-    JSONArray hierarchies = result.getJSONArray(GeoObjectImportConfiguration.HIERARCHIES);
-
-    Assert.assertEquals(1, hierarchies.length());
-
-    JSONObject hierarchy = hierarchies.getJSONObject(0);
-
-    Assert.assertNotNull(hierarchy.getString("label"));
 
     JSONObject sheet = result.getJSONObject(GeoObjectImportConfiguration.SHEET);
 

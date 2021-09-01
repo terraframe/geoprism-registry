@@ -32,6 +32,7 @@ import org.json.JSONObject;
 import com.runwaysdk.RunwayException;
 import com.runwaysdk.business.SmartException;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -41,7 +42,6 @@ import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
@@ -76,11 +76,8 @@ public class ExcelService
         ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
         reader.process(is);
 
-        JSONArray hierarchies = new JSONArray(ServiceFactory.getHierarchyService().getHierarchiesForType(sessionId, geoObjectType.getCode(), false).toString());
-
         JSONObject object = new JSONObject();
         object.put(GeoObjectImportConfiguration.TYPE, this.getType(geoObjectType));
-        object.put(GeoObjectImportConfiguration.HIERARCHIES, hierarchies);
         object.put(GeoObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
         object.put(ImportConfiguration.VAULT_FILE_ID, vf.getOid());
         object.put(ImportConfiguration.FILE_NAME, fileName);
@@ -123,7 +120,7 @@ public class ExcelService
   private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
     final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT) || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT);
-    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, true, SupportedLocaleCache.getLocales());
+    final ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, false, true, LocalizationFacade.getInstalledLocales());
 
     JSONObject type = new JSONObject(geoObjectType.toJSON(serializer).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);

@@ -1,0 +1,18 @@
+
+
+input, form input.form-control {
+    height: 40px;
+    /* margin: 0 11px 0 0; */
+    padding: 6px 10px;
+    font-size: 14px;
+    line-height: 18px;
+    color: #333;
+    border: 1px solid;
+    border-color: #767676;
+    border-color: var(--theme-input-text-border);
+    border-radius: 5px;
+    background: white;
+    background-color: white;
+    outline: none;
+    box-shadow: none;
+}

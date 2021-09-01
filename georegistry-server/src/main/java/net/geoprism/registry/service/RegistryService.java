@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
@@ -41,6 +42,8 @@ import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
+import org.commongeoregistry.adapter.metadata.HierarchyNode;
+import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,12 +57,13 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
 import com.runwaysdk.json.RunwayJsonAdapters;
+import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -88,11 +92,12 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
 import net.geoprism.registry.hierarchy.HierarchyService;
+import net.geoprism.registry.localization.DefaultLocaleView;
+import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
@@ -102,9 +107,11 @@ import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 import net.geoprism.registry.query.ServerGeoObjectQuery;
 import net.geoprism.registry.query.ServerLookupRestriction;
 import net.geoprism.registry.query.ServerSynonymRestriction;
+import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
@@ -318,6 +325,63 @@ public class RegistryService
     }
 
     return ja.toString();
+  }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject initHierarchyManager(String sessionId)
+  {
+    GeoObjectType[] gots = this.getGeoObjectTypes(sessionId, null, null, PermissionContext.READ);
+    HierarchyType[] hts = ServiceFactory.getHierarchyService().getHierarchyTypes(sessionId, null, PermissionContext.READ);
+    OrganizationDTO[] orgDtos = RegistryService.getInstance().getOrganizations(sessionId, null);
+    CustomSerializer serializer = this.serializer(sessionId);
+
+    JsonArray types = new JsonArray();
+
+    for (GeoObjectType got : gots)
+    {
+      JsonObject joGot = got.toJSON(serializer);
+
+      JsonArray relatedHiers = new JsonArray();
+
+      for (HierarchyType ht : hts)
+      {
+        List<HierarchyNode> hns = ht.getRootGeoObjectTypes();
+
+        for (HierarchyNode hn : hns)
+        {
+          if (hn.hierarchyHasGeoObjectType(got.getCode(), true))
+          {
+            relatedHiers.add(ht.getCode());
+          }
+        }
+      }
+
+      joGot.add("relatedHierarchies", relatedHiers);
+
+      types.add(joGot);
+    }
+
+    JsonArray hierarchies = new JsonArray();
+
+    for (HierarchyType ht : hts)
+    {
+      hierarchies.add(ht.toJSON(serializer));
+    }
+
+    JsonArray organizations = new JsonArray();
+
+    for (OrganizationDTO dto : orgDtos)
+    {
+      organizations.add(dto.toJSON(serializer));
+    }
+
+    JsonObject response = new JsonObject();
+    response.add("types", types);
+    response.add("hierarchies", hierarchies);
+    response.add("organizations", organizations);
+    response.add("locales", this.getLocales(sessionId));
+    
+    return response;
   }
 
   @Request(RequestType.SESSION)
@@ -578,6 +642,12 @@ public class RegistryService
 
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }
+  
+  @Request(RequestType.SESSION)
+  public JsonObject serialize(String sessionId, GeoObjectType got)
+  {
+    return got.toJSON(this.serializer(sessionId));
+  }
 
   /**
    * Creates a {@link GeoObjectType} from the given JSON.
@@ -780,7 +850,7 @@ public class RegistryService
 
     Classifier parent = Classifier.getByKey(parentClassifierKey);
 
-    TermConverter.enforceTermPermissions(parent, Operation.DELETE);
+    TermConverter.enforceTermPermissions(parent, CGRPermissionAction.DELETE);
 
     String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 
@@ -903,7 +973,7 @@ public class RegistryService
       statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
       statement.append("AND displayLabel_cot CONTAINS (");
       statement.append("  :date BETWEEN startDate AND endDate");
-      statement.append("  AND COALESCE(value.defaultLocale).toLowerCase() LIKE '%' + :text + '%'");
+      statement.append("  AND " + AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
       statement.append(") ORDER BY location.code ASC LIMIT 10");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
@@ -969,7 +1039,7 @@ public class RegistryService
     LocalizedValue label = new LocalizedValue("");
     label.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, "");
 
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     for (Locale locale : locales)
     {
@@ -1039,16 +1109,17 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getLocales(String sessionId)
   {
-    List<Locale> locales = SupportedLocaleCache.getLocales();
+    Set<SupportedLocaleIF> locales = LocalizationFacade.getSupportedLocales();
 
     JsonArray array = new JsonArray();
-    array.add(MdAttributeLocalInfo.DEFAULT_LOCALE);
 
-    for (Locale locale : locales)
+    array.add(new DefaultLocaleView().toJson());
+    
+    for (SupportedLocaleIF locale : locales)
     {
-      array.add(locale.toString());
+      array.add(LocaleView.fromSupportedLocale(locale).toJson());
     }
-
+    
     return array;
   }
 

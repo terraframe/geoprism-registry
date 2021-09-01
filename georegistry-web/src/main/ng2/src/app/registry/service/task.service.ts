@@ -17,61 +17,62 @@
 /// License along with Runway SDK(tm).  If not, see <ehttp://www.gnu.org/licenses/>.
 ///
 
-import { Injectable } from '@angular/core';
-import { HttpHeaders, HttpClient, HttpParams } from '@angular/common/http';
-import { finalize } from 'rxjs/operators';
+import { Injectable } from "@angular/core";
+import { HttpHeaders, HttpClient, HttpParams } from "@angular/common/http";
+import { finalize } from "rxjs/operators";
 
-import { PaginationPage } from '@registry/model/registry';
-import { EventService } from '@shared/service';
+import { PaginationPage } from "@registry/model/registry";
+import { EventService } from "@shared/service";
 
-declare var acp: any;
-
+declare let acp: any;
 
 @Injectable()
 export class TaskService {
 
-	constructor(private http: HttpClient, private eventService: EventService) { }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private http: HttpClient, private eventService: EventService) { }
 
-	getMyTasks(pageNum: number, pageSize: number, whereStatus: string): Promise<PaginationPage> {
-		let params: HttpParams = new HttpParams();
+    getMyTasks(pageNum: number, pageSize: number, whereStatus: string): Promise<PaginationPage> {
+        let params: HttpParams = new HttpParams();
 
-		params = params.set('orderBy', 'createDate');
-		params = params.set('pageNum', pageNum.toString());
-		params = params.set('pageSize', pageSize.toString());
-		params = params.set('whereStatus', whereStatus);
+        params = params.set("orderBy", "createDate");
+        params = params.set("pageNum", pageNum.toString());
+        params = params.set("pageSize", pageSize.toString());
+        params = params.set("whereStatus", whereStatus);
 
-		return this.http
-			.get<PaginationPage>(acp + '/tasks/get', { params: params })
-			.toPromise();
-	}
+        return this.http
+            .get<PaginationPage>(acp + "/tasks/get", { params: params })
+            .toPromise();
+    }
 
-	completeTask(taskId: string): Promise<Response> {
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
+    completeTask(taskId: string): Promise<Response> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-		this.eventService.start();
+        this.eventService.start();
 
-		return this.http
-			.post<any>(acp + '/tasks/complete', JSON.stringify({ 'id': taskId }), { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+        return this.http
+            .post<any>(acp + "/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 
-	setTaskStatus(taskId: string, status: string): Promise<Response> {
-		let headers = new HttpHeaders({
-			'Content-Type': 'application/json'
-		});
+    setTaskStatus(taskId: string, status: string): Promise<Response> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
-		this.eventService.start();
+        this.eventService.start();
 
-		return this.http
-			.post<any>(acp + '/tasks/setTaskStatus', JSON.stringify({ 'id': taskId, 'status': status }), { headers: headers })
-			.pipe(finalize(() => {
-				this.eventService.complete();
-			}))
-			.toPromise();
-	}
+        return this.http
+            .post<any>(acp + "/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
 }

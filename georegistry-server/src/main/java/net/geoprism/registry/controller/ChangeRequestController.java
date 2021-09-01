@@ -24,7 +24,6 @@ import java.io.InputStream;
 import org.json.JSONException;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonArray;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
@@ -55,33 +54,28 @@ public class ChangeRequestController
   {
     this.service = new ChangeRequestService();
   }
-  
+
+  /**
+   * 
+   * @param request
+   * @param crOid
+   * @param file
+   * @return
+   * @throws IOException
+   */
   @Endpoint(url = "upload-file-cr", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF uploadFileCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
   {
     try (InputStream stream = file.getInputStream())
     {
       String fileName = file.getFilename();
-      
+
       String vfOid = service.uploadFileCR(request.getSessionId(), crOid, fileName, stream);
-  
+
       return new RestBodyResponse(vfOid);
     }
   }
-  
-  @Endpoint(url = "upload-file-action", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF uploadFileAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
-  {
-    try (InputStream stream = file.getInputStream())
-    {
-      String fileName = file.getFilename();
-      
-      String vfOid = service.uploadFileAction(request.getSessionId(), actionOid, fileName, stream);
-  
-      return new RestBodyResponse(vfOid);
-    }
-  }
-  
+
   @Endpoint(error = ErrorSerialization.JSON)
   public ResponseIF listDocumentsCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid)
   {
@@ -89,15 +83,7 @@ public class ChangeRequestController
 
     return new RestBodyResponse(json);
   }
-  
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF listDocumentsAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid)
-  {
-    String json = service.listDocumentsAction(request.getSessionId(), actionOid);
 
-    return new RestBodyResponse(json);
-  }
-  
   @Endpoint(url = "download-file-cr", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF downloadDocumentCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
   {
@@ -105,15 +91,7 @@ public class ChangeRequestController
 
     return new InputStreamResponse(res.openNewStream(), "application/octet-stream", res.getName());
   }
-  
-  @Endpoint(url = "download-file-action", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF downloadDocumentAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "vfOid") String vfOid)
-  {
-    ApplicationResource res = service.downloadDocumentAction(request.getSessionId(), actionOid, vfOid);
 
-    return new InputStreamResponse(res.openNewStream(), "application/octet-stream", res.getName());
-  }
-  
   @Endpoint(url = "delete-file-cr", method = ServletMethod.POST, error = ErrorSerialization.JSON)
   public ResponseIF deleteDocumentCR(ClientRequestIF request, @RequestParamter(name = "crOid") String crOid, @RequestParamter(name = "vfOid") String vfOid)
   {
@@ -122,121 +100,85 @@ public class ChangeRequestController
     return new RestResponse();
   }
   
-  @Endpoint(url = "delete-file-action", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF deleteDocumentAction(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "vfOid") String vfOid)
+  @Endpoint(url = "reject", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF reject(ClientRequestIF request, @RequestParamter(name = "request") String cr)
   {
-    service.deleteDocumentAction(request.getSessionId(), actionOid, vfOid);
+    service.reject(request.getSessionId(), cr);
 
     return new RestResponse();
-  }
-  
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF unlockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId)
-  {
-    String sAction = service.unlockAction(request.getSessionId(), actionId);
-
-    return new RestBodyResponse(sAction);
-  }
-  
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF lockAction(ClientRequestIF request, @RequestParamter(name = "actionId") String actionId)
-  {
-    String sResponse = service.lockAction(request.getSessionId(), actionId);
-    
-    return new RestBodyResponse(sResponse);
   }
 
   /**
-   * Submits a serialized action to be applied to the database.
+   * Returns a paginated response of all change requests that your user has
+   * permission to view. Filter may be used to only return change requests that
+   * are of a specific approval status.
    * 
-   * @pre The action has already been locked.
-   * @post The action will be applied
-   * @post The action will no longer be locked
-   * 
-   * @param request
-   * @param action
-   * @return
-   * @throws JSONException
+   * @param pageSize
+   *          The number of results to return in each page.
+   * @param pageNumber
+   *          The page number of results to return.
+   * @param filter
+   *          May be one of PENDING, REJECTED, ACCEPTED, INVALID
    */
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF applyAction(ClientRequestIF request, @RequestParamter(name = "action") String action)
-  {
-    service.applyAction(request.getSessionId(), action);
-
-    return new RestResponse();
-  }
-  
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF applyActionStatusProperties(ClientRequestIF request, @RequestParamter(name = "action") String action)
-  {
-    service.applyActionStatusProperties(request.getSessionId(), action);
-
-    return new RestResponse();
-  }
-  
-  /**
-   * Gets all actions in the system ordered by createActionDate. If a requestId is provided we will fetch the actions that
-   * are relevant to that Change Request.
-   * 
-   * @param request
-   * @param requestId
-   * @return
-   * @throws JSONException
-   */
-  @Endpoint(error = ErrorSerialization.JSON)
-  public ResponseIF getAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
-  {
-    String json = service.getAllActions(request.getSessionId(), requestId);
-
-    return new RestBodyResponse(json);
-  }
-
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
-  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "filter") String filter)
+  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "oid") String oid)
   {
-    JsonArray requests = service.getAllRequests(request.getSessionId(), filter);
+    JsonObject paginated = service.getAllRequestsSerialized(request.getSessionId(), pageSize, pageNumber, filter, oid);
 
-    return new RestBodyResponse(requests);
+    return new RestBodyResponse(paginated.toString());
   }
 
-  @Endpoint(error = ErrorSerialization.JSON, url = "get-request-details", method = ServletMethod.GET)
-  public ResponseIF getRequestDetails(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
+  /**
+   * This endpoint can be used to set the status of an action. If your user does
+   * not have permissions to set the status a
+   * {@link net.geoprism.registry.CGRPermissionException} will be thrown.
+   * 
+   * @param actionOid
+   *          The id of the action.
+   * @param status
+   *          The approval status. May be one of PENDING, REJECTED, ACCEPTED,
+   *          INVALID
+   * @throws net.geoprism.registry.CGRPermissionException
+   * @return Empty response
+   */
+  @Endpoint(error = ErrorSerialization.JSON, url = "set-action-status", method = ServletMethod.POST)
+  public ResponseIF setActionStatus(ClientRequestIF request, @RequestParamter(name = "actionOid") String actionOid, @RequestParamter(name = "status") String status)
   {
-    JsonObject response = service.getRequestDetails(request.getSessionId(), requestId);
+    service.setActionStatus(request.getSessionId(), actionOid, status);
 
-    return new RestBodyResponse(response);
-  }
-  
-  @Endpoint(error = ErrorSerialization.JSON, url = "execute-actions", method = ServletMethod.POST)
-  public ResponseIF executeActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
-  {
-    JsonObject response = service.executeActions(request.getSessionId(), requestId);
-
-    return new RestBodyResponse(response);
-  }
-  
-  @Endpoint(error = ErrorSerialization.JSON, url = "confirm-change-request", method = ServletMethod.POST)
-  public ResponseIF confirmChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
-  {
-    JsonObject response = service.confirmChangeRequest(request.getSessionId(), requestId);
-
-    return new RestBodyResponse(response);
+    return new RestResponse();
   }
 
-  @Endpoint(error = ErrorSerialization.JSON, url = "approve-all-actions", method = ServletMethod.POST)
-  public ResponseIF approveAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions)
+  /**
+   * Implements all actions on the ChangeRequest. If your user does not have
+   * permissions to implement the request a
+   * {@link net.geoprism.registry.CGRPermissionException} will be thrown. If any
+   * of the actions currently have PENDING status an
+   * {@link net.geoprism.registry.action.ActionExecuteException} will be thrown.
+   * If the request is implemented successfully a 200 response will be returned
+   * and all actions as well as the change request will have an approval status
+   * set to APPROVED.
+   * 
+   * @param requestId
+   *          The id of the Change Request to implement.
+   * @throws net.geoprism.registry.action.ActionExecuteException
+   * @throws net.geoprism.registry.CGRPermissionException
+   * @return Empty response
+   */
+  @Endpoint(error = ErrorSerialization.JSON, url = "implement-decisions", method = ServletMethod.POST)
+  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "request") String cr)
   {
-    String response = service.approveAllActions(request.getSessionId(), requestId, actions);
+    JsonObject details = service.implementDecisions(request.getSessionId(), cr);
 
-    return new RestBodyResponse(response);
+    return new RestBodyResponse(details);
   }
 
-  @Endpoint(error = ErrorSerialization.JSON, url = "reject-all-actions", method = ServletMethod.POST)
-  public ResponseIF rejectAllActions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId, @RequestParamter(name = "actions") String actions)
+  @Endpoint(error = ErrorSerialization.JSON, url = "update", method = ServletMethod.POST)
+  public ResponseIF update(ClientRequestIF request, @RequestParamter(name = "request") String cr)
   {
-    String response = service.rejectAllActions(request.getSessionId(), requestId, actions);
-
-    return new RestBodyResponse(response);
+    JsonObject details = service.update(request.getSessionId(), cr);
+    
+    return new RestBodyResponse(details);
   }
   
   @Endpoint(error = ErrorSerialization.JSON, url = "delete", method = ServletMethod.POST)

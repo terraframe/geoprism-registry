@@ -1,3 +1,4 @@
+/* eslint-disable padded-blocks */
 export class Application {
   oid:string;
   src:string;

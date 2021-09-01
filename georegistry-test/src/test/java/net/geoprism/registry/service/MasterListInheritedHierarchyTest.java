@@ -116,7 +116,7 @@ public class MasterListInheritedHierarchyTest
   @Request
   public void testPublishVersion()
   {
-    TestDataSet.runAsUser(USATestData.ADMIN_USER, (request, adapter) -> {
+    TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
       JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, false, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
 

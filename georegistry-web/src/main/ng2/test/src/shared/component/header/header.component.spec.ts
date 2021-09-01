@@ -77,26 +77,10 @@ describe("CgrHeaderComponent", () => {
 
 	it(`shouldShowMenuItem IMPORT`, async(() => {
 		authService.hasExactRole = jasmine.createSpy().and.callFake((role: RegistryRoleType) => {
-			return !(role === RegistryRoleType.RA || role === RegistryRoleType.RM)
-		});
-
-		expect(component.shouldShowMenuItem('IMPORT')).toBeFalse();
-	}));
-
-	it(`shouldShowMenuItem IMPORT`, async(() => {
-		authService.hasExactRole = jasmine.createSpy().and.callFake((role: RegistryRoleType) => {
 			return (role === RegistryRoleType.RA || role === RegistryRoleType.RM)
 		});
 
 		expect(component.shouldShowMenuItem('IMPORT')).toBeTrue();
-	}));
-
-	it(`shouldShowMenuItem SCHEDULED-JOBS`, async(() => {
-		authService.hasExactRole = jasmine.createSpy().and.callFake((role: RegistryRoleType) => {
-			return !(role === RegistryRoleType.RA || role === RegistryRoleType.RM)
-		});
-
-		expect(component.shouldShowMenuItem('SCHEDULED-JOBS')).toBeFalse();
 	}));
 
 	it(`shouldShowMenuItem SCHEDULED-JOBS`, async(() => {
@@ -125,14 +109,6 @@ describe("CgrHeaderComponent", () => {
 
 	it(`shouldShowMenuItem CHANGE-REQUESTS`, async(() => {
 		authService.hasExactRole = jasmine.createSpy().and.callFake((role: RegistryRoleType) => {
-			return !(role === RegistryRoleType.RA || role === RegistryRoleType.RM || role === RegistryRoleType.RC)
-		});
-
-		expect(component.shouldShowMenuItem('CHANGE-REQUESTS')).toBeFalse();
-	}));
-
-	it(`shouldShowMenuItem CHANGE-REQUESTS`, async(() => {
-		authService.hasExactRole = jasmine.createSpy().and.callFake((role: RegistryRoleType) => {
 			return (role === RegistryRoleType.RA || role === RegistryRoleType.RM || role === RegistryRoleType.RC)
 		});
 
@@ -153,14 +129,6 @@ describe("CgrHeaderComponent", () => {
 		});
 
 		expect(component.shouldShowMenuItem('TASKS')).toBeTrue();
-	}));
-
-	it(`shouldShowMenuItem CONFIGS`, async(() => {
-		authService.hasExactRole = jasmine.createSpy().and.callFake((role: RegistryRoleType) => {
-			return !(role === RegistryRoleType.RA)
-		});
-
-		expect(component.shouldShowMenuItem('CONFIGS')).toBeFalse();
 	}));
 
 	it(`shouldShowMenuItem CONFIGS`, async(() => {

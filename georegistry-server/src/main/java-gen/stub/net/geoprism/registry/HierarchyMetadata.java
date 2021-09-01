@@ -20,7 +20,7 @@ package net.geoprism.registry;
 
 import java.util.List;
 
-import com.runwaysdk.LocalizationFacade;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 

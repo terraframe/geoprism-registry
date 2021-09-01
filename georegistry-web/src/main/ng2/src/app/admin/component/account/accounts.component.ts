@@ -53,7 +53,7 @@ export class AccountsComponent implements OnInit {
 	}
 
 	ngOnInit(): void {
-		this.service.page(1).then(res => {
+		this.service.page(1, 10).then(res => {
 			this.res = res;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);
@@ -113,7 +113,7 @@ export class AccountsComponent implements OnInit {
 	}
 
 	onPageChange(pageNumber: number): void {
-		this.service.page(pageNumber).then(res => {
+		this.service.page(pageNumber, 10).then(res => {
 			this.res = res;
 		}).catch((err: HttpErrorResponse) => {
 			this.error(err);

@@ -18,14 +18,15 @@
  */
 package net.geoprism.registry.permission;
 
+import java.util.Collection;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
-import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 
@@ -36,6 +37,10 @@ import net.geoprism.registry.roles.HierarchyRelationshipPermissionException;
 
 public class GeoObjectTypeRelationshipPermissionService extends UserPermissionService implements GeoObjectTypeRelationshipPermissionServiceIF
 {
+  public enum RelationshipAction {
+    
+  }
+  
   public boolean doesActorHaveRelationshipPermission(ServerHierarchyType ht, ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean allowRC)
   {
     boolean permission = this.directRelationshipPermission(ht, parentType, childType, allowRC);
@@ -119,6 +124,13 @@ public class GeoObjectTypeRelationshipPermissionService extends UserPermissionSe
     }
 
     return false;
+  }
+  
+  @Override
+  public Collection<CGRPermissionActionIF> getPermissions(ServerGeoObjectType serverGeoObjectType)
+  {
+    // TODO
+    throw new UnsupportedOperationException();
   }
 
   /**

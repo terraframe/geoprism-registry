@@ -99,6 +99,7 @@ import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.ShapefileService;
 import net.geoprism.registry.test.SchedulerTestUtils;
+import net.geoprism.registry.test.TestAttributeTermTypeInfo;
 import net.geoprism.registry.test.TestAttributeTypeInfo;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
@@ -109,9 +110,9 @@ public class ShapefileServiceTest
 {
   protected static USATestData         testData;
 
-  private static TestAttributeTypeInfo testTerm;
+  private static TestAttributeTermTypeInfo testTerm = new TestAttributeTermTypeInfo("testTerm", "testTermLocalName", USATestData.STATE);
 
-  private static TestAttributeTypeInfo testInteger;
+  private static TestAttributeTypeInfo testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
 
   @BeforeClass
   @Request
@@ -120,10 +121,8 @@ public class ShapefileServiceTest
     testData = USATestData.newTestData();
     testData.setUpMetadata();
 
-    testTerm = new TestAttributeTypeInfo("testTerm", "testTermLocalName", USATestData.STATE, AttributeTermType.TYPE);
     testTerm.apply();
 
-    testInteger = new TestAttributeTypeInfo("testInteger", "testIntegerLocalName", USATestData.STATE, AttributeIntegerType.TYPE);
     testInteger.apply();
 
     if (!SchedulerManager.initialized())
@@ -250,14 +249,6 @@ public class ShapefileServiceTest
 
     Assert.assertTrue(hasCode);
     Assert.assertTrue(hasStatus);
-
-    JSONArray hierarchies = result.getJSONArray(GeoObjectImportConfiguration.HIERARCHIES);
-
-    Assert.assertEquals(1, hierarchies.length());
-
-    JSONObject hierarchy = hierarchies.getJSONObject(0);
-
-    Assert.assertNotNull(hierarchy.getString("label"));
 
     JSONObject sheet = result.getJSONObject("sheet");
 
@@ -515,7 +506,7 @@ public class ShapefileServiceTest
 
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
-    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+    Assert.assertEquals("Alabama2", object.getLocalizedDisplayLabel());
     Assert.assertNull(object.getValue(testInteger.getName()));
   }
 
@@ -559,7 +550,7 @@ public class ShapefileServiceTest
     
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
-    Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
+    Assert.assertEquals("Alabama2", object.getLocalizedDisplayLabel());
     Assert.assertEquals(131174431216L, object.getValue(testInteger.getName()));
   }
   
@@ -797,7 +788,7 @@ public class ShapefileServiceTest
   @Request
   public void testImportShapefileWithTerm() throws InterruptedException
   {
-    Term term = ServiceFactory.getRegistryService().createTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
+    Term term = ServiceFactory.getRegistryService().createTerm(testData.clientRequest.getSessionId(), testTerm.fetchRootAsTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
 
     try
     {
@@ -832,7 +823,7 @@ public class ShapefileServiceTest
     }
     finally
     {
-      ServiceFactory.getRegistryService().deleteTerm(testData.clientRequest.getSessionId(), testTerm.getRootTerm().getCode(), term.getCode());
+      ServiceFactory.getRegistryService().deleteTerm(testData.clientRequest.getSessionId(), testTerm.fetchRootAsTerm().getCode(), term.getCode());
 
       TestDataSet.refreshTerms((AttributeTermType) testTerm.fetchDTO());
     }
@@ -872,7 +863,7 @@ public class ShapefileServiceTest
     JSONObject problem = results.getJSONObject(0);
 
     Assert.assertEquals("00", problem.getString("label"));
-    Assert.assertEquals(testTerm.getRootTerm().getCode(), problem.getString("parentCode"));
+    Assert.assertEquals(testTerm.fetchRootAsTerm().getCode(), problem.getString("parentCode"));
     Assert.assertEquals(testTerm.getName(), problem.getString("attributeCode"));
     Assert.assertEquals(testTerm.getLabel(), problem.getString("attributeLabel"));
 

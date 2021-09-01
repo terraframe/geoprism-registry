@@ -22,7 +22,6 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
-import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.dataaccess.MdEntityDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdEntityDAO;
@@ -38,7 +37,9 @@ import net.geoprism.ontology.ClassifierIsARelationship;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.CGRPermissionActionIF;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
+import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 import net.geoprism.registry.service.ServiceFactory;
 
 /**
@@ -86,7 +87,7 @@ public class TermConverter
 
     Classifier parent = Classifier.getByKey(parentClassifierKey);
 
-    enforceTermPermissions(parent, Operation.CREATE);
+    enforceTermPermissions(parent, CGRPermissionAction.CREATE);
 
     Classifier classifier = new Classifier();
     classifier.setClassifierId(term.getCode());
@@ -109,7 +110,7 @@ public class TermConverter
 
     Classifier parent = Classifier.getByKey(parentClassifierKey);
 
-    enforceTermPermissions(parent, Operation.WRITE);
+    enforceTermPermissions(parent, CGRPermissionAction.WRITE);
 
     String classifierKey = Classifier.buildKey(parent.getKey(), termCode);
 
@@ -285,7 +286,7 @@ public class TermConverter
     return Classifier.buildKey(RegistryConstants.REGISTRY_PACKAGE, termCode);
   }
 
-  public static void enforceTermPermissions(Classifier parent, Operation op)
+  public static void enforceTermPermissions(Classifier parent, CGRPermissionActionIF action)
   {
     GeoObjectTypePermissionServiceIF service = ServiceFactory.getGeoObjectTypePermissionService();
 
@@ -298,7 +299,7 @@ public class TermConverter
         ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(mdEntityDAOIF.getTypeName());
         Organization organization = geoObjectType.getOrganization();
 
-        service.enforceActorHasPermission(organization.getCode(), geoObjectType, geoObjectType.getIsPrivate(), op);
+        service.enforceActorHasPermission(organization.getCode(), geoObjectType, geoObjectType.getIsPrivate(), action);
       }
     }
   }

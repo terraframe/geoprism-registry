@@ -1,286 +1,354 @@
-import { Injectable } from '@angular/core';
-import { CookieService } from 'ngx-cookie-service';
-import { User } from '@shared/model/user';
-import { RoleBuilder, RegistryRole, RegistryRoleType } from '@shared/model/core';
+import { Injectable } from "@angular/core";
+import { CookieService } from "ngx-cookie-service";
+import { User } from "@shared/model/user";
+import { RoleBuilder, RegistryRole, RegistryRoleType, LocaleView } from "@shared/model/core";
 
 @Injectable()
 export class AuthService {
 
-	private user: User = {
-		loggedIn: false,
-		userName: '',
-		roles: [],
-		roleDisplayLabels: [],
-		version: "0",
-		installedLocales: []
-	};
+    private user: User = {
+        loggedIn: false,
+        userName: "",
+        roles: [],
+        roleDisplayLabels: [],
+        version: "0",
+        installedLocales: []
+    };
 
-	constructor(private service: CookieService) {
-		let cookie = service.get('user');
+    constructor(private service: CookieService) {
+        let cookie = service.get("user");
 
-		if (this.service.check("user") && cookie != null && cookie.length > 0) {
-			let cookieData: string = this.service.get("user")
-			let cookieDataJSON: any = JSON.parse(cookieData);
+        if (this.service.check("user") && cookie != null && cookie.length > 0) {
+            let cookieData: string = this.service.get("user");
+            let cookieDataJSON: any = JSON.parse(cookieData);
 
-			this.buildFromCookieJson(cookieDataJSON);
-		}
-	}
+            this.buildFromCookieJson(cookieDataJSON);
+        }
 
-	buildFromCookieJson(cookieDataJSON: any) {
-		this.user.userName = cookieDataJSON.userName;
-		this.buildRolesFromCookie(cookieDataJSON);
-		this.user.loggedIn = cookieDataJSON.loggedIn;
-		this.user.roleDisplayLabels = cookieDataJSON.roleDisplayLabels;
-		this.user.version = cookieDataJSON.version.replaceAll("+", " ");
-		this.user.installedLocales = cookieDataJSON.installedLocales;
-	}
+        this.loadLocales();
+    }
 
-	buildRolesFromCookie(cookieDataJSON: any) {
-		this.user.roles = [];
-		let roles: string[] = cookieDataJSON.roles;
+    buildFromCookieJson(cookieDataJSON: any) {
+        this.user.userName = cookieDataJSON.userName;
+        this.buildRolesFromCookie(cookieDataJSON);
+        this.user.loggedIn = cookieDataJSON.loggedIn;
+        this.user.roleDisplayLabels = cookieDataJSON.roleDisplayLabels;
+        this.user.version = cookieDataJSON.version.replaceAll("+", " ");
+        // this.user.installedLocales = cookieDataJSON.installedLocales;
+    }
 
-		for (let i = 0; i < roles.length; ++i) {
-			let role: RegistryRole = RoleBuilder.buildFromRoleName(roles[i]);
+    buildRolesFromCookie(cookieDataJSON: any) {
+        this.user.roles = [];
+        let roles: string[] = cookieDataJSON.roles;
 
-			if (role != null) {
-				this.user.roles.push(role);
-			}
-		}
-	}
+        for (let i = 0; i < roles.length; ++i) {
+            let role: RegistryRole = RoleBuilder.buildFromRoleName(roles[i]);
 
-	isLoggedIn(): boolean {
-		return this.user.loggedIn;
-	}
+            if (role != null) {
+                this.user.roles.push(role);
+            }
+        }
+    }
 
-	setUser(cookieDataJSON: any): void {
-		this.buildFromCookieJson(cookieDataJSON);
-	}
+    isLoggedIn(): boolean {
+        return this.user.loggedIn;
+    }
 
-	removeUser(): void {
-		this.user = {
-			loggedIn: false,
-			userName: '',
-			roles: [],
-			roleDisplayLabels: [],
-			version: "0",
-			installedLocales: []
-		};
-	}
+    afterLogIn(logInResponse: any): void {
+        this.buildFromCookieJson(JSON.parse(this.service.get("user")));
 
-	// Legacy Accessors:
-	isAdmin(): boolean {
-		return this.isSRA() || this.isRA();
-	}
+        this.setLocales(logInResponse.installedLocales);
+        this.user.installedLocales = logInResponse.installedLocales;
+    }
 
-	isMaintainer(): boolean {
-		return this.isSRA() || this.isRM();
-	}
+    afterLogOut(): void {
+        this.user = null;
+        sessionStorage.removeItem("locales");
+    }
 
-	isContributer(): boolean {
-		return this.isSRA() || this.isRC(false);
-	}
-	
-	isContributerOnly(): boolean {
-		return this.isRC(true);
-	}
+    loadLocales() {
+        let storageLocales = window.sessionStorage.getItem("locales");
 
-	// Used to exactly identify a role. I.e. if we say we need RC, SRA doesn't count.
-	hasExactRole(roleType: RegistryRoleType) {
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+        if (storageLocales != null) {
+            this.user.installedLocales = JSON.parse(storageLocales);
+        }
+    }
 
-			if (role.type === roleType) {
-				return true;
-			}
-		}
+    setLocales(locales: LocaleView[]) {
+        window.sessionStorage.setItem("locales", JSON.stringify(locales));
+    }
 
-		return false;
-	}
+    removeUser(): void {
+        this.user = {
+            loggedIn: false,
+            userName: "",
+            roles: [],
+            roleDisplayLabels: [],
+            version: "0",
+            installedLocales: []
+        };
+    }
 
-	isSRA(): boolean {
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+    // Legacy Accessors:
+    isAdmin(): boolean {
+        return this.isSRA() || this.isRA();
+    }
 
-			if (role.type === RegistryRoleType.SRA) {
-				return true;
-			}
-		}
+    isMaintainer(): boolean {
+        return this.isSRA() || this.isRM();
+    }
 
-		return false;
-	}
+    isContributer(): boolean {
+        return this.isSRA() || this.isRC(false);
+    }
 
-	isRA(): boolean {
-		if (this.isSRA()) {
-			return true;
-		}
-		
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+    isContributerOnly(): boolean {
+        return this.isRC(true);
+    }
 
-			if (role.type === RegistryRoleType.RA) {
-				return true;
-			}
-			else if (role.roleName.indexOf('commongeoregistry.RegistryAdministrator') !== -1
-				|| role.roleName.indexOf("cgr.RegistryAdministrator") !== -1) // Legacy support
-			{
-				return true;
-			}
-		}
+    // Used to exactly identify a role. I.e. if we say we need RC, SRA doesn't count.
+    hasExactRole(roleType: RegistryRoleType) {
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-		return false;
-	}
+            if (role.type === roleType) {
+                return true;
+            }
+        }
 
-	isRM(): boolean {
-		if (this.isSRA()) {
-			return true;
-		}
+        return false;
+    }
 
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+    isSRA(): boolean {
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-			if (role.type === RegistryRoleType.RM) {
-				return true;
-			}
-			else if (role.roleName.indexOf('commongeoregistry.RegistryMaintainer') !== -1
-				|| role.roleName.indexOf("cgr.RegistryMaintainer") !== -1) // Legacy support
-			{
-				return true;
-			}
-		}
+            if (role.type === RegistryRoleType.SRA) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	isOrganizationRA(orgCode: string): boolean {
-		if (this.isSRA()) {
-			return true;
-		}
+    isRA(): boolean {
+        if (this.isSRA()) {
+            return true;
+        }
 
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-			if (role.orgCode === orgCode && role.type === RegistryRoleType.RA) {
-				return true;
-			}
-		}
+            if (role.type === RegistryRoleType.RA) {
+                return true;
+            } else if (role.roleName.indexOf("commongeoregistry.RegistryAdministrator") !== -1 || role.roleName.indexOf("cgr.RegistryAdministrator") !== -1) {
+                // Legacy support
+                return true;
+            }
+        }
+    }
 
-		return false; // this.isSRA();
-	}
+    isRM(): boolean {
+        if (this.isSRA()) {
+            return true;
+        }
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-	isGeoObjectTypeRM(orgCode: string, gotCode: string): boolean {
-		if (this.isSRA()) {
-			return true;
-		}
+            if (role.type === RegistryRoleType.RM) {
+                return true;
+            } else if (role.roleName.indexOf("commongeoregistry.RegistryMaintainer") !== -1 || role.roleName.indexOf("cgr.RegistryMaintainer") !== -1) {
+                // Legacy support
+                return true;
+            }
+        }
 
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+        return false;
+    }
 
-			if (role.type === RegistryRoleType.RM && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode) {
-				return true;
-			}
-		}
+    isOrganizationRA(orgCode: string): boolean {
+        if (this.isSRA()) {
+            return true;
+        }
 
-		return this.isOrganizationRA(orgCode);
-	}
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-	isGeoObjectTypeRC(orgCode: string, gotCode: string): boolean {
-		if (this.isSRA()) {
-			return true;
-		}
+            if (role.orgCode === orgCode && role.type === RegistryRoleType.RA) {
+                return true;
+            }
+        }
 
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+        return false; // this.isSRA();
+    }
 
-			if (role.type === RegistryRoleType.RC && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode) {
-				return true;
-			}
-		}
+    isGeoObjectTypeRM(orgCode: string, gotCode: string): boolean {
+        if (this.isSRA()) {
+            return true;
+        }
 
-		return this.isGeoObjectTypeRM(orgCode, gotCode);
-	}
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-	isRC(isRCOnly: boolean): boolean {
-		if (this.isSRA() && !isRCOnly) {
-			return true;
-		}
+            if (role.type === RegistryRoleType.RM && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode) {
+                return true;
+            }
+        }
 
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+        return this.isOrganizationRA(orgCode);
+    }
 
-			if (role.type === RegistryRoleType.RC) {
-				return true;
-			}
-			else if (role.roleName.indexOf('commongeoregistry.RegistryContributor') !== -1
-				|| role.roleName.indexOf("cgr.RegistryContributor") !== -1) // Legacy support
-			{
-				return true;
-			}
-		}
+    isGeoObjectTypeOrSuperRM(got: { organizationCode: string, superTypeCode?: string, code: string }, allowRoleSuper: boolean = true): boolean {
+        if (this.isGeoObjectTypeRM(got.organizationCode, got.code)) {
+            return true;
+        } else if (got.superTypeCode != null) {
+            return this.isGeoObjectTypeRM(got.organizationCode, got.superTypeCode);
+        }
+    }
 
-		return false;
-	}
-	
-	// Returns all organization codes that the current user participates in.
-	// If the user is an SRA then this method will return an empty string array.
-	getMyOrganizations(): string[] {
-		let orgCodes: string[] = [];
+    isGeoObjectTypeRC(orgCode: string, gotCode: string): boolean {
+        if (this.isSRA()) {
+            return true;
+        }
 
-		for (let i = 0; i < this.user.roles.length; ++i) {
-			let role: RegistryRole = this.user.roles[i];
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-			if (role.type === RegistryRoleType.SRA || role.type === RegistryRoleType.RC || role.type === RegistryRoleType.RM || role.type === RegistryRoleType.RA) {
-				orgCodes.push(role.orgCode);
-			}
-		}
+            if (role.type === RegistryRoleType.RC && role.orgCode === orgCode && role.geoObjectTypeCode === gotCode) {
+                return true;
+            }
+        }
 
-		return orgCodes;
-	}
+        return this.isGeoObjectTypeRM(orgCode, gotCode);
+    }
 
-	__getRoleFromRoleName(roleName: string): string {
-		let nameArr = roleName.split(".");
+    isGeoObjectTypeOrSuperRC(got: { organizationCode: string, superTypeCode?: string, code: string }, allowRoleSuper: boolean = true): boolean {
+        if (allowRoleSuper && this.isSRA()) {
+            return true;
+        }
 
-		return nameArr[nameArr.length - 1];
-	}
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-	getUsername(): string {
-		return this.user.userName;
-	}
+            if (role.type === RegistryRoleType.RC && role.orgCode === got.organizationCode && role.geoObjectTypeCode === got.code) {
+                return true;
+            }
+        }
 
-	getRoles(): any {
-		return this.user.roles;
-	}
+        return allowRoleSuper && this.isGeoObjectTypeOrSuperRM(got);
+    }
 
-	getRoleDisplayLabelsArray(): any {
-		return this.user.roleDisplayLabels;
-	}
+    isRC(isRCOnly: boolean): boolean {
+        if (this.isSRA() && !isRCOnly) {
+            return true;
+        }
 
-	getRoleDisplayLabels(): string {
-		let str = "";
-		for (let i = 0; i < this.user.roleDisplayLabels.length; ++i) {
-			let displayLabel = this.user.roleDisplayLabels[i];
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-			if (displayLabel === "Administrator") {
-				continue;
-				// It's OK to hardcode to a display label here because the end user can't change it anyway.
-				// Is it ideal? No. But sometimes it's better to get software out quicker than to spend forever
-				// on something that nobody will ever see.
-			}
+            if (role.type === RegistryRoleType.RC) {
+                return true;
+            } else if (role.roleName.indexOf("commongeoregistry.RegistryContributor") !== -1 || role.roleName.indexOf("cgr.RegistryContributor") !== -1) {
+                // Legacy support
+                return true;
+            }
+        }
 
-			str = str + displayLabel;
+        return false;
+    }
 
-			if (i < this.user.roleDisplayLabels.length - 1) {
-				str = str + ",";
-			}
-		}
+    // Returns all organization codes that the current user participates in.
+    // If the user is an SRA then this method will return an empty string array.
+    getMyOrganizations(): string[] {
+        let orgCodes: string[] = [];
 
-		return str;
-	}
+        for (let i = 0; i < this.user.roles.length; ++i) {
+            let role: RegistryRole = this.user.roles[i];
 
-	getVersion(): string {
-		return this.user.version;
-	}
+            if (role.type === RegistryRoleType.SRA || role.type === RegistryRoleType.RC || role.type === RegistryRoleType.RM || role.type === RegistryRoleType.RA) {
+                orgCodes.push(role.orgCode);
+            }
+        }
 
-	getLocales(): any[] {
-		return this.user.installedLocales;
-	}
+        return orgCodes;
+    }
+
+    __getRoleFromRoleName(roleName: string): string {
+        let nameArr = roleName.split(".");
+
+        return nameArr[nameArr.length - 1];
+    }
+
+    getUsername(): string {
+        return this.user.userName;
+    }
+
+    getRoles(): any {
+        return this.user.roles;
+    }
+
+    getRoleDisplayLabelsArray(): any {
+        return this.user.roleDisplayLabels;
+    }
+
+    getRoleDisplayLabels(): string {
+        let str = "";
+        for (let i = 0; i < this.user.roleDisplayLabels.length; ++i) {
+            let displayLabel = this.user.roleDisplayLabels[i];
+
+            if (displayLabel === "Administrator") {
+                continue;
+                // It's OK to hardcode to a display label here because the end user can't change it anyway.
+                // Is it ideal? No. But sometimes it's better to get software out quicker than to spend forever
+                // on something that nobody will ever see.
+            }
+
+            str = str + displayLabel;
+
+            if (i < this.user.roleDisplayLabels.length - 1) {
+                str = str + ",";
+            }
+        }
+
+        return str;
+    }
+
+    getVersion(): string {
+        return this.user.version;
+    }
+
+    getLocales(): LocaleView[] {
+        return this.user.installedLocales;
+    }
+
+    addLocale(locale: LocaleView): void {
+        let exists: boolean = false;
+
+        for (let i = 0; i < this.user.installedLocales.length; ++i) {
+            if (this.user.installedLocales[i].tag === locale.tag) {
+                exists = true;
+                this.user.installedLocales[i] = locale;
+            }
+        }
+
+        if (!exists) {
+            this.user.installedLocales.push(locale);
+        }
+
+        this.setLocales(this.user.installedLocales);
+    }
+
+    removeLocale(locale: LocaleView): void {
+        for (let i = 0; i < this.user.installedLocales.length; ++i) {
+            if (this.user.installedLocales[i].tag === locale.tag) {
+                this.user.installedLocales.splice(i, 1);
+                this.setLocales(this.user.installedLocales);
+                return;
+            }
+        }
+
+        // eslint-disable-next-line no-console
+        console.log("Could not remove locale from array because we could not find it.", locale, this.user.installedLocales);
+    }
+
 }

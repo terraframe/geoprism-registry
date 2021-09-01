@@ -21,8 +21,8 @@ package net.geoprism.registry.etl;
 import java.text.SimpleDateFormat;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
+import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -60,7 +60,7 @@ public class PublishShapefileJob extends PublishShapefileJobBase
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
   }
 
-  public JSONObject toJSON()
+  public JsonObject toJson()
   {
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -74,18 +74,18 @@ public class PublishShapefileJob extends PublishShapefileJobBase
 
     try
     {
-      final JSONObject object = new JSONObject();
-      object.put(PublishShapefileJob.OID, this.getOid());
-      object.put(PublishShapefileJob.VERSION, this.getVersion());
-      object.put(PublishShapefileJob.TYPE, type.getLabel().getValue());
-      object.put(JobHistory.STATUS, history.getStatus().get(0).getDisplayLabel());
-      object.put("date", version.getPublishDate());
-      object.put("author", user.getUsername());
-      object.put("createDate", format.format(history.getCreateDate()));
-      object.put("lastUpdateDate", format.format(history.getLastUpdateDate()));
-      object.put("workProgress", history.getWorkProgress());
-      object.put("workTotal", history.getWorkTotal());
-      object.put("historyoryId", history.getOid());
+      final JsonObject object = new JsonObject();
+      object.addProperty(PublishShapefileJob.OID, this.getOid());
+      object.add(PublishShapefileJob.VERSION, this.getVersion().toJSON(false));
+      object.addProperty(PublishShapefileJob.TYPE, type.getLabel().getValue());
+      object.addProperty(JobHistory.STATUS, history.getStatus().get(0).getDisplayLabel());
+      object.addProperty("date", format.format(version.getPublishDate()));
+      object.addProperty("author", user.getUsername());
+      object.addProperty("createDate", format.format(history.getCreateDate()));
+      object.addProperty("lastUpdateDate", format.format(history.getLastUpdateDate()));
+      object.addProperty("workProgress", history.getWorkProgress());
+      object.addProperty("workTotal", history.getWorkTotal());
+      object.addProperty("historyoryId", history.getOid());
 
       return object;
     }

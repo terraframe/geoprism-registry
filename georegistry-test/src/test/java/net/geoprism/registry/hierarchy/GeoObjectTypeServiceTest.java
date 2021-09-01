@@ -162,7 +162,7 @@ public class GeoObjectTypeServiceTest
   public void testCreateGeoObjectType()
   {
     // Allowed users
-    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA })
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA })
     {
       TestDataSet.runAsUser(user, (request, adapter) -> {
         createGot(request, adapter);
@@ -212,7 +212,7 @@ public class GeoObjectTypeServiceTest
   {
     TEST_GOT.apply();
 
-    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA };
+    TestUserInfo[] users = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA };
 
     for (TestUserInfo user : users)
     {
@@ -255,7 +255,7 @@ public class GeoObjectTypeServiceTest
     createPrivateTestGot();
 
     // Allowed users
-    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, USER_PRIVATE_GOT_RM})
+    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         updateGot(request, adapter, TEST_PRIVATE_GOT);
@@ -266,7 +266,7 @@ public class GeoObjectTypeServiceTest
     }
     
     // Disallowed users
-    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         try 
@@ -356,7 +356,7 @@ public class GeoObjectTypeServiceTest
     }
     
     // Allowed users with write context
-    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA, USER_PRIVATE_GOT_RM})
+    for (TestUserInfo user : new TestUserInfo[] {FastTestDataset.USER_CGOV_RA})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
@@ -366,7 +366,7 @@ public class GeoObjectTypeServiceTest
     }
     
     // Disallowed users with write context
-    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
+    for (TestUserInfo user : new TestUserInfo[] { FastTestDataset.USER_MOHA_RA, USER_PRIVATE_GOT_RM, FastTestDataset.USER_MOHA_RM, FastTestDataset.USER_MOHA_RC, FastTestDataset.USER_MOHA_AC, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC, USER_PRIVATE_GOT_RC, USER_PRIVATE_GOT_AC})
     {
       FastTestDataset.runAsUser(user, (request, adapter) -> {
         GeoObjectType[] response = adapter.getGeoObjectTypes(new String[] { TEST_PRIVATE_GOT.getCode() }, null, PermissionContext.WRITE);
@@ -552,10 +552,6 @@ public class GeoObjectTypeServiceTest
   //
   // checkAttributeMultiPolygon(DISTRICT.getCode());
   // }
-
-  /*
-   * Utility methods for this test class:
-   */
 
   @Test
   @Request

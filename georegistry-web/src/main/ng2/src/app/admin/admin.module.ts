@@ -42,7 +42,7 @@ import { SystemLogosComponent } from './component/logo/system-logos.component';
 import { EmailComponent } from './component/email/email.component';
 import { SettingsComponent } from './component/settings.component';
 import { OrganizationModalComponent } from './component/organization/organization-modal.component';
-import { NewLocaleModalComponent } from './component/localization-manager/new-locale-modal.component'
+import { NewLocaleModalComponent } from './component/localization-manager/locale-modal.component'
 import { ImportLocalizationModalComponent } from './component/localization-manager/import-localization-modal.component';
 import { ExternalSystemModalComponent } from './component/external-system/external-system-modal.component';
 

@@ -23,6 +23,7 @@ import java.util.Locale;
 
 import javax.servlet.ServletException;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,6 +40,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
 @Controller(url = "localization")
@@ -67,12 +69,14 @@ public class RegistryLocalizationController
 
     JSONArray languages = new JSONArray();
     JSONArray countries = new JSONArray();
+    
+    Locale sessionLocale = LocaleUtils.toLocale(RegistryService.getInstance().getCurrentLocale(request.getSessionId()));
 
     for (Locale locale : LocalizationFacade.getAvailableLanguagesSorted())
     {
       JSONObject jobj = new JSONObject();
       jobj.put("key", locale.getLanguage());
-      jobj.put("label", locale.getDisplayLanguage());
+      jobj.put("label", locale.getDisplayLanguage(sessionLocale));
       languages.put(jobj);
     }
 
@@ -80,7 +84,7 @@ public class RegistryLocalizationController
     {
       JSONObject jobj = new JSONObject();
       jobj.put("key", locale.getCountry());
-      jobj.put("label", locale.getDisplayCountry());
+      jobj.put("label", locale.getDisplayCountry(sessionLocale));
       countries.put(jobj);
     }
 
@@ -97,17 +101,32 @@ public class RegistryLocalizationController
 
     return new RestBodyResponse(locales);
   }
-
+  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF installLocale(ClientRequestIF request, @RequestParamter(name = "language") String language, @RequestParamter(name = "country") String country, @RequestParamter(name = "variant") String variant) throws IOException, ServletException
+  public ResponseIF editLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException
   {
     LocalizationService service = new LocalizationService();
-    String locale = service.installLocaleInRequest(request.getSessionId(), language, country, variant);
+    LocaleView lv = service.editLocaleInRequest(request.getSessionId(), json);
 
-    RestResponse response = new RestResponse();
-    response.set("locale", locale);
+    return new RestBodyResponse(lv.toJson().toString());
+  }
 
-    return response;
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF installLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException
+  {
+    LocalizationService service = new LocalizationService();
+    LocaleView lv = service.installLocaleInRequest(request.getSessionId(), json);
+
+    return new RestBodyResponse(lv.toJson().toString());
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF uninstallLocale(ClientRequestIF request, @RequestParamter(name = "json") String json) throws IOException, ServletException
+  {
+    LocalizationService service = new LocalizationService();
+    service.uninstallLocaleInRequest(request.getSessionId(), json);
+
+    return new RestResponse();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON)

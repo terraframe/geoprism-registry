@@ -44,20 +44,21 @@ public abstract class AbstractLocationServiceTest
     return FastTestDataset.CAMBODIA.getChildren().size();
   }
 
-  @Test
-  public void testGetLocationInformationNullTypeAndHierarchy()
-  {
-    LocationService service = new LocationService();
-    LocationInformation information = service.getLocationInformation(testData.clientRequest.getSessionId(), new Date(), null, null);
-
-    Assert.assertNotNull(information);
-    Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), information.getHierarchy());
-    Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), information.getChildType().getCode());
-    Assert.assertEquals(1, information.getChildren().size());
-    Assert.assertNull(information.getEntity());
-    Assert.assertEquals(testData.getManagedHierarchyTypes().size(), information.getHierarchies().size());
-    Assert.assertEquals(1, information.getChildTypes().size());
-  }
+  // As far as I can tell this isn't being used anywhere anymore
+//  @Test
+//  public void testGetLocationInformationNullTypeAndHierarchy()
+//  {
+//    LocationService service = new LocationService();
+//    LocationInformation information = service.getLocationInformation(testData.clientRequest.getSessionId(), new Date(), null, null);
+//
+//    Assert.assertNotNull(information);
+//    Assert.assertEquals(FastTestDataset.HIER_ADMIN.getCode(), information.getHierarchy());
+//    Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), information.getChildType().getCode());
+//    Assert.assertEquals(1, information.getChildren().size());
+//    Assert.assertNull(information.getEntity());
+//    Assert.assertEquals(testData.getManagedHierarchyTypes().size(), information.getHierarchies().size());
+//    Assert.assertEquals(1, information.getChildTypes().size());
+//  }
 
 //  @Test
 //  public void testGetLocationInformationWithParent()

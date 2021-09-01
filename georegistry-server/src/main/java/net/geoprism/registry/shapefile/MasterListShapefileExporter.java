@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -157,6 +158,7 @@ public class MasterListShapefileExporter
     params.put("create spatial index", Boolean.TRUE);
 
     ShapefileDataStore dataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+    dataStore.setCharset(Charset.forName("UTF-8"));
     dataStore.createSchema(featureType);
 
     /*

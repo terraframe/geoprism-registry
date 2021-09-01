@@ -97,6 +97,9 @@ public class ChangeRequestDocumentServiceTest
   {
     ChangeRequest cr = new ChangeRequest();
     cr.addApprovalStatus(AllGovernanceStatus.PENDING);
+    cr.setGeoObjectCode(FastTestDataset.CAMBODIA.getCode());
+    cr.setGeoObjectTypeCode(FastTestDataset.COUNTRY.getCode());
+    cr.setOrganizationCode(FastTestDataset.ORG_CGOV.getCode());
     cr.apply();
     
     CreateGeoObjectAction action = new CreateGeoObjectAction();
@@ -115,7 +118,7 @@ public class ChangeRequestDocumentServiceTest
   @Test
   public void testDeleteDocument()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -188,7 +191,7 @@ public class ChangeRequestDocumentServiceTest
   {
     uploadDocumentsAsAdmin();
     
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -265,7 +268,7 @@ public class ChangeRequestDocumentServiceTest
   @Test
   public void testUploadDocument()
   {
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {
@@ -311,7 +314,7 @@ public class ChangeRequestDocumentServiceTest
   {
     String vfOid = uploadDocumentsAsAdmin();
     
-    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.ADMIN_USER, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
+    TestUserInfo[] allowedUsers = new TestUserInfo[] { FastTestDataset.USER_ADMIN, FastTestDataset.USER_CGOV_RA, FastTestDataset.USER_CGOV_RM, FastTestDataset.USER_CGOV_RC, FastTestDataset.USER_CGOV_AC };
 
     for (TestUserInfo user : allowedUsers)
     {

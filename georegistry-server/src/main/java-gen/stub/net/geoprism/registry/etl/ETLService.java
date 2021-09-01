@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -68,6 +69,7 @@ import net.geoprism.registry.service.GeoSynonymService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class ETLService
 {
@@ -256,6 +258,22 @@ public class ETLService
       else
       {
         cond = cond.OR(loopCond);
+      }
+      
+      
+      // If they have permission to an abstract parent type, then they also have permission to all its children.
+      Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+      
+      if (op.isPresent() && op.get().getIsAbstract())
+      {
+        List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
+        
+        for (ServerGeoObjectType subType : subTypes)
+        {
+          Condition superCond = ihq.getGeoObjectTypeCode().EQ(subType.getCode()).AND(ihq.getOrganization().EQ(subType.getOrganization()));
+          
+          cond = cond.OR(superCond);
+        }
       }
     }
 
@@ -670,15 +688,27 @@ public class ETLService
       String parentTreeNode = config.get("parentTreeNode").toString();
       String geoObject = config.get("geoObject").toString();
       Boolean isNew = config.get("isNew").getAsBoolean();
+      
+      GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
 
       if (isNew)
       {
-        GeoObjectOverTime go = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), geoObject);
         go.setUid(RegistryIdService.getInstance().next());
         geoObject = go.toJSON().toString();
+        
+        new ServerGeoObjectService().createGeoObject(sessionId, parentTreeNode, geoObject, null, null);
       }
+      else
+      {
+        ServerGeoObjectService service = new ServerGeoObjectService();
 
-      new ServerGeoObjectService().masterListEdit(sessionId, parentTreeNode, geoObject, isNew, null, null);
+        ServerGeoObjectIF serverGO = service.apply(go, isNew, false);
+        final ServerGeoObjectType type = serverGO.getType();
+
+        ServerParentTreeNodeOverTime ptnOt = ServerParentTreeNodeOverTime.fromJSON(type, parentTreeNode);
+
+        serverGO.setParents(ptnOt);
+      }
 
       err.appLock();
       err.setResolution(resolution);

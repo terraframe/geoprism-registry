@@ -1,35 +1,32 @@
-import { Input, Component, ViewChild, ViewEncapsulation, HostListener } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Observable } from 'rxjs';
+import { Input, Component, ViewChild, ViewEncapsulation } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
+import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
-import { GeoObjectOverTime, GeoObjectType } from '@registry/model/registry';
-import { AbstractAction } from '@registry/model/crtable';
+import { GeoObjectOverTime, GeoObjectType } from "@registry/model/registry";
+import { AbstractAction } from "@registry/model/crtable";
 
-import { RegistryService, ChangeRequestService } from '@registry/service';
+import { RegistryService, ChangeRequestService } from "@registry/service";
 
-import { ComponentCanDeactivate, AuthService } from "@shared/service";
+import { AuthService } from "@shared/service";
 
-import { ErrorHandler } from '@shared/component';
+import { ErrorHandler } from "@shared/component";
 
-import { ActionDetailComponent } from '../action-detail-modal.component';
+import { ActionDetailComponent } from "../action-detail-modal.component";
 
 declare var acp: any;
 declare var $: any;
 
-@Component( {
+@Component({
 
-    selector: 'crtable-detail-create-geo-object',
-    templateUrl: './detail.component.html',
-    styleUrls: ['./crtable-detail-create-geo-object.css'],
+    selector: "crtable-detail-create-geo-object",
+    templateUrl: "./detail.component.html",
+    styleUrls: ["./crtable-detail-create-geo-object.css"],
     encapsulation: ViewEncapsulation.None
-} )
-//export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
+})
+// export class CreateUpdateGeoObjectDetailComponent implements ComponentCanDeactivate, ActionDetailComponent {
 export class CreateUpdateGeoObjectDetailComponent implements ActionDetailComponent {
-	
-	isMaintainer: boolean = false;
+
+    isMaintainer: boolean = false;
 
     @Input() action: any;
 
@@ -40,12 +37,12 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
     geoObjectType: GeoObjectType = null;
 
     @Input() readOnly: boolean;
-    
+
     isEditing: boolean = false;
 
-    @ViewChild( "attributeEditor" ) attributeEditor;
+    @ViewChild("attributeEditor") attributeEditor;
 
-    @ViewChild( "geometryEditor" ) geometryEditor;
+    @ViewChild("geometryEditor") geometryEditor;
 
     bsModalRef: BsModalRef;
 
@@ -59,16 +56,16 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
      */
     forDate: Date = null;
 
+    constructor(private changeRequestService: ChangeRequestService, private modalService: BsModalService, private registryService: RegistryService,
+        private authService: AuthService) {
 
-    constructor( private router: Router, private changeRequestService: ChangeRequestService, private modalService: BsModalService, 
-				private registryService: RegistryService, private authService: AuthService ) {
-					
-		this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
+        this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
 
         this.forDate = new Date();
 
         const day = this.forDate.getUTCDate();
-        this.dateStr = this.forDate.getUTCFullYear() + "-" + ( this.forDate.getUTCMonth() + 1 ) + "-" + ( day < 10 ? "0" : "" ) + day;
+        this.dateStr = this.forDate.getUTCFullYear() + "-" + (this.forDate.getUTCMonth() + 1) + "-" + (day < 10 ? "0" : "") + day;
+
     }
 
     ngOnInit(): void {
@@ -76,39 +73,56 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
         this.postGeoObject = this.action.geoObjectJson;
         this.geoObjectType = this.action.geoObjectType;
 
-        if ( this.isNew() ) {
+        if (this.isNew()) {
+
             this.preGeoObject = this.postGeoObject;
+
         }
 
-        this.onSelect( this.action );
+        this.onSelect(this.action);
+
     }
 
     isNew(): boolean {
-        return ( this.action.actionType === "net.geoprism.registry.action.geoobject.CreateGeoObjectAction" );
+
+        return (this.action.actionType === "net.geoprism.registry.action.geoobject.CreateGeoObjectAction");
+
     }
 
     handleDateChange(): void {
-        this.forDate = new Date( Date.parse( this.dateStr ) );
+
+        this.forDate = new Date(Date.parse(this.dateStr));
+
     }
 
     applyAction() {
-        //var action = JSON.parse( JSON.stringify( this.action ) );
+
+        // var action = JSON.parse( JSON.stringify( this.action ) );
         let action = this.action;
-        
+
         action.geoObjectJson = this.attributeEditor.getGeoObject();
 
-        if ( this.geometryEditor != null ) {
+        if (this.geometryEditor != null) {
+
             action.geoObjectJson.geometry = this.geometryEditor.saveDraw().geometry;
+
         }
 
-        this.changeRequestService.applyAction( action ).then( response => {
+        /*
+        this.changeRequestService.applyAction(action).then(response => {
+
             this.endEdit();
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+
+        }).catch((err: HttpErrorResponse) => {
+
+            this.error(err);
+
+        });
+        */
+
     }
 
-    onSelect( action: AbstractAction ) {
+    onSelect(action: AbstractAction) {
 
         // There are multiple ways we could show a diff of an object.
         //
@@ -131,18 +145,24 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
             this.action.actionType === "net.geoprism.registry.action.geoobject.UpdateGeoObjectAction"
             //    && typeof this.postGeoObject.properties.createDate !== 'undefined'
         ) {
-            this.registryService.getGeoObjectOverTime( this.postGeoObject.attributes.code, this.geoObjectType.code ).then( geoObject => {
+
+            this.registryService.getGeoObjectOverTime(this.postGeoObject.attributes.code, this.geoObjectType.code).then(geoObject => {
+
                 this.preGeoObject = geoObject;
 
-            } ).catch(( err: HttpErrorResponse ) => {
-                this.error( err );
-            } );
+            }).catch((err: HttpErrorResponse) => {
+
+                this.error(err);
+
+            });
+
         }
+
     }
 
     // Big thanks to https://stackoverflow.com/questions/35922071/warn-user-of-unsaved-changes-before-leaving-page
-    //@HostListener( 'window:beforeunload' )
-    //canDeactivate(): Observable<boolean> | boolean {
+    // @HostListener( 'window:beforeunload' )
+    // canDeactivate(): Observable<boolean> | boolean {
     //    if ( this.isEditing ) {
     //        //event.preventDefault();
     //        //event.returnValue = 'Are you sure?';
@@ -152,63 +172,89 @@ export class CreateUpdateGeoObjectDetailComponent implements ActionDetailCompone
      //   }
 //
     //    return true;
-    //}
+    // }
 
-    //afterDeactivate( isDeactivating: boolean ) {
+    // afterDeactivate( isDeactivating: boolean ) {
     //    if ( isDeactivating && this.isEditing ) {
     //        this.unlockActionSync();
     //    }
-    //}
+    // }
 
     startEdit(): void {
-        this.lockAction();
+
+        //this.lockAction();
+
     }
 
     public endEdit(): void {
-        this.unlockAction();
-    }
 
+        //this.unlockAction();
+
+    }
+/*
     lockAction() {
-        this.changeRequestService.lockAction( this.action.oid ).then( response => {
+
+        this.changeRequestService.lockAction(this.action.oid).then(response => {
+
             this.isEditing = true;
-            if ( this.geometryEditor != null ) {
-                this.geometryEditor.enableEditing( true );
+            if (this.geometryEditor != null) {
+
+                this.geometryEditor.enableEditing(true);
+
             }
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+
+        }).catch((err: HttpErrorResponse) => {
+
+            this.error(err);
+
+        });
+
     }
 
     unlockAction() {
-        this.changeRequestService.unlockAction( this.action.oid ).then( response => {
+
+        this.changeRequestService.unlockAction(this.action.oid).then(response => {
+
             this.isEditing = false;
-            if ( this.geometryEditor != null ) {
-                this.geometryEditor.enableEditing( false );
+            if (this.geometryEditor != null) {
+
+                this.geometryEditor.enableEditing(false);
+
             }
-        } ).catch(( err: HttpErrorResponse ) => {
-            this.error( err );
-        } );
+
+        }).catch((err: HttpErrorResponse) => {
+
+            this.error(err);
+
+        });
+
     }
 
     // https://stackoverflow.com/questions/4945932/window-onbeforeunload-ajax-request-in-chrome
     unlockActionSync() {
-        $.ajax( {
-            url: acp + '/changerequest/unlockAction',
+
+        $.ajax({
+            url: acp + "/changerequest/unlockAction",
             method: "POST",
             data: { actionId: this.action.oid },
-            success: function( a ) {
+            success: function(a) {
 
             },
             async: false
-        } );
+        });
+
+    }
+*/
+    getUsername(): string {
+
+        return this.authService.getUsername();
+
     }
 
-	getUsername(): string {
-		return this.authService.getUsername();
-	}
+    public error(err: HttpErrorResponse): void {
 
-    public error( err: HttpErrorResponse ): void {
-            this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+        this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+
     }
 
 }

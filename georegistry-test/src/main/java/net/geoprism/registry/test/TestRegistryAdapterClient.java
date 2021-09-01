@@ -279,13 +279,6 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     this.controller.removeChild(this.clientRequest, parentId, parentTypeCode, childId, childTypeCode, hierarchyRef);
   }
 
-  public void submitChangeRequest(List<AbstractActionDTO> actions)
-  {
-    String sActions = AbstractActionDTO.serializeActions(actions).toString();
-
-    this.controller.submitChangeRequest(this.clientRequest, sActions);
-  }
-
   public String responseToString(ResponseIF resp)
   {
     Object obj = AbstractResponseSerializer.serialize((AbstractRestResponse) resp);

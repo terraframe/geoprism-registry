@@ -50,6 +50,7 @@ public class TestAttributeTypeInfo
     this.name = at.getName();
     this.dto = at;
     this.got = got;
+    this.type = at.getType();
   }
 
   public TestAttributeTypeInfo(String name, String label, TestGeoObjectTypeInfo got, String type)
@@ -155,10 +156,5 @@ public class TestAttributeTypeInfo
   public void setGeoObjectType(TestGeoObjectTypeInfo got)
   {
     this.got = got;
-  }
-
-  public Term getRootTerm()
-  {
-    return ( (AttributeTermType) this.fetchDTO() ).getRootTerm();
   }
 }

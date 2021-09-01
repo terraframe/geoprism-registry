@@ -10,6 +10,10 @@ input[type="date"] {
 	min-width: 173px;
 }
 
+p.warning-text.display-current-value {
+  font-size: 12px;
+}
+
 
 .wrapper input[type="text"] {
     position: relative; 
@@ -30,13 +34,16 @@ input[type="date"] {
 .date-input-element {
 	width: auto;
 }
+.date-input-element.full-width {
+	width: 100%;
+}
 
 .date-input-element:hover {
 /* 	cursor:pointer; */
 }
 
 
-/deep/ .bs-datepicker-body table td span.disabled, .bs-datepicker-body table td.disabled span {
+::ng-deep .bs-datepicker-body table td span.disabled, .bs-datepicker-body table td.disabled span {
     color: lightgrey;
     cursor: not-allowed;
 }
