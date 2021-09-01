@@ -178,7 +178,7 @@ export class ValueOverTimeEditPropagator {
               delete this.view.oldValue;
           } else {
               this.diff.newValue = JSON.parse(JSON.stringify(value));
-              this.view.oldValue = this.convertValueForDisplay(this.diff.oldValue);
+              this.view.oldValue = this.diff.oldValue == null ? null : this.convertValueForDisplay(this.diff.oldValue);
           }
 
           // If no changes have been made then remove the diff
