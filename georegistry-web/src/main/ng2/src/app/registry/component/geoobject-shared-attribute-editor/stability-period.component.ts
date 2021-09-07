@@ -64,9 +64,13 @@ export class ValidityPeriodComponent implements OnInit {
 	 *             a. The start dates equal - Split into 2
 	 *             b. The end dates equal - Split into 2
 	 *             c. Neither start or end dates are equal -  Split into 3
-	 * 3. Superset - The period is a superset of an existing period in the collection. This is the trickiest usecase and breaks down many different ways.
-	 *             a. The end dates equal - Create a new period before our current
-	 *             b. The start dates equal - 
+	 * 3. Overlap - The period overlaps with the current
+	 *             a. The end date is contained within the current - Create a new period before our current
+	 *             b. The start date is contained within the current - Create a new period after our current
+   * 4. Superset - The period completely contains the current
+   *             a. Add a new period before and after the current
+   * 5. No matches - The period has no interactions with anything in the existing set
+   *             a. Add it and reorder
 	 */
 	addPeriod(period: Period)
 	{
@@ -128,33 +132,26 @@ export class ValidityPeriodComponent implements OnInit {
 	      
 	      pushed = true;
 	    }
-	    else if (period.startDate <= current.startDate && period.endDate >= current.endDate)
-	    {
-	      // Superset
-	    
-	      //if (period.startDate != current.startDate && period.endDate != current.endDate)
-	      //{
-	      
-	      //}
-	      if (period.startDate === current.startDate)
-	      {
-	        let oldestDate = period.startDate;
-	        
-	        if (previous != null && previous.startDate 
-	      }
-	      if (period.endDate === current.endDate)
-        {
-        
-        }
-	      
-	      if ()
-	      {
-	        //newPeriods.push({startDate:new Date(period.startDate.getTime()), endDate: this.addDay(-1, current.startDate)});
-	        //newPeriods.push(current);
-	        
-	        //period.startDate = 
-	      }
-	    }
+      else if (period.startDate >= current.startDate && period.startDate <= current.endDate) {
+          // Start date overlap
+          
+          newPeriods.push(current);
+          newPeriods.push({startDate:this.addDay(1, current.endDate), endDate:period.endDate});
+          pushed = true;
+      } else if (period.endDate >= current.startDate && period.endDate <= current.endDate) {
+          // End date overlap
+          
+          newPeriods.push({startDate:period.startDate, endDate:this.addDay(-1, current.startDate)});
+          newPeriods.push(current);
+          pushed = true;
+      } else if (period.startDate < current.startDate && current.endDate < period.endDate) {
+          // Superset
+          
+          newPeriods.push({startDate:period.startDate, endDate:this.addDay(-1, current.startDate)});
+          newPeriods.push(current);
+          newPeriods.push({startDate:this.addDay(1, current.endDate), endDate:period.endDate});
+          pushed = true;
+      }
 	  }
 	  
 	  if (!pushed)
