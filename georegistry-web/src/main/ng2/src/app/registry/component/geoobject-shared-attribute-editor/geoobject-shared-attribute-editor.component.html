@@ -73,22 +73,24 @@
         </div>
       </div>
       <div *ngIf="tabIndex === 1" class="row">
-        <ul class="list-group">
-	        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
-	          <div class="panel panel-default">
-              <div class="panel-heading">
-                <h4 style="margin:0;">
-                  <span> {{hierarchy.label}} </span> 
-                </h4>
-              </div>
-			      
-			        <div class="panel-body">
-			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
-			        </div>
-		        </div>
-	        </li>
-        </ul>
+        <div class="col-md-12">
+          <ul class="list-group">
+  	        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
+  	          <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 style="margin:0;">
+                    <span> {{hierarchy.label}} </span> 
+                  </h4>
+                </div>
+  			      
+  			        <div class="panel-body">
+  			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
+                          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
+  			        </div>
+  		        </div>
+  	        </li>
+          </ul>
+        </div>
       </div>
       
       <div *ngIf="tabIndex === 2">
