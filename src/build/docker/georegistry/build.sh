@@ -1,4 +1,5 @@
-[ -f georegistry.war ] && rm -f georegistry.war
-cp ../../../../georegistry-web/target/georegistry.war georegistry.war
+[ -d target ] && rm -rf target
+mkdir target
+cp ../../../../georegistry-web/target/georegistry.war target/georegistry.war
 
 docker build -t georegistry .

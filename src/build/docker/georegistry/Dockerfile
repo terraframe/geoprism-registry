@@ -15,7 +15,7 @@ RUN mkdir -p $CATALINA_HOME/webapps/geoserver && cd $CATALINA_HOME/webapps/geose
 #RUN wget -nv -O $CATALINA_HOME/wars/geoprism.war "http://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=net.geoprism&a=georegistry-web&p=war&v=$CGR_VERSION"
 
 # Copy CGR WAR
-COPY georegistry.war $CATALINA_HOME/wars/geoprism.war
+COPY target/georegistry.war $CATALINA_HOME/wars/geoprism.war
 
 # Deploy CGR War
 RUN mkdir -p $CATALINA_HOME/wars/geoprism && cd $CATALINA_HOME/wars/geoprism && $JAVA_HOME/bin/jar xf $CATALINA_HOME/wars/geoprism.war
