@@ -28,6 +28,7 @@ import org.apache.http.message.BasicNameValuePair;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
 import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
@@ -60,8 +61,9 @@ public class Dhis2IdCache
    * @throws HTTPException 
    * @throws InvalidLoginException 
    * @throws UnexpectedResponseException 
+   * @throws BadServerUriException 
    */
-  public DHIS2Response fetchIds() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  public DHIS2Response fetchIds() throws HTTPException, InvalidLoginException, UnexpectedResponseException, BadServerUriException
   {
     List<NameValuePair> nvp = new ArrayList<NameValuePair>();
     nvp.add(new BasicNameValuePair("limit", String.valueOf(FETCH_NUM)));
@@ -99,8 +101,9 @@ public class Dhis2IdCache
    * @throws UnexpectedResponseException 
    * @throws InvalidLoginException 
    * @throws HTTPException 
+   * @throws BadServerUriException 
    */
-  public String next() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  public String next() throws HTTPException, InvalidLoginException, UnexpectedResponseException, BadServerUriException
   {
     if (cache.isEmpty())
     {

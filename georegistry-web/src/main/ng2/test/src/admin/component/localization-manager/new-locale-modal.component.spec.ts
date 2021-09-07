@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
-import { NewLocaleModalComponent } from "@admin/component/localization-manager/new-locale-modal.component";
+import { NewLocaleModalComponent } from "@admin/component/localization-manager/locale-modal.component";
 import { LocalizationService, EventService, AuthService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
 import { MOCK_HTTP_ERROR_RESPONSE, LOCALIZED_LABEL } from "@test/shared/mocks";
@@ -77,7 +77,6 @@ describe("NewLocaleModalComponent", () => {
 		expect(component.onSuccess).toBeTruthy();
 	}));
 
-
 	it('Test submit', fakeAsync(() => {
 		let response = null;
 
@@ -94,7 +93,7 @@ describe("NewLocaleModalComponent", () => {
 		tick(500);
 
 		expect(response).toBeTruthy();
-		expect(response).toEqual("en_US");
+		expect(response).toEqual({ locale: "en_US" });
 	}));
 });
 

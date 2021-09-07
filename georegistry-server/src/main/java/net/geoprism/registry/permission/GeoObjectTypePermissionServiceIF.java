@@ -20,10 +20,7 @@ package net.geoprism.registry.permission;
 
 import java.util.Set;
 
-import com.runwaysdk.business.rbac.Operation;
-
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.UserPermissionService.CGRPermissionAction;
 
 public interface GeoObjectTypePermissionServiceIF
 {
@@ -44,7 +41,7 @@ public interface GeoObjectTypePermissionServiceIF
 
   public void enforceCanDelete(String orgCode, ServerGeoObjectType got, boolean isPrivate);
 
-  public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, Operation op);
+  public void enforceActorHasPermission(String orgCode, ServerGeoObjectType got, boolean isPrivate, CGRPermissionActionIF action);
 
   public Set<CGRPermissionActionIF> getPermissions(ServerGeoObjectType got);
   

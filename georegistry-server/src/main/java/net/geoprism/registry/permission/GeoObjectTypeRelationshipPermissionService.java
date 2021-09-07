@@ -23,10 +23,10 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
-import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.business.ontology.Term;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.LocatedIn;
 

@@ -1,17 +1,17 @@
-import { Component, Input } from '@angular/core';
-import { LocalizationService } from '@shared/service';
+import { Component, Input } from "@angular/core";
+import { LocalizationService } from "@shared/service";
 
-import { Step, StepConfig } from '@registry/model/registry';
+import { Step, StepConfig } from "@registry/model/registry";
 
-
-@Component( { 
-    selector: 'step-indicator',
-    templateUrl: './step-indicator.component.html',
-    styleUrls: ['./step-indicator.css']
-} )
+@Component({
+    selector: "step-indicator",
+    templateUrl: "./step-indicator.component.html",
+    styleUrls: ["./step-indicator.css"]
+})
 export class StepIndicatorComponent {
 
-    @Input('steps')
+    // eslint-disable-next-line accessor-pairs
+    @Input("steps")
     set steps(value: StepConfig) {
         this._stepConfig = value;
     }
@@ -19,17 +19,15 @@ export class StepIndicatorComponent {
     _stepConfig: StepConfig;
     step: Step;
 
-
-    constructor( private localizeService: LocalizationService ) {
-
-        this._stepConfig = {"steps": []};
+    constructor(private localizeService: LocalizationService) {
+        this._stepConfig = { steps: [] };
     }
-
 
     ngOnInit(): void {
     }
 
     ngOnDestroy() {
-       
+
     }
+
 }

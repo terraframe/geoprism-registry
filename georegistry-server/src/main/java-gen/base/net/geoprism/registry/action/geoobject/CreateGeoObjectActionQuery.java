@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.action.geoobject;
 
-@com.runwaysdk.business.ClassSignature(hash = 1244534992)
+@com.runwaysdk.business.ClassSignature(hash = -1651688585)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -73,6 +73,23 @@ public  class CreateGeoObjectActionQuery extends net.geoprism.registry.action.Ab
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.GEOOBJECTJSON, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getParentJson()
+  {
+    return getParentJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getParentJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.PARENTJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getParentJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.PARENTJSON, alias, displayLabel);
+
+  }
   /**  
    * Returns an iterator of Business objects that match the query criteria specified
    * on this query object. 
@@ -108,6 +125,9 @@ public  class CreateGeoObjectActionQuery extends net.geoprism.registry.action.Ab
     public com.runwaysdk.query.SelectableChar getGeoObjectJson();
     public com.runwaysdk.query.SelectableChar getGeoObjectJson(String alias);
     public com.runwaysdk.query.SelectableChar getGeoObjectJson(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getParentJson();
+    public com.runwaysdk.query.SelectableChar getParentJson(String alias);
+    public com.runwaysdk.query.SelectableChar getParentJson(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.action.geoobject.CreateGeoObjectAction createGeoObjectAction);
 
@@ -160,6 +180,23 @@ public  class CreateGeoObjectActionQuery extends net.geoprism.registry.action.Ab
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.GEOOBJECTJSON, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getParentJson()
+  {
+    return getParentJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getParentJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.PARENTJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getParentJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.PARENTJSON, alias, displayLabel);
+
+  }
   }
 
 /**
@@ -172,6 +209,9 @@ public  class CreateGeoObjectActionQuery extends net.geoprism.registry.action.Ab
     public com.runwaysdk.query.SelectableChar getGeoObjectJson();
     public com.runwaysdk.query.SelectableChar getGeoObjectJson(String alias);
     public com.runwaysdk.query.SelectableChar getGeoObjectJson(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getParentJson();
+    public com.runwaysdk.query.SelectableChar getParentJson(String alias);
+    public com.runwaysdk.query.SelectableChar getParentJson(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.action.geoobject.CreateGeoObjectAction ... createGeoObjectAction);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.action.geoobject.CreateGeoObjectAction ... createGeoObjectAction);
@@ -271,6 +311,23 @@ public  class CreateGeoObjectActionQuery extends net.geoprism.registry.action.Ab
   public com.runwaysdk.query.SelectableChar getGeoObjectJson(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.GEOOBJECTJSON, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getParentJson()
+  {
+    return getParentJson(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getParentJson(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.PARENTJSON, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getParentJson(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.PARENTJSON, alias, displayLabel);
 
   }
   }

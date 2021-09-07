@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Injectable } from "@angular/core";
+import { HttpErrorResponse } from "@angular/common/http";
 
-declare var acp;
+declare let acp;
 
 export interface IEventListener {
     start(): void;
@@ -11,32 +10,33 @@ export interface IEventListener {
 
 @Injectable()
 export class EventService {
+
     private listeners: IEventListener[] = [];
 
-    public registerListener( listener: IEventListener ): void {
-        this.listeners.push( listener );
+    public registerListener(listener: IEventListener): void {
+        this.listeners.push(listener);
     }
 
-    public deregisterListener( listener: IEventListener ): boolean {
-        let indexOfItem = this.listeners.indexOf( listener );
+    public deregisterListener(listener: IEventListener): boolean {
+        let indexOfItem = this.listeners.indexOf(listener);
 
-        if ( indexOfItem === -1 ) {
+        if (indexOfItem === -1) {
             return false;
         }
 
-        this.listeners.splice( indexOfItem, 1 );
+        this.listeners.splice(indexOfItem, 1);
 
         return true;
     }
 
     public start(): void {
-        for ( const listener of this.listeners ) {
+        for (const listener of this.listeners) {
             listener.start();
         }
     }
 
     public complete(): void {
-        for ( const listener of this.listeners ) {
+        for (const listener of this.listeners) {
             listener.complete();
         }
     }

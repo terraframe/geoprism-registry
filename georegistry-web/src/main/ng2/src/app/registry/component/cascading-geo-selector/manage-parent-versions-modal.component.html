@@ -1,9 +1,0 @@
-<div class="modal-body">
-    <div class="text-center">
-        <h2>
-            <localize key="changeovertime.manageVersions.widget.title"></localize>
-        </h2>
-    </div>
-    
-    <manage-parent-versions *ngIf="hierarchy != null" [hierarchy]="hierarchy" (onChange)="handleVersionChange($event)"></manage-parent-versions>
-</div>

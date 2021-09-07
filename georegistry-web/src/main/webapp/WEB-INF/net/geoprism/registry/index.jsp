@@ -61,7 +61,16 @@
   
    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
   
-  
+  <c:if test="${not empty requestScope['customFont'] and requestScope['customFont'] == 'Phetsarath OT'}">
+	  <style>
+	    @font-face {
+	      font-family: 'Phetsarath OT';
+	      font-style: normal;
+	      font-weight: 400;
+	      src: url(https://s3.us-west-2.amazonaws.com/geoprism.net/cdn/Phetsarath+OT.ttf) format('ttf');
+	    }
+	  </style>
+  </c:if>
   
   <!-- CSS imports -->
   <jwr:style src="/bundles/datatable.css" useRandomParam="false"/>
@@ -89,6 +98,12 @@
   
 </head>
 
+<style>
+:root {
+  --cgr-font: ${not empty requestScope['customFont'] ? requestScope['customFont'] : "Roboto"};
+}
+</style>
+
 <body>
     <cgr-app>
     <style type="text/css">
@@ -99,7 +114,9 @@
         height: 100vh;
 
         color: #7C868D;
-        font-family: -apple-system,
+        font-family:
+          ${not empty requestScope['customFont'] ? requestScope['customFont'] : ""}
+          -apple-system,
           BlinkMacSystemFont,
           "Segoe UI",
           Roboto,

@@ -24,11 +24,34 @@ import { finalize } from 'rxjs/operators';
 
 import { EventService } from '@shared/service'
 
+import { PageResult, Organization, ExternalSystem, LocaleView } from '@shared/model/core';
+
+import { User } from '@admin/model/account';
+
 declare var acp: any;
+
+export class SettingsInitView {
+  organizations: Organization[];
+  locales: LocaleView[];
+  externalSystems: PageResult<ExternalSystem>;
+  sras: PageResult<User>;
+}
 
 @Injectable()
 export class SettingsService {
 
 	constructor(private http: HttpClient, private eventService: EventService) { }
+	
+	getInitView(): Promise<SettingsInitView> {
+
+    this.eventService.start();
+
+    return this.http
+      .get<SettingsInitView>(acp + '/cgr/init-settings')
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
 
 }

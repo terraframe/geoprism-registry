@@ -25,6 +25,7 @@ import org.apache.http.NameValuePair;
 
 import net.geoprism.dhis2.dhis2adapter.DHIS2Bridge;
 import net.geoprism.dhis2.dhis2adapter.HTTPConnector;
+import net.geoprism.dhis2.dhis2adapter.exception.BadServerUriException;
 import net.geoprism.dhis2.dhis2adapter.exception.HTTPException;
 import net.geoprism.dhis2.dhis2adapter.exception.IncompatibleServerVersionException;
 import net.geoprism.dhis2.dhis2adapter.exception.InvalidLoginException;
@@ -45,7 +46,7 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
     this.dhis2 = new DHIS2Bridge(connector);
   }
   
-  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException
+  public void initialize() throws UnexpectedResponseException, InvalidLoginException, HTTPException, IncompatibleServerVersionException, BadServerUriException
   {
     this.dhis2.initialize();
   }
@@ -57,85 +58,85 @@ public class DHIS2TransportService implements DHIS2TransportServiceIF
   }
 
   @Override
-  public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException
+  public String getDhis2Id() throws HTTPException, InvalidLoginException, UnexpectedResponseException, BadServerUriException
   {
     return this.dhis2.getDhis2Id();
   }
 
   @Override
-  public DHIS2Response systemInfo() throws InvalidLoginException, HTTPException
+  public DHIS2Response systemInfo() throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.systemInfo();
   }
 
   @Override
-  public ObjectReportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public ObjectReportResponse entityPost(String entityName, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.entityPost(entityName, params, payload);
   }
 
   @Override
-  public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response entityIdGet(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.entityIdGet(entityName, entityId, params);
   }
   
   @Override
-  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response entityIdDelete(String entityName, String entityId, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.entityIdDelete(entityName, entityId, params);
   }
 
   @Override
-  public ObjectReportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public ObjectReportResponse entityIdPatch(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.entityIdPatch(entityName, entityId, params, payload);
   }
 
   @Override
-  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public TypeReportResponse entityTranslations(String entityName, String entityId, List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.entityTranslations(entityName, entityId, params, payload);
   }
 
   @Override
-  public MetadataImportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException
+  public MetadataImportResponse metadataPost(List<NameValuePair> params, HttpEntity payload) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.metadataPost(params, payload);
   }
 
   @Override
-  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.metadataGet(dhis2Type);
   }
 
   @Override
-  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public <T> MetadataGetResponse<T> metadataGet(Class<?> dhis2Type, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.metadataGet(dhis2Type, params);
   }
 
   @Override
-  public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException
+  public DHIS2Response apiGet(String url, List<NameValuePair> params) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.apiGet(url, params);
   }
 
   @Override
-  public DHIS2ImportResponse apiPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPost(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.apiPost(url, params, body);
   }
 
   @Override
-  public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPut(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.apiPut(url, params, body);
   }
 
   @Override
-  public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException
+  public DHIS2ImportResponse apiPatch(String url, List<NameValuePair> params, HttpEntity body) throws InvalidLoginException, HTTPException, BadServerUriException
   {
     return this.dhis2.apiPatch(url, params, body);
   }

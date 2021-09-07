@@ -1,51 +1,51 @@
-import { Injectable } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
-
-import { Progress } from '@shared/model/progress';
+import { Injectable } from "@angular/core";
+import { Progress } from "@shared/model/progress";
 
 export interface IProgressListener {
-  start(): void;
-  progress(progress:Progress):void;  
-  complete(): void;
+    start(): void;
+    progress(progress: Progress): void;
+    complete(): void;
 }
 
 @Injectable()
 export class ProgressService {
-  private listeners: IProgressListener[] = [];
-  
-  public constructor() {}
-  
-  public registerListener(listener: IProgressListener): void {
-   this.listeners.push(listener);
-  }
-  
-  public deregisterListener(listener: IProgressListener): boolean {
-    let indexOfItem = this.listeners.indexOf(listener);
 
-    if (indexOfItem === -1) {
-      return false;
+    private listeners: IProgressListener[] = [];
+
+    // eslint-disable-next-line no-useless-constructor
+    public constructor() { }
+
+    public registerListener(listener: IProgressListener): void {
+        this.listeners.push(listener);
     }
 
-    this.listeners.splice(indexOfItem, 1);
+    public deregisterListener(listener: IProgressListener): boolean {
+        let indexOfItem = this.listeners.indexOf(listener);
 
-    return true;
-  }
-  
-  public start(): void {
-    for (const listener of this.listeners) {
-      listener.start();
+        if (indexOfItem === -1) {
+            return false;
+        }
+
+        this.listeners.splice(indexOfItem, 1);
+
+        return true;
     }
-  }
-  
-  public progress(progress:Progress):void {
-    for (const listener of this.listeners) {
-      listener.progress(progress);
-    }	  
-  }  
-  
-  public complete(): void {
-    for (const listener of this.listeners) {
-      listener.complete();
+
+    public start(): void {
+        for (const listener of this.listeners) {
+            listener.start();
+        }
     }
-  }  
+
+    public progress(progress: Progress): void {
+        for (const listener of this.listeners) {
+            listener.progress(progress);
+        }
+    }
+
+    public complete(): void {
+        for (const listener of this.listeners) {
+            listener.complete();
+        }
+    }
 }

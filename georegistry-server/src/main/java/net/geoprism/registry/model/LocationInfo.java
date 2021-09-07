@@ -27,4 +27,8 @@ public interface LocationInfo
   public String getLabel();
 
   public String getLabel(Locale locale);
+  
+  public ServerGeoObjectType getType();
+
+  public void setType(ServerGeoObjectType type);
 }

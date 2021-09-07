@@ -22,6 +22,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,10 +39,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.ClientSession;
-import com.runwaysdk.LocalizationFacade;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.localization.LocalizedValueStoreQuery;
 import com.runwaysdk.query.OIterator;
@@ -109,7 +110,7 @@ public class TaskTest
   @Request
   public static void setUpClass()
   {
-    List<Locale> installed = LocalizationFacade.getInstalledLocales();
+    Collection<Locale> installed = LocalizationFacade.getInstalledLocales();
     
     if (!installed.contains(Locale.CHINESE))
     {

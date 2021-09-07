@@ -15,15 +15,26 @@
       </div>    
     
 
+<!--         <geoobject-shared-attribute-editor  -->
+<!--           #attributeEditor -->
+<!--           *ngIf="preGeoObject" -->
+<!--           [readOnly]="!isEditing"   -->
+<!--           [geoObjectType]="geoObjectType" -->
+<!--           [postGeoObject]="postGeoObject" -->
+<!--           [preGeoObject]="preGeoObject" -->
+<!--           [forDate]="forDate" -->
+<!--           [isGeometryInlined]="true"> -->
+<!--         </geoobject-shared-attribute-editor> -->
+        
         <geoobject-shared-attribute-editor 
-          #attributeEditor
-          *ngIf="preGeoObject"
-          [readOnly]="!isEditing"  
-          [geoObjectType]="geoObjectType"
-          [postGeoObject]="postGeoObject"
-          [preGeoObject]="preGeoObject"
-          [forDate]="forDate"
-          [isGeometryInlined]="true">
+            #attributeEditor
+            *ngIf="action"
+            [readOnly]="readOnly"  
+            [geoObjectType]="geoObjectType"
+            [geoObjectData]="{'geoObject':postGeoObject, 'actions': [action]}"
+            [forDate]="forDate"
+            [readOnly]="false"
+            [isGeometryInlined]="true">
         </geoobject-shared-attribute-editor>
 
 

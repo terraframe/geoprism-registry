@@ -1,5 +1,6 @@
 
-.mapboxgl-ctrl-group.mapboxgl-ctrl > button:hover {
+.mapboxgl-ctrl-group.mapboxgl-ctrl > button:hover,
+.mapboxgl-ctrl-group.mapboxgl-ctrl:hover {
 	cursor: pointer;
 }
 

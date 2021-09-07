@@ -24,21 +24,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.LocaleUtils;
 
 import com.runwaysdk.MessageExceptionDTO;
 import com.runwaysdk.business.BusinessFacade;
-import com.runwaysdk.business.MessageDTO;
 import com.runwaysdk.constants.CommonProperties;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdLocalizableInfo;
 import com.runwaysdk.controller.MultipartFileParameter;
+import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationExcelExporter;
 import com.runwaysdk.localization.LocalizationExcelImporter;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.LocalizedValueStore;
+import com.runwaysdk.localization.SupportedLocaleIF;
 import com.runwaysdk.localization.configuration.AttributeLocalQueryCriteria;
 import com.runwaysdk.localization.configuration.AttributeLocalTabConfiguration;
 import com.runwaysdk.localization.configuration.ConfigurationBuilder;
@@ -46,6 +50,7 @@ import com.runwaysdk.localization.configuration.SpreadsheetConfiguration;
 import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.session.LocaleManager;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
@@ -57,8 +62,8 @@ import com.runwaysdk.system.metadata.MdAttributeLocal;
 import com.runwaysdk.system.metadata.MdAttributeLocalQuery;
 import com.runwaysdk.system.metadata.MdLocalizable;
 import com.runwaysdk.system.metadata.Metadata;
+import com.runwaysdk.system.metadata.SupportedLocale;
 
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.service.WMSService;
 
@@ -101,27 +106,73 @@ public class LocalizationService
       throw new RuntimeException(e);
     }
   }
-
+  
   @Request(RequestType.SESSION)
-  public String installLocaleInRequest(String sessionId, String language, String country, String variant)
+  public LocaleView editLocaleInRequest(String sessionId, String json)
   {
     ServiceFactory.getRolePermissionService().enforceSRA();
+    
+    LocaleView view = LocaleView.fromJson(json);
 
-    String localeString = language;
-    if (country != null)
+    return editLocaleInTransaction(view);
+  }
+
+  @Transaction
+  private LocaleView editLocaleInTransaction(LocaleView view)
+  {
+    if (view.isDefaultLocale)
     {
-      localeString += "_" + country;
-      if (variant != null)
-      {
-        localeString += "_" + variant;
-      }
+      LocalizedValueStore lvs = LocalizedValueStore.getByKey(DefaultLocaleView.LABEL);
+      
+      lvs.lock();
+      lvs.getStoreValue().setLocaleMap(view.getLabel().getLocaleMap());
+      lvs.apply();
+      
+      view.getLabel().setValue(lvs.getStoreValue().getValue());
+      
+      return view;
+    }
+    else
+    {
+      SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.getSupportedLocale(view.getLocale());
+      
+      supportedLocale.appLock();
+      view.populate(supportedLocale);
+      supportedLocale.apply();
+  
+      // Refresh the users session
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+  
+      // Refresh the entire metadata cache
+      ServiceFactory.getRegistryService().refreshMetadataCache();
+      
+      return LocaleView.fromSupportedLocale(supportedLocale);
+    }
+  }
+
+  @Request(RequestType.SESSION)
+  public LocaleView installLocaleInRequest(String sessionId, String json)
+  {
+    ServiceFactory.getRolePermissionService().enforceSRA();
+    
+    LocaleView view = LocaleView.fromJson(json);
+    
+    if (view.isDefaultLocale)
+    {
+      return view;
     }
 
-    Locale locale = LocaleUtils.toLocale(localeString);
+    return installLocaleInTransaction(view);
+  }
 
-    com.runwaysdk.LocalizationFacade.install(locale);
-
-    SupportedLocaleCache.clear();
+  @Transaction
+  private LocaleView installLocaleInTransaction(LocaleView view)
+  {
+    SupportedLocaleIF supportedLocale = (SupportedLocale) com.runwaysdk.localization.LocalizationFacade.install(view.getLocale());
+    
+    supportedLocale.appLock();
+    view.populate(supportedLocale);
+    supportedLocale.apply();
 
     new WMSService().createAllWMSLayers(true);
 
@@ -130,8 +181,32 @@ public class LocalizationService
 
     // Refresh the entire metadata cache
     ServiceFactory.getRegistryService().refreshMetadataCache();
+    
+    return LocaleView.fromSupportedLocale(supportedLocale);
+  }
+  
+  @Request(RequestType.SESSION)
+  public void uninstallLocaleInRequest(String sessionId, String json)
+  {
+    ServiceFactory.getRolePermissionService().enforceSRA();
+    
+    LocaleView view = LocaleView.fromJson(json);
 
-    return locale.toString();
+    uninstallLocaleInTransaction(view);
+  }
+  
+  @Transaction
+  private void uninstallLocaleInTransaction(LocaleView view)
+  {
+    com.runwaysdk.localization.LocalizationFacade.uninstall(view.getLocale());
+
+    new WMSService().createAllWMSLayers(true);
+
+    // Refresh the users session
+    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+
+    // Refresh the entire metadata cache
+    ServiceFactory.getRegistryService().refreshMetadataCache();
   }
 
   @Request(RequestType.SESSION)
@@ -159,7 +234,7 @@ public class LocalizationService
     {
       if (locale != null && locale.length() > 0)
       {
-        List<String> locales = SupportedLocaleCache.getLocaleNames();
+        Set<String> locales = LocalizationService.getLocaleNames();
 
         if (locales.contains(locale))
         {
@@ -172,6 +247,22 @@ public class LocalizationService
       }
     }
 
+  }
+  
+  public static synchronized Set<String> getLocaleNames()
+  {
+    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
+
+    Set<String> list = new HashSet<String>();
+    
+    list.add(MdAttributeLocalInfo.DEFAULT_LOCALE);
+
+    for (Locale locale : locales)
+    {
+      list.add(locale.toString());
+    }
+
+    return list;
   }
 
   private SpreadsheetConfiguration buildConfig()

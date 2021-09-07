@@ -1,111 +1,109 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, OnInit, Input } from "@angular/core";
+import { DatePipe } from "@angular/common";
 
-import { TaskService } from '@registry/service';
-import { DateService } from '@shared/service/date.service';
-import { GeoObjectType, PaginationPage } from '@registry/model/registry';
+import { TaskService } from "@registry/service";
+import { DateService } from "@shared/service/date.service";
+import { GeoObjectType, PaginationPage } from "@registry/model/registry";
 
-import { LocalizationService } from '@shared/service';
+import { LocalizationService } from "@shared/service";
 
 @Component({
-	selector: 'task-viewer',
-	templateUrl: './task-viewer.component.html',
-	styleUrls: ['./task-viewer.component.css'],
-	providers: [DatePipe]
+    selector: "task-viewer",
+    templateUrl: "./task-viewer.component.html",
+    styleUrls: ["./task-viewer.component.css"],
+    providers: [DatePipe]
 })
 
 export class TaskViewerComponent implements OnInit {
 
-	@Input() geoObjectType: GeoObjectType;
+    @Input() geoObjectType: GeoObjectType;
 
-	inProgressTasks: PaginationPage = {
-		count: 0,
-		pageNumber: 1,
-		pageSize: 10,
-		results: []
-	};
+    inProgressTasks: PaginationPage = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
 
-	completedTasks: PaginationPage = {
-		count: 0,
-		pageNumber: 1,
-		pageSize: 10,
-		results: []
-	};
+    completedTasks: PaginationPage = {
+        count: 0,
+        pageNumber: 1,
+        pageSize: 10,
+        results: []
+    };
 
-	isViewAllOpen: boolean = false;
+    isViewAllOpen: boolean = false;
 
-	activeTimeCounter: number = 0;
-	completeTimeCounter: number = 0;
+    activeTimeCounter: number = 0;
+    completeTimeCounter: number = 0;
 
-	pollingData: any;
+    pollingData: any;
 
-	constructor(private taskService: TaskService, private localizeService: LocalizationService, private dateService: DateService) { }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(private taskService: TaskService, private localizeService: LocalizationService, private dateService: DateService) { }
 
-	ngOnInit(): void {
-		this.onInProgressTasksPageChange(1);
-	}
+    ngOnInit(): void {
+        this.onInProgressTasksPageChange(1);
+    }
 
-	upper(str: string): string {
-		if (str != null) {
-			return str.toUpperCase();
-		}
-		else {
-			return "";
-		}
-	}
+    upper(str: string): string {
+        if (str != null) {
+            return str.toUpperCase();
+        } else {
+            return "";
+        }
+    }
 
-	onInProgressTasksPageChange(pageNumber: any): void {
-		this.taskService.getMyTasks(pageNumber, this.inProgressTasks.pageSize, 'UNRESOLVED').then(page => {
-			this.inProgressTasks = page;
-		});
-	}
+    onInProgressTasksPageChange(pageNumber: any): void {
+        this.taskService.getMyTasks(pageNumber, this.inProgressTasks.pageSize, "UNRESOLVED").then(page => {
+            this.inProgressTasks = page;
+        });
+    }
 
-	onCompletedTasksPageChange(pageNumber: any): void {
+    onCompletedTasksPageChange(pageNumber: any): void {
+        this.taskService.getMyTasks(pageNumber, this.completedTasks.pageSize, "RESOLVED").then(page => {
+            this.completedTasks = page;
+        });
+    }
 
-		this.taskService.getMyTasks(pageNumber, this.completedTasks.pageSize, 'RESOLVED').then(page => {
-			this.completedTasks = page;
-		});
-	}
+    onCompleteTask(task: any): void {
+        // this.isViewAllOpen = true;
 
-	onCompleteTask(task: any): void {
-		// this.isViewAllOpen = true;
+        this.taskService.completeTask(task.id).then(() => {
+            const index = this.inProgressTasks.results.findIndex(t => t.id === task.id);
 
-		this.taskService.completeTask(task.id).then(() => {
+            if (index !== -1) {
+                this.inProgressTasks.results.splice(index, 1);
+            }
 
-			const index = this.inProgressTasks.results.findIndex(t => t.id === task.id);
+            this.completedTasks.results.push(task);
+            // this.onCompletedTasksPageChange(1);
+        });
+    }
 
-			if (index !== -1) {
-				this.inProgressTasks.results.splice(index, 1);
-			}
+    onMoveTaskToInProgress(task: any): void {
+        this.isViewAllOpen = true;
 
-			this.completedTasks.results.push(task);
-			// this.onCompletedTasksPageChange(1);
-		});
-	}
+        this.taskService.setTaskStatus(task.id, "UNRESOLVED").then(() => {
+            const index = this.completedTasks.results.findIndex(t => t.id === task.id);
 
-	onMoveTaskToInProgress(task: any): void {
-		this.isViewAllOpen = true;
+            if (index !== -1) {
+                this.completedTasks.results.splice(index, 1);
+            }
 
-		this.taskService.setTaskStatus(task.id, 'UNRESOLVED').then(() => {
+            this.completedTasks.results.splice(index, 1);
+            this.inProgressTasks.results.push(task);
+        });
+    }
 
-			const index = this.completedTasks.results.findIndex(t => t.id === task.id);
+    onViewAllCompletedTasks(): void {
+        this.isViewAllOpen = true;
 
-			if (index !== -1) {
-				this.completedTasks.results.splice(index, 1);
-			}
+        this.onCompletedTasksPageChange(1);
+    }
 
-			this.completedTasks.results.splice(index, 1);
-			this.inProgressTasks.results.push(task);
-		});
-	}
+    formatDate(date: string): string {
+        return this.dateService.formatDateForDisplay(date);
+    }
 
-	onViewAllCompletedTasks(): void {
-		this.isViewAllOpen = true;
-
-		this.onCompletedTasksPageChange(1);
-	}
-	
-	formatDate(date: string): string {
-		return this.dateService.formatDateForDisplay(date);
-	}
 }

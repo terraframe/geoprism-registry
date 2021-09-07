@@ -24,9 +24,12 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
@@ -50,10 +53,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Session;
 import com.vividsolutions.jts.geom.Point;
 
-import net.geoprism.registry.conversion.SupportedLocaleCache;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -71,14 +74,17 @@ public class GeoObjectExcelExporter
   private ServerHierarchyType     hierarchy;
 
   private List<ServerGeoObjectIF> objects;
+  
+  private List<Locale> locales;
 
   public GeoObjectExcelExporter(ServerGeoObjectType type, ServerHierarchyType hierarchy, List<ServerGeoObjectIF> objects)
   {
     this.type = type;
     this.hierarchy = hierarchy;
     this.objects = objects;
+    this.locales = LocalizationFacade.getInstalledLocales().stream().collect(Collectors.toList());
   }
-
+  
   public ServerGeoObjectType getType()
   {
     return type;
@@ -101,8 +107,6 @@ public class GeoObjectExcelExporter
 
   public Workbook createWorkbook() throws IOException
   {
-    List<Locale> locales = SupportedLocaleCache.getLocales();
-
     Workbook workbook = new XSSFWorkbook();
     Sheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(this.type.getLabel().getValue()));
 
@@ -122,22 +126,29 @@ public class GeoObjectExcelExporter
     Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, false, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
-    List<GeoObjectType> ancestors = this.type.getTypeAncestors(this.hierarchy, true);
+    List<GeoObjectType> dtoAncestors = this.type.getTypeAncestors(this.hierarchy, true);
+    
+    List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
+    
+    for (GeoObjectType ancestor : dtoAncestors)
+    {
+      ancestors.add(ServerGeoObjectType.get(ancestor));
+    }
 
-    this.writeHeader(boldStyle, header, attributes, ancestors, locales);
+    this.writeHeader(boldStyle, header, attributes, ancestors);
 
     for (int i = 0; i < this.objects.size(); i++)
     {
       ServerGeoObjectIF object = this.objects.get(i);
       Row row = sheet.createRow(i + 1);
 
-      this.writeRow(row, object, attributes, ancestors, locales, dateStyle);
+      this.writeRow(row, object, attributes, ancestors, dateStyle);
     }
 
     return workbook;
   }
 
-  public void writeRow(Row row, ServerGeoObjectIF object, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales, CellStyle dateStyle)
+  public void writeRow(Row row, ServerGeoObjectIF object, Collection<AttributeType> attributes, List<ServerGeoObjectType> ancestors, CellStyle dateStyle)
   {
     int col = 0;
     // Write the row
@@ -215,9 +226,9 @@ public class GeoObjectExcelExporter
     }
 
     // Write the parent values
-    Map<String, LocationInfo> map = object.getAncestorMap(this.hierarchy, true);
+    Map<String, LocationInfo> map = object.getAncestorMap(this.hierarchy, ancestors);
 
-    for (GeoObjectType ancestor : ancestors)
+    for (ServerGeoObjectType ancestor : ancestors)
     {
       LocationInfo vObject = map.get(ancestor.getCode());
 
@@ -234,18 +245,16 @@ public class GeoObjectExcelExporter
         codeCell.setCellValue(vObject.getCode());
         labelCell.setCellValue(vObject.getLabel());
 
-        for (int i = 0; i < locales.size(); i++)
+        for (int i = 0; i < locales.size(); ++i)
         {
-          Locale locale = locales.get(i);
-
           Cell cell = row.getCell(labelCell.getColumnIndex() + i + 1);
-          cell.setCellValue(vObject.getLabel(locale));
+          cell.setCellValue(vObject.getLabel(locales.get(i)));
         }
       }
     }
   }
 
-  public void writeHeader(CellStyle boldStyle, Row header, Collection<AttributeType> attributes, List<GeoObjectType> ancestors, List<Locale> locales)
+  public void writeHeader(CellStyle boldStyle, Row header, Collection<AttributeType> attributes, List<ServerGeoObjectType> ancestors)
   {
     int col = 0;
 
@@ -271,7 +280,7 @@ public class GeoObjectExcelExporter
       }
     }
 
-    for (GeoObjectType ancestor : ancestors)
+    for (ServerGeoObjectType ancestor : ancestors)
     {
       Cell cell = header.createCell(col++);
       cell.setCellStyle(boldStyle);

@@ -40,10 +40,6 @@ CGR_PROJECT=$CGR/georegistry
 # Exit on error
 set -ex
 
-# Set proper version of npm
-source ~/.nvm/nvm.sh
-nvm install lts/erbium
-
 # Update git
 cd $CGR_PROJECT
 git pull
@@ -61,7 +57,7 @@ sleep 2
 
 # Run the ng2 server
 cd $CGR_PROJECT/georegistry-web/src/main/ng2
-gnome-terminal -x sh -c "npm run start"
+gnome-terminal -x /bin/bash -c "source ~/.nvm/nvm.sh && nvm install lts/erbium && npm install && npm rebuild node-sass && npm run start"
 
 # Run the cgr webserver
 cd $CGR_PROJECT
@@ -69,5 +65,5 @@ mvn clean
 gnome-terminal -x sh -c "mvn install -P ng2-dev,cargo-run-georegistry"
 
 # Open a web browser to view the app
-sleep 5
+sleep 25
 google-chrome https://localhost:8443/georegistry

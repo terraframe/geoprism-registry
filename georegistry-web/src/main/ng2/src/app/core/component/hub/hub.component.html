@@ -9,7 +9,7 @@
 			            <div *ngIf="!loading && authService.getRoles().length == 0" class="error-message" style="font-size:1.5em;">
 			              <localize key="hub.no-valid-roles"></localize>
 			            </div>
-			            <div *ngIf="loading" class="fa fa-spinner fa-spin" style="font-size:4em; color:black;">
+			            <div *ngIf="loading" class="standby-overlay" style="width:100%; height:100%; font-size:4em; color:black;">
 			              
 			            </div>
 			          </div>

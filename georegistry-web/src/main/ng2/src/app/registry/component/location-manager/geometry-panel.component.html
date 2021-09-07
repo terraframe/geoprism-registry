@@ -30,6 +30,9 @@
                                   <button class="btn btn-primary" (click)="edit(vAttribute, i)" role="button">
                                     <localize key="changeovertime.manageVersions.geometry.edit"></localize>
                                   </button>
+                                  <button type="submit" (click)="onCloneGeometryToNewVersion(vAttribute)" class="btn btn-default" role="button">
+                                      <localize key="changeovertime.manageVersions.copy.geometry.button"></localize>
+                                    </button>
                                 </td>
                               </tr>
                               <tr class="attribute-date-input-row">
@@ -71,7 +74,7 @@
                   </li>
 
                   <li class="list-group-item" style="text-align: left;">
-                    <i class="fa fa-plus clickable" (click)="onAddNewVersion()"> <localize key="changeovertime.manageVersions.newVersion"></localize>
+                    <i class="fa fa-plus clickable" (click)="onAddNewVersion(null)"> <localize key="changeovertime.manageVersions.newVersion"></localize>
                     </i>
                   </li>
                 </ul>

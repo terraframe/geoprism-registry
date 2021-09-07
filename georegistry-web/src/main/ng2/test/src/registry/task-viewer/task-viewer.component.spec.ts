@@ -6,7 +6,7 @@ import { ModalModule, BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 import { TaskViewerComponent } from "@registry/component/task-viewer/task-viewer.component";
-import { LocalizationService, EventService, ProfileService, AuthService } from "@shared/service";
+import { LocalizationService, EventService, ProfileService, AuthService, DateService } from "@shared/service";
 import { SharedModule } from "@shared/shared.module";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { TaskService } from "@registry/service";
@@ -35,7 +35,8 @@ describe("TaskViewerComponent", () => {
 				EventService,
 				TaskService,
 				ProfileService,
-				AuthService
+				AuthService,
+				DateService,
 			]
 		}).compileComponents();
 	}));

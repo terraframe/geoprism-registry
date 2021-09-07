@@ -22,7 +22,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.session.Session;
+import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.RolePermissionService;
@@ -34,12 +35,12 @@ public class ChangeRequestPermissionService
     EXECUTE, WRITE_APPROVAL_STATUS, READ_APPROVAL_STATUS, READ_DETAILS, WRITE_DETAILS, READ_DOCUMENTS, WRITE_DOCUMENTS, READ_CONTRIBUTOR_NOTES, WRITE_CONTRIBUTOR_NOTES, READ_MAINTAINER_NOTES, WRITE_MAINTAINER_NOTES, READ, WRITE, SUBMIT, DELETE
   }
 
-  public Set<ChangeRequestPermissionAction> getPermissions(GovernancePermissionEntity cr)
+  public Set<ChangeRequestPermissionAction> getPermissions(ChangeRequest cr)
   {
     final RolePermissionService perms = ServiceFactory.getRolePermissionService();
 
-    final String orgCode = cr.getOrganization();
-    final String gotCode = cr.getGeoObjectType();
+    final String orgCode = cr.getOrganizationCode();
+    final String gotCode = cr.getGeoObjectTypeCode();
     ServerGeoObjectType type = null;
 
     if (gotCode != null)
@@ -97,7 +98,13 @@ public class ChangeRequestPermissionService
     {
       actions.addAll(Arrays.asList(ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.READ_APPROVAL_STATUS, ChangeRequestPermissionAction.READ_DETAILS, ChangeRequestPermissionAction.WRITE_DETAILS, ChangeRequestPermissionAction.READ_DOCUMENTS, ChangeRequestPermissionAction.WRITE_DOCUMENTS, ChangeRequestPermissionAction.READ_MAINTAINER_NOTES, ChangeRequestPermissionAction.READ_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES, ChangeRequestPermissionAction.SUBMIT, ChangeRequestPermissionAction.DELETE));
 
-      if (status.equals(AllGovernanceStatus.ACCEPTED))
+      SessionIF session = Session.getCurrentSession();
+      if (session == null || session.getUser() == null || cr.getCreatedBy() == null || !cr.getCreatedBy().getOid().equals(session.getUser().getOid()))
+      {
+        actions.remove(ChangeRequestPermissionAction.DELETE);
+      }
+      
+      if (status.equals(AllGovernanceStatus.ACCEPTED) || status.equals(AllGovernanceStatus.REJECTED) || status.equals(AllGovernanceStatus.INVALID) || status.equals(AllGovernanceStatus.PARTIAL))
       {
         actions.remove(ChangeRequestPermissionAction.WRITE_CONTRIBUTOR_NOTES);
         actions.remove(ChangeRequestPermissionAction.WRITE_DETAILS);

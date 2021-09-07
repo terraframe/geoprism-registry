@@ -82,7 +82,7 @@ export class LoginComponent implements OnInit {
         this.context = acp as string;
     }
     
-    onClickDhis2(url: any): void {
+    public onClickDhis2(url: any): void {
       if (url == null)
       {
         if (this.oauthServers.length == 1)

@@ -22,26 +22,6 @@
           <localize key="change.request.search.for.geoobject.search.label"></localize>
           <input type="text" [ngClass]="{'inline-loading':loading}" [(ngModel)]="geoObjectId" [disabled]="!geoObjectType" name="geoObjectId" [typeaheadAsync]="true" [typeahead]="dataSource" (typeaheadOnSelect)="typeaheadOnSelect($event)"
             [typeaheadOptionsLimit]="7" typeaheadOptionField="name" (typeaheadLoading)="changeTypeaheadLoading($event)" [placeholder]="('masterlist.search' | localize) + '...'" class="form-control" autocomplete="off">
-        
-            <span *ngIf="preGeoObject" class="pull-right">
-              <a (click)="clickShowDetails()">
-                <localize *ngIf="!showGeoObjectDetails" key="change.request.create.request.show.details.btn"></localize>
-                <localize *ngIf="showGeoObjectDetails" key="change.request.create.request.hide.details.btn"></localize>
-              </a>
-            </span>
-            
-            <div *ngIf="showGeoObjectDetails">
-              <geoobject-shared-attribute-editor 
-              #attributeEditor (valid)="this.onValidChange($event)" 
-              [forDate]="this.forDate"
-              [geoObjectType]="this.geoObjectType" 
-              [preGeoObject]="this.preGeoObject" 
-              [(postGeoObject)]="this.postGeoObject" 
-              [isGeometryInlined]="false"
-              [readOnly]="true"
-              [animate]=false>
-              </geoobject-shared-attribute-editor>
-           </div>
         </div>
         
         <div class="col-md-2">
@@ -49,11 +29,10 @@
            <!-- We cannot use the dataset-location-manager here because it pulls the tiles from the dataset (list) and we don't have a dataset. -->
            <!-- <a *ngIf="preGeoObject && forDate" [routerLink]="['/registry/dataset-location-manager', '123', preGeoObject.attributes.type, 'false', dateStr, preGeoObject.attributes.code, 'true']" -->
           
-           <a *ngIf="preGeoObject && forDate" [routerLink]="['/registry/location-manager', preGeoObject.attributes.uid, preGeoObject.attributes.type, dateStr, 'true']"
-                target="_blank">
+           <a *ngIf="geoObject && forDate" [routerLink]="['/registry/location-manager', geoObject.attributes.uid, geoObject.attributes.type, dateStr, 'true', 'CR']">
             <button class="btn btn-primary" style="width:100%;"><localize key="change.request.open.geoobject.in.editor.link.btn"></localize></button>
           </a>
-          <button *ngIf="!(preGeoObject && forDate)" disabled="true" class="btn btn-primary" style="width:100%;"><localize key="change.request.open.geoobject.in.editor.link.btn"></localize></button>
+          <button *ngIf="!(geoObject && forDate)" disabled="true" class="btn btn-primary" style="width:100%;"><localize key="change.request.open.geoobject.in.editor.link.btn"></localize></button>
         </div>
 
       </div>

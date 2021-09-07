@@ -23,6 +23,8 @@ import { finalize } from 'rxjs/operators';
 
 import { EventService } from '@shared/service';
 
+import { LocaleView } from '@shared/model/core';
+
 import { AllLocaleInfo } from '@admin/model/localization-manager';
 
 declare var acp: any;
@@ -45,31 +47,51 @@ export class LocalizationManagerService {
 			}))
 			.toPromise();
 	}
+	
+	editLocale(locale: LocaleView): Promise<LocaleView> {
+    let params: HttpParams = new HttpParams();
 
-	installLocale(language: string, country: string, variant: string): Promise<{ locale: string }> {
+    params = params.set('json', JSON.stringify(locale));
+
+    this.eventService.start();
+
+    return this.http
+      .get<LocaleView>(acp + '/localization/editLocale', { params: params })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
+
+	installLocale(locale: LocaleView): Promise<LocaleView> {
 		let params: HttpParams = new HttpParams();
 
-		if (language != null) {
-			params = params.set('language', language);
-		}
-
-		if (country != null) {
-			params = params.set('country', country);
-		}
-
-		if (variant != null) {
-			params = params.set('variant', variant);
-		}
+	  params = params.set('json', JSON.stringify(locale));
 
 		this.eventService.start();
 
 		return this.http
-			.get<{ locale: string }>(acp + '/localization/installLocale', { params: params })
+			.get<LocaleView>(acp + '/localization/installLocale', { params: params })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
 			.toPromise();
 	}
+	
+	uninstallLocale(locale: LocaleView) {
+    let params: HttpParams = new HttpParams();
+
+    params = params.set('json', JSON.stringify(locale));
+
+    this.eventService.start();
+
+    return this.http
+      .get<{ locale: string }>(acp + '/localization/uninstallLocale', { params: params })
+      .pipe(finalize(() => {
+        this.eventService.complete();
+      }))
+      .toPromise();
+  }
 
 	installFile(formData: FormData): Promise<void> {
 		let headers = new HttpHeaders();

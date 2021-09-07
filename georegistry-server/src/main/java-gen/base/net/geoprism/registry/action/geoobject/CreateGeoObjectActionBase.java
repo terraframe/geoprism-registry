@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry.action.geoobject;
 
-@com.runwaysdk.business.ClassSignature(hash = 1266073895)
+@com.runwaysdk.business.ClassSignature(hash = 2104958592)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -30,7 +30,8 @@ public abstract class CreateGeoObjectActionBase extends net.geoprism.registry.ac
 {
   public final static String CLASS = "net.geoprism.registry.action.geoobject.CreateGeoObjectAction";
   public static java.lang.String GEOOBJECTJSON = "geoObjectJson";
-  private static final long serialVersionUID = 1266073895;
+  public static java.lang.String PARENTJSON = "parentJson";
+  private static final long serialVersionUID = 2104958592;
   
   public CreateGeoObjectActionBase()
   {
@@ -62,6 +63,34 @@ public abstract class CreateGeoObjectActionBase extends net.geoprism.registry.ac
     else
     {
       setValue(GEOOBJECTJSON, value);
+    }
+  }
+  
+  public String getParentJson()
+  {
+    return getValue(PARENTJSON);
+  }
+  
+  public void validateParentJson()
+  {
+    this.validateAttribute(PARENTJSON);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getParentJsonMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.geoobject.CreateGeoObjectAction.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(PARENTJSON);
+  }
+  
+  public void setParentJson(String value)
+  {
+    if(value == null)
+    {
+      setValue(PARENTJSON, "");
+    }
+    else
+    {
+      setValue(PARENTJSON, value);
     }
   }
   

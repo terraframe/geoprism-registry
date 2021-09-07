@@ -1,63 +1,63 @@
-import { NgModule } from '@angular/core';
-import { LocationStrategy, HashLocationStrategy } from '@angular/common';
-import { Routes, RouterModule } from '@angular/router';
+import { NgModule } from "@angular/core";
+import { LocationStrategy, HashLocationStrategy } from "@angular/common";
+import { Routes, RouterModule } from "@angular/router";
 
-import { LoginComponent } from './core/component/login/login.component'
-import { HubComponent } from './core/component/hub/hub.component';
-import { ForgotPasswordComponent } from './core/component/forgotpassword/forgotpassword.component'
-import { ForgotPasswordCompleteComponent } from './core/component/forgotpassword-complete/forgotpassword-complete.component'
+import { LoginComponent } from "./core/component/login/login.component";
+import { HubComponent } from "./core/component/hub/hub.component";
+import { ForgotPasswordComponent } from "./core/component/forgotpassword/forgotpassword.component";
+import { ForgotPasswordCompleteComponent } from "./core/component/forgotpassword-complete/forgotpassword-complete.component";
 
-import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from './shared/service/guard.service';
+import { AuthGuard, AdminGuard, MaintainerGuard, ContributerGuard } from "./shared/service/guard.service";
 
 const routes: Routes = [
     {
-        path: '',
-        redirectTo: '/menu',
-        pathMatch: 'full'
+        path: "",
+        redirectTo: "/menu",
+        pathMatch: "full"
     },
     {
-        path: 'login',
+        path: "login",
         component: LoginComponent,
-        data: { title: 'login.title' }
+        data: { title: "login.title" }
     },
     {
-        path: 'login/:errorMsg',
+        path: "login/:errorMsg",
         component: LoginComponent,
-        data: { title: 'login.title' }
+        data: { title: "login.title" }
     },
     {
-        path: 'menu',
+        path: "menu",
         component: HubComponent,
         canActivate: [AuthGuard],
-        data: { title: 'login.header' }
+        data: { title: "login.header" }
     },
     {
-        path: 'menu/:value',
+        path: "menu/:value",
         component: HubComponent,
         canActivate: [AuthGuard],
-        data: { title: 'login.header' }
+        data: { title: "login.header" }
     },
     {
-        path: 'forgotpassword',
+        path: "forgotpassword",
         component: ForgotPasswordComponent,
-        data: { title: 'useraccounts.title' }
+        data: { title: "useraccounts.title" }
     },
     {
-        path: 'forgotpassword-complete/:token',
+        path: "forgotpassword-complete/:token",
         component: ForgotPasswordCompleteComponent
     },
     {
-        path: 'admin',
+        path: "admin",
         loadChildren: "./admin/admin.module#AdminModule"
     },
     {
-        path: 'registry',
+        path: "registry",
         loadChildren: "./registry/registry.module#RegistryModule"
     }
 ];
 
-@NgModule( {
-    imports: [RouterModule.forRoot( routes )],
+@NgModule({
+    imports: [RouterModule.forRoot(routes)],
     exports: [RouterModule],
     providers: [
         { provide: LocationStrategy, useClass: HashLocationStrategy },
@@ -65,7 +65,7 @@ const routes: Routes = [
         MaintainerGuard,
         ContributerGuard
     ]
-} )
+})
 export class CgrAppRoutingModule { }
 
 export const routedComponents: any = [LoginComponent, HubComponent, ForgotPasswordComponent, ForgotPasswordCompleteComponent];

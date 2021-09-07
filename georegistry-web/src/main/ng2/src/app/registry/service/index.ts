@@ -7,6 +7,7 @@ import { MapService } from './map.service';
 import { RegistryService } from './registry.service';
 import { SynchronizationConfigService } from './synchronization-config.service';
 import { TaskService } from './task.service';
+import { GeometryService} from './geometry.service';
 
 export const services: any[] = [
 	ChangeRequestService,
@@ -17,7 +18,8 @@ export const services: any[] = [
 	MapService,
 	RegistryService,
 	SynchronizationConfigService,
-	TaskService
+	TaskService,
+	GeometryService
 ];
 
 export * from './change-request.service';
@@ -29,3 +31,4 @@ export * from './map.service';
 export * from './registry.service';
 export * from './synchronization-config.service';
 export * from './task.service';
+export * from './geometry.service';

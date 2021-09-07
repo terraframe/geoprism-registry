@@ -18,17 +18,20 @@
  */
 package net.geoprism.registry.io;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
+import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.session.Request;
 
-import junit.framework.Assert;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -80,10 +83,17 @@ public class GeoObjectUtilTest
     ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
 
     ServerGeoObjectIF object = new ServerGeoObjectService().getGeoObjectByCode(USATestData.CO_A_ONE.getCode(), type);
+    
+    List<GeoObjectType> dtoAncestors = type.getTypeAncestors(hierarchyType, true);
+    List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
+    for (GeoObjectType ancestor : dtoAncestors)
+    {
+      ancestors.add(ServerGeoObjectType.get(ancestor));
+    }
 
-    Map<String, LocationInfo> map = object.getAncestorMap(hierarchyType, false);
+    Map<String, LocationInfo> map = object.getAncestorMap(hierarchyType, ancestors);
 
-    Assert.assertEquals(4, map.size());
+    Assert.assertEquals(3, map.size());
 
     // Validate the county values
     Assert.assertTrue(map.containsKey(USATestData.COUNTY.getCode()));

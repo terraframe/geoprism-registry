@@ -19,7 +19,6 @@
 package net.geoprism.registry.action.tree;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
@@ -39,7 +38,6 @@ import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.action.ActionJsonAdapters;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
-import net.geoprism.registry.action.geoobject.SetParentAction;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -63,18 +61,6 @@ public class AddChildAction extends AddChildActionBase
     ServiceFactory.getGeoObjectRelationshipPermissionService().enforceCanAddChild(ht.getOrganization().getCode(), parent.getType(), child.getType());
 
     parent.addChild(child, ht);
-  }
-  
-  @Override
-  public boolean referencesType(ServerGeoObjectType type)
-  {
-    return this.getChildTypeCode().equals(type.getCode()) || this.getParentTypeCode().equals(type);
-  }
-  
-  @Override
-  public String getGeoObjectType()
-  {
-    return this.getChildTypeCode();
   }
 
   @Override
@@ -105,7 +91,7 @@ public class AddChildAction extends AddChildActionBase
   {
     super.buildFromJson(joAction);
     
-    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this);
+    Set<ChangeRequestPermissionAction> perms = new ChangeRequestPermissionService().getPermissions(this.getAllRequest().next());
     
     if (perms.containsAll(Arrays.asList(
         ChangeRequestPermissionAction.WRITE_DETAILS

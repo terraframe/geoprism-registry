@@ -1,16 +1,16 @@
-import { Component, Input } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
-import { Subject } from 'rxjs';
-import { LocalizationService } from '@shared/service';
-import { ModalTypes } from '@shared/model/modal';
+import { Component, Input } from "@angular/core";
+import { BsModalRef } from "ngx-bootstrap/modal";
+import { Subject } from "rxjs";
+import { LocalizationService } from "@shared/service";
+import { ModalTypes } from "@shared/model/modal";
 
-
-@Component( {
-    selector: 'confirm-modal',
-    templateUrl: './confirm-modal.component.html',
-    styleUrls: ['./modal.css']
-} )
+@Component({
+    selector: "confirm-modal",
+    templateUrl: "./confirm-modal.component.html",
+    styleUrls: ["./modal.css"]
+})
 export class ConfirmModalComponent {
+
     /*
      * Message
      */
@@ -28,13 +28,14 @@ export class ConfirmModalComponent {
      * Called on confirm
      */
     public onConfirm: Subject<any>;
-    
+
     /*
      * Called on cancel
      */
     public onCancel: Subject<any>;
 
-    constructor( public bsModalRef: BsModalRef, private localizeService: LocalizationService ) { }
+    // eslint-disable-next-line no-useless-constructor
+    constructor(public bsModalRef: BsModalRef, private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
         this.onConfirm = new Subject();
@@ -43,11 +44,12 @@ export class ConfirmModalComponent {
 
     confirm(): void {
         this.bsModalRef.hide();
-        this.onConfirm.next( this.data );
+        this.onConfirm.next(this.data);
     }
-    
+
     cancel(): void {
         this.bsModalRef.hide();
-        this.onCancel.next( this.data );
+        this.onCancel.next(this.data);
     }
+
 }

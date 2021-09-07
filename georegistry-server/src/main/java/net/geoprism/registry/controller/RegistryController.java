@@ -34,7 +34,6 @@ import org.commongeoregistry.adapter.dataaccess.TreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.CustomSerializer;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
-import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.json.JSONArray;
@@ -42,6 +41,7 @@ import org.json.JSONException;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -55,8 +55,11 @@ import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ChangeRequestService;
+import net.geoprism.registry.service.ExternalSystemService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -77,26 +80,34 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET)
   public ResponseIF manage()
   {
-    return new ViewResponse(JSP_DIR + INDEX_JSP);
+    ViewResponse resp = new ViewResponse(JSP_DIR + INDEX_JSP);
+    
+    String customFont = GeoregistryProperties.getCustomFont();
+    if (customFont != null && customFont.length() > 0)
+    {
+      resp.set("customFont", customFont);
+    }
+    
+    return resp;
   }
 
-  /**
-   * Submits a change request to the GeoRegistry. These actions will be reviewed
-   * by an Administrator and if the actions are approved they may be executed
-   * and accepted as formal changes to the GeoRegistry.
-   * 
-   * @param request
-   * @param uid
-   * @return
-   * @throws JSONException
-   */
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.SUBMIT_CHANGE_REQUEST)
-  public ResponseIF submitChangeRequest(ClientRequestIF request, @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS) String actions) throws JSONException
-  {
-    new ChangeRequestService().submitChangeRequest(request.getSessionId(), actions);
-
-    return new RestResponse();
-  }
+//  /**
+//   * Submits a change request to the GeoRegistry. These actions will be reviewed
+//   * by an Administrator and if the actions are approved they may be executed
+//   * and accepted as formal changes to the GeoRegistry.
+//   * 
+//   * @param request
+//   * @param uid
+//   * @return
+//   * @throws JSONException
+//   */
+//  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.SUBMIT_CHANGE_REQUEST)
+//  public ResponseIF submitChangeRequest(ClientRequestIF request, @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS) String actions) throws JSONException
+//  {
+//    new ChangeRequestService().submitChangeRequest(request.getSessionId(), actions);
+//
+//    return new RestResponse();
+//  }
   
   /**
    * Returns an OauthServer configuration with the specified id. If an id is not provided, this endpoint will return all configurations (in your organization).
@@ -952,6 +963,33 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
+  }
+  
+  @Endpoint(url = "init-settings", method = ServletMethod.GET, error = ErrorSerialization.JSON)
+  public ResponseIF initSettings(ClientRequestIF request) throws ParseException
+  {
+    OrganizationDTO[] orgs = this.registryService.getOrganizations(request.getSessionId(), null);
+    JsonArray jaLocales = this.registryService.getLocales(request.getSessionId());
+    JsonObject esPage = new ExternalSystemService().page(request.getSessionId(), 1, 10);
+    JsonObject sraPage = JsonParser.parseString(AccountService.getInstance().getSRAs(request.getSessionId(), 1, 10)).getAsJsonObject();
+    CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
+
+    JsonObject settingsView = new JsonObject();
+    
+    JsonArray orgsJson = new JsonArray();
+    for (OrganizationDTO org : orgs)
+    {
+      orgsJson.add(org.toJSON(serializer));
+    }
+    settingsView.add("organizations", orgsJson);
+    
+    settingsView.add("locales", jaLocales);
+    
+    settingsView.add("externalSystems", esPage);
+    
+    settingsView.add("sras", sraPage);
+
+    return new RestBodyResponse(settingsView);
   }
 
   /**
