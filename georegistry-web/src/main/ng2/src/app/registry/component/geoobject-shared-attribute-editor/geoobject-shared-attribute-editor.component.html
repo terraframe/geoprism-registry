@@ -22,6 +22,8 @@
   <fieldset>
     <!-- <div class="col-md-12"> -->
     <div *ngIf="postGeoObject">
+      <stability-period [geoObjectOverTime]="postGeoObject"></stability-period>
+    
       <div *ngIf="tabIndex === 0" class="row">
         <!-- <div class="label-holder">
                         <label>

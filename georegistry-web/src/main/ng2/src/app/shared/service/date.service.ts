@@ -172,7 +172,22 @@ export class DateService {
         return hasConflict;
     }
 
-    sort(votArr: TimeRangeEntry[]): void {
+    public between(test: string, startDate: string, endDate: string) {
+        let dTest: Date = this.getDateFromDateString(test);
+        let dStart: Date = this.getDateFromDateString(startDate);
+        let dEnd: Date = this.getDateFromDateString(endDate);
+
+        return dTest >= dStart && dTest <= dEnd;
+    }
+
+    public addDay(amount: number, date: string): string {
+        var plus1: Date = this.getDateFromDateString(date);
+        plus1.setDate(plus1.getDate() + amount);
+        let splus1: string = this.getDateString(plus1);
+        return splus1;
+    }
+
+    public sort(votArr: TimeRangeEntry[]): void {
         // Sort the data by start date
         votArr.sort(function(a, b) {
             if (a.startDate == null || a.startDate === "") {
