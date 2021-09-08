@@ -206,53 +206,60 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     super.apply();
     
     // Send an email to RMs telling them about this new CR
-    if (isNew)
+    try
     {
-      SingleActor createdBy = this.getCreatedBy();
-
-      if (createdBy instanceof GeoprismUser)
+      if (isNew)
       {
-        // Get all RM's for the GOT and Org
-        String rmRoleName = RegistryRole.Type.getRM_RoleName(this.getOrganizationCode(), this.getGeoObjectTypeCode());
-        RoleDAOIF role = RoleDAO.findRole(rmRoleName);
-        Set<SingleActorDAOIF> actors = role.assignedActors();
-        
-        List<String> toAddresses = new ArrayList<String>();
-        for (SingleActorDAOIF actor : actors)
+        SingleActor createdBy = this.getCreatedBy();
+  
+        if (createdBy instanceof GeoprismUser)
         {
-          if (actor.getType().equals(GeoprismUser.CLASS))
+          // Get all RM's for the GOT and Org
+          String rmRoleName = RegistryRole.Type.getRM_RoleName(this.getOrganizationCode(), this.getGeoObjectTypeCode());
+          RoleDAOIF role = RoleDAO.findRole(rmRoleName);
+          Set<SingleActorDAOIF> actors = role.assignedActors();
+          
+          List<String> toAddresses = new ArrayList<String>();
+          for (SingleActorDAOIF actor : actors)
           {
-            GeoprismUser geoprismUser = GeoprismUser.get(actor.getOid());
-            
-            String email = geoprismUser.getEmail();
-            
+            if (actor.getType().equals(GeoprismUser.CLASS))
+            {
+              GeoprismUser geoprismUser = GeoprismUser.get(actor.getOid());
+              
+              String email = geoprismUser.getEmail();
+              
+              if (email != null && email.length() > 0 && !email.contains("@noreply"))
+              {
+                toAddresses.add(geoprismUser.getEmail());
+              }
+            }
+          }
+          
+          if (toAddresses.size() > 0)
+          {
+            String email = ( (GeoprismUser) createdBy ).getEmail();
+    
             if (email != null && email.length() > 0)
             {
-              toAddresses.add(geoprismUser.getEmail());
+              String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
+    
+              String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
+              body = body.replaceAll("\\\\n", "\n");
+              body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
+              body = body.replaceAll("\\{geoobject\\}", this.getGeoObject().getDisplayLabel().getValue());
+              
+              String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+              body = body.replaceAll("\\{link\\}", link);
+    
+               EmailSetting.sendEmail(subject, body, toAddresses.toArray(new String[toAddresses.size()]));
             }
           }
         }
-        
-        if (toAddresses.size() > 0)
-        {
-          String email = ( (GeoprismUser) createdBy ).getEmail();
-  
-          if (email != null && email.length() > 0)
-          {
-            String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
-  
-            String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
-            body = body.replaceAll("\\\\n", "\n");
-            body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
-            body = body.replaceAll("\\{geoobject\\}", this.getGeoObject().getDisplayLabel().getValue());
-            
-            String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
-            body = body.replaceAll("\\{link\\}", link);
-  
-             EmailSetting.sendEmail(subject, body, toAddresses.toArray(new String[toAddresses.size()]));
-          }
-        }
       }
+    }
+    catch(Throwable t)
+    {
+      t.printStackTrace();
     }
   }
   
@@ -322,29 +329,36 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       this.apply();
 
       // Email the contributor
-      SingleActor actor = this.getCreatedBy();
-
-      if (actor instanceof GeoprismUser)
+      try
       {
-        String email = ( (GeoprismUser) actor ).getEmail();
-
-        if (email != null && email.length() > 0)
+        SingleActor actor = this.getCreatedBy();
+  
+        if (actor instanceof GeoprismUser)
         {
-          final String statusLabel = status.getDisplayLabel().toLowerCase(Session.getCurrentLocale());
-          
-          String subject = LocalizationFacade.getFromBundles("change.request.email.implement.subject");
-          subject = subject.replaceAll("\\{status\\}", StringUtils.capitalize(statusLabel));
-
-          String body = LocalizationFacade.getFromBundles("change.request.email.implement.body");
-          body = body.replaceAll("\\\\n", "\n");
-          body = body.replaceAll("\\{status\\}", statusLabel);
-          body = body.replaceAll("\\{geoobject\\}", this.getGeoObject().getDisplayLabel().getValue());
-          
-          String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
-          body = body.replaceAll("\\{link\\}", link);
-
-           EmailSetting.sendEmail(subject, body, new String[] { email });
+          String email = ( (GeoprismUser) actor ).getEmail();
+  
+          if (email != null && email.length() > 0 && !email.contains("@noreply"))
+          {
+            final String statusLabel = status.getDisplayLabel().toLowerCase(Session.getCurrentLocale());
+            
+            String subject = LocalizationFacade.getFromBundles("change.request.email.implement.subject");
+            subject = subject.replaceAll("\\{status\\}", StringUtils.capitalize(statusLabel));
+  
+            String body = LocalizationFacade.getFromBundles("change.request.email.implement.body");
+            body = body.replaceAll("\\\\n", "\n");
+            body = body.replaceAll("\\{status\\}", statusLabel);
+            body = body.replaceAll("\\{geoobject\\}", this.getGeoObject().getDisplayLabel().getValue());
+            
+            String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+            body = body.replaceAll("\\{link\\}", link);
+  
+             EmailSetting.sendEmail(subject, body, new String[] { email });
+          }
         }
+      }
+      catch(Throwable t)
+      {
+        t.printStackTrace();
       }
     }
   }
