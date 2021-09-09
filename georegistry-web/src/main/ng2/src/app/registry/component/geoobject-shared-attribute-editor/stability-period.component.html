@@ -1,6 +1,6 @@
-<div style="position: relative;">
+<div style="height: 90px;">
     Stability Periods
-	  <div *ngFor="let timeline of timelines">
+	  <div *ngFor="let timeline of timelines" style="position: relative;">
 	      <span *ngFor="let entry of timeline" style="height: 50px; border:1px solid black; position: absolute; display: inline-block;" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
 	      </span>
 	  </div>
