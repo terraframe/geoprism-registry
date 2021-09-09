@@ -27,10 +27,87 @@ export class StabilityPeriodComponent implements OnInit {
 
     periods: TimeRangeEntry[] = [];
 
+    timelines: [[{ width: number, x: number, period: TimeRangeEntry }]];
+
     constructor(private lService: LocalizationService, private dateService: DateService) {}
 
     ngOnInit(): void {
         this.generatePeriods();
+        this.generateTimelines();
+    }
+
+    calculateDataTimeSpan(): {startDay: number, endDay: number, span: number} {
+        let startDay: number = null;
+        let endDay: number = null;
+
+        if (this.periods.length === 1) {
+            startDay = this.dateService.getDateFromDateString(this.periods[0].startDate).getTime() / (1000 * 60 * 60 * 24);
+            endDay = this.dateService.getDateFromDateString(this.periods[0].endDate).getTime() / (1000 * 60 * 60 * 24);
+        } else {
+            startDay = this.dateService.getDateFromDateString(this.periods[0].startDate).getTime() / (1000 * 60 * 60 * 24);
+
+            if (this.periods[this.periods.length - 1].endDate === "5000-12-31") {
+                endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].startDate).getTime() / (1000 * 60 * 60 * 24) + 15;
+            } else {
+                endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].endDate).getTime() / (1000 * 60 * 60 * 24);
+            }
+        }
+
+        return { startDay: startDay, endDay: endDay, span: (endDay - startDay) };
+    }
+
+    generateTimelines() {
+        this.timelines = [] as any;
+
+        if (this.periods.length === 0) {
+            return;
+        }
+
+        let dataSpan: {startDay: number, endDay: number, span: number} = this.calculateDataTimeSpan();
+
+        let currentTimeline: any = [];
+        this.timelines.push(currentTimeline);
+        let daysLeft = dataSpan.span;
+
+        let len = this.periods.length;
+        for (let i = 0; i < len; ++i) {
+            let period = this.periods[i];
+
+            let start: Date = this.dateService.getDateFromDateString(period.startDate);
+            let end: Date = this.dateService.getDateFromDateString(period.endDate);
+
+            let startDay = start.getTime() / (1000 * 60 * 60 * 24);
+            let endDay = end.getTime() / (1000 * 60 * 60 * 24);
+            if (period.endDate === "5000-12-31") {
+                endDay = startDay + 15;
+            }
+
+            let daysInPeriod: number = (endDay - startDay);
+            if (daysLeft - daysInPeriod < 0) {
+                let daysInFirstEntry = daysLeft;
+                let timelineEntry1 = { width: (daysInFirstEntry / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                currentTimeline.push(timelineEntry1);
+
+                currentTimeline = [];
+                this.timelines.push(currentTimeline);
+                daysLeft = dataSpan.span;
+
+                let timelineEntry2 = { width: ((daysInPeriod - daysInFirstEntry) / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                currentTimeline.push(timelineEntry2);
+            } else {
+                let timelineEntry = { width: (daysInPeriod / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                currentTimeline.push(timelineEntry);
+                daysLeft = daysLeft - daysInPeriod;
+
+                if (daysLeft === 0) {
+                    currentTimeline = [];
+                    this.timelines.push(currentTimeline);
+                    daysLeft = dataSpan.span;
+                }
+            }
+        }
+
+        console.log(this.timelines);
     }
 
     generatePeriods() {

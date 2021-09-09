@@ -1,5 +1,7 @@
-<div>
-	  <div *ngFor="let period of periods">
-	      {{period.startDate}} - {{period.endDate}}
+<div style="position: relative;">
+    Stability Periods
+	  <div *ngFor="let timeline of timelines">
+	      <span *ngFor="let entry of timeline" style="height: 50px; border:1px solid black; position: absolute; display: inline-block;" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
+	      </span>
 	  </div>
 </div>
