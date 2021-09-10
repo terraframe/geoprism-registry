@@ -135,6 +135,9 @@ export class ManageVersionsComponent implements OnInit {
     }
 
     ngAfterViewInit() {
+        if (this.isNew && this.attributeType.code === "exists" && this.viewModels.length === 0) {
+            this.onAddNewVersion();
+        }
     }
 
     checkDateFieldValidity(): boolean {
@@ -257,6 +260,17 @@ export class ManageVersionsComponent implements OnInit {
         view.editPropagator.onAddNewVersion();
 
         this.viewModels.push(view);
+
+        if (this.isNew && this.postGeoObject.attributes["exists"]) {
+            let values = this.postGeoObject.attributes["exists"].values;
+
+            if (values && values.length > 0) {
+                let value = values[0];
+
+                view.editPropagator.startDate = value.startDate;
+                view.editPropagator.endDate = value.endDate;
+            }
+        }
 
         this.changeDetectorRef.detectChanges();
     }

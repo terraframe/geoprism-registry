@@ -137,6 +137,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
                 this.changeRequest.actions = this.createNewChangeRequest().actions;
             }
         }
+
+        if (this.shouldForceSetExist()) {
+            this.changePage(3);
+        }
     }
 
     createNewChangeRequest(): ChangeRequest {
@@ -156,6 +160,20 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         return cr;
+    }
+
+    shouldForceSetExist() {
+        if (this.isNew && this.postGeoObject.attributes["exists"]) {
+            let values = this.postGeoObject.attributes["exists"].values;
+
+            if (values && values.length > 0) {
+                let value = values[0];
+
+                return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+            }
+        }
+
+        return this.isNew;
     }
 
     ngAfterViewInit() {
@@ -183,6 +201,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     changePage(nextPage: number): void {
+        if (this.shouldForceSetExist() && nextPage !== 3) {
+            return;
+        }
+
         this.geomService.destroy(false);
 
         this.tabIndex = nextPage;
