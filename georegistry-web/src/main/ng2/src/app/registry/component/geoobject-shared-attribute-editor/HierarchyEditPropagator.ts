@@ -1,13 +1,13 @@
 import { Observable } from "rxjs";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
-import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
+import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { HierarchyOverTimeEntry, GeoObject, HierarchyOverTimeEntryParent, HierarchyOverTime } from "@registry/model/registry";
 import { ManageVersionsComponent } from "./manage-versions.component";
 import { VersionDiffView } from "./manage-versions-model";
 import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { v4 as uuid } from "uuid";
 
-export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
+export class HierarchyEditPropagator extends ValueOverTimeCREditor {
 
   hierarchyOverTime: HierarchyOverTime;
 

@@ -74,7 +74,7 @@
                         (change)="onNonChangeOverTimeAttributeChange(attr)" name="mod-{{attr.code}}" [disabled]="readOnly || (attr.code === 'code' && !isNew)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" required>
 
                     <div *ngIf="attr.code !== 'code'">
-                        <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [postGeoObject]="postGeoObject"
+                        <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="postGeoObject"
                           [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew"></standard-attribute-editor>
                     </div>
                   </div>
@@ -139,7 +139,7 @@
           </div>
             
           <div class="panel-body">
-            <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [postGeoObject]="postGeoObject"
+            <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [geoObject]="postGeoObject"
               [readonly]="readOnly" (isValidChange)="onIsValidChange($event, getAttribute('invalid'))" [isNew]="isNew"></standard-attribute-editor>
           </div>
         </div>

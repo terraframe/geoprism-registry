@@ -237,6 +237,10 @@ export class ManageVersionsComponent implements OnInit {
     }
 
     remove(view: VersionDiffView): void {
+        if (this.geomService.isEditing()) {
+            this.geomService.stopEditing();
+        }
+
         view.editPropagator.remove();
 
         if (view.summaryKey === SummaryKey.NEW || view.editPropagator.action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
@@ -248,6 +252,10 @@ export class ManageVersionsComponent implements OnInit {
         }
 
         this.onDateChange();
+
+        if (this.attributeType.type === "geometry") {
+            this.geomService.reload();
+        }
     }
 
     onAddNewVersion(): void {
@@ -309,35 +317,6 @@ export class ManageVersionsComponent implements OnInit {
         }
 
         return null;
-    }
-
-    onActionChange(action: AbstractAction) {
-        let hasChanges: boolean = true;
-
-        if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-            let updateAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
-
-            if (updateAction.attributeDiff.valuesOverTime.length === 0) {
-                hasChanges = false;
-            }
-        }
-
-        let index = -1;
-
-        let len = this.actions.length;
-        for (let i = 0; i < len; ++i) {
-            let loopAction = this.actions[i];
-
-            if (action === loopAction) {
-                index = i;
-            }
-        }
-
-        if (index !== -1 && !hasChanges) {
-            this.actions.splice(index, 1);
-        } else if (index === -1 && hasChanges) {
-            this.actions.push(action);
-        }
     }
 
     findViewByOid(oid: string, viewModels: VersionDiffView[]): VersionDiffView {

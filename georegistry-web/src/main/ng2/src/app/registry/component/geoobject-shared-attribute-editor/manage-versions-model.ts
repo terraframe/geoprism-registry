@@ -1,9 +1,9 @@
 
 import { ValueOverTime, ConflictMessage } from "@registry/model/registry";
 import { ManageVersionsComponent } from "./manage-versions.component";
-import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
+import { AbstractAction, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
-import { ValueOverTimeEditPropagator } from "./ValueOverTimeEditPropagator";
+import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { LayerColor } from "@registry/model/constants";
 
 export class Layer {
@@ -14,7 +14,7 @@ export class Layer {
   color: LayerColor;
   zindex: number;
   geojson: any;
-  editPropagator: ValueOverTimeEditPropagator;
+  editPropagator: ValueOverTimeCREditor;
 
 }
 
@@ -36,7 +36,7 @@ export class VersionDiffView extends ValueOverTime {
   coordinate?: any;
   newCoordinateX?: any;
   newCoordinateY? : any;
-  editPropagator: ValueOverTimeEditPropagator;
+  editPropagator: ValueOverTimeCREditor;
 
   constructor(component: ManageVersionsComponent, action: AbstractAction) {
       super();
@@ -46,8 +46,20 @@ export class VersionDiffView extends ValueOverTime {
       if (component.attributeType.type === "_PARENT_") {
           this.editPropagator = new HierarchyEditPropagator(component, action, this, null, null);
       } else {
-          this.editPropagator = new ValueOverTimeEditPropagator(component, action, this);
+          this.editPropagator = new ValueOverTimeCREditor(component, action, this);
       }
+  }
+
+  convertDateForDisplay(date: string): string {
+      return this.component.dateService.formatDateForDisplay(date);
+  }
+
+  convertValueForDisplay(val: any): any {
+      if (this.component.attributeType.type === "date") {
+          return this.component.dateService.formatDateForDisplay(new Date(val));
+      }
+
+      return val;
   }
 
   calculateSummaryKey(diff: ValueOverTimeDiff) {
@@ -56,10 +68,10 @@ export class VersionDiffView extends ValueOverTime {
           return;
       }
 
-      if (diff.action === 'CREATE') {
+      if (diff.action === "CREATE") {
           this.summaryKey = SummaryKey.NEW;
           return;
-      } else if (diff.action === 'DELETE') {
+      } else if (diff.action === "DELETE") {
           this.summaryKey = SummaryKey.DELETE;
           return;
       }

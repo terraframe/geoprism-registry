@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable padded-blocks */
-import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType } from "./registry";
+import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType, AttributeType } from "./registry";
 import { ActionTypes } from "./constants";
 
 export enum SummaryKey {
@@ -114,7 +114,7 @@ export class ChangeRequest {
     documents: Document[];
     actions: AbstractAction[];
     current: ChangeRequestCurrentObject & UpdateChangeRequestCurrentObject;
-    type?: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
+    type: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
     statusLabel?: string;
     phoneNumber?: string;
     email?: string;
@@ -123,6 +123,27 @@ export class ChangeRequest {
 
     constructor() {
         this.isNew = true;
+    }
+
+    public getEditorsForAttribute(attribute: AttributeType) {
+        
+    }
+
+    public getActionsForAttribute(attributeName: string): AbstractAction[] {
+        if (this.type === "CreateGeoObject") {
+            return this.actions;
+        } else {
+            let newActions = [];
+
+            for (let i = 0; i < this.actions.length; ++i) {
+                if ((this.actions[i] instanceof UpdateAttributeOverTimeAction || this.actions[i] instanceof UpdateAttributeAction) &&
+                  (this.actions[i] as UpdateAttributeOverTimeAction | UpdateAttributeAction).attributeName === attributeName) {
+                    newActions.push(this.actions[i]);
+                }
+            }
+
+            return newActions;
+        }
     }
 }
 

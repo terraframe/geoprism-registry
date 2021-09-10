@@ -76,7 +76,7 @@ export class StandardAttributeEditorComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
 
-    @Input() postGeoObject: GeoObjectOverTime;
+    @Input() geoObject: GeoObjectOverTime;
 
     @Input() isNewGeoObject: boolean = false;
 
@@ -95,7 +95,7 @@ export class StandardAttributeEditorComponent implements OnInit {
         private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
 
     ngOnInit(): void {
-        this.model = new StandardAttributeCRModel(this, this.changeRequest);
+        this.model = new StandardAttributeCRModel(this.attributeType, this.geoObject, this.changeRequest);
         this.calculateView();
     }
 

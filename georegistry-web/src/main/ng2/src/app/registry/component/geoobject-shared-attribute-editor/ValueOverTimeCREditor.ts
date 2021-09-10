@@ -1,32 +1,84 @@
-import { ValueOverTime } from "@registry/model/registry";
-import { ManageVersionsComponent } from "./manage-versions.component";
-import { VersionDiffView } from "./manage-versions-model";
-import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
+import { ValueOverTime, AttributeType, TimeRangeEntry } from "@registry/model/registry";
+import { ActionTypes } from "@registry/model/constants";
+import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ChangeRequest, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
+import { LocalizedValue } from "@shared/model/core";
 
-export class ValueOverTimeEditPropagator {
+export class ValueOverTimeCREditor implements TimeRangeEntry {
 
-  view: VersionDiffView;
   diff: ValueOverTimeDiff; // Any existing diff which may be associated with this view object.
   valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set and the action is UpdateAttribute, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
   action: AbstractAction;
-  component: ManageVersionsComponent;
+  changeRequest: ChangeRequest;
+  attr: AttributeType;
 
-  constructor(component: ManageVersionsComponent, action: AbstractAction, view: VersionDiffView) {
-      this.view = view;
+  constructor(changeRequest: ChangeRequest, attr: AttributeType, action: AbstractAction) {
+      this.attr = attr;
+      this.changeRequest = changeRequest;
       this.action = action;
-      this.component = component;
   }
 
-  // eslint-disable-next-line accessor-pairs
+  set oid(oid: string) {
+      if (this.diff != null) {
+          this.diff.oid = oid;
+      } else if (this.valueOverTime != null) {
+          this.valueOverTime.oid = oid;
+      }
+  }
+
   get oid(): string {
-      return this.view.oid;
+      if (this.diff != null) {
+          return this.diff.oid;
+      } else if (this.valueOverTime != null) {
+          return this.valueOverTime.oid;
+      }
+
+      return null;
+  }
+
+  onActionChange(action: AbstractAction) {
+      let hasChanges: boolean = true;
+
+      if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
+          let updateAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
+
+          if (updateAction.attributeDiff.valuesOverTime.length === 0) {
+              hasChanges = false;
+          }
+      }
+
+      let index = -1;
+
+      let len = this.changeRequest.actions.length;
+      for (let i = 0; i < len; ++i) {
+          let loopAction = this.changeRequest.actions[i];
+
+          if (action === loopAction) {
+              index = i;
+          }
+      }
+
+      if (index !== -1 && !hasChanges) {
+          this.changeRequest.actions.splice(index, 1);
+      } else if (index === -1 && hasChanges) {
+          this.changeRequest.actions.push(action);
+      }
   }
 
   get startDate() {
-      return this.view.startDate;
+      if (this.diff != null) {
+          if (this.diff.newStartDate != null) {
+              return this.diff.newStartDate;
+          } else {
+              return this.diff.oldStartDate;
+          }
+      } else if (this.valueOverTime != null) {
+          return this.valueOverTime.startDate;
+      }
+
+      return null;
   }
 
   set startDate(startDate: string) {
@@ -73,11 +125,21 @@ export class ValueOverTimeEditPropagator {
 
       this.view.calculateSummaryKey(this.diff);
 
-      this.component.onActionChange(this.action);
+      this.onActionChange(this.action);
   }
 
   get endDate() {
-      return this.view.endDate;
+      if (this.diff != null) {
+          if (this.diff.newEndDate != null) {
+              return this.diff.newEndDate;
+          } else {
+              return this.diff.oldEndDate;
+          }
+      } else if (this.valueOverTime != null) {
+          return this.valueOverTime.endDate;
+      }
+
+      return null;
   }
 
   set endDate(endDate: string) {
@@ -125,11 +187,21 @@ export class ValueOverTimeEditPropagator {
 
       this.view.calculateSummaryKey(this.diff);
 
-      this.component.onActionChange(this.action);
+      this.onActionChange(this.action);
   }
 
   get value() {
-      return this.view.value;
+      if (this.diff != null) {
+          if (this.diff.newValue != null) {
+              return this.diff.newValue;
+          } else {
+              return this.diff.oldValue;
+          }
+      } else if (this.valueOverTime != null) {
+          return this.valueOverTime.value;
+      }
+
+      return null;
   }
 
   set value(value: any) {
@@ -138,15 +210,15 @@ export class ValueOverTimeEditPropagator {
       }
 
       if (value != null) {
-          if (this.component.attributeType.type === "term") {
+          if (this.attr.type === "term") {
               value = [value];
-          } else if (this.component.attributeType.type === "date") {
+          } else if (this.attr.type === "date") {
               value = new Date(value).getTime();
           }
       } else if (value == null) {
-          if (this.component.attributeType.type === "geometry") {
+          if (this.attr.type === "geometry") {
               value = this.component.geomService.createEmptyGeometryValue();
-          } else if (this.component.attributeType.type === "character") {
+          } else if (this.attr.type === "character") {
               value = "";
           }
       }
@@ -191,9 +263,9 @@ export class ValueOverTimeEditPropagator {
 
       this.view.calculateSummaryKey(this.diff);
 
-      this.component.onActionChange(this.action);
+      this.onActionChange(this.action);
 
-      if (this.component.attributeType.code === "exists") {
+      if (this.attr.code === "exists") {
           this.component.onDateChange();
       }
   }
@@ -217,20 +289,8 @@ export class ValueOverTimeEditPropagator {
       }
   }
 
-  convertDateForDisplay(date: string): string {
-      return this.component.dateService.formatDateForDisplay(date);
-  }
-
-  convertValueForDisplay(val: any): any {
-      if (this.component.attributeType.type === "date") {
-          return this.component.dateService.formatDateForDisplay(new Date(val));
-      }
-
-      return val;
-  }
-
   areValuesEqual(val1: any, val2: any): boolean {
-      if (this.component.attributeType.type === "boolean") {
+      if (this.attr.type === "boolean") {
           return val1 === val2;
       }
 
@@ -244,22 +304,22 @@ export class ValueOverTimeEditPropagator {
           return false;
       }
 
-    // if (this.component.attributeType.type === "local")
+    // if (this.attr.type === "local")
     // {
       // Not used anymore
     // }
-      if (this.component.attributeType.type === "term") {
+      if (this.attr.type === "term") {
           if (val1 != null && val2 != null) {
               return val1.length === val2.length && val1[0] === val2[0];
           }
-      } else if (this.component.attributeType.type === "geometry") {
+      } else if (this.attr.type === "geometry") {
           return turf_booleanequal(val1, val2);
-      } else if (this.component.attributeType.type === "date") {
+      } else if (this.attr.type === "date") {
           let casted1 = (typeof val1 === "string") ? parseInt(val1) : val1;
           let casted2 = (typeof val2 === "string") ? parseInt(val2) : val2;
 
           return casted1 === casted2;
-      } else if (this.component.attributeType.type === "local") {
+      } else if (this.attr.type === "local") {
           if ((!val1.localeValues || !val2.localeValues) || val1.localeValues.length !== val2.localeValues.length) {
               return false;
           }
@@ -268,7 +328,7 @@ export class ValueOverTimeEditPropagator {
           for (let i = 0; i < len; ++i) {
               let localeValue = val1.localeValues[i];
 
-              let lv2 = this.component.getValueAtLocale(val2, localeValue.locale);
+              let lv2 = this.getValueAtLocale(val2, localeValue.locale);
               let lv1 = localeValue.value;
 
               if ((lv1 === "" && lv2 == null) || (lv2 === "" && lv1 == null)) {
@@ -282,6 +342,10 @@ export class ValueOverTimeEditPropagator {
       }
 
       return val1 === val2;
+  }
+
+  getValueAtLocale(lv: LocalizedValue, locale: string) {
+      return new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
   }
 
   recalculateView(): void {
@@ -302,17 +366,9 @@ export class ValueOverTimeEditPropagator {
       }
 
       this.view.calculateSummaryKey(this.diff);
-
-      if (this.component.attributeType.type === "geometry") {
-          this.component.geomService.reload();
-      }
   }
 
   public remove(): void {
-      if (this.component.geomService.isEditing()) {
-          this.component.geomService.stopEditing();
-      }
-
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff != null && this.diff.action === "CREATE") {
               // Its a new entry, just remove the diff from the diff array
@@ -328,7 +384,7 @@ export class ValueOverTimeEditPropagator {
               delete this.diff.newStartDate;
               delete this.diff.newEndDate;
               this.removeEmptyDiff();
-              this.component.onActionChange(this.action);
+              this.onActionChange(this.action);
               this.recalculateView();
               return;
           } else if (this.valueOverTime != null && this.diff == null) {
@@ -341,7 +397,7 @@ export class ValueOverTimeEditPropagator {
               (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
-          let votc = (this.action as CreateGeoObjectAction).geoObjectJson.attributes[this.component.attributeType.code].values;
+          let votc = (this.action as CreateGeoObjectAction).geoObjectJson.attributes[this.attr.code].values;
 
           let index = votc.findIndex((vot) => { return vot.oid === this.valueOverTime.oid; });
 
@@ -352,33 +408,29 @@ export class ValueOverTimeEditPropagator {
 
       this.view.calculateSummaryKey(this.diff);
 
-      this.component.onActionChange(this.action);
-
-      if (this.component.attributeType.type === "geometry") {
-          this.component.geomService.reload();
-      }
+      this.onActionChange(this.action);
   }
 
   public onAddNewVersion(): void {
-      if (this.component.editAction instanceof CreateGeoObjectAction) {
+      if (this.action instanceof CreateGeoObjectAction) {
           let vot = new ValueOverTime();
           vot.oid = uuid();
 
-          this.component.editAction.geoObjectJson.attributes[this.component.attributeType.code].values.push(vot);
+          this.action.geoObjectJson.attributes[this.attr.code].values.push(vot);
 
           this.valueOverTime = vot;
       }
 
-      if (this.component.attributeType.type === "local") {
+      if (this.attr.type === "local") {
           this.value = this.component.lService.create();
-      } else if (this.component.attributeType.type === "geometry") {
+      } else if (this.attr.type === "geometry") {
           if (this.component.viewModels.length > 0) {
               this.value = JSON.parse(JSON.stringify(this.component.viewModels[this.component.viewModels.length - 1].value));
           } else {
               this.value = this.component.geomService.createEmptyGeometryValue();
           }
-      } else if (this.component.attributeType.type === "term") {
-          let terms = this.component.getGeoObjectTypeTermAttributeOptions(this.component.attributeType.code);
+      } else if (this.attr.type === "term") {
+          let terms = this.component.getGeoObjectTypeTermAttributeOptions(this.attr.code);
 
           if (terms && terms.length > 0) {
               this.value = terms[0].code;
