@@ -265,9 +265,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
       this.onActionChange(this.action);
 
-      if (this.attr.code === "exists") {
-          this.component.onDateChange();
-      }
+      this.component.onDateChange();
   }
 
   public setLocalizedValue(localeValue: {locale: string, value: string}) {

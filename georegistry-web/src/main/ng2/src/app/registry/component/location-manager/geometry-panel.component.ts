@@ -114,7 +114,7 @@ export class GeometryPanelComponent implements OnInit {
 
         let vAttributes = this.geoObjectOverTime.attributes["geometry"].values;
 
-        this.hasConflict = this.dateService.checkRanges(vAttributes);
+        this.hasConflict = this.dateService.checkRanges(null, vAttributes);
     }
 
     edit(vot: ValueOverTime, isVersionForHighlight: number): void {
