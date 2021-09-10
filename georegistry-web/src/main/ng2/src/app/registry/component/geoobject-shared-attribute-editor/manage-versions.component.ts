@@ -160,7 +160,7 @@ export class ManageVersionsComponent implements OnInit {
 
             this.isValid = this.checkDateFieldValidity();
 
-            let hasConflict = this.dateService.checkRanges(this.viewModels);
+            let hasConflict = this.dateService.checkRanges(this.attributeType, this.viewModels);
 
             let existViews = this.getViewsForAttribute("exists", null, true);
             let hasExistConflict = false;
@@ -185,7 +185,7 @@ export class ManageVersionsComponent implements OnInit {
                             if (attr.isValidReason.existConflict) {
                                 attr.isValid = false;
                             } else {
-                                attr.isValidReason.timeConflict = this.dateService.checkRanges(attrViews);
+                                attr.isValidReason.timeConflict = this.dateService.checkRanges(attr, attrViews);
 
                                 attr.isValid = !(attr.isValidReason.dateField || attr.isValidReason.timeConflict || attr.isValidReason.existConflict);
                             }
@@ -204,7 +204,7 @@ export class ManageVersionsComponent implements OnInit {
                                 if (attr.isValidReasonHierarchy[hierarchy.code].existConflict) {
                                     attr.isValid = false;
                                 } else {
-                                    attr.isValidReasonHierarchy[hierarchy.code].timeConflict = this.dateService.checkRanges(attrViews);
+                                    attr.isValidReasonHierarchy[hierarchy.code].timeConflict = this.dateService.checkRanges(attr, attrViews);
 
                                     attr.isValid = true;
                                     this.sharedAttributeEditor.hierarchies.forEach(hierarchy2 => {

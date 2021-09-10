@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { LocalizationService } from "./localization.service";
 import Utils from "../../registry/utility/Utils";
-import { PRESENT, ConflictMessage, TimeRangeEntry } from "@registry/model/registry";
+import { PRESENT, ConflictMessage, TimeRangeEntry, AttributeType } from "@registry/model/registry";
 import { SummaryKey } from "@registry/model/crtable";
 import { ConflictType } from "@registry/model/constants";
 
@@ -11,6 +11,12 @@ export class DateService {
     overlapMessage: ConflictMessage = {
         severity: "ERROR",
         message: this.localizationService.decode("manage.versions.overlap.message"),
+        type: ConflictType.TIME_RANGE
+    }
+
+    mergeContiguousMessage: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("manage.versions.mergeContiguousRanges.message"),
         type: ConflictType.TIME_RANGE
     }
 
@@ -77,7 +83,7 @@ export class DateService {
         return null;
     }
 
-    checkRanges(vAttributes: TimeRangeEntry[]): boolean {
+    checkRanges(attributeType: AttributeType, vAttributes: TimeRangeEntry[]): boolean {
         let hasConflict = false;
 
         // clear all messages
@@ -94,11 +100,11 @@ export class DateService {
         });
 
         // Filter DELETE entries from consideration
-        const filtered = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+        const filtered: TimeRangeEntry[] = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
 
         // Check for overlaps
         for (let j = 0; j < filtered.length; j++) {
-            const h1 = filtered[j];
+            const h1: TimeRangeEntry = filtered[j];
 
             if (h1.startDate && h1.endDate) {
                 let s1: any = this.getDateFromDateString(h1.startDate);
@@ -116,7 +122,7 @@ export class DateService {
 
                 for (let i = 0; i < filtered.length; i++) {
                     if (j !== i) {
-                        const h2 = filtered[i];
+                        const h2: TimeRangeEntry = filtered[i];
 
                         // If all dates set
                         if (h2.startDate && h2.endDate) {
@@ -131,6 +137,10 @@ export class DateService {
                                     h2.conflictMessage.push(this.overlapMessage);
                                 }
 
+                                hasConflict = true;
+                            } else if (this.addDay(1, h1.endDate) === h2.startDate && Utils.areValuesEqual(attributeType, h1.value, h2.value)) {
+                                h1.conflictMessage.push(this.mergeContiguousMessage);
+                                h2.conflictMessage.push(this.mergeContiguousMessage);
                                 hasConflict = true;
                             }
                         } else if ((i === j - 1 || i === j + 1) && e1 && h2.startDate) {
@@ -231,6 +241,13 @@ export class DateService {
         }
 
         return hasConflict;
+    }
+
+    public addDay(amount: number, date: string): string {
+        var plus1: Date = this.getDateFromDateString(date);
+        plus1.setDate(plus1.getDate() + amount);
+        let splus1: string = this.getDateString(plus1);
+        return splus1;
     }
 
     sort(votArr: TimeRangeEntry[]): void {

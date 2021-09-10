@@ -207,6 +207,8 @@ export class HierarchyEditPropagator extends ValueOverTimeEditPropagator {
       this.view.calculateSummaryKey(this.diff);
 
       this.component.onActionChange(this.action);
+
+      this.component.onDateChange();
   }
 
   public getLowestLevelFromHierarchyEntry(parents: any): {geoObject: GeoObject, text: string} {
