@@ -2,6 +2,7 @@
 /* eslint-disable padded-blocks */
 import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType, AttributeType } from "./registry";
 import { ActionTypes } from "./constants";
+import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 
 export enum SummaryKey {
     NEW = "NEW",
@@ -125,20 +126,22 @@ export class ChangeRequest {
         this.isNew = true;
     }
 
-    public getEditorsForAttribute(attribute: AttributeType) {
-        
-    }
-
-    public getActionsForAttribute(attributeName: string): AbstractAction[] {
+    public getActionsForAttribute(attributeName: string, hierarchyCode: string): AbstractAction[] {
         if (this.type === "CreateGeoObject") {
             return this.actions;
         } else {
             let newActions = [];
 
             for (let i = 0; i < this.actions.length; ++i) {
-                if ((this.actions[i] instanceof UpdateAttributeOverTimeAction || this.actions[i] instanceof UpdateAttributeAction) &&
-                  (this.actions[i] as UpdateAttributeOverTimeAction | UpdateAttributeAction).attributeName === attributeName) {
-                    newActions.push(this.actions[i]);
+                let action = this.actions[i];
+
+                if (action instanceof UpdateAttributeOverTimeAction) {
+                    let updateAttrAction = action as UpdateAttributeOverTimeAction;
+
+                    if (updateAttrAction.attributeName === attributeName &&
+                      (attributeName !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === hierarchyCode)) {
+                        newActions.push(this.actions[i]);
+                    }
                 }
             }
 

@@ -8,7 +8,7 @@ import { LocalizedValue } from "@shared/model/core";
 
 export class ValueOverTimeCREditor implements TimeRangeEntry {
 
-  diff: ValueOverTimeDiff; // Any existing diff which may be associated with this view object.
+  diff?: ValueOverTimeDiff; // Any existing diff which may be associated with this view object.
   valueOverTime?: ValueOverTime; // Represents a vot on an existing GeoObject. If this is set and the action is UpdateAttribute, we must be doing an UPDATE, and valueOverTime represents the original value in the DB.
   action: AbstractAction;
   changeRequest: ChangeRequest;
