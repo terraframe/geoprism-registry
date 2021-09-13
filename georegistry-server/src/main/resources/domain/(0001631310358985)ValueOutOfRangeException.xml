@@ -11,7 +11,7 @@
     </createOrUpdate>
     <create>
       <mdException name="net.geoprism.registry.geoobject.ValueOutOfRangeException"
-        message="A value cannot be set on the attribute [{attribute}] at start date [{startDate}] and end date [{endDate}] because the GeoObject [{geoObject}] does not exist in that range."
+        message="A value cannot be set on the attribute [{attribute}] at start date [{startDate}] and end date [{endDate}] because the Geo-Object [{geoObject}] does not exist in that range."
         exported="false" publish="false">
         <attributes>
           <text name="attribute" label="attribute" required="true"/>
@@ -21,7 +21,7 @@
         </attributes>
       </mdException>
       <mdException name="net.geoprism.registry.geoobject.ImportOutOfRangeException"
-        message="Data cannot be imported from [{startDate}] to [{endDate}] because the GeoObject does not exist during that period."
+        message="Data cannot be imported from [{startDate}] to [{endDate}] because the Geo-Object does not exist during that period."
         exported="false" publish="false">
         <attributes>
           <text name="startDate" label="startDate" required="true"/>
