@@ -177,7 +177,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
         this.filter = this.filter.filter(f => f.attribute !== attribute.base);
         this.selected = this.selected.filter(s => s !== attribute.base);
 
-        if (attribute.value != null && (attribute.value.start !== "" || attribute.value.end !== "")) {
+        if (attribute.value != null && ((attribute.value.start != null && attribute.value.start !== "") || (attribute.value.end != null && attribute.value.end !== ""))) {
             let label = "[" + attribute.label + "] : [";
 
             if (attribute.value.start != null) {
