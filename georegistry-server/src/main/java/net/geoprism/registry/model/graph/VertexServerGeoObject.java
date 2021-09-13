@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.model.graph;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -106,6 +107,7 @@ import net.geoprism.registry.RequiredAttributeException;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
@@ -123,10 +125,8 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
-import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.SearchService;
-import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class VertexServerGeoObject extends AbstractServerGeoObject implements ServerGeoObjectIF, LocationInfo, VertexComponent
@@ -303,6 +303,70 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     }
     
     LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
+  }
+  
+  public void enforceAttributeSetWithinRange(String geoObjectLabel, String attributeLabel, Date startDate, Date endDate)
+  {
+    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
+    
+    if (endDate == null)
+    {
+      endDate = ValueOverTime.INFINITY_END_DATE;
+    }
+    
+    if (startDate == null)
+    {
+      ValueOutOfRangeException ex = new ValueOutOfRangeException();
+      ex.setGeoObject(geoObjectLabel);
+      ex.setAttribute(attributeLabel);
+      ex.setStartDate("null");
+      
+      if (ValueOverTime.INFINITY_END_DATE.equals(endDate))
+      {
+        ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
+      }
+      else
+      {
+        ex.setEndDate(format.format(endDate));
+      }
+      
+      throw ex;
+    }
+    
+    ValueOverTimeCollection votc = this.getValuesOverTime(DefaultAttribute.EXISTS.getName());
+    
+    boolean exists = false;
+    
+    for (ValueOverTime vot : votc)
+    {
+      if (vot.getValue() instanceof Boolean && ((Boolean) vot.getValue()))
+      {
+        if ( (vot.getStartDate() != null && vot.between(startDate))
+            && (vot.getEndDate() != null && vot.between(endDate)) )
+        {
+          exists = true;
+        }
+      }
+    }
+    
+    if (!exists)
+    {
+      ValueOutOfRangeException ex = new ValueOutOfRangeException();
+      ex.setGeoObject(geoObjectLabel);
+      ex.setAttribute(attributeLabel);
+      ex.setStartDate(format.format(startDate));
+      
+      if (ValueOverTime.INFINITY_END_DATE.equals(endDate))
+      {
+        ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
+      }
+      else
+      {
+        ex.setEndDate(format.format(endDate));
+      }
+      
+      throw ex;
+    }
   }
 
   @Override
@@ -1344,7 +1408,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
         LocalDate vStartDate = vSDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
         LocalDate vEndDate = vEDate.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
         
-        if (vStartDate.isBefore(iStartDate) && vEndDate.isAfter(iEndDate))
+        if ( (vStartDate.isBefore(iStartDate) || vStartDate.equals(iStartDate)) &&
+             (vEndDate.isAfter(iEndDate) || vEndDate.equals(iEndDate) ))
         {
           if (areValuesEqual(attributeName, vot.getValue(), value))
           {

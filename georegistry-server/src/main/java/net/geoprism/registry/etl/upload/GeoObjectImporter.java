@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
@@ -54,6 +56,7 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
@@ -68,7 +71,9 @@ import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.geoobject.ImportOutOfRangeException;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -569,6 +574,27 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
         }
+        
+        // Set exists first so we can validate attributes on it
+        ShapefileFunction existsFunction = this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
+        
+        if (existsFunction != null)
+        {
+          Object value = existsFunction.getValue(row);
+          
+          if (value != null && !this.isEmptyString(value))
+          {
+            this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), value);
+          }
+        }
+        else if (isNew)
+        {
+          ValueOverTime defaultExists = ((VertexServerGeoObject) serverGo).buildDefaultExists();
+          if (defaultExists != null)
+          {
+            serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
+          }
+        }
 
         Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
         Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -577,7 +603,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           String attributeName = entry.getKey();
 
-          if (!attributeName.equals(GeoObject.CODE))
+          if (!attributeName.equals(GeoObject.CODE) && !attributeName.equals(DefaultAttribute.EXISTS.getName()))
           {
             ShapefileFunction function = this.configuration.getFunction(attributeName);
 
@@ -589,6 +615,32 @@ public class GeoObjectImporter implements ObjectImporterIF
 
               if (value != null && !this.isEmptyString(value))
               {
+                if (!(existsFunction == null && isNew))
+                {
+                  try
+                  {
+                    ((VertexServerGeoObject) serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(), attributeName, this.configuration.getStartDate(), this.configuration.getEndDate());
+                  }
+                  catch (ValueOutOfRangeException e)
+                  {
+                    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
+                    
+                    ImportOutOfRangeException ex = new ImportOutOfRangeException();
+                    ex.setStartDate(format.format(this.configuration.getStartDate()));
+                    
+                    if (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
+                    {
+                      ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
+                    }
+                    else
+                    {
+                      ex.setEndDate(format.format(this.configuration.getEndDate()));
+                    }
+                    
+                    throw ex;
+                  }
+                }
+                
                 this.setValue(serverGo, attributeType, attributeName, value);
               }
               else if (this.configuration.getCopyBlank())
@@ -626,12 +678,6 @@ public class GeoObjectImporter implements ObjectImporterIF
         data.setNew(isNew);
         data.setParentBuilder(parentBuilder);
         
-        ValueOverTime defaultExists = ((VertexServerGeoObject) serverGo).buildDefaultExists();
-        if (defaultExists != null)
-        {
-          serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
-        }
-
         serverGo.apply(true);
       }
       finally
