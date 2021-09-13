@@ -16,10 +16,10 @@ import {
     transition
 } from "@angular/animations";
 import { HttpErrorResponse } from "@angular/common/http";
-import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, AttributeTermType, HierarchyOverTime, HierarchyOverTimeEntry, GeoObject } from "@registry/model/registry";
-import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
+import { GeoObjectType, AttributeType, ValueOverTime, GeoObjectOverTime, AttributeTermType, HierarchyOverTime, HierarchyOverTimeEntry } from "@registry/model/registry";
+import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff, ChangeRequest, SummaryKey } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
-import { ConflictType, ActionTypes, GovernanceStatus } from "@registry/model/constants";
+import { ConflictType, ActionTypes, GovernanceStatus, LayerColor } from "@registry/model/constants";
 import { AuthService } from "@shared/service/auth.service";
 import { v4 as uuid } from "uuid";
 
@@ -35,9 +35,10 @@ import { LocalizationService } from "@shared/service";
 
 import Utils from "../../utility/Utils";
 
-import { VersionDiffView, Layer, LayerColor } from "./manage-versions-model";
+import { VersionDiffView, Layer } from "./manage-versions-model";
 import { HierarchyEditPropagator } from "./HierarchyEditPropagator";
 import { ControlContainer, NgForm } from "@angular/forms";
+import { GeoObjectSharedAttributeEditorComponent } from "./geoobject-shared-attribute-editor.component";
 
 @Component({
     selector: "manage-versions",
@@ -85,18 +86,16 @@ export class ManageVersionsComponent implements OnInit {
 
     @Input() readonly: boolean = false;
 
-    @Input() selectedTab: number = 0;
-
     @Input() isGeometryInlined: boolean = false;
 
-    // Observable subject for MasterList changes.  Called when an update is successful // TODO : This probably doesn't work anymore
-    @Output() onChange = new EventEmitter<GeoObjectOverTime>();
+    @Input() sharedAttributeEditor: GeoObjectSharedAttributeEditorComponent;
 
     attributeType: AttributeType;
     actions: AbstractAction[] = [];
 
     // eslint-disable-next-line accessor-pairs
-    @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, "actions":AbstractAction[], geoObject:GeoObjectOverTime}) {
+    @Input() set attributeData(value: {"attributeType":AttributeType, "changeRequest":ChangeRequest, "actions":AbstractAction[], "editor": any, geoObject:GeoObjectOverTime}) {
+        this.sharedAttributeEditor = value.editor;
         this.attributeType = value.attributeType;
 
         this.changeRequest = value.changeRequest;
@@ -107,32 +106,16 @@ export class ManageVersionsComponent implements OnInit {
             this.actions = value.actions;
         }
 
-        this.originalGeoObjectOverTime = JSON.parse(JSON.stringify(value.geoObject));
         this.postGeoObject = value.geoObject;
     }
 
     @Input() geoObjectType: GeoObjectType;
 
-    originalGeoObjectOverTime: GeoObjectOverTime;
     postGeoObject: GeoObjectOverTime;
-
-    @Input() isNewGeoObject: boolean = false;
 
     @Input() hierarchy: HierarchyOverTime = null;
 
     changeRequest: ChangeRequest;
-
-    goGeometries: GeoObjectOverTime;
-
-    newVersion: ValueOverTime;
-
-    hasDuplicateDate: boolean = false;
-
-    conflict: string;
-    hasConflict: boolean = false;
-    hasGap: boolean = false;
-
-    originalAttributeState: AttributeType;
 
     viewModels: VersionDiffView[] = [];
 
@@ -152,12 +135,9 @@ export class ManageVersionsComponent implements OnInit {
     }
 
     ngAfterViewInit() {
-    }
-
-    geometryChange(vAttribute, event): void {
-
-        // vAttribute.value = event; // TODO
-
+        if (this.isNew && this.attributeType.code === "exists" && this.viewModels.length === 0) {
+            this.onAddNewVersion();
+        }
     }
 
     checkDateFieldValidity(): boolean {
@@ -179,14 +159,79 @@ export class ManageVersionsComponent implements OnInit {
 
     onDateChange(): any {
         setTimeout(() => {
-            this.hasConflict = false;
-            this.hasGap = false;
+            let geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
             this.isValid = this.checkDateFieldValidity();
 
-            this.hasConflict = this.dateService.checkRanges(this.viewModels);
+            let hasConflict = this.dateService.checkRanges(this.attributeType, this.viewModels);
 
-            this.isValidChange.emit(this.isValid && !this.hasConflict);
+            let existViews = this.getViewsForAttribute("exists", null, true);
+            let hasExistConflict = false;
+            if (this.attributeType.code !== "exists") {
+                hasExistConflict = this.dateService.checkExistRanges(this.viewModels, existViews);
+            } else {
+                let attrs = this.geoObjectType.attributes.slice(); // intentionally a shallow copy
+
+                attrs.push(this.sharedAttributeEditor.geometryAttributeType);
+                attrs.push(this.sharedAttributeEditor.parentAttributeType);
+
+                attrs.forEach((attr: AttributeType) => {
+                    if (geoObjectAttributeExcludes.indexOf(attr.code) === -1 && attr.isChangeOverTime) {
+                        if (attr.code !== "_PARENT_") {
+                            let attrViews = this.getViewsForAttribute(attr.code, null);
+
+                            if (!attr.isValidReason) {
+                                attr.isValidReason = { timeConflict: false, existConflict: false, dateField: false };
+                            }
+                            attr.isValidReason.existConflict = this.dateService.checkExistRanges(attrViews, existViews);
+
+                            if (attr.isValidReason.existConflict) {
+                                attr.isValid = false;
+                            } else {
+                                attr.isValidReason.timeConflict = this.dateService.checkRanges(attr, attrViews);
+
+                                attr.isValid = !(attr.isValidReason.dateField || attr.isValidReason.timeConflict || attr.isValidReason.existConflict);
+                            }
+                        } else {
+                            this.sharedAttributeEditor.hierarchies.forEach(hierarchy => {
+                                let attrViews = this.getViewsForAttribute(attr.code, hierarchy);
+
+                                if (!attr.isValidReasonHierarchy) {
+                                    attr.isValidReasonHierarchy = {};
+                                    attr.isValidReasonHierarchy[hierarchy.code] = { timeConflict: false, existConflict: false, dateField: false };
+                                } else if (!attr.isValidReasonHierarchy[hierarchy.code]) {
+                                    attr.isValidReasonHierarchy[hierarchy.code] = { timeConflict: false, existConflict: false, dateField: false };
+                                }
+                                attr.isValidReasonHierarchy[hierarchy.code].existConflict = this.dateService.checkExistRanges(attrViews, existViews);
+
+                                if (attr.isValidReasonHierarchy[hierarchy.code].existConflict) {
+                                    attr.isValid = false;
+                                } else {
+                                    attr.isValidReasonHierarchy[hierarchy.code].timeConflict = this.dateService.checkRanges(attr, attrViews);
+
+                                    attr.isValid = true;
+                                    this.sharedAttributeEditor.hierarchies.forEach(hierarchy2 => {
+                                        if (!attr.isValidReasonHierarchy[hierarchy2.code]) {
+                                            attr.isValidReasonHierarchy[hierarchy2.code] = { timeConflict: false, existConflict: false, dateField: false };
+                                        }
+
+                                        let hierValid = !(attr.isValidReasonHierarchy[hierarchy2.code].dateField || attr.isValidReasonHierarchy[hierarchy2.code].timeConflict || attr.isValidReasonHierarchy[hierarchy2.code].existConflict);
+
+                                        if (!hierValid) {
+                                            attr.isValid = false;
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            let valid = this.isValid && !(hasConflict || hasExistConflict);
+            this.attributeType.isValid = valid;
+            this.attributeType.isValidReason = { timeConflict: hasConflict, existConflict: hasExistConflict, dateField: !this.isValid };
+            this.isValidChange.emit(valid);
         }, 0);
     }
 
@@ -210,17 +255,24 @@ export class ManageVersionsComponent implements OnInit {
 
     onAddNewVersion(): void {
         let view: VersionDiffView = new VersionDiffView(this, this.editAction);
-        view.oid = this.generateUUID();
+        view.oid = uuid();
 
         view.editPropagator.onAddNewVersion();
 
         this.viewModels.push(view);
 
-        this.changeDetectorRef.detectChanges();
-    }
+        if (this.isNew && this.postGeoObject.attributes["exists"]) {
+            let values = this.postGeoObject.attributes["exists"].values;
 
-    generateUUID() {
-        return uuid();
+            if (values && values.length > 0) {
+                let value = values[0];
+
+                view.editPropagator.startDate = value.startDate;
+                view.editPropagator.endDate = value.endDate;
+            }
+        }
+
+        this.changeDetectorRef.detectChanges();
     }
 
     getVersionData(attribute: AttributeType) {
@@ -273,39 +325,11 @@ export class ManageVersionsComponent implements OnInit {
         return null;
     }
 
-    isChangeOverTime(attr: AttributeType): boolean {
-        let isChangeOverTime = false;
-
-        this.geoObjectType.attributes.forEach(attribute => {
-            if (this.attributeType.code === attr.code) {
-                isChangeOverTime = attr.isChangeOverTime;
-            }
-        });
-
-        return isChangeOverTime;
-    }
-
-    // TODO: Deprecate becasue it seems to not be used anywhere
-    sort(votArr: ValueOverTimeDiff[]): void {
-        // Sort the data by start date
-        votArr.sort(function(a, b) {
-            if (a.oldStartDate == null || a.oldStartDate === "") {
-                return 1;
-            } else if (b.oldStartDate == null || b.oldStartDate === "") {
-                return -1;
-            }
-
-            let first: any = new Date(a.oldStartDate);
-            let next: any = new Date(b.oldStartDate);
-            return first - next;
-        });
-    }
-
     onActionChange(action: AbstractAction) {
         let hasChanges: boolean = true;
 
-        if (action instanceof UpdateAttributeAction) {
-            let updateAction: UpdateAttributeAction = action as UpdateAttributeAction;
+        if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
+            let updateAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
             if (updateAction.attributeDiff.valuesOverTime.length === 0) {
                 hasChanges = false;
@@ -330,10 +354,14 @@ export class ManageVersionsComponent implements OnInit {
         }
     }
 
-    findViewByOid(oid: string): VersionDiffView {
-        let len = this.viewModels.length;
+    findViewByOid(oid: string, viewModels: VersionDiffView[]): VersionDiffView {
+        if (!viewModels) {
+            viewModels = this.viewModels;
+        }
+
+        let len = viewModels.length;
         for (let i = 0; i < len; ++i) {
-            let view = this.viewModels[i];
+            let view = viewModels[i];
 
             if (view.oid === oid) {
                 return view;
@@ -362,24 +390,14 @@ export class ManageVersionsComponent implements OnInit {
                 this.editAction = this.actions[0];
                 const action = this.editAction as CreateGeoObjectAction;
 
-                if (action.parentJson == null) {
-                    action.parentJson = this.hierarchy;
-                }
-
                 if (action.geoObjectJson == null) {
                     action.geoObjectJson = this.postGeoObject;
                 }
-            } else {
-                let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
-                createAction.geoObjectJson = this.postGeoObject;
-                createAction.parentJson = this.hierarchy;
-                this.actions[0] = createAction;
-                this.editAction = createAction;
             }
         } else {
             this.actions.forEach((action: AbstractAction) => {
                 if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-                    let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+                    let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
                     if (this.attributeType.code === updateAttrAction.attributeName && (this.attributeType.type !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === this.hierarchy.code)) {
                         this.editAction = action;
@@ -388,19 +406,22 @@ export class ManageVersionsComponent implements OnInit {
             });
 
             if (this.editAction == null) {
-                this.editAction = new UpdateAttributeAction(this.attributeType.code);
+                this.editAction = new UpdateAttributeOverTimeAction(this.attributeType.code);
             }
         }
 
-        this.viewModels = [];
+        this.viewModels = this.getViewsForAttribute(this.attributeType.code, this.hierarchy);
+    }
+
+    getViewsForAttribute(typeCode: string, hierarchy: HierarchyOverTime, includeUnmodified: boolean = false): VersionDiffView[] {
+        let viewModels: VersionDiffView[] = [];
 
         // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
         // on the GeoObject
-        if (this.changeRequest == null || this.changeRequest.type === "CreateGeoObject" ||
-          (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")
-        ) {
-            if (this.attributeType.type === "_PARENT_") {
-                this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
+        if (includeUnmodified || this.changeRequest == null || this.changeRequest.type === "CreateGeoObject" ||
+          (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
+            if (typeCode === "_PARENT_") {
+                hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
                     let view = new VersionDiffView(this, this.editAction);
 
                     view.oid = entry.oid;
@@ -410,36 +431,38 @@ export class ManageVersionsComponent implements OnInit {
                     view.value = JSON.parse(JSON.stringify(entry));
                     view.value.loading = {};
 
-                    view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry);
+                    view.editPropagator = new HierarchyEditPropagator(this, this.editAction, view, entry, hierarchy);
 
                     // In the corner case where this object isn't assigned to the lowest level, we may have
                     // empty values in our parents array for some of the types. Our front-end assumes there
                     // will always be an entry for all the types.
-                    let len = this.hierarchy.types.length;
+                    let len = hierarchy.types.length;
                     for (let i = 0; i < len; ++i) {
-                        let type = this.hierarchy.types[i];
+                        let type = hierarchy.types[i];
 
                         if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
                             view.value.parents[type.code] = { text: "", geoObject: null };
                         }
                     }
 
-                    this.viewModels.push(view);
+                    viewModels.push(view);
                 });
             } else {
-                this.postGeoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
-                    let view = new VersionDiffView(this, this.editAction);
+                if (this.postGeoObject.attributes[typeCode]) {
+                    this.postGeoObject.attributes[typeCode].values.forEach((vot: ValueOverTime) => {
+                        let view = new VersionDiffView(this, this.editAction);
 
-                    view.oid = vot.oid;
-                    view.summaryKey = SummaryKey.UNMODIFIED;
-                    view.startDate = vot.startDate;
-                    view.endDate = vot.endDate;
-                    view.value = vot.value == null ? null : JSON.parse(JSON.stringify(vot.value));
+                        view.oid = vot.oid;
+                        view.summaryKey = SummaryKey.UNMODIFIED;
+                        view.startDate = vot.startDate;
+                        view.endDate = vot.endDate;
+                        view.value = vot.value == null ? null : JSON.parse(JSON.stringify(vot.value));
 
-                    view.editPropagator.valueOverTime = vot;
+                        view.editPropagator.valueOverTime = vot;
 
-                    this.viewModels.push(view);
-                });
+                        viewModels.push(view);
+                    });
+                }
             }
         }
 
@@ -449,27 +472,27 @@ export class ManageVersionsComponent implements OnInit {
             let action: AbstractAction = this.actions[i];
 
             if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-                let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+                let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
-                if (this.attributeType.code === updateAttrAction.attributeName) {
-                    if (this.attributeType.type === "_PARENT_" && updateAttrAction.attributeDiff.hierarchyCode !== this.hierarchy.code) {
+                if (typeCode === updateAttrAction.attributeName) {
+                    if (typeCode === "_PARENT_" && updateAttrAction.attributeDiff.hierarchyCode !== hierarchy.code) {
                         continue;
                     }
 
                     updateAttrAction.attributeDiff.valuesOverTime.forEach((votDiff: ValueOverTimeDiff) => {
-                        let view = this.findViewByOid(votDiff.oid);
+                        let view = this.findViewByOid(votDiff.oid, viewModels);
 
                         if (votDiff.action === "DELETE") {
                             if (view == null) {
                                 view = new VersionDiffView(this, action);
-                                this.viewModels.push(view);
+                                viewModels.push(view);
 
                                 if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
                                     view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
                                 }
                             }
 
-                            this.populateViewFromDiff(view, votDiff);
+                            this.populateViewFromDiff(typeCode, hierarchy, view, votDiff);
 
                             delete view.oldValue;
                             delete view.oldStartDate;
@@ -486,27 +509,27 @@ export class ManageVersionsComponent implements OnInit {
                         } else if (votDiff.action === "UPDATE") {
                             if (view == null) {
                                 view = new VersionDiffView(this, action);
-                                this.viewModels.push(view);
+                                viewModels.push(view);
 
                                 if (this.changeRequest == null || (this.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequest.approvalStatus !== "REJECTED")) {
                                     view.conflictMessage = [{ severity: "ERROR", message: this.lService.decode("changeovertime.manageVersions.missingReference"), type: ConflictType.MISSING_REFERENCE }];
                                 }
                             }
 
-                            this.populateViewFromDiff(view, votDiff);
+                            this.populateViewFromDiff(typeCode, hierarchy, view, votDiff);
 
                             view.calculateSummaryKey(votDiff);
                         } else if (votDiff.action === "CREATE") {
                             if (view != null) {
-                                console.log("This action doesn't make sense. We're trying to create something that already exists?", votDiff)
+                                console.log("This action doesn't make sense. We're trying to create something that already exists?", votDiff);
                             } else {
                                 view = new VersionDiffView(this, action);
 
-                                this.populateViewFromDiff(view, votDiff);
+                                this.populateViewFromDiff(typeCode, hierarchy, view, votDiff);
 
                                 view.summaryKey = SummaryKey.NEW;
 
-                                this.viewModels.push(view);
+                                viewModels.push(view);
                             }
                         }
                     });
@@ -517,10 +540,12 @@ export class ManageVersionsComponent implements OnInit {
                 console.log("Unexpected action : " + action.actionType, action);
             }
         }
+
+        return viewModels;
     }
 
-    populateViewFromDiff(view: VersionDiffView, votDiff: ValueOverTimeDiff) {
-        if (this.attributeType.type === "_PARENT_") {
+    populateViewFromDiff(typeCode: string, hierarchy: HierarchyOverTime, view: VersionDiffView, votDiff: ValueOverTimeDiff) {
+        if (typeCode === "_PARENT_") {
             view.value = (view.editPropagator as HierarchyEditPropagator).createEmptyHierarchyEntry();
             view.value.oid = votDiff.oid;
             view.value.startDate = votDiff.newStartDate || votDiff.oldStartDate;
@@ -528,12 +553,16 @@ export class ManageVersionsComponent implements OnInit {
 
             view.value.parents = votDiff.parents;
 
+            if (!view.value.parents) {
+                view.value.parents = {};
+            }
+
             // In the corner case where this object isn't assigned to the lowest level, we may have
             // empty values in our parents array for some of the types. Our front-end assumes there
             // will always be an entry for all the types.
-            let len = this.hierarchy.types.length;
+            let len = hierarchy.types.length;
             for (let i = 0; i < len; ++i) {
-                let type = this.hierarchy.types[i];
+                let type = hierarchy.types[i];
 
                 if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
                     view.value.parents[type.code] = { text: "", geoObject: null };
@@ -549,11 +578,11 @@ export class ManageVersionsComponent implements OnInit {
 
                 view.oldValue = oldGoCode;
 
-                let len = this.hierarchy.types.length;
+                let len = hierarchy.types.length;
                 for (let i = len - 1; i >= 0; --i) {
-                    let type = this.hierarchy.types[i];
+                    let type = hierarchy.types[i];
 
-                    if (Object.prototype.hasOwnProperty.call(votDiff.parents, type.code)) {
+                    if (votDiff.parents && Object.prototype.hasOwnProperty.call(votDiff.parents, type.code)) {
                         let lowestLevel = votDiff.parents[type.code];
 
                         if (lowestLevel.text == null || lowestLevel.text.length === 0) {
@@ -613,8 +642,8 @@ export class ManageVersionsComponent implements OnInit {
             for (let i = 0; i < this.actions.length; i++) {
                 let action = this.actions[i];
 
-                if (action.actionType === "UpdateAttributeAction") {
-                    let uAction = action as UpdateAttributeAction;
+                if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
+                    let uAction = action as UpdateAttributeOverTimeAction;
 
                     if (uAction.attributeName === this.attributeType.code) {
                         return true;

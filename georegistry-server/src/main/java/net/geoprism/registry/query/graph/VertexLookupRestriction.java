@@ -34,7 +34,7 @@ public class VertexLookupRestriction extends AbstractVertexRestriction implement
   private ServerHierarchyType hierarchyType;
 
   private Date                date;
-
+  
   public VertexLookupRestriction(String text, Date date)
   {
     this.text = text;
@@ -54,7 +54,7 @@ public class VertexLookupRestriction extends AbstractVertexRestriction implement
   @Override
   public void restrict(StringBuilder statement, Map<String, Object> parameters)
   {
-    statement.append(",where: (displayLabel_cot CONTAINS (:date BETWEEN startDate AND endDate AND " + localize("value") + ".toLowerCase() LIKE '%' + :text + '%'))");
+    statement.append(",where: (displayLabel_cot CONTAINS (:date BETWEEN startDate AND endDate AND " + localize("value") + ".toLowerCase() LIKE '%' + :text + '%') AND invalid=false)");
 
     parameters.put("date", this.date);
 

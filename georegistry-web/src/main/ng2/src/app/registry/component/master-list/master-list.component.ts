@@ -16,7 +16,6 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, ProgressService } from "@shared/service";
 
 declare let acp: string;
-declare let $: any;
 
 @Component({
     selector: "master-list",
@@ -43,6 +42,8 @@ export class MasterListComponent implements OnInit, OnDestroy {
     isRefreshing: boolean = false;
     isWritable: boolean = false;
 
+    filterInvalid = true;
+
     /*
      * Reference to the modal current showing
     */
@@ -59,7 +60,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get("oid");
-        this.isPublished = (this.route.snapshot.paramMap.get("published") == "true");
+        this.isPublished = (this.route.snapshot.paramMap.get("published") === "true");
 
         this.service.getMasterListVersion(oid).then(version => {
             this.list = version;
@@ -98,11 +99,20 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
     }
 
+    onFilterInvalidChange() {
+        this.onPageChange(1);
+    }
 
     onPageChange(pageNumber: number): void {
         this.message = null;
 
-        this.service.data(this.list.oid, pageNumber, this.page.pageSize, this.filter, this.sort).then(page => {
+        let newFilter = JSON.parse(JSON.stringify(this.filter));
+
+        if (this.filterInvalid) {
+            newFilter.push({ attribute: "invalid", value: "false" });
+        }
+
+        this.service.data(this.list.oid, pageNumber, this.page.pageSize, newFilter, this.sort).then(page => {
             this.page = page;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -236,7 +246,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
     }
 
     isFilterable(attribute: any): boolean {
-        return attribute.type !== "none" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
+        return attribute.type !== "none" && attribute.name !== "invalid" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
     }
 
     onEdit(data): void {

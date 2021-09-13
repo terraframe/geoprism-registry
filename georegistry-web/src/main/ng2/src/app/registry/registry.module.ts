@@ -44,6 +44,7 @@ import { RequestTableComponent } from "./component/crtable/request-table.compone
 import { CreateUpdateGeoObjectDetailComponent } from "./component/crtable/action-detail/create-update-geo-object/detail.component";
 import { GeoObjectSharedAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
 import { ManageVersionsComponent } from "./component/geoobject-shared-attribute-editor/manage-versions.component";
+import { StandardAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/standard-attribute-editor.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
 import { ChangeRequestPageComponent } from "./component/change-request-page/change-request-page.component";
 import { GeoObjectEditorComponent } from "./component/geoobject-editor/geoobject-editor.component";
@@ -153,6 +154,7 @@ import "../rxjs-extensions";
         LocalizedTextComponent,
         GeoObjectSharedAttributeEditorComponent,
         ManageVersionsComponent,
+        StandardAttributeEditorComponent,
         SubmitChangeRequestComponent,
         GeoObjectEditorComponent,
         GeoObjectAttributeExcludesPipe,

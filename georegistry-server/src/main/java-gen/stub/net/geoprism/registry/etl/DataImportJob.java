@@ -421,7 +421,8 @@ public class DataImportJob extends DataImportJobBase
     return history;
   }
 
-  public boolean canResume()
+  @Override
+  public boolean canResume(JobHistoryRecord jhr)
   {
     return true;
   }

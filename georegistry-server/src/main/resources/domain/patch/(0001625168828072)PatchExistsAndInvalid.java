@@ -16,15 +16,6 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry;
-
-public class GeoObjectStatusMaster extends GeoObjectStatusMasterBase
-{
-  private static final long serialVersionUID = 760259078;
-  
-  public GeoObjectStatusMaster()
-  {
-    super();
-  }
-  
-}
+/**
+ * This file is just a placeholder. The actual source exists in : src/main/java/com/runwaysdk/build/domain
+ */

@@ -3,10 +3,6 @@
     <h5>{{model.name }} : {{ model.code }}</h5>
   </ng-template>
 
-  <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert">
-    <localize key="changeovertime.manageVersions.duplicateDate"></localize>
-  </div>
-
   <!-- <div class="col-md-12 order-md-1"> -->
   <form name="manage-versions-form" autocomplete="off">
 
@@ -248,7 +244,7 @@
 	                          
 	                        </td>
 	                        
-	                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
+	                        <td *ngIf="!readonly && (!this.isNew || attributeType.code !== 'exists')" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
 	                          <i class="fa" [class]="{'fa-times' : viewModel.summaryKey === 'UNMODIFIED', 'fa-undo' : viewModel.summaryKey !== 'UNMODIFIED'}" ></i>
 	                        </td>
 	                      </tr>
@@ -258,14 +254,16 @@
                 </div>
               </li>
               
-              <li *ngIf="!readonly && !isRootOfHierarchy" class="list-group-item" style="text-align: left;">
+              <li *ngIf="!readonly && !isRootOfHierarchy && (!this.isNew || attributeType.code !== 'exists')" class="list-group-item" style="text-align: left;">
                 <i class="fa fa-plus clickable" (click)="onAddNewVersion()"> 
                   <localize key="changeovertime.manageVersions.newVersion"></localize>
                 </i>
               </li>
               
             </ul>
-            <div *ngIf="changeRequest && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
+            
+            <!-- TODO : This code copy/pasted into standard-attribute-editor.component.html -->
+            <div *ngIf="changeRequest && !changeRequest.isNew && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
               <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
                 <localize key="change.request.accept.btn"></localize>
               </button>
@@ -276,20 +274,15 @@
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              
-            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
-<!--               <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.accept.btn"></localize> -->
-<!--               </button> -->
-<!--               <button *ngIf="editAction.approvalStatus === 'REJECTED'" disabled type="submit" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.reject.btn"></localize> -->
-<!--               </button> -->
-                <strong style="color:#6BA542;" *ngIf="editAction.approvalStatus === 'ACCEPTED'">
-                    <localize key="change.request.status.accepted"></localize>
-                </strong>
-                <strong style="color:#6d0400;" *ngIf="editAction.approvalStatus === 'REJECTED'">
-                    <localize key="change.request.status.rejected"></localize>
-                </strong>
-            </div>              
+            <div *ngIf="changeRequest && !changeRequest.isNew && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
+              <strong style="color:#6BA542;" *ngIf="editAction.approvalStatus === 'ACCEPTED'">
+                  <localize key="change.request.status.accepted"></localize>
+              </strong>
+              <strong style="color:#6d0400;" *ngIf="editAction.approvalStatus === 'REJECTED'">
+                  <localize key="change.request.status.rejected"></localize>
+              </strong>
+            </div>
+            
           </div>
         </div>
 	      <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 

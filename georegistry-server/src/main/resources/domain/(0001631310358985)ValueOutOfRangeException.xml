@@ -1,0 +1,40 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="scheduledjobs.job.problem.type.importOutOfRange">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="scheduledjobs.job.problem.type.importOutOfRange" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Data Out Of Range" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create>
+      <mdException name="net.geoprism.registry.geoobject.ValueOutOfRangeException"
+        message="A value cannot be set on the attribute [{attribute}] at start date [{startDate}] and end date [{endDate}] because the GeoObject [{geoObject}] does not exist in that range."
+        exported="false" publish="false">
+        <attributes>
+          <text name="attribute" label="attribute" required="true"/>
+          <text name="startDate" label="startDate" required="true"/>
+          <text name="endDate" label="endDate" required="true"/>
+          <text name="geoObject" label="geoObject" required="true"/>
+        </attributes>
+      </mdException>
+      <mdException name="net.geoprism.registry.geoobject.ImportOutOfRangeException"
+        message="Data cannot be imported from [{startDate}] to [{endDate}] because the GeoObject does not exist during that period."
+        exported="false" publish="false">
+        <attributes>
+          <text name="startDate" label="startDate" required="true"/>
+          <text name="endDate" label="endDate" required="true"/>
+        </attributes>
+      </mdException>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.geoobject.ValueOutOfRangeException" type="com.runwaysdk.system.metadata.MdException"/>
+      <object key="net.geoprism.registry.geoobject.ImportOutOfRangeException" type="com.runwaysdk.system.metadata.MdException"/>
+    </delete>
+  </undoIt>
+</version>

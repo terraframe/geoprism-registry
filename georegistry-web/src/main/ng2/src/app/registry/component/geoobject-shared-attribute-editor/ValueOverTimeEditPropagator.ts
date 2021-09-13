@@ -1,7 +1,7 @@
 import { ValueOverTime } from "@registry/model/registry";
 import { ManageVersionsComponent } from "./manage-versions.component";
 import { VersionDiffView } from "./manage-versions-model";
-import { CreateGeoObjectAction, UpdateAttributeAction, AbstractAction, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
+import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
 import turf_booleanequal from "@turf/boolean-equal";
@@ -39,7 +39,7 @@ export class ValueOverTimeEditPropagator {
               if (this.valueOverTime == null) {
                   this.diff = new ValueOverTimeDiff();
                   this.diff.action = "CREATE";
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               } else {
                   if (this.valueOverTime.startDate === startDate) {
                       return;
@@ -51,7 +51,7 @@ export class ValueOverTimeEditPropagator {
                   this.diff.oldValue = this.valueOverTime.value;
                   this.diff.oldStartDate = this.valueOverTime.startDate;
                   this.diff.oldEndDate = this.valueOverTime.endDate;
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               }
           }
 
@@ -91,7 +91,7 @@ export class ValueOverTimeEditPropagator {
                   this.diff = new ValueOverTimeDiff();
                   this.diff.oid = uuid();
                   this.diff.action = "CREATE";
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               } else {
                   if (this.valueOverTime.endDate === endDate) {
                       return;
@@ -103,7 +103,7 @@ export class ValueOverTimeEditPropagator {
                   this.diff.oldValue = this.valueOverTime.value;
                   this.diff.oldStartDate = this.valueOverTime.startDate;
                   this.diff.oldEndDate = this.valueOverTime.endDate;
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               }
           }
 
@@ -157,7 +157,7 @@ export class ValueOverTimeEditPropagator {
                   this.diff = new ValueOverTimeDiff();
                   this.diff.oid = uuid();
                   this.diff.action = "CREATE";
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               } else {
                   if (this.areValuesEqual(this.valueOverTime.value, value)) {
                       return;
@@ -169,7 +169,7 @@ export class ValueOverTimeEditPropagator {
                   this.diff.oldValue = this.valueOverTime.value;
                   this.diff.oldStartDate = this.valueOverTime.startDate;
                   this.diff.oldEndDate = this.valueOverTime.endDate;
-                  (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               }
           }
 
@@ -192,6 +192,8 @@ export class ValueOverTimeEditPropagator {
       this.view.calculateSummaryKey(this.diff);
 
       this.component.onActionChange(this.action);
+
+      this.component.onDateChange();
   }
 
   public setLocalizedValue(localeValue: {locale: string, value: string}) {
@@ -201,7 +203,7 @@ export class ValueOverTimeEditPropagator {
 
   removeEmptyDiff(): void {
       if (this.diff != null && this.diff.newValue === undefined && this.diff.newStartDate === undefined && this.diff.newEndDate === undefined) {
-          const diffs = (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime;
+          const diffs = (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime;
 
           const index = diffs.findIndex(d => d.oid === this.diff.oid);
 
@@ -312,7 +314,7 @@ export class ValueOverTimeEditPropagator {
       if (this.action.actionType === "UpdateAttributeAction") {
           if (this.diff != null && this.diff.action === "CREATE") {
               // Its a new entry, just remove the diff from the diff array
-              let updateAction: UpdateAttributeAction = this.action as UpdateAttributeAction;
+              let updateAction: UpdateAttributeOverTimeAction = this.action as UpdateAttributeOverTimeAction;
 
               const index = updateAction.attributeDiff.valuesOverTime.findIndex(vot => vot.oid === this.diff.oid);
 
@@ -334,7 +336,7 @@ export class ValueOverTimeEditPropagator {
               this.diff.oldValue = this.valueOverTime.value;
               this.diff.oldStartDate = this.valueOverTime.startDate;
               this.diff.oldEndDate = this.valueOverTime.endDate;
-              (this.action as UpdateAttributeAction).attributeDiff.valuesOverTime.push(this.diff);
+              (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           let votc = (this.action as CreateGeoObjectAction).geoObjectJson.attributes[this.component.attributeType.code].values;
@@ -358,7 +360,7 @@ export class ValueOverTimeEditPropagator {
   public onAddNewVersion(): void {
       if (this.component.editAction instanceof CreateGeoObjectAction) {
           let vot = new ValueOverTime();
-          vot.oid = this.component.generateUUID();
+          vot.oid = uuid();
 
           this.component.editAction.geoObjectJson.attributes[this.component.attributeType.code].values.push(vot);
 

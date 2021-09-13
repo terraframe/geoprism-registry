@@ -82,7 +82,7 @@ public class UpdateAttributeViewJsonAdapters
       }
       else
       {
-        AbstractUpdateAttributeView view = builder.create().fromJson(json, AbstractUpdateAttributeView.class);
+        AbstractUpdateAttributeView view = builder.create().fromJson(json, UpdateStandardAttributeView.class);
         view.setAttributeName(attributeName);
         return view;
       }

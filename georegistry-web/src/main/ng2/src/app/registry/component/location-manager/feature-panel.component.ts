@@ -130,6 +130,12 @@ export class FeaturePanelComponent implements OnInit {
         // }
     }
 
+    canSubmit(): boolean {
+        return this.isValid &&
+          (this.isMaintainer || (this.reason && this.reason.trim().length > 0)) &&
+          (this.isNew || (this.attributeEditor && this.attributeEditor.getActions().length > 0));
+    }
+
     onSubmit(): void {
         if (this.isNew) {
             this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
@@ -164,21 +170,6 @@ export class FeaturePanelComponent implements OnInit {
     onManageHiearchyVersion(hierarchy: HierarchyOverTime): void {
         this.hierarchy = hierarchy;
         this.mode = this.MODE.HIERARCHY;
-    }
-
-    onAttributeChange(postGeoObject: GeoObjectOverTime): void {
-        this.postGeoObject = postGeoObject;
-
-        this.mode = this.MODE.ATTRIBUTES;
-    }
-
-    onHierarchyChange(hierarchy: HierarchyOverTime): void {
-        const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
-        if (index !== -1) {
-            this.hierarchies[index] = hierarchy;
-        }
-
-        this.mode = this.MODE.ATTRIBUTES;
     }
 
     onEditAttributes(): void {

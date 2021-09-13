@@ -1280,7 +1280,7 @@ public class ChangeRequestServiceTest
     Assert.assertEquals(newStartDate, vot1.getStartDate());
     Assert.assertEquals(newEndDate, vot1.getEndDate());
     
-    String classyId = (String) cambodia.getValue(attrName, newStartDate);
+    String classyId = ((Classifier) cambodia.getValue(attrName, newStartDate)).getOid();
     Assert.assertEquals(FastTestDataset.T_Islam.fetchClassifier().getOid(), classyId);
     
     Assert.assertEquals(classyId, vot1.getValue());

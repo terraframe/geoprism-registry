@@ -19,6 +19,8 @@
 package net.geoprism.registry.etl;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.system.scheduler.QuartzRunwayJob;
+import com.runwaysdk.system.scheduler.QueueingQuartzJob;
 
 public abstract class MasterListJob extends MasterListJobBase
 {
@@ -30,5 +32,11 @@ public abstract class MasterListJob extends MasterListJobBase
   }
 
   public abstract JsonObject toJson();
+  
+  @Override
+  protected QuartzRunwayJob createQuartzRunwayJob()
+  {
+    return new QueueingQuartzJob(this);
+  }
 
 }

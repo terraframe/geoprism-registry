@@ -116,6 +116,10 @@ export class JobComponent implements OnInit {
         if (probType === "net.geoprism.registry.DataNotFoundException") {
             return this.localizeService.decode("scheduledjobs.job.problem.type.datanotfound");
         }
+        
+        if (probType === "net.geoprism.registry.geoobject.ImportOutOfRangeException") {
+            return this.localizeService.decode("scheduledjobs.job.problem.type.importOutOfRange");
+        }
 
         if (
             probType === "net.geoprism.registry.roles.CreateGeoObjectPermissionException" ||
