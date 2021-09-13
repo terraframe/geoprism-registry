@@ -2,17 +2,17 @@
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0}" (click)="changePage(0);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0, disabled: shouldForceSetExist()}" (click)="changePage(0);"> 
         <span class="errorSpan"><span *ngIf="hasErrors(0)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
         <span class="changeSpan"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1}" (click)="changePage(1);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, disabled: shouldForceSetExist()}" (click)="changePage(1);"> 
         <span class="errorSpan"><span *ngIf="hasErrors(1)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
         <span class="changeSpan"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2}" (click)="changePage(2);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, disabled: shouldForceSetExist()}" (click)="changePage(2);"> 
         <span class="errorSpan"><span *ngIf="hasErrors(2)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
         <span class="changeSpan"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
@@ -85,22 +85,24 @@
         </div>
       </div>
       <div *ngIf="tabIndex === 1" class="row">
-        <ul class="list-group">
-	        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
-	          <div class="panel panel-default">
-              <div class="panel-heading">
-                <h4 style="margin:0;">
-                  <span> {{hierarchy.label}} </span> 
-                </h4>
-              </div>
-			      
-			        <div class="panel-body">
-			          <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':parentAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [hierarchy]="hierarchy"></manage-versions>
+        <div class="col-md-12">
+	        <ul class="list-group">
+		        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
+		          <div class="panel panel-default">
+	              <div class="panel-heading">
+	                <h4 style="margin:0;">
+	                  <span> {{hierarchy.label}} </span> 
+	                </h4>
+	              </div>
+				      
+				        <div class="panel-body">
+				          <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':parentAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
+	                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [hierarchy]="hierarchy"></manage-versions>
+				        </div>
 			        </div>
-		        </div>
-	        </li>
-        </ul>
+		        </li>
+	        </ul>
+        </div>
       </div>
       
       <div *ngIf="tabIndex === 2">

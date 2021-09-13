@@ -357,10 +357,9 @@ export class RequestTableComponent {
     onUpdate(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
             this.service.update(changeRequest).then(request => {
-
-                // TODO update the individual change request
-
                 this.refresh();
+
+                this.isEditing = false;
             }).catch((response: HttpErrorResponse) => {
                 this.error(response);
             });
