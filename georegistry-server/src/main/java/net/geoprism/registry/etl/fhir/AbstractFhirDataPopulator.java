@@ -85,7 +85,7 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
       Reference reference = new Reference();
       reference.setReference(literal);
 
-      Extension rootExt = new Extension("http://ihe.net/fhir/StructureDefinition/IHE_mCSD_hierarchy_extension");
+      Extension rootExt = new Extension("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.hierarchy.extension");
       rootExt.addExtension(new Extension("part-of", reference));
       rootExt.addExtension(new Extension("hierarchy-type", concept));
 

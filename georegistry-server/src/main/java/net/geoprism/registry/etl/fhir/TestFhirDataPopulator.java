@@ -65,6 +65,7 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
     ServerGeoObjectType type = this.getList().getGeoObjectType();
     String label = type.getLabel().getValue();
     String system = this.getContext().getSystem();
+    
     CodeableConcept concept = new CodeableConcept().setText(label).addCoding(new Coding(system, type.getCode(), label));
 
     Location location = facility.getLocation();

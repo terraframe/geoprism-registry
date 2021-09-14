@@ -1,14 +1,15 @@
 package net.geoprism.registry.etl.fhir;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.etl.FhirSyncImportConfig;
@@ -27,11 +28,6 @@ public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor imp
   @Override
   protected void populate(ServerGeoObjectIF geoObject, Location location, Date lastUpdated)
   {
-    if (i++ == 50)
-    {
-      throw new ProgrammingErrorException("Test");
-    }
-
     LocalizedValue value = LocalizedValue.createEmptyLocalizedValue();
     value.setValue(LocalizedValue.DEFAULT_LOCALE, location.getName());
 
@@ -59,11 +55,12 @@ public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor imp
   @Override
   protected String getType(Location location)
   {
-    Coding coding = location.getTypeFirstRep().getCodingFirstRep();
+    String system = getSystem().getSystem();
+    Optional<CodeableConcept> type = location.getType().stream().filter(t -> t.getCodingFirstRep().getSystem().equals(system)).findFirst();
 
-    if (coding != null)
+    if (type.isPresent())
     {
-      String code = coding.getCode();
+      String code = type.get().getCodingFirstRep().getCode();
 
       if (code != null)
       {

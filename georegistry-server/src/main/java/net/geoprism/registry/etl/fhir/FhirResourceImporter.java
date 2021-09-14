@@ -38,7 +38,7 @@ public class FhirResourceImporter
     this.system = system;
     this.processor = processor;
     this.history = history;
-    // this.since = since;
+    this.since = since;
   }
 
   public void synchronize()
