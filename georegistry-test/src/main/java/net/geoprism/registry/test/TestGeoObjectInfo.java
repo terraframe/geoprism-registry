@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -75,7 +74,7 @@ public class TestGeoObjectInfo
 
   private ServerGeoObjectIF       serverGO;
 
-  private String                  statusCode;
+  private Boolean                 exists;
 
   private Boolean                 isNew;
 
@@ -83,18 +82,18 @@ public class TestGeoObjectInfo
 
   private HashMap<String, Object> defaultValues;
 
-  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew)
   {
-    initialize(code, testUni, statusCode, isNew);
+    initialize(code, testUni, exists, isNew);
     this.wkt = wkt;
   }
 
   public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni)
   {
-    initialize(code, testUni, DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
+    initialize(code, testUni, true, true);
   }
 
-  private void initialize(String code, TestGeoObjectTypeInfo testUni, String statusCode, Boolean isNew)
+  private void initialize(String code, TestGeoObjectTypeInfo testUni, Boolean exists, Boolean isNew)
   {
     if (code.contains(" "))
     {
@@ -106,7 +105,7 @@ public class TestGeoObjectInfo
     this.geoObjectType = testUni;
     this.children = new LinkedList<TestGeoObjectInfo>();
     this.parents = new LinkedList<TestGeoObjectInfo>();
-    this.statusCode = statusCode;
+    this.exists = exists;
     this.isNew = isNew;
     this.date = TestDataSet.DEFAULT_OVER_TIME_DATE;
     this.defaultValues = new HashMap<String, Object>();
@@ -585,7 +584,7 @@ public class TestGeoObjectInfo
     geoObj.setCode(this.getCode());
     geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
-    geoObj.setStatus(this.statusCode);
+    geoObj.setExists(this.exists);
 
     if (registryId != null)
     {
@@ -613,9 +612,7 @@ public class TestGeoObjectInfo
     geoObj.setGeometry(geometry, date, ValueOverTime.INFINITY_END_DATE);
     geoObj.setCode(this.getCode());
     geoObj.setDisplayLabel(label, date, ValueOverTime.INFINITY_END_DATE);
-
-    geoObj.getAllValues(DefaultAttribute.STATUS.getName()).clear();
-    geoObj.setStatus(this.statusCode, date, ValueOverTime.INFINITY_END_DATE);
+    geoObj.setExists(this.exists, date, ValueOverTime.INFINITY_END_DATE);
 
     if (registryId != null)
     {

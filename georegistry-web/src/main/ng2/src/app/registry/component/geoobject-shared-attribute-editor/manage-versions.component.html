@@ -3,12 +3,8 @@
     <h5>{{model.name }} : {{ model.code }}</h5>
   </ng-template>
 
-  <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert">
-    <localize key="changeovertime.manageVersions.duplicateDate"></localize>
-  </div>
-
   <!-- <div class="col-md-12 order-md-1"> -->
-  <form #versionsform="ngForm" name="manage-versions-form" autocomplete="off">
+  <form name="manage-versions-form" autocomplete="off">
 
     <fieldset>
       <div class="row">
@@ -57,7 +53,7 @@
 		                               </div>
 		                               
 		                               <div *ngIf="hasLocalizationChanged(viewModel, loc.locale) && !isNew">
-		                                 <p class="warning-text">
+		                                 <p class="warning-text display-current-value" style="padding: 5px 0;margin-bottom:0;">
 		                                   <localize key="change.request.changed.value.prefix"></localize>
 		                                   {{ getValueAtLocale(viewModel.oldValue, loc.locale) }}
 		                                 </p>
@@ -126,15 +122,19 @@
 			                                      </span>
 			                                  </div>
 			                               </div>
-
-			                          </ng-container>
+                                   </ng-container>
 	                               </div> 
-                                 
+                                 <div *ngIf="viewModel.oldValue && !isNew && attributeType.type !== 'geometry'">
+                                  <p class="warning-text display-current-value">
+                                    <localize key="change.request.changed.value.prefix"></localize>
+                                    {{ viewModel.oldValue }}
+                                  </p>
+                                </div>
                                  
                                  <table *ngIf="attributeType.type === 'geometry'" style="padding:0;">
                                  <!-- 
-								    Geometry 
-								 -->
+                                    Geometry 
+                                 -->
 <!--                                   <div *ngIf="attributeType.type === 'geometry'"> -->
   
 <!--                                     <td style="vertical-align: middle;padding-left:0;"> -->
@@ -158,14 +158,16 @@
                                         </td>
                                       </tr>
   
-                                      <tr *ngIf="viewModel.isRenderingLayer && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
+                                      <tr *ngIf="(viewModel.newLayer && viewModel.newLayer.isRendering) && (geoObjectType.geometryType === 'POINT' || geoObjectType.geometryType === 'MULTIPOINT') && viewModel.value && viewModel.value.coordinates && (viewModel.value.coordinates.length == 1 || viewModel.value.coordinates.length == 0)">
                                         
                                         <td style="width:50%;padding-left:0;padding-right:5px;" >
                                           <h5>
                                             <localize key="geoobject.editor.geometry.latitude.label"></localize>
                                           </h5>
                                           <div class="text-left">
-                                              <input [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][1]"
+                                              <input *ngIf="viewModel.value.coordinates && viewModel.value.coordinates[0]" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][1]"
+                                                (change)="manualCoordinateChange(viewModel)" required />
+                                              <input *ngIf="viewModel.value.coordinates == null || viewModel.value.coordinates[0] == null" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.newCoordinateY"
                                                 (change)="manualCoordinateChange(viewModel)" required />
                                           </div>
                                           <div *ngIf="viewModel.coordinate && viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid">
@@ -179,7 +181,9 @@
                                             <localize key="geoobject.editor.geometry.longitude.label"></localize>
                                           </h5>
                                           <div class="text-left">
-                                              <input [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="longitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][0]"
+                                              <input *ngIf="viewModel.value.coordinates && viewModel.value.coordinates[0]" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="longitude" type="number" class="form-control" [(ngModel)]="viewModel.value.coordinates[0][0]"
+                                                (change)="manualCoordinateChange(viewModel)" required />
+                                              <input *ngIf="viewModel.value.coordinates == null || viewModel.value.coordinates[0] == null" [readonly]="readonly || !(viewModel.newLayer && viewModel.newLayer.isEditing) || viewModel.summaryKey === 'DELETE'" name="latitude" type="number" class="form-control" [(ngModel)]="viewModel.newCoordinateX"
                                                 (change)="manualCoordinateChange(viewModel)" required />
                                           </div>
                                           <div *ngIf="viewModel.coordinate && viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid">
@@ -205,7 +209,7 @@
 	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
-	                                  <p class="warning-text">
+	                                  <p class="warning-text display-current-value">
 	                                    <localize key="change.request.changed.value.prefix"></localize>
 	                                    {{ viewModel.oldStartDate }}
 	                                  </p>
@@ -217,15 +221,17 @@
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
 	                              
-	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readOnly" [allowFutureDates]="true" 
-	                                      [required]="true" [placement]="'bottom'" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
+	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
+	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                    
+	                                  <!--
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">
 	                                    <p class="warning-text">
 	                                      <localize key="change.request.changed.value.prefix"></localize>
 	                                      {{ viewModel.oldEndDate }}
 	                                    </p>
 	                                  </div>
+	                                  -->
 	                                </div>
 	                              </td>
 	                            </tr>
@@ -238,9 +244,8 @@
 	                          
 	                        </td>
 	                        
-	                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="'changeovertime.manageVersions.remove.version' | localize">
-	                          <i *ngIf="viewModel.summaryKey !== 'DELETE'" class="fa fa-times" ></i>
-	                          <i *ngIf="viewModel.summaryKey === 'DELETE'" class="fa fa-undo" ></i>
+	                        <td *ngIf="!readonly && (!this.isNew || attributeType.code !== 'exists')" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
+	                          <i class="fa" [class]="{'fa-times' : viewModel.summaryKey === 'UNMODIFIED', 'fa-undo' : viewModel.summaryKey !== 'UNMODIFIED'}" ></i>
 	                        </td>
 	                      </tr>
 	                    </ng-container>
@@ -249,42 +254,39 @@
                 </div>
               </li>
               
-              <li *ngIf="!readonly && !isRootOfHierarchy" class="list-group-item" style="text-align: left;">
+              <li *ngIf="!readonly && !isRootOfHierarchy && (!this.isNew || attributeType.code !== 'exists')" class="list-group-item" style="text-align: left;">
                 <i class="fa fa-plus clickable" (click)="onAddNewVersion()"> 
                   <localize key="changeovertime.manageVersions.newVersion"></localize>
                 </i>
               </li>
               
             </ul>
-            <div *ngIf="changeRequest && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
-              <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize">
+            
+            <!-- TODO : This code copy/pasted into standard-attribute-editor.component.html -->
+            <div *ngIf="changeRequest && !changeRequest.isNew && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
+              <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
                 <localize key="change.request.accept.btn"></localize>
               </button>
-              <button [disabled]="editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+              <button [disabled]="editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
                 <localize key="change.request.reject.btn"></localize>
               </button>
-              <button [disabled]="editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+              <button [disabled]="editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              
-            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;font-style: italic;">
-<!--               <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.accept.btn"></localize> -->
-<!--               </button> -->
-<!--               <button *ngIf="editAction.approvalStatus === 'REJECTED'" disabled type="submit" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.reject.btn"></localize> -->
-<!--               </button> -->
-                <strong style="color:#6BA542;" *ngIf="editAction.approvalStatus === 'ACCEPTED'">
-                    <localize key="change.request.status.accepted"></localize>
-                </strong>
-                <strong style="color:#6d0400;" *ngIf="editAction.approvalStatus === 'REJECTED'">
-                    <localize key="change.request.status.rejected"></localize>
-                </strong>
-            </div>              
+            <div *ngIf="changeRequest && !changeRequest.isNew && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
+              <strong style="color:#6BA542;" *ngIf="editAction.approvalStatus === 'ACCEPTED'">
+                  <localize key="change.request.status.accepted"></localize>
+              </strong>
+              <strong style="color:#6d0400;" *ngIf="editAction.approvalStatus === 'REJECTED'">
+                  <localize key="change.request.status.rejected"></localize>
+              </strong>
+            </div>
+            
           </div>
         </div>
 	      <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
-	        (geometryChange)="this.geometryChange(viewModel, $event);" [mapHeight]="mapRowHeight" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
+	        [mapHeight]="mapRowHeight" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
 	        [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="geomService.getRenderedLayers()[0].startDate">
 	      </geoobject-editor-map>
       </div>

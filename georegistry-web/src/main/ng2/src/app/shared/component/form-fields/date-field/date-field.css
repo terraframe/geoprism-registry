@@ -10,6 +10,10 @@ input[type="date"] {
 	min-width: 173px;
 }
 
+p.warning-text.display-current-value {
+  font-size: 12px;
+}
+
 
 .wrapper input[type="text"] {
     position: relative; 

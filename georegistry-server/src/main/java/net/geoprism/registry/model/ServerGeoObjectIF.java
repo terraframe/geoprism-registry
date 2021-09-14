@@ -31,7 +31,6 @@ import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.vividsolutions.jts.geom.Geometry;
 
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -51,14 +50,20 @@ public interface ServerGeoObjectIF
   public Date getLastUpdateDate();
 
   public String getCode();
+  
+  public Boolean getInvalid();
+  
+  public void setInvalid(Boolean invalid);
 
   public void setCode(String code);
 
-  public GeoObjectStatus getStatus();
+  public Boolean getExists();
+  
+  public Boolean getExists(Date date);
 
-  public void setStatus(GeoObjectStatus status);
+  public void setExists(Boolean exists);
 
-  public void setStatus(GeoObjectStatus status, Date startDate, Date endDate);
+  public void setExists(Boolean exists, Date startDate, Date endDate);
 
   public void setGeometry(Geometry geometry);
 

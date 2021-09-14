@@ -11,18 +11,17 @@ import {
 
 import { FileUploader, FileUploaderOptions } from "ng2-file-upload";
 
-import { ChangeRequest, CreateGeoObjectAction, UpdateAttributeAction } from "@registry/model/crtable";
+import { AbstractAction, ChangeRequest, CreateGeoObjectAction, UpdateAttributeAction } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 import { GeoObjectOverTime } from "@registry/model/registry";
 
-import { ChangeRequestService } from "@registry/service";
+import { ChangeRequestService, GeometryService } from "@registry/service";
 import { LocalizationService, AuthService, EventService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 
 declare var acp: string;
-declare var $: any;
 
 @Component({
 
@@ -76,7 +75,7 @@ export class RequestTableComponent {
 
     requests: ChangeRequest[] = [];
 
-    actions: CreateGeoObjectAction[] | UpdateAttributeAction[];
+    actions: AbstractAction[];
 
     columns: any[] = [];
 
@@ -86,12 +85,12 @@ export class RequestTableComponent {
 
     filterCriteria: string = "ALL";
 
-    hasBaseDropZoneOver:boolean = false;
+    hasBaseDropZoneOver: boolean = false;
 
     waitingOnScroll: boolean = false;
 
     // Restrict page to the specified oid
-    oid:string = null;
+    oid: string = null;
 
     /*
      * File uploader
@@ -101,8 +100,12 @@ export class RequestTableComponent {
     @ViewChild("myFile")
     fileRef: ElementRef;
 
-    constructor(private service: ChangeRequestService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-                private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
+    isValid: boolean = true;
+
+    isEditing: boolean = false;
+
+    constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
+        private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
         this.columns = [
             { name: localizationService.decode("change.request.user"), prop: "createdBy", sortable: false },
             { name: localizationService.decode("change.request.createDate"), prop: "createDate", sortable: false, width: 195 },
@@ -162,14 +165,18 @@ export class RequestTableComponent {
 
     getGOTLabel(action: any): string {
         if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values &&
-          action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues &&
-          action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0] && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value) {
+            action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues &&
+            action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0] && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value) {
             return action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues[0].value;
         } else if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.code) {
             return action.geoObjectJson.attributes.code;
         } else {
             return this.localizationService.decode("geoObject.label");
         }
+    }
+
+    setValid(valid: boolean): void {
+        this.isValid = valid;
     }
 
     onUpload(request: ChangeRequest): void {
@@ -201,11 +208,13 @@ export class RequestTableComponent {
         });
     }
 
-    public fileOverBase(e:any):void {
+    public fileOverBase(e: any): void {
         this.hasBaseDropZoneOver = e;
     }
 
     refresh(pageNumber: number = 1): void {
+        this.geomService.destroy();
+
         this.service.getAllRequests(this.page.pageSize, pageNumber, this.filterCriteria, this.oid).then(requests => {
             this.page = requests;
             this.requests = requests.resultSet;
@@ -214,9 +223,9 @@ export class RequestTableComponent {
             this.requests.forEach((req) => {
                 if (!req.current.geoObject) {
                     for (let i = 0; i < req.actions.length; i++) {
-                        if (req.actions[0].actionType === "CreateGeoObjectAction") {
+                        if (req.actions[0].actionType === ActionTypes.CREATEGEOOBJECTACTION) {
                             // This is the state of the Geo-Object as the Registry Contributor configured it.
-                            req.current.geoObject = JSON.parse(JSON.stringify(req.actions[0].geoObjectJson));
+                            req.current.geoObject = JSON.parse(JSON.stringify((req.actions[0] as CreateGeoObjectAction).geoObjectJson));
                         }
                     }
                 }
@@ -229,6 +238,8 @@ export class RequestTableComponent {
     onSelect(selected: any): void {
         // this.request = selected.selected;
 
+        this.geomService.destroy();
+
         this.service.getAllRequests(this.page.pageSize, 1, "ALL", this.oid).then(requests => {
             this.requests = requests.resultSet;
         }).catch((err: HttpErrorResponse) => {
@@ -238,7 +249,7 @@ export class RequestTableComponent {
 
     onExecute(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
-            this.service.implementDecisions(changeRequest.oid).then(request => {
+            this.service.implementDecisions(changeRequest).then(request => {
                 changeRequest = request;
 
                 // TODO: Determine if there is a way to update an individual record
@@ -272,6 +283,27 @@ export class RequestTableComponent {
                 this.error(response);
             });
         }
+    }
+
+    onReject(cr: ChangeRequest): void {
+        this.service.rejectChangeRequest(cr).then(() => {
+            // TODO: Determine if there is a way to update an individual record
+            // TODO : cr.statusLabel needs to be updated...
+            /*
+            cr.approvalStatus = "REJECTED";
+
+            let len = this.actions.length;
+            for (let i = 0; i < len; ++i) {
+                let action: AbstractAction = this.actions[i];
+
+                action.approvalStatus = "REJECTED";
+            }
+            */
+
+            this.refresh();
+        }).catch((response: HttpErrorResponse) => {
+            this.error(response);
+        });
     }
 
     getFirstGeoObjectInActions(request: ChangeRequest): GeoObjectOverTime {
@@ -322,6 +354,18 @@ export class RequestTableComponent {
         }
     }
 
+    onUpdate(changeRequest: ChangeRequest): void {
+        if (changeRequest != null) {
+            this.service.update(changeRequest).then(request => {
+                this.refresh();
+
+                this.isEditing = false;
+            }).catch((response: HttpErrorResponse) => {
+                this.error(response);
+            });
+        }
+    }
+
     applyActionStatusProperties(action: any): void {
         // var action = JSON.parse(JSON.stringify(this.action));
         // action.geoObjectJson = this.attributeEditor.getGeoObject();
@@ -349,7 +393,7 @@ export class RequestTableComponent {
                 this.toggleId = null;
             } else {
                 this.toggleId = oid;
-//                this.onSelect({ selected: [{ oid: oid }] });
+                //                this.onSelect({ selected: [{ oid: oid }] });
                 this.requests.forEach(req => {
                     if (req.oid === oid) {
                         this.actions = req.actions;
@@ -412,6 +456,14 @@ export class RequestTableComponent {
         } else {
             return true;
         }
+    }
+
+    onEditAttributes(): void {
+        this.isEditing = !this.isEditing;
+    }
+
+    canEdit(request: ChangeRequest) : boolean {
+        return (request.permissions.includes("WRITE_DETAILS") && this.isEditing);
     }
 
 }

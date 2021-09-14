@@ -168,7 +168,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngOnDestroy(): void {
-        this.map.remove();
         this.geomService.destroy();
         this.urlSubscriber.unsubscribe();
     }
@@ -223,7 +222,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.isEdit = false;
         }
 
-        this.geomService.stopEditing();
+        this.geomService.destroy(false);
 
         this.vot = null;
     }
@@ -481,6 +480,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     search(): void {
+        this.geomService.destroy(false);
         this.mapService.search(this.text, this.dateStr).then(data => {
             (<any> this.map.getSource("children")).setData(data);
 
@@ -519,11 +519,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     select(node: GeoObject, event: MouseEvent): void {
+        /*
         if (this.forDate == null) {
             this.displayDateRequiredError = true;
 
             return;
         }
+        */
 
         if (event != null) {
             event.stopPropagation();
@@ -535,6 +537,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.mode = this.MODE.VIEW;
 
             this.geomService.initialize(this.map, this.type.geometryType, !this.isEdit);
+            this.geomService.zoomToLayersExtent();
 
             //      const code = this.current.properties.code;
             //

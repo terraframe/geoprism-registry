@@ -93,12 +93,36 @@ public class HierarchyService
           if (typePermissions.canRead(type.getOrganizationCode(), serverType, serverType.getIsPrivate())
               && (isSRA || rps.isRA(gotOrgCode) || rps.isRM(gotOrgCode,serverType)))
           {
-            JsonObject typeView = new JsonObject();
-            typeView.addProperty("code", type.getCode());
-            typeView.addProperty("label", type.getLabel().getValue());
-            typeView.addProperty("orgCode", type.getOrganizationCode());
-            
-            allHierTypes.add(typeView);
+            if (serverType.getIsAbstract())
+            {
+              JsonObject superView = new JsonObject();
+              superView.addProperty("code", type.getCode());
+              superView.addProperty("label", type.getLabel().getValue());
+              superView.addProperty("orgCode", type.getOrganizationCode());
+              superView.addProperty("isAbstract", true);
+              
+              List<ServerGeoObjectType> subtypes = serverType.getSubtypes();
+              
+              for (ServerGeoObjectType subtype: subtypes)
+              {
+                JsonObject typeView = new JsonObject();
+                typeView.addProperty("code", subtype.getCode());
+                typeView.addProperty("label", subtype.getLabel().getValue());
+                typeView.addProperty("orgCode", subtype.getOrganization().getCode());
+                typeView.add("super", superView);
+                
+                allHierTypes.add(typeView);
+              }
+            }
+            else
+            {
+              JsonObject typeView = new JsonObject();
+              typeView.addProperty("code", type.getCode());
+              typeView.addProperty("label", type.getLabel().getValue());
+              typeView.addProperty("orgCode", type.getOrganizationCode());
+              
+              allHierTypes.add(typeView);
+            }
           }
         }
         
@@ -216,6 +240,11 @@ public class HierarchyService
   @Request(RequestType.SESSION)
   public JsonArray getHierarchiesForGeoObjectOverTime(String sessionId, String code, String typeCode)
   {
+    return this.getHierarchiesForGeoObjectOverTimeInReq(code, typeCode);
+  }
+  
+  public JsonArray getHierarchiesForGeoObjectOverTimeInReq(String code, String typeCode)
+  {
     ServerGeoObjectIF geoObject = ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, typeCode);
     ServerParentTreeNodeOverTime pot = geoObject.getParentsOverTime(null, true);
 
@@ -230,13 +259,14 @@ public class HierarchyService
 
     Collection<ServerHierarchyType> hierarchies = pot.getHierarchies();
 
-    Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
+    //Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
 
     for (ServerHierarchyType hierarchy : hierarchies)
     {
       Organization organization = hierarchy.getOrganization();
 
-      if ( ( isCR && !service.canAddChildCR(organization.getCode(), null, type) ) || ( !isCR && !service.canAddChild(organization.getCode(), null, type) ))
+      //if ( ( isCR && !service.canAddChildCR(organization.getCode(), null, type) ) || ( !isCR && !service.canAddChild(organization.getCode(), null, type) ))
+      if (!service.canViewChild(organization.getCode(), null, type))
       {
         pot.remove(hierarchy);
       }

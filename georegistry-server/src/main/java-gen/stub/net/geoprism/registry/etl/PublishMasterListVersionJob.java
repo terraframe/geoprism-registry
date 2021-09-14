@@ -52,6 +52,13 @@ public class PublishMasterListVersionJob extends PublishMasterListVersionJobBase
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
-    this.getMasterListVersion().publish();
+    if (this.getRunAsUser() == null)
+    {
+      this.getMasterListVersion().publishNoAuth();
+    }
+    else
+    {
+      this.getMasterListVersion().publish();
+    }
   }
 }

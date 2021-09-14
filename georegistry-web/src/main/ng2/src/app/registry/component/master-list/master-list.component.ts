@@ -16,7 +16,6 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, ProgressService } from "@shared/service";
 
 declare let acp: string;
-declare let $: any;
 
 @Component({
     selector: "master-list",
@@ -43,6 +42,8 @@ export class MasterListComponent implements OnInit, OnDestroy {
     isRefreshing: boolean = false;
     isWritable: boolean = false;
 
+    filterInvalid = true;
+
     /*
      * Reference to the modal current showing
     */
@@ -59,7 +60,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         const oid = this.route.snapshot.paramMap.get("oid");
-        this.isPublished = (this.route.snapshot.paramMap.get("published") == "true");
+        this.isPublished = (this.route.snapshot.paramMap.get("published") === "true");
 
         this.service.getMasterListVersion(oid).then(version => {
             this.list = version;
@@ -98,11 +99,14 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
     }
 
+    onFilterInvalidChange() {
+        this.onPageChange(1);
+    }
 
     onPageChange(pageNumber: number): void {
         this.message = null;
 
-        this.service.data(this.list.oid, pageNumber, this.page.pageSize, this.filter, this.sort).then(page => {
+        this.service.data(this.list.oid, pageNumber, this.page.pageSize, this.getFilter(), this.sort).then(page => {
             this.page = page;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
@@ -125,6 +129,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
         });
 
         this.filter = [];
+        this.filterInvalid = true;
         this.selected = [];
 
         this.onPageChange(1);
@@ -134,12 +139,22 @@ export class MasterListComponent implements OnInit, OnDestroy {
         attribute.isCollapsed = !attribute.isCollapsed;
     }
 
+    getFilter(): { attribute: string, value: string, label: string }[] {
+        let newFilter = JSON.parse(JSON.stringify(this.filter));
+
+        if (this.filterInvalid) {
+            newFilter.push({ attribute: "invalid", value: "false" });
+        }
+
+        return newFilter;
+    }
+
     getValues(attribute: any): void {
         return Observable.create((observer: any) => {
             this.message = null;
 
             // Get the valid values
-            this.service.values(this.list.oid, attribute.search, attribute.name, attribute.base, this.filter).then(options => {
+            this.service.values(this.list.oid, attribute.search, attribute.name, attribute.base, this.getFilter()).then(options => {
                 options.unshift({ label: "[" + this.localizeService.decode("masterlist.nofilter") + "]", value: null });
 
                 observer.next(options);
@@ -153,6 +168,11 @@ export class MasterListComponent implements OnInit, OnDestroy {
         this.isRefreshing = (progress.current < progress.total);
 
         this.pService.progress(progress);
+
+        if (!this.isRefreshing) {
+            // Refresh the resultSet
+            this.onPageChange(1);
+        }
     }
 
     handleDateChange(attribute: any): void {
@@ -162,7 +182,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
         this.filter = this.filter.filter(f => f.attribute !== attribute.base);
         this.selected = this.selected.filter(s => s !== attribute.base);
 
-        if (attribute.value != null && (attribute.value.start !== "" || attribute.value.end !== "")) {
+        if (attribute.value != null && ((attribute.value.start != null && attribute.value.start !== "") || (attribute.value.end != null && attribute.value.end !== ""))) {
             let label = "[" + attribute.label + "] : [";
 
             if (attribute.value.start != null) {
@@ -231,7 +251,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
     }
 
     isFilterable(attribute: any): boolean {
-        return attribute.type !== "none" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
+        return attribute.type !== "none" && attribute.name !== "invalid" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
     }
 
     onEdit(data): void {
@@ -282,9 +302,9 @@ export class MasterListComponent implements OnInit, OnDestroy {
         });
         this.bsModalRef.content.onFormat.subscribe(format => {
             if (format === "SHAPEFILE") {
-                window.location.href = acp + "/master-list/export-shapefile?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.filter));
+                window.location.href = acp + "/master-list/export-shapefile?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.getFilter()));
             } else if (format === "EXCEL") {
-                window.location.href = acp + "/master-list/export-spreadsheet?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.filter));
+                window.location.href = acp + "/master-list/export-spreadsheet?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.getFilter()));
             }
         });
     }

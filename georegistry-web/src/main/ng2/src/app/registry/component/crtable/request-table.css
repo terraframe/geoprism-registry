@@ -8,7 +8,8 @@
 	color: orange;
 }
 
-.status-accepted {
+.status-accepted,
+.status-partial {
 	color: #6BA542;
 }
 
@@ -19,7 +20,8 @@
 .status-pending-container {
 	border: solid 2px orange;
 }
-.status-accepted-container {
+.status-accepted-container,
+.status-partial-container {
 	border: solid 2px #6BA542;
 }
 .status-rejected-container {

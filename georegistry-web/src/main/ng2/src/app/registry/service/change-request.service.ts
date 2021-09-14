@@ -16,7 +16,7 @@ export class ChangeRequestService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    implementDecisions(requestId: string): Promise<ChangeRequest> {
+    implementDecisions(request: ChangeRequest): Promise<ChangeRequest> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -24,7 +24,22 @@ export class ChangeRequestService {
         this.eventService.start();
 
         return this.http
-            .post<ChangeRequest>(acp + "/changerequest/implement-decisions", JSON.stringify({ requestId: requestId }), { headers: headers })
+            .post<ChangeRequest>(acp + "/changerequest/implement-decisions", JSON.stringify({ request: request }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    update(request: ChangeRequest): Promise<ChangeRequest> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<ChangeRequest>(acp + "/changerequest/update", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -65,26 +80,19 @@ export class ChangeRequestService {
             .toPromise();
     }
 
-    /*
-    getRequestDetails(requestId: string): Promise<ChangeRequest> {
-
-        let params: HttpParams = new HttpParams();
-        params = params.set("pageSize", pageSize.toString());
-        params = params.set("pageNumber", pageNumber.toString());
-        params = params.set("filter", filter);
+    rejectChangeRequest(request: ChangeRequest): Promise<void> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
 
         this.eventService.start();
 
-        return this.http.get<PageResult<ChangeRequest>>(acp + "/changerequest/get-all-requests", { params: params })
+        return this.http.post<void>(acp + "/changerequest/reject", JSON.stringify({ request: request }), { headers: headers })
             .pipe(finalize(() => {
-
                 this.eventService.complete();
-
             }))
             .toPromise();
-
     }
-    */
 
     delete(requestId: string): Promise<string> {
         let headers = new HttpHeaders({

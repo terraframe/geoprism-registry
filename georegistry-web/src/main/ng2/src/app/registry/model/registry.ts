@@ -44,6 +44,7 @@ export class GeoObject {
         sequence: string
         createDate: string,
         lastUpdateDate: string,
+        invalid: boolean,
         writable?: boolean
     };
 }
@@ -139,6 +140,7 @@ export class ConflictMessage {
 export interface TimeRangeEntry {
     startDate: string;
     endDate: string;
+    value?: any;
     conflictMessage?: any[];
     summaryKeyData?: SummaryKey;
 }
@@ -170,6 +172,8 @@ export class AttributeType {
     precision?: number;
     scale?: number;
     isValid?: boolean;
+    isValidReason?: {timeConflict: boolean, existConflict: boolean, dateField: boolean};
+    isValidReasonHierarchy?: any;
 
     constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 

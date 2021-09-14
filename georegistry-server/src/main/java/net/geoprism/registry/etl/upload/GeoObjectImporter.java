@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.etl.upload;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
+import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
@@ -55,7 +57,9 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
@@ -65,15 +69,15 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeoregistryProperties;
-import net.geoprism.registry.StatusValueException;
 import net.geoprism.registry.etl.InvalidExternalIdException;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.geoobject.ImportOutOfRangeException;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -209,10 +213,10 @@ public class GeoObjectImporter implements ObjectImporterIF
       {
         if (this.getParent() != null)
         {
-          ServerGeoObjectIF parent = this.getParent();
           // ServerGeoObjectIF serverGo = this.getServerGO();
-
-          List<Location> locations = GeoObjectImporter.this.configuration.getLocations();
+          final ServerGeoObjectIF parent = this.getParent();
+          final List<Location> locations = GeoObjectImporter.this.configuration.getLocations();
+          final ServerHierarchyType hierarchy = GeoObjectImporter.this.configuration.getHierarchy();
 
           String[] types = new String[locations.size() - 1];
 
@@ -222,15 +226,21 @@ public class GeoObjectImporter implements ObjectImporterIF
             types[i] = location.getType().getCode();
           }
 
-          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
-
-          ServerHierarchyType hierarchy = GeoObjectImporter.this.configuration.getHierarchy();
-
-          ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
-
           ServerParentTreeNode tnParent = new ServerParentTreeNode(parent, hierarchy, GeoObjectImporter.this.configuration.getStartDate(), GeoObjectImporter.this.configuration.getEndDate(), null);
 
-          tnParent.addParent(ptn);
+          ServerParentTreeNodeOverTime grandParentsOverTime = parent.getParentsOverTime(null, true);
+          
+          if (grandParentsOverTime != null && grandParentsOverTime.hasEntries(hierarchy))
+          {
+            List<ServerParentTreeNode> entries = grandParentsOverTime.getEntries(hierarchy);
+            
+            if (entries != null && entries.size() > 0)
+            {
+              ServerParentTreeNode ptn = grandParentsOverTime.getEntries(hierarchy).get(0);
+              
+              tnParent.addParent(ptn);
+            }
+          }
 
           ServerParentTreeNodeOverTime parentsOverTime = new ServerParentTreeNodeOverTime(GeoObjectImporter.this.configuration.getType());
           parentsOverTime.add(hierarchy, tnParent);
@@ -305,11 +315,10 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         entity = service.newInstance(this.configuration.getType());
         entity.setCode(geoId);
+        entity.setInvalid(false);
 
         try
         {
-          entity.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
-
           LocalizedValue entityName = this.getName(row);
           if (entityName != null && this.hasValue(entityName))
           {
@@ -530,6 +539,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
         serverGo = service.newInstance(this.configuration.getType());
         serverGo.setCode(geoId);
+        serverGo.setInvalid(false);
       }
       else
       {
@@ -539,11 +549,6 @@ public class GeoObjectImporter implements ObjectImporterIF
       try
       {
         parentBuilder.setServerGO(serverGo);
-
-        if (isNew && this.configuration.getFunction(DefaultAttribute.STATUS.getName()) == null)
-        {
-          serverGo.setStatus(GeoObjectStatus.ACTIVE, this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
 
         LocalizedValue entityName = this.getName(row);
         if (entityName != null && this.hasValue(entityName))
@@ -573,6 +578,27 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           serverGo.setUid(ServiceFactory.getIdService().getUids(1)[0]);
         }
+        
+        // Set exists first so we can validate attributes on it
+        ShapefileFunction existsFunction = this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
+        
+        if (existsFunction != null)
+        {
+          Object value = existsFunction.getValue(row);
+          
+          if (value != null && !this.isEmptyString(value))
+          {
+            this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), value);
+          }
+        }
+        else if (isNew)
+        {
+          ValueOverTime defaultExists = ((VertexServerGeoObject) serverGo).buildDefaultExists();
+          if (defaultExists != null)
+          {
+            serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
+          }
+        }
 
         Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
         Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -581,7 +607,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           String attributeName = entry.getKey();
 
-          if (!attributeName.equals(GeoObject.CODE))
+          if (!attributeName.equals(GeoObject.CODE) && !attributeName.equals(DefaultAttribute.EXISTS.getName()))
           {
             ShapefileFunction function = this.configuration.getFunction(attributeName);
 
@@ -593,6 +619,32 @@ public class GeoObjectImporter implements ObjectImporterIF
 
               if (value != null && !this.isEmptyString(value))
               {
+                if (!(existsFunction == null && isNew))
+                {
+                  try
+                  {
+                    ((VertexServerGeoObject) serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(), attributeName, this.configuration.getStartDate(), this.configuration.getEndDate());
+                  }
+                  catch (ValueOutOfRangeException e)
+                  {
+                    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
+                    
+                    ImportOutOfRangeException ex = new ImportOutOfRangeException();
+                    ex.setStartDate(format.format(this.configuration.getStartDate()));
+                    
+                    if (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
+                    {
+                      ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
+                    }
+                    else
+                    {
+                      ex.setEndDate(format.format(this.configuration.getEndDate()));
+                    }
+                    
+                    throw ex;
+                  }
+                }
+                
                 this.setValue(serverGo, attributeType, attributeName, value);
               }
               else if (this.configuration.getCopyBlank())
@@ -629,7 +681,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         data.setGoJson(goJson);
         data.setNew(isNew);
         data.setParentBuilder(parentBuilder);
-
+        
         serverGo.apply(true);
       }
       finally
@@ -1095,26 +1147,6 @@ public class GeoObjectImporter implements ObjectImporterIF
     if (attributeName.equals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       entity.setDisplayLabel((LocalizedValue) value, this.configuration.getStartDate(), this.configuration.getEndDate());
-    }
-    else if (attributeName.equals(DefaultAttribute.STATUS.getName()))
-    {
-      if (value != null)
-      {
-        try
-        {
-          GeoObjectStatus status = GeoObjectStatus.valueOf((String) value);
-
-          entity.setStatus(status, this.configuration.getStartDate(), this.configuration.getEndDate());
-        }
-        catch (IllegalArgumentException e)
-        {
-          throw new StatusValueException(e);
-        }
-      }
-      else
-      {
-        entity.setStatus(null, this.configuration.getStartDate(), this.configuration.getEndDate());
-      }
     }
     else if (attributeType instanceof AttributeClassificationType)
     {

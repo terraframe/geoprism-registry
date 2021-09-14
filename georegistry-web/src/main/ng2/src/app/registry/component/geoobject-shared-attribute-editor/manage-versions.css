@@ -9,6 +9,11 @@ table {
   /* display:inline-block; */
 }
 
+p.warning-text.display-current-value {
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .version-column-wrapper {
 	padding-top: 0px;
 	padding-left: 0px;

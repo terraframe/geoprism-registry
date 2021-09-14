@@ -31,10 +31,10 @@ overflow-x: hidden;
 }
 
 *{
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--cgr-font), "Roboto", sans-serif;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6{
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--cgr-font), "Roboto", sans-serif;
 }
 
 #main-content-frame {

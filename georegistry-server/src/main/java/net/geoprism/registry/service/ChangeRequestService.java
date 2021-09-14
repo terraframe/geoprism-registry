@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -28,6 +28,7 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -49,12 +50,27 @@ import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestPermissionService;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.ChangeRequestQuery;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.view.Page;
 
 public class ChangeRequestService
 {
   public ChangeRequestPermissionService permService = new ChangeRequestPermissionService();
+
+  @Request(RequestType.SESSION)
+  public void reject(String sessionId, String request)
+  {
+    ChangeRequest input = ChangeRequest.fromJSON(request);
+    ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
+
+    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.WRITE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.READ, ChangeRequestPermissionAction.READ_DETAILS)))
+    {
+      throw new CGRPermissionException();
+    }
+
+    current.reject(input.getMaintainerNotes(), input.getAdditionalNotes());
+  }
 
   @Request(RequestType.SESSION)
   public void deleteDocumentCR(String sessionId, String crOid, String vfOid)
@@ -178,7 +194,7 @@ public class ChangeRequestService
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
     query.ORDER_BY_DESC(query.getCreateDate());
 
-    if (filter != null && !filter.equals("ALL"))
+    if (filter != null && filter.length() > 0 && !filter.equals("ALL"))
     {
       query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.valueOf(filter)));
     }
@@ -307,18 +323,35 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject implementDecisions(String sessionId, String requestId)
+  public JsonObject implementDecisions(String sessionId, String request)
   {
-    ChangeRequest request = ChangeRequest.get(requestId);
+    ChangeRequest input = ChangeRequest.fromJSON(request);
+    ChangeRequest current = ChangeRequest.get(JsonParser.parseString(request).getAsJsonObject().get("oid").getAsString());
 
-    if (!this.permService.getPermissions(request).containsAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE)))
+    if (!this.permService.getPermissions(current).containsAll(Arrays.asList(ChangeRequestPermissionAction.EXECUTE, ChangeRequestPermissionAction.WRITE_APPROVAL_STATUS, ChangeRequestPermissionAction.WRITE)))
     {
       throw new CGRPermissionException();
     }
 
-    request.execute(true);
+    current.execute(input.getMaintainerNotes(), input.getAdditionalNotes());
 
-    return request.getDetails();
+    return current.getDetails();
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject update(String sessionId, String cr)
+  {
+    JsonObject obj = JsonParser.parseString(cr).getAsJsonObject();
+    String oid = obj.get("oid").getAsString();
+    JsonArray actions = obj.get("actions").getAsJsonArray();
+    String notes = obj.get("contributorNotes").getAsString();
+
+    ChangeRequest current = ChangeRequest.get(oid);
+        
+    ServerGeoObjectService service = new ServerGeoObjectService();
+    service.updateChangeRequest(current, notes, actions);
+
+    return current.getDetails();
   }
 
   @Request(RequestType.SESSION)
@@ -356,4 +389,5 @@ public class ChangeRequestService
       }
     }
   }
+
 }

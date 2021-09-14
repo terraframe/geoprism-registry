@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.view.action;
 
 import java.util.Date;
@@ -30,7 +48,6 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.GeometryTypeException;
 import net.geoprism.registry.RegistryJsonTimeFormatter;
 import net.geoprism.registry.action.ExecuteOutOfDateChangeRequestException;
@@ -260,55 +277,55 @@ public class UpdateValueOverTimeView
           }
         }
       }
-      else if (attype.getName().equals(DefaultAttribute.STATUS.getName()))
-      {
-        if (this.newValue.isJsonNull())
-        {
-          if (vot != null)
-          {
-            vot.setValue(null);
-          }
-          else
-          {
-            looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, null));
-          }
-        }
-        else
-        {
-          JsonArray ja = this.newValue.getAsJsonArray();
-          
-          if (ja.size() > 0)
-          {
-            String code = ja.get(0).getAsString();
-            
-            if (code == null || code.length() == 0)
-            {
-              if (vot != null)
-              {
-                vot.setValue(null);
-              }
-              else
-              {
-                looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, null));
-              }
-            }
-            else
-            {
-              Term value = ( (AttributeTermType) attype ).getTermByCode(code).get();
-              GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(value);
-    
-              if (vot != null)
-              {
-                vot.setValue(gos.getOid());
-              }
-              else
-              {
-                looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, gos.getOid()));
-              }
-            }
-          }
-        }
-      }
+//      else if (attype.getName().equals(DefaultAttribute.EXISTS.getName()))
+//      {
+//        if (this.newValue.isJsonNull())
+//        {
+//          if (vot != null)
+//          {
+//            vot.setValue(null);
+//          }
+//          else
+//          {
+//            looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, null));
+//          }
+//        }
+//        else
+//        {
+//          JsonArray ja = this.newValue.getAsJsonArray();
+//          
+//          if (ja.size() > 0)
+//          {
+//            String code = ja.get(0).getAsString();
+//            
+//            if (code == null || code.length() == 0)
+//            {
+//              if (vot != null)
+//              {
+//                vot.setValue(null);
+//              }
+//              else
+//              {
+//                looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, null));
+//              }
+//            }
+//            else
+//            {
+//              Term value = ( (AttributeTermType) attype ).getTermByCode(code).get();
+//              GeoObjectStatus gos = ConversionService.getInstance().termToGeoObjectStatus(value);
+//    
+//              if (vot != null)
+//              {
+//                vot.setValue(gos.getOid());
+//              }
+//              else
+//              {
+//                looseVotc.add(new ValueOverTime(this.newStartDate, this.newEndDate, gos.getOid()));
+//              }
+//            }
+//          }
+//        }
+//      }
       else
       {
         Object convertedValue = null;

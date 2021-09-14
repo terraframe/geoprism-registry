@@ -180,7 +180,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     }
 
     ngOnDestroy(): void {
-        this.map.remove();
         this.geomService.destroy();
     }
 
@@ -224,6 +223,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
     onModeChange(value: boolean): void {
         this.isEdit = value;
+        this.geomService.destroy(false);
     }
 
     initMap(): void {

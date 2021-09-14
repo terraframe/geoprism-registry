@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -99,6 +99,14 @@ public class ChangeRequestController
 
     return new RestResponse();
   }
+  
+  @Endpoint(url = "reject", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF reject(ClientRequestIF request, @RequestParamter(name = "request") String cr)
+  {
+    service.reject(request.getSessionId(), cr);
+
+    return new RestResponse();
+  }
 
   /**
    * Returns a paginated response of all change requests that your user has
@@ -158,13 +166,21 @@ public class ChangeRequestController
    * @return Empty response
    */
   @Endpoint(error = ErrorSerialization.JSON, url = "implement-decisions", method = ServletMethod.POST)
-  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId)
+  public ResponseIF implementDecisions(ClientRequestIF request, @RequestParamter(name = "request") String cr)
   {
-    JsonObject details = service.implementDecisions(request.getSessionId(), requestId);
+    JsonObject details = service.implementDecisions(request.getSessionId(), cr);
 
     return new RestBodyResponse(details);
   }
 
+  @Endpoint(error = ErrorSerialization.JSON, url = "update", method = ServletMethod.POST)
+  public ResponseIF update(ClientRequestIF request, @RequestParamter(name = "request") String cr)
+  {
+    JsonObject details = service.update(request.getSessionId(), cr);
+    
+    return new RestBodyResponse(details);
+  }
+  
   @Endpoint(error = ErrorSerialization.JSON, url = "delete", method = ServletMethod.POST)
   public ResponseIF deleteChangeRequest(ClientRequestIF request, @RequestParamter(name = "requestId") String requestId) throws JSONException
   {

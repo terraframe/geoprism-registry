@@ -2,19 +2,19 @@
   <div class="col-md-12">
     <div class="form-group button-row">
 
-      <a [routerLink]="" (click)="filter('ALL')" [ngClass]="filterCriteria === 'ALL' ? 'cr-filter-link-active' : ''" >
+      <a [routerLink]="" (click)="filter('ALL')" [ngClass]="filterCriteria === 'ALL' ? 'cr-filter-link-active' : ''" style="border-bottom: 1px solid;" >
         <localize key="change.request.all.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('PENDING')" [ngClass]="filterCriteria === 'PENDING' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
+      <a [routerLink]="" (click)="filter('PENDING')" [ngClass]="filterCriteria === 'PENDING' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;border-bottom:1px solid;">
         <localize key="change.request.pending.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;">
+      <a [routerLink]="" (click)="filter('ACCEPTED')" [ngClass]="filterCriteria === 'ACCEPTED' ? 'cr-filter-link-active' : ''" style="margin-left: 5px;border-bottom:1px solid;">
         <localize key="change.request.accepted.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('PARTIAL')" [ngClass]="filterCriteria === 'PARTIAL' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
+      <a [routerLink]="" (click)="filter('PARTIAL')" [ngClass]="filterCriteria === 'PARTIAL' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;border-bottom:1px solid;" >
         <localize key="change.request.partial.filter.link"></localize>
       </a>
-      <a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;" >
+      <a [routerLink]="" (click)="filter('REJECTED')" [ngClass]="filterCriteria === 'REJECTED' ? 'cr-filter-link-active' : ''"style="margin-left: 5px;border-bottom:1px solid;" >
         <localize key="change.request.rejected.filter.link"></localize>
       </a>
 
@@ -53,7 +53,7 @@
                </span>
             </td>
             <td class="col-md-2">
-              <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-rejected':req.approvalStatus === 'REJECTED'}">
+              <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-partial':req.approvalStatus === 'PARTIAL', 'status-rejected':req.approvalStatus === 'REJECTED'}">
                  <strong>{{req.statusLabel}}</strong>
               </h5>
             </td>
@@ -63,14 +63,17 @@
           </tr>
           
           <!-- Action panel only shows when activated with click -->
-          <tr [@fadeInOut] *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;" [ngClass]="{'status-pending-container':req.approvalStatus === 'PENDING', 'status-accepted-container':req.approvalStatus === 'ACCEPTED', 'status-rejected-container':req.approvalStatus === 'REJECTED'}">
+          <tr [@fadeInOut] *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;" [ngClass]="{'status-pending-container':req.approvalStatus === 'PENDING', 'status-accepted-container':req.approvalStatus === 'ACCEPTED', 'status-partial-container':req.approvalStatus === 'PARTIAL', 'status-rejected-container':req.approvalStatus === 'REJECTED'}">
             
             <td colspan="5">
               <div class="geoobject-panel-header">
               
                     <div>
                         <h3 style="margin-top: 10px;">{{req.geoObject.label}}</h3>
-                        <h4>{{req.geoObject.code}}</h4>
+                        <h4 style="font-style: italic;">{{req.geoObject.code}}</h4>
+                        
+                        <h4 *ngIf="req.type === 'UpdateGeoObject'" style="font-style: italic;"><localize key="change.request.type.update.geoobject.label"></localize></h4>
+                        <h4 *ngIf="req.type === 'CreateGeoObject'" style="font-style: italic;"><localize key="change.request.type.create.geoobject.label"></localize></h4>
                     </div>
               </div>
                   
@@ -87,7 +90,7 @@
                 
                   <div *ngIf="req.permissions.includes('READ_CONTRIBUTOR_NOTES')" class="form-group" style="margin-top:20px;">
                      <label for="contribNotesInput-{{req.oid}}"> <localize key="change.request.contributor.notes.label"></localize> </label>
-                     <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="req.contributorNotes" disabled></textarea>
+                     <textarea id="contribNotesInput-{{req.oid}}" class="form-control" style="height:90px;max-width:100%;" [(ngModel)]="req.contributorNotes" [disabled]="!req.permissions.includes('WRITE_DETAILS')"></textarea>
                   </div>  
                   
                   <div>
@@ -103,13 +106,14 @@
 	                      
 	                         <geoobject-shared-attribute-editor *ngIf="req"
 	                              #attributeEditor
-	                              [readOnly]="!req.permissions.includes('WRITE_DETAILS')"  
+	                              [readOnly]="!canEdit(req)"  
 	                              [geoObjectType]="req.current.geoObjectType"
-	                              [geoObjectData]="{'geoObject': req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson, 'actions': req.actions}"
+                                [postGeoObject]="req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson" 
 	                              [changeRequest]="req"
-	                              [forDate]="today"
 	                              [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
-	                              [isGeometryInlined]="true">
+	                              [isGeometryInlined]="true"
+                                [isNew]="req.type === 'CreateGeoObject'"
+                                (valid)="setValid($event)">
 	                         </geoobject-shared-attribute-editor>
 	                         
 	                       </div>
@@ -143,7 +147,7 @@
 	                            <localize key="change.request.no.documents.label"></localize>
 	                          </p>
 	                        
-	                          <div *ngIf="req.permissions.includes('WRITE_DOCUMENTS')" style="padding:10px 0;">
+	                          <div *ngIf="req.permissions.includes('WRITE_DOCUMENTS') && isEditing" style="padding:10px 0;">
 	                              <!-- Limit file types with: accept=".xls, .xlsx, .pdf, .doc" -->
 	                              <input class="ghost-input" style="display:inline-block;padding:0;height:auto;border-radius:0;margin-top:10px;" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" required />
 	                              
@@ -158,17 +162,31 @@
 	                  </div> 
 	  
 	  
-	                  <div *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS') || req.permissions.includes('DELETE')" class="button-holder" style="margin-bottom:20px;">
+	                  <div *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS') || req.permissions.includes('DELETE')" class="button-holder" style="margin-bottom:20px;min-height:40px;">
 	                    <span *ngIf="req.permissions.includes('WRITE_APPROVAL_STATUS')">
 	                      <button [disabled]="req.approvalStatus !== 'PENDING'" type="submit" (click)="onExecute(req)" class="btn btn-primary" style="margin:0;" role="button" [title]="'change.request.implement.decisions.btn.hover' | localize">
-	                        <localize key="change.request.accept.changes.btn"></localize>
+	                        <localize [key]="req.type === 'UpdateGeoObject' ? 'change.request.accept.changes.btn' : 'change.request.accept.newGeoObject.btn'"></localize>
 	                      </button>
+	                      <button [disabled]="req.approvalStatus !== 'PENDING'" *ngIf="req.type === 'CreateGeoObject'" type="submit" (click)="onReject(req)" class="btn btn-danger" style="margin:0 10px;" role="button" [title]="'change.request.reject.all.btn.hover' | localize">
+                            <localize key="change.request.reject.all.btn"></localize>
+                          </button>
 	                    </span>
-	                    
-	                    <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!req.permissions.includes('DELETE')" (click)="req.createdBy === getUsername() && onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
-	                      <localize key="change.request.delete.request.btn"></localize>
-	                    </button>
-	                    
+
+                        <span *ngIf="isValid && req.permissions.includes('WRITE_DETAILS') && req.createdBy === getUsername()">
+                          <button type="submit" *ngIf="!isEditing" (click)="onEditAttributes()" class="btn btn-primary" role="button">
+                            <localize key="changeovertime.manageVersions.button.label"></localize>
+                          </button>
+                          <button type="submit" *ngIf="isEditing" (click)="onEditAttributes()" class="btn btn-default" role="button">
+                            <localize key="modal.button.cancel"></localize>
+                          </button>
+                          <button type="submit" role="button" class="btn btn-primary" *ngIf="isEditing" (click)="onUpdate(req)" [title]="'modal.button.update' | localize" >
+                            <localize key="modal.button.update"></localize>
+                          </button>
+                          
+                          <button type="submit" role="button" class="btn btn-danger pull-right" [disabled]="!isEditing" *ngIf="req.permissions.includes('DELETE') && req.createdBy === getUsername()" (click)="onDelete(req)" [title]="'change.request.delete.request.hover' | localize" >
+                            <localize key="change.request.delete.request.btn"></localize>
+                          </button>
+                        </span>
 	                  </div>
                   </div>
                 </div>

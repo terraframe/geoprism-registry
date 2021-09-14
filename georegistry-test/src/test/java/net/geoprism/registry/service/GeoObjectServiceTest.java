@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.GeoObjectTypeNotFoundException;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.geotools.geometry.jts.GeometryBuilder;
@@ -103,7 +102,7 @@ public class GeoObjectServiceTest
 
         FastTestDataset.CAMBODIA.assertEquals(geoObj);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
   }
@@ -121,7 +120,7 @@ public class GeoObjectServiceTest
         
         FastTestDataset.PROV_CENTRAL_PRIVATE.assertEquals(geoObj);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
 
@@ -157,7 +156,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
   }
@@ -188,7 +187,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
 
@@ -249,7 +248,7 @@ public class GeoObjectServiceTest
 
         TEST_GO.assertEquals(returned);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, returned.getStatus().getCode());
+        Assert.assertEquals(true, returned.getExists());
 
         TEST_GO.assertApplied();
         TEST_GO.delete();
@@ -292,7 +291,7 @@ public class GeoObjectServiceTest
 
         TEST_GO_PRIVATE.assertEquals(returned);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, returned.getStatus().getCode());
+        Assert.assertEquals(true, returned.getExists());
 
         TEST_GO_PRIVATE.assertApplied();
         TEST_GO_PRIVATE.delete();

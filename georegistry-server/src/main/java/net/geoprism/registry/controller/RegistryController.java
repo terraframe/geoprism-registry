@@ -58,6 +58,7 @@ import com.runwaysdk.mvc.RestResponse;
 import com.runwaysdk.mvc.ViewResponse;
 
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.AccountService;
 import net.geoprism.registry.service.ChangeRequestService;
@@ -82,7 +83,15 @@ public class RegistryController
   @Endpoint(method = ServletMethod.GET)
   public ResponseIF manage()
   {
-    return new ViewResponse(JSP_DIR + INDEX_JSP);
+    ViewResponse resp = new ViewResponse(JSP_DIR + INDEX_JSP);
+    
+    String customFont = GeoregistryProperties.getCustomFont();
+    if (customFont != null && customFont.length() > 0)
+    {
+      resp.set("customFont", customFont);
+    }
+    
+    return resp;
   }
 
 //  /**

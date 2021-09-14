@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -68,6 +69,7 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.service.ExcelService;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.test.SchedulerTestUtils;
+import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.TestGeoObjectInfo;
 import net.geoprism.registry.test.USATestData;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -266,7 +268,7 @@ public class GeoObjectImporterTest
 
     Assert.assertEquals(expected, geometry);
 
-    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
+    GeoObjectOverTime coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectOverTimeByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
 
     Double cd1_lat = new Double(4.3333);
     Double cd1_lon = new Double(1.222);
@@ -274,7 +276,7 @@ public class GeoObjectImporterTest
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point cd1_expected = new Point(new CoordinateSequence2D(cd1_lon, cd1_lat), cd1_factory);
 
-    Geometry cd1_geometry = coloradoDistOne.getGeometry();
+    Geometry cd1_geometry = coloradoDistOne.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
@@ -321,7 +323,7 @@ public class GeoObjectImporterTest
       }
     }
 
-    GeoObject coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
+    GeoObjectOverTime coloradoDistOne = ServiceFactory.getRegistryService().getGeoObjectOverTimeByCode(testData.clientRequest.getSessionId(), testData.CO_D_ONE.getCode(), testData.DISTRICT.getCode());
 
     Double cd1_lat = new Double(4.3333);
     Double cd1_lon = new Double(1.222);
@@ -329,7 +331,7 @@ public class GeoObjectImporterTest
     GeometryFactory cd1_factory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
     Point cd1_expected = new Point(new CoordinateSequence2D(cd1_lon, cd1_lat), cd1_factory);
 
-    Geometry cd1_geometry = coloradoDistOne.getGeometry();
+    Geometry cd1_geometry = coloradoDistOne.getGeometry(TestDataSet.DEFAULT_OVER_TIME_DATE);
     Assert.assertEquals(cd1_expected, cd1_geometry);
 
     JSONObject json = new JSONObject(new ETLService().getImportErrors(testData.clientRequest.getSessionId(), hist.getOid(), false, 100, 1).toString());
@@ -594,7 +596,7 @@ public class GeoObjectImporterTest
 
   private GeoObjectImportConfiguration getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)
   {
-    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), null, null, "test-spreadsheet.xlsx", istream, strategy, false);
+    JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), testData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "test-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 

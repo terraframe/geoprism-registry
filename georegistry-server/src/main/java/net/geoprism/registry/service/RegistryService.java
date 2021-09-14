@@ -992,11 +992,20 @@ public class RegistryService
 
       StringBuilder statement = new StringBuilder();
       statement.append("select from " + type.getMdVertex().getDBClassName() + " where ");
+      
+      // Must be a child of parent type
       statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
+      
+      // Must have display label we expect
       statement.append("AND displayLabel_cot CONTAINS (");
       statement.append("  :date BETWEEN startDate AND endDate");
       statement.append("  AND " + AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
-      statement.append(") ORDER BY location.code ASC LIMIT 10");
+      statement.append(") ");
+      
+      // Must not be invalid
+      statement.append("AND invalid=false ");
+      
+      statement.append("ORDER BY location.code ASC LIMIT 10");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
       query.setParameter("date", date);
@@ -1089,6 +1098,8 @@ public class RegistryService
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
     ServerGeoObjectIF go = service.newInstance(type);
+    
+    go.setInvalid(false);
 
     final GeoObjectOverTime goot = go.toGeoObjectOverTime();
     ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true);

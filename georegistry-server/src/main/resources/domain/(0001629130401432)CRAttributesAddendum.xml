@@ -1,0 +1,89 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.accept.newGeoObject.btn">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.accept.newGeoObject.btn" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Approve And Create New GeoObject" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.reject.all.btn">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.reject.all.btn" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reject Change Request" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.reject.all.btn.hover">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.reject.all.btn.hover" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reject the Change Request. The Geo-Object in this request will not be created and the request will be finalized." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.implement.decisions.btn.hover">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.implement.decisions.btn.hover" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Execute all approved actions and finalize the Change Request." />
+        </attributeStruct>
+      </object>
+        
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action.reject.btn.hover">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.action.reject.btn.hover" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reject all changes for this attribute. Request will not be finalized until changes are implemented." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action.accept.btn.hover">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.action.accept.btn.hover" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Accept all changes for this attribute. Request will not be finalized until changes are implemented." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.action.pending.btn.hover">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.action.pending.btn.hover" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Reset all changes for this attribute back to pending status. Request cannot be implemented while attributes are at pending status." />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.action.ChangeRequest">
+        <create>
+          <attributes>
+            <text name="additionalNotes" label="Additional Notes" required="false" />
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

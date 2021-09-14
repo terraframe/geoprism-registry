@@ -1,6 +1,7 @@
 package net.geoprism.registry;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -62,11 +63,13 @@ import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.primitive.IdDt;
 import ca.uhn.fhir.parser.DataFormatException;
+import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.api.MethodOutcome;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.etl.fhir.AbstractFhirResourceProcessor;
+import net.geoprism.registry.etl.fhir.Facility;
 import net.geoprism.registry.etl.fhir.FhirResourceImporter;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -155,8 +158,8 @@ public class Sandbox
   private static void test() throws Exception
   {
     // String url = "http://hapi.fhir.org/baseR4";
-    // String url = "http://localhost:8080/fhir";
-    String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
+     String url = "http://localhost:8080/fhir";
+//    String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
     // Create a client
 
     // testImport(url);
@@ -173,7 +176,9 @@ public class Sandbox
     // // exportType(client, date, ServerGeoObjectType.get("District"));
     // // exportType(client, date, ServerGeoObjectType.get("Village"));
     //
-    exportJson(url, new File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
+    // exportJson(url, new
+    // File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
+    exportBundle(url, new File("/home/jsmethie/Documents/IntraHealth/Bundle.json"));
   }
 
   public static void testImport(String url) throws IOException, ClientProtocolException, InterruptedException
@@ -470,6 +475,50 @@ public class Sandbox
     // FhirContext.forR4().newJsonParser().encodeResourceToWriter(context.bundle,
     // new FileWriter(new
     // File("/home/jsmethie/Documents/IntraHealth/demo.json")));
+  }
+
+  private static void exportBundle(String url, File file) throws JsonIOException, JsonSyntaxException, DataFormatException, IOException
+  {
+    FhirContext ctx = FhirContext.forR4();
+
+    IRestfulClientFactory factory = ctx.getRestfulClientFactory();
+    factory.setSocketTimeout(-1);
+
+    IGenericClient client = factory.newGenericClient(url);
+
+    IParser parser = ctx.newJsonParser();
+    Bundle source = parser.parseResource(Bundle.class, new FileInputStream(file));
+
+    Bundle target = new Bundle();
+    target.setType(BundleType.TRANSACTION);
+
+    List<BundleEntryComponent> components = source.getEntry();
+
+    for (BundleEntryComponent component : components)
+    {
+      createEntries(target, component.getResource());
+    }
+
+    IParser newJsonParser = ctx.newJsonParser();
+    newJsonParser.setPrettyPrint(true);
+
+    System.out.println(newJsonParser.encodeResourceToString(target));
+
+    client.transaction().withBundle(target).execute();
+  }
+
+  private static void createEntries(Bundle bundle, Resource resource)
+  {
+    IdType resourceID = resource.getIdElement();
+
+    BundleEntryComponent entry = bundle.addEntry();
+    entry.setFullUrl(resource.fhirType() + "/" + resourceID.getIdPart());
+    entry.setResource(resource);
+
+    BundleEntryRequestComponent request = entry.getRequest();
+    request.setMethod(HTTPVerb.POST);
+    request.setUrl(resource.getResourceType().name() + "/" + resourceID.getIdPart());
+    entry.setRequest(request);
   }
 
   private static void createService(Context context, String code, String name, String category, int filter)

@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -34,7 +33,6 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
 import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
@@ -44,7 +42,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -54,35 +51,6 @@ public class LocalizedValueConverter
   public Term getTerm(String code)
   {
     return ServiceFactory.getMetadataCache().getTerm(code).get();
-  }
-
-  public Term geoObjectStatusToTerm(GeoObjectStatus gos)
-  {
-    return geoObjectStatusToTerm(gos.getEnumName());
-  }
-
-  public Term geoObjectStatusToTerm(String termCode)
-  {
-    if (termCode.equals(GeoObjectStatus.ACTIVE.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.INACTIVE.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.NEW.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.PENDING.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code);
-    }
-    else
-    {
-      throw new ProgrammingErrorException("Unknown Status [" + termCode + "].");
-    }
   }
 
   public static LocalizedValue convert(LocalStruct localStruct)

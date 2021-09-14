@@ -3,7 +3,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, HierarchyOverTime } from "@registry/model/registry";
-import { RegistryService } from "@registry/service";
+import { RegistryService, GeometryService } from "@registry/service";
 import { AuthService } from "@shared/service";
 import { ErrorModalComponent, ErrorHandler } from "@shared/component";
 
@@ -61,7 +61,7 @@ export class FeaturePanelComponent implements OnInit {
 
     isNew: boolean = false;
 
-    isEdit: boolean = true;
+    isEdit: boolean = false;
 
     hierarchies: HierarchyOverTime[];
 
@@ -70,13 +70,13 @@ export class FeaturePanelComponent implements OnInit {
     reason: string = "";
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService) { }
+    constructor(public service: RegistryService, private modalService: BsModalService, private authService: AuthService, private geometryService: GeometryService) { }
 
     ngOnInit(): void {
         this.isMaintainer = this.authService.isSRA() || this.authService.isOrganizationRA(this.type.organizationCode) || this.authService.isGeoObjectTypeOrSuperRM(this.type);
         this.mode = "ATTRIBUTES";
 
-        this.isEdit = !this.readOnly;
+//        this.isEdit = !this.readOnly;
     }
 
     setValid(valid: boolean): void {
@@ -88,8 +88,6 @@ export class FeaturePanelComponent implements OnInit {
         this.postGeoObject = null;
         this.preGeoObject = null;
         this.hierarchies = null;
-
-        this.setEditMode(true);
 
         if (code != null && this.type != null) {
             if (code !== "__NEW__") {
@@ -132,6 +130,12 @@ export class FeaturePanelComponent implements OnInit {
         // }
     }
 
+    canSubmit(): boolean {
+        return this.isValid &&
+          (this.isMaintainer || (this.reason && this.reason.trim().length > 0)) &&
+          (this.isNew || (this.attributeEditor && this.attributeEditor.getActions().length > 0));
+    }
+
     onSubmit(): void {
         if (this.isNew) {
             this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
@@ -154,6 +158,8 @@ export class FeaturePanelComponent implements OnInit {
                 this.error(err);
             });
         }
+
+        this.geometryService.stopEditing();
     }
 
     onManageAttributeVersion(attribute: AttributeType): void {
@@ -164,21 +170,6 @@ export class FeaturePanelComponent implements OnInit {
     onManageHiearchyVersion(hierarchy: HierarchyOverTime): void {
         this.hierarchy = hierarchy;
         this.mode = this.MODE.HIERARCHY;
-    }
-
-    onAttributeChange(postGeoObject: GeoObjectOverTime): void {
-        this.postGeoObject = postGeoObject;
-
-        this.mode = this.MODE.ATTRIBUTES;
-    }
-
-    onHierarchyChange(hierarchy: HierarchyOverTime): void {
-        const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
-        if (index !== -1) {
-            this.hierarchies[index] = hierarchy;
-        }
-
-        this.mode = this.MODE.ATTRIBUTES;
     }
 
     onEditAttributes(): void {

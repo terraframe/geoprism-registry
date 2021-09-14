@@ -1,23 +1,26 @@
-<!-- <div class="geoobject-panel-header"> -->
-<!--   {{preGeoObject.attributes.displayLabel.values[0].value.localizedValue}} -->
-<!--   {{preGeoObject.attributes.code}} -->
-<!-- </div> -->
-
 <div class="row">
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0}" (click)="changePage(0);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0, disabled: shouldForceSetExist()}" (click)="changePage(0);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(0)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, tabHasChanges: hasChanges(2)}" (click)="changePage(1);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, disabled: shouldForceSetExist()}" (click)="changePage(1);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(1)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, tabHasChanges: hasChanges(3)}" (click)="changePage(2);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, disabled: shouldForceSetExist()}" (click)="changePage(2);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(2)" class="tabHasErrors"></span></span>
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+      </label>
+      <label class="btn full-width-radio-button settings" [ngClass]="{active: tabIndex === 3}" (click)="changePage(3);"> 
+        <span class="errorSpan"><span *ngIf="hasErrors(3)" class="tabHasErrors"></span></span>
+        <span style="display:inline-block; width:90%;"><i class="fa fa-cog"></i></span>
+        <span class="changeSpan"><span *ngIf="hasChanges(3)" class="tabHasChanges"></span></span>
       </label>
     </div>
   </div>
@@ -59,24 +62,22 @@
                 </div>
 
                 <div class="panel-body">
-                  <div *ngIf="attr.code === 'code'">
-                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
-                        name="mod-{{attr.code}}" [disabled]="!isNew" required>
-                  </div>
-
-                  <div *ngIf="attr.code !== 'code'">
+                  <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
                     <manage-versions
-                        [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" (change)="onVersionChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" >
+                        [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':attr, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
+                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew" >
                     </manage-versions>
                   </div>
 
-                  <!--                   <div *ngIf="attr.isChangeOverTime && !readOnly" class="button-holder" > -->
-                  <!--                     <button type="submit" style="" (click)="onManageAttributeVersions(attr)" class="btn btn-primary" role="button"> -->
-                  <!--                       <localize key="changeovertime.manageVersions.button.label"></localize> -->
-                  <!--                     </button> -->
-                  <!--                   </div> -->
+                  <div *ngIf="!attr.isChangeOverTime">
+                    <input *ngIf="postGeoObject && attr.code === 'code'" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
+                        (change)="onNonChangeOverTimeAttributeChange(attr)" name="mod-{{attr.code}}" [disabled]="readOnly || (attr.code === 'code' && !isNew)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" required>
 
+                    <div *ngIf="attr.code !== 'code'">
+                        <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [postGeoObject]="postGeoObject"
+                          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew"></standard-attribute-editor>
+                    </div>
+                  </div>
                 </div>
               </div>
             </li>
@@ -84,22 +85,24 @@
         </div>
       </div>
       <div *ngIf="tabIndex === 1" class="row">
-        <ul class="list-group">
-	        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
-	          <div class="panel panel-default">
-              <div class="panel-heading">
-                <h4 style="margin:0;">
-                  <span> {{hierarchy.label}} </span> 
-                </h4>
-              </div>
-			      
-			        <div class="panel-body">
-			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" (change)="onVersionChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
+        <div class="col-md-12">
+	        <ul class="list-group">
+		        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
+		          <div class="panel panel-default">
+	              <div class="panel-heading">
+	                <h4 style="margin:0;">
+	                  <span> {{hierarchy.label}} </span> 
+	                </h4>
+	              </div>
+				      
+				        <div class="panel-body">
+				          <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':parentAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
+	                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [hierarchy]="hierarchy"></manage-versions>
+				        </div>
 			        </div>
-		        </div>
-	        </li>
-        </ul>
+		        </li>
+	        </ul>
+        </div>
       </div>
       
       <div *ngIf="tabIndex === 2">
@@ -111,11 +114,37 @@
           </div>
             
           <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" (change)="onVersionChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':geometryAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>
-
+      </div>
+      
+      <div *ngIf="tabIndex === 3">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span>{{getAttribute('exists').label.localizedValue}}</span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':getAttribute('exists'), 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, getAttribute('exists'))" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span>{{getAttribute('invalid').label.localizedValue}}</span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [postGeoObject]="postGeoObject"
+              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, getAttribute('invalid'))" [isNew]="isNew"></standard-attribute-editor>
+          </div>
+        </div>
       </div>
     </div>
     <!-- </div> -->

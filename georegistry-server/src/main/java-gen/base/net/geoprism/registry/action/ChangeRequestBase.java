@@ -1,6 +1,24 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 1779064311)
+@com.runwaysdk.business.ClassSignature(hash = 1219438081)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,6 +29,7 @@ package net.geoprism.registry.action;
 public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.action.ChangeRequest";
+  public static java.lang.String ADDITIONALNOTES = "additionalNotes";
   public static java.lang.String APPROVALSTATUS = "approvalStatus";
   public static java.lang.String CONTRIBUTORNOTES = "contributorNotes";
   public static java.lang.String CREATEDATE = "createDate";
@@ -29,11 +48,39 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 1779064311;
+  private static final long serialVersionUID = 1219438081;
   
   public ChangeRequestBase()
   {
     super();
+  }
+  
+  public String getAdditionalNotes()
+  {
+    return getValue(ADDITIONALNOTES);
+  }
+  
+  public void validateAdditionalNotes()
+  {
+    this.validateAttribute(ADDITIONALNOTES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAdditionalNotesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.ChangeRequest.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ADDITIONALNOTES);
+  }
+  
+  public void setAdditionalNotes(String value)
+  {
+    if(value == null)
+    {
+      setValue(ADDITIONALNOTES, "");
+    }
+    else
+    {
+      setValue(ADDITIONALNOTES, value);
+    }
   }
   
   @SuppressWarnings("unchecked")

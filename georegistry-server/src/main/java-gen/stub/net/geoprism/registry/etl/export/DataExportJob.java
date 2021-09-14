@@ -164,7 +164,8 @@ public class DataExportJob extends DataExportJobBase
     return history;
   }
 
-  public boolean canResume()
+  @Override
+  public boolean canResume(JobHistoryRecord jhr)
   {
     return false;
   }
