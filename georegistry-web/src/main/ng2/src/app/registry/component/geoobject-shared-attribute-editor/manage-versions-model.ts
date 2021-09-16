@@ -57,10 +57,12 @@ export class VersionDiffView {
               this._value.parents[current.code].text = this.editor.value.parents[current.code].text;
               this._value.parents[current.code].geoObject = this.editor.value.parents[current.code].geoObject;
           }
-
-          // this._value.loading = this.editor.value.loading;
       } else {
           this._value = this.convertValueForDisplay(this.editor.value == null ? null : JSON.parse(JSON.stringify(this.editor.value)));
+      }
+
+      if (this.component.attributeType.code === "_PARENT_") {
+          this._value.loading = {};
       }
 
       this.calculateSummaryKey();

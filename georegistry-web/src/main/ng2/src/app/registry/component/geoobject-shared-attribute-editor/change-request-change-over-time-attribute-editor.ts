@@ -1,5 +1,5 @@
 import { ActionTypes } from "@registry/model/constants";
-import { AbstractAction, CreateGeoObjectAction, UpdateAttributeOverTimeAction, ValueOverTimeDiff } from "@registry/model/crtable";
+import { AbstractAction, ChangeRequest, CreateGeoObjectAction, UpdateAttributeOverTimeAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { AttributeType, GeoObjectType, HierarchyOverTime, HierarchyOverTimeEntry, ValueOverTime } from "@registry/model/registry";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
@@ -32,7 +32,7 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
 
     getEditAction() {
         if (this.editAction == null) {
-            let actions = this.changeRequestEditor.changeRequest.getActionsForAttribute(this.attribute.code, this.hierarchy == null ? null : this.hierarchy.code);
+            let actions = ChangeRequest.getActionsForAttribute(this.changeRequestEditor.changeRequest, this.attribute.code, this.hierarchy == null ? null : this.hierarchy.code);
 
             if (actions.length === 0) {
                 this.editAction = new UpdateAttributeOverTimeAction(this.attribute.code);
@@ -87,7 +87,7 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
 
         let hasExistConflict = false;
         if (this.attribute.code !== "exists") {
-            let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.changeRequestEditor.geoObject.geoObjectType, "exists");
+            let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.changeRequestEditor.geoObjectType, "exists");
             let existEditors = (this.changeRequestEditor.getEditorForAttribute(existsAttribute) as ChangeRequestChangeOverTimeAttributeEditor).getEditors();
             hasExistConflict = this.changeRequestEditor.dateService.checkExistRanges(this.editors, existEditors);
         } else if (!skipExists) {
@@ -128,7 +128,7 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
     }
 
     generateEditors(): ValueOverTimeCREditor[] {
-        let actions = this.changeRequestEditor.changeRequest.getActionsForAttribute(this.attribute.code, this.hierarchy == null ? null : this.hierarchy.code);
+        let actions = ChangeRequest.getActionsForAttribute(this.changeRequestEditor.changeRequest, this.attribute.code, this.hierarchy == null ? null : this.hierarchy.code);
 
         let editors: ValueOverTimeCREditor[] = [];
 
@@ -183,6 +183,12 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
                         editor.diff = votDiff;
 
                         editors.push(editor);
+                    } else {
+                        editor.diff = votDiff;
+
+                        if (this.attribute.code === "_PARENT_") {
+                            (editor as HierarchyCREditor).hierarchyEntry.parents = votDiff.parents;
+                        }
                     }
                 });
             }
@@ -227,10 +233,10 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
             if (editors.length > 0) {
                 editor.value = JSON.parse(JSON.stringify(editors[editors.length - 1].value));
             } else {
-                editor.value = GeometryService.createEmptyGeometryValue(this.changeRequestEditor.geoObject.geoObjectType.geometryType);
+                editor.value = GeometryService.createEmptyGeometryValue(this.changeRequestEditor.geoObjectType.geometryType);
             }
         } else if (this.attribute.type === "term") {
-            let terms = GeoObjectType.getGeoObjectTypeTermAttributeOptions(this.changeRequestEditor.geoObject.geoObjectType, this.attribute.code);
+            let terms = GeoObjectType.getGeoObjectTypeTermAttributeOptions(this.changeRequestEditor.geoObjectType, this.attribute.code);
 
             if (terms && terms.length > 0) {
                 editor.value = terms[0].code;

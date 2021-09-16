@@ -1,5 +1,5 @@
 import { ChangeRequest } from "@registry/model/crtable";
-import { AttributeType, GeoObjectOverTime, HierarchyOverTime, ValueOverTime } from "@registry/model/registry";
+import { AttributeType, GeoObjectOverTime, GeoObjectType, HierarchyOverTime, ValueOverTime } from "@registry/model/registry";
 import { DateService, LocalizationService } from "@shared/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
@@ -17,6 +17,8 @@ export class ChangeRequestEditor {
 
     geoObject: GeoObjectOverTime;
 
+    geoObjectType: GeoObjectType;
+
     hierarchies: HierarchyOverTime[];
 
     private _isValid: boolean;
@@ -25,9 +27,10 @@ export class ChangeRequestEditor {
 
     dateService: DateService;
 
-    constructor(changeRequest: ChangeRequest, geoObject: GeoObjectOverTime, hierarchies: HierarchyOverTime[], geometryAttributeType: AttributeType, parentAttributeType: AttributeType, localizationService: LocalizationService, dateService: DateService) {
+    constructor(changeRequest: ChangeRequest, geoObject: GeoObjectOverTime, geoObjectType: GeoObjectType, hierarchies: HierarchyOverTime[], geometryAttributeType: AttributeType, parentAttributeType: AttributeType, localizationService: LocalizationService, dateService: DateService) {
         this.changeRequest = changeRequest;
         this.geoObject = geoObject;
+        this.geoObjectType = geoObjectType;
         this.geometryAttributeType = geometryAttributeType;
         this.parentAttributeType = parentAttributeType;
         this.hierarchies = hierarchies;
@@ -43,7 +46,7 @@ export class ChangeRequestEditor {
 
         let editors = [];
 
-        let attrs = this.geoObject.geoObjectType.attributes.slice(); // intentionally a shallow copy
+        let attrs = this.geoObjectType.attributes.slice(); // intentionally a shallow copy
         attrs = attrs.filter(attr => geoObjectAttributeExcludes.indexOf(attr.code) === -1);
         attrs.push(this.geometryAttributeType);
         attrs.push(this.parentAttributeType);
@@ -116,7 +119,7 @@ export class ChangeRequestEditor {
     }
 
     public getEditorForAttribute(attribute: AttributeType, hierarchy: HierarchyOverTime = null): ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel {
-        let indexOf = this.attributeEditors.findIndex(editor => (!editor.attribute.isChangeOverTime || (editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy === hierarchy) && editor.attribute.code === attribute.code);
+        let indexOf = this.attributeEditors.findIndex(editor => (!editor.attribute.isChangeOverTime || (hierarchy == null && (editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy == null) || ((editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy != null && (editor as ChangeRequestChangeOverTimeAttributeEditor).hierarchy.code === hierarchy.code)) && editor.attribute.code === attribute.code);
 
         if (indexOf === -1) {
             return null;

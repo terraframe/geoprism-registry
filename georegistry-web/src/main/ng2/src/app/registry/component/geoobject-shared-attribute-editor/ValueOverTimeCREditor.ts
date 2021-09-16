@@ -256,7 +256,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             }
         } else if (value == null) {
             if (this.attr.type === "geometry") {
-                value = GeometryService.createEmptyGeometryValue(this.changeRequestAttributeEditor.changeRequestEditor.geoObject.geoObjectType.geometryType);
+                value = GeometryService.createEmptyGeometryValue(this.changeRequestAttributeEditor.changeRequestEditor.geoObjectType.geometryType);
             } else if (this.attr.type === "character") {
                 value = "";
             }

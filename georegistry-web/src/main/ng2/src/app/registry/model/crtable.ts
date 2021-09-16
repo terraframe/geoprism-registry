@@ -126,21 +126,21 @@ export class ChangeRequest {
         this.isNew = true;
     }
 
-    public getActionsForAttribute(attributeName: string, hierarchyCode: string): AbstractAction[] {
-        if (this.type === "CreateGeoObject") {
-            return this.actions;
+    public static getActionsForAttribute(cr: ChangeRequest, attributeName: string, hierarchyCode: string): AbstractAction[] {
+        if (cr.type === "CreateGeoObject") {
+            return cr.actions;
         } else {
             let newActions = [];
 
-            for (let i = 0; i < this.actions.length; ++i) {
-                let action = this.actions[i];
+            for (let i = 0; i < cr.actions.length; ++i) {
+                let action = cr.actions[i];
 
-                if (action instanceof UpdateAttributeOverTimeAction) {
+                if (action.actionType === "UpdateAttributeAction") {
                     let updateAttrAction = action as UpdateAttributeOverTimeAction;
 
                     if (updateAttrAction.attributeName === attributeName &&
                       (attributeName !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === hierarchyCode)) {
-                        newActions.push(this.actions[i]);
+                        newActions.push(cr.actions[i]);
                     }
                 }
             }

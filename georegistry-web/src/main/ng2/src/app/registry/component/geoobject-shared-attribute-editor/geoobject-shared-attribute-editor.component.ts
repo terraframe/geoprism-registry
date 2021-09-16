@@ -137,7 +137,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
-        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService);
+        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService);
 
         if (this.shouldForceSetExist()) {
             this.changePage(3);
@@ -262,7 +262,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         } else if (tabIndex === 3) {
             let invalid = this.getAttribute("invalid");
 
-            let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.changeRequestEditor.geoObject.geoObjectType, "exists");
+            let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.changeRequestEditor.geoObjectType, "exists");
             let existsEditor = this.changeRequestEditor.getEditorForAttribute(existsAttribute);
 
             return (Object.prototype.hasOwnProperty.call(invalid, "isValid") && !invalid.isValid) ||
