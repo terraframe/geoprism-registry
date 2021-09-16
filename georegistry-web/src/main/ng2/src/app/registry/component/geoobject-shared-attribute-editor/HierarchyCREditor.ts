@@ -1,22 +1,19 @@
-import { Observable } from "rxjs";
-import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
-import { HierarchyOverTimeEntry, GeoObject, HierarchyOverTimeEntryParent, HierarchyOverTime } from "@registry/model/registry";
-import { ManageVersionsComponent } from "./manage-versions.component";
-import { VersionDiffView } from "./manage-versions-model";
-import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
+import { HierarchyOverTimeEntry, GeoObject, HierarchyOverTimeEntryParent, HierarchyOverTime, AttributeType } from "@registry/model/registry";
+import { UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { v4 as uuid } from "uuid";
+import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 
-export class HierarchyEditPropagator extends ValueOverTimeCREditor {
+export class HierarchyCREditor extends ValueOverTimeCREditor {
 
   hierarchyOverTime: HierarchyOverTime;
 
   hierarchyEntry: HierarchyOverTimeEntry;
 
-  constructor(component: ManageVersionsComponent, action: AbstractAction, view: VersionDiffView, hierarchyEntry: HierarchyOverTimeEntry, hierarchyOverTime: HierarchyOverTime) {
-      super(component, action, view);
+  constructor(changeRequestAttributeEditor: ChangeRequestChangeOverTimeAttributeEditor, attr: AttributeType, action: AbstractAction, hierarchyEntry: HierarchyOverTimeEntry, hierarchyOverTime: HierarchyOverTime) {
+      super(changeRequestAttributeEditor, attr, action);
       this.hierarchyEntry = hierarchyEntry;
-      this.hierarchyOverTime = this.component.hierarchy;
+      this.hierarchyOverTime = hierarchyOverTime;
 
       if (this.hierarchyEntry != null) {
           this.hierarchyEntry.loading = {};
@@ -34,14 +31,14 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
                   this.diff = new ValueOverTimeDiff();
                   this.diff.oid = uuid();
                   this.diff.action = "CREATE";
-                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               } else {
                   if (this.hierarchyEntry.startDate === startDate) {
                       return;
                   }
 
-                  let immediateParent: GeoObject = this.hierarchyEntry.parents[this.component.hierarchy.types[this.component.hierarchy.types.length - 1].code].geoObject;
+                  let immediateParent: GeoObject = this.hierarchyEntry.parents[this.hierarchyOverTime.types[this.hierarchyOverTime.types.length - 1].code].geoObject;
                   let oldValue: string = immediateParent == null ? null : immediateParent.properties.type + "_~VST~_" + immediateParent.properties.code;
 
                   this.diff = new ValueOverTimeDiff();
@@ -50,7 +47,7 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
                   this.diff.oldValue = oldValue;
                   this.diff.oldStartDate = this.hierarchyEntry.startDate;
                   this.diff.oldEndDate = this.hierarchyEntry.endDate;
-                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
                   this.diff.parents = this.hierarchyEntry.parents;
               }
@@ -58,10 +55,8 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
 
           if (startDate === this.diff.oldStartDate) {
               delete this.diff.newStartDate;
-              delete this.view.oldStartDate;
           } else {
               this.diff.newStartDate = startDate;
-              this.view.oldStartDate = this.convertDateForDisplay(this.diff.oldStartDate);
           }
 
           // If no changes have been made then remove the diff
@@ -70,15 +65,21 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
           this.hierarchyEntry.startDate = startDate;
       }
 
-      this.view.startDate = startDate;
-
-      this.view.calculateSummaryKey(this.diff);
-
-      this.component.onActionChange(this.action);
+      this.changeRequestAttributeEditor.onChange();
   }
 
   get startDate() {
-      return this.view.startDate;
+      if (this.diff != null) {
+          if (this.diff.newStartDate != null) {
+              return this.diff.newStartDate;
+          } else {
+              return this.diff.oldStartDate;
+          }
+      } else if (this.hierarchyEntry != null) {
+          return this.hierarchyEntry.startDate;
+      }
+
+      return null;
   }
 
   set endDate(endDate: string) {
@@ -92,14 +93,14 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
                   this.diff = new ValueOverTimeDiff();
                   this.diff.oid = uuid();
                   this.diff.action = "CREATE";
-                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               } else {
                   if (this.hierarchyEntry.endDate === endDate) {
                       return;
                   }
 
-                  let immediateParent: GeoObject = this.hierarchyEntry.parents[this.component.hierarchy.types[this.component.hierarchy.types.length - 1].code].geoObject;
+                  let immediateParent: GeoObject = this.hierarchyEntry.parents[this.hierarchyOverTime.types[this.hierarchyOverTime.types.length - 1].code].geoObject;
                   let oldValue: string = immediateParent == null ? null : immediateParent.properties.type + "_~VST~_" + immediateParent.properties.code;
 
                   this.diff = new ValueOverTimeDiff();
@@ -108,7 +109,7 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
                   this.diff.oldValue = oldValue;
                   this.diff.oldStartDate = this.hierarchyEntry.startDate;
                   this.diff.oldEndDate = this.hierarchyEntry.endDate;
-                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
                   this.diff.parents = this.hierarchyEntry.parents;
               }
@@ -116,10 +117,8 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
 
           if (endDate === this.diff.oldEndDate) {
               delete this.diff.newEndDate;
-              delete this.view.oldEndDate;
           } else {
               this.diff.newEndDate = endDate;
-              this.view.oldEndDate = this.convertDateForDisplay(this.diff.oldEndDate);
           }
 
           // If no changes have been made then remove the diff
@@ -128,15 +127,39 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
           this.hierarchyEntry.endDate = endDate;
       }
 
-      this.view.endDate = endDate;
-
-      this.view.calculateSummaryKey(this.diff);
-
-      this.component.onActionChange(this.action);
+      this.changeRequestAttributeEditor.onChange();
   }
 
   get endDate() {
-      return this.view.endDate;
+      if (this.diff != null) {
+          if (this.diff.newEndDate != null) {
+              return this.diff.newEndDate;
+          } else {
+              return this.diff.oldEndDate;
+          }
+      } else if (this.hierarchyEntry != null) {
+          return this.hierarchyEntry.endDate;
+      }
+
+      return null;
+  }
+
+  set oldValue(val: any) {
+      if (this.diff != null) {
+          this.diff.oldValue = val;
+      } else if (this.hierarchyEntry != null) {
+          this.hierarchyEntry = val;
+      }
+  }
+
+  get oldValue() {
+      if (this.diff != null) {
+          return this.diff.oldValue;
+      } else if (this.hierarchyEntry != null) {
+          return this.hierarchyEntry;
+      }
+
+      return null;
   }
 
   setParentValue(type: {code: string, label: string}, parents: { [k: string]: HierarchyOverTimeEntryParent }) {
@@ -155,7 +178,7 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
                   this.diff = new ValueOverTimeDiff();
                   this.diff.oid = uuid();
                   this.diff.action = "CREATE";
-                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               } else {
                   // let currentDirectParent: GeoObject = this.hierarchyEntry.parents[type.code].geoObject;
@@ -176,7 +199,7 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
                   this.diff.oldParents = this.hierarchyEntry.parents;
                   this.diff.oldStartDate = this.hierarchyEntry.startDate;
                   this.diff.oldEndDate = this.hierarchyEntry.endDate;
-                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+                  (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
               }
           }
@@ -188,10 +211,8 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
 
           if (newValueStrConcat === this.diff.oldValue) {
               delete this.diff.newValue;
-              delete this.view.oldValue;
           } else {
               this.diff.newValue = newValueStrConcat;
-              this.view.oldValue = this.diff.oldValue == null ? null : this.diff.oldValue.split("_~VST~_")[1];
           }
 
           this.diff.parents = parents;
@@ -202,19 +223,13 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
           this.hierarchyEntry.parents = parents;
       }
 
-      this.view.value.parents = parents;
-
-      this.view.calculateSummaryKey(this.diff);
-
-      this.component.onActionChange(this.action);
-
-      this.component.onDateChange();
+      this.changeRequestAttributeEditor.onChange();
   }
 
   public getLowestLevelFromHierarchyEntry(parents: any): {geoObject: GeoObject, text: string} {
-      let len = this.component.hierarchy.types.length;
+      let len = this.hierarchyOverTime.types.length;
       for (let i = len - 1; i >= 0; --i) {
-          let type = this.component.hierarchy.types[i];
+          let type = this.hierarchyOverTime.types[i];
 
           if (Object.prototype.hasOwnProperty.call(parents, type.code) && parents[type.code].geoObject) {
               return parents[type.code];
@@ -225,125 +240,30 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
   }
 
   set value(val: any) {
-      this.view.value = val;
+      this.hierarchyEntry = val;
   }
 
   get value() {
-      return this.view.value;
+      return this.hierarchyEntry;
   }
 
   public removeType(type): void {
-      this.view.value.parents[type.code] = { text: "", geoObject: null };
+      this.value.parents[type.code] = { text: "", geoObject: null };
 
       // Set the value to be the next existing ancestor.
-      let entry = this.view.value;
-      let len = this.component.hierarchy.types.length;
+      let entry = this.value;
+      let len = this.hierarchyOverTime.types.length;
       for (let i = len - 1; i >= 0; --i) {
-          let type = this.component.hierarchy.types[i];
+          let type = this.hierarchyOverTime.types[i];
 
           if (Object.prototype.hasOwnProperty.call(entry.parents, type.code) && entry.parents[type.code].geoObject) {
-              this.setParentValue(type, this.view.value.parents);
+              this.setParentValue(type, this.value.parents);
               return;
           }
       }
 
       // If we do not have a next existing ancestor, then we must set the value to null.
-      this.setParentValue(null, this.view.value.parents);
-  }
-
-  getTypeAheadObservable(date: string, type: any, entry: any, index: number): Observable<any> {
-      let geoObjectTypeCode = type.code;
-
-      let parentCode = null;
-      let parentTypeCode = null;
-      let hierarchyCode = null;
-
-      if (index > 0) {
-          let pType = this.component.hierarchy.types[index - 1];
-          const parent = entry.parents[pType.code];
-
-          if (parent.geoObject != null && parent.geoObject.properties.code != null) {
-              hierarchyCode = this.component.hierarchy.code;
-              parentCode = parent.geoObject.properties.code;
-              parentTypeCode = parent.geoObject.properties.type;
-          }
-      }
-
-      return Observable.create((observer: any) => {
-          if (parentCode == null) {
-              let loopI = index;
-
-              while (parentCode == null && loopI > 0) {
-                  loopI = loopI - 1;
-
-                  let parent = entry.parents[this.component.hierarchy.types[loopI].code];
-
-                  if (parent != null) {
-                      if (parent.geoObject != null && parent.geoObject.properties.code != null) {
-                          parentCode = parent.geoObject.properties.code;
-                          hierarchyCode = this.component.hierarchy.code;
-                          parentTypeCode = this.component.hierarchy.types[loopI].code;
-                      } else if (parent.goCode != null) {
-                          parentCode = parent.goCode;
-                          hierarchyCode = this.component.hierarchy.code;
-                          parentTypeCode = this.component.hierarchy.types[loopI].code;
-                      }
-                  }
-              }
-          }
-
-          this.component.service.getGeoObjectSuggestions(entry.parents[type.code].text, geoObjectTypeCode, parentCode, parentTypeCode, hierarchyCode, date).then(results => {
-              observer.next(results);
-          });
-      });
-  }
-
-  typeaheadOnSelect(e: TypeaheadMatch, type: any, entry: any, date: string): void {
-    //        let ptn: ParentTreeNode = parent.ptn;
-
-      entry.parents[type.code].text = e.item.name + " : " + e.item.code;
-      entry.parents[type.code].goCode = e.item.code;
-
-      let parentTypes = [];
-
-      for (let i = 0; i < this.component.hierarchy.types.length; i++) {
-          let current = this.component.hierarchy.types[i];
-
-          parentTypes.push(current.code);
-
-          if (current.code === type.code) {
-              break;
-          }
-      }
-
-      this.component.service.getParentGeoObjects(e.item.uid, type.code, parentTypes, true, date).then(ancestors => {
-          // First filter the response for ancestors of only the correct hierarchy
-          ancestors.parents = ancestors.parents.filter(p => p.hierarchyType === this.component.hierarchy.code);
-
-          delete entry.parents[type.code].goCode;
-          entry.parents[type.code].geoObject = ancestors.geoObject;
-          entry.parents[type.code].text = ancestors.geoObject.properties.displayLabel.localizedValue + " : " + ancestors.geoObject.properties.code;
-
-          for (let i = 0; i < this.component.hierarchy.types.length; i++) {
-              let current = this.component.hierarchy.types[i];
-              let ancestor = ancestors;
-
-              while (ancestor != null && ancestor.geoObject.properties.type !== current.code) {
-                  if (ancestor.parents.length > 0) {
-                      ancestor = ancestor.parents[0];
-                  } else {
-                      ancestor = null;
-                  }
-              }
-
-              if (ancestor != null) {
-                  entry.parents[current.code].geoObject = ancestor.geoObject;
-                  entry.parents[current.code].text = ancestor.geoObject.properties.displayLabel.localizedValue + " : " + ancestor.geoObject.properties.code;
-              }
-          }
-
-          this.setParentValue(type, entry.parents);
-      });
+      this.setParentValue(null, this.value.parents);
   }
 
   createEmptyHierarchyEntry(): HierarchyOverTimeEntry {
@@ -353,9 +273,9 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
 
       hierarchyEntry.parents = {};
 
-      if (this.component.hierarchy) {
-          for (let i = 0; i < this.component.hierarchy.types.length; i++) {
-              let current = this.component.hierarchy.types[i];
+      if (this.hierarchyOverTime) {
+          for (let i = 0; i < this.hierarchyOverTime.types.length; i++) {
+              let current = this.hierarchyOverTime.types[i];
 
               hierarchyEntry.parents[current.code] = { text: "", geoObject: null };
 
@@ -364,38 +284,6 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
       }
 
       return hierarchyEntry;
-  }
-
-  onAddNewVersion(): void {
-      this.view.summaryKey = SummaryKey.NEW;
-
-      this.view.value = this.createEmptyHierarchyEntry();
-
-      if (this.component.editAction instanceof CreateGeoObjectAction) {
-          this.hierarchyEntry = this.createEmptyHierarchyEntry();
-
-          this.hierarchyOverTime.entries.push(this.hierarchyEntry);
-      }
-  }
-
-  recalculateView(): void {
-      if (this.diff === null) {
-          if (this.action.actionType === "UpdateAttributeAction") {
-              if (this.hierarchyEntry != null) {
-                  this.view.value = JSON.parse(JSON.stringify({ parents: this.hierarchyEntry.parents, loading: {} }));
-                  this.view.startDate = this.hierarchyEntry.startDate;
-                  this.view.endDate = this.hierarchyEntry.endDate;
-
-                  delete this.view.oldValue;
-                  delete this.view.oldStartDate;
-                  delete this.view.oldEndDate;
-              }
-          } else {
-              // TODO
-          }
-      }
-
-      this.view.calculateSummaryKey(this.diff);
   }
 
   public remove(): void {
@@ -414,8 +302,7 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
               delete this.diff.newStartDate;
               delete this.diff.newEndDate;
               this.removeEmptyDiff();
-              this.component.onActionChange(this.action);
-              this.recalculateView();
+              this.changeRequestAttributeEditor.onChange();
               return;
           } else if (this.hierarchyEntry != null && this.diff == null) {
               let currentImmediateParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry.parents).geoObject;
@@ -428,7 +315,7 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
               this.diff.oldStartDate = this.hierarchyEntry.startDate;
               this.diff.oldEndDate = this.hierarchyEntry.endDate;
               (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
-              (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.component.hierarchy.code;
+              (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
           }
       } else if (this.action.actionType === "CreateGeoObjectAction") {
           let index = this.hierarchyOverTime.entries.findIndex(vot => vot.oid === this.hierarchyEntry.oid);
@@ -438,9 +325,7 @@ export class HierarchyEditPropagator extends ValueOverTimeCREditor {
           }
       }
 
-      this.view.calculateSummaryKey(this.diff);
-
-      this.component.onActionChange(this.action);
+      this.changeRequestAttributeEditor.onChange();
   }
 
 }

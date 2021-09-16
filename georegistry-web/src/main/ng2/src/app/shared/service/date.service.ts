@@ -265,4 +265,24 @@ export class DateService {
         });
     }
 
+    validateDate(date: Date, required: boolean, allowFutureDates: boolean): {message: string, valid: boolean} {
+        let valid = { message: "", valid: true };
+        let today: Date = new Date();
+
+        if (date != null) {
+            if (!(date instanceof Date) || (date instanceof Date && isNaN(date.getTime()))) {
+                valid.valid = false;
+                valid.message = this.localizationService.decode("date.inpu.data.invalid.error.message");
+            } else if (!allowFutureDates && date > today) {
+                valid.valid = false;
+                valid.message = this.localizationService.decode("date.inpu.data.in.future.error.message");
+            }
+        } else if (required) {
+            valid.valid = false;
+            valid.message = this.localizationService.decode("manage.versions.date.required.message");
+        }
+
+        return valid;
+    }
+
 }

@@ -5,6 +5,7 @@ import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
 import { GovernanceStatus, ConflictType } from "./constants";
 import { SummaryKey } from "./crtable";
+import Utils from "@registry/utility/Utils";
 
 export const PRESENT: string = "5000-12-31";
 
@@ -64,6 +65,41 @@ export class GeoObjectType {
     isPrivate?: boolean;
     canDrag?: boolean;
     permissions?: string[];
+
+    public static getAttribute(type: GeoObjectType, name: string) {
+        let len = type.attributes.length;
+        for (let i = 0; i < len; i++) {
+            let attr: any = type.attributes[i];
+
+            if (attr.code === name) {
+                return attr;
+            }
+        }
+
+        return null;
+    }
+
+    public static getGeoObjectTypeTermAttributeOptions(geoObjectType: GeoObjectType, termAttributeCode: string) {
+        for (let i = 0; i < geoObjectType.attributes.length; i++) {
+            let attr: any = geoObjectType.attributes[i];
+
+            if (attr.type === "term" && attr.code === termAttributeCode) {
+                attr = <AttributeTermType>attr;
+                let attrOpts = attr.rootTerm.children;
+
+                // only remove status of the required status type
+                if (attrOpts.length > 0) {
+                    if (attr.code === "status") {
+                        return Utils.removeStatuses(attrOpts);
+                    } else {
+                        return attrOpts;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 }
 
 export class Task {

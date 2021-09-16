@@ -9,14 +9,16 @@ export class StandardAttributeCRModel {
 
     diff: { oldValue?: any, newValue?: any };
 
-    attr: AttributeType;
+    attribute: AttributeType;
 
     geoObject: GeoObjectOverTime;
 
     editAction: AbstractAction;
 
+    private _isValid: boolean = true;
+
     constructor(attr: AttributeType, geoObject: GeoObjectOverTime, cr: ChangeRequest) {
-        this.attr = attr;
+        this.attribute = attr;
         this.geoObject = geoObject;
         this.changeRequest = cr;
         this.initialize();
@@ -34,14 +36,14 @@ export class StandardAttributeCRModel {
                 if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
                     let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
 
-                    if (this.attr.code === updateAttrAction.attributeName) {
+                    if (this.attribute.code === updateAttrAction.attributeName) {
                         this.editAction = action;
                     }
                 }
             });
 
             if (this.editAction == null) {
-                this.editAction = new UpdateAttributeAction(this.attr.code);
+                this.editAction = new UpdateAttributeAction(this.attribute.code);
             }
         }
 
@@ -52,7 +54,7 @@ export class StandardAttributeCRModel {
             if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
                 let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
 
-                if (this.attr.code === updateAttrAction.attributeName) {
+                if (this.attribute.code === updateAttrAction.attributeName) {
                     this.diff = updateAttrAction.attributeDiff;
                 }
             } else if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
@@ -63,9 +65,21 @@ export class StandardAttributeCRModel {
         }
     }
 
+    public hasChanges(): boolean {
+        return this.diff != null;
+    }
+
+    isValid(): boolean {
+        return this._isValid;
+    }
+
+    validate(): boolean {
+        return this._isValid;
+    }
+
     set value(val: any) {
         if (this.changeRequest.type === "CreateGeoObject") {
-            this.geoObject.attributes[this.attr.code] = val;
+            this.geoObject.attributes[this.attribute.code] = val;
         } else {
             if (this.diff != null) {
                 if (this.areValuesEqual(this.diff.oldValue, val)) {
@@ -80,7 +94,7 @@ export class StandardAttributeCRModel {
                     this.diff.newValue = val;
                 }
             } else {
-                this.diff = { oldValue: this.geoObject.attributes[this.attr.code], newValue: val };
+                this.diff = { oldValue: this.geoObject.attributes[this.attribute.code], newValue: val };
 
                 (this.editAction as UpdateAttributeAction).attributeDiff = this.diff;
                 this.changeRequest.actions.push(this.editAction);
@@ -90,18 +104,18 @@ export class StandardAttributeCRModel {
 
     get value(): any {
         if (this.changeRequest.type === "CreateGeoObject") {
-            return this.geoObject.attributes[this.attr.code];
+            return this.geoObject.attributes[this.attribute.code];
         } else {
             if (this.diff != null) {
                 return this.diff.newValue;
             } else {
-                return this.geoObject.attributes[this.attr.code];
+                return this.geoObject.attributes[this.attribute.code];
             }
         }
     }
 
     areValuesEqual(val1: any, val2: any): boolean {
-        if (this.attr.type === "boolean") {
+        if (this.attribute.type === "boolean") {
             return val1 === val2;
         }
 

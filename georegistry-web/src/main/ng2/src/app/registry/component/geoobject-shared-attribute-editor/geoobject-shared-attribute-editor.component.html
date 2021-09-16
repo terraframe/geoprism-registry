@@ -29,7 +29,7 @@
 <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
   <fieldset>
     <!-- <div class="col-md-12"> -->
-    <div *ngIf="postGeoObject">
+    <div *ngIf="changeRequestEditor && changeRequestEditor.geoObject">
       <div *ngIf="tabIndex === 0" class="row">
         <!-- <div class="label-holder">
                         <label>
@@ -64,18 +64,18 @@
                 <div class="panel-body">
                   <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
                     <manage-versions
-                        [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':attr, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew" >
+                        [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="attr"
+                        [readonly]="readOnly" [isNew]="isNew" >
                     </manage-versions>
                   </div>
 
                   <div *ngIf="!attr.isChangeOverTime">
-                    <input *ngIf="postGeoObject && attr.code === 'code'" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
-                        (change)="onNonChangeOverTimeAttributeChange(attr)" name="mod-{{attr.code}}" [disabled]="readOnly || (attr.code === 'code' && !isNew)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" required>
+                    <input *ngIf="changeRequestEditor.geoObject && attr.code === 'code'" type="text" [(ngModel)]="changeRequestEditor.getEditorForAttribute(attr).value" id="mod-{{attr.code}}" 
+                        name="mod-{{attr.code}}" [disabled]="readOnly || (attr.code === 'code' && !isNew)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" required>
 
                     <div *ngIf="attr.code !== 'code'">
-                        <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="postGeoObject"
-                          [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew"></standard-attribute-editor>
+                        <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="changeRequestEditor.geoObject"
+                          [readonly]="readOnly" [isNew]="isNew"></standard-attribute-editor>
                     </div>
                   </div>
                 </div>
@@ -96,8 +96,8 @@
 	              </div>
 				      
 				        <div class="panel-body">
-				          <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':parentAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
-	                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [hierarchy]="hierarchy"></manage-versions>
+				          <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="parentAttributeType"
+	                        [readonly]="readOnly" [isNew]="isNew" [hierarchy]="hierarchy"></manage-versions>
 				        </div>
 			        </div>
 		        </li>
@@ -114,8 +114,8 @@
           </div>
             
           <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':geometryAttributeType, 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+            <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="geometryAttributeType"
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>
       </div>
@@ -129,8 +129,8 @@
           </div>
             
           <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [attributeData]="{'attributeType':getAttribute('exists'), 'changeRequest':changeRequest, 'editor': this, 'geoObject':postGeoObject}"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, getAttribute('exists'))" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+            <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="getAttribute('exists')"
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
           </div>
         </div>
         <div class="panel panel-default">
@@ -141,8 +141,8 @@
           </div>
             
           <div class="panel-body">
-            <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [geoObject]="postGeoObject"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, getAttribute('invalid'))" [isNew]="isNew"></standard-attribute-editor>
+            <standard-attribute-editor [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [geoObject]="changeRequestEditor.geoObject"
+              [readonly]="readOnly" [isNew]="isNew"></standard-attribute-editor>
           </div>
         </div>
       </div>

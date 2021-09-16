@@ -43,7 +43,7 @@ export class FeaturePanelComponent implements OnInit {
     @Output() panelCancel = new EventEmitter<void>();
     @Output() panelSubmit = new EventEmitter<{isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}>();
 
-    isValid: boolean = true;
+    _isValid: boolean = true;
 
     bsModalRef: BsModalRef;
 
@@ -80,7 +80,11 @@ export class FeaturePanelComponent implements OnInit {
     }
 
     setValid(valid: boolean): void {
-        this.isValid = valid;
+        this._isValid = valid;
+    }
+
+    isValid(): boolean {
+        return this._isValid && this.attributeEditor.isValid();
     }
 
     updateCode(code: string): void {
@@ -131,9 +135,9 @@ export class FeaturePanelComponent implements OnInit {
     }
 
     canSubmit(): boolean {
-        return this.isValid &&
+        return this.isValid() &&
           (this.isMaintainer || (this.reason && this.reason.trim().length > 0)) &&
-          (this.isNew || (this.attributeEditor && this.attributeEditor.getActions().length > 0));
+          (this.isNew || (this.attributeEditor && this.attributeEditor.getChangeRequestEditor().hasChanges()));
     }
 
     onSubmit(): void {
