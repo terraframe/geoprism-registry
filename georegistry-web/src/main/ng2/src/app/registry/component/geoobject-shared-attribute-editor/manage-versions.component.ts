@@ -16,8 +16,8 @@ import {
     transition
 } from "@angular/animations";
 import { HttpErrorResponse } from "@angular/common/http";
-import { GeoObjectType, AttributeType, ValueOverTime, HierarchyOverTime } from "@registry/model/registry";
-import { ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
+import { GeoObjectType, AttributeType, HierarchyOverTime } from "@registry/model/registry";
+import { SummaryKey } from "@registry/model/crtable";
 import { LocalizedValue } from "@shared/model/core";
 import { GovernanceStatus, LayerColor } from "@registry/model/constants";
 import { AuthService } from "@shared/service/auth.service";
@@ -237,6 +237,10 @@ export class ManageVersionsComponent implements OnInit {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }
 
+    /**
+     * Hierarchy Editing
+     */
+
     getTypeAheadObservable(editor: HierarchyCREditor, date: string, type: any, entry: any, index: number): Observable<any> {
         let geoObjectTypeCode = type.code;
 
@@ -402,14 +406,14 @@ export class ManageVersionsComponent implements OnInit {
     manualCoordinateChange(view: VersionDiffView): void {
         if (view.newCoordinateX || view.newCoordinateY) {
             let newX = view.newCoordinateX;
-            if (view.editor.value.coordinates && view.editor.value.coordinates[0]) {
-                newX = view.editor.value.coordinates[0];
+            if (view.value.coordinates && view.value.coordinates[0]) {
+                newX = view.value.coordinates[0];
             }
             let newY = view.newCoordinateY;
-            if (view.editor.value.coordinates && view.editor.value.coordinates[0]) {
-                newY = view.editor.value.coordinates[1];
+            if (view.value.coordinates && view.value.coordinates[0]) {
+                newY = view.value.coordinates[1];
             }
-            view.editor.value.coordinates = [[newX || 0, newY || 0]];
+            view.value.coordinates = [[newX || 0, newY || 0]];
             delete view.newCoordinateX;
             delete view.newCoordinateY;
             return;
@@ -418,8 +422,8 @@ export class ManageVersionsComponent implements OnInit {
         const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
         const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
 
-        view.coordinate.latValid = isLatitude(view.editor.value.coordinates[0][1]);
-        view.coordinate.longValid = isLongitude(view.editor.value.coordinates[0][0]);
+        view.coordinate.latValid = isLatitude(view.value.coordinates[0][1]);
+        view.coordinate.longValid = isLongitude(view.value.coordinates[0][0]);
 
         if (!view.coordinate.latValid || !view.coordinate.longValid) {
             // outside EPSG bounds
@@ -428,7 +432,7 @@ export class ManageVersionsComponent implements OnInit {
             return;
         }
 
-        this.geomService.setPointCoordinates(view.editor.value.coordinates[0][1], view.editor.value.coordinates[0][0]);
+        this.geomService.setPointCoordinates(view.value.coordinates[0][1], view.value.coordinates[0][0]);
     }
 
 }

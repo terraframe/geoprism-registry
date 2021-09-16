@@ -240,7 +240,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         if (tabIndex === 0) {
             let filter = ["invalid", "exists", "_PARENT_", "geometry"];
-            let filteredEditors = attributeEditors.filter(editor => filter.indexOf(editor.attribute.code));
+            let filteredEditors = attributeEditors.filter(editor => filter.indexOf(editor.attribute.code) === -1);
 
             for (let i = 0; i < filteredEditors.length; ++i) {
                 let editor = filteredEditors[i];
@@ -290,6 +290,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         return allValid && this.changeRequestEditor.isValid();
+    }
+
+    public getActions(): AbstractAction[] {
+        return this.changeRequestEditor.changeRequest.actions;
     }
 
 }

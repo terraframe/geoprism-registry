@@ -176,9 +176,8 @@ export class ConflictMessage {
 export interface TimeRangeEntry {
     startDate: string;
     endDate: string;
+    oid?: string;
     value?: any;
-    conflictMessage?: any[];
-    summaryKeyData?: SummaryKey;
 }
 
 export class ValueOverTime implements TimeRangeEntry {

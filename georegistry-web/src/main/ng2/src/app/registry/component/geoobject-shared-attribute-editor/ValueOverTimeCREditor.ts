@@ -27,6 +27,14 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         this.action = action;
     }
 
+    getGeoObjectTimeRangeStorage(): TimeRangeEntry {
+        return this.valueOverTime;
+    }
+
+    getValueFromGeoObjectForDiff(): any {
+        return this.valueOverTime.value;
+    }
+
     validate(): boolean {
         let dateService = this.changeRequestAttributeEditor.changeRequestEditor.dateService;
         let start = dateService.validateDate(this.startDate == null ? null : dateService.getDateFromDateString(this.startDate), true, true);
@@ -37,15 +45,22 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             this._isValid = false;
         }
 
-        if (this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.type === "UpdateGeoObject" && this.diff != null) {
+        this.validateUpdateReference();
+
+        return this._isValid;
+    }
+
+    /**
+     * If we're referencing an existing value over time, that object should exist on our GeoObject (which represents the current state of the database)
+     */
+    validateUpdateReference() {
+        if (this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.type === "UpdateGeoObject" && this.diff != null && this.diff.action !== "CREATE") {
             let existingVot = this.findExistingValueOverTimeByOid(this.diff.oid, this.attr.code);
 
             if (existingVot == null) {
                 this._isValid = false;
             }
         }
-
-        return this._isValid;
     }
 
     findExistingValueOverTimeByOid(oid: string, attributeCode: string) {
@@ -63,16 +78,16 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     set oid(oid: string) {
         if (this.diff != null) {
             this.diff.oid = oid;
-        } else if (this.valueOverTime != null) {
-            this.valueOverTime.oid = oid;
+        } else if (this.getGeoObjectTimeRangeStorage() != null) {
+            this.getGeoObjectTimeRangeStorage().oid = oid;
         }
     }
 
     get oid(): string {
         if (this.diff != null) {
             return this.diff.oid;
-        } else if (this.valueOverTime != null) {
-            return this.valueOverTime.oid;
+        } else if (this.getGeoObjectTimeRangeStorage() != null) {
+            return this.getGeoObjectTimeRangeStorage().oid;
         }
 
         return null;
@@ -81,53 +96,27 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     get startDate(): string {
         if (this.diff != null && this.diff.newStartDate !== undefined) {
             return this.diff.newStartDate;
-        } else if (this.valueOverTime != null) {
-            return this.valueOverTime.startDate;
+        } else if (this.getGeoObjectTimeRangeStorage() != null) {
+            return this.getGeoObjectTimeRangeStorage().startDate;
         }
 
         return null;
     }
 
-    set startDate(startDate: string) {
-        if (this.diff != null && this.diff.action === "DELETE") {
-            return; // There are various view components (like the date widgets) which will invoke this method
+    constructNewDiff(action: string): void {
+        this.diff = new ValueOverTimeDiff();
+        this.diff.action = action;
+        (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
+
+        if (action === "CREATE") {
+            this.diff.oid = uuid();
+        } else {
+            let goRange = this.getGeoObjectTimeRangeStorage();
+
+            this.diff.oid = goRange.oid;
+            this.diff.oldStartDate = goRange.startDate;
+            this.diff.oldEndDate = goRange.endDate;
         }
-
-        if (this.action.actionType === "UpdateAttributeAction") {
-            if (this.diff == null) {
-                if (this.valueOverTime == null) {
-                    this.diff = new ValueOverTimeDiff();
-                    this.diff.action = "CREATE";
-                    (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
-                } else {
-                    if (this.valueOverTime.startDate === startDate) {
-                        return;
-                    }
-
-                    this.diff = new ValueOverTimeDiff();
-                    this.diff.action = "UPDATE";
-                    this.diff.oid = this.valueOverTime.oid;
-                    this.diff.oldValue = this.valueOverTime.value;
-                    this.diff.oldStartDate = this.valueOverTime.startDate;
-                    this.diff.oldEndDate = this.valueOverTime.endDate;
-                    (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
-                }
-            }
-
-            if (startDate === this.diff.oldStartDate) {
-                delete this.diff.newStartDate;
-            } else {
-                this.diff.newStartDate = startDate;
-            }
-
-            // If no changes have been made then remove the diff
-            this.removeEmptyDiff();
-        } else if (this.action.actionType === "CreateGeoObjectAction") {
-            this.valueOverTime.startDate = startDate;
-        }
-
-        this.changeRequestAttributeEditor.onChange();
-        this.onChangeSubject.next("startDate");
     }
 
     set oldStartDate(oldStartDate: string) {
@@ -147,11 +136,49 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     get endDate(): string {
         if (this.diff != null && this.diff.newEndDate !== undefined) {
             return this.diff.newEndDate;
-        } else if (this.valueOverTime != null) {
-            return this.valueOverTime.endDate;
+        } else if (this.getGeoObjectTimeRangeStorage() != null) {
+            return this.getGeoObjectTimeRangeStorage().endDate;
         }
 
         return null;
+    }
+
+    set startDate(startDate: string) {
+        if (this.diff != null && this.diff.action === "DELETE") {
+            return; // There are various view components (like the date widgets) which will invoke this method
+        }
+
+        let goRange = this.getGeoObjectTimeRangeStorage();
+
+        if (this.action.actionType === "UpdateAttributeAction") {
+            if (this.diff == null) {
+                if (this.getGeoObjectTimeRangeStorage() == null) {
+                    this.constructNewDiff("CREATE");
+                } else {
+                    if (goRange.startDate === startDate) {
+                        return;
+                    }
+
+                    this.constructNewDiff("UPDATE");
+
+                    this.diff.oldValue = this.getValueFromGeoObjectForDiff();
+                }
+            }
+
+            if (startDate === this.diff.oldStartDate) {
+                delete this.diff.newStartDate;
+            } else {
+                this.diff.newStartDate = startDate;
+            }
+
+            // If no changes have been made then remove the diff
+            this.removeEmptyDiff();
+        } else if (this.action.actionType === "CreateGeoObjectAction") {
+            goRange.startDate = startDate;
+        }
+
+        this.changeRequestAttributeEditor.onChange();
+        this.onChangeSubject.next("startDate");
     }
 
     set endDate(endDate: string) {
@@ -159,25 +186,20 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             return; // There are various view components (like the date widgets) which will invoke this method
         }
 
+        let goRange = this.getGeoObjectTimeRangeStorage();
+
         if (this.action.actionType === "UpdateAttributeAction") {
             if (this.diff == null) {
-                if (this.valueOverTime == null) {
-                    this.diff = new ValueOverTimeDiff();
-                    this.diff.oid = uuid();
-                    this.diff.action = "CREATE";
-                    (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
+                if (goRange == null) {
+                    this.constructNewDiff("CREATE");
                 } else {
-                    if (this.valueOverTime.endDate === endDate) {
+                    if (goRange.endDate === endDate) {
                         return;
                     }
 
-                    this.diff = new ValueOverTimeDiff();
-                    this.diff.action = "UPDATE";
-                    this.diff.oid = this.valueOverTime.oid;
-                    this.diff.oldValue = this.valueOverTime.value;
-                    this.diff.oldStartDate = this.valueOverTime.startDate;
-                    this.diff.oldEndDate = this.valueOverTime.endDate;
-                    (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
+                    this.constructNewDiff("UPDATE");
+
+                    this.diff.oldValue = this.getValueFromGeoObjectForDiff();
                 }
             }
 
@@ -190,7 +212,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             // If no changes have been made then remove the diff
             this.removeEmptyDiff();
         } else if (this.action.actionType === "CreateGeoObjectAction") {
-            this.valueOverTime.endDate = endDate;
+            goRange.endDate = endDate;
         }
 
         this.changeRequestAttributeEditor.onChange();
@@ -214,8 +236,8 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     get value(): any {
         if (this.diff != null && this.diff.newValue !== undefined) {
             return this.diff.newValue;
-        } else if (this.valueOverTime != null) {
-            return this.valueOverTime.value;
+        } else if (this.getGeoObjectTimeRangeStorage() != null) {
+            return this.getGeoObjectTimeRangeStorage().value;
         }
 
         return null;
@@ -242,7 +264,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
         if (this.action.actionType === "UpdateAttributeAction") {
             if (this.diff == null) {
-                if (this.valueOverTime == null) {
+                if (this.getGeoObjectTimeRangeStorage() == null) {
                     this.diff = new ValueOverTimeDiff();
                     this.diff.oid = uuid();
                     this.diff.action = "CREATE";
@@ -254,10 +276,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
                     this.diff = new ValueOverTimeDiff();
                     this.diff.action = "UPDATE";
-                    this.diff.oid = this.valueOverTime.oid;
+                    this.diff.oid = this.getGeoObjectTimeRangeStorage().oid;
                     this.diff.oldValue = this.valueOverTime.value;
-                    this.diff.oldStartDate = this.valueOverTime.startDate;
-                    this.diff.oldEndDate = this.valueOverTime.endDate;
+                    this.diff.oldStartDate = this.getGeoObjectTimeRangeStorage().startDate;
+                    this.diff.oldEndDate = this.getGeoObjectTimeRangeStorage().endDate;
                     (this.action as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(this.diff);
                 }
             }

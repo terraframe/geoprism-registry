@@ -84,7 +84,7 @@ export class FeaturePanelComponent implements OnInit {
     }
 
     isValid(): boolean {
-        return this._isValid && this.attributeEditor.isValid();
+        return this._isValid && this.attributeEditor && this.attributeEditor.isValid();
     }
 
     updateCode(code: string): void {

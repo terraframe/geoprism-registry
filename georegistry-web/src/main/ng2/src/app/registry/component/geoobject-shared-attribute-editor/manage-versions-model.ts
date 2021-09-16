@@ -19,7 +19,7 @@ export class Layer {
 
 /*
  * This class exists purely for the purpose of storing what data to be rendered to the front-end. Any storage or submission of this data to the back-end must be translated
- * using the edit propagator.
+ * using the editor.
  */
 export class VersionDiffView {
 
@@ -47,9 +47,18 @@ export class VersionDiffView {
   }
 
   populate(editor: ValueOverTimeCREditor) {
-      if (this.component.attributeType.type === "local" && this._value != null) {
+      if (this.component.attributeType.type === "local" && this._value != null && this.editor.value != null) {
           // The front-end glitches out if we swap to a new object. We have to update the existing object to be the same
           LocalizedValue.populate(this._value, this.editor.value);
+      } else if (this.component.attributeType.code === "_PARENT_" && this._value != null && this.editor.value != null && this.editor.value.parents != null) {
+          for (let i = 0; i < this.component.hierarchy.types.length; i++) {
+              let current = this.component.hierarchy.types[i];
+
+              this._value.parents[current.code].text = this.editor.value.parents[current.code].text;
+              this._value.parents[current.code].geoObject = this.editor.value.parents[current.code].geoObject;
+          }
+
+          // this._value.loading = this.editor.value.loading;
       } else {
           this._value = this.convertValueForDisplay(this.editor.value == null ? null : JSON.parse(JSON.stringify(this.editor.value)));
       }
