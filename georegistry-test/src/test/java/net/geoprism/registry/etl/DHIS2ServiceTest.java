@@ -205,6 +205,7 @@ public class DHIS2ServiceTest
     // Create DHIS2 Sync Config
     DHIS2SyncConfig dhis2Config = new DHIS2SyncConfig();
     dhis2Config.setHierarchy(ht);
+    dhis2Config.setHierarchyCode(ht.getCode());
     dhis2Config.setLabel(new LocalizedValue("DHIS2 Export Test Data"));
     dhis2Config.setOrganization(org);
 

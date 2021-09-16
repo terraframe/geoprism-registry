@@ -19,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -46,6 +47,7 @@ public class XMLImporterTest
     MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
     mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
     mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
+    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
     mdClassification.apply();
 

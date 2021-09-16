@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -55,6 +53,7 @@ import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -130,6 +129,7 @@ public class ExcelServiceTest
     mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
     mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
     mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     mdClassification.apply();
 
     MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
@@ -143,7 +143,7 @@ public class ExcelServiceTest
     mdClassification.apply();
 
     TestDataSet.deleteAllSchedulerData();
-    
+
     testData = USATestData.newTestData();
     testData.setUpMetadata();
 
@@ -170,7 +170,7 @@ public class ExcelServiceTest
   public static void classTearDown()
   {
     testData.tearDownMetadata();
-    
+
     try
     {
       MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
@@ -278,37 +278,37 @@ public class ExcelServiceTest
 
     return ImportHistory.get(historyId);
   }
-  
+
   private ImportHistory mockImport(GeoObjectImportConfiguration config) throws Throwable
   {
     if (config.getStartDate() == null)
     {
       config.setStartDate(new Date());
     }
-    
+
     if (config.getEndDate() == null)
     {
       config.setEndDate(new Date());
     }
-    
+
     config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
-    
+
     DataImportJob job = new DataImportJob();
     job.apply();
     ImportHistory hist = (ImportHistory) job.createNewHistory();
-    
+
     config.setHistoryId(hist.getOid());
     config.setJobId(job.getOid());
-    
+
     ServerGeoObjectType type = config.getType();
-    
+
     hist.appLock();
     hist.setImportFileId(config.getVaultFileId());
     hist.setConfigJson(config.toJSON().toString());
     hist.setOrganization(type.getOrganization());
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
-    
+
     ExecutionContext context = MockScheduler.executeJob(job, hist);
 
     hist = (ImportHistory) context.getHistory();
@@ -739,7 +739,7 @@ public class ExcelServiceTest
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
-    
+
     ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();

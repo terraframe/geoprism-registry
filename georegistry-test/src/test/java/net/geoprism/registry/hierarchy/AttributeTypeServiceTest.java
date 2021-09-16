@@ -40,6 +40,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -133,6 +134,7 @@ public class AttributeTypeServiceTest
     mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
     mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
     mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
     mdClassification.apply();
 
     MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
