@@ -183,6 +183,25 @@ public class FhirExportSynchronizationManager
     File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
     root.mkdirs();
 
+    Bundle bundle = this.generateBundle();
+
+    FhirContext ctx = FhirContext.forR4();
+    IParser parser = ctx.newJsonParser();
+
+    try
+    {
+      parser.encodeResourceToWriter(bundle, new FileWriter(new File(root, "bundle.json")));
+    }
+    catch (DataFormatException | IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+
+    return root;
+  }
+
+  public Bundle generateBundle()
+  {
     final FhirExternalSystem system = (FhirExternalSystem) this.config.getSystem();
 
     SortedSet<FhirSyncLevel> levels = this.config.getLevels();
@@ -207,20 +226,7 @@ public class FhirExportSynchronizationManager
 
       expectedLevel++;
     }
-
-    FhirContext ctx = FhirContext.forR4();
-    IParser parser = ctx.newJsonParser();
-
-    try
-    {
-      parser.encodeResourceToWriter(bundle, new FileWriter(new File(root, "bundle.json")));
-    }
-    catch (DataFormatException | IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-
-    return root;
+    return bundle;
   }
 
 }

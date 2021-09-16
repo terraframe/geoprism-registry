@@ -26,10 +26,7 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
-import org.commongeoregistry.adapter.metadata.AttributeDateType;
-import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONObject;
@@ -57,13 +54,13 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.AbstractClassification;
-import com.runwaysdk.system.scheduler.SchedulerManager;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.DuplicateMasterListException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListBuilder;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
@@ -78,58 +75,6 @@ import net.geoprism.registry.test.USATestData;
 
 public class MasterListTest
 {
-  private static class MasterListBuilder
-  {
-    private Organization            org;
-
-    private TestHierarchyTypeInfo   ht;
-
-    private TestGeoObjectTypeInfo   info;
-
-    private String                  visibility;
-
-    private boolean                 isMaster;
-
-    private TestGeoObjectTypeInfo[] parents;
-
-    private TestHierarchyTypeInfo[] subtypeHierarchies;
-
-    public void setOrg(Organization org)
-    {
-      this.org = org;
-    }
-
-    public void setHt(TestHierarchyTypeInfo ht)
-    {
-      this.ht = ht;
-    }
-
-    public void setInfo(TestGeoObjectTypeInfo info)
-    {
-      this.info = info;
-    }
-
-    public void setVisibility(String visibility)
-    {
-      this.visibility = visibility;
-    }
-
-    public void setMaster(boolean isMaster)
-    {
-      this.isMaster = isMaster;
-    }
-
-    public void setParents(TestGeoObjectTypeInfo... parents)
-    {
-      this.parents = parents;
-    }
-
-    public void setSubtypeHierarchies(TestHierarchyTypeInfo... subtypeHierarchies)
-    {
-      this.subtypeHierarchies = subtypeHierarchies;
-    }
-  }
-
   private static String                      CLASSIFICATION_TYPE = "test.classification.TestClassification";
 
   private static String                      CODE                = "Test Term";
@@ -502,9 +447,7 @@ public class MasterListTest
       builder.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
       builder.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
 
-      JsonObject json = getJson(builder);
-
-      MasterList test = MasterList.create(json);
+      MasterList test = builder.build();
 
       try
       {
@@ -956,67 +899,7 @@ public class MasterListTest
     builder.setMaster(isMaster);
     builder.setParents(parents);
 
-    return getJson(builder);
-  }
-
-  @Request
-  public static JsonObject getJson(MasterListBuilder builder)
-  {
-    JsonArray pArray = new JsonArray();
-    for (TestGeoObjectTypeInfo parent : builder.parents)
-    {
-      JsonObject object = new JsonObject();
-      object.addProperty("code", parent.getCode());
-      object.addProperty("selected", true);
-
-      pArray.add(object);
-    }
-
-    JsonObject hierarchy = new JsonObject();
-    hierarchy.addProperty("code", builder.ht.getCode());
-    hierarchy.add("parents", pArray);
-
-    JsonArray array = new JsonArray();
-    array.add(hierarchy);
-
-    MasterList list = new MasterList();
-    list.setUniversal(builder.info.getUniversal());
-    list.getDisplayLabel().setValue("Test List");
-    list.setCode("TEST_CODE");
-    list.setRepresentativityDate(new Date());
-    list.setPublishDate(new Date());
-    list.setListAbstract("My Abstract");
-    list.setProcess("Process");
-    list.setProgress("Progress");
-    list.setAccessConstraints("Access Contraints");
-    list.setUseConstraints("User Constraints");
-    list.setAcknowledgements("Acknowledgements");
-    list.setDisclaimer("Disclaimer");
-    list.setContactName("Contact Name");
-    list.setOrganization(builder.org);
-    list.setTelephoneNumber("Telephone Number");
-    list.setEmail("Email");
-    list.setHierarchies(array.toString());
-    list.addFrequency(ChangeFrequency.ANNUAL);
-    list.setIsMaster(builder.isMaster);
-    list.setVisibility(builder.visibility);
-
-    if (builder.subtypeHierarchies != null)
-    {
-      JsonArray hArray = new JsonArray();
-      for (TestHierarchyTypeInfo ht : builder.subtypeHierarchies)
-      {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", ht.getCode());
-        object.addProperty("selected", true);
-
-        hArray.add(object);
-
-      }
-      list.setSubtypeHierarchies(hArray.toString());
-    }
-
-    return list.toJSON();
+    return builder.buildJSON();
   }
 
 }
