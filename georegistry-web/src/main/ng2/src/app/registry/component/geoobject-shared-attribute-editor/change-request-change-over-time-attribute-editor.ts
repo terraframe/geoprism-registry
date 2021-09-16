@@ -229,7 +229,33 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
             editor.value = null;
         }
 
+        if (this.changeRequestEditor.changeRequest.type === "CreateGeoObject") {
+            if (this.attribute.code === "_PARENT_") {
+                //this.hierarchy.entries.push((editor as HierarchyCREditor).hierarchyEntry);
+            } else {
+                //this.changeRequestEditor.geoObject.attributes[this.attribute.code].values.push(editor.valueOverTime);
+            }
+        } else {
+            //editor.diff = new ValueOverTimeDiff();
+            //editor.diff.action = "CREATE";
+            //(this.editAction as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(editor.diff);
+        }
+
+        this.editors.push(editor);
+
         return editor;
+    }
+
+    public remove(editor: ValueOverTimeCREditor) {
+        let index = this.editors.findIndex(find => find.oid === editor.oid);
+
+        if (index !== -1) {
+            this.editors.splice(1, index);
+        }
+
+        editor.remove();
+
+        this.validate();
     }
 
 }

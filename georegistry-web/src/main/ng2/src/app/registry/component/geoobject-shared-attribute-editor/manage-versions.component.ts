@@ -145,16 +145,12 @@ export class ManageVersionsComponent implements OnInit {
         }, 0);
     }
 
-    public stringify(obj: any): string {
-        return JSON.stringify(obj);
-    }
-
     remove(view: VersionDiffView): void {
         if (this.geomService.isEditing()) {
             this.geomService.stopEditing();
         }
 
-        view.editor.remove();
+        this.changeRequestAttributeEditor.remove(view.editor);
 
         if (view.summaryKey === SummaryKey.NEW || this.changeRequestEditor.changeRequest.type === "CreateGeoObject") {
             const index = this.viewModels.findIndex(v => v.editor.oid === view.editor.oid);
@@ -163,8 +159,6 @@ export class ManageVersionsComponent implements OnInit {
                 this.viewModels.splice(index, 1);
             }
         }
-
-        this.onDateChange();
 
         if (this.attributeType.type === "geometry") {
             this.geomService.reload();
@@ -185,64 +179,11 @@ export class ManageVersionsComponent implements OnInit {
             }
         }
 
-        this.calculateViewModels();
-
-        // this.changeDetectorRef.detectChanges();
-    }
-
-    getVersionData(attribute: AttributeType) {
-        let versions: ValueOverTime[] = [];
-
-        this.changeRequestEditor.geoObject.attributes[attribute.code].values.forEach(vAttribute => {
-            vAttribute.value.localeValues.forEach(val => {
-                versions.push(val);
-            });
-        });
-
-        return versions;
+        this.viewModels.push(new VersionDiffView(this, editor));
     }
 
     getValueAtLocale(lv: LocalizedValue, locale: string) {
         return new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
-    }
-
-    getDefaultLocaleVal(locale: any): string {
-        let defVal = null;
-
-        locale.localeValues.forEach(locVal => {
-            if (locVal.locale === "defaultLocale") {
-                defVal = locVal.value;
-            }
-        });
-
-        return defVal;
-    }
-
-    findViewByOid(oid: string, viewModels: VersionDiffView[]): VersionDiffView {
-        if (!viewModels) {
-            viewModels = this.viewModels;
-        }
-
-        let len = viewModels.length;
-        for (let i = 0; i < len; ++i) {
-            let view = viewModels[i];
-
-            if (view.editor.oid === oid) {
-                return view;
-            }
-        }
-
-        return null;
-    }
-
-    findPostGeoObjectVOT(oid: string) {
-        this.changeRequestEditor.geoObject.attributes[this.attributeType.code].values.forEach((vot: ValueOverTime) => {
-            if (vot.oid === oid) {
-                return vot;
-            }
-        });
-
-        return null;
     }
 
     public getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {
@@ -262,114 +203,10 @@ export class ManageVersionsComponent implements OnInit {
         let editors = this.changeRequestAttributeEditor.getEditors(includeUnmodified);
         editors.forEach((editor: ValueOverTimeCREditor) => {
             let view = new VersionDiffView(this, editor);
-
-            if (editor.diff != null) {
-                // this.populateViewFromDiff(this.attributeType.code, this.hierarchy, view, editor.diff, editor);
-            } else {
-                // view.value = view.convertValueForDisplay(JSON.parse(JSON.stringify(editor.value)));
-                // view.startDate = view.convertDateForDisplay(JSON.parse(JSON.stringify(editor.startDate)));
-                // view.endDate = view.convertDateForDisplay(JSON.parse(JSON.stringify(editor.endDate)));
-            }
-
-            view.calculateSummaryKey();
-
             viewModels.push(view);
         });
 
         this.viewModels = viewModels;
-    }
-/*
-    populateViewFromDiff(typeCode: string, hierarchy: HierarchyOverTime, view: VersionDiffView, votDiff: ValueOverTimeDiff, editor: ValueOverTimeCREditor) {
-        if (typeCode === "_PARENT_") {
-            view.value = (editor as HierarchyCREditor).createEmptyHierarchyEntry();
-            view.value.oid = votDiff.oid;
-            view.value.startDate = view.convertDateForDisplay(votDiff.newStartDate || votDiff.oldStartDate);
-            view.value.endDate = view.convertDateForDisplay(votDiff.newEndDate || votDiff.oldEndDate);
-
-            view.value.parents = votDiff.parents;
-
-            if (!view.value.parents) {
-                view.value.parents = {};
-            }
-
-            // In the corner case where this object isn't assigned to the lowest level, we may have
-            // empty values in our parents array for some of the types. Our front-end assumes there
-            // will always be an entry for all the types.
-            let len = hierarchy.types.length;
-            for (let i = 0; i < len; ++i) {
-                let type = hierarchy.types[i];
-
-                if (!Object.prototype.hasOwnProperty.call(view.value.parents, type.code)) {
-                    view.value.parents[type.code] = { text: "", geoObject: null };
-                }
-            }
-
-            view.value.loading = {};
-
-            if (votDiff.oldValue != null) {
-                let oldCodeArray: string[] = votDiff.oldValue.split("_~VST~_");
-                // let oldTypeCode: string = oldCodeArray[0];
-                let oldGoCode: string = oldCodeArray[1];
-
-                view.oldValue = oldGoCode;
-
-                let len = hierarchy.types.length;
-                for (let i = len - 1; i >= 0; --i) {
-                    let type = hierarchy.types[i];
-
-                    if (votDiff.parents && Object.prototype.hasOwnProperty.call(votDiff.parents, type.code)) {
-                        let lowestLevel = votDiff.parents[type.code];
-
-                        if (lowestLevel.text == null || lowestLevel.text.length === 0) {
-                            lowestLevel.text = oldGoCode;
-                            break;
-                        }
-                    }
-                }
-            }
-        } else {
-            if (votDiff.newValue != null) {
-                view.value = view.convertValueForDisplay(JSON.parse(JSON.stringify(votDiff.newValue)));
-                view.oldValue = view.convertValueForDisplay(votDiff.oldValue == null ? null : JSON.parse(JSON.stringify(votDiff.oldValue)));
-            } else {
-                view.value = view.convertValueForDisplay(votDiff.oldValue == null ? null : JSON.parse(JSON.stringify(votDiff.oldValue)));
-            }
-        }
-
-        view.oid = votDiff.oid;
-        view.startDate = view.convertDateForDisplay(votDiff.newStartDate || votDiff.oldStartDate);
-        view.endDate = view.convertDateForDisplay(votDiff.newEndDate || votDiff.oldEndDate);
-        if (votDiff.newStartDate !== votDiff.oldStartDate) {
-            view.oldStartDate = view.convertDateForDisplay(votDiff.newStartDate == null ? null : votDiff.oldStartDate);
-        }
-        if (votDiff.newEndDate !== votDiff.oldEndDate) {
-            view.oldEndDate = view.convertDateForDisplay(votDiff.newEndDate == null ? null : votDiff.oldEndDate);
-        }
-    }
-    */
-
-    isStatusChanged(post, pre) {
-        if ((pre != null && post == null) || (post != null && pre == null)) {
-            return true;
-        } else if (pre == null && post == null) {
-            return false;
-        }
-
-        if ((pre.length === 0 && post.length > 0) || (post.length === 0 && pre.length > 0)) {
-            return true;
-        }
-
-        let preCompare = pre;
-        if (Array.isArray(pre)) {
-            preCompare = pre[0];
-        }
-
-        let postCompare = post;
-        if (Array.isArray(post)) {
-            postCompare = post[0];
-        }
-
-        return preCompare !== postCompare;
     }
 
     onApprove(): void {

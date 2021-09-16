@@ -29,8 +29,8 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
 
     validate(): boolean {
         let dateService = this.changeRequestAttributeEditor.changeRequestEditor.dateService;
-        let start = dateService.validateDate(dateService.getDateFromDateString(this.startDate), true, true);
-        let end = dateService.validateDate(dateService.getDateFromDateString(this.endDate), true, true);
+        let start = dateService.validateDate(this.startDate == null ? null : dateService.getDateFromDateString(this.startDate), true, true);
+        let end = dateService.validateDate(this.endDate == null ? null : dateService.getDateFromDateString(this.endDate), true, true);
         this._isValid = true;
 
         if (!start.valid || !end.valid) {
@@ -79,7 +79,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     get startDate(): string {
-        if (this.diff != null) {
+        if (this.diff != null && this.diff.newStartDate !== undefined) {
             return this.diff.newStartDate;
         } else if (this.valueOverTime != null) {
             return this.valueOverTime.startDate;
@@ -145,7 +145,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     get endDate(): string {
-        if (this.diff != null) {
+        if (this.diff != null && this.diff.newEndDate !== undefined) {
             return this.diff.newEndDate;
         } else if (this.valueOverTime != null) {
             return this.valueOverTime.endDate;
@@ -212,7 +212,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     get value(): any {
-        if (this.diff != null) {
+        if (this.diff != null && this.diff.newValue !== undefined) {
             return this.diff.newValue;
         } else if (this.valueOverTime != null) {
             return this.valueOverTime.value;
@@ -292,9 +292,8 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         return null;
     }
 
-    public setLocalizedValue(localeValue: {locale: string, value: string}) {
-        // eslint-disable-next-line no-self-assign
-        this.value = JSON.parse(JSON.stringify(this.value));
+    public setLocalizedValue(localizedValue: LocalizedValue) {
+        this.value = JSON.parse(JSON.stringify(localizedValue));
     }
 
     removeEmptyDiff(): void {
@@ -326,10 +325,6 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             return false;
         }
 
-      // if (this.attr.type === "local")
-      // {
-        // Not used anymore
-      // }
         if (this.attr.type === "term") {
             if (val1 != null && val2 != null) {
                 return val1.length === val2.length && val1[0] === val2[0];
@@ -387,6 +382,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
                 delete this.diff.newEndDate;
                 this.removeEmptyDiff();
                 this.changeRequestAttributeEditor.onChange();
+                this.onChangeSubject.next("remove");
                 return;
             } else if (this.valueOverTime != null && this.diff == null) {
                 this.diff = new ValueOverTimeDiff();
@@ -408,6 +404,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         }
 
         this.changeRequestAttributeEditor.onChange();
+        this.onChangeSubject.next("remove");
     }
 
 }

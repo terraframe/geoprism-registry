@@ -3,6 +3,7 @@ import { ManageVersionsComponent } from "./manage-versions.component";
 import { ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { LayerColor } from "@registry/model/constants";
+import { LocalizedValue } from "@shared/model/core";
 
 export class Layer {
 
@@ -32,15 +33,28 @@ export class VersionDiffView {
   newCoordinateY? : any;
   editor: ValueOverTimeCREditor;
 
+  // We must track our own value, so that they can be diffed when setting.
   _value: any;
 
   constructor(component: ManageVersionsComponent, editor: ValueOverTimeCREditor) {
       this.component = component;
       this.editor = editor;
-      this._value = this.convertValueForDisplay(JSON.parse(JSON.stringify(this.editor.value)));
-      //this.editor.onChangeSubject.subscribe(() => {
-      //    this.calculateSummaryKey();
-      //});
+
+      this.populate(editor);
+      this.editor.onChangeSubject.subscribe(() => {
+          this.populate(this.editor);
+      });
+  }
+
+  populate(editor: ValueOverTimeCREditor) {
+      if (this.component.attributeType.type === "local" && this._value != null) {
+          // The front-end glitches out if we swap to a new object. We have to update the existing object to be the same
+          LocalizedValue.populate(this._value, this.editor.value);
+      } else {
+          this._value = this.convertValueForDisplay(this.editor.value == null ? null : JSON.parse(JSON.stringify(this.editor.value)));
+      }
+
+      this.calculateSummaryKey();
   }
 
   set oid(oid: string) {
@@ -65,7 +79,11 @@ export class VersionDiffView {
   }
 
   get oldStartDate(): string {
-      return this.convertDateForDisplay(this.editor.oldStartDate);
+      if (this.editor.diff != null && this.editor.diff.newStartDate != null && this.editor.oldStartDate) {
+          return this.convertDateForDisplay(this.editor.oldStartDate);
+      }
+
+      return null;
   }
 
   get endDate(): string {
@@ -82,24 +100,19 @@ export class VersionDiffView {
   }
 
   get oldEndDate(): string {
-      return this.convertDateForDisplay(this.editor.oldEndDate);
+      if (this.editor.diff != null && this.editor.diff.newEndDate != null && this.editor.oldEndDate) {
+          return this.convertDateForDisplay(this.editor.oldEndDate);
+      }
+
+      return null;
   }
 
   get value(): any {
-      //return this.convertValueForDisplay(JSON.parse(JSON.stringify(this.editor.value)));
-      //let stringy = JSON.parse(JSON.stringify(this.editor.value));
-      //return this.convertValueForDisplay(stringy);
-      //return this.convertValueForDisplay(this.editor.value);
-      //return this.editor.value;
-      //return null;
-
       return this._value;
   }
 
   set value(value: any) {
       this.editor.value = value;
-      this._value = this.convertValueForDisplay(JSON.parse(JSON.stringify(this.editor.value)));
-      this.calculateSummaryKey();
   }
 
   set oldValue(oldValue: any) {
@@ -107,7 +120,11 @@ export class VersionDiffView {
   }
 
   get oldValue(): any {
-      return this.convertValueForDisplay(JSON.parse(JSON.stringify(this.editor.oldValue)));
+      if (this.editor.diff != null && this.editor.diff.newValue != null && this.editor.oldValue) {
+          return this.convertValueForDisplay(this.editor.oldValue);
+      }
+
+      return null;
   }
 
   convertDateForDisplay(date: string): string {
