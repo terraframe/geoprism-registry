@@ -80,7 +80,7 @@ export class VersionDiffView {
   }
 
   get startDate(): string {
-      if (this.editor.diff.action === "DELETE") {
+      if (this.editor.diff != null && this.editor.diff.action === "DELETE") {
           return this.editor.oldStartDate;
       }
 
@@ -97,7 +97,7 @@ export class VersionDiffView {
   }
 
   get oldStartDate(): string {
-      if (this.editor.diff.action === "DELETE") {
+      if (this.editor.diff != null && this.editor.diff.action === "DELETE") {
           return null;
       }
 
@@ -109,7 +109,7 @@ export class VersionDiffView {
   }
 
   get endDate(): string {
-      if (this.editor.diff.action === "DELETE") {
+      if (this.editor.diff != null && this.editor.diff.action === "DELETE") {
           return this.editor.oldEndDate;
       }
 
@@ -126,7 +126,7 @@ export class VersionDiffView {
   }
 
   get oldEndDate(): string {
-      if (this.editor.diff.action === "DELETE") {
+      if (this.editor.diff != null && this.editor.diff.action === "DELETE") {
           return null;
       }
 
@@ -150,7 +150,7 @@ export class VersionDiffView {
   }
 
   get oldValue(): any {
-      if (this.editor.diff.action === "DELETE") {
+      if (this.editor.diff != null && this.editor.diff.action === "DELETE") {
           return null;
       }
 
