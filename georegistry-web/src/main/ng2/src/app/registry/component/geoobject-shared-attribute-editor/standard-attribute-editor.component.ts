@@ -30,6 +30,7 @@ import { LocalizationService } from "@shared/service";
 
 import { ControlContainer, NgForm } from "@angular/forms";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
+import { ChangeRequestEditor } from "./change-request-editor";
 
 @Component({
     selector: "standard-attribute-editor",
@@ -87,7 +88,9 @@ export class StandardAttributeEditorComponent implements OnInit {
         value: any;
     };
 
-    model: StandardAttributeCRModel;
+    @Input() changeRequestEditor: ChangeRequestEditor;
+
+    changeRequestAttributeEditor: StandardAttributeCRModel;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
@@ -95,19 +98,15 @@ export class StandardAttributeEditorComponent implements OnInit {
         private requestService: ChangeRequestService, private modalService: BsModalService, private elementRef: ElementRef) { }
 
     ngOnInit(): void {
-        this.model = new StandardAttributeCRModel(this.attributeType, this.geoObject, this.changeRequest);
+        this.changeRequestAttributeEditor = this.changeRequestEditor.getEditorForAttribute(this.attributeType, null) as StandardAttributeCRModel;
         this.calculateView();
     }
 
     ngAfterViewInit() {
     }
 
-    public stringify(obj: any): string {
-        return JSON.stringify(obj);
-    }
-
     calculateView(): void {
-        let diff = this.model.diff;
+        let diff = this.changeRequestAttributeEditor.diff;
 
         if (diff != null) {
             let newVal = diff.newValue == null ? null : JSON.parse(JSON.stringify(diff.newValue));
@@ -122,7 +121,7 @@ export class StandardAttributeEditorComponent implements OnInit {
             }
         } else {
             this.view = {
-                value: this.model.value,
+                value: this.changeRequestAttributeEditor.value,
                 summaryKey: SummaryKey.UNMODIFIED,
                 summaryKeyLocalized: this.lService.decode("changeovertime.manageVersions.summaryKey." + SummaryKey.UNMODIFIED)
             };
@@ -134,7 +133,7 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     onApprove(): void {
-        let editAction = this.model.editAction;
+        let editAction = this.changeRequestAttributeEditor.editAction;
 
         this.requestService.setActionStatus(editAction.oid, GovernanceStatus.ACCEPTED).then(results => {
             editAction.approvalStatus = GovernanceStatus.ACCEPTED;
@@ -144,7 +143,7 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     onReject(): void {
-        let editAction = this.model.editAction;
+        let editAction = this.changeRequestAttributeEditor.editAction;
 
         this.requestService.setActionStatus(editAction.oid, GovernanceStatus.REJECTED).then(results => {
             editAction.approvalStatus = GovernanceStatus.REJECTED;
@@ -154,7 +153,7 @@ export class StandardAttributeEditorComponent implements OnInit {
     }
 
     onPending(): void {
-        let editAction = this.model.editAction;
+        let editAction = this.changeRequestAttributeEditor.editAction;
 
         this.requestService.setActionStatus(editAction.oid, GovernanceStatus.PENDING).then(results => {
             editAction.approvalStatus = GovernanceStatus.PENDING;

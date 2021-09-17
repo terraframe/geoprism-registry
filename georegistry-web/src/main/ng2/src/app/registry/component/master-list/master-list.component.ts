@@ -42,7 +42,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
     isRefreshing: boolean = false;
     isWritable: boolean = false;
 
-    filterInvalid = true;
+    showInvalid = false;
 
     /*
      * Reference to the modal current showing
@@ -99,7 +99,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
     }
 
-    onFilterInvalidChange() {
+    onShowInvalidChange() {
         this.onPageChange(1);
     }
 
@@ -129,7 +129,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
         });
 
         this.filter = [];
-        this.filterInvalid = true;
+        this.showInvalid = false;
         this.selected = [];
 
         this.onPageChange(1);
@@ -142,7 +142,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
     getFilter(): { attribute: string, value: string, label: string }[] {
         let newFilter = JSON.parse(JSON.stringify(this.filter));
 
-        if (this.filterInvalid) {
+        if (!this.showInvalid) {
             newFilter.push({ attribute: "invalid", value: "false" });
         }
 

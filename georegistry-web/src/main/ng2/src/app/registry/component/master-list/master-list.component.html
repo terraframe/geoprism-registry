@@ -50,7 +50,7 @@
 
         <div *ngIf="isWritable" class="row form-group">
           <div class="col-md-12 table-responsive" style="">
-	          <boolean-field [(value)]="filterInvalid" (change)="onFilterInvalidChange()" [localizeLabelKey]="'masterlist.filterInvalid'" ></boolean-field>
+	          <boolean-field [(value)]="showInvalid" (change)="onShowInvalidChange()" [localizeLabelKey]="'masterlist.showInvalid'" ></boolean-field>
           </div>
         </div>
         <div *ngIf="filter.length > 0" class="row form-group">

@@ -140,14 +140,6 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
                 this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
                     let editor = new HierarchyCREditor(this, this.attribute, this.editAction, entry, this.hierarchy);
 
-                    /*
-                    editor.oid = entry.oid;
-                    editor.startDate = entry.startDate;
-                    editor.endDate = entry.endDate;
-                    editor.value = JSON.parse(JSON.stringify(entry));
-                    editor.value.loading = {};
-                    */
-
                     editors.push(editor);
                 });
             } else {
@@ -246,20 +238,6 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         } else if (this.attribute.code !== "_PARENT_") {
             editor.value = null;
         }
-
-        /*
-        if (this.changeRequestEditor.changeRequest.type === "CreateGeoObject") {
-            if (this.attribute.code === "_PARENT_") {
-                this.hierarchy.entries.push((editor as HierarchyCREditor).hierarchyEntry);
-            } else {
-                this.changeRequestEditor.geoObject.attributes[this.attribute.code].values.push(editor.valueOverTime);
-            }
-        } else {
-            editor.diff = new ValueOverTimeDiff();
-            editor.diff.action = "CREATE";
-            (this.editAction as UpdateAttributeOverTimeAction).attributeDiff.valuesOverTime.push(editor.diff);
-        }
-        */
 
         this.editors.push(editor);
 

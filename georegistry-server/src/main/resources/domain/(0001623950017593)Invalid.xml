@@ -8,11 +8,11 @@
           <attribute name="defaultLocale" value="Invalid" />
         </attributeStruct>
       </object>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.filterInvalid">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.showInvalid">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="masterlist.filterInvalid" />
+        <attribute name="storeKey" value="masterlist.showInvalid" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Filter Invalid" />
+          <attribute name="defaultLocale" value="Show Invalid Geo-Objects" />
         </attributeStruct>
       </object>
     </createOrUpdate>
