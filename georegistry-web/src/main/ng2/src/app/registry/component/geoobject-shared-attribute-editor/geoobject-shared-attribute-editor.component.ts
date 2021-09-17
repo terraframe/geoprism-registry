@@ -289,7 +289,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             allValid = false;
         }
 
-        return allValid && this.changeRequestEditor.isValid();
+        return allValid && this.changeRequestEditor.validate();
     }
 
     public getActions(): AbstractAction[] {

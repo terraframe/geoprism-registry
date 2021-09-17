@@ -267,10 +267,12 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
     }
 
     public remove(editor: ValueOverTimeCREditor) {
-        let index = this.editors.findIndex(find => find.oid === editor.oid);
+        if ((editor.diff != null && editor.diff.action === "CREATE") || this.changeRequestEditor.changeRequest.type === "CreateGeoObject") {
+            let index = this.editors.findIndex(find => find.oid === editor.oid);
 
-        if (index !== -1) {
-            this.editors.splice(1, index);
+            if (index !== -1) {
+                this.editors.splice(index, 1);
+            }
         }
 
         editor.remove();
