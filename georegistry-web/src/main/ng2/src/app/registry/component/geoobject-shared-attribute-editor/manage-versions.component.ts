@@ -183,7 +183,7 @@ export class ManageVersionsComponent implements OnInit {
     }
 
     getValueAtLocale(lv: LocalizedValue, locale: string) {
-        return new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
+        return lv == null ? null : new LocalizedValue(lv.localizedValue, lv.localeValues).getValue(locale);
     }
 
     public getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {

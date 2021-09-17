@@ -96,6 +96,8 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     get startDate(): string {
         if (this.diff != null && this.diff.newStartDate !== undefined) {
             return this.diff.newStartDate;
+        } else if (this.diff != null && this.diff.oldStartDate !== undefined) {
+            return this.diff.oldStartDate;
         } else if (this.getGeoObjectTimeRangeStorage() != null) {
             return this.getGeoObjectTimeRangeStorage().startDate;
         }
@@ -136,6 +138,8 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     get endDate(): string {
         if (this.diff != null && this.diff.newEndDate !== undefined) {
             return this.diff.newEndDate;
+        } else if (this.diff != null && this.diff.oldStartDate !== undefined) {
+            return this.diff.oldEndDate;
         } else if (this.getGeoObjectTimeRangeStorage() != null) {
             return this.getGeoObjectTimeRangeStorage().endDate;
         }
@@ -236,6 +240,8 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     get value(): any {
         if (this.diff != null && this.diff.newValue !== undefined) {
             return this.diff.newValue;
+        } else if (this.diff != null && this.diff.oldValue !== undefined) {
+            return this.diff.oldValue;
         } else if (this.getGeoObjectTimeRangeStorage() != null) {
             return this.getGeoObjectTimeRangeStorage().value;
         }

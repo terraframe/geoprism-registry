@@ -4,6 +4,7 @@ import { ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { LayerColor } from "@registry/model/constants";
 import { LocalizedValue } from "@shared/model/core";
+import { AttributeTermType, Term } from "@registry/model/registry";
 
 export class Layer {
 
@@ -57,6 +58,8 @@ export class VersionDiffView {
               this._value.parents[current.code].text = this.editor.value.parents[current.code].text;
               this._value.parents[current.code].geoObject = this.editor.value.parents[current.code].geoObject;
           }
+      } else if (this.component.attributeType.code === "_PARENT_") {
+          this._value = this.editor.value;
       } else {
           this._value = this.convertValueForDisplay(this.editor.value == null ? null : JSON.parse(JSON.stringify(this.editor.value)));
       }
@@ -77,7 +80,11 @@ export class VersionDiffView {
   }
 
   get startDate(): string {
-      return this.convertDateForDisplay(this.editor.startDate);
+      if (this.editor.diff.action === "DELETE") {
+          return this.editor.oldStartDate;
+      }
+
+      return this.editor.startDate;
   }
 
   set startDate(startDate: string) {
@@ -90,7 +97,11 @@ export class VersionDiffView {
   }
 
   get oldStartDate(): string {
-      if (this.editor.diff != null && this.editor.diff.newStartDate != null && this.editor.oldStartDate) {
+      if (this.editor.diff.action === "DELETE") {
+          return null;
+      }
+
+      if (this.editor.diff != null && this.editor.diff.newStartDate != null && this.editor.oldStartDate !== undefined) {
           return this.convertDateForDisplay(this.editor.oldStartDate);
       }
 
@@ -98,7 +109,11 @@ export class VersionDiffView {
   }
 
   get endDate(): string {
-      return this.convertDateForDisplay(this.editor.endDate);
+      if (this.editor.diff.action === "DELETE") {
+          return this.editor.oldEndDate;
+      }
+
+      return this.editor.endDate;
   }
 
   set endDate(endDate: string) {
@@ -111,7 +126,11 @@ export class VersionDiffView {
   }
 
   get oldEndDate(): string {
-      if (this.editor.diff != null && this.editor.diff.newEndDate != null && this.editor.oldEndDate) {
+      if (this.editor.diff.action === "DELETE") {
+          return null;
+      }
+
+      if (this.editor.diff != null && this.editor.diff.newEndDate != null && this.editor.oldEndDate !== undefined) {
           return this.convertDateForDisplay(this.editor.oldEndDate);
       }
 
@@ -131,8 +150,12 @@ export class VersionDiffView {
   }
 
   get oldValue(): any {
-      if (this.editor.diff != null && this.editor.diff.newValue != null && this.editor.oldValue) {
-          return this.convertValueForDisplay(this.editor.oldValue);
+      if (this.editor.diff.action === "DELETE") {
+          return null;
+      }
+
+      if (this.editor.diff != null && this.editor.diff.newValue != null && this.editor.oldValue !== undefined) {
+          return this.convertOldValueForDisplay(this.editor.oldValue);
       }
 
       return null;
@@ -142,9 +165,38 @@ export class VersionDiffView {
       return (date == null || date.length === 0) ? null : this.component.dateService.formatDateForDisplay(date);
   }
 
-  convertValueForDisplay(val: any): any {
+  convertOldValueForDisplay(val: any): any {
       if (this.component.attributeType.type === "date") {
-          return val == null ? null : this.component.dateService.formatDateForDisplay(new Date(val));
+          return this.component.dateService.formatDateForDisplay(new Date(val));
+      } else if (this.component.attributeType.code === "_PARENT_" && val.includes("_~VST~_")) {
+          let split = val.split("_~VST~_");
+          // let parentTypeCode = split[0];
+          let parentCode = split[1];
+
+          return parentCode;
+      } else if (this.component.attributeType.type === "term") {
+          let code = val;
+          if (code instanceof Array) {
+              code = val[0];
+          }
+
+          let attrOpts = (this.component.attributeType as AttributeTermType).rootTerm.children;
+
+          let index = attrOpts.findIndex((term:Term) => term.code === code);
+
+          if (index !== -1) {
+              return attrOpts[index].label.localizedValue;
+          } else {
+              return val;
+          }
+      }
+
+      return val;
+  }
+
+  convertValueForDisplay(val: any): any {
+      if (val == null) {
+          return null;
       }
 
       return val;
