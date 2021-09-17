@@ -19,6 +19,10 @@
 	position: absolute;
 }
 
+label.settings > span > i.fa.fa-cog {
+	font-size: 15px;
+}
+
 .full-width-radio-button .errorSpan {
   left: 2.5px;
 }
