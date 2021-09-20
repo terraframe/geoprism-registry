@@ -438,14 +438,17 @@ public class MasterListTest
   {
     TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
+      MasterListBuilder.Hierarchy hierarchy = new MasterListBuilder.Hierarchy();
+      hierarchy.setType(USATestData.HIER_ADMIN);
+      hierarchy.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+      hierarchy.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+
       MasterListBuilder builder = new MasterListBuilder();
       builder.setOrg(USATestData.ORG_NPS.getServerObject());
-      builder.setHt(USATestData.HIER_ADMIN);
       builder.setInfo(USATestData.HEALTH_FACILITY);
       builder.setVisibility(MasterList.PUBLIC);
       builder.setMaster(false);
-      builder.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
-      builder.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+      builder.setHts(hierarchy);
 
       MasterList test = builder.build();
 
@@ -891,13 +894,16 @@ public class MasterListTest
   @Request
   public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, String visibility, boolean isMaster, TestGeoObjectTypeInfo... parents)
   {
+    MasterListBuilder.Hierarchy hierarchy = new MasterListBuilder.Hierarchy();
+    hierarchy.setType(ht);
+    hierarchy.setParents(parents);
+
     MasterListBuilder builder = new MasterListBuilder();
     builder.setOrg(org);
-    builder.setHt(ht);
     builder.setInfo(info);
     builder.setVisibility(visibility);
     builder.setMaster(isMaster);
-    builder.setParents(parents);
+    builder.setHts(hierarchy);
 
     return builder.buildJSON();
   }

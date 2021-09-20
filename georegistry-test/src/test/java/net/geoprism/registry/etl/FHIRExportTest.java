@@ -18,20 +18,32 @@
  */
 package net.geoprism.registry.etl;
 
+import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.CanonicalType;
+import org.hl7.fhir.r4.model.Extension;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.StringType;
+import org.hl7.fhir.r4.model.Type;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
+import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListBuilder;
@@ -56,7 +68,7 @@ public class FHIRExportTest
 
   protected SynchronizationConfigService syncService;
 
-  protected ExternalSystem               system;
+  protected FhirExternalSystem           system;
 
   @BeforeClass
   public static void setUpClass()
@@ -65,6 +77,7 @@ public class FHIRExportTest
 
     testData = USATestData.newTestData();
     testData.setUpMetadata();
+    testData.setUpInstanceData();
 
     classSetupInRequest();
   }
@@ -72,14 +85,20 @@ public class FHIRExportTest
   @Request
   public static void classSetupInRequest()
   {
+    MasterListBuilder.Hierarchy admin = new MasterListBuilder.Hierarchy();
+    admin.setType(USATestData.HIER_ADMIN);
+    admin.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+
+    MasterListBuilder.Hierarchy reportsTo = new MasterListBuilder.Hierarchy();
+    reportsTo.setType(USATestData.HIER_REPORTS_TO);
+    reportsTo.setParents(USATestData.HEALTH_POST);
+
     MasterListBuilder builder = new MasterListBuilder();
     builder.setOrg(USATestData.ORG_NPS.getServerObject());
-    builder.setHt(USATestData.HIER_ADMIN);
-    builder.setInfo(USATestData.HEALTH_FACILITY);
+    builder.setInfo(USATestData.HEALTH_STOP);
     builder.setVisibility(MasterList.PUBLIC);
     builder.setMaster(false);
-    builder.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
-    builder.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+    builder.setHts(admin, reportsTo);
 
     list = builder.build();
 
@@ -127,7 +146,7 @@ public class FHIRExportTest
   }
 
   @Request
-  private ExternalSystem createExternalSystem()
+  private FhirExternalSystem createExternalSystem()
   {
     FhirExternalSystem system = new FhirExternalSystem();
     system.setId("FHIRExportTest");
@@ -190,6 +209,95 @@ public class FHIRExportTest
     Bundle bundle = manager.generateBundle();
 
     // Assert bundle values
+    List<BundleEntryComponent> entries = bundle.getEntry();
+
+    Assert.assertEquals(8, entries.size());
+
+    // Assert the organization entry
+    BundleEntryComponent entry = entries.get(0);
+
+    {
+      Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
+
+      org.hl7.fhir.r4.model.Organization organization = (org.hl7.fhir.r4.model.Organization) entry.getResource();
+
+      Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), organization.getId());
+      Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), organization.getName());
+
+      List<Identifier> identifiers = organization.getIdentifier();
+
+      Assert.assertEquals(1, identifiers.size());
+      Assert.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
+      Assert.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
+
+      List<StringType> aliases = organization.getAlias();
+
+      Assert.assertEquals(1, aliases.size());
+      Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
+
+      List<CanonicalType> profiles = organization.getMeta().getProfile();
+
+      Assert.assertEquals(2, profiles.size());
+      Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Organization", profiles.get(0).getValue());
+      Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionsOrganization", profiles.get(1).getValue());
+
+      Reference partOf = organization.getPartOf();
+
+      Assert.assertNull(partOf.getReference());
+
+      List<Extension> extensions = organization.getExtensionsByUrl("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.hierarchy.extension");
+
+      Assert.assertEquals(2, extensions.size());
+
+      Extension extension = extensions.get(0);
+
+      Assert.assertEquals(USATestData.HIER_ADMIN.getDisplayLabel(), extension.castToCodeableConcept(extension.getExtensionByUrl("hierarchy-type").getValue()).getText());
+      Assert.assertEquals("Organization/" + USATestData.CO_D_ONE.getCode(), extension.castToReference(extension.getExtensionByUrl("part-of").getValue()).getReference());
+
+      extension = extensions.get(1);
+
+      Assert.assertEquals(USATestData.HIER_REPORTS_TO.getDisplayLabel(), extension.castToCodeableConcept(extension.getExtensionByUrl("hierarchy-type").getValue()).getText());
+      Assert.assertEquals("Organization/" + USATestData.HP_TWO.getCode(), extension.castToReference(extension.getExtensionByUrl("part-of").getValue()).getReference());
+    }
+
+    // Assert the corresponding location entry
+    entry = entries.get(1);
+
+    {
+      Assert.assertEquals("Location/" + USATestData.HS_TWO.getCode(), entry.getFullUrl());
+
+      org.hl7.fhir.r4.model.Location location = (org.hl7.fhir.r4.model.Location) entry.getResource();
+
+      Assert.assertEquals("Location/" + USATestData.HS_TWO.getCode(), location.getId());
+      Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), location.getName());
+
+      List<Identifier> identifiers = location.getIdentifier();
+
+      Assert.assertEquals(1, identifiers.size());
+      Assert.assertEquals(USATestData.HS_TWO.getCode(), identifiers.get(0).getValue());
+      Assert.assertEquals(system.getSystem(), identifiers.get(0).getSystem());
+
+      List<StringType> aliases = location.getAlias();
+
+      Assert.assertEquals(1, aliases.size());
+      Assert.assertEquals(USATestData.HS_TWO.getDisplayLabel(), aliases.get(0).asStringValue());
+
+      List<CanonicalType> profiles = location.getMeta().getProfile();
+
+      Assert.assertEquals(2, profiles.size());
+      Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Location", profiles.get(0).getValue());
+      Assert.assertEquals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionLocation", profiles.get(1).getValue());
+
+      Reference managingOrganization = location.getManagingOrganization();
+
+      Assert.assertEquals("Organization/" + USATestData.HS_TWO.getCode(), managingOrganization.getReference());
+
+      Extension extension = location.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/location-boundary-geojson");
+
+      byte[] bytes = Base64.getDecoder().decode(extension.castToAttachment(extension.getValue()).getDataElement().asStringValue());
+
+      Assert.assertEquals(new GeoJsonWriter().write(USATestData.HS_TWO.getGeometry()), new String(bytes));
+    }
   }
 
 }

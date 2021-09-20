@@ -37,6 +37,7 @@ public class DefaultFhirDataPopulator implements FhirDataPopulator
     Location location = facility.getLocation();
     location.setMode(LocationMode.INSTANCE);
     location.setStatus(LocationStatus.ACTIVE);
+    location.addAlias(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE));
 
     Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 

@@ -1,6 +1,8 @@
 package net.geoprism.registry.etl.fhir;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.constants.GeometryType;
@@ -17,6 +19,8 @@ import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Reference;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 
 import net.geoprism.registry.MasterList;
@@ -24,26 +28,26 @@ import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
-public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements FhirDataPopulator
+public class MCSDFhirDataPopulator extends AbstractFhirDataPopulator implements FhirDataPopulator
 {
   private int                          count = 0;
 
   private ArrayList<HealthcareService> services;
 
-  public TestFhirDataPopulator()
+  private List<ServerHierarchyType>    hierarchies;
+
+  public MCSDFhirDataPopulator()
   {
     super();
 
     this.services = new ArrayList<HealthcareService>();
+    this.hierarchies = new LinkedList<ServerHierarchyType>();
   }
 
   @Override
   public boolean supports(MasterListVersion version)
   {
-    MasterList list = version.getMasterlist();
-    ServerGeoObjectType type = list.getGeoObjectType();
-
-    return !type.getCode().equals("Country");
+    return true;
   }
 
   @Override
@@ -55,6 +59,24 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
     this.services.add(createService("ED", "Emergency Department", "14"));
     this.services.add(createService("DEN", "Dental", "10"));
     this.services.add(createService("MEN", "Mental Health", "22"));
+
+    MasterList list = version.getMasterlist();
+
+    JsonArray hierarchies = list.getHierarchiesAsJson();
+
+    for (int i = 0; i < hierarchies.size(); i++)
+    {
+      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
+
+      String hCode = hierarchy.get("code").getAsString();
+
+      List<String> pCodes = list.getParentCodes(hierarchy);
+
+      if (pCodes.size() > 0)
+      {
+        this.hierarchies.add(ServerHierarchyType.get(hCode));
+      }
+    }
   }
 
   @Override
@@ -65,7 +87,7 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
     ServerGeoObjectType type = this.getList().getGeoObjectType();
     String label = type.getLabel().getValue();
     String system = this.getContext().getSystem();
-    
+
     CodeableConcept concept = new CodeableConcept().setText(label).addCoding(new Coding(system, type.getCode(), label));
 
     Location location = facility.getLocation();
@@ -93,7 +115,17 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
       organization.addType(new CodeableConcept().addCoding(new Coding("urn:ietf:rfc:3986", "urn:ihe:iti:mcsd:2019:jurisdiction", "Jurisdiction")));
     }
 
-    this.addHierarchyValue(row, facility, ServerHierarchyType.get("Around"));
+    if (this.hierarchies.size() > 1)
+    {
+      for (ServerHierarchyType hierarchy : this.hierarchies)
+      {
+        this.addHierarchyExtension(row, facility, hierarchy);
+      }
+    }
+    else if (this.hierarchies.size() == 1)
+    {
+      this.setPartOf(row, facility, this.hierarchies.get(0));
+    }
   }
 
   @Override
@@ -101,10 +133,15 @@ public class TestFhirDataPopulator extends AbstractFhirDataPopulator implements 
   {
     int index = this.count % this.services.size();
 
-    HealthcareService service = services.get(index);
-    service.addLocation(new Reference(facility.getLocation().getIdElement()));
+    boolean isPoint = facility.getOrganization().getMeta().getProfile().stream().filter(p -> p.getValue().equals("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.FacilityOrganization")).count() > 0;
 
-    this.count++;
+    if (isPoint)
+    {
+      HealthcareService service = services.get(index);
+      service.addLocation(new Reference(facility.getLocation().getIdElement()));
+
+      this.count++;
+    }
   }
 
   @Override

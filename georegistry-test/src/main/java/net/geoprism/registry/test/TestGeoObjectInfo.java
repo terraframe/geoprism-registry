@@ -217,7 +217,10 @@ public class TestGeoObjectInfo
     try
     {
       final WKTReader reader = new WKTReader(new GeometryFactory());
-      return reader.read(this.getWkt());
+
+      Geometry geometry = reader.read(this.getWkt());
+      geometry.setSRID(4326);
+      return geometry;
     }
     catch (ParseException e)
     {

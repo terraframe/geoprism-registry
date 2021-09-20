@@ -11,28 +11,49 @@ import net.geoprism.registry.test.TestHierarchyTypeInfo;
 
 public class MasterListBuilder
 {
-  private Organization            org;
+  public static class Hierarchy
+  {
+    private TestHierarchyTypeInfo   type;
 
-  private TestHierarchyTypeInfo   ht;
+    private TestGeoObjectTypeInfo[] parents;
 
-  private TestGeoObjectTypeInfo   info;
+    private TestHierarchyTypeInfo[] subtypeHierarchies;
 
-  private String                  visibility;
+    public void setType(TestHierarchyTypeInfo type)
+    {
+      this.type = type;
+    }
 
-  private boolean                 isMaster;
+    public void setParents(TestGeoObjectTypeInfo... parents)
+    {
+      this.parents = parents;
+    }
 
-  private TestGeoObjectTypeInfo[] parents;
+    public void setSubtypeHierarchies(TestHierarchyTypeInfo... subtypeHierarchies)
+    {
+      this.subtypeHierarchies = subtypeHierarchies;
+    }
 
-  private TestHierarchyTypeInfo[] subtypeHierarchies;
+  }
+
+  private Organization          org;
+
+  private Hierarchy[]           hts;
+
+  private TestGeoObjectTypeInfo info;
+
+  private String                visibility;
+
+  private boolean               isMaster;
+
+  public void setHts(Hierarchy... hts)
+  {
+    this.hts = hts;
+  }
 
   public void setOrg(Organization org)
   {
     this.org = org;
-  }
-
-  public void setHt(TestHierarchyTypeInfo ht)
-  {
-    this.ht = ht;
   }
 
   public void setInfo(TestGeoObjectTypeInfo info)
@@ -50,35 +71,43 @@ public class MasterListBuilder
     this.isMaster = isMaster;
   }
 
-  public void setParents(TestGeoObjectTypeInfo... parents)
-  {
-    this.parents = parents;
-  }
-
-  public void setSubtypeHierarchies(TestHierarchyTypeInfo... subtypeHierarchies)
-  {
-    this.subtypeHierarchies = subtypeHierarchies;
-  }
-
   @Request
   public JsonObject buildJSON()
   {
-    JsonArray pArray = new JsonArray();
-    for (TestGeoObjectTypeInfo parent : this.parents)
-    {
-      JsonObject object = new JsonObject();
-      object.addProperty("code", parent.getCode());
-      object.addProperty("selected", true);
-
-      pArray.add(object);
-    }
-
-    JsonObject hierarchy = new JsonObject();
-    hierarchy.addProperty("code", this.ht.getCode());
-    hierarchy.add("parents", pArray);
-
     JsonArray array = new JsonArray();
-    array.add(hierarchy);
+    JsonArray hArray = new JsonArray();
+
+    for (Hierarchy ht : hts)
+    {
+      JsonArray pArray = new JsonArray();
+      for (TestGeoObjectTypeInfo parent : ht.parents)
+      {
+        JsonObject object = new JsonObject();
+        object.addProperty("code", parent.getCode());
+        object.addProperty("selected", true);
+
+        pArray.add(object);
+      }
+
+      JsonObject hierarchy = new JsonObject();
+      hierarchy.addProperty("code", ht.type.getCode());
+      hierarchy.add("parents", pArray);
+
+      array.add(hierarchy);
+
+      if (ht.subtypeHierarchies != null)
+      {
+        for (TestHierarchyTypeInfo subtype : ht.subtypeHierarchies)
+        {
+          JsonObject object = new JsonObject();
+          object.addProperty("code", subtype.getCode());
+          object.addProperty("selected", true);
+
+          hArray.add(object);
+
+        }
+      }
+    }
 
     MasterList list = new MasterList();
     list.setUniversal(this.info.getUniversal());
@@ -102,18 +131,8 @@ public class MasterListBuilder
     list.setIsMaster(this.isMaster);
     list.setVisibility(this.visibility);
 
-    if (this.subtypeHierarchies != null)
+    if (hArray.size() > 0)
     {
-      JsonArray hArray = new JsonArray();
-      for (TestHierarchyTypeInfo ht : this.subtypeHierarchies)
-      {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", ht.getCode());
-        object.addProperty("selected", true);
-
-        hArray.add(object);
-
-      }
       list.setSubtypeHierarchies(hArray.toString());
     }
 

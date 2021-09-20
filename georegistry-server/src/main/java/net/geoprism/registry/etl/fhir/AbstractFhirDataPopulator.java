@@ -124,7 +124,7 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
     return "Organization/" + code;
   }
 
-  public void addHierarchyValue(Business row, Facility facility, ServerHierarchyType hierarchyType)
+  public void addHierarchyExtension(Business row, Facility facility, ServerHierarchyType hierarchyType)
   {
     JsonArray hierarchies = this.list.getHierarchiesAsJson();
 
@@ -158,7 +158,48 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
         }
       }
     }
+  }
 
+  public void setPartOf(Business row, Facility facility, ServerHierarchyType hierarchyType)
+  {
+    JsonArray hierarchies = this.list.getHierarchiesAsJson();
+
+    for (int i = 0; i < hierarchies.size(); i++)
+    {
+      JsonObject hierarchy = hierarchies.get(i).getAsJsonObject();
+
+      String hCode = hierarchy.get("code").getAsString();
+
+      if (hCode.equals(hierarchyType.getCode()))
+      {
+        List<String> pCodes = this.list.getParentCodes(hierarchy);
+        Collections.reverse(pCodes);
+
+        // Get the lowest one with a code
+        for (String pCode : pCodes)
+        {
+          String attributeName = hCode.toLowerCase() + pCode.toLowerCase();
+
+          if (row.hasAttribute(attributeName))
+          {
+            String code = row.getValue(attributeName);
+
+            if (code != null)
+            {
+              String literal = this.getLiteralIdentifier(code);
+
+              if (literal != null)
+              {
+                Reference reference = new Reference();
+                reference.setReference(literal);
+
+                facility.getOrganization().setPartOf(reference);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
 }
