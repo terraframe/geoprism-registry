@@ -46,29 +46,53 @@ public class MasterListBuilder
 
   private boolean               isMaster;
 
-  public void setHts(Hierarchy... hts)
+  private String                code;
+
+  public MasterListBuilder()
+  {
+    this.code = "TEST_CODE";
+  }
+
+  public MasterListBuilder setHts(Hierarchy... hts)
   {
     this.hts = hts;
+
+    return this;
   }
 
-  public void setOrg(Organization org)
+  public MasterListBuilder setOrg(Organization org)
   {
     this.org = org;
+
+    return this;
   }
 
-  public void setInfo(TestGeoObjectTypeInfo info)
+  public MasterListBuilder setInfo(TestGeoObjectTypeInfo info)
   {
     this.info = info;
+
+    return this;
   }
 
-  public void setVisibility(String visibility)
+  public MasterListBuilder setVisibility(String visibility)
   {
     this.visibility = visibility;
+
+    return this;
   }
 
-  public void setMaster(boolean isMaster)
+  public MasterListBuilder setMaster(boolean isMaster)
   {
     this.isMaster = isMaster;
+
+    return this;
+  }
+
+  public MasterListBuilder setCode(String code)
+  {
+    this.code = code;
+
+    return this;
   }
 
   @Request
@@ -112,7 +136,7 @@ public class MasterListBuilder
     MasterList list = new MasterList();
     list.setUniversal(this.info.getUniversal());
     list.getDisplayLabel().setValue("Test List");
-    list.setCode("TEST_CODE");
+    list.setCode(this.code);
     list.setRepresentativityDate(new Date());
     list.setPublishDate(new Date());
     list.setListAbstract("My Abstract");

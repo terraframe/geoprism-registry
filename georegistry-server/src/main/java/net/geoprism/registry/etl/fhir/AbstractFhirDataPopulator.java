@@ -194,6 +194,8 @@ public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator
                 reference.setReference(literal);
 
                 facility.getOrganization().setPartOf(reference);
+
+                return;
               }
             }
           }
