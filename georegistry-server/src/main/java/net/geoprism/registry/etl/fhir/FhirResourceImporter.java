@@ -9,6 +9,7 @@ import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Resource;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.scheduler.JobHistory;
 
@@ -30,6 +31,10 @@ public class FhirResourceImporter
   private ExportHistory         history;
 
   private Date                  since;
+
+  long                          count       = 0;
+
+  long                          exportCount = 0;
 
   public FhirResourceImporter(FhirExternalSystem system, FhirResourceProcessor processor, ExportHistory history, Date since)
   {
@@ -58,57 +63,9 @@ public class FhirResourceImporter
     this.history.setWorkTotal(Long.valueOf(bundle.getTotal() * 2));
     this.history.apply();
 
-    long count = 0;
-    long exportCount = 0;
-
     while (bundle != null)
     {
-      FhirPathR4 path = new FhirPathR4(ctx);
-      List<Location> locations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Location)", Location.class);
-
-      for (Location location : locations)
-      {
-        try
-        {
-          handleLocation(location);
-
-          this.history.appLock();
-          this.history.setWorkProgress(count++);
-          this.history.setExportedRecords(exportCount++);
-          this.history.apply();
-        }
-        catch (Exception e)
-        {
-          this.recordExportError(e, this.history, location);
-
-          this.history.appLock();
-          this.history.setWorkProgress(count++);
-          this.history.apply();
-        }
-      }
-
-      List<Organization> organizations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Organization)", Organization.class);
-
-      for (Organization organization : organizations)
-      {
-        try
-        {
-          handleOrganization(organization);
-
-          this.history.appLock();
-          this.history.setWorkProgress(count++);
-          this.history.setExportedRecords(exportCount++);
-          this.history.apply();
-        }
-        catch (Exception e)
-        {
-          this.recordExportError(e, this.history, organization);
-
-          this.history.appLock();
-          this.history.setWorkProgress(count++);
-          this.history.apply();
-        }
-      }
+      this.process(bundle);
 
       if (bundle.getLink(Bundle.LINK_NEXT) != null)
       {
@@ -117,6 +74,83 @@ public class FhirResourceImporter
       else
       {
         bundle = null;
+      }
+    }
+  }
+
+  public void synchronize(Bundle bundle)
+  {
+    this.processor.configure(this.system);
+
+    process(bundle);
+  }
+
+  private void process(Bundle bundle)
+  {
+    FhirPathR4 path = new FhirPathR4(FhirContext.forR4());
+    List<Location> locations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Location)", Location.class);
+
+    for (Location location : locations)
+    {
+      try
+      {
+        handleLocation(location);
+
+        if (this.history != null)
+        {
+          this.history.appLock();
+          this.history.setWorkProgress(count++);
+          this.history.setExportedRecords(exportCount++);
+          this.history.apply();
+        }
+      }
+      catch (Exception e)
+      {
+        if (this.history != null)
+        {
+          this.recordExportError(e, this.history, location);
+
+          this.history.appLock();
+          this.history.setWorkProgress(count++);
+          this.history.apply();
+        }
+        else
+        {
+          throw new ProgrammingErrorException(e);
+        }
+      }
+    }
+
+    List<Organization> organizations = path.evaluate(bundle, "Bundle.entry.resource.ofType(Organization)", Organization.class);
+
+    for (Organization organization : organizations)
+    {
+      try
+      {
+        handleOrganization(organization);
+
+        if (this.history != null)
+        {
+          this.history.appLock();
+          this.history.setWorkProgress(count++);
+          this.history.setExportedRecords(exportCount++);
+          this.history.apply();
+        }
+      }
+      catch (Exception e)
+      {
+        if (this.history != null)
+        {
+          this.recordExportError(e, this.history, organization);
+
+          this.history.appLock();
+          this.history.setWorkProgress(count++);
+          this.history.apply();
+        }
+        else
+        {
+          throw new ProgrammingErrorException(e);
+        }
       }
     }
   }

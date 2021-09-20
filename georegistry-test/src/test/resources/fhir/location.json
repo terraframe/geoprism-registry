@@ -1,0 +1,44 @@
+{
+  "resourceType": "Location",
+  "id": "USATestDataHsTwo",
+  "meta": {
+    "profile": [ "http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Location", "http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionLocation" ]
+  },
+  "extension": [ {
+    "url": "http://hl7.org/fhir/StructureDefinition/location-boundary-geojson",
+    "valueAttachment": {
+      "contentType": "application/json",
+      "data": "eyJ0eXBlIjoiTXVsdGlQb2x5Z29uIiwiY29vcmRpbmF0ZXMiOltbW1sxLDFdLFs1LDFdLFs1LDVdLFsxLDVdLFsxLDFdXSxbWzIsMl0sWzMsMl0sWzMsM10sWzIsM10sWzIsMl1dXV0sImNycyI6eyJ0eXBlIjoibmFtZSIsInByb3BlcnRpZXMiOnsibmFtZSI6IkVQU0c6NDMyNiJ9fX0=",
+      "title": "Geojson"
+    }
+  } ],
+  "identifier": [ {
+    "system": "localhost",
+    "value": "USATestDataHsTwo"
+  } ],
+  "status": "active",
+  "name": "USATestDataHsTwo ZZZZZZZ",
+  "alias": [ "USATestDataHsTwo" ],
+  "mode": "instance",
+  "type": [ {
+    "coding": [ {
+      "system": "localhost",
+      "code": "USATestDataHealthStop",
+      "display": "USATestDataHealthStop"
+    } ],
+    "text": "USATestDataHealthStop"
+  }, {
+    "coding": [ {
+      "system": "urn:ietf:rfc:3986",
+      "code": "urn:ihe:iti:mcsd:2019:jurisdiction",
+      "display": "Jurisdiction"
+    } ]
+  } ],
+  "position": {
+    "longitude": 3.033333333333333,
+    "latitude": 3.033333333333333
+  },
+  "managingOrganization": {
+    "reference": "Organization/USATestDataHsTwo"
+  }
+}

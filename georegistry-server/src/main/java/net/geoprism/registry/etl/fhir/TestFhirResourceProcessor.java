@@ -3,6 +3,7 @@ package net.geoprism.registry.etl.fhir;
 import java.util.Date;
 import java.util.Optional;
 
+import org.apache.zookeeper.KeeperException.Code;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -10,6 +11,7 @@ import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
 import net.geoprism.registry.etl.FhirSyncImportConfig;
@@ -17,8 +19,6 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 
 public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor implements FhirResourceProcessor
 {
-  private int i = 0;
-
   @Override
   public boolean supports(FhirSyncImportConfig config)
   {
@@ -49,7 +49,7 @@ public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor imp
       }
     }
 
-    return "Country";
+    throw new ProgrammingErrorException("Unable to derive the CGR GeoObject-Type for the organization [" + organization.getId() + "]");
   }
 
   @Override
@@ -68,7 +68,7 @@ public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor imp
       }
     }
 
-    return "Country";
+    throw new ProgrammingErrorException("Unable to derive the CGR GeoObject-Type for the location [" + location.getId() + "]");
   }
 
   @Override

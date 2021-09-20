@@ -20,7 +20,6 @@ package net.geoprism.registry;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.SortedSet;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
@@ -29,7 +28,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
