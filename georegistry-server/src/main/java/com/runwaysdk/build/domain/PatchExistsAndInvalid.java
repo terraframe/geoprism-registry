@@ -224,8 +224,8 @@ public class PatchExistsAndInvalid
         ServerGeoObjectType type = version.getMasterlist().getGeoObjectType();
         
         // Patch metadata
-        AttributeType existsAttr = type.getAttribute(DefaultAttribute.EXISTS.getName()).get();
-        MasterListVersion.createMdAttributeFromAttributeType(version, type, existsAttr, locales);
+        //AttributeType existsAttr = type.getAttribute(DefaultAttribute.EXISTS.getName()).get();
+        //MasterListVersion.createMdAttributeFromAttributeType(version, type, existsAttr, locales);
         
         AttributeType invalidAttr = type.getAttribute(DefaultAttribute.INVALID.getName()).get();
         MasterListVersion.createMdAttributeFromAttributeType(version, type, invalidAttr, locales);
