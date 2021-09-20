@@ -204,7 +204,7 @@ public class MasterListGeoObjectShapefileExporterTest
     Object geometry = feature.getDefaultGeometry();
     Assert.assertNotNull(geometry);
 
-    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, LocalizationFacade.getInstalledLocales());
+    ImportAttributeSerializer serializer = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, LocalizationFacade.getInstalledLocales());
     Collection<AttributeType> attributes = serializer.attributes(type.getType());
 
     for (AttributeType attribute : attributes)

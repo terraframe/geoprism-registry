@@ -1435,27 +1435,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return false;
     }
 
-    if (attributeName.equals(DefaultAttribute.EXISTS.getName()))
-    {
-      List<Object> val1s = toList(((Set<String>) val1).iterator());
-      List<Object> val2s = toList(((Set<String>) val2).iterator());
-
-      if (val1s.size() != val2s.size())
-      {
-         return false;
-      }
-      
-      for (int i = 0; i < val1s.size(); ++i)
-      {
-        if (!areValuesEqual(attributeName, val1s.get(i), val2s.get(i)))
-        {
-          return false;
-        }
-      }
-      
-      return true;
-    }
-    else if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
+    if (attributeName.equals(DefaultAttribute.GEOMETRY.getName()))
     {
       return false;
     }
