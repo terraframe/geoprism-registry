@@ -225,5 +225,5 @@ public class GeoObjectOverTimeServiceTest
       });
     }
   }
-
+  
 }
