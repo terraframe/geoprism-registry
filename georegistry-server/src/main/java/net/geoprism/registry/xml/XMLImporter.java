@@ -280,6 +280,14 @@ public class XMLImporter
 
         hierarchy.addToHierarchy(parent, child, false);
 
+        if (root.hasAttribute("extends"))
+        {
+          String inheritedHierarchyCode = root.getAttribute("extends");
+          ServerHierarchyType inheritedHierarchy = ServerHierarchyType.get(inheritedHierarchyCode);
+
+          child.setInheritedHierarchy(hierarchy, inheritedHierarchy);
+        }
+
         this.addChildren(hierarchy, child, elem);
       }
     }

@@ -1,0 +1,63 @@
+<CGR
+  xsi:noNamespaceSchemaLocation="classpath:xsd/cgr.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <type
+    code="REG"
+    label="Region (MOHA)"
+    description="1st subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="PRO"
+    label="Province (MOHA)"
+    description="2nd subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="CTY"
+    label="County (MOHA)"
+    description="3rd subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="SHR"
+    label="Shire (MOHA)"
+    description="4th subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="VIL"
+    label="Village (MOHA)"
+    description="A group of at least 50 inhabited households but smaller than a City"
+    visibility="PUBLIC"
+    geometryType="POINT"
+    isGeometryEditable="true">
+  </type>
+  <hierarchy
+    code="ADM_H"
+    label="Administrative structure hierarchy"
+    description="Administrative structure of the Tolkien Region"
+    progress="Final"
+    disclaimer="The information contained in this hierarchy is being distributed without warranty of any kind, either expressed or implied. The responsibility for the interpretation and use of the dataset lies with the user. In no event shall the Ministry of Home Affairs be liable for damages arising from its use"
+    accessConstraints="The access to this data is limited  to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    useConstraints="The use of this data is limited  to the to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    acknowledgement="Please acknowledge the Survey Department, Ministry of Home Affairs of the Middle Earth when using this hierarchy">
+    <child code="REG">
+      <child code="PRO">
+        <child code="CTY">
+          <child code="SHR">
+            <child code="VIL" />
+          </child>
+        </child>
+      </child>
+    </child>
+  </hierarchy>
+</CGR>

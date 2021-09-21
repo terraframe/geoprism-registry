@@ -45,6 +45,7 @@ import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 
+import ca.uhn.fhir.context.FhirContext;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListBuilder;
 import net.geoprism.registry.MasterListVersion;
@@ -279,6 +280,8 @@ public class FhirExportTest
 
         Assert.assertEquals(USATestData.HIER_REPORTS_TO.getDisplayLabel(), extension.castToCodeableConcept(extension.getExtensionByUrl("hierarchy-type").getValue()).getText());
         Assert.assertEquals("Organization/" + USATestData.HP_TWO.getCode(), extension.castToReference(extension.getExtensionByUrl("part-of").getValue()).getReference());
+
+        System.out.println(FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(organization));
       }
 
       // Assert the corresponding location entry
@@ -318,6 +321,8 @@ public class FhirExportTest
         byte[] bytes = Base64.getDecoder().decode(extension.castToAttachment(extension.getValue()).getDataElement().asStringValue());
 
         Assert.assertEquals(new GeoJsonWriter().write(USATestData.HS_TWO.getGeometry()), new String(bytes));
+
+        System.out.println(FhirContext.forR4().newJsonParser().setPrettyPrint(true).encodeResourceToString(location));
       }
     }
     finally

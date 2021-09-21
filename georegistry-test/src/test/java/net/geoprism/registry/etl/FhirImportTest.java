@@ -18,23 +18,12 @@
  */
 package net.geoprism.registry.etl;
 
-import java.util.Base64;
 import java.util.Date;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
-import org.hl7.fhir.r4.model.CanonicalType;
-import org.hl7.fhir.r4.model.Extension;
-import org.hl7.fhir.r4.model.Identifier;
-import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
-import org.hl7.fhir.r4.model.StringType;
-import org.hl7.fhir.r4.model.Type;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -44,16 +33,11 @@ import org.junit.Test;
 
 import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
-import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
-import net.geoprism.registry.MasterListBuilder;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
-import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.etl.fhir.FhirResourceImporter;
 import net.geoprism.registry.etl.fhir.FhirResourceProcessor;
