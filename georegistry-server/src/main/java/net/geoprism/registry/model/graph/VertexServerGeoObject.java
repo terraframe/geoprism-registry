@@ -406,11 +406,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   @Override
   public void setValue(String attributeName, Object value, Date startDate, Date endDate)
   {
-//    if (this.isRedundantVOTAdd(attributeName, value, startDate, endDate, this.getValuesOverTime(attributeName)))
-//    {
-//      return;
-//    }
-    
     if (attributeName.contentEquals(DefaultAttribute.DISPLAY_LABEL.getName()))
     {
       this.setDisplayLabel((LocalizedValue) value, startDate, endDate);
