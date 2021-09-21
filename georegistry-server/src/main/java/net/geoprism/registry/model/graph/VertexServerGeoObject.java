@@ -752,20 +752,15 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       votc.add(vot);
     }
     
-    OResult rawLV;
+    OResult rawLV = null;
     
     if (this.date != null)
     {
       rawLV = (OResult) votc.getValueOnDate(this.date);
     }
-    else
+    else if (votc.size() > 0)
     {
-      rawLV = (OResult) votc.getValueOnDate(new Date());
-      
-      if (rawLV == null && votc.size() > 0)
-      {
-        rawLV = (OResult) votc.get(0);
-      }
+      rawLV = (OResult) votc.get(votc.size()-1).getValue();
     }
     
     if (rawLV == null)

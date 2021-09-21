@@ -226,10 +226,9 @@ public class ShapefileServiceTest
 
     JSONArray tAttributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    Assert.assertEquals(6, tAttributes.length());
+    Assert.assertEquals(4, tAttributes.length());
 
     boolean hasCode = false;
-    boolean hasExists = false;
 
     for (int i = 0; i < tAttributes.length(); i++)
     {
@@ -242,16 +241,9 @@ public class ShapefileServiceTest
         Assert.assertTrue(tAttribute.has("required"));
         Assert.assertTrue(tAttribute.getBoolean("required"));
       }
-      else if (code.equals(DefaultAttribute.EXISTS.getName()))
-      {
-        hasExists = true;
-        Assert.assertTrue(tAttribute.has("required"));
-        Assert.assertFalse(tAttribute.getBoolean("required"));
-      }
     }
 
     Assert.assertTrue(hasCode);
-    Assert.assertTrue(hasExists);
 
     JSONObject sheet = result.getJSONObject("sheet");
 

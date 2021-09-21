@@ -58,6 +58,11 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   
   public static String formatIso8601(Date date, boolean includeTime)
   {
+    if (date == null)
+    {
+      return "null";
+    }
+    
     if (!includeTime)
     {
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");

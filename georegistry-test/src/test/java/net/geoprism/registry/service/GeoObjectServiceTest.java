@@ -467,11 +467,43 @@ public class GeoObjectServiceTest
     // orientdb inconsistencies
     Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
+  
+  @Test
+  public void testGetGeoObjectSuggestionsOnDate()
+  {
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    Assert.assertEquals(1, results.size());
+
+    JsonObject result = results.get(0).getAsJsonObject();
+
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
+    // // This is commented out because the ids are different due to postgres +
+    // orientdb inconsistencies
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+  }
 
   @Test
   public void testGetGeoObjectSuggestionsNoParent()
   {
     JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, null);
+
+    Assert.assertEquals(1, results.size());
+
+    JsonObject result = results.get(0).getAsJsonObject();
+
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
+    // // This is commented out because the ids are different due to postgres +
+    // orientdb inconsistencies
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+  }
+  
+  @Test
+  public void testGetGeoObjectSuggestionsNoParentOnDate()
+  {
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals(1, results.size());
 
