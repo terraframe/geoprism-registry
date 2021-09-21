@@ -7,6 +7,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { GeometryService } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
+import { ConflictType } from "@registry/model/constants";
 
 export class ValueOverTimeCREditor implements TimeRangeEntry {
 
@@ -54,11 +55,27 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
      * If we're referencing an existing value over time, that object should exist on our GeoObject (which represents the current state of the database)
      */
     validateUpdateReference() {
+        if (!this.conflictMessage) {
+            this.conflictMessage = [];
+        }
+
+        for (let i = this.conflictMessage.length - 1; i >= 0; --i) {
+            if (this.conflictMessage[i].type === ConflictType.MISSING_REFERENCE) {
+                this.conflictMessage.splice(i, 1);
+            }
+        }
+
         if (this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.type === "UpdateGeoObject" && this.diff != null && this.diff.action !== "CREATE") {
             let existingVot = this.findExistingValueOverTimeByOid(this.diff.oid, this.attr.code);
 
             if (existingVot == null) {
                 this._isValid = false;
+
+                this.conflictMessage.push({
+                    severity: "ERROR",
+                    message: this.changeRequestAttributeEditor.changeRequestEditor.localizationService.decode("changeovertime.manageVersions.missingReference"),
+                    type: ConflictType.MISSING_REFERENCE
+                });
             }
         }
     }

@@ -193,14 +193,14 @@ export class DateService {
         let hasConflict = false;
 
         // clear all messages
-        ranges.forEach(attr => {
-            if (!attr.conflictMessage) {
-                attr.conflictMessage = [];
+        ranges.forEach(range => {
+            if (!range.conflictMessage) {
+                range.conflictMessage = [];
             }
 
-            for (let i = attr.conflictMessage.length - 1; i >= 0; --i) {
-                if (attr.conflictMessage[i].type === ConflictType.OUTSIDE_EXISTS) {
-                    attr.conflictMessage.splice(i, 1);
+            for (let i = range.conflictMessage.length - 1; i >= 0; --i) {
+                if (range.conflictMessage[i].type === ConflictType.OUTSIDE_EXISTS) {
+                    range.conflictMessage.splice(i, 1);
                 }
             }
         });
