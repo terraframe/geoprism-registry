@@ -25,7 +25,8 @@
                       </div>
                       
                       <ng-container *ngIf="!isRootOfHierarchy">
-	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row"
+                        <!-- TODO : Fade in out disabled because it doesn't work all that well with stability periods   @fadeInOut -->
+	                      <tr  *ngFor="let viewModel of viewModels; let i = index;" class="version-row"
 	                          [ngClass]="{'error-border': viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0 && viewModel.editor.conflictMessage[0].severity === 'ERROR',
 	                          'warning-border': viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0 && viewModel.editor.conflictMessage[0].severity === 'WARNING',
 	                          'geometry-edit-active' : (viewModel.newLayer && viewModel.newLayer.isEditing) }">

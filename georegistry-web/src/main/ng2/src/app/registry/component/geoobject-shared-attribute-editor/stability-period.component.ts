@@ -50,7 +50,7 @@ export class StabilityPeriodComponent implements OnInit {
     }
 
     onClickTimelineEntry(entry: any) {
-        if (entry === this.activeEntry) {
+        if (this.activeEntry != null && entry.period.startDate === this.activeEntry.period.startDate) {
             entry = null;
         }
 
