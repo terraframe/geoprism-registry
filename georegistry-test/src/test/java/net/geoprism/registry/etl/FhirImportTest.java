@@ -38,6 +38,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.etl.fhir.FhirResourceImporter;
 import net.geoprism.registry.etl.fhir.FhirResourceProcessor;
@@ -116,6 +117,7 @@ public class FhirImportTest
     FhirSyncImportConfig sourceConfig = new FhirSyncImportConfig();
     sourceConfig.setLabel(new LocalizedValue("FHIR Import Test Data"));
     sourceConfig.setOrganization(org);
+    sourceConfig.setImplementation(BasicFhirResourceProcessor.class.getName());
 
     // Serialize the FHIR Config
     GsonBuilder builder = new GsonBuilder();
@@ -143,8 +145,9 @@ public class FhirImportTest
       FhirExternalSystem system = createExternalSystem();
 
       SynchronizationConfig config = createSyncConfig(system);
+      FhirSyncImportConfig iConfig = (FhirSyncImportConfig) config.buildConfiguration();
 
-      FhirResourceProcessor processor = FhirFactory.getProcessor((FhirSyncImportConfig) config.buildConfiguration());
+      FhirResourceProcessor processor = FhirFactory.getProcessor(iConfig.getImplementation());
 
       IParser parser = FhirContext.forR4().newJsonParser();
 

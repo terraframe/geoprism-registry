@@ -192,16 +192,20 @@ export class SynchronizationConfigService {
             .toPromise();
     }
 
-    getFhirImplementations(): Promise<{ className: string, label: string }[]> {
+    getFhirExportImplementations(): Promise<{ className: string, label: string }[]> {
         let params: HttpParams = new HttpParams();
 
-        this.eventService.start();
-
         return this.http
-            .get<any[]>(acp + "/synchronization-config/get-fhir-implementations", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
+            .get<any[]>(acp + "/synchronization-config/get-fhir-export-implementations", { params: params })
             .toPromise();
     }
+
+    getFhirImportImplementations(): Promise<{ className: string, label: string }[]> {
+        let params: HttpParams = new HttpParams();
+
+        return this.http
+            .get<any[]>(acp + "/synchronization-config/get-fhir-import-implementations", { params: params })
+            .toPromise();
+    }
+
 }

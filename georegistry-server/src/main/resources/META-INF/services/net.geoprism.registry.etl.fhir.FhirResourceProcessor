@@ -1,1 +1,1 @@
-net.geoprism.registry.etl.fhir.TestFhirResourceProcessor
+net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor

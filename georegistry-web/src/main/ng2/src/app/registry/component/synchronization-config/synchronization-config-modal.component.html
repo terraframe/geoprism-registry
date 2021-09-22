@@ -68,7 +68,8 @@
           </div>
         </div>
       
-        <fhir-synchronization-config *ngIf="config.isImport !== true" [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-synchronization-config>
+        <fhir-export-synchronization-config *ngIf="config.isImport !== true" [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-export-synchronization-config>
+        <fhir-import-synchronization-config *ngIf="config.isImport === true" [(config)]="config" [fieldChange]="fieldChange" (onError)="error($event)"></fhir-import-synchronization-config>
       </div>
 
       <div class="row-holder">

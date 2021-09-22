@@ -18,13 +18,39 @@
  */
 package net.geoprism.registry.etl;
 
+import com.google.gson.JsonObject;
+
+import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.FhirExternalSystem;
 
 public class FhirSyncImportConfig extends ExternalSystemSyncConfig
 {
+  private String implementation;
+
+  public String getImplementation()
+  {
+    return implementation;
+  }
+
+  public void setImplementation(String implementation)
+  {
+    this.implementation = implementation;
+  }
+
   @Override
   public FhirExternalSystem getSystem()
   {
     return (FhirExternalSystem) super.getSystem();
   }
+
+  @Override
+  public void populate(SynchronizationConfig config)
+  {
+    super.populate(config);
+
+    JsonObject json = config.getConfigurationJson();
+
+    this.implementation = json.get("implementation").getAsString();
+  }
+
 }

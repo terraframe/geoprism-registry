@@ -69,6 +69,7 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.etl.fhir.AbstractFhirResourceProcessor;
+import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.Facility;
 import net.geoprism.registry.etl.fhir.FhirResourceImporter;
 import net.geoprism.registry.graph.FhirExternalSystem;
@@ -158,8 +159,8 @@ public class Sandbox
   private static void test() throws Exception
   {
     // String url = "http://hapi.fhir.org/baseR4";
-     String url = "http://localhost:8080/fhir";
-//    String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
+    String url = "http://localhost:8080/fhir";
+    // String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
     // Create a client
 
     // testImport(url);
@@ -186,72 +187,7 @@ public class Sandbox
     List<FhirExternalSystem> systems = FhirExternalSystem.getAll();
     final FhirExternalSystem system = systems.get(0);
 
-    FhirResourceImporter synchronizer = new FhirResourceImporter(system, new AbstractFhirResourceProcessor()
-    {
-      @Override
-      public boolean supports(FhirSyncImportConfig config)
-      {
-        return true;
-      }
-
-      @Override
-      protected void populate(ServerGeoObjectIF geoObject, Location location, Date lastUpdated)
-      {
-        LocalizedValue value = LocalizedValue.createEmptyLocalizedValue();
-        value.setValue(LocalizedValue.DEFAULT_LOCALE, location.getName());
-
-        geoObject.setDisplayLabel(value, lastUpdated, ValueOverTime.INFINITY_END_DATE);
-      }
-
-      @Override
-      protected String getType(Organization organization)
-      {
-        Coding coding = organization.getTypeFirstRep().getCodingFirstRep();
-
-        if (coding != null)
-        {
-          String code = coding.getCode();
-
-          if (code != null)
-          {
-            return code;
-          }
-        }
-
-        return "Country";
-      }
-
-      @Override
-      protected String getType(Location location)
-      {
-        Coding coding = location.getTypeFirstRep().getCodingFirstRep();
-
-        if (coding != null)
-        {
-          String code = coding.getCode();
-
-          if (code != null)
-          {
-            return code;
-          }
-        }
-
-        return "Country";
-      }
-
-      @Override
-      protected Identifier getIdentifier(Organization organization)
-      {
-        return organization.getIdentifier().stream().filter(i -> i.getSystem().equals(this.getSystem().getSystem())).findFirst().orElse(null);
-      }
-
-      @Override
-      protected Identifier getIdentifier(Location location)
-      {
-        return location.getIdentifier().stream().filter(i -> i.getSystem().equals(this.getSystem().getSystem())).findFirst().orElse(null);
-      }
-
-    }, null, null);
+    FhirResourceImporter synchronizer = new FhirResourceImporter(system, new BasicFhirResourceProcessor(), null, null);
 
     synchronizer.synchronize();
   }

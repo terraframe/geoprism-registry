@@ -70,7 +70,7 @@ import { RowValidationProblemWidgetComponent } from "./component/scheduled-jobs/
 import { StepIndicatorComponent } from "./component/scheduled-jobs/step-indicator.component";
 import { ImportProblemWidgetComponent } from "./component/scheduled-jobs/conflict-widgets/import-problem-widget.component";
 import { TaskViewerComponent } from "./component/task-viewer/task-viewer.component";
-import { FhirSynchronizationConfigComponent } from './component/synchronization-config/fhir-synchronization-config.component';
+import { FhirExportSynchronizationConfigComponent } from './component/synchronization-config/fhir-export-synchronization-config.component';
 import { Dhis2SynchronizationConfigComponent } from './component/synchronization-config/dhis2-synchronization-config.component';
 import { SynchronizationConfigManagerComponent } from "./component/synchronization-config/synchronization-config-manager.component";
 import { SynchronizationConfigModalComponent } from "./component/synchronization-config/synchronization-config-modal.component";
@@ -105,6 +105,7 @@ import { SharedModule } from "../shared/shared.module";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 
 import "../rxjs-extensions";
+import { FhirImportSynchronizationConfigComponent } from "./component/synchronization-config/fhir-import-synchronization-config.component";
 
 @NgModule({
     imports: [
@@ -130,10 +131,11 @@ import "../rxjs-extensions";
         HierarchyComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
-    ImportTypesModalComponent,
-    ExportSystemModalComponent,
-    FhirSynchronizationConfigComponent,
-    Dhis2SynchronizationConfigComponent,
+        ImportTypesModalComponent,
+        ExportSystemModalComponent,
+        FhirExportSynchronizationConfigComponent,
+        FhirImportSynchronizationConfigComponent,
+        Dhis2SynchronizationConfigComponent,
         CreateHierarchyTypeModalComponent,
         AddChildToHierarchyModalComponent,
         CreateGeoObjTypeModalComponent,
@@ -249,7 +251,7 @@ import "../rxjs-extensions";
         StepIndicatorComponent,
         SynchronizationConfigModalComponent,
         ContextLayerModalComponent,
-    ExportSystemModalComponent
+        ExportSystemModalComponent
 
     ]
 })

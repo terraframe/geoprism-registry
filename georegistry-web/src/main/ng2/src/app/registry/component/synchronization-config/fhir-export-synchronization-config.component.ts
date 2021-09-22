@@ -1,8 +1,8 @@
 import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject, Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { SynchronizationConfig, MasterListByOrg, MasterList, MasterListView } from '@registry/model/registry';
+import { SynchronizationConfig, MasterList, MasterListView } from '@registry/model/registry';
 import { RegistryService, SynchronizationConfigService } from '@registry/service';
 
 interface FhirSyncLevel {
@@ -12,17 +12,18 @@ interface FhirSyncLevel {
 }
 
 @Component({
-  selector: 'fhir-synchronization-config',
-  templateUrl: './fhir-synchronization-config.component.html',
+  selector: 'fhir-export-synchronization-config',
+  templateUrl: './fhir-export-synchronization-config.component.html',
   styleUrls: []
 })
-export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
+export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestroy {
   message: string = null;
 
   @Input() config: SynchronizationConfig;
   @Input() fieldChange: Subject<string>;
   @Output() onError = new EventEmitter<HttpErrorResponse>();
 
+  subscription: Subscription = null;
   versions: { [key: string]: MasterList } = {};
   implementations: { className: string, label: string }[] = [];
   lists: MasterListView[] = [];
@@ -33,19 +34,22 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
 
     this.reset();
 
-    this.fieldChange.subscribe((field: string) => {
+    this.subscription = this.fieldChange.subscribe((field: string) => {
       if (field === 'organization' || field === 'system') {
         this.reset();
       }
     });
 
-    this.service.getFhirImplementations().then(implementations => {
+    this.service.getFhirExportImplementations().then(implementations => {
       this.implementations = implementations;
     });
   }
 
   ngOnDestroy(): void {
-    this.fieldChange.unsubscribe();
+
+    if (this.subscription != null) {
+      this.subscription.unsubscribe();
+    }
   }
 
   reset(): void {

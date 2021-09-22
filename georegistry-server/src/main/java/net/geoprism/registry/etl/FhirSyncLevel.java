@@ -61,11 +61,18 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
 
       if (src.versionId != null)
       {
-        MasterListVersion version = MasterListVersion.get(src.getVersionId());
-        MasterList list = version.getMasterlist();
+        try
+        {
+          MasterListVersion version = MasterListVersion.get(src.getVersionId());
+          MasterList list = version.getMasterlist();
 
-        jo.addProperty("forDate", formatDate(version.getForDate()));
-        jo.addProperty("typeLabel", list.getDisplayLabel().getValue());
+          jo.addProperty("forDate", formatDate(version.getForDate()));
+          jo.addProperty("typeLabel", list.getDisplayLabel().getValue());
+        }
+        catch (Exception e)
+        {
+          // The configuration is stale and the version no longer exists
+        }
       }
 
       return jo;

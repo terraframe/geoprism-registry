@@ -132,10 +132,18 @@ public class SynchronizationConfigController
     return new InputStreamResponse(this.service.generateFile(request.getSessionId(), oid), "application/zip", "bundles.zip");
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-implementations")
-  public ResponseIF getFhirImplementations(ClientRequestIF request)
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-export-implementations")
+  public ResponseIF getFhirExportImplementations(ClientRequestIF request)
   {
     JsonArray implementations = FhirFactory.getExportImplementations();
+
+    return new RestBodyResponse(implementations);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-import-implementations")
+  public ResponseIF getFhirImportImplementations(ClientRequestIF request)
+  {
+    JsonArray implementations = FhirFactory.getImportImplementations();
 
     return new RestBodyResponse(implementations);
   }

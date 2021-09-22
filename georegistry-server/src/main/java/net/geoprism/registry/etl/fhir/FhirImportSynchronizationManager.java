@@ -52,7 +52,7 @@ public class FhirImportSynchronizationManager
   {
     final FhirExternalSystem system = (FhirExternalSystem) this.details.getSystem();
 
-    FhirResourceProcessor processor = FhirFactory.getProcessor(this.details);
+    FhirResourceProcessor processor = FhirFactory.getProcessor(this.details.getImplementation());
 
     FhirResourceImporter importer = new FhirResourceImporter(system, processor, this.history, this.config.getLastSynchDate());
     importer.synchronize();

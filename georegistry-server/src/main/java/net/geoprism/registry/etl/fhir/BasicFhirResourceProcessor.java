@@ -3,7 +3,6 @@ package net.geoprism.registry.etl.fhir;
 import java.util.Date;
 import java.util.Optional;
 
-import org.apache.zookeeper.KeeperException.Code;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
@@ -14,24 +13,29 @@ import org.hl7.fhir.r4.model.Organization;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 
-import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 
 public class BasicFhirResourceProcessor extends AbstractFhirResourceProcessor implements FhirResourceProcessor
 {
   @Override
-  public boolean supports(FhirSyncImportConfig config)
+  public String getLabel()
   {
-    return true;
+    return "Basic Resource processor";
   }
 
   @Override
   protected void populate(ServerGeoObjectIF geoObject, Location location, Date lastUpdated)
   {
+    if (lastUpdated == null)
+    {
+      lastUpdated = new Date();
+    }
+
     LocalizedValue value = LocalizedValue.createEmptyLocalizedValue();
     value.setValue(LocalizedValue.DEFAULT_LOCALE, location.getName());
 
     geoObject.setDisplayLabel(value, lastUpdated, ValueOverTime.INFINITY_END_DATE);
+    geoObject.setExists(true, lastUpdated, ValueOverTime.INFINITY_END_DATE);
   }
 
   @Override

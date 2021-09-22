@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -14,7 +14,7 @@ import { SynchronizationConfigService, RegistryService } from '@registry/service
   templateUrl: './synchronization-config-modal.component.html',
   styleUrls: []
 })
-export class SynchronizationConfigModalComponent implements OnInit {
+export class SynchronizationConfigModalComponent implements OnInit, OnDestroy {
   message: string = null;
 
   config: SynchronizationConfig = {
@@ -44,6 +44,11 @@ export class SynchronizationConfigModalComponent implements OnInit {
   ngOnInit(): void {
     this.onSuccess = new Subject();
     this.fieldChange = new Subject();
+  }
+
+  ngOnDestroy(): void {
+    this.onSuccess.unsubscribe();
+    this.fieldChange.unsubscribe();
   }
 
   init(config: SynchronizationConfig, organizations: OrgSyncInfo[]): void {
