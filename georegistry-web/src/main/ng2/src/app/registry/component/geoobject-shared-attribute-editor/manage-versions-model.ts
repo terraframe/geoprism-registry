@@ -59,7 +59,7 @@ export class VersionDiffView {
               this._value.parents[current.code].geoObject = this.editor.value.parents[current.code].geoObject;
           }
       } else if (this.component.attributeType.code === "_PARENT_") {
-          this._value = this.editor.value;
+          this._value = JSON.parse(JSON.stringify(this.editor.value));
       } else {
           this._value = this.convertValueForDisplay(this.editor.value == null ? null : JSON.parse(JSON.stringify(this.editor.value)));
       }
