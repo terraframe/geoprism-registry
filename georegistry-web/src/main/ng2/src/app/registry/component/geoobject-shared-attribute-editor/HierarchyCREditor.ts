@@ -71,7 +71,7 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
                   this.diff.action = "UPDATE";
                   this.diff.oid = this.hierarchyEntry.oid;
                   this.diff.oldValue = oldValue;
-                  this.diff.oldParents = this.hierarchyEntry.parents;
+                  this.diff.oldParents = JSON.parse(JSON.stringify(this.hierarchyEntry.parents));
                   this.diff.oldStartDate = this.hierarchyEntry.startDate;
                   this.diff.oldEndDate = this.hierarchyEntry.endDate;
                   (this.action as UpdateAttributeOverTimeAction).attributeDiff.hierarchyCode = this.hierarchyOverTime.code;
