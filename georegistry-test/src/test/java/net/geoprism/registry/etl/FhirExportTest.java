@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.etl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -75,7 +77,7 @@ public class FhirExportTest
   protected SynchronizationConfigService syncService;
 
   @BeforeClass
-  public static void setUpClass()
+  public static void setUpClass() throws ParseException
   {
     TestDataSet.deleteExternalSystems("FHIRExportTest");
 
@@ -87,8 +89,11 @@ public class FhirExportTest
   }
 
   @Request
-  public static void classSetupInRequest()
+  public static void classSetupInRequest() throws ParseException
   {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    Date date = format.parse("2020-04-05");
+
     MasterListBuilder.Hierarchy admin = new MasterListBuilder.Hierarchy();
     admin.setType(USATestData.HIER_ADMIN);
     admin.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
@@ -107,7 +112,7 @@ public class FhirExportTest
 
     multiHierarchyList = multiHierarchyBuilder.build();
 
-    multiHierarchyVersion = multiHierarchyList.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+    multiHierarchyVersion = multiHierarchyList.getOrCreateVersion(date, MasterListVersion.EXPLORATORY);
     multiHierarchyVersion.publishNoAuth();
 
     MasterListBuilder basicBuilder = new MasterListBuilder();
@@ -120,7 +125,7 @@ public class FhirExportTest
 
     basicHierarchyList = basicBuilder.build();
 
-    basicHierarchyVersion = basicHierarchyList.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+    basicHierarchyVersion = basicHierarchyList.getOrCreateVersion(date, MasterListVersion.EXPLORATORY);
     basicHierarchyVersion.publishNoAuth();
   }
 

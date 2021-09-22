@@ -51,6 +51,7 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeCollectionDTO;
 import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONArray;
@@ -70,6 +71,7 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
@@ -77,6 +79,7 @@ import com.runwaysdk.dataaccess.graph.GraphDBService;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -84,6 +87,7 @@ import com.runwaysdk.session.CreatePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.WritePermissionException;
+import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
 import com.vividsolutions.jts.geom.Envelope;
@@ -125,6 +129,7 @@ import net.geoprism.registry.model.ServerParentTreeNode;
 import net.geoprism.registry.roles.CreateGeoObjectPermissionException;
 import net.geoprism.registry.roles.ReadGeoObjectPermissionException;
 import net.geoprism.registry.roles.WriteGeoObjectPermissionException;
+import net.geoprism.registry.service.ConversionService;
 import net.geoprism.registry.service.RegistryIdService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
@@ -449,6 +454,21 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
             this.vertex.setValue(attributeName, (String) null, this.date, this.date);
           }
         }
+        else if (attribute instanceof AttributeClassificationType)
+        {
+          String value = (String) geoObject.getValue(attributeName);
+
+          if (value != null)
+          {
+            VertexObject classification = ConversionService.getInstance().termToClassification((AttributeClassificationType) attribute, value);
+
+            this.vertex.setValue(attributeName, classification, this.date, this.date);
+          }
+          else
+          {
+            this.vertex.setValue(attributeName, (String) null, this.date, this.date);
+          }
+        }        
         else
         {
           Object value = geoObject.getValue(attributeName);
@@ -530,6 +550,21 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
               this.vertex.setValue(attributeName, (String) null, votDTO.getStartDate(), votDTO.getEndDate());
             }
           }
+          else if (attribute instanceof AttributeClassificationType)
+          {
+            String value = (String) votDTO.getValue();
+
+            if (value != null)
+            {
+              VertexObject classification = new ConversionService().termToClassification((AttributeClassificationType) attribute, value);
+
+              this.vertex.setValue(attributeName, classification, votDTO.getStartDate(), votDTO.getEndDate());
+            }
+            else
+            {
+              this.vertex.setValue(attributeName, (String) null, this.date, this.date);
+            }
+          }          
           else
           {
             Object value = votDTO.getValue();
@@ -1546,6 +1581,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
               throw e;
             }
           }
+          else if (attribute instanceof AttributeClassificationType)
+          {
+            String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
+            MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+            MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+
+            VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+
+            try
+            {
+              geoObj.setValue(attributeName, classification.getObjectValue(AbstractClassification.CODE));
+            }
+            catch (UnknownTermException e)
+            {
+              TermValueException ex = new TermValueException();
+              ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+              ex.setCode(e.getCode());
+
+              throw e;
+            }
+          }          
           else
           {
             geoObj.setValue(attributeName, value);
@@ -1652,6 +1708,29 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                     throw e;
                   }
                 }
+                else if (attribute instanceof AttributeClassificationType)
+                {
+                  String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
+                  MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+                  MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+
+                  VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+
+                  try
+                  {
+                    ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
+                    votDTO.setValue(classification.getObjectValue(AbstractClassification.CODE));
+                    votcDTO.add(votDTO);
+                  }
+                  catch (UnknownTermException e)
+                  {
+                    TermValueException ex = new TermValueException();
+                    ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+                    ex.setCode(e.getCode());
+
+                    throw e;
+                  }
+                }                
                 else
                 {
                   ValueOverTimeDTO votDTO = new ValueOverTimeDTO(vot.getOid(), vot.getStartDate(), vot.getEndDate(), votcDTO);
@@ -1687,6 +1766,27 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
                 throw e;
               }
             }
+            else if (attribute instanceof AttributeClassificationType)
+            {
+              String classificationType = ( (AttributeClassificationType) attribute ).getClassificationType();
+              MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+              MdVertexDAOIF mdVertexDAO = mdClassificationDAO.getReferenceMdVertexDAO();
+
+              VertexObject classification = VertexObject.get(mdVertexDAO, (String) value);
+
+              try
+              {
+                geoObj.setValue(attributeName, classification.getObjectValue(AbstractClassification.CODE));
+              }
+              catch (UnknownTermException e)
+              {
+                TermValueException ex = new TermValueException();
+                ex.setAttributeLabel(e.getAttribute().getLabel().getValue());
+                ex.setCode(e.getCode());
+
+                throw e;
+              }
+            }                    
             else
             {
               geoObj.setValue(attributeName, value);
