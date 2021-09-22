@@ -102,8 +102,8 @@ public class RegistryVersionTest
     Assert.assertEquals("1990-03-01", dateFormat.format(allStatus.get(2).getStartDate()));
     Assert.assertEquals("1990-03-31", dateFormat.format(allStatus.get(2).getEndDate()));
     
-    Geometry expectedGeom = testData.PROV_CENTRAL.fetchGeoObject().getGeometry();
-    Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
+    Geometry expectedGeom = FastTestDataset.PROV_CENTRAL.fetchGeoObject().getGeometry();
+    Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getValue();
     Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
   }
   
@@ -144,7 +144,7 @@ public class RegistryVersionTest
     Assert.assertEquals("1990-03-31", dateFormat.format(allStatus.get(2).getEndDate()));
     
     Geometry expectedGeom = FastTestDataset.PROV_CENTRAL.fetchGeoObject().getGeometry();
-    Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), new Date()) ).getValue();
+    Geometry actualGeom = ( (AttributeGeometry) goTime.getAttributeOnDate(DefaultAttribute.GEOMETRY.getName(), FastTestDataset.DEFAULT_OVER_TIME_DATE) ).getValue();
     Assert.assertTrue(expectedGeom.equalsTopo(actualGeom));
   }
   

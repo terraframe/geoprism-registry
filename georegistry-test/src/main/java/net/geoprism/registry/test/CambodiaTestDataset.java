@@ -18,10 +18,6 @@
  */
 package net.geoprism.registry.test;
 
-import java.util.Date;
-import java.util.List;
-
-import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -29,12 +25,9 @@ import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
-import org.junit.Assert;
 
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.gis.geo.Universal;
-
-import net.geoprism.ontology.Classifier;
 
 public class CambodiaTestDataset extends TestDataSet
 {

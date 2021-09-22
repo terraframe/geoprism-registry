@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable padded-blocks */
-import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType } from "./registry";
+import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType, AttributeType } from "./registry";
 import { ActionTypes } from "./constants";
+import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 
 export enum SummaryKey {
     NEW = "NEW",
@@ -114,7 +115,7 @@ export class ChangeRequest {
     documents: Document[];
     actions: AbstractAction[];
     current: ChangeRequestCurrentObject & UpdateChangeRequestCurrentObject;
-    type?: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
+    type: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
     statusLabel?: string;
     phoneNumber?: string;
     email?: string;
@@ -123,6 +124,29 @@ export class ChangeRequest {
 
     constructor() {
         this.isNew = true;
+    }
+
+    public static getActionsForAttribute(cr: ChangeRequest, attributeName: string, hierarchyCode: string): AbstractAction[] {
+        if (cr.type === "CreateGeoObject") {
+            return cr.actions;
+        } else {
+            let newActions = [];
+
+            for (let i = 0; i < cr.actions.length; ++i) {
+                let action = cr.actions[i];
+
+                if (action.actionType === "UpdateAttributeAction") {
+                    let updateAttrAction = action as UpdateAttributeOverTimeAction;
+
+                    if (updateAttrAction.attributeName === attributeName &&
+                      (attributeName !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === hierarchyCode)) {
+                        newActions.push(cr.actions[i]);
+                    }
+                }
+            }
+
+            return newActions;
+        }
     }
 }
 

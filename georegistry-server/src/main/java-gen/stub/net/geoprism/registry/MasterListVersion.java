@@ -89,6 +89,7 @@ import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
@@ -250,6 +251,11 @@ public class MasterListVersion extends MasterListVersionBase
     {
       return false;
     }
+    
+    if (attributeType.getName().equals(DefaultAttribute.EXISTS.getName()))
+    {
+      return false;
+    }
 
     return true;
   }
@@ -283,7 +289,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     if (mdAttribute.definesAttribute().equals(DefaultAttribute.EXISTS.getName()))
     {
-      return true;
+      return false;
     }
 
     if (mdAttribute.definesAttribute().equals(ORIGINAL_OID))
@@ -802,6 +808,17 @@ public class MasterListVersion extends MasterListVersionBase
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
       mdBusiness.deleteAllRecords();
+      
+      MdAttributeConcreteDAO status = (MdAttributeConcreteDAO) mdBusiness.definesAttribute("status");
+      if (status != null) {
+        MasterListAttributeGroup.remove(status);
+        status.delete();
+      }
+      MdAttributeConcreteDAO statusDefaultLocale = (MdAttributeConcreteDAO) mdBusiness.definesAttribute("statusDefaultLocale");
+      if (statusDefaultLocale != null) {
+        MasterListAttributeGroup.remove(statusDefaultLocale);
+        statusDefaultLocale.delete();
+      }
 
       ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
 

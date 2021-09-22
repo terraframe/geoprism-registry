@@ -22,12 +22,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.action.AbstractActionDTO;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
@@ -122,9 +120,17 @@ public class TestRegistryAdapterClient extends RegistryAdapter
     return set;
   }
 
-  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, String parentTypeCode, String hierarchy, String date)
+  public JsonArray getGeoObjectSuggestions(String text, String type, String parent, String parentTypeCode, String hierarchy, Date date)
   {
-    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, date))).getAsJsonArray();
+    String sDate = null;
+    if (date != null)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      sDate = format.format(date);
+    }
+    
+    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, sDate))).getAsJsonArray();
   }
   
   public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)

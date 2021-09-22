@@ -16,6 +16,7 @@ import { DateService } from "@shared/service/date.service";
 import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTime } from "@registry/model/registry";
 import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
+import { ChangeRequestEditor } from "./change-request-editor";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -69,6 +70,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     // The current state of the GeoObject in the GeoRegistry
 //    @Input() action: Action = null;
 
+    changeRequestEditor: ChangeRequestEditor;
+
     @Input() geoObjectType: GeoObjectType;
 
     @Input() attributeExcludes: string[] = [];
@@ -83,8 +86,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @ViewChild("geometryEditor") geometryEditor;
 
-    @Output() valid = new EventEmitter<boolean>();
-
     @Output() onManageVersion = new EventEmitter<AttributeType>();
 
     // Observable subject for MasterList changes.  Called when an update is successful
@@ -94,9 +95,8 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
-    isValid: boolean = true;
 
-    // TODO : This was copy / pasted into manage-versions.component::onDateChange
+    // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
     @ViewChild("attributeForm") attributeForm;
@@ -124,7 +124,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         this.parentAttributeType = new AttributeType("_PARENT_", "_PARENT_", new LocalizedValue("Parents", null), new LocalizedValue("Parents", null), true, false, false, true);
-        this.onNonChangeOverTimeAttributeChange(this.getAttribute("code"));
 
         if (this.changeRequest == null) {
             this.changeRequest = this.createNewChangeRequest();
@@ -138,9 +137,15 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
+        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService);
+
         if (this.shouldForceSetExist()) {
             this.changePage(3);
         }
+    }
+
+    getChangeRequestEditor(): ChangeRequestEditor {
+        return this.changeRequestEditor;
     }
 
     createNewChangeRequest(): ChangeRequest {
@@ -174,14 +179,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         }
 
         return this.isNew;
-    }
-
-    ngAfterViewInit() {
-        this.attributeForm.statusChanges.subscribe(result => {
-            this.isValid = (result === "VALID" || result === "DISABLED");
-
-            this.valid.emit(this.isValid);
-        });
     }
 
     getAttribute(name: string): AttributeType {
@@ -239,40 +236,43 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     hasErrors(tabIndex: number) {
-        if (tabIndex === 0) {
-            let len = this.geoObjectType.attributes.length;
+        let attributeEditors = this.changeRequestEditor.getEditors();
 
-            for (let i = 0; i < len; ++i) {
-                let attr = this.geoObjectType.attributes[i];
-                if (attr.code !== "invalid" && attr.code !== "exists" &&
-                    (Object.prototype.hasOwnProperty.call(attr, "isValid") && !attr.isValid)) {
+        if (tabIndex === 0) {
+            let filter = ["invalid", "exists", "_PARENT_", "geometry"];
+            let filteredEditors = attributeEditors.filter(editor => filter.indexOf(editor.attribute.code) === -1);
+
+            for (let i = 0; i < filteredEditors.length; ++i) {
+                let editor = filteredEditors[i];
+
+                if (!editor.isValid()) {
                     return true;
                 }
             }
         } else if (tabIndex === 1) {
-            return Object.prototype.hasOwnProperty.call(this.parentAttributeType, "isValid") && !this.parentAttributeType.isValid;
+            for (let i = 0; i < this.hierarchies.length; ++i) {
+                let hierarchy = this.hierarchies[i];
+
+                if (!this.changeRequestEditor.getEditorForAttribute(this.parentAttributeType, hierarchy).isValid()) {
+                    return true;
+                }
+            }
         } else if (tabIndex === 2) {
-            return Object.prototype.hasOwnProperty.call(this.geometryAttributeType, "isValid") && !this.geometryAttributeType.isValid;
+            return !this.changeRequestEditor.getEditorForAttribute(this.geometryAttributeType).isValid();
         } else if (tabIndex === 3) {
             let invalid = this.getAttribute("invalid");
-            let exists = this.getAttribute("exists");
+
+            let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.changeRequestEditor.geoObjectType, "exists");
+            let existsEditor = this.changeRequestEditor.getEditorForAttribute(existsAttribute);
 
             return (Object.prototype.hasOwnProperty.call(invalid, "isValid") && !invalid.isValid) ||
-            (Object.prototype.hasOwnProperty.call(exists, "isValid") && !exists.isValid);
+            !existsEditor.isValid();
         }
 
         return false;
     }
 
-    onNonChangeOverTimeAttributeChange(attribute: AttributeType): void {
-        let newVal = this.postGeoObject.attributes[attribute.code];
-        attribute.isValid = (newVal != null) && newVal.length > 0;
-    }
-
-    // Invoked when the dates have changed on an attribute
-    // After each change we must check to see if all attributes
-    // are now valid or not
-    onIsValidChange(valid:boolean, attribute: AttributeType): void {
+    public isValid(): boolean {
         let allValid:boolean = true;
 
         this.geoObjectType.attributes.forEach(att => {
@@ -289,23 +289,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             allValid = false;
         }
 
-        this.valid.emit(allValid);
-    }
-
-    stringify(input: any) {
-        return JSON.stringify(input);
+        return allValid && this.changeRequestEditor.validate();
     }
 
     public getActions(): AbstractAction[] {
-        return this.changeRequest.actions;
-    }
-
-    public getIsValid(): boolean {
-        return this.isValid;
-    }
-
-    public getGeoObject(): any {
-        // return this.postGeoObject;
+        return this.changeRequestEditor.changeRequest.actions;
     }
 
 }

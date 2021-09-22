@@ -112,7 +112,7 @@ public class GeoObjectAtTimeShapefileExporter
   {
     this.type = type;
     this.date = date;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, locales).attributes(this.type.getType());
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, locales).attributes(this.type.getType());
     this.columnNames = new HashMap<String, String>();
     this.locales = locales;
   }

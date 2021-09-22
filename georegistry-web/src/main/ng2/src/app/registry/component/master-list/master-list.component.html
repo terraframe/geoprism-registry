@@ -50,7 +50,7 @@
 
         <div *ngIf="isWritable" class="row form-group">
           <div class="col-md-12 table-responsive" style="">
-	          <boolean-field [(value)]="filterInvalid" (change)="onFilterInvalidChange()" [localizeLabelKey]="'masterlist.filterInvalid'" ></boolean-field>
+	          <boolean-field [(value)]="showInvalid" (change)="onShowInvalidChange()" [localizeLabelKey]="'masterlist.showInvalid'" ></boolean-field>
           </div>
         </div>
         <div *ngIf="filter.length > 0" class="row form-group">
@@ -108,7 +108,7 @@
                     <thead style="position: sticky;top: 0;background: #ececec;">
                         <tr>
                             <th style="width: 3%;position: sticky;top: 0;" class="label-column"><localize key="masterlist.view.column"></localize></th>
-                            <th style="position: sticky;top: 0" *ngFor="let attribute of list.attributes" class="label-column">
+                            <th style="position: sticky;top: 0" *ngFor="let attribute of listAttrs" class="label-column">
 
                                 <div style="display: table-cell; padding-right: 10px; vertical-align: middle;" *ngIf="isFilterable(attribute)">
                                     <a class="" (click)="toggleFilter(attribute)" [attr.aria-expanded]="!attribute.isCollapsed" aria-controls="collapseBasic"> 
@@ -159,7 +159,7 @@
                             <td style="width: 3%; text-align: center;" class="label-column">
                               <a class="fa" style="padding:3px;" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'" [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, result.code, (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]" routerLinkActive="active"></a>
                             </td>
-                            <td *ngFor="let attribute of list.attributes" class="label-column">{{ result[attribute.name] }}</td>
+                            <td *ngFor="let attribute of listAttrs" class="label-column">{{ result[attribute.name] }}</td>
                         </tr>
                     </tbody>
                 </table>

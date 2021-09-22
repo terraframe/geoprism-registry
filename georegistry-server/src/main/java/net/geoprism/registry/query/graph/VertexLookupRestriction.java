@@ -54,9 +54,19 @@ public class VertexLookupRestriction extends AbstractVertexRestriction implement
   @Override
   public void restrict(StringBuilder statement, Map<String, Object> parameters)
   {
-    statement.append(",where: (displayLabel_cot CONTAINS (:date BETWEEN startDate AND endDate AND " + localize("value") + ".toLowerCase() LIKE '%' + :text + '%') AND invalid=false)");
+    statement.append(",where: (displayLabel_cot CONTAINS (");
+    
+    if (this.date != null)
+    {
+      statement.append(":date BETWEEN startDate AND endDate AND ");
+    }
+    
+    statement.append(localize("value") + ".toLowerCase() LIKE '%' + :text + '%') AND invalid=false)");
 
-    parameters.put("date", this.date);
+    if (this.date != null)
+    {
+      parameters.put("date", this.date);
+    }
 
     if (text != null)
     {

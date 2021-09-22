@@ -50,10 +50,10 @@ export class LocalizationService {
         const value = { localizedValue: "", localeValues: [] } as LocalizedValue;
 
         this.locales.forEach(locale => {
-            //if (!locale.isDefaultLocale)
-            //{
+            // if (!locale.isDefaultLocale)
+            // {
             value.localeValues.push({ locale: locale.toString, value: "" });
-            //}
+            // }
         });
 
         return value;

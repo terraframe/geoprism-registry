@@ -41,8 +41,9 @@ export class MasterListComponent implements OnInit, OnDestroy {
     isPublished: boolean = true;
     isRefreshing: boolean = false;
     isWritable: boolean = false;
+    listAttrs: any[];
 
-    filterInvalid = true;
+    showInvalid = false;
 
     /*
      * Reference to the modal current showing
@@ -63,10 +64,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
         this.isPublished = (this.route.snapshot.paramMap.get("published") === "true");
 
         this.service.getMasterListVersion(oid).then(version => {
-            this.list = version;
-            this.list.attributes.forEach(attribute => {
-                attribute.isCollapsed = true;
-            });
+            this.setList(version);
             const orgCode = this.list.orgCode;
             const typeCode = this.list.superTypeCode != null ? this.list.superTypeCode : this.list.typeCode;
 
@@ -99,7 +97,12 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
     }
 
-    onFilterInvalidChange() {
+    setList(_list: MasterListVersion): void {
+        this.list = _list;
+        this.listAttrs = this.calculateListAttributes();
+    }
+
+    onShowInvalidChange() {
         this.onPageChange(1);
     }
 
@@ -108,6 +111,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
         this.service.data(this.list.oid, pageNumber, this.page.pageSize, this.getFilter(), this.sort).then(page => {
             this.page = page;
+            this.listAttrs = this.calculateListAttributes();
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -129,7 +133,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
         });
 
         this.filter = [];
-        this.filterInvalid = true;
+        this.showInvalid = false;
         this.selected = [];
 
         this.onPageChange(1);
@@ -142,11 +146,33 @@ export class MasterListComponent implements OnInit, OnDestroy {
     getFilter(): { attribute: string, value: string, label: string }[] {
         let newFilter = JSON.parse(JSON.stringify(this.filter));
 
-        if (this.filterInvalid) {
+        if (!this.showInvalid) {
             newFilter.push({ attribute: "invalid", value: "false" });
         }
 
         return newFilter;
+    }
+
+    calculateListAttributes() {
+        let attrs: any[];
+
+        if (this.showInvalid) {
+            attrs = this.list.attributes;
+        } else {
+            attrs = JSON.parse(JSON.stringify(this.list.attributes));
+
+            let index = attrs.findIndex(attr => attr.name === "invalid");
+
+            if (index !== -1) {
+                attrs.splice(index, 1);
+            }
+        }
+
+        attrs.forEach(attribute => {
+            attribute.isCollapsed = true;
+        });
+
+        return attrs;
     }
 
     getValues(attribute: any): void {

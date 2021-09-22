@@ -129,7 +129,7 @@ public class GeoObjectAtTimeShapefileExporterTest
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
-    Assert.assertEquals(4, attributes.size());
+    Assert.assertEquals(3, attributes.size());
   }
 
   @Test
@@ -162,7 +162,7 @@ public class GeoObjectAtTimeShapefileExporterTest
         Object geometry = feature.getDefaultGeometry();
         Assert.assertNotNull(geometry);
 
-        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, LocalizationFacade.getInstalledLocales()).attributes(type.getType());
+        Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, LocalizationFacade.getInstalledLocales()).attributes(type.getType());
 
         for (AttributeType attribute : attributes)
         {

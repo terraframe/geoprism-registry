@@ -580,25 +580,26 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
         
         // Set exists first so we can validate attributes on it
-        ShapefileFunction existsFunction = this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
-        
-        if (existsFunction != null)
-        {
-          Object value = existsFunction.getValue(row);
-          
-          if (value != null && !this.isEmptyString(value))
-          {
-            this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), value);
-          }
-        }
-        else if (isNew)
-        {
-          ValueOverTime defaultExists = ((VertexServerGeoObject) serverGo).buildDefaultExists();
-          if (defaultExists != null)
-          {
-            serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
-          }
-        }
+//        ShapefileFunction existsFunction = this.configuration.getFunction(DefaultAttribute.EXISTS.getName());
+//        
+//        if (existsFunction != null)
+//        {
+//          Object value = existsFunction.getValue(row);
+//          
+//          if (value != null && !this.isEmptyString(value))
+//          {
+//            this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), value);
+//          }
+//        }
+//        else if (isNew)
+//        {
+//          ValueOverTime defaultExists = ((VertexServerGeoObject) serverGo).buildDefaultExists();
+//          if (defaultExists != null)
+//          {
+//            serverGo.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
+//          }
+//        }
+        this.setValue(serverGo, this.configuration.getType().getAttribute(DefaultAttribute.EXISTS.getName()).get(), DefaultAttribute.EXISTS.getName(), true);
 
         Map<String, AttributeType> attributes = this.configuration.getType().getAttributeMap();
         Set<Entry<String, AttributeType>> entries = attributes.entrySet();
@@ -619,31 +620,31 @@ public class GeoObjectImporter implements ObjectImporterIF
 
               if (value != null && !this.isEmptyString(value))
               {
-                if (!(existsFunction == null && isNew))
-                {
-                  try
-                  {
-                    ((VertexServerGeoObject) serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(), attributeName, this.configuration.getStartDate(), this.configuration.getEndDate());
-                  }
-                  catch (ValueOutOfRangeException e)
-                  {
-                    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
-                    
-                    ImportOutOfRangeException ex = new ImportOutOfRangeException();
-                    ex.setStartDate(format.format(this.configuration.getStartDate()));
-                    
-                    if (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
-                    {
-                      ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
-                    }
-                    else
-                    {
-                      ex.setEndDate(format.format(this.configuration.getEndDate()));
-                    }
-                    
-                    throw ex;
-                  }
-                }
+//                if (!(existsFunction == null && isNew))
+//                {
+//                  try
+//                  {
+//                    ((VertexServerGeoObject) serverGo).enforceAttributeSetWithinRange(serverGo.getDisplayLabel().getValue(), attributeName, this.configuration.getStartDate(), this.configuration.getEndDate());
+//                  }
+//                  catch (ValueOutOfRangeException e)
+//                  {
+//                    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
+//                    
+//                    ImportOutOfRangeException ex = new ImportOutOfRangeException();
+//                    ex.setStartDate(format.format(this.configuration.getStartDate()));
+//                    
+//                    if (ValueOverTime.INFINITY_END_DATE.equals(this.configuration.getEndDate()))
+//                    {
+//                      ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
+//                    }
+//                    else
+//                    {
+//                      ex.setEndDate(format.format(this.configuration.getEndDate()));
+//                    }
+//                    
+//                    throw ex;
+//                  }
+//                }
                 
                 this.setValue(serverGo, attributeType, attributeName, value);
               }

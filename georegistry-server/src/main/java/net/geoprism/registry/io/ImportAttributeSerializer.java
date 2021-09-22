@@ -46,10 +46,10 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
 
   public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, List<Locale> locales)
   {
-    this(locale, includeCoordinates, false, false, locales);
+    this(locale, includeCoordinates, false, locales);
   }
 
-  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, boolean includeInvalid, Collection<Locale> locales)
+  public ImportAttributeSerializer(Locale locale, boolean includeCoordinates, boolean includeUid, Collection<Locale> locales)
   {
     super(locale);
 
@@ -63,10 +63,8 @@ public class ImportAttributeSerializer extends LocaleSerializer implements Custo
     this.filter.add(DefaultAttribute.TYPE.getName());
     this.filter.add(DefaultAttribute.DISPLAY_LABEL.getName());
 
-    if (!includeInvalid)
-    {
-      this.filter.add(DefaultAttribute.INVALID.getName());
-    }
+    this.filter.add(DefaultAttribute.INVALID.getName());
+    this.filter.add(DefaultAttribute.EXISTS.getName());
 
     if (!includeUid)
     {

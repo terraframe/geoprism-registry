@@ -410,7 +410,7 @@ public class MasterListTest
 
       try
       {
-        MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+        MasterListVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
 
         try
         {
@@ -454,7 +454,7 @@ public class MasterListTest
 
       try
       {
-        MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+        MasterListVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
 
         try
         {
@@ -497,6 +497,11 @@ public class MasterListTest
           version.delete();
         }
       }
+      catch (Throwable t)
+      {
+        t.printStackTrace();
+        throw new RuntimeException(t);
+      }
       finally
       {
         test.delete();
@@ -518,7 +523,7 @@ public class MasterListTest
       test.setValid(false);
       test.apply();
 
-      MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+      MasterListVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
       version.delete();
     }
     finally

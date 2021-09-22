@@ -183,7 +183,7 @@ public class GeoObjectRelationshipServiceTest
           Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, startDate);
           
           Date endDate = format.parse(entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_ENDDATE).getAsString());
-          Assert.assertEquals(ValueOverTimeDTO.INFINITY_END_DATE, endDate);
+          Assert.assertEquals(FastTestDataset.DEFAULT_END_TIME_DATE, endDate);
           
           JsonObject parents = entry.get(ServerParentTreeNodeOverTime.JSON_ENTRY_PARENTS).getAsJsonObject();
           

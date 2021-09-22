@@ -4,6 +4,7 @@ import Utils from "../../registry/utility/Utils";
 import { PRESENT, ConflictMessage, TimeRangeEntry, AttributeType } from "@registry/model/registry";
 import { SummaryKey } from "@registry/model/crtable";
 import { ConflictType } from "@registry/model/constants";
+import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 
 @Injectable()
 export class DateService {
@@ -83,11 +84,11 @@ export class DateService {
         return null;
     }
 
-    checkRanges(attributeType: AttributeType, vAttributes: TimeRangeEntry[]): boolean {
+    checkRanges(attributeType: AttributeType, ranges: ValueOverTimeCREditor[]): boolean {
         let hasConflict = false;
 
         // clear all messages
-        vAttributes.forEach(attr => {
+        ranges.forEach(attr => {
             if (!attr.conflictMessage) {
                 attr.conflictMessage = [];
             }
@@ -100,11 +101,11 @@ export class DateService {
         });
 
         // Filter DELETE entries from consideration
-        const filtered: TimeRangeEntry[] = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
 
         // Check for overlaps
         for (let j = 0; j < filtered.length; j++) {
-            const h1: TimeRangeEntry = filtered[j];
+            const h1: ValueOverTimeCREditor = filtered[j];
 
             if (h1.startDate && h1.endDate) {
                 let s1: any = this.getDateFromDateString(h1.startDate);
@@ -122,7 +123,7 @@ export class DateService {
 
                 for (let i = 0; i < filtered.length; i++) {
                     if (j !== i) {
-                        const h2: TimeRangeEntry = filtered[i];
+                        const h2: ValueOverTimeCREditor = filtered[i];
 
                         // If all dates set
                         if (h2.startDate && h2.endDate) {
@@ -183,31 +184,31 @@ export class DateService {
             current = next;
         }
 
-        this.sort(vAttributes);
+        this.sort(ranges);
 
         return hasConflict;
     }
 
-    checkExistRanges(vAttributes: TimeRangeEntry[], existEntries: TimeRangeEntry[]): boolean {
+    checkExistRanges(ranges: ValueOverTimeCREditor[], existEntries: ValueOverTimeCREditor[]): boolean {
         let hasConflict = false;
 
         // clear all messages
-        vAttributes.forEach(attr => {
-            if (!attr.conflictMessage) {
-                attr.conflictMessage = [];
+        ranges.forEach(range => {
+            if (!range.conflictMessage) {
+                range.conflictMessage = [];
             }
 
-            for (let i = attr.conflictMessage.length - 1; i >= 0; --i) {
-                if (attr.conflictMessage[i].type === ConflictType.OUTSIDE_EXISTS) {
-                    attr.conflictMessage.splice(i, 1);
+            for (let i = range.conflictMessage.length - 1; i >= 0; --i) {
+                if (range.conflictMessage[i].type === ConflictType.OUTSIDE_EXISTS) {
+                    range.conflictMessage.splice(i, 1);
                 }
             }
         });
 
         // Filter DELETE entries from consideration
-        const filtered = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
 
-        const filteredExists = existEntries.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+        const filteredExists = existEntries.filter(range => range.diff == null || range.diff.action !== "DELETE");
 
         // Check for outside exists range
         for (let j = 0; j < filtered.length; j++) {
@@ -263,6 +264,26 @@ export class DateService {
             let next: any = new Date(b.startDate);
             return first - next;
         });
+    }
+
+    validateDate(date: Date, required: boolean, allowFutureDates: boolean): {message: string, valid: boolean} {
+        let valid = { message: "", valid: true };
+        let today: Date = new Date();
+
+        if (date != null) {
+            if (!(date instanceof Date) || (date instanceof Date && isNaN(date.getTime()))) {
+                valid.valid = false;
+                valid.message = this.localizationService.decode("date.inpu.data.invalid.error.message");
+            } else if (!allowFutureDates && date > today) {
+                valid.valid = false;
+                valid.message = this.localizationService.decode("date.inpu.data.in.future.error.message");
+            }
+        } else if (required) {
+            valid.valid = false;
+            valid.message = this.localizationService.decode("manage.versions.date.required.message");
+        }
+
+        return valid;
     }
 
 }

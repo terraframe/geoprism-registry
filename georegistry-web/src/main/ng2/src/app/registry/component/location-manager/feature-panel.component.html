@@ -1,7 +1,7 @@
 <div>
   <div *ngIf="mode == MODE.ATTRIBUTES && postGeoObject != null">
     <!-- Attributes tab -->
-    <geoobject-shared-attribute-editor 
+    <geoobject-shared-attribute-editor  *ngIf="hierarchies"
       #attributeEditor 
       [geoObjectType]="type" 
       [postGeoObject]="postGeoObject" 
