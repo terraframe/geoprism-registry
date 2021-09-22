@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1886121353)
+@com.runwaysdk.business.ClassSignature(hash = 316017535)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -93,23 +93,6 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.SynchronizationConfig.CREATEDBY);
 
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.SynchronizationConfig.CREATEDBY, mdAttributeIF, this, alias, displayLabel);
-
-  }
-  public com.runwaysdk.query.SelectableBoolean getDirection()
-  {
-    return getDirection(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableBoolean getDirection(String alias)
-  {
-    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.SynchronizationConfig.DIRECTION, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableBoolean getDirection(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.SynchronizationConfig.DIRECTION, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
@@ -521,9 +504,6 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableBoolean getDirection();
-    public com.runwaysdk.query.SelectableBoolean getDirection(String alias);
-    public com.runwaysdk.query.SelectableBoolean getDirection(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
@@ -656,23 +636,6 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
   public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.SynchronizationConfig.CREATEDBY,  alias, displayLabel);
-
-  }
-  public com.runwaysdk.query.SelectableBoolean getDirection()
-  {
-    return getDirection(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableBoolean getDirection(String alias)
-  {
-    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.DIRECTION, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableBoolean getDirection(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.DIRECTION, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
@@ -1019,9 +982,6 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
-    public com.runwaysdk.query.SelectableBoolean getDirection();
-    public com.runwaysdk.query.SelectableBoolean getDirection(String alias);
-    public com.runwaysdk.query.SelectableBoolean getDirection(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
@@ -1203,23 +1163,6 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
   public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.SynchronizationConfig.CREATEDBY,  alias, displayLabel);
-
-  }
-  public com.runwaysdk.query.SelectableBoolean getDirection()
-  {
-    return getDirection(null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableBoolean getDirection(String alias)
-  {
-    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.DIRECTION, alias, null);
-
-  }
- 
-  public com.runwaysdk.query.SelectableBoolean getDirection(String alias, String displayLabel)
-  {
-    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.DIRECTION, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()

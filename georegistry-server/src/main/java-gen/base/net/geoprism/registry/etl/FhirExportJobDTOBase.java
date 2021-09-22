@@ -1,10 +1,10 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -314505994)
+@com.runwaysdk.business.ClassSignature(hash = 1992053210)
 public abstract class FhirExportJobDTOBase extends net.geoprism.registry.etl.MasterListJobDTO
 {
   public final static String CLASS = "net.geoprism.registry.etl.FhirExportJob";
-  private static final long serialVersionUID = -314505994;
+  private static final long serialVersionUID = 1992053210;
   
   protected FhirExportJobDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -28,7 +28,45 @@ public abstract class FhirExportJobDTOBase extends net.geoprism.registry.etl.Mas
   }
   
   public static java.lang.String EXTERNALSYSTEM = "externalSystem";
+  public static java.lang.String IMPLEMENTATION = "implementation";
   public static java.lang.String VERSION = "version";
+  public String getImplementation()
+  {
+    return getValue(IMPLEMENTATION);
+  }
+  
+  public void setImplementation(String value)
+  {
+    if(value == null)
+    {
+      setValue(IMPLEMENTATION, "");
+    }
+    else
+    {
+      setValue(IMPLEMENTATION, value);
+    }
+  }
+  
+  public boolean isImplementationWritable()
+  {
+    return isWritable(IMPLEMENTATION);
+  }
+  
+  public boolean isImplementationReadable()
+  {
+    return isReadable(IMPLEMENTATION);
+  }
+  
+  public boolean isImplementationModified()
+  {
+    return isModified(IMPLEMENTATION);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getImplementationMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(IMPLEMENTATION).getAttributeMdDTO();
+  }
+  
   public net.geoprism.registry.MasterListVersionDTO getVersion()
   {
     if(getValue(VERSION) == null || getValue(VERSION).trim().equals(""))

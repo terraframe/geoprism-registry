@@ -8,7 +8,7 @@ import net.geoprism.registry.MasterListVersion;
 
 public interface FhirDataPopulator
 {
-  public boolean supports(MasterListVersion version);
+  public String getLabel();
 
   public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds);
 

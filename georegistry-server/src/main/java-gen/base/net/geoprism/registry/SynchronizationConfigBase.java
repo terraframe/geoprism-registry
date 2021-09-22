@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1879537216)
+@com.runwaysdk.business.ClassSignature(hash = -2053968632)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -14,7 +14,6 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   public static java.lang.String CONFIGURATION = "configuration";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String DIRECTION = "direction";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String HIERARCHY = "hierarchy";
   public static java.lang.String ISIMPORT = "isImport";
@@ -33,7 +32,7 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String SYSTEM = "system";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -1879537216;
+  private static final long serialVersionUID = -2053968632;
   
   public SynchronizationConfigBase()
   {
@@ -111,34 +110,6 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
-  }
-  
-  public Boolean getDirection()
-  {
-    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(DIRECTION));
-  }
-  
-  public void validateDirection()
-  {
-    this.validateAttribute(DIRECTION);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getDirectionMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(DIRECTION);
-  }
-  
-  public void setDirection(Boolean value)
-  {
-    if(value == null)
-    {
-      setValue(DIRECTION, "");
-    }
-    else
-    {
-      setValue(DIRECTION, java.lang.Boolean.toString(value));
-    }
   }
   
   public com.runwaysdk.system.metadata.MdDomain getEntityDomain()

@@ -1,1 +1,3 @@
+net.geoprism.registry.etl.fhir.BasicFhirDataPopulator
 net.geoprism.registry.etl.fhir.MCSDFhirDataPopulator
+net.geoprism.registry.etl.fhir.TolkienFhirDataPopulator

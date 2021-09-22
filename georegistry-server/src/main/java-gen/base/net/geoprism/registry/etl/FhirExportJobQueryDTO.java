@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -2060712115)
+@com.runwaysdk.business.ClassSignature(hash = 915733681)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -10,7 +10,7 @@ package net.geoprism.registry.etl;
  */
 public class FhirExportJobQueryDTO extends net.geoprism.registry.etl.MasterListJobQueryDTO
 {
-private static final long serialVersionUID = -2060712115;
+private static final long serialVersionUID = 915733681;
 
   protected FhirExportJobQueryDTO(String type)
   {

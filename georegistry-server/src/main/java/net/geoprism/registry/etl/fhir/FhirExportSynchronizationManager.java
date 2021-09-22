@@ -58,7 +58,7 @@ public class FhirExportSynchronizationManager
 {
   private FhirSyncExportConfig config;
 
-  private ExportHistory  history;
+  private ExportHistory        history;
 
   public FhirExportSynchronizationManager(FhirSyncExportConfig config, ExportHistory history)
   {
@@ -89,7 +89,7 @@ public class FhirExportSynchronizationManager
 
       MasterListVersion version = MasterListVersion.get(level.getVersionId());
 
-      FhirDataPopulator populator = FhirFactory.getPopulator(version);
+      FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
 
       MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, true);
       long results = exporter.export();
@@ -219,7 +219,7 @@ public class FhirExportSynchronizationManager
 
       MasterListVersion version = MasterListVersion.get(level.getVersionId());
 
-      FhirDataPopulator populator = FhirFactory.getPopulator(version);
+      FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
 
       MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, false);
       exporter.populateBundle(bundle);

@@ -52,6 +52,7 @@ import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
+import net.geoprism.registry.etl.fhir.MCSDFhirDataPopulator;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -185,7 +186,7 @@ public class FhirExportTest
     final ServerHierarchyType ht = USATestData.HIER_ADMIN.getServerObject();
     final Organization org = USATestData.ORG_NPS.getServerObject();
 
-    // Create DHIS2 Sync Config
+    // Create the FHIR Sync Config
     FhirSyncExportConfig sourceConfig = new FhirSyncExportConfig();
     sourceConfig.setLabel(new LocalizedValue("FHIR Export Test Data"));
     sourceConfig.setOrganization(org);
@@ -197,6 +198,7 @@ public class FhirExportTest
     level.setLevel(0);
     level.setMasterListId(list.getOid());
     level.setVersionId(version.getOid());
+    level.setImplementation(MCSDFhirDataPopulator.class.getName());
     levels.add(level);
 
     sourceConfig.setLevels(levels);
@@ -233,7 +235,7 @@ public class FhirExportTest
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();
 
-      Assert.assertEquals(8, entries.size());
+      Assert.assertEquals(4, entries.size());
 
       // Assert the organization entry
       BundleEntryComponent entry = entries.get(0);
@@ -347,7 +349,7 @@ public class FhirExportTest
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();
 
-      Assert.assertEquals(8, entries.size());
+      Assert.assertEquals(4, entries.size());
 
       // Assert the organization entry
       BundleEntryComponent entry = entries.get(0);

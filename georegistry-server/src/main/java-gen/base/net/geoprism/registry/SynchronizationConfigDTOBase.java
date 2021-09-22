@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1375316800)
+@com.runwaysdk.business.ClassSignature(hash = -1080004984)
 public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.SynchronizationConfig";
-  private static final long serialVersionUID = 1375316800;
+  private static final long serialVersionUID = -1080004984;
   
   protected SynchronizationConfigDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -30,7 +30,6 @@ public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.busines
   public static java.lang.String CONFIGURATION = "configuration";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String DIRECTION = "direction";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String HIERARCHY = "hierarchy";
   public static java.lang.String ISIMPORT = "isImport";
@@ -144,43 +143,6 @@ public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.busines
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getCreatedByMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CREATEDBY).getAttributeMdDTO();
-  }
-  
-  public Boolean getDirection()
-  {
-    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(DIRECTION));
-  }
-  
-  public void setDirection(Boolean value)
-  {
-    if(value == null)
-    {
-      setValue(DIRECTION, "");
-    }
-    else
-    {
-      setValue(DIRECTION, java.lang.Boolean.toString(value));
-    }
-  }
-  
-  public boolean isDirectionWritable()
-  {
-    return isWritable(DIRECTION);
-  }
-  
-  public boolean isDirectionReadable()
-  {
-    return isReadable(DIRECTION);
-  }
-  
-  public boolean isDirectionModified()
-  {
-    return isModified(DIRECTION);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeBooleanMdDTO getDirectionMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeBooleanMdDTO) getAttributeDTO(DIRECTION).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.metadata.MdDomainDTO getEntityDomain()

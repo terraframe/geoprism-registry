@@ -37,7 +37,7 @@ public class FhirExportJob extends FhirExportJobBase
 
     FhirExternalSystem system = this.getExternalSystem();
 
-    this.getVersion().exportToFhir(system);
+    this.getVersion().exportToFhir(system, this.getImplementation());
   }
 
   @Override
@@ -65,6 +65,7 @@ public class FhirExportJob extends FhirExportJobBase
       final JsonObject object = new JsonObject();
       object.addProperty(FhirExportJob.OID, this.getOid());
       object.add(FhirExportJob.VERSION, this.getVersion().toJSON(false));
+      object.addProperty(FhirExportJob.IMPLEMENTATION, this.getImplementation());
       object.addProperty(FhirExportJob.TYPE, type.getLabel().getValue());
       object.addProperty(JobHistory.STATUS, history.getStatus().get(0).getDisplayLabel());
       object.addProperty("date", format.format(version.getPublishDate()));

@@ -15,12 +15,12 @@ import com.runwaysdk.localization.LocalizationFacade;
 
 import net.geoprism.registry.MasterListVersion;
 
-public class DefaultFhirDataPopulator implements FhirDataPopulator
+public class BasicFhirDataPopulator implements FhirDataPopulator
 {
   @Override
-  public boolean supports(MasterListVersion version)
+  public String getLabel()
   {
-    return false;
+    return "Basic Export Implementation";
   }
 
   @Override

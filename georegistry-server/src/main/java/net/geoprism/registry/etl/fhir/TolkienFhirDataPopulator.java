@@ -19,11 +19,11 @@ import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
-public class MCSDFhirDataPopulator extends AbstractFhirDataPopulator implements FhirDataPopulator
+public class TolkienFhirDataPopulator extends AbstractFhirDataPopulator implements FhirDataPopulator
 {
   private List<ServerHierarchyType> hierarchies;
 
-  public MCSDFhirDataPopulator()
+  public TolkienFhirDataPopulator()
   {
     super();
 
@@ -33,7 +33,7 @@ public class MCSDFhirDataPopulator extends AbstractFhirDataPopulator implements 
   @Override
   public String getLabel()
   {
-    return "mCSD Export Implementation";
+    return "Tolkien Export Implementation";
   }
 
   @Override
@@ -96,17 +96,17 @@ public class MCSDFhirDataPopulator extends AbstractFhirDataPopulator implements 
       organization.addType(new CodeableConcept().addCoding(new Coding("urn:ietf:rfc:3986", "urn:ihe:iti:mcsd:2019:jurisdiction", "Jurisdiction")));
     }
 
-    if (this.hierarchies.size() > 1)
+    // if (this.hierarchies.size() > 1)
     {
       for (ServerHierarchyType hierarchy : this.hierarchies)
       {
         this.addHierarchyExtension(row, facility, hierarchy);
       }
     }
-    else if (this.hierarchies.size() == 1)
-    {
-      this.setPartOf(row, facility, this.hierarchies.get(0));
-    }
+    // else if (this.hierarchies.size() == 1)
+    // {
+    // this.setPartOf(row, facility, this.hierarchies.get(0));
+    // }
   }
 
   @Override

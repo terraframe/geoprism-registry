@@ -176,20 +176,32 @@ export class SynchronizationConfigService {
             .toPromise();
     }
 
-    getJobs(oid:string, pageNumber: number, pageSize: number): Promise<PageResult<ExportScheduledJob>> {
+    getJobs(oid: string, pageNumber: number, pageSize: number): Promise<PageResult<ExportScheduledJob>> {
         let params: HttpParams = new HttpParams();
         params = params.set("oid", oid);
         params = params.set("pageNumber", pageNumber.toString());
         params = params.set("pageSize", pageSize.toString());
 
-//        this.eventService.start();
+        //        this.eventService.start();
 
         return this.http
             .get<PageResult<ExportScheduledJob>>(acp + "/synchronization-config/get-jobs", { params: params })
-//            .pipe(finalize(() => {
-//                this.eventService.complete();
-//            }))
+            //            .pipe(finalize(() => {
+            //                this.eventService.complete();
+            //            }))
             .toPromise();
     }
 
+    getFhirImplementations(): Promise<{ className: string, label: string }[]> {
+        let params: HttpParams = new HttpParams();
+
+        this.eventService.start();
+
+        return this.http
+            .get<any[]>(acp + "/synchronization-config/get-fhir-implementations", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 }

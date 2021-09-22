@@ -10,7 +10,7 @@
   <xs:complexType name="hierarchy">
     <xs:sequence>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="child" type="node" minOccurs="0" />
+        <xs:element name="child" type="node" minOccurs="1" />
       </xs:choice>
     </xs:sequence>  
     <xs:attribute name="code" type="xs:string" use="required" />
@@ -21,6 +21,7 @@
     <xs:attribute name="disclaimer" type="xs:string" use="optional" />
     <xs:attribute name="accessConstraints" type="xs:string" use="optional" />
     <xs:attribute name="useConstraints" type="xs:string" use="optional" />
+    <xs:attribute name="extends" type="xs:string" use="optional" />
   </xs:complexType>
   <xs:complexType name="group-item">
     <xs:attribute name="code" type="xs:string" use="required" />

@@ -33,6 +33,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
+import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.service.SynchronizationConfigService;
 
 @Controller(url = "synchronization-config")
@@ -129,5 +130,13 @@ public class SynchronizationConfigController
   public ResponseIF generateFile(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
     return new InputStreamResponse(this.service.generateFile(request.getSessionId(), oid), "application/zip", "bundles.zip");
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-implementations")
+  public ResponseIF getFhirImplementations(ClientRequestIF request)
+  {
+    JsonArray implementations = FhirFactory.getExportImplementations();
+
+    return new RestBodyResponse(implementations);
   }
 }

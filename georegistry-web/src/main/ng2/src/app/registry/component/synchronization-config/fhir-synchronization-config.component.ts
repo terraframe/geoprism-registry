@@ -2,8 +2,8 @@ import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from '@angu
 import { Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { SynchronizationConfig, MasterListByOrg, MasterList } from '@registry/model/registry';
-import { RegistryService } from '@registry/service';
+import { SynchronizationConfig, MasterListByOrg, MasterList, MasterListView } from '@registry/model/registry';
+import { RegistryService, SynchronizationConfigService } from '@registry/service';
 
 interface FhirSyncLevel {
   masterListId: string;
@@ -23,11 +23,11 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
   @Input() fieldChange: Subject<string>;
   @Output() onError = new EventEmitter<HttpErrorResponse>();
 
-  lists: { [key: string]: MasterList } = {};
+  versions: { [key: string]: MasterList } = {};
+  implementations: { className: string, label: string }[] = [];
+  lists: MasterListView[] = [];
 
-  org: MasterListByOrg = null;
-
-  constructor(private rService: RegistryService) { }
+  constructor(private service: SynchronizationConfigService, private rService: RegistryService) { }
 
   ngOnInit(): void {
 
@@ -37,6 +37,10 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
       if (field === 'organization' || field === 'system') {
         this.reset();
       }
+    });
+
+    this.service.getFhirImplementations().then(implementations => {
+      this.implementations = implementations;
     });
   }
 
@@ -67,11 +71,16 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
 
     // Get 
     this.rService.getMasterListsByOrg().then(response => {
-      const filtered = response.orgs.filter(org => org.code = this.config.organization);
 
-      if (filtered.length > 0) {
-        this.org = filtered[0];
-      }
+      this.lists = [];
+
+      response.orgs.forEach(org => {
+        org.lists.forEach(view => {
+          if (view.read) {
+            this.lists.push(view);
+          }
+        });
+      })
     });
   }
 
@@ -80,11 +89,11 @@ export class FhirSynchronizationConfigComponent implements OnInit, OnDestroy {
     if (level.masterListId != null) {
 
       this.rService.getMasterListHistory(level.masterListId, 'PUBLISHED').then(list => {
-        this.lists[level.masterListId] = list;
+        this.versions[level.masterListId] = list;
       });
     }
     else {
-      this.lists[level.masterListId] = null;
+      this.versions[level.masterListId] = null;
     }
   }
 

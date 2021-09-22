@@ -25,7 +25,7 @@ import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.etl.UnresolvableResourceException;
 import net.geoprism.registry.model.ServerHierarchyType;
 
-public abstract class AbstractFhirDataPopulator extends DefaultFhirDataPopulator implements FhirDataPopulator
+public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator implements FhirDataPopulator
 {
   private FhirExportContext   context;
 

@@ -277,7 +277,7 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public String exportToFhir(String sessionId, String oid, String systemId)
+  public String exportToFhir(String sessionId, String oid, String systemId, String implementation)
   {
     MasterListVersion version = MasterListVersion.get(oid);
     FhirExternalSystem externalSystem = FhirExternalSystem.get(systemId);
@@ -304,6 +304,7 @@ public class MasterListService
     job.setVersion(version);
     job.setExternalSystem(externalSystem);
     job.setMasterList(version.getMasterlist());
+    job.setImplementation(implementation);
     job.apply();
 
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));

@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = 269659103)
+@com.runwaysdk.business.ClassSignature(hash = -1689604029)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -53,6 +53,23 @@ public  class FhirExportJobQuery extends net.geoprism.registry.etl.MasterListJob
   public com.runwaysdk.query.SelectableUUID getExternalSystem(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableUUID)this.getComponentQuery().get(net.geoprism.registry.etl.FhirExportJob.EXTERNALSYSTEM, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getImplementation()
+  {
+    return getImplementation(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getImplementation(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.FhirExportJob.IMPLEMENTATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getImplementation(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.etl.FhirExportJob.IMPLEMENTATION, alias, displayLabel);
 
   }
   public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion()
@@ -127,6 +144,9 @@ public  class FhirExportJobQuery extends net.geoprism.registry.etl.MasterListJob
     public com.runwaysdk.query.SelectableUUID getExternalSystem();
     public com.runwaysdk.query.SelectableUUID getExternalSystem(String alias);
     public com.runwaysdk.query.SelectableUUID getExternalSystem(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getImplementation();
+    public com.runwaysdk.query.SelectableChar getImplementation(String alias);
+    public com.runwaysdk.query.SelectableChar getImplementation(String alias, String displayLabel);
     public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion();
     public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias);
     public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias, String displayLabel);
@@ -182,6 +202,23 @@ public  class FhirExportJobQuery extends net.geoprism.registry.etl.MasterListJob
     return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.etl.FhirExportJob.EXTERNALSYSTEM, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getImplementation()
+  {
+    return getImplementation(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getImplementation(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.FhirExportJob.IMPLEMENTATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getImplementation(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.FhirExportJob.IMPLEMENTATION, alias, displayLabel);
+
+  }
   public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion()
   {
     return getVersion(null);
@@ -225,6 +262,9 @@ public  class FhirExportJobQuery extends net.geoprism.registry.etl.MasterListJob
     public com.runwaysdk.query.SelectableUUID getExternalSystem();
     public com.runwaysdk.query.SelectableUUID getExternalSystem(String alias);
     public com.runwaysdk.query.SelectableUUID getExternalSystem(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getImplementation();
+    public com.runwaysdk.query.SelectableChar getImplementation(String alias);
+    public com.runwaysdk.query.SelectableChar getImplementation(String alias, String displayLabel);
     public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion();
     public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias);
     public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion(String alias, String displayLabel);
@@ -327,6 +367,23 @@ public  class FhirExportJobQuery extends net.geoprism.registry.etl.MasterListJob
   public com.runwaysdk.query.SelectableUUID getExternalSystem(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableUUID)this.get(net.geoprism.registry.etl.FhirExportJob.EXTERNALSYSTEM, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getImplementation()
+  {
+    return getImplementation(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getImplementation(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.FhirExportJob.IMPLEMENTATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getImplementation(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.etl.FhirExportJob.IMPLEMENTATION, alias, displayLabel);
 
   }
   public net.geoprism.registry.MasterListVersionQuery.MasterListVersionQueryReferenceIF getVersion()

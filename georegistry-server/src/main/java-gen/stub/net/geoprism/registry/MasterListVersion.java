@@ -334,7 +334,7 @@ public class MasterListVersion extends MasterListVersionBase
     {
       MasterListAttributeGroup.create(version, entry.getValue(), entry.getKey());
     }
-    
+
     return metadata;
   }
 
@@ -747,9 +747,9 @@ public class MasterListVersion extends MasterListVersionBase
     return file;
   }
 
-  public void exportToFhir(FhirExternalSystem system)
+  public void exportToFhir(FhirExternalSystem system, String implementation)
   {
-    FhirDataPopulator populator = FhirFactory.getPopulator(this);
+    FhirDataPopulator populator = FhirFactory.getPopulator(implementation);
 
     MasterListFhirExporter exporter = new MasterListFhirExporter(this, system, populator, true);
     exporter.export();
@@ -775,7 +775,7 @@ public class MasterListVersion extends MasterListVersionBase
       throw new ProgrammingErrorException(e);
     }
   }
-  
+
   @Transaction
   @Authenticate
   public String publish()
@@ -904,14 +904,11 @@ public class MasterListVersion extends MasterListVersionBase
           {
             continue;
           }
-          if ( !name.equals(DefaultAttribute.CODE.getName())
-              && !name.equals(DefaultAttribute.INVALID.getName())
-              && attribute.isChangeOverTime()
-              && (!name.equals(DefaultAttribute.EXISTS.getName()) || (value instanceof Boolean && ((Boolean) value))) )
+          if (!name.equals(DefaultAttribute.CODE.getName()) && !name.equals(DefaultAttribute.INVALID.getName()) && attribute.isChangeOverTime() && ( !name.equals(DefaultAttribute.EXISTS.getName()) || ( value instanceof Boolean && ( (Boolean) value ) ) ))
           {
             hasData = true;
           }
-          
+
           if (attribute instanceof AttributeTermType)
           {
             Classifier classifier = (Classifier) value;
@@ -1500,10 +1497,10 @@ public class MasterListVersion extends MasterListVersionBase
         else if (mdBusiness.definesAttribute(attribute) instanceof MdAttributeBooleanDAOIF)
         {
           String value = filter.get("value").getAsString();
-          
+
           Boolean bVal = Boolean.valueOf(value);
 
-          query.WHERE(((AttributeBoolean)query.get(attribute)).EQ(bVal));
+          query.WHERE( ( (AttributeBoolean) query.get(attribute) ).EQ(bVal));
         }
         else
         {
@@ -1651,7 +1648,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
-    
+
     BusinessQuery query = this.buildQuery(filterJson);
 
     if (sort != null && sort.length() > 0)

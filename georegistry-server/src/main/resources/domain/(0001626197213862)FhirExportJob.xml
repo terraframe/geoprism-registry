@@ -32,6 +32,7 @@
         <attributes>
           <reference name="version" type="net.geoprism.registry.MasterListVersion" label="Master List" required="true"/>
           <graphReference name="externalSystem" type="net.geoprism.registry.graph.FhirExternalSystem" label="External System" required="true"/>          
+          <text name="implementation" label="Implementation" required="true"/>
         </attributes>      
       </mdBusiness>    
       <mdException name="net.geoprism.registry.etl.UnresolvableResourceException" 

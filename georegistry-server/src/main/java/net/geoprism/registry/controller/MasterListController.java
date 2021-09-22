@@ -204,9 +204,9 @@ public class MasterListController
   }
 
   @Endpoint(url = "export-to-fhir", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF exportToFhir(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "systemId") String systemId) throws JSONException
+  public ResponseIF exportToFhir(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "systemId") String systemId, @RequestParamter(name = "implementation") String implementation) throws JSONException
   {
-    final String jobId = service.exportToFhir(request.getSessionId(), oid, systemId);
+    final String jobId = service.exportToFhir(request.getSessionId(), oid, systemId, implementation);
 
     final RestResponse response = new RestResponse();
     response.set("job", jobId);

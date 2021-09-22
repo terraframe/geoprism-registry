@@ -30,7 +30,6 @@ import com.google.gson.JsonSerializer;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.model.ServerGeoObjectType;
 
 public class FhirSyncLevel implements Comparable<FhirSyncLevel>
 {
@@ -58,6 +57,7 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
       jo.addProperty("masterListId", src.masterListId);
       jo.addProperty("versionId", src.versionId);
       jo.addProperty("level", src.level);
+      jo.addProperty("implementation", src.implementation);
 
       if (src.versionId != null)
       {
@@ -76,6 +76,8 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
   private String  masterListId;
 
   private String  versionId;
+
+  private String  implementation;
 
   private Integer level;
 
@@ -107,6 +109,16 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
   public void setVersionId(String versionId)
   {
     this.versionId = versionId;
+  }
+
+  public String getImplementation()
+  {
+    return implementation;
+  }
+
+  public void setImplementation(String implementation)
+  {
+    this.implementation = implementation;
   }
 
   @Override

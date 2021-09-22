@@ -1,6 +1,6 @@
 package net.geoprism.registry.etl;
 
-@com.runwaysdk.business.ClassSignature(hash = -415639946)
+@com.runwaysdk.business.ClassSignature(hash = -755080358)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -12,8 +12,9 @@ public abstract class FhirExportJobBase extends net.geoprism.registry.etl.Master
 {
   public final static String CLASS = "net.geoprism.registry.etl.FhirExportJob";
   public static java.lang.String EXTERNALSYSTEM = "externalSystem";
+  public static java.lang.String IMPLEMENTATION = "implementation";
   public static java.lang.String VERSION = "version";
-  private static final long serialVersionUID = -415639946;
+  private static final long serialVersionUID = -755080358;
   
   public FhirExportJobBase()
   {
@@ -45,6 +46,34 @@ public abstract class FhirExportJobBase extends net.geoprism.registry.etl.Master
     else
     {
       setValue(EXTERNALSYSTEM, value.getOid());
+    }
+  }
+  
+  public String getImplementation()
+  {
+    return getValue(IMPLEMENTATION);
+  }
+  
+  public void validateImplementation()
+  {
+    this.validateAttribute(IMPLEMENTATION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getImplementationMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.etl.FhirExportJob.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(IMPLEMENTATION);
+  }
+  
+  public void setImplementation(String value)
+  {
+    if(value == null)
+    {
+      setValue(IMPLEMENTATION, "");
+    }
+    else
+    {
+      setValue(IMPLEMENTATION, value);
     }
   }
   

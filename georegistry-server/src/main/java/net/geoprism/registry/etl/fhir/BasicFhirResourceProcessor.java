@@ -17,7 +17,7 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 
-public class TestFhirResourceProcessor extends AbstractFhirResourceProcessor implements FhirResourceProcessor
+public class BasicFhirResourceProcessor extends AbstractFhirResourceProcessor implements FhirResourceProcessor
 {
   @Override
   public boolean supports(FhirSyncImportConfig config)
