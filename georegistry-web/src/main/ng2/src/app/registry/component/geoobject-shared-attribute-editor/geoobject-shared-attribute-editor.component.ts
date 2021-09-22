@@ -17,6 +17,10 @@ import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTim
 import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 import { ChangeRequestEditor } from "./change-request-editor";
+import { ChangeDetectorRef } from "@angular/core";
+import { ViewChildren } from "@angular/core";
+import { ManageVersionsComponent } from "./manage-versions.component";
+import { QueryList } from "@angular/core";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -84,23 +88,25 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() changeRequest: ChangeRequest;
 
-    @ViewChild("geometryEditor") geometryEditor;
-
     @Input() hierarchies: HierarchyOverTime[];
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
+
+    filterDate: string = null;
 
     // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
     @ViewChild("attributeForm") attributeForm;
 
+    @ViewChildren(ManageVersionsComponent) manageVersions: QueryList<any>;
+
     public parentAttributeType: AttributeType;
 
     public geometryAttributeType: AttributeType;
 
-    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
+    constructor(private cd: ChangeDetectorRef, private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
         this.isContributorOnly = this.authService.isContributerOnly();
     }
 
@@ -137,6 +143,16 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         if (this.shouldForceSetExist()) {
             this.changePage(3);
         }
+    }
+
+    setFilterDate(date: string) {
+        this.filterDate = date;
+
+        this.manageVersions.forEach(manageVersion => manageVersion.refresh(this.filterDate));
+
+        //let currentTab = this.tabIndex;
+        //this.changePage(-1);
+        //setTimeout(() => { this.changePage(currentTab); }, 0);
     }
 
     getChangeRequestEditor(): ChangeRequestEditor {

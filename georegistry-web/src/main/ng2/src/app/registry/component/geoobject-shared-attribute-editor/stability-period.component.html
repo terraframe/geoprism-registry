@@ -1,7 +1,7 @@
 <div style="height: 90px;">
     Stability Periods
 	  <div *ngFor="let timeline of timelines" style="position: relative;">
-	      <span *ngFor="let entry of timeline" style="height: 50px; border:1px solid black; position: absolute; display: inline-block;" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
-	      </span>
+	      <a *ngFor="let entry of timeline" class="timeline-entry" [ngClass]="{'active-timeline-entry':entry === activeEntry}" (click)="onClickTimelineEntry(entry)" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
+	      </a>
 	  </div>
 </div>

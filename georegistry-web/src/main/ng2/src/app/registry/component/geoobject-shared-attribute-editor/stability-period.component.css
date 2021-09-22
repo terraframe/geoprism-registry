@@ -1,0 +1,10 @@
+.timeline-entry {
+	  height: 50px;
+	  border:1px solid black;
+	  position: absolute;
+	  display: inline-block;
+}
+
+.active-timeline-entry {
+	  background-color: rgb(114, 159, 207);
+}

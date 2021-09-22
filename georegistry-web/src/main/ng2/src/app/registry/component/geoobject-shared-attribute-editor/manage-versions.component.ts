@@ -99,6 +99,8 @@ export class ManageVersionsComponent implements OnInit {
 
     @Input() hierarchy: HierarchyOverTime = null;
 
+    @Input() filterDate: string = null;
+
     viewModels: VersionDiffView[] = [];
 
     isRootOfHierarchy: boolean = false;
@@ -118,6 +120,11 @@ export class ManageVersionsComponent implements OnInit {
         if (this.isNew && this.attributeType.code === "exists" && this.viewModels.length === 0) {
             this.onAddNewVersion();
         }
+    }
+
+    refresh(filterDate: string): void {
+        this.filterDate = filterDate;
+        this.calculateViewModels();
     }
 
     checkDateFieldValidity(): boolean {
@@ -202,8 +209,10 @@ export class ManageVersionsComponent implements OnInit {
 
         let editors = this.changeRequestAttributeEditor.getEditors(includeUnmodified);
         editors.forEach((editor: ValueOverTimeCREditor) => {
-            let view = new VersionDiffView(this, editor);
-            viewModels.push(view);
+            if (this.filterDate == null || this.dateService.between(this.filterDate, editor.startDate, editor.endDate)) {
+                let view = new VersionDiffView(this, editor);
+                viewModels.push(view);
+            }
         });
 
         this.viewModels = viewModels;

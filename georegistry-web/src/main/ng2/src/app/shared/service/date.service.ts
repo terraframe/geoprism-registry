@@ -190,6 +190,10 @@ export class DateService {
     }
 
     public between(test: string, startDate: string, endDate: string) {
+        if (test == null || startDate == null || endDate == null) {
+            return false;
+        }
+
         let dTest: Date = this.getDateFromDateString(test);
         let dStart: Date = this.getDateFromDateString(startDate);
         let dEnd: Date = this.getDateFromDateString(endDate);

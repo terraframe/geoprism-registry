@@ -5,6 +5,7 @@ import { LocalizationService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { ChangeRequestEditor } from "./change-request-editor";
+import { GeoObjectSharedAttributeEditorComponent } from "./geoobject-shared-attribute-editor.component";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 
@@ -23,15 +24,20 @@ export interface DateBoundary {
  */
 @Component({
     selector: "stability-period",
-    templateUrl: "./stability-period.component.html"
+    templateUrl: "./stability-period.component.html",
+    styleUrls: ["./stability-period.component.css"]
 })
 export class StabilityPeriodComponent implements OnInit {
 
     @Input() changeRequestEditor: ChangeRequestEditor;
 
+    @Input() sharedAttributeEditor: GeoObjectSharedAttributeEditorComponent;
+
     periods: TimeRangeEntry[] = [];
 
     timelines: [[{ width: number, x: number, period: TimeRangeEntry }]];
+
+    activeEntry: any = null;
 
     constructor(private lService: LocalizationService, private dateService: DateService) {}
 
@@ -41,6 +47,15 @@ export class StabilityPeriodComponent implements OnInit {
         this.changeRequestEditor.onChangeSubject.subscribe(() => {
             this.generate();
         });
+    }
+
+    onClickTimelineEntry(entry: any) {
+        if (entry === this.activeEntry) {
+            entry = null;
+        }
+
+        this.activeEntry = entry;
+        this.sharedAttributeEditor.setFilterDate(entry == null ? null : entry.period.startDate);
     }
 
     generate() {
