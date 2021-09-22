@@ -1,6 +1,8 @@
+import { ChangeType } from "@registry/model/constants";
 import { ChangeRequest } from "@registry/model/crtable";
 import { AttributeType, GeoObjectOverTime, GeoObjectType, HierarchyOverTime, ValueOverTime } from "@registry/model/registry";
 import { DateService, LocalizationService } from "@shared/service";
+import { Subject } from "rxjs";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
 
@@ -22,6 +24,8 @@ export class ChangeRequestEditor {
     hierarchies: HierarchyOverTime[];
 
     private _isValid: boolean;
+
+    onChangeSubject : Subject<any> = new Subject<any>();
 
     localizationService: LocalizationService;
 
@@ -130,6 +134,10 @@ export class ChangeRequestEditor {
 
     public getEditors(): (ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel)[] {
         return this.attributeEditors;
+    }
+
+    public onChange(type: ChangeType) {
+        this.onChangeSubject.next(type);
     }
 
 }

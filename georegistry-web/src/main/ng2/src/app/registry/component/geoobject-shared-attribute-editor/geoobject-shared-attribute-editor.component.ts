@@ -86,11 +86,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @ViewChild("geometryEditor") geometryEditor;
 
-    @Output() onManageVersion = new EventEmitter<AttributeType>();
-
-    // Observable subject for MasterList changes.  Called when an update is successful
-    @Output() onChange = new EventEmitter<GeoObjectOverTime>();
-
     @Input() hierarchies: HierarchyOverTime[];
 
     modifiedTermOption: Term = null;

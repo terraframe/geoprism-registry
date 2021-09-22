@@ -1,4 +1,10 @@
 <div class="row">
+  <div class="col-md-12">
+    <stability-period [changeRequestEditor]="changeRequestEditor"></stability-period>
+  </div>
+</div>
+
+<div class="row">
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
@@ -30,8 +36,6 @@
   <fieldset>
     <!-- <div class="col-md-12"> -->
     <div *ngIf="changeRequestEditor && changeRequestEditor.geoObject">
-      <stability-period [geoObjectOverTime]="postGeoObject"></stability-period>
-
       <div *ngIf="tabIndex === 0" class="row">
         <!-- <div class="label-holder">
                         <label>

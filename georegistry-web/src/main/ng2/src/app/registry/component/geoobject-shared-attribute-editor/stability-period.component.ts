@@ -1,8 +1,12 @@
 import { Component, OnInit, Input } from "@angular/core";
 
-import { GeoObjectOverTime, AttributeType, TimeRangeEntry } from "@registry/model/registry";
+import { AttributeType, TimeRangeEntry } from "@registry/model/registry";
 import { LocalizationService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
+import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
+import { ChangeRequestEditor } from "./change-request-editor";
+import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
+import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 
 export interface DateBoundary {
 
@@ -23,7 +27,7 @@ export interface DateBoundary {
 })
 export class StabilityPeriodComponent implements OnInit {
 
-    @Input() geoObjectOverTime: GeoObjectOverTime;
+    @Input() changeRequestEditor: ChangeRequestEditor;
 
     periods: TimeRangeEntry[] = [];
 
@@ -32,6 +36,14 @@ export class StabilityPeriodComponent implements OnInit {
     constructor(private lService: LocalizationService, private dateService: DateService) {}
 
     ngOnInit(): void {
+        this.generate();
+
+        this.changeRequestEditor.onChangeSubject.subscribe(() => {
+            this.generate();
+        });
+    }
+
+    generate() {
         this.generatePeriods();
         this.generateTimelines();
     }
@@ -111,26 +123,28 @@ export class StabilityPeriodComponent implements OnInit {
     }
 
     generatePeriods() {
-        let len = this.geoObjectOverTime.geoObjectType.attributes.length;
-
         let boundaries: DateBoundary[] = [];
 
         // Create an array which contains all the unique start and end dates
-        for (let i = 0; i < len; ++i) {
-            let attr: AttributeType = this.geoObjectOverTime.geoObjectType.attributes[i];
+        let editors: (ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel)[] = this.changeRequestEditor.getEditors();
+        let len = editors.length;
 
-            if (attr.isChangeOverTime) {
-                let values = this.geoObjectOverTime.attributes[attr.code].values;
+        for (let i = 0; i < len; ++i) {
+            if (editors[i] instanceof ChangeRequestChangeOverTimeAttributeEditor) {
+                let editor: ChangeRequestChangeOverTimeAttributeEditor = editors[i] as ChangeRequestChangeOverTimeAttributeEditor;
+                let values = editor.getEditors();
 
                 let valLen = values.length;
                 for (let j = 0; j < valLen; ++j) {
-                    let period: TimeRangeEntry = values[j];
+                    let period: ValueOverTimeCREditor = values[j];
 
-                    if (boundaries.findIndex(boundary => period.startDate === boundary.date) === -1) {
-                        boundaries.push({ date: period.startDate, isStart: true });
-                    }
-                    if (boundaries.findIndex(boundary => period.endDate === boundary.date) === -1) {
-                        boundaries.push({ date: period.endDate, isStart: false });
+                    if (period.startDate != null && period.endDate != null && !period.isDelete()) {
+                        if (boundaries.findIndex(boundary => period.startDate === boundary.date) === -1) {
+                            boundaries.push({ date: period.startDate, isStart: true });
+                        }
+                        if (boundaries.findIndex(boundary => period.endDate === boundary.date) === -1) {
+                            boundaries.push({ date: period.endDate, isStart: false });
+                        }
                     }
                 }
             }
@@ -169,19 +183,20 @@ export class StabilityPeriodComponent implements OnInit {
     }
 
     hasDataAtDate(date: string): boolean {
-        let len = this.geoObjectOverTime.geoObjectType.attributes.length;
+        let editors: (ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel)[] = this.changeRequestEditor.getEditors();
+        let len = editors.length;
 
         for (let i = 0; i < len; ++i) {
-            let attr: AttributeType = this.geoObjectOverTime.geoObjectType.attributes[i];
+            if (editors[i] instanceof ChangeRequestChangeOverTimeAttributeEditor) {
+                let editor: ChangeRequestChangeOverTimeAttributeEditor = editors[i] as ChangeRequestChangeOverTimeAttributeEditor;
 
-            if (attr.isChangeOverTime) {
-                let values = this.geoObjectOverTime.attributes[attr.code].values;
+                let values = editor.getEditors();
 
                 let valLen = values.length;
                 for (let j = 0; j < valLen; ++j) {
                     let period: TimeRangeEntry = values[j];
 
-                    if (this.dateService.between(date, period.startDate, period.endDate)) {
+                    if (period.startDate != null && period.endDate != null && this.dateService.between(date, period.startDate, period.endDate)) {
                         return true;
                     }
                 }

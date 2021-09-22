@@ -3,6 +3,7 @@ import { HierarchyOverTimeEntry, GeoObject, HierarchyOverTimeEntryParent, Hierar
 import { UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { v4 as uuid } from "uuid";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
+import { ChangeType } from "@registry/model/constants";
 
 export class HierarchyCREditor extends ValueOverTimeCREditor {
 
@@ -98,8 +99,7 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
           this.hierarchyEntry.parents = parents;
       }
 
-      this.changeRequestAttributeEditor.onChange();
-      this.onChangeSubject.next("value");
+      this.onChange(ChangeType.VALUE);
   }
 
   public getLowestLevelFromHierarchyEntry(parents: any): {geoObject: GeoObject, text: string} {
@@ -187,8 +187,7 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
               delete this.diff.newStartDate;
               delete this.diff.newEndDate;
               this.removeEmptyDiff();
-              this.changeRequestAttributeEditor.onChange();
-              this.onChangeSubject.next("value");
+              this.onChange(ChangeType.REMOVE);
               return;
           } else if (this.hierarchyEntry != null && this.diff == null) {
               let currentImmediateParent: GeoObject = this.getLowestLevelFromHierarchyEntry(this.hierarchyEntry.parents).geoObject;
@@ -211,8 +210,7 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
           }
       }
 
-      this.changeRequestAttributeEditor.onChange();
-      this.onChangeSubject.next("value");
+      this.onChange(ChangeType.REMOVE);
   }
 
 }

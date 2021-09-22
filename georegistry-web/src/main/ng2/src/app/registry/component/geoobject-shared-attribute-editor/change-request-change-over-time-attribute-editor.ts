@@ -1,4 +1,4 @@
-import { ActionTypes } from "@registry/model/constants";
+import { ActionTypes, ChangeType } from "@registry/model/constants";
 import { AbstractAction, ChangeRequest, CreateGeoObjectAction, UpdateAttributeOverTimeAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { AttributeType, GeoObjectType, HierarchyOverTime, HierarchyOverTimeEntry, ValueOverTime } from "@registry/model/registry";
 import { ChangeRequestEditor } from "./change-request-editor";
@@ -6,6 +6,7 @@ import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { HierarchyCREditor } from "./HierarchyCREditor";
 import { v4 as uuid } from "uuid";
 import { GeometryService } from "@registry/service";
+import { Subject } from "rxjs";
 
 export class ChangeRequestChangeOverTimeAttributeEditor {
 
@@ -20,6 +21,8 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
     editors: ValueOverTimeCREditor[];
 
     private _isValid: boolean;
+
+    onChangeSubject : Subject<any> = new Subject<any>();
 
     constructor(changeRequestEditor: ChangeRequestEditor, attribute: AttributeType, hierarchy: HierarchyOverTime) {
         this.changeRequestEditor = changeRequestEditor;
@@ -48,7 +51,7 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         return this.editAction;
     }
 
-    onChange() {
+    onChange(type: ChangeType) {
         // If our attribute action has changes it needs to be added to the ChangeRequest actions. Otherwise we can remove it.
         let hasChanges: boolean = this.hasChanges();
 
@@ -61,6 +64,9 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         }
 
         this.validate();
+
+        this.onChangeSubject.next(type);
+        this.changeRequestEditor.onChange(type);
     }
 
     hasChanges(): boolean {
@@ -240,6 +246,8 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         }
 
         this.editors.push(editor);
+
+        this.onChange(ChangeType.ADD);
 
         return editor;
     }

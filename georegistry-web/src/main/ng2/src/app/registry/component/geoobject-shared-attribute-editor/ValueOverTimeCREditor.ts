@@ -7,7 +7,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { GeometryService } from "@registry/service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { Subject } from "rxjs";
-import { ConflictType } from "@registry/model/constants";
+import { ChangeType, ConflictType } from "@registry/model/constants";
 
 export class ValueOverTimeCREditor implements TimeRangeEntry {
 
@@ -26,6 +26,11 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
         this.attr = attr;
         this.changeRequestAttributeEditor = changeRequestAttributeEditor;
         this.action = action;
+    }
+
+    onChange(type: ChangeType) {
+        this.changeRequestAttributeEditor.onChange(type);
+        this.onChangeSubject.next(type);
     }
 
     getGeoObjectTimeRangeStorage(): TimeRangeEntry {
@@ -165,7 +170,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     set startDate(startDate: string) {
-        if (this.diff != null && this.diff.action === "DELETE") {
+        if (this.isDelete()) {
             return; // There are various view components (like the date widgets) which will invoke this method
         }
 
@@ -198,12 +203,11 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             goRange.startDate = startDate;
         }
 
-        this.changeRequestAttributeEditor.onChange();
-        this.onChangeSubject.next("startDate");
+        this.onChange(ChangeType.START_DATE);
     }
 
     set endDate(endDate: string) {
-        if (this.diff != null && this.diff.action === "DELETE") {
+        if (this.isDelete()) {
             return; // There are various view components (like the date widgets) which will invoke this method
         }
 
@@ -236,8 +240,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             goRange.endDate = endDate;
         }
 
-        this.changeRequestAttributeEditor.onChange();
-        this.onChangeSubject.next("endDate");
+        this.onChange(ChangeType.END_DATE);
     }
 
     set oldEndDate(oldEndDate: string) {
@@ -267,7 +270,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     set value(value: any) {
-        if (this.diff != null && this.diff.action === "DELETE") {
+        if (this.isDelete()) {
             return; // There are various view components (like the date widgets) which will invoke this method
         }
 
@@ -319,8 +322,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             this.valueOverTime.value = value;
         }
 
-        this.changeRequestAttributeEditor.onChange();
-        this.onChangeSubject.next("value");
+        this.onChange(ChangeType.VALUE);
     }
 
     set oldValue(oldValue: any) {
@@ -426,8 +428,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
                 delete this.diff.newStartDate;
                 delete this.diff.newEndDate;
                 this.removeEmptyDiff();
-                this.changeRequestAttributeEditor.onChange();
-                this.onChangeSubject.next("remove");
+                this.onChange(ChangeType.REMOVE);
                 return;
             } else if (this.valueOverTime != null && this.diff == null) {
                 this.diff = new ValueOverTimeDiff();
@@ -448,8 +449,11 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             }
         }
 
-        this.changeRequestAttributeEditor.onChange();
-        this.onChangeSubject.next("remove");
+        this.onChange(ChangeType.REMOVE);
+    }
+
+    public isDelete() {
+        return this.diff != null && this.diff.action === "DELETE";
     }
 
 }

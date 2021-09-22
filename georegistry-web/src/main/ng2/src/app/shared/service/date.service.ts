@@ -101,7 +101,7 @@ export class DateService {
         });
 
         // Filter DELETE entries from consideration
-        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => !range.isDelete());
 
         // Check for overlaps
         for (let j = 0; j < filtered.length; j++) {
@@ -218,7 +218,7 @@ export class DateService {
             return first - next;
         });
     }
-    
+
     checkExistRanges(ranges: ValueOverTimeCREditor[], existEntries: ValueOverTimeCREditor[]): boolean {
         let hasConflict = false;
 
@@ -236,9 +236,9 @@ export class DateService {
         });
 
         // Filter DELETE entries from consideration
-        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => !range.isDelete());
 
-        const filteredExists = existEntries.filter(range => range.diff == null || range.diff.action !== "DELETE");
+        const filteredExists = existEntries.filter(range => !range.isDelete());
 
         // Check for outside exists range
         for (let j = 0; j < filtered.length; j++) {
