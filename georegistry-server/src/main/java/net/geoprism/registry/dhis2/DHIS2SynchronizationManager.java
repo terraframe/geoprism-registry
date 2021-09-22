@@ -100,7 +100,8 @@ public class DHIS2SynchronizationManager
   public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history)
   {
     this.dhis2 = dhis2;
-    this.date = todaysDate();
+    //this.date = todaysDate();
+    this.date = null;
     this.history = history;
     this.dhis2Config = dhis2Config;
   }

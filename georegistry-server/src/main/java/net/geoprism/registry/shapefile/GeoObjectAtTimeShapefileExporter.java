@@ -80,7 +80,6 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -112,7 +111,7 @@ public class GeoObjectAtTimeShapefileExporter
   {
     this.type = type;
     this.date = date;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, locales).attributes(this.type.getType());
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, locales).attributes(this.type.getType());
     this.columnNames = new HashMap<String, String>();
     this.locales = locales;
   }
@@ -265,14 +264,14 @@ public class GeoObjectAtTimeShapefileExporter
 
       for (VertexServerGeoObject object : objects)
       {
-        if (object.getStatus(this.date).equals(GeoObjectStatus.ACTIVE))
+        if (!object.getInvalid())
         {
           builder.set(GEOM, object.getGeometry());
 
           this.attributes.forEach(attribute -> {
             String name = attribute.getName();
             String columnName = this.getColumnName(name);
-            Object value = name.equals(GeoObject.CODE) ? object.getValue(name) : object.getValue(name, this.date);
+            Object value = attribute.isChangeOverTime() ? object.getValue(name, this.date) : object.getValue(name);
 
             if (attribute instanceof AttributeTermType)
             {

@@ -21,23 +21,28 @@ package net.geoprism.registry.model;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonArray;
+import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.vividsolutions.jts.geom.Geometry;
 
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public interface ServerGeoObjectIF
 {
+  public SortedSet<EdgeObject> setParentCollection(ServerHierarchyType hierarchyType, ValueOverTimeCollection votc);
+  
+  public ValueOverTimeCollection getParentCollection(ServerHierarchyType hierarchyType);
+  
   public ServerGeoObjectType getType();
 
   public GeoObject toGeoObject();
@@ -51,14 +56,20 @@ public interface ServerGeoObjectIF
   public Date getLastUpdateDate();
 
   public String getCode();
+  
+  public Boolean getInvalid();
+  
+  public void setInvalid(Boolean invalid);
 
   public void setCode(String code);
 
-  public GeoObjectStatus getStatus();
+  public Boolean getExists();
+  
+  public Boolean getExists(Date date);
 
-  public void setStatus(GeoObjectStatus status);
+  public void setExists(Boolean exists);
 
-  public void setStatus(GeoObjectStatus status, Date startDate, Date endDate);
+  public void setExists(Boolean exists, Date startDate, Date endDate);
 
   public void setGeometry(Geometry geometry);
 

@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable padded-blocks */
-import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType } from "./registry";
+import { GeoObjectOverTime, HierarchyOverTime, GeoObjectType, AttributeType } from "./registry";
 import { ActionTypes } from "./constants";
+import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 
 export enum SummaryKey {
     NEW = "NEW",
@@ -63,7 +64,7 @@ export class AbstractAction {
 
 export class CreateGeoObjectAction extends AbstractAction {
     geoObjectJson: GeoObjectOverTime;
-    parentJson: HierarchyOverTime;
+    parentJson: HierarchyOverTime[];
 
     constructor() {
         super();
@@ -71,7 +72,7 @@ export class CreateGeoObjectAction extends AbstractAction {
     }
 }
 
-export class UpdateAttributeAction extends AbstractAction {
+export class UpdateAttributeOverTimeAction extends AbstractAction {
     attributeName: string;
     attributeDiff: { "valuesOverTime": ValueOverTimeDiff[], hierarchyCode?: string };
 
@@ -80,6 +81,18 @@ export class UpdateAttributeAction extends AbstractAction {
         this.actionType = ActionTypes.UPDATEATTRIBUTETACTION;
         this.attributeName = attributeName;
         this.attributeDiff = { valuesOverTime: [] };
+    }
+}
+
+export class UpdateAttributeAction extends AbstractAction {
+    attributeName: string;
+    attributeDiff: { oldValue?: any, newValue?: any };
+
+    constructor(attributeName: string) {
+        super();
+        this.actionType = ActionTypes.UPDATEATTRIBUTETACTION;
+        this.attributeName = attributeName;
+        this.attributeDiff = {};
     }
 }
 
@@ -100,13 +113,41 @@ export class ChangeRequest {
     total: number;
     pending: number;
     documents: Document[];
-    actions: CreateGeoObjectAction[] & UpdateAttributeAction[];
+    actions: AbstractAction[];
     current: ChangeRequestCurrentObject & UpdateChangeRequestCurrentObject;
-    type?: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
+    type: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
     statusLabel?: string;
     phoneNumber?: string;
     email?: string;
     permissions?: string[];
+    isNew?: boolean;
+
+    constructor() {
+        this.isNew = true;
+    }
+
+    public static getActionsForAttribute(cr: ChangeRequest, attributeName: string, hierarchyCode: string): AbstractAction[] {
+        if (cr.type === "CreateGeoObject") {
+            return cr.actions;
+        } else {
+            let newActions = [];
+
+            for (let i = 0; i < cr.actions.length; ++i) {
+                let action = cr.actions[i];
+
+                if (action.actionType === "UpdateAttributeAction") {
+                    let updateAttrAction = action as UpdateAttributeOverTimeAction;
+
+                    if (updateAttrAction.attributeName === attributeName &&
+                      (attributeName !== "_PARENT_" || updateAttrAction.attributeDiff.hierarchyCode === hierarchyCode)) {
+                        newActions.push(cr.actions[i]);
+                    }
+                }
+            }
+
+            return newActions;
+        }
+    }
 }
 
 // export class UpdateGeoObjectAction extends AbstractAction {

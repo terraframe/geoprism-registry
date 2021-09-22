@@ -26,7 +26,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.RegistryAdapter;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.ChildTreeNode;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
@@ -39,7 +38,6 @@ import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -75,7 +73,7 @@ public class TestGeoObjectInfo
 
   private ServerGeoObjectIF       serverGO;
 
-  private String                  statusCode;
+  private Boolean                 exists;
 
   private Boolean                 isNew;
 
@@ -83,18 +81,18 @@ public class TestGeoObjectInfo
 
   private HashMap<String, Object> defaultValues;
 
-  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, String statusCode, Boolean isNew)
+  public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew)
   {
-    initialize(code, testUni, statusCode, isNew);
+    initialize(code, testUni, exists, isNew);
     this.wkt = wkt;
   }
 
   public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni)
   {
-    initialize(code, testUni, DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, true);
+    initialize(code, testUni, true, true);
   }
 
-  private void initialize(String code, TestGeoObjectTypeInfo testUni, String statusCode, Boolean isNew)
+  private void initialize(String code, TestGeoObjectTypeInfo testUni, Boolean exists, Boolean isNew)
   {
     if (code.contains(" "))
     {
@@ -106,7 +104,7 @@ public class TestGeoObjectInfo
     this.geoObjectType = testUni;
     this.children = new LinkedList<TestGeoObjectInfo>();
     this.parents = new LinkedList<TestGeoObjectInfo>();
-    this.statusCode = statusCode;
+    this.exists = exists;
     this.isNew = isNew;
     this.date = TestDataSet.DEFAULT_OVER_TIME_DATE;
     this.defaultValues = new HashMap<String, Object>();
@@ -378,6 +376,7 @@ public class TestGeoObjectInfo
     // TODO : Check MultiPolygon and Point ?
   }
 
+  @Request
   public void addChild(TestGeoObjectInfo child, TestHierarchyTypeInfo hierarchy)
   {
     if (!this.children.contains(child))
@@ -405,7 +404,7 @@ public class TestGeoObjectInfo
     // return child.getGeoEntity().addLink(geoEntity, relationshipType);
     // }
 
-    this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), date, ValueOverTime.INFINITY_END_DATE);
+    this.getServerObject().addChild(child.getServerObject(), hierarchy.getServerObject(), date, TestDataSet.DEFAULT_END_TIME_DATE);
   }
 
   private void addParent(TestGeoObjectInfo parent)
@@ -580,7 +579,7 @@ public class TestGeoObjectInfo
     geoObj.setCode(this.getCode());
     geoObj.getDisplayLabel().setValue(this.getDisplayLabel());
     geoObj.setDisplayLabel(LocalizedValue.DEFAULT_LOCALE, this.getDisplayLabel());
-    geoObj.setStatus(this.statusCode);
+    geoObj.setExists(this.exists);
 
     if (registryId != null)
     {
@@ -605,12 +604,11 @@ public class TestGeoObjectInfo
 
     final Geometry geometry = this.getGeometry();
 
-    geoObj.setGeometry(geometry, date, ValueOverTime.INFINITY_END_DATE);
+    geoObj.setGeometry(geometry, date, TestDataSet.DEFAULT_END_TIME_DATE);
     geoObj.setCode(this.getCode());
-    geoObj.setDisplayLabel(label, date, ValueOverTime.INFINITY_END_DATE);
+    geoObj.setDisplayLabel(label, date, TestDataSet.DEFAULT_END_TIME_DATE);
     
-    geoObj.getAllValues(DefaultAttribute.STATUS.getName()).clear();
-    geoObj.setStatus(this.statusCode, date, ValueOverTime.INFINITY_END_DATE);
+    geoObj.setExists(this.exists, date, TestDataSet.DEFAULT_END_TIME_DATE);
 
     if (registryId != null)
     {
@@ -619,7 +617,7 @@ public class TestGeoObjectInfo
 
     for (String attrName : this.defaultValues.keySet())
     {
-      geoObj.setValue(attrName, this.defaultValues.get(attrName), date, ValueOverTime.INFINITY_END_DATE);
+      geoObj.setValue(attrName, this.defaultValues.get(attrName), date, TestDataSet.DEFAULT_END_TIME_DATE);
     }
   }
 

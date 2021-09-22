@@ -522,20 +522,20 @@ export class GeometryService {
         return null;
     }
 
-    public createEmptyGeometryValue(): any {
-        let value = { type: this.geometryType, coordinates: [] };
+    public static createEmptyGeometryValue(geometryType: String): any {
+        let value = { type: geometryType, coordinates: [] };
 
-        if (this.geometryType === "MULTIPOLYGON") {
+        if (geometryType === "MULTIPOLYGON") {
             value.type = "MultiPolygon";
-        } else if (this.geometryType === "POLYGON") {
+        } else if (geometryType === "POLYGON") {
             value.type = "Polygon";
-        } else if (this.geometryType === "POINT") {
+        } else if (geometryType === "POINT") {
             value.type = "Point";
-        } else if (this.geometryType === "MULTIPOINT") {
+        } else if (geometryType === "MULTIPOINT") {
             value.type = "MultiPoint";
-        } else if (this.geometryType === "LINE") {
+        } else if (geometryType === "LINE") {
             value.type = "Line";
-        } else if (this.geometryType === "MULTILINE") {
+        } else if (geometryType === "MULTILINE") {
             value.type = "MultiLine";
         }
 

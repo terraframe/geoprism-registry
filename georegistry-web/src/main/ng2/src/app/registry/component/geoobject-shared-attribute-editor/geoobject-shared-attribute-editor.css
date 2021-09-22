@@ -11,6 +11,34 @@
     background: #eee;
 }
 
+.full-width-radio-button {
+	  position: relative;
+}
+
+.full-width-radio-button .errorSpan, .changeSpan {
+	position: absolute;
+}
+
+label.settings > span > i.fa.fa-cog {
+	font-size: 15px;
+}
+
+.full-width-radio-button .errorSpan {
+  left: 2.5px;
+}
+
+.full-width-radio-button .changeSpan {
+  right: 2.5px;
+}
+
+.full-width-radio-button .tabHasErrors:before {
+  content: ' \25CF';
+  font-size: 20px;
+  line-height:12px;
+  text-align: left;
+  color: red;
+}
+
 .full-width-radio-button .tabHasChanges:after {
 	content: ' \25CF';
   font-size: 20px;

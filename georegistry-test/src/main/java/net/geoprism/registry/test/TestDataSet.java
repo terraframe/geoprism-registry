@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -73,6 +72,10 @@ import com.runwaysdk.system.gis.geo.UniversalQuery;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassQuery;
+import com.runwaysdk.system.scheduler.ExecutableJob;
+import com.runwaysdk.system.scheduler.ExecutableJobQuery;
+import com.runwaysdk.system.scheduler.JobHistory;
+import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.GeoprismUser;
 import net.geoprism.GeoprismUserQuery;
@@ -557,6 +560,29 @@ abstract public class TestDataSet
   }
   
   @Request
+  public static void deleteAllSchedulerData()
+  {
+    JobHistoryQuery jhq = new JobHistoryQuery(new QueryFactory());
+
+    OIterator<? extends JobHistory> it = jhq.getIterator();
+
+    while (it.hasNext())
+    {
+      it.next().delete();
+    }
+    
+    ExecutableJobQuery ejq = new ExecutableJobQuery(new QueryFactory());
+    
+    try (OIterator<? extends ExecutableJob> jobit = ejq.getIterator())
+    {
+      while (jobit.hasNext())
+      {
+        jobit.next().delete();
+      }
+    }
+  }
+  
+  @Request
   public static void deleteAllVaultFiles()
   {
     VaultFileQuery vfq = new VaultFileQuery(new QueryFactory());
@@ -601,7 +627,7 @@ abstract public class TestDataSet
 
   public TestGeoObjectInfo newTestGeoObjectInfo(String genKey, TestGeoObjectTypeInfo testUni, String wkt)
   {
-    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, DefaultTerms.GeoObjectStatusTerm.PENDING.code, true);
+    TestGeoObjectInfo info = new TestGeoObjectInfo(genKey, testUni, wkt, true, true);
 
     info.delete();
 

@@ -78,7 +78,7 @@ export class ImportLocalizationModalComponent {
 	}
 
 	public error(err: any): void {
-			this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
+	  ErrorHandler.showErrorAsDialog(err, this.modalService);
 	}
 
 }

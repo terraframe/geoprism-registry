@@ -121,7 +121,7 @@ public class ChangeRequestServiceTest
   private void setUpTestInstanceData()
   {
     ServerGeoObjectIF cambodia = FastTestDataset.CAMBODIA.getServerObject();
-    String votOid = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE).getOid();
+    String votOid = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE).getOid();
     
     UPDATE_ATTR_JSON = "{"
     + "\"valuesOverTime\" : ["
@@ -806,7 +806,7 @@ public class ChangeRequestServiceTest
     JsonObject diff = new JsonObject();
     
     ServerGeoObjectIF cambodia = FastTestDataset.CAMBODIA.getServerObject();
-    String votOid = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE).getOid();
+    String votOid = cambodia.getValuesOverTime(FastTestDataset.AT_National_Anthem.getAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE).getOid();
     
     JsonArray valuesOverTime = JsonParser.parseString("["
         + "{"
@@ -947,7 +947,7 @@ public class ChangeRequestServiceTest
     JsonObject diff = new JsonObject();
     
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
-    ValueOverTime vot = cambodia.getValuesOverTime(cambodia.getGeometryAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE);
+    ValueOverTime vot = cambodia.getValuesOverTime(cambodia.getGeometryAttributeName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     
     GeoJSONWriter gw = new GeoJSONWriter();
     org.wololo.geojson.Geometry gJSON = gw.write((Geometry) vot.getValue());
@@ -1078,7 +1078,7 @@ public class ChangeRequestServiceTest
     JsonObject diff = new JsonObject();
     
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
-    ValueOverTime vot = cambodia.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE);
+    ValueOverTime vot = cambodia.getValuesOverTime(DefaultAttribute.DISPLAY_LABEL.getName()).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     
     JsonArray valuesOverTime = JsonParser.parseString("["
         + "{"
@@ -1210,7 +1210,7 @@ public class ChangeRequestServiceTest
     JsonObject diff = new JsonObject();
     
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
-    ValueOverTime vot = cambodia.getValuesOverTime(attrName).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE);
+    ValueOverTime vot = cambodia.getValuesOverTime(attrName).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     
     JsonArray valuesOverTime = JsonParser.parseString("["
         + "{"
@@ -1280,7 +1280,7 @@ public class ChangeRequestServiceTest
     Assert.assertEquals(newStartDate, vot1.getStartDate());
     Assert.assertEquals(newEndDate, vot1.getEndDate());
     
-    String classyId = (String) cambodia.getValue(attrName, newStartDate);
+    String classyId = ((Classifier) cambodia.getValue(attrName, newStartDate)).getOid();
     Assert.assertEquals(FastTestDataset.T_Islam.fetchClassifier().getOid(), classyId);
     
     Assert.assertEquals(classyId, vot1.getValue());
@@ -1342,7 +1342,7 @@ public class ChangeRequestServiceTest
     JsonObject diff = new JsonObject();
     
     VertexServerGeoObject cambodia = (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject();
-    ValueOverTime vot = cambodia.getValuesOverTime(attrName).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, ValueOverTime.INFINITY_END_DATE);
+    ValueOverTime vot = cambodia.getValuesOverTime(attrName).getValueOverTime(FastTestDataset.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE);
     
     JsonArray valuesOverTime = JsonParser.parseString("["
         + "{"

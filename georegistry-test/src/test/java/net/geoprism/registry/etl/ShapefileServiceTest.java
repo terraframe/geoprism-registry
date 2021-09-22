@@ -29,7 +29,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms.GeoObjectStatusTerm;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
@@ -68,7 +67,9 @@ import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.scheduler.AllJobStatus;
+import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
+import com.runwaysdk.system.scheduler.MockScheduler;
 import com.runwaysdk.system.scheduler.SchedulerManager;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -118,6 +119,8 @@ public class ShapefileServiceTest
   @Request
   public static void classSetUp()
   {
+    TestDataSet.deleteAllSchedulerData();
+    
     testData = USATestData.newTestData();
     testData.setUpMetadata();
 
@@ -223,10 +226,9 @@ public class ShapefileServiceTest
 
     JSONArray tAttributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
-    Assert.assertEquals(5, tAttributes.length());
+    Assert.assertEquals(4, tAttributes.length());
 
     boolean hasCode = false;
-    boolean hasStatus = false;
 
     for (int i = 0; i < tAttributes.length(); i++)
     {
@@ -239,16 +241,9 @@ public class ShapefileServiceTest
         Assert.assertTrue(tAttribute.has("required"));
         Assert.assertTrue(tAttribute.getBoolean("required"));
       }
-      else if (code.equals(DefaultAttribute.STATUS.getName()))
-      {
-        hasStatus = true;
-        Assert.assertTrue(tAttribute.has("required"));
-        Assert.assertFalse(tAttribute.getBoolean("required"));
-      }
     }
 
     Assert.assertTrue(hasCode);
-    Assert.assertTrue(hasStatus);
 
     JSONObject sheet = result.getJSONObject("sheet");
 
@@ -296,7 +291,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileFrazer() throws InterruptedException
+  public void testImportShapefileFrazer() throws Throwable
   {
     InputStream istream = Thread.currentThread().getContextClassLoader().getResourceAsStream("shapefile/ntd_zam_operational_28082020.zip.test");
 
@@ -333,17 +328,11 @@ public class ShapefileServiceTest
     result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.GEO_OBJECT);
 
     GeoObjectImportConfiguration config = (GeoObjectImportConfiguration) ImportConfiguration.build(result.toString(), true);
-
-    config.setStartDate(new Date());
-    config.setEndDate(new Date());
-    config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
-
-    hist = ImportHistory.get(hist.getOid());
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+    
     Assert.assertEquals(new Long(1011), hist.getWorkTotal());
     Assert.assertEquals(new Long(1011), hist.getWorkProgress());
     Assert.assertEquals(new Long(1011), hist.getImportedRecords());
@@ -352,7 +341,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefile() throws InterruptedException
+  public void testImportShapefile() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -364,9 +353,8 @@ public class ShapefileServiceTest
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -379,12 +367,12 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
-    Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
+    Assert.assertEquals(true, object.getExists());
   }
 
   @Test
   @Request
-  public void testUpdateShapefile() throws InterruptedException
+  public void testUpdateShapefile() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -396,9 +384,8 @@ public class ShapefileServiceTest
     GeoObjectImportConfiguration config = this.getTestConfiguration(istream, service, null, ImportStrategy.NEW_AND_UPDATE);
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
@@ -412,10 +399,11 @@ public class ShapefileServiceTest
      */
     JSONObject config2 = new JSONObject(hist.getConfigJson());
     config2.remove("historyId");
-    ImportHistory hist2 = importShapefile(testData.clientRequest.getSessionId(), config2.toString());
+    
+    ImportHistory hist2 = mockImport((GeoObjectImportConfiguration) GeoObjectImportConfiguration.build(config2.toString()));
+    Assert.assertTrue(hist2.getStatus().get(0).equals(AllJobStatus.SUCCESS));
+    
     Assert.assertNotSame(hist.getOid(), hist2.getOid());
-
-    SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.SUCCESS);
 
     hist2 = ImportHistory.get(hist2.getOid());
     Assert.assertEquals(AllJobStatus.SUCCESS, hist.getStatus().get(0));
@@ -433,7 +421,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileInteger() throws InterruptedException
+  public void testImportShapefileInteger() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -448,9 +436,8 @@ public class ShapefileServiceTest
     config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -468,7 +455,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileNullInteger() throws InterruptedException
+  public void testImportShapefileNullInteger() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -483,9 +470,8 @@ public class ShapefileServiceTest
     config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -512,7 +498,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileNullInteger_Ignore() throws InterruptedException
+  public void testImportShapefileNullInteger_Ignore() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
     
@@ -527,9 +513,8 @@ public class ShapefileServiceTest
     config.setFunction(testInteger.getName(), new BasicColumnFunction("ALAND"));
     config.setHierarchy(hierarchyType);
     
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-    
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
     
     istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
     
@@ -556,7 +541,7 @@ public class ShapefileServiceTest
   
   @Test
   @Request
-  public void testImportShapefileWithParent() throws InterruptedException
+  public void testImportShapefileWithParent() throws Throwable
   {
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
@@ -579,9 +564,8 @@ public class ShapefileServiceTest
     config.setHierarchy(hierarchyType);
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -603,7 +587,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileWithParentCode() throws InterruptedException
+  public void testImportShapefileWithParentCode() throws Throwable
   {
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
@@ -626,9 +610,8 @@ public class ShapefileServiceTest
     config.setHierarchy(hierarchyType);
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.CODE));
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
 
@@ -658,7 +641,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileWithBadParentCode() throws InterruptedException
+  public void testImportShapefileWithBadParentCode() throws Throwable
   {
     GeoObject geoObj = ServiceFactory.getRegistryService().newGeoObjectInstance(testData.clientRequest.getSessionId(), USATestData.COUNTRY.getCode());
     geoObj.setCode("00");
@@ -681,9 +664,8 @@ public class ShapefileServiceTest
     config.setHierarchy(hierarchyType);
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("GEOID"), ParentMatchStrategy.CODE));
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -711,7 +693,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileExcludeParent() throws InterruptedException
+  public void testImportShapefileExcludeParent() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -728,9 +710,8 @@ public class ShapefileServiceTest
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
     config.addExclusion(GeoObjectImportConfiguration.PARENT_EXCLUSION, "00");
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -747,7 +728,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileWithBadParent() throws InterruptedException
+  public void testImportShapefileWithBadParent() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -763,9 +744,8 @@ public class ShapefileServiceTest
 
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -786,7 +766,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileWithTerm() throws InterruptedException
+  public void testImportShapefileWithTerm() throws Throwable
   {
     Term term = ServiceFactory.getRegistryService().createTerm(testData.clientRequest.getSessionId(), testTerm.fetchRootAsTerm().getCode(), new Term("00", new LocalizedValue("00"), new LocalizedValue("")).toJSON().toString());
 
@@ -806,9 +786,8 @@ public class ShapefileServiceTest
 
       config.setHierarchy(hierarchyType);
 
-      ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-      SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+      ImportHistory hist = mockImport(config);
+      Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
       hist = ImportHistory.get(hist.getOid());
       Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
@@ -831,7 +810,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportShapefileWithBadTerm() throws InterruptedException
+  public void testImportShapefileWithBadTerm() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -845,9 +824,8 @@ public class ShapefileServiceTest
 
     config.setHierarchy(hierarchyType);
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());
@@ -914,7 +892,7 @@ public class ShapefileServiceTest
     Assert.assertNotNull(object);
     Assert.assertNotNull(object.getGeometry());
     Assert.assertEquals("Alabama", object.getLocalizedDisplayLabel());
-    Assert.assertEquals(GeoObjectStatusTerm.ACTIVE.code, object.getStatus().getCode());
+    Assert.assertEquals(true, object.getExists());
 
     SchedulerTestUtils.waitUntilStatus(hist2.getOid(), AllJobStatus.SUCCESS);
 
@@ -937,10 +915,46 @@ public class ShapefileServiceTest
 
     return ImportHistory.get(historyId);
   }
+  
+  private ImportHistory mockImport(GeoObjectImportConfiguration config) throws Throwable
+  {
+    if (config.getStartDate() == null)
+    {
+      config.setStartDate(new Date());
+    }
+    
+    if (config.getEndDate() == null)
+    {
+      config.setEndDate(new Date());
+    }
+    
+    config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
+    
+    DataImportJob job = new DataImportJob();
+    job.apply();
+    ImportHistory hist = (ImportHistory) job.createNewHistory();
+    
+    config.setHistoryId(hist.getOid());
+    config.setJobId(job.getOid());
+    
+    ServerGeoObjectType type = config.getType();
+    
+    hist.appLock();
+    hist.setImportFileId(config.getVaultFileId());
+    hist.setConfigJson(config.toJSON().toString());
+    hist.setOrganization(type.getOrganization());
+    hist.setGeoObjectTypeCode(type.getCode());
+    hist.apply();
+    
+    ExecutionContext context = MockScheduler.executeJob(job, hist);
+
+    hist = (ImportHistory) context.getHistory();
+    return hist;
+  }
 
   @Test
   @Request
-  public void testBadParentSynonymAndResume() throws InterruptedException
+  public void testBadParentSynonymAndResume() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/cb_2017_us_state_500k.zip.test");
 
@@ -956,8 +970,10 @@ public class ShapefileServiceTest
 
     config.addParent(new Location(USATestData.COUNTRY.getServerObject(), hierarchyType, new BasicColumnFunction("LSAD"), ParentMatchStrategy.ALL));
 
+//    ImportHistory hist = mockImport(config);
+//    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.FEEDBACK));
+    
     ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.FEEDBACK);
 
     hist = ImportHistory.get(hist.getOid());
@@ -1071,12 +1087,11 @@ public class ShapefileServiceTest
    * In the case when the server fails mid import, when the server reboots it's
    * supposed to restart any jobs that were running. When we restart the job, we
    * want to make sure that it picks up from where it left off.
-   * 
-   * @throws IOException
+   * @throws Throwable 
    */
   @Test
   @Request
-  public void testResumeImport() throws InterruptedException, IOException
+  public void testResumeImport() throws Throwable
   {
     TestGeoObjectInfo parent = new TestGeoObjectInfo("00", USATestData.COUNTRY);
     parent.apply();
@@ -1115,7 +1130,7 @@ public class ShapefileServiceTest
     fakeImportHistory.setConfigJson(config.toJSON().toString());
     fakeImportHistory.setImportFileId(config.getVaultFileId());
     fakeImportHistory.apply();
-
+    
     ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
 
     SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
@@ -1163,7 +1178,7 @@ public class ShapefileServiceTest
 
   @Test
   @Request
-  public void testImportSubtypeShapefile() throws InterruptedException
+  public void testImportSubtypeShapefile() throws Throwable
   {
     String parentCode = "ZZZZ000";
 
@@ -1187,9 +1202,8 @@ public class ShapefileServiceTest
     config.setHierarchy(hierarchyType);
     config.addParent(new Location(USATestData.DISTRICT.getServerObject(), hierarchyType, new ConstantShapefileFunction(serverGO.getCode()), ParentMatchStrategy.CODE));
 
-    ImportHistory hist = importShapefile(testData.clientRequest.getSessionId(), config.toJSON().toString());
-
-    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+    ImportHistory hist = mockImport(config);
+    Assert.assertTrue(hist.getStatus().get(0).equals(AllJobStatus.SUCCESS));
 
     hist = ImportHistory.get(hist.getOid());
     Assert.assertEquals(new Long(56), hist.getWorkTotal());

@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
 import { LocalizationService } from "./localization.service";
 import Utils from "../../registry/utility/Utils";
-import { PRESENT, ConflictMessage, TimeRangeEntry } from "@registry/model/registry";
+import { PRESENT, ConflictMessage, TimeRangeEntry, AttributeType } from "@registry/model/registry";
 import { SummaryKey } from "@registry/model/crtable";
 import { ConflictType } from "@registry/model/constants";
+import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attribute-editor/ValueOverTimeCREditor";
 
 @Injectable()
 export class DateService {
@@ -14,10 +15,22 @@ export class DateService {
         type: ConflictType.TIME_RANGE
     }
 
+    mergeContiguousMessage: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("manage.versions.mergeContiguousRanges.message"),
+        type: ConflictType.TIME_RANGE
+    }
+
     gapMessage: ConflictMessage = {
         severity: "WARNING",
         message: this.localizationService.decode("manage.versions.gap.message"),
         type: ConflictType.TIME_RANGE
+    }
+
+    outsideExistsMessage: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("manage.versions.outsideExists.message"),
+        type: ConflictType.OUTSIDE_EXISTS
     }
 
     // eslint-disable-next-line no-useless-constructor
@@ -71,11 +84,11 @@ export class DateService {
         return null;
     }
 
-    checkRanges(vAttributes: TimeRangeEntry[]): boolean {
+    checkRanges(attributeType: AttributeType, ranges: ValueOverTimeCREditor[]): boolean {
         let hasConflict = false;
 
         // clear all messages
-        vAttributes.forEach(attr => {
+        ranges.forEach(attr => {
             if (!attr.conflictMessage) {
                 attr.conflictMessage = [];
             }
@@ -87,12 +100,12 @@ export class DateService {
             }
         });
 
-        // Filter DELETE entries from overlap and gap consideration
-        const filtered = vAttributes.filter(vAttr => vAttr.summaryKeyData == null || vAttr.summaryKeyData !== SummaryKey.DELETE);
+        // Filter DELETE entries from consideration
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
 
         // Check for overlaps
         for (let j = 0; j < filtered.length; j++) {
-            const h1 = filtered[j];
+            const h1: ValueOverTimeCREditor = filtered[j];
 
             if (h1.startDate && h1.endDate) {
                 let s1: any = this.getDateFromDateString(h1.startDate);
@@ -110,7 +123,7 @@ export class DateService {
 
                 for (let i = 0; i < filtered.length; i++) {
                     if (j !== i) {
-                        const h2 = filtered[i];
+                        const h2: ValueOverTimeCREditor = filtered[i];
 
                         // If all dates set
                         if (h2.startDate && h2.endDate) {
@@ -125,6 +138,10 @@ export class DateService {
                                     h2.conflictMessage.push(this.overlapMessage);
                                 }
 
+                                hasConflict = true;
+                            } else if (this.addDay(1, h1.endDate) === h2.startDate && Utils.areValuesEqual(attributeType, h1.value, h2.value)) {
+                                h1.conflictMessage.push(this.mergeContiguousMessage);
+                                h2.conflictMessage.push(this.mergeContiguousMessage);
                                 hasConflict = true;
                             }
                         } else if ((i === j - 1 || i === j + 1) && e1 && h2.startDate) {
@@ -167,7 +184,7 @@ export class DateService {
             current = next;
         }
 
-        this.sort(vAttributes);
+        this.sort(ranges);
 
         return hasConflict;
     }
@@ -188,7 +205,7 @@ export class DateService {
     }
 
     public sort(votArr: TimeRangeEntry[]): void {
-        // Sort the data by start date
+      // Sort the data by start date
         votArr.sort(function(a, b) {
             if (a.startDate == null || a.startDate === "") {
                 return 1;
@@ -200,6 +217,81 @@ export class DateService {
             let next: any = new Date(b.startDate);
             return first - next;
         });
+    }
+    
+    checkExistRanges(ranges: ValueOverTimeCREditor[], existEntries: ValueOverTimeCREditor[]): boolean {
+        let hasConflict = false;
+
+        // clear all messages
+        ranges.forEach(range => {
+            if (!range.conflictMessage) {
+                range.conflictMessage = [];
+            }
+
+            for (let i = range.conflictMessage.length - 1; i >= 0; --i) {
+                if (range.conflictMessage[i].type === ConflictType.OUTSIDE_EXISTS) {
+                    range.conflictMessage.splice(i, 1);
+                }
+            }
+        });
+
+        // Filter DELETE entries from consideration
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
+
+        const filteredExists = existEntries.filter(range => range.diff == null || range.diff.action !== "DELETE");
+
+        // Check for outside exists range
+        for (let j = 0; j < filtered.length; j++) {
+            const h1 = filtered[j];
+
+            if (h1.startDate && h1.endDate) {
+                let s1: any = this.getDateFromDateString(h1.startDate);
+                let e1: any = this.getDateFromDateString(h1.endDate);
+
+                let inRange = false;
+
+                for (let i = 0; i < filteredExists.length; i++) {
+                    const h2 = filteredExists[i];
+
+                    // If all dates set
+                    if (h2.value && h2.startDate && h2.endDate) {
+                        let s2: Date = this.getDateFromDateString(h2.startDate);
+                        let e2: Date = this.getDateFromDateString(h2.endDate);
+
+                        if (!Utils.dateRangeOutside(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
+                            inRange = true;
+                        }
+                    }
+                }
+
+                if (!inRange) {
+                    h1.conflictMessage.push(this.outsideExistsMessage);
+                    hasConflict = true;
+                }
+            }
+        }
+
+        return hasConflict;
+    }
+
+    validateDate(date: Date, required: boolean, allowFutureDates: boolean): {message: string, valid: boolean} {
+        let valid = { message: "", valid: true };
+        let today: Date = new Date();
+
+        if (date != null) {
+            if (!(date instanceof Date) || (date instanceof Date && isNaN(date.getTime()))) {
+                valid.valid = false;
+                valid.message = this.localizationService.decode("date.inpu.data.invalid.error.message");
+            } else if (!allowFutureDates && date > today) {
+                valid.valid = false;
+                valid.message = this.localizationService.decode("date.inpu.data.in.future.error.message");
+            }
+        } else if (required) {
+            valid.valid = false;
+            valid.message = this.localizationService.decode("manage.versions.date.required.message");
+        }
+
+        return valid;
     }
 
 }

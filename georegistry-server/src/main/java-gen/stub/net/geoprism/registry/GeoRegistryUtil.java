@@ -58,6 +58,11 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
   
   public static String formatIso8601(Date date, boolean includeTime)
   {
+    if (date == null)
+    {
+      return "null";
+    }
+    
     if (!includeTime)
     {
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -105,6 +110,10 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
+    
+    if (filterJson.contains("invalid")) {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
+    }
 
     try
     {
@@ -126,6 +135,10 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
+    if (filterJson.contains("invalid")) {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
+    }
+    
     try
     {
       MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson);

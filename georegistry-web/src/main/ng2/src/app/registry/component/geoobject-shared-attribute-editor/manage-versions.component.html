@@ -3,10 +3,6 @@
     <h5>{{model.name }} : {{ model.code }}</h5>
   </ng-template>
 
-  <div *ngIf="hasDuplicateDate" class="alert alert-danger" role="alert">
-    <localize key="changeovertime.manageVersions.duplicateDate"></localize>
-  </div>
-
   <!-- <div class="col-md-12 order-md-1"> -->
   <form name="manage-versions-form" autocomplete="off">
 
@@ -15,10 +11,10 @@
 
         <!-- <div class="label-holder"></div> -->
         <div [ngStyle]="{'width' : (isGeometryInlined && geomService.getRenderedLayers().length > 0) ? '45%' : '100%'}" style="display:inline-block;" class="col">
-          <div *ngIf="postGeoObject" class="attribute-version-wrapper">
+          <div *ngIf="changeRequestEditor.geoObject" class="attribute-version-wrapper">
             <ul class="list-group">
               <li class="list-group-item" style="text-align:left;padding:0;">
-                <div *ngIf="attributeType && actions">
+                <div *ngIf="attributeType">
                   <table class="table table-striped">
                     <tbody class="attribute-element-wrapper" >
                       <p class="message" *ngIf="!isRootOfHierarchy && viewModels.length === 0">
@@ -30,8 +26,8 @@
                       
                       <ng-container *ngIf="!isRootOfHierarchy">
 	                      <tr @fadeInOut *ngFor="let viewModel of viewModels; let i = index;" class="version-row"
-	                          [ngClass]="{'error-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'ERROR',
-	                          'warning-border': viewModel.conflictMessage && viewModel.conflictMessage.length > 0 && viewModel.conflictMessage[0].severity === 'WARNING',
+	                          [ngClass]="{'error-border': viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0 && viewModel.editor.conflictMessage[0].severity === 'ERROR',
+	                          'warning-border': viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0 && viewModel.editor.conflictMessage[0].severity === 'WARNING',
 	                          'geometry-edit-active' : (viewModel.newLayer && viewModel.newLayer.isEditing) }">
                             <td class="version-column-wrapper" [ngClass]="{'warning' : viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'}" >
 	                          <div *ngIf="viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'" class="version-column-indicator">
@@ -43,12 +39,12 @@
 	                            <!-- 
 	                              Local Type 
 	                            -->
-	                            <ng-container *ngIf="attributeType.type === 'local'">
+	                            <ng-container *ngIf="attributeType.type === 'local' && viewModel.value">
 		                           <tr *ngFor="let loc of viewModel.value.localeValues; let idx = index;" class="attribute-value-row">
 		                             <td colspan="2">
 		                               <h5><convert-key-label [key]="loc.locale"></convert-key-label></h5>
 		                               
-		                               <input [ngClass]="{'has-changed': (hasLocalizationChanged(viewModel, loc.locale) && !isNew)}" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editPropagator.setLocalizedValue(loc)" [required]="loc.locale === 'defaultLocale'">
+		                               <input [ngClass]="{'has-changed': (hasLocalizationChanged(viewModel, loc.locale) && !isNew)}" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" type="text" class="form-control" [name]="'loc-val-' + i + '-' + idx" [(ngModel)]="loc.value" (ngModelChange)="viewModel.editor.setLocalizedValue(viewModel.value)" [required]="loc.locale === 'defaultLocale'">
 		                               
 		                               <div class="form-input-validation-error-message-wrapper">
 		                                 <p *ngIf="loc.locale === 'defaultLocale' && !loc.value" class="error-message">
@@ -69,31 +65,31 @@
 	                             <td colspan="2">
                                
 	                               <div *ngIf="attributeType.type === 'term'">
-	                                 <select [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.editPropagator.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
+	                                 <select [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" id="mod-{{attributeType.code}}" [name]="'mod-term-' + i + '-' + attributeType.code" class="select-area" [(ngModel)]="viewModel.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'">
 	                                     <option value=""></option>
 	                                     <option *ngFor="let option of getGeoObjectTypeTermAttributeOptions(attributeType.code)" [value]="option.code">{{option.label.localizedValue}}</option>
 	                                 </select>
 	                               </div>
 	                               <div *ngIf="attributeType.type === 'character'">
-	                                 <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
+	                                 <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="text" class="form-control" [name]="'char-val-' + i" [(ngModel)]="viewModel.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'date'">
-	                                 <date-field [customStyles]="(viewModel.oldValue && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.value" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
+	                                 <date-field [customStyles]="(viewModel.oldValue && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.value" label="" [inputName]="'date-val-' + i" [allowInfinity]="false" [allowFutureDates]="true" 
 	                                     [required]="true" [placement]="'right'" [(valid)]="isValid" [disable]="readonly" ></date-field>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'integer' || attributeType.type === 'float'">
-	                                 <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.editPropagator.value" (ngModelChange)="viewModel.value = $event" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
+	                                 <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" type="number" class="form-control" [name]="'int-val-' + i" [(ngModel)]="viewModel.value" [disabled]="readonly || viewModel.summaryKey === 'DELETE'" required>
 	                               </div>
 	                               
 	                               <div *ngIf="attributeType.type === 'boolean'">
 	                                   <label class="radio radio-inline" style="padding-left:0;"> 
-	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === true" [value]="true" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
+	                                     <input class="inline-radio-input" type="radio" [checked]="viewModel.value === true" [value]="true" [(ngModel)]="viewModel.value" id="mod-{{i}}-true" name="mod-{{i}}-true" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
 	                                     <span [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}"><localize key="change.request.boolean.option.true"></localize></span>
 	                                   </label> 
 	                                   <label class="radio radio-inline"> 
-	                                     <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" class="inline-radio-input" type="radio" [checked]="viewModel.value === false" [value]="false" [(ngModel)]="viewModel.editPropagator.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
+	                                     <input [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}" class="inline-radio-input" type="radio" [checked]="viewModel.value === false" [value]="false" [(ngModel)]="viewModel.value" id="mod-{{i}}-false" name="mod-{{i}}-false" [disabled]="readonly || viewModel.summaryKey === 'DELETE'"> 
 	                                     <span [ngClass]="{'has-changed': (viewModel.oldValue && !isNew)}"><localize key="change.request.boolean.option.false"></localize></span>
 	                                   </label>
 	                               </div>
@@ -105,19 +101,19 @@
 			                                 <div class="input-group">
 			                                    <input style="width:100%;" type="text" class="form-control" autocomplete="off"
 			                                      [name]="type.code + '-' + i"
-			                                      [disabled]="readonly || viewModel.summaryKey === 'DELETE' || viewModel.editPropagator.startDate == null || viewModel.editPropagator.startDate === ''"
-			                                      [(ngModel)]="viewModel.editPropagator.value.parents[type.code].text" 
+			                                      [disabled]="readonly || viewModel.summaryKey === 'DELETE' || viewModel.startDate == null || viewModel.startDate === ''"
+			                                      [(ngModel)]="viewModel.value.parents[type.code].text" 
 			                                      [typeaheadAsync]="true"
-			                                      [typeahead]="viewModel.editPropagator.getTypeAheadObservable(viewModel.editPropagator.startDate, type, viewModel.editPropagator.value, j)"
-			                                      (typeaheadOnSelect)="viewModel.editPropagator.typeaheadOnSelect($event, type, viewModel.editPropagator.value, viewModel.editPropagator.startDate)" 
-			                                      (typeaheadLoading)="viewModel.editPropagator.value.loading[type.code] = $event"
-			                                      [ngClass]="{'inline-loading':viewModel.editPropagator.value.loading[type.code], 'has-changed': (viewModel.oldValue && !isNew)}"                                                                
+			                                      [typeahead]="getTypeAheadObservable(viewModel.editor, viewModel.startDate, type, viewModel.value, j)"
+			                                      (typeaheadOnSelect)="typeaheadOnSelect(viewModel.editor, $event, type, viewModel.value, viewModel.startDate)" 
+			                                      (typeaheadLoading)="viewModel.value.loading[type.code] = $event"
+			                                      [ngClass]="{'inline-loading':viewModel.value.loading[type.code], 'has-changed': (viewModel.oldValue && !isNew)}"                                                                
 			                                      [typeaheadOptionsLimit]="7"
 			                                      [typeaheadItemTemplate]="customItemTemplate" 
 			                                      [typeaheadMinLength]="0"
 			                                      [typeaheadWaitMs]="300">
 			                                    
-			                                      <span *ngIf="!readonly" class="input-group-addon clickable addon-alert" (click)="viewModel.editPropagator.removeType(type)"> 
+			                                      <span *ngIf="!readonly" class="input-group-addon clickable addon-alert" (click)="viewModel.editor.removeType(type)"> 
 			                                        <i class="fa fa-times" aria-hidden="true"></i>
 			                                      </span>
                                                   
@@ -210,7 +206,7 @@
 	                                  <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
 	                                </h5>
 	                            
-	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
+	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
 	                                  <p class="warning-text display-current-value">
@@ -224,8 +220,7 @@
 	                                  <h5>
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
-	                              
-	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.editPropagator.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
+	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
 	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
 	                    
 	                                  <!--
@@ -239,8 +234,8 @@
 	                                </div>
 	                              </td>
 	                            </tr>
-	                            <tr *ngIf="viewModel.conflictMessage && viewModel.conflictMessage.length > 0">
-	                              <p *ngFor="let msg of viewModel.conflictMessage" [ngClass]="{'error-message': msg.severity === 'ERROR', 'warning-message': msg.severity === 'WARNING'}" >
+	                            <tr *ngIf="viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0">
+	                              <p *ngFor="let msg of viewModel.editor.conflictMessage" [ngClass]="{'error-message': msg.severity === 'ERROR', 'warning-message': msg.severity === 'WARNING'}" >
 	                                {{msg.message}}
 	                              </p>
 	                            </tr>
@@ -248,7 +243,7 @@
 	                          
 	                        </td>
 	                        
-	                        <td *ngIf="!readonly" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
+	                        <td *ngIf="!readonly && (!this.isNew || attributeType.code !== 'exists')" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
 	                          <i class="fa" [class]="{'fa-times' : viewModel.summaryKey === 'UNMODIFIED', 'fa-undo' : viewModel.summaryKey !== 'UNMODIFIED'}" ></i>
 	                        </td>
 	                      </tr>
@@ -258,43 +253,40 @@
                 </div>
               </li>
               
-              <li *ngIf="!readonly && !isRootOfHierarchy" class="list-group-item" style="text-align: left;">
+              <li *ngIf="!readonly && !isRootOfHierarchy && (!this.isNew || attributeType.code !== 'exists')" class="list-group-item" style="text-align: left;">
                 <i class="fa fa-plus clickable" (click)="onAddNewVersion()"> 
                   <localize key="changeovertime.manageVersions.newVersion"></localize>
                 </i>
               </li>
               
             </ul>
-            <div *ngIf="changeRequest && changeRequest.approvalStatus === 'PENDING' && changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && editAction && hasAttributeChanges()" style="margin-left: 15px;">
-              <button [disabled]="editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
+            
+            <!-- TODO : This code copy/pasted into standard-attribute-editor.component.html -->
+            <div *ngIf="!changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.approvalStatus === 'PENDING' && changeRequestEditor.changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && changeRequestAttributeEditor.hasChanges()" style="margin-left: 15px;">
+              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
                 <localize key="change.request.accept.btn"></localize>
               </button>
-              <button [disabled]="editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
+              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'" type="submit" (click)="onReject()" class="btn btn-danger" role="button" [title]="'change.request.action.reject.btn.hover' | localize">
                 <localize key="change.request.reject.btn"></localize>
               </button>
-              <button [disabled]="editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
+              <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'PENDING'" type="submit" (click)="onPending()" class="btn btn-warning" role="button" [title]="'change.request.action.pending.btn.hover' | localize">
                 <localize key="change.request.pending.btn"></localize>
               </button>
             </div>              
-            <div *ngIf="changeRequest && changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
-<!--               <button *ngIf="editAction.approvalStatus === 'ACCEPTED'" disabled type="submit" class="btn btn-primary" role="button" [title]="'change.request.accept.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.accept.btn"></localize> -->
-<!--               </button> -->
-<!--               <button *ngIf="editAction.approvalStatus === 'REJECTED'" disabled type="submit" class="btn btn-danger" role="button" [title]="'change.request.reject.all.btn.hover' | localize"> -->
-<!--                 <localize key="change.request.reject.btn"></localize> -->
-<!--               </button> -->
-                <strong style="color:#6BA542;" *ngIf="editAction.approvalStatus === 'ACCEPTED'">
-                    <localize key="change.request.status.accepted"></localize>
-                </strong>
-                <strong style="color:#6d0400;" *ngIf="editAction.approvalStatus === 'REJECTED'">
-                    <localize key="change.request.status.rejected"></localize>
-                </strong>
-            </div>              
+            <div *ngIf="!changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.approvalStatus !== 'PENDING'" style="margin-left:15px;">
+              <strong style="color:#6BA542;" *ngIf="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'">
+                  <localize key="change.request.status.accepted"></localize>
+              </strong>
+              <strong style="color:#6d0400;" *ngIf="changeRequestAttributeEditor.editAction.approvalStatus === 'REJECTED'">
+                  <localize key="change.request.status.rejected"></localize>
+              </strong>
+            </div>
+            
           </div>
         </div>
 	      <geoobject-editor-map style="width:55%;display:inline-block;vertical-align:top;margin-top:15px;" *ngIf="isGeometryInlined && geomService.getRenderedLayers().length > 0" #geometryEditor [geometryType]="this.geoObjectType.geometryType" 
 	        [mapHeight]="mapRowHeight" [readOnly]="!geoObjectType.isGeometryEditable && readonly"
-	        [bboxCode]="this.postGeoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="geomService.getRenderedLayers()[0].startDate">
+	        [bboxCode]="this.changeRequestEditor.geoObject.attributes.code" [bboxType]="this.geoObjectType.code" [bboxDate]="geomService.getRenderedLayers()[0].startDate">
 	      </geoobject-editor-map>
       </div>
 

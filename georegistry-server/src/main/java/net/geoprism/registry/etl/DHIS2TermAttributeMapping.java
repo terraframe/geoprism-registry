@@ -32,7 +32,6 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermMapping;
 import net.geoprism.registry.etl.export.dhis2.MissingDHIS2TermOrgUnitGroupMapping;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -182,13 +181,6 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
     else if (value instanceof Classifier)
     {
       return ((Classifier)value).getClassifierId();
-    }
-    else if (value instanceof GeoObjectStatus)
-    {
-      GeoObjectStatus status = (GeoObjectStatus) value;
-      Term term = ServiceFactory.getConversionService().geoObjectStatusToTerm(status);
-      
-      return term.getCode();
     }
     else
     {

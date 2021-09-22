@@ -95,7 +95,7 @@ public class GeoObjectQueryTest
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+    Assert.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -133,7 +133,7 @@ public class GeoObjectQueryTest
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+    Assert.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -150,7 +150,7 @@ public class GeoObjectQueryTest
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(USATestData.CO_D_ONE.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+    Assert.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -175,7 +175,7 @@ public class GeoObjectQueryTest
       Assert.assertNotNull(result.getGeometry());
       Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-      Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+      Assert.assertEquals(true, result.getExists());
     }
     finally
     {
@@ -198,7 +198,7 @@ public class GeoObjectQueryTest
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+    Assert.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -215,7 +215,7 @@ public class GeoObjectQueryTest
     Assert.assertEquals(USATestData.COLORADO.getCode(), result.getCode());
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
-    Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+    Assert.assertEquals(true, result.getExists());
   }
 
   @Test
@@ -235,7 +235,7 @@ public class GeoObjectQueryTest
     Assert.assertNotNull(result.getGeometry());
     Assert.assertEquals(USATestData.COLORADO.getDisplayLabel(), result.getDisplayLabel().getValue());
 
-    Assert.assertEquals(GeoObjectStatus.ACTIVE, result.getStatus());
+    Assert.assertEquals(true, result.getExists());
   }
 
   @Test
