@@ -54,12 +54,15 @@
                             <thead>
                                 <tr>
 	                                <th class="label-column">
+                                    <span *ngIf="config == null || !config.isImport">
 	                                    <localize key="geoObject.label"></localize>&nbsp;<localize key="geoObjectType.attr.code"></localize>
+                                    </span>
+                                    <span *ngIf="config != null && config.isImport">Resource</span>
 	                                </th>
 	                                <th class="label-column">
                                       <localize key="scheduledjobs.import.table.message.header"></localize>
                                   </th>
-	                                <th class="label-column">
+	                                <th *ngIf="config == null || !config.isImport" class="label-column">
                                     <localize key="scheduledjobs.import.table.row.number.header"></localize>
                                   </th>
                                 </tr>
@@ -73,7 +76,7 @@
                                     <td class="label-column" style="vertical-align: middle;">
                                       <p>{{row.message}}</p>
                                     </td>
-                                    <td class="label-column" style="vertical-align: middle;">
+                                    <td  *ngIf="config == null || !config.isImport" class="label-column" style="vertical-align: middle;">
                                       <p>{{row.rowNum}}</p>
                                     </td>
                                 </tr>

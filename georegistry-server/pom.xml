@@ -24,7 +24,7 @@
 	<parent>
 		<groupId>net.geoprism</groupId>
 		<artifactId>georegistry</artifactId>
-		<version>0.16.1-SNAPSHOT</version>
+    <version>0.16.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>georegistry-server</artifactId>
 	<packaging>jar</packaging>
@@ -34,9 +34,9 @@
 
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
+		<hapifhir_version>5.0.2</hapifhir_version>
 		<cgr.adapter.version>0.16.1-SNAPSHOT</cgr.adapter.version>
 	</properties>
-
 
 	<dependencies>
     <dependency>
@@ -87,11 +87,6 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.9.5</version>
-		</dependency>
     <dependency>
       <groupId>javax.websocket</groupId>
       <artifactId>javax.websocket-api</artifactId>
@@ -112,7 +107,48 @@
       <artifactId>log4j-slf4j-impl</artifactId>
       <version>2.13.1</version>
     </dependency>
-	</dependencies>
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-base</artifactId>
+      <version>${hapifhir_version}</version>
+    </dependency>
+      
+      <!-- Include the client -->
+      <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-client</artifactId>
+      <version>${hapifhir_version}</version>
+      </dependency>
+
+    <!-- At least one "structures" JAR must also be included -->
+    <dependency>
+      <groupId>ca.uhn.hapi.fhir</groupId>
+      <artifactId>hapi-fhir-structures-r4</artifactId>
+      <version>${hapifhir_version}</version>
+    </dependency> 
+<!-- https://mvnrepository.com/artifact/com.github.ben-manes.caffeine/caffeine -->
+<dependency>
+    <groupId>com.github.ben-manes.caffeine</groupId>
+    <artifactId>caffeine</artifactId>
+    <version>2.9.2</version>
+</dependency>
+       
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>2.10.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.10.0</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.10.0</version>
+      </dependency>
+    </dependencies>
 
 	<!-- These profiles allow for Maven execution of Runway-SDK's Java Tools, 
 		like rebuilding the database and importing schemas. -->

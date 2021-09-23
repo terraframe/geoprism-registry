@@ -101,7 +101,7 @@ public class DHIS2TermAttributeMapping extends DHIS2AttributeMapping
   }
 
   @Override
-  public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, String lastUpdateDate, String createDate)
+  public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, String lastUpdateDate, String createDate)
   {
     ServerGeoObjectType got = syncLevel.getGeoObjectType();
     AttributeType attr = got.getAttribute(this.getCgrAttrName()).get();

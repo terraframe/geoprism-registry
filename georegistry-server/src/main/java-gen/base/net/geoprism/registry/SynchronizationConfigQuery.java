@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -959473218)
+@com.runwaysdk.business.ClassSignature(hash = 316017535)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -159,6 +141,23 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     return (com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.SynchronizationConfig.HIERARCHY, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableBoolean getIsImport()
+  {
+    return getIsImport(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIsImport(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.SynchronizationConfig.ISIMPORT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIsImport(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.SynchronizationConfig.ISIMPORT, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getKeyName()
   {
     return getKeyName(null);
@@ -197,6 +196,23 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.SynchronizationConfig.LABEL);
 
     return (net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.SynchronizationConfig.LABEL, mdAttributeIF, this, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate()
+  {
+    return getLastSynchDate(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.getComponentQuery().get(net.geoprism.registry.SynchronizationConfig.LASTSYNCHDATE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.getComponentQuery().get(net.geoprism.registry.SynchronizationConfig.LASTSYNCHDATE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()
@@ -494,12 +510,18 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getHierarchy();
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getHierarchy(String alias);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getHierarchy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getIsImport();
+    public com.runwaysdk.query.SelectableBoolean getIsImport(String alias);
+    public com.runwaysdk.query.SelectableBoolean getIsImport(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
     public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel();
     public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel(String alias);
     public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableMoment getLastSynchDate();
+    public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias);
+    public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate();
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias, String displayLabel);
@@ -650,6 +672,23 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     return (com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF)this.get(net.geoprism.registry.SynchronizationConfig.HIERARCHY,  alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableBoolean getIsImport()
+  {
+    return getIsImport(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIsImport(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.ISIMPORT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIsImport(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.ISIMPORT, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getKeyName()
   {
     return getKeyName(null);
@@ -682,6 +721,23 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
   public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel(String alias, String displayLabel)
   {
     return (net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.SynchronizationConfig.LABEL, com.runwaysdk.system.metadata.MdAttributeLocalCharacter.CLASS, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate()
+  {
+    return getLastSynchDate(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.SynchronizationConfig.LASTSYNCHDATE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.SynchronizationConfig.LASTSYNCHDATE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()
@@ -932,12 +988,18 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getHierarchy();
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getHierarchy(String alias);
     public com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF getHierarchy(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getIsImport();
+    public com.runwaysdk.query.SelectableBoolean getIsImport(String alias);
+    public com.runwaysdk.query.SelectableBoolean getIsImport(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
     public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel();
     public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel(String alias);
     public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableMoment getLastSynchDate();
+    public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias);
+    public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate();
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias);
     public com.runwaysdk.query.SelectableMoment getLastUpdateDate(String alias, String displayLabel);
@@ -1137,6 +1199,23 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
     return (com.runwaysdk.system.metadata.MdTermRelationshipQuery.MdTermRelationshipQueryReferenceIF)this.get(net.geoprism.registry.SynchronizationConfig.HIERARCHY,  alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableBoolean getIsImport()
+  {
+    return getIsImport(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIsImport(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.ISIMPORT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIsImport(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.SynchronizationConfig.ISIMPORT, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getKeyName()
   {
     return getKeyName(null);
@@ -1169,6 +1248,23 @@ public  class SynchronizationConfigQuery extends com.runwaysdk.query.GeneratedBu
   public net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF getLabel(String alias, String displayLabel)
   {
     return (net.geoprism.registry.SynchronizationConfigLabelQuery.SynchronizationConfigLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.SynchronizationConfig.LABEL, com.runwaysdk.system.metadata.MdAttributeLocalCharacter.CLASS, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate()
+  {
+    return getLastSynchDate(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.SynchronizationConfig.LASTSYNCHDATE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableMoment getLastSynchDate(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableMoment)this.get(net.geoprism.registry.SynchronizationConfig.LASTSYNCHDATE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableMoment getLastUpdateDate()

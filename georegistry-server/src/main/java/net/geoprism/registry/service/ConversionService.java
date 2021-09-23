@@ -4,22 +4,28 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.Term;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
+
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
+import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.TermConverter;
@@ -74,9 +80,9 @@ public class ConversionService
   {
     if (code == null)
     {
-      return null;  
+      return null;
     }
-    
+
     return ServiceFactory.getMetadataCache().getTerm(code).get();
   }
 
@@ -97,7 +103,20 @@ public class ConversionService
 
     String classifierKey = Classifier.buildKey(parent, term.getCode());
     Classifier classifier = Classifier.getByKey(classifierKey);
-    
+
     return classifier;
+  }
+
+  public VertexObject termToClassification(AttributeClassificationType attr, Term term)
+  {
+    return this.termToClassification(attr, term.getCode());
+  }
+
+  public VertexObject termToClassification(AttributeClassificationType attr, String code)
+  {
+    String classificationType = attr.getClassificationType();
+    MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+
+    return AbstractClassification.get(code, mdClassificationDAO);
   }
 }

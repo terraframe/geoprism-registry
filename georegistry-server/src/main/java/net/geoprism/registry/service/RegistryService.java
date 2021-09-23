@@ -4,20 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -84,6 +85,7 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerIF;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
@@ -101,6 +103,7 @@ import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
+import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -114,6 +117,7 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
+import net.geoprism.registry.xml.XMLImporter;
 
 public class RegistryService
 {
@@ -326,7 +330,7 @@ public class RegistryService
 
     return ja.toString();
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject initHierarchyManager(String sessionId)
   {
@@ -380,7 +384,7 @@ public class RegistryService
     response.add("hierarchies", hierarchies);
     response.add("organizations", organizations);
     response.add("locales", this.getLocales(sessionId));
-    
+
     return response;
   }
 
@@ -642,7 +646,7 @@ public class RegistryService
 
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject serialize(String sessionId, GeoObjectType got)
   {
@@ -670,6 +674,24 @@ public class RegistryService
     ServiceFactory.getMetadataCache().addGeoObjectType(type);
 
     return type.getType();
+  }
+
+  /**
+   * Creates a {@link GeoObjectType} from the given JSON.
+   * 
+   * @param sessionId
+   * @param gtJSON
+   *          JSON of the {@link GeoObjectType} to be created.
+   * @return newly created {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public void importTypes(String sessionId, String orgCode, InputStream istream)
+  {
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(orgCode, true);
+
+    GeoRegistryUtil.importTypes(orgCode, istream);
+
+    this.refreshMetadataCache();
   }
 
   /**
@@ -1132,12 +1154,12 @@ public class RegistryService
     JsonArray array = new JsonArray();
 
     array.add(new DefaultLocaleView().toJson());
-    
+
     for (SupportedLocaleIF locale : locales)
     {
       array.add(LocaleView.fromSupportedLocale(locale).toJson());
     }
-    
+
     return array;
   }
 

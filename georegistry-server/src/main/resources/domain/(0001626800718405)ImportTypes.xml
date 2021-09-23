@@ -1,0 +1,50 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdUtil name="net.geoprism.registry.GeoRegistryUtil" label="Geo Registry Util">
+        <create>
+          <mdMethod name="importTypes" label="Import types" returnType="void" static="true">
+            <mdParameter name="orgCode" label="Organization code" order="0" type="java.lang.String" />
+            <mdParameter name="istream" label="Input Stream" order="1" type="java.io.InputStream" />
+          </mdMethod>          
+        </create>
+      </mdUtil>
+    </update>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.importTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.importTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Types" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.xmlFile">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.xmlFile" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="XML File" />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>    
+    <permissions>
+      <method methodName="importTypes" type="net.geoprism.registry.GeoRegistryUtil">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="importTypes">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdMethod" key="net.geoprism.registry.GeoRegistryUtil.importTypes" ></object>
+    </delete>
+  </undoIt>
+</version>

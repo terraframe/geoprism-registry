@@ -314,7 +314,11 @@ public class SearchService
     statement.append(" FROM " + mdVertex.getDBClassName());
     statement.append(" WHERE (SEARCH_INDEX(\"" + indexName + "\", \"+" + label.getColumnName() + ":" + text + "*\") = true");
     statement.append(" OR :code = " + code.getColumnName() + ")");
-    statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
+    
+    if (date != null)
+    {
+      statement.append(" AND :date BETWEEN " + startDate.getColumnName() + " AND " + endDate.getColumnName());
+    }
 
     if (!service.isSRA() && service.hasSessionUser())
     {
@@ -331,7 +335,11 @@ public class SearchService
     List<ServerGeoObjectIF> list = new LinkedList<ServerGeoObjectIF>();
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("code", text);
-    query.setParameter("date", date);
+    
+    if (date != null)
+    {
+      query.setParameter("date", date);
+    }
 
     if (!service.isSRA() && service.hasSessionUser())
     {

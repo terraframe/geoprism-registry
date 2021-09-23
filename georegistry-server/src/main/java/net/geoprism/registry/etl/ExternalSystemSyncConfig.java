@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -28,19 +28,17 @@ import net.geoprism.registry.model.ServerHierarchyType;
 
 public abstract class ExternalSystemSyncConfig
 {
-  private transient ExternalSystem      system;
+  private transient ExternalSystem system;
 
-  private transient Organization        organization;
+  private transient Organization   organization;
 
-  private transient ServerHierarchyType hierarchy;
-
-  private transient LocalizedValue      label;
+  private transient LocalizedValue label;
 
   public ExternalSystem getSystem()
   {
     return system;
   }
-  
+
   public void setSystem(ExternalSystem system)
   {
     this.system = system;
@@ -56,16 +54,6 @@ public abstract class ExternalSystemSyncConfig
     this.organization = organization;
   }
 
-  public ServerHierarchyType getHierarchy()
-  {
-    return hierarchy;
-  }
-
-  public void setHierarchy(ServerHierarchyType hierarchy)
-  {
-    this.hierarchy = hierarchy;
-  }
-
   public LocalizedValue getLabel()
   {
     return label;
@@ -78,7 +66,6 @@ public abstract class ExternalSystemSyncConfig
 
   public void populate(SynchronizationConfig config)
   {
-    this.setHierarchy(config.getServerHierarchyType());
     this.setLabel(LocalizedValueConverter.convert(config.getLabel()));
     this.setOrganization(config.getOrganization());
   }

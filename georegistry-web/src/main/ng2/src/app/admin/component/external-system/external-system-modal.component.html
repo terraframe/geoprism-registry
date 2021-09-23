@@ -19,6 +19,7 @@
                   <option></option>
                   <option value="DHIS2ExternalSystem"><localize key="external.system.dhis2"></localize></option>
                   <option value="RevealExternalSystem"><localize key="external.system.reveal"></localize></option>
+                  <option value="FhirExternalSystem"><localize key="external.system.fhir"></localize></option>
                 </select>
               </span>
             </div>
@@ -112,13 +113,23 @@
             </div>
           </div>
           
-          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
+          <div *ngIf="system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem'" class="row-holder">
             <div class="label-holder">
               <label><localize key="external.system.url"></localize></label>
             </div>          
             <div class="holder" >
               <span class="text">
                 <input type="text" [(ngModel)]="system.url" name="url" required>
+              </span>
+            </div>
+          </div>
+          <div *ngIf="system.type === 'FhirExternalSystem'" class="row-holder">
+            <div class="label-holder">
+              <label><localize key="external.system.system"></localize></label>
+            </div>          
+            <div class="holder" >
+              <span class="text">
+                <input type="text" [(ngModel)]="system.system" name="system" required>
               </span>
             </div>
           </div>

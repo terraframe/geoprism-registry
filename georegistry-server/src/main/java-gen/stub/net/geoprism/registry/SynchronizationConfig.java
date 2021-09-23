@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -33,10 +35,11 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionIF;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.FhirSyncLevel;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.graph.ExternalSystem;
-import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 
@@ -96,14 +99,19 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   private void populate(JsonObject json)
   {
     String orgCode = json.get(SynchronizationConfig.ORGANIZATION).getAsString();
-    String hierarchyCode = json.get(SynchronizationConfig.HIERARCHY).getAsString();
-
-    ServerHierarchyType hierarchyType = ServerHierarchyType.get(hierarchyCode);
 
     this.setOrganization(Organization.getByCode(orgCode));
-    this.setHierarchy(hierarchyType.getUniversalRelationship());
     this.setSystem(json.get(SynchronizationConfig.SYSTEM).getAsString());
     this.setConfiguration(json.get(SynchronizationConfig.CONFIGURATION).getAsJsonObject().toString());
+
+    if (json.has(SynchronizationConfig.ISIMPORT))
+    {
+      this.setIsImport(json.get(SynchronizationConfig.ISIMPORT).getAsBoolean());
+    }
+    else
+    {
+      this.setIsImport(false);
+    }
 
     LocalizedValue label = LocalizedValue.fromJSON(json.get(SynchronizationConfig.LABEL).getAsJsonObject());
 
@@ -113,19 +121,31 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   @Override
   public JsonObject toJSON()
   {
-    ServerHierarchyType hierarchyType = this.getServerHierarchyType();
-    ExternalSystem system = this.getExternalSystem();
-    LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
+    GsonBuilder builder = new GsonBuilder();
+    builder.registerTypeAdapter(FhirSyncLevel.class, new FhirSyncLevel.Serializer());
+    builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingDeserializer());
+
+    Gson gson = builder.create();
 
     JsonObject object = new JsonObject();
-    object.addProperty(SynchronizationConfig.TYPE, system.getClass().getSimpleName());
-    object.addProperty(SynchronizationConfig.SYSTEM_LABEL, label.getValue());
     object.addProperty(SynchronizationConfig.OID, this.getOid());
     object.addProperty(SynchronizationConfig.ORGANIZATION, this.getOrganization().getCode());
     object.addProperty(SynchronizationConfig.SYSTEM, this.getSystem());
-    object.addProperty(SynchronizationConfig.HIERARCHY, hierarchyType.getCode());
     object.add(SynchronizationConfig.LABEL, LocalizedValueConverter.convert(this.getLabel()).toJSON());
-    object.add(SynchronizationConfig.CONFIGURATION, this.getConfigurationJson());
+    object.addProperty(SynchronizationConfig.ISIMPORT, this.getIsImport() != null ? this.getIsImport() : false);
+
+    ExternalSystemSyncConfig config = this.buildConfiguration();
+    object.add(SynchronizationConfig.CONFIGURATION, gson.toJsonTree(config));
+
+    ExternalSystem system = this.getExternalSystem();
+
+    if (system != null)
+    {
+      LocalizedValue label = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL));
+
+      object.addProperty(SynchronizationConfig.TYPE, system.getClass().getSimpleName());
+      object.addProperty(SynchronizationConfig.SYSTEM_LABEL, label.getValue());
+    }
 
     return object;
   }
@@ -137,11 +157,6 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
     return element.getAsJsonObject();
   }
 
-  public ServerHierarchyType getServerHierarchyType()
-  {
-    return ServerHierarchyType.get(this.getHierarchy());
-  }
-
   public ExternalSystem getExternalSystem()
   {
     return ExternalSystem.get(this.getSystem());
@@ -151,7 +166,7 @@ public class SynchronizationConfig extends SynchronizationConfigBase implements 
   {
     ExternalSystem system = this.getExternalSystem();
 
-    ExternalSystemSyncConfig config = system.configuration();
+    ExternalSystemSyncConfig config = system.configuration(this.getIsImport());
     config.setSystem(system);
     config.populate(this);
 

@@ -1,0 +1,141 @@
+<CGR
+  xsi:noNamespaceSchemaLocation="classpath:xsd/cgr.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <type
+    code="Health_facility"
+    label="Health facility (MOH)"
+    description="Public health facilities under the management of the Ministry of Health"
+    visibility="PUBLIC"
+    geometryType="POINT"
+    isGeometryEditable="true">
+    <attributes>
+      <term
+        code="COOR_ACU"
+        label="Coordinates accuracy">
+        <option
+          code="COA1"
+          label="Unknown" />
+        <option
+          code="COA2"
+          label="Low" />
+        <option
+          code="COA3"
+          label="Moderate" />
+        <option
+          code="COA4"
+          label="High" />
+      </term>
+      <term
+        code="SOUR_COOR"
+        label="Coordinates source">
+        <option
+          code="SCO1"
+          label="Unknown" />
+        <option
+          code="SCO2"
+          label="Low" />
+        <option
+          code="SCO3"
+          label="MOH (GPS)" />
+        <option
+          code="COA4"
+          label="UN (google Map)" />
+      </term>
+      <term
+        code="HF_OWN"
+        label="Health facility Ownership">
+        <option
+          code="HFO1"
+          label="Unknown" />
+        <option
+          code="HFO2"
+          label="Government" />
+        <option
+          code="HFO3"
+          label="Private" />
+      </term>
+      <text
+        code="HD_NA_EN"
+        label="Health facility head name"
+        description="Full name of the health facility head in English" />
+      <text
+        code="HD_PS_EN"
+        label="Health facility head position"
+        description="Position of the health facility head in English" />
+      <text
+        code="D_NBR_G"
+        label="Health facility phone number"
+        description="General phone number of the health facility" />
+      <term
+        code="HF_T"
+        label="Health facility type">
+        <option
+          code="HFT1"
+          label="Unknown" />
+        <option
+          code="HFT2"
+          label="National Hospital" />
+        <option
+          code="HFT3"
+          label="Referral Hospital" />
+        <option
+          code="HFT4"
+          label="Health Centre" />
+        <option
+          code="HFT5"
+          label="Health Post" />
+      </term>
+      <text
+        code="HF_OWN_G"
+        label="Name governmental agency (ownership)"
+        description="Name of the governmental agency managing the health facility" />
+    </attributes>
+    <group-item
+      code="Referral_hospital"
+      label="Referral Hospital (MOH)"
+      description="Health facility were general care diagnostic services, limited surgical procedure and access to specialist consultation for patients referred from health centers are being provided" />
+    <group-item
+      code="National_hospital"
+      label="National Hospital (MOH)"
+      description="Health facility providing the same services as a referral hospital as well as a range of more highly specialized services" />
+    <group-item
+      code="Health_post"
+      label="Health Post (MOH)"
+      description="Health facility were only primary health care are being provided" />
+    <group-item
+      code="Health_centre"
+      label="Health Centre (MOH)"
+      description="Health facility were enhanced level of care is being provided" />
+  </type>
+  <hierarchy
+    code="Health_Refrerral"
+    label="Health care referral hierarchy (MOH)"
+    description=" This hierarchy describes how patients are being referred from the village to the national hospital level"
+    progress="Final"
+    disclaimer="This hierarchy is being distributed without warranty of any kind, either expressed or implied. The responsibility for the interpretation and use of the dataset lies with the user. In no event shall the Ministry of Health be liable for damages arising from its use"
+    accessConstraints="The access to this hiearchy is limited  to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    useConstraints="The use of this hierarchy is limited  to the to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    acknowledgement="Please acknowledge the Department of Planning, Ministry of Health of the Middle Earth when using this hierarchy">
+    <child code="National_hospital">
+      <child code="Referral_hospital">
+        <child code="Health_centre">
+          <child code="Health_post" />
+        </child>
+      </child>
+    </child>
+  </hierarchy>
+  <hierarchy
+    code="Health_geo"
+    label="Health geography hierarchy (MOH)"
+    description=" This hierarchy allows to link each health facility with the Shire in which it is located"
+    progress="Final"
+    disclaimer="This hierarchy is being distributed without warranty of any kind, either expressed or implied. The responsibility for the interpretation and use of the dataset lies with the user. In no event shall the Ministry of Health be liable for damages arising from its use"
+    accessConstraints="The access to this hiearchy is limited  to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    useConstraints="The use of this hierarchy is limited  to the to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    acknowledgement="Please acknowledge the Department of Planning, Ministry of Health of the Middle Earth when using this hierarchy"
+    extends="ADM_H">
+    <child code="SHR">
+      <child code="Health_facility" />
+    </child>
+  </hierarchy>
+</CGR>

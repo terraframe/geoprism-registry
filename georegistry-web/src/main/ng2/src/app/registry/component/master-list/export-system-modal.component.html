@@ -1,0 +1,38 @@
+<div class="modal-body" tabindex="-1" role="dialog">
+    <div class="heading text-center">
+        <h1>
+            <localize key="export-fhir-modal.title"></localize>
+        </h1>
+    </div>
+
+    <form class="modal-form" name="export-form">
+        <fieldset>
+            <div class="row">
+                <div class="col-md-12">
+                    <label> <localize key="export-fhir-modal.system"></localize>
+                    </label> <select id="format" name="format" class="select-area" [(ngModel)]="system" required>
+                        <option></option>
+                        <option *ngFor="let system of systems" [value]="system.oid">{{system.label.localizedValue}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="button-holder">
+                        <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false">
+                            <span>
+                                <localize key="modal.button.cancel"></localize>
+                            </span>
+                        </button>
+                        <button type="button" (click)="confirm()" [disabled]="system == null || system == ''" class="btn btn-primary" role="button">
+                            <span>
+                                <localize key="modal.button.submit"></localize>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>

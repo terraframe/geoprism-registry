@@ -121,7 +121,7 @@ public class DHIS2AttributeMapping
         && this.externalId != null && this.externalId.length() > 0;
   }
 
-  public void writeStandardAttributes(VertexServerGeoObject serverGo, JsonObject jo, DHIS2SyncConfig dhis2Config, SyncLevel level)
+  public void writeStandardAttributes(VertexServerGeoObject serverGo, JsonObject jo, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level)
   {
     if (this.isStandardAttribute())
     {
@@ -139,7 +139,7 @@ public class DHIS2AttributeMapping
     }
   }
 
-  public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, String lastUpdateDate, String createDate)
+  public void writeCustomAttributes(JsonArray attributeValues, VertexServerGeoObject serverGo, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, String lastUpdateDate, String createDate)
   {
     if (this.isCustomAttribute())
     {

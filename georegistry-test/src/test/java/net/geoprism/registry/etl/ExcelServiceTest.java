@@ -4,28 +4,25 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -37,6 +34,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.ParentTreeNode;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
@@ -54,8 +52,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.constants.graph.MdClassificationInfo;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
@@ -98,24 +103,47 @@ import net.geoprism.registry.test.USATestData;
 
 public class ExcelServiceTest
 {
-  protected static USATestData        testData;
+  protected static String                    CLASSIFICATION_TYPE = "test.classification.TestClassification";
 
-  private static AttributeTermType    testTerm;
+  protected static String                    CODE                = "Test Term";
 
-  private static AttributeIntegerType testInteger;
+  protected static USATestData               testData;
 
-  private static AttributeDateType    testDate;
+  private static AttributeTermType           testTerm;
 
-  private static AttributeBooleanType testBoolean;
+  private static AttributeIntegerType        testInteger;
 
-  private final Integer               ROW_COUNT = 2;
+  private static AttributeDateType           testDate;
+
+  private static AttributeBooleanType        testBoolean;
+
+  private static AttributeClassificationType testClassification;
+
+  private final Integer                      ROW_COUNT           = 2;
 
   @BeforeClass
   @Request
   public static void classSetUp()
   {
+    MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
+    mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
+    mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
+    mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
+    mdClassification.apply();
+
+    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
+
+    VertexObject root = new VertexObject(referenceMdVertexDAO.definesType());
+    root.setValue(AbstractClassification.CODE, CODE);
+    root.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    root.apply();
+
+    mdClassification.setValue(MdClassificationInfo.ROOT, root.getOid());
+    mdClassification.apply();
+
     TestDataSet.deleteAllSchedulerData();
-    
+
     testData = USATestData.newTestData();
     testData.setUpMetadata();
 
@@ -128,6 +156,13 @@ public class ExcelServiceTest
     {
       SchedulerManager.start();
     }
+
+    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
+    testClassification.setClassificationType(CLASSIFICATION_TYPE);
+    testClassification.setRootTerm(new Term(CODE, new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification")));
+
+    ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.DISTRICT.getCode());
+    testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
   }
 
   @AfterClass
@@ -135,6 +170,15 @@ public class ExcelServiceTest
   public static void classTearDown()
   {
     testData.tearDownMetadata();
+
+    try
+    {
+      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
+    }
+    catch (Exception e)
+    {
+      // skip
+    }
   }
 
   @Before
@@ -234,37 +278,37 @@ public class ExcelServiceTest
 
     return ImportHistory.get(historyId);
   }
-  
+
   private ImportHistory mockImport(GeoObjectImportConfiguration config) throws Throwable
   {
     if (config.getStartDate() == null)
     {
       config.setStartDate(new Date());
     }
-    
+
     if (config.getEndDate() == null)
     {
       config.setEndDate(new Date());
     }
-    
+
     config.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
-    
+
     DataImportJob job = new DataImportJob();
     job.apply();
     ImportHistory hist = (ImportHistory) job.createNewHistory();
-    
+
     config.setHistoryId(hist.getOid());
     config.setJobId(job.getOid());
-    
+
     ServerGeoObjectType type = config.getType();
-    
+
     hist.appLock();
     hist.setImportFileId(config.getVaultFileId());
     hist.setConfigJson(config.toJSON().toString());
     hist.setOrganization(type.getOrganization());
     hist.setGeoObjectTypeCode(type.getCode());
     hist.apply();
-    
+
     ExecutionContext context = MockScheduler.executeJob(job, hist);
 
     hist = (ImportHistory) context.getHistory();
@@ -695,7 +739,7 @@ public class ExcelServiceTest
     GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode());
 
     Assert.assertEquals("0001", object.getCode());
-    
+
     ParentTreeNode nodes = ServiceFactory.getRegistryService().getParentGeoObjects(sessionId, object.getUid(), config.getType().getCode(), new String[] { USATestData.STATE.getCode() }, false, USATestData.DEFAULT_OVER_TIME_DATE);
 
     List<ParentTreeNode> parents = nodes.getParents();
@@ -825,6 +869,39 @@ public class ExcelServiceTest
 
   @Test
   @Request
+  public void testImportExcelWithClassification() throws InterruptedException
+  {
+    InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
+
+    Assert.assertNotNull(istream);
+
+    ExcelService service = new ExcelService();
+
+    JSONObject json = this.getTestConfiguration(istream, service, testClassification, ImportStrategy.NEW_AND_UPDATE);
+
+    ServerHierarchyType hierarchyType = ServerHierarchyType.get(USATestData.HIER_ADMIN.getCode());
+
+    GeoObjectImportConfiguration configuration = (GeoObjectImportConfiguration) ImportConfiguration.build(json.toString(), true);
+    configuration.setHierarchy(hierarchyType);
+
+    ImportHistory hist = importExcelFile(testData.clientRequest.getSessionId(), configuration.toJSON().toString());
+
+    SchedulerTestUtils.waitUntilStatus(hist.getOid(), AllJobStatus.SUCCESS);
+
+    hist = ImportHistory.get(hist.getOid());
+    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkTotal());
+    Assert.assertEquals(new Long(ROW_COUNT), hist.getWorkProgress());
+    Assert.assertEquals(new Long(ROW_COUNT), hist.getImportedRecords());
+    Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
+
+    String sessionId = testData.clientRequest.getSessionId();
+    GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(sessionId, "0001", USATestData.DISTRICT.getCode());
+
+    Assert.assertEquals("0001", object.getCode());
+  }
+
+  @Test
+  @Request
   public void testImportExcelWithBadTerm() throws Throwable
   {
     InputStream istream = this.getClass().getResourceAsStream("/test-spreadsheet.xlsx");
@@ -867,10 +944,11 @@ public class ExcelServiceTest
 
     Assert.assertNull(query.getSingleResult());
   }
-  
+
   /**
-   * In the case when the server fails mid import, when the server reboots it's supposed to restart any jobs that were running.
-   * When we restart the job, we want to make sure that it picks up from where it left off.
+   * In the case when the server fails mid import, when the server reboots it's
+   * supposed to restart any jobs that were running. When we restart the job, we
+   * want to make sure that it picks up from where it left off.
    */
   @Test
   @Request
@@ -879,7 +957,7 @@ public class ExcelServiceTest
     DataImportJob job = new DataImportJob();
     job.setRunAsUserId(testData.clientRequest.getSessionUser().getOid());
     job.apply();
-    
+
     ImportHistory fakeImportHistory = new ImportHistory();
     fakeImportHistory.setStartTime(new Date());
     fakeImportHistory.addStatus(AllJobStatus.RUNNING);
@@ -902,7 +980,7 @@ public class ExcelServiceTest
     config.setHierarchy(hierarchyType);
     config.setHistoryId(fakeImportHistory.getOid());
     config.setJobId(job.getOid());
-    
+
     fakeImportHistory.appLock();
     fakeImportHistory.setConfigJson(config.toJSON().toString());
     fakeImportHistory.setImportFileId(config.getVaultFileId());
@@ -923,7 +1001,7 @@ public class ExcelServiceTest
       try
       {
         ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "000" + i, USATestData.DISTRICT.getCode());
-        
+
         Assert.fail("Was able to fectch GeoObject with code [000" + i + "], which should not have been imported.");
       }
       catch (SmartExceptionDTO ex)
@@ -931,16 +1009,16 @@ public class ExcelServiceTest
         // Expected
       }
     }
-    
+
     for (int i = 3; i < 11; ++i)
     {
       GeoObject object = ServiceFactory.getRegistryService().getGeoObjectByCode(testData.clientRequest.getSessionId(), "000" + i, USATestData.DISTRICT.getCode());
-  
+
       Assert.assertNotNull(object);
       Assert.assertEquals("Test", object.getLocalizedDisplayLabel());
-  
+
       Geometry geometry = object.getGeometry();
-  
+
       Assert.assertNotNull(geometry);
     }
 
@@ -949,7 +1027,7 @@ public class ExcelServiceTest
     Assert.assertEquals(0, json.getJSONArray("results").length());
   }
 
-  private JSONObject getTestConfiguration(InputStream istream, ExcelService service, AttributeTermType attributeTerm, ImportStrategy strategy)
+  private JSONObject getTestConfiguration(InputStream istream, ExcelService service, AttributeType attributeTerm, ImportStrategy strategy)
   {
     JSONObject result = service.getExcelConfiguration(testData.clientRequest.getSessionId(), USATestData.DISTRICT.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE, TestDataSet.DEFAULT_END_TIME_DATE, "test-spreadsheet.xlsx", istream, strategy, false);
     JSONObject type = result.getJSONObject(GeoObjectImportConfiguration.TYPE);

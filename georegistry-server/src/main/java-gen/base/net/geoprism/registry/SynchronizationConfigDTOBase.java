@@ -1,28 +1,10 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 895249863)
+@com.runwaysdk.business.ClassSignature(hash = -1080004984)
 public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.SynchronizationConfig";
-  private static final long serialVersionUID = 895249863;
+  private static final long serialVersionUID = -1080004984;
   
   protected SynchronizationConfigDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -50,8 +32,10 @@ public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.busines
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String HIERARCHY = "hierarchy";
+  public static java.lang.String ISIMPORT = "isImport";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LABEL = "label";
+  public static java.lang.String LASTSYNCHDATE = "lastSynchDate";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
@@ -259,6 +243,43 @@ public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.busines
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(HIERARCHY).getAttributeMdDTO();
   }
   
+  public Boolean getIsImport()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISIMPORT));
+  }
+  
+  public void setIsImport(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(ISIMPORT, "");
+    }
+    else
+    {
+      setValue(ISIMPORT, java.lang.Boolean.toString(value));
+    }
+  }
+  
+  public boolean isIsImportWritable()
+  {
+    return isWritable(ISIMPORT);
+  }
+  
+  public boolean isIsImportReadable()
+  {
+    return isReadable(ISIMPORT);
+  }
+  
+  public boolean isIsImportModified()
+  {
+    return isModified(ISIMPORT);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeBooleanMdDTO getIsImportMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeBooleanMdDTO) getAttributeDTO(ISIMPORT).getAttributeMdDTO();
+  }
+  
   public String getKeyName()
   {
     return getValue(KEYNAME);
@@ -319,6 +340,43 @@ public abstract class SynchronizationConfigDTOBase extends com.runwaysdk.busines
   public final com.runwaysdk.transport.metadata.AttributeLocalCharacterMdDTO getLabelMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeLocalCharacterMdDTO) getAttributeDTO(LABEL).getAttributeMdDTO();
+  }
+  
+  public java.util.Date getLastSynchDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(LASTSYNCHDATE));
+  }
+  
+  public void setLastSynchDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(LASTSYNCHDATE, "");
+    }
+    else
+    {
+      setValue(LASTSYNCHDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
+    }
+  }
+  
+  public boolean isLastSynchDateWritable()
+  {
+    return isWritable(LASTSYNCHDATE);
+  }
+  
+  public boolean isLastSynchDateReadable()
+  {
+    return isReadable(LASTSYNCHDATE);
+  }
+  
+  public boolean isLastSynchDateModified()
+  {
+    return isModified(LASTSYNCHDATE);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeDateTimeMdDTO getLastSynchDateMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeDateTimeMdDTO) getAttributeDTO(LASTSYNCHDATE).getAttributeMdDTO();
   }
   
   public java.util.Date getLastUpdateDate()

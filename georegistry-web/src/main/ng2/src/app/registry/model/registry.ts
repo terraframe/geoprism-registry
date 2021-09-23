@@ -425,26 +425,30 @@ export class HierarchyOverTimeEntryParent {
     goCode?: string;
 }
 
+export class MasterListView {
+    label: string;
+    oid: string;
+    createDate: string;
+    lastUpdateDate: string;
+    isMaster: boolean;
+    write: boolean;
+    read: boolean;
+    visibility: string;
+}
+
 export class MasterListByOrg {
     oid: string;
+	code: string;
     label: string;
     write: boolean;
-    lists: {
-        label: string,
-        oid: string,
-        createDate: string,
-        lastUpdateDate: string,
-        isMaster: boolean,
-        write: boolean,
-        read: boolean,
-        visibility: string
-    }[];
+    lists: MasterListView[];
 }
 
 export class SynchronizationConfig {
     oid?: string;
     type?: string;
     systemLabel?: string;
+	isImport?: boolean;
     organization: string;
     system: string;
     hierarchy: string;

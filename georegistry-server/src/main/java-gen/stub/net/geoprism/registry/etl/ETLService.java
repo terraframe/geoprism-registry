@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -259,19 +259,19 @@ public class ETLService
       {
         cond = cond.OR(loopCond);
       }
-      
-      
-      // If they have permission to an abstract parent type, then they also have permission to all its children.
+
+      // If they have permission to an abstract parent type, then they also have
+      // permission to all its children.
       Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
-      
+
       if (op.isPresent() && op.get().getIsAbstract())
       {
         List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
-        
+
         for (ServerGeoObjectType subType : subTypes)
         {
           Condition superCond = ihq.getGeoObjectTypeCode().EQ(subType.getCode()).AND(ihq.getOrganization().EQ(subType.getOrganization()));
-          
+
           cond = cond.OR(superCond);
         }
       }
@@ -396,6 +396,11 @@ public class ETLService
       jo.addProperty("exportedRecords", eHist.getExportedRecords());
 
       jo.addProperty("stage", eHist.getStage().get(0).name());
+    }
+
+    if (job instanceof DataExportJob)
+    {
+      jo.addProperty("configuration", ( (DataExportJob) job ).getConfigOid());
     }
 
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)

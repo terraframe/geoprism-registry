@@ -49,6 +49,8 @@ public class PublishShapefileJob extends PublishShapefileJobBase
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
     this.getVersion().generateShapefile();
   }
 

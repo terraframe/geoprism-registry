@@ -1,0 +1,15 @@
+<div class="row-holder">
+    <div class="label-holder">
+        <label>
+            <localize key="synchronization.config.implementation"></localize>
+        </label>
+    </div>
+    <div class="holder">
+        <select [(ngModel)]="config.configuration.implementation" name="implementation" required>
+            <option></option>
+            <option *ngFor="let implementation of implementations" [value]="implementation.className">
+                {{implementation.label}}
+            </option>
+        </select>
+    </div>
+</div>

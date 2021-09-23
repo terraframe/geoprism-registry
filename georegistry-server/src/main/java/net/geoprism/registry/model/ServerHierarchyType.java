@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -81,7 +81,7 @@ import net.geoprism.registry.graph.MultipleHierarchyRootsException;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class ServerHierarchyType
+public class ServerHierarchyType implements ServerElement
 {
 
   private HierarchyType      type;
@@ -99,7 +99,7 @@ public class ServerHierarchyType
     this.entityRelationship = entityRelationship;
     this.mdEdge = mdEdge;
   }
-  
+
   private HierarchyNode buildHierarchy(HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
   {
     List<Universal> childUniversals = new LinkedList<Universal>();
@@ -128,11 +128,11 @@ public class ServerHierarchyType
     return parentNode;
 
   }
-  
+
   public void buildHierarchyNodes()
   {
     this.type.clearRootGeoObjectTypes();
-    
+
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
 
     // Copy all of the children to a list so as not to have recursion with open
@@ -148,7 +148,7 @@ public class ServerHierarchyType
     {
       i.close();
     }
-    
+
     for (Universal childUniversal : childUniversals)
     {
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
@@ -236,6 +236,41 @@ public class ServerHierarchyType
   public String getCode()
   {
     return this.type.getCode();
+  }
+
+  public String getProgress()
+  {
+    return this.type.getProgress();
+  }
+
+  public String getAccessConstraints()
+  {
+    return this.type.getAccessConstraints();
+  }
+
+  public String getUseConstraints()
+  {
+    return this.type.getUseConstraints();
+  }
+
+  public String getAcknowledgement()
+  {
+    return this.type.getAcknowledgement();
+  }
+
+  public String getDisclaimer()
+  {
+    return this.type.getDisclaimer();
+  }
+
+  public List<HierarchyNode> getRootGeoObjectTypes()
+  {
+    return this.type.getRootGeoObjectTypes();
+  }
+
+  public MetadataDisplayLabel getDescription()
+  {
+    return this.entityRelationship.getDescription();
   }
 
   public MetadataDisplayLabel getDisplayLabel()
@@ -361,6 +396,11 @@ public class ServerHierarchyType
 
   public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
+    this.addToHierarchy(parentType, childType, true);
+  }
+
+  public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean refresh)
+  {
     if (parentType.getIsAbstract())
     {
       AbstractParentException exception = new AbstractParentException();
@@ -411,7 +451,10 @@ public class ServerHierarchyType
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
-    this.refresh();
+    if (refresh)
+    {
+      this.refresh();
+    }
   }
 
   /**
@@ -916,7 +959,7 @@ public class ServerHierarchyType
   {
     return ServiceFactory.getMetadataCache().getAllHierarchyTypes();
   }
-  
+
   @Override
   public String toString()
   {

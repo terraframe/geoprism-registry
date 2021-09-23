@@ -53,7 +53,7 @@ import net.geoprism.dhis2.dhis2adapter.exception.UnexpectedResponseException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.SyncLevel;
+import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.export.ExportRemoteException;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -79,15 +79,15 @@ public class DHIS2GeoObjectJsonAdapters
 
     private DHIS2TransportServiceIF      dhis2;
 
-    private SyncLevel           syncLevel;
+    private DHIS2SyncLevel           syncLevel;
     
-    private SortedSet<SyncLevel> levels;
+    private SortedSet<DHIS2SyncLevel> levels;
 
     private DHIS2SyncConfig     dhis2Config;
     
     private Date                date;
 
-    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, SyncLevel syncLevel, Date date)
+    public DHIS2Serializer(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, DHIS2SyncLevel syncLevel, Date date)
     {
       this.got = syncLevel.getGeoObjectType();
       this.hierarchyType = dhis2Config.getHierarchy();
@@ -398,7 +398,7 @@ public class DHIS2GeoObjectJsonAdapters
       ParentLoop:
       while (parentLevel >= 0)
       {
-        SyncLevel parentSyncLevel = this.getLevelAtIndex(parentLevel);
+        DHIS2SyncLevel parentSyncLevel = this.getLevelAtIndex(parentLevel);
         
         for (VertexServerGeoObject ancestor : ancestors)
         {
@@ -428,7 +428,7 @@ public class DHIS2GeoObjectJsonAdapters
       
       if (directParentId == null)
       {
-        SyncLevel parentSyncLevel = this.getLevelAtIndex(this.syncLevel.getLevel() - 1);
+        DHIS2SyncLevel parentSyncLevel = this.getLevelAtIndex(this.syncLevel.getLevel() - 1);
         
         NoParentException ex = new NoParentException();
         ex.setSyncLevel(String.valueOf(parentSyncLevel.getLevel()+1));
@@ -464,11 +464,11 @@ public class DHIS2GeoObjectJsonAdapters
 //      this.depth = ancestors.size() + 1;
     }
     
-    private SyncLevel getLevelAtIndex(int i)
+    private DHIS2SyncLevel getLevelAtIndex(int i)
     {
       int j = 0;
       
-      for (SyncLevel level : this.levels)
+      for (DHIS2SyncLevel level : this.levels)
       {
         if (j == i)
         {

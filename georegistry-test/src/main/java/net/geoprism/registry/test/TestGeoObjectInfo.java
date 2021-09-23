@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
@@ -98,7 +98,7 @@ public class TestGeoObjectInfo
     {
       throw new ProgrammingErrorException("This will cause a confusing error downstream. Your code can't have a space in it.");
     }
-    
+
     this.code = code;
     this.displayLabel = code;
     this.geoObjectType = testUni;
@@ -161,6 +161,11 @@ public class TestGeoObjectInfo
     this.defaultValues.put(attr, value);
   }
 
+  public void removeDefaultValue(String attr)
+  {
+    this.defaultValues.remove(attr);
+  }
+
   public Object getDefaultValue(String attr)
   {
     return this.defaultValues.get(attr);
@@ -211,7 +216,10 @@ public class TestGeoObjectInfo
     try
     {
       final WKTReader reader = new WKTReader(new GeometryFactory());
-      return reader.read(this.getWkt());
+
+      Geometry geometry = reader.read(this.getWkt());
+      geometry.setSRID(4326);
+      return geometry;
     }
     catch (ParseException e)
     {
@@ -278,7 +286,7 @@ public class TestGeoObjectInfo
   {
     return this.parents;
   }
-  
+
   public void childTreeNodeAssert(ChildTreeNode tn, List<TestGeoObjectInfo> expectedChildren)
   {
     this.assertEquals(tn.getGeoObject());
