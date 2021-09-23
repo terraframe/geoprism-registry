@@ -55,7 +55,7 @@ export class StabilityPeriodComponent implements OnInit {
         });
 
         let timeline = this.timelines[0];
-        if (timeline.length > 0) {
+        if (timeline && timeline.length > 0) {
             if (this.filterDate != null) {
                 let index = timeline.findIndex(entry => this.dateService.between(this.filterDate, entry.period.startDate, entry.period.endDate));
 
