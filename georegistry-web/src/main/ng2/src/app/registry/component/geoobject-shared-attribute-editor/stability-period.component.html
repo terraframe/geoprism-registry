@@ -12,7 +12,7 @@
       </ng-container>
     </span>
 	  <div *ngFor="let timeline of timelines" style="position: relative;">
-	      <a *ngFor="let entry of timeline" class="timeline-entry" [ngClass]="{'active-timeline-entry': this.activeEntry == null || (this.activeEntry != null && entry.period.startDate === this.activeEntry.period.startDate)}" (click)="onClickTimelineEntry(entry)" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
+	      <a *ngFor="let entry of timeline" class="timeline-entry" [ngClass]="{'active-timeline-entry': this.activeEntry == null || (this.activeEntry != null && entry.period.startDate === this.activeEntry.period.startDate)}" (click)="setActiveTimelineEntry(entry)" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
 	      </a>
 	  </div>
 </div>

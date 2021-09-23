@@ -63,18 +63,18 @@ export class StabilityPeriodComponent implements OnInit {
                     this.activeEntry = timeline[index];
                 }
             } else if (this.latestPeriodIsActive) {
-                this.activeEntry = timeline[timeline.length - 1];
+                this.setActiveTimelineEntry(timeline[timeline.length - 1]);
             }
         }
     }
 
-    onClickTimelineEntry(entry: TimelineEntry) {
-        if (this.activeEntry != null && entry.period.startDate === this.activeEntry.period.startDate) {
+    setActiveTimelineEntry(entry: TimelineEntry, refresh: boolean = true) {
+        if (this.activeEntry != null && entry != null && entry.period.startDate === this.activeEntry.period.startDate) {
             entry = null;
         }
 
         this.activeEntry = entry;
-        this.sharedAttributeEditor.setFilterDate(entry == null ? null : entry.period.startDate);
+        this.sharedAttributeEditor.setFilterDate(entry == null ? null : entry.period.startDate, refresh);
     }
 
     generate() {
@@ -106,6 +106,9 @@ export class StabilityPeriodComponent implements OnInit {
         this.timelines = [] as any;
 
         if (this.periods.length === 0) {
+            return;
+        } else if (this.periods.length === 1) {
+            this.setActiveTimelineEntry(null, false);
             return;
         }
 
@@ -153,7 +156,7 @@ export class StabilityPeriodComponent implements OnInit {
             }
         }
 
-        console.log(this.timelines);
+        // console.log(this.timelines);
     }
 
     generatePeriods() {

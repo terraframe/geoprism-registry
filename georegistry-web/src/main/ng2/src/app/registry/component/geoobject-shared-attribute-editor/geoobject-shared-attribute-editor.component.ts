@@ -152,10 +152,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
     }
 
-    setFilterDate(date: string) {
+    setFilterDate(date: string, refresh: boolean = true) {
         this.filterDate = date;
 
-        this.manageVersions.forEach(manageVersion => manageVersion.refresh(this.filterDate));
+        if (this.manageVersions != null) {
+            this.manageVersions.forEach(manageVersion => manageVersion.setFilterDate(this.filterDate, refresh));
+        }
     }
 
     getChangeRequestEditor(): ChangeRequestEditor {

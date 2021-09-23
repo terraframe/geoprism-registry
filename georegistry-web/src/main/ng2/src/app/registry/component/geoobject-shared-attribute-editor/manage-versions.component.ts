@@ -122,9 +122,11 @@ export class ManageVersionsComponent implements OnInit {
         }
     }
 
-    refresh(filterDate: string): void {
+    setFilterDate(filterDate: string, refresh: boolean = true): void {
         this.filterDate = filterDate;
-        this.calculateViewModels();
+        if (refresh) {
+            this.calculateViewModels();
+        }
     }
 
     checkDateFieldValidity(): boolean {
