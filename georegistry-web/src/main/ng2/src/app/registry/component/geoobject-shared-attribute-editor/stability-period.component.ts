@@ -45,6 +45,8 @@ export class StabilityPeriodComponent implements OnInit {
 
     activeEntry: TimelineEntry = null;
 
+    private infinityDayPadding: number = 15;
+
     constructor(private lService: LocalizationService, public dateService: DateService) {}
 
     ngOnInit(): void {
@@ -93,7 +95,11 @@ export class StabilityPeriodComponent implements OnInit {
             startDay = this.dateService.getDateFromDateString(this.periods[0].startDate).getTime() / (1000 * 60 * 60 * 24);
 
             if (this.periods[this.periods.length - 1].endDate === "5000-12-31") {
-                endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].startDate).getTime() / (1000 * 60 * 60 * 24) + 15;
+                endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].startDate).getTime() / (1000 * 60 * 60 * 24);
+
+                this.infinityDayPadding = (endDay - startDay) * 0.05;
+
+                endDay = this.infinityDayPadding + endDay;
             } else {
                 endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].endDate).getTime() / (1000 * 60 * 60 * 24);
             }
@@ -128,7 +134,7 @@ export class StabilityPeriodComponent implements OnInit {
             let startDay = start.getTime() / (1000 * 60 * 60 * 24);
             let endDay = end.getTime() / (1000 * 60 * 60 * 24);
             if (period.endDate === "5000-12-31") {
-                endDay = startDay + 15;
+                endDay = startDay + this.infinityDayPadding;
             }
 
             let daysInPeriod: number = (endDay - startDay);
