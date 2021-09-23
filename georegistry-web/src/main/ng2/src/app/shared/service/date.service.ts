@@ -189,12 +189,12 @@ export class DateService {
         return hasConflict;
     }
 
-    public between(test: string, startDate: string, endDate: string) {
+    public between(test: string | Date, startDate: string, endDate: string) {
         if (test == null || startDate == null || endDate == null) {
             return false;
         }
 
-        let dTest: Date = this.getDateFromDateString(test);
+        let dTest: Date = test instanceof Date ? test : this.getDateFromDateString(test);
         let dStart: Date = this.getDateFromDateString(startDate);
         let dEnd: Date = this.getDateFromDateString(endDate);
 

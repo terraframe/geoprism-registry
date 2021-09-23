@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 
-import { AttributeType, TimeRangeEntry } from "@registry/model/registry";
+import { TimeRangeEntry } from "@registry/model/registry";
 import { LocalizationService } from "@shared/service";
 import { DateService } from "@shared/service/date.service";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
@@ -15,6 +15,8 @@ export interface DateBoundary {
     isStart: boolean;
 
 }
+
+export interface TimelineEntry { width: number, x: number, period: TimeRangeEntry }
 
 /*
  * This component is shared between:
@@ -33,13 +35,17 @@ export class StabilityPeriodComponent implements OnInit {
 
     @Input() sharedAttributeEditor: GeoObjectSharedAttributeEditorComponent;
 
+    @Input() filterDate: string;
+
+    @Input() latestPeriodIsActive: boolean = false;
+
     periods: TimeRangeEntry[] = [];
 
-    timelines: [[{ width: number, x: number, period: TimeRangeEntry }]];
+    timelines: [[TimelineEntry]];
 
-    activeEntry: any = null;
+    activeEntry: TimelineEntry = null;
 
-    constructor(private lService: LocalizationService, private dateService: DateService) {}
+    constructor(private lService: LocalizationService, public dateService: DateService) {}
 
     ngOnInit(): void {
         this.generate();
@@ -47,9 +53,22 @@ export class StabilityPeriodComponent implements OnInit {
         this.changeRequestEditor.onChangeSubject.subscribe(() => {
             this.generate();
         });
+
+        let timeline = this.timelines[0];
+        if (timeline.length > 0) {
+            if (this.filterDate != null) {
+                let index = timeline.findIndex(entry => this.dateService.between(this.filterDate, entry.period.startDate, entry.period.endDate));
+
+                if (index !== -1) {
+                    this.activeEntry = timeline[index];
+                }
+            } else if (this.latestPeriodIsActive) {
+                this.activeEntry = timeline[timeline.length - 1];
+            }
+        }
     }
 
-    onClickTimelineEntry(entry: any) {
+    onClickTimelineEntry(entry: TimelineEntry) {
         if (this.activeEntry != null && entry.period.startDate === this.activeEntry.period.startDate) {
             entry = null;
         }
@@ -112,17 +131,17 @@ export class StabilityPeriodComponent implements OnInit {
             let daysInPeriod: number = (endDay - startDay);
             if (daysLeft - daysInPeriod < 0) {
                 let daysInFirstEntry = daysLeft;
-                let timelineEntry1 = { width: (daysInFirstEntry / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                let timelineEntry1: TimelineEntry = { width: (daysInFirstEntry / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry1);
 
                 currentTimeline = [];
                 this.timelines.push(currentTimeline);
                 daysLeft = dataSpan.span;
 
-                let timelineEntry2 = { width: ((daysInPeriod - daysInFirstEntry) / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                let timelineEntry2: TimelineEntry = { width: ((daysInPeriod - daysInFirstEntry) / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry2);
             } else {
-                let timelineEntry = { width: (daysInPeriod / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                let timelineEntry: TimelineEntry = { width: (daysInPeriod / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry);
                 daysLeft = daysLeft - daysInPeriod;
 

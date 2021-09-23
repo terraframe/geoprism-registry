@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import {
     trigger,
@@ -17,10 +17,7 @@ import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTim
 import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
 import { ChangeRequestEditor } from "./change-request-editor";
-import { ChangeDetectorRef } from "@angular/core";
-import { ViewChildren } from "@angular/core";
 import { ManageVersionsComponent } from "./manage-versions.component";
-import { QueryList } from "@angular/core";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -93,7 +90,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
 
-    filterDate: string = null;
+    @Input() filterDate: string = null;
 
     // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
@@ -106,7 +103,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     public geometryAttributeType: AttributeType;
 
-    constructor(private cd: ChangeDetectorRef, private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
+    showStabilityPeriods = false;
+
+    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
         this.isContributorOnly = this.authService.isContributerOnly();
     }
 
@@ -143,16 +142,20 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         if (this.shouldForceSetExist()) {
             this.changePage(3);
         }
+
+        if (this.isNew) {
+            this.filterDate = null;
+        }
+
+        let got = this.changeRequest.current ? this.changeRequest.current.geoObjectType : this.postGeoObject.geoObjectType;
+        let orgCode = got.organizationCode;
+        this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
     }
 
     setFilterDate(date: string) {
         this.filterDate = date;
 
         this.manageVersions.forEach(manageVersion => manageVersion.refresh(this.filterDate));
-
-        //let currentTab = this.tabIndex;
-        //this.changePage(-1);
-        //setTimeout(() => { this.changePage(currentTab); }, 0);
     }
 
     getChangeRequestEditor(): ChangeRequestEditor {

@@ -5,14 +5,21 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="manage.versions.stabilityPeriodsTitle" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Stability Periods" />
+          <attribute name="defaultLocale" value="Geo-Object History" />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.viewingPeriod">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="manage.versions.viewingPeriod" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Viewing Period" />
+          <attribute name="defaultLocale" value="Viewing" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.viewingAll">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="manage.versions.viewingAll" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Viewing All" />
         </attributeStruct>
       </object>
     </createOrUpdate>

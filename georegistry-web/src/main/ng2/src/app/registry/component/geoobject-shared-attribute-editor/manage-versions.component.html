@@ -207,7 +207,7 @@
 	                                  <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
 	                                </h5>
 	                            
-	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
+	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
 	                                  <p class="warning-text display-current-value">
@@ -222,7 +222,7 @@
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
 	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
-	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE'" ></date-field>
+	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" ></date-field>
 	                    
 	                                  <!--
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">
@@ -244,7 +244,7 @@
 	                          
 	                        </td>
 	                        
-	                        <td *ngIf="!readonly && (!this.isNew || attributeType.code !== 'exists')" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
+	                        <td *ngIf="!readonly && (!this.isNew || attributeType.code !== 'exists') && (filterDate == null || viewModel.summaryKey !== 'UNMODIFIED')" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
 	                          <i class="fa" [class]="{'fa-times' : viewModel.summaryKey === 'UNMODIFIED', 'fa-undo' : viewModel.summaryKey !== 'UNMODIFIED'}" ></i>
 	                        </td>
 	                      </tr>
@@ -254,7 +254,7 @@
                 </div>
               </li>
               
-              <li *ngIf="!readonly && !isRootOfHierarchy && (!this.isNew || attributeType.code !== 'exists')" class="list-group-item" style="text-align: left;">
+              <li *ngIf="!readonly && !isRootOfHierarchy && (!this.isNew || attributeType.code !== 'exists') && filterDate == null" class="list-group-item" style="text-align: left;">
                 <i class="fa fa-plus clickable" (click)="onAddNewVersion()"> 
                   <localize key="changeovertime.manageVersions.newVersion"></localize>
                 </i>
