@@ -205,10 +205,10 @@ export class StabilityPeriodComponent implements OnInit {
                     let period: ValueOverTimeCREditor = values[j];
 
                     if (period.startDate != null && period.endDate != null && !period.isDelete()) {
-                        if (boundaries.findIndex(boundary => period.startDate === boundary.date) === -1) {
+                        if (boundaries.findIndex(boundary => period.startDate === boundary.date && boundary.isStart) === -1) {
                             boundaries.push({ date: period.startDate, isStart: true });
                         }
-                        if (boundaries.findIndex(boundary => period.endDate === boundary.date) === -1) {
+                        if (boundaries.findIndex(boundary => period.endDate === boundary.date && !boundary.isStart) === -1) {
                             boundaries.push({ date: period.endDate, isStart: false });
                         }
                     }
