@@ -115,7 +115,7 @@ export class StabilityPeriodComponent implements OnInit {
 
         if (this.periods.length > 0) {
             startDate = this.periods[0].startDate;
-            endDate = this.dateService.formatDateForDisplay(this.periods[this.periods.length - 1].endDate);
+            endDate = this.periods[this.periods.length - 1].endDate;
 
             startDay = this.dateService.getDateFromDateString(startDate).getTime() / (1000 * 60 * 60 * 24);
 
@@ -239,9 +239,12 @@ export class StabilityPeriodComponent implements OnInit {
             // If there is data in this range
             if (current.isStart || this.hasDataAtDate(this.dateService.addDay(1, current.date))) {
                 let startDate = (current.isStart ? current.date : this.dateService.addDay(1, current.date));
-                let endDate = (!next.isStart ? next.date : this.dateService.addDay(-1, next.date));
 
-                this.periods.push({ startDate: startDate, endDate: endDate });
+                if (!(next.isStart && startDate === next.date)) {
+                    let endDate = (!next.isStart ? next.date : this.dateService.addDay(-1, next.date));
+
+                    this.periods.push({ startDate: startDate, endDate: endDate });
+                }
             }
         }
 
