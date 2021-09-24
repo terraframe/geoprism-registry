@@ -236,8 +236,7 @@ export class StabilityPeriodComponent implements OnInit {
             let current: DateBoundary = boundaries[i];
             let next: DateBoundary = boundaries[i + 1];
 
-            // If there is data in this range
-            if (current.isStart || this.hasDataAtDate(this.dateService.addDay(1, current.date))) {
+            if (current.isStart && this.changeRequestEditor.existsAtDate(this.dateService.addDay(1, current.date))) {
                 let startDate = (current.isStart ? current.date : this.dateService.addDay(1, current.date));
 
                 if (!(next.isStart && startDate === next.date)) {
@@ -249,30 +248,6 @@ export class StabilityPeriodComponent implements OnInit {
         }
 
         this.dateService.sort(this.periods);
-    }
-
-    hasDataAtDate(date: string): boolean {
-        let editors: (ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel)[] = this.changeRequestEditor.getEditors();
-        let len = editors.length;
-
-        for (let i = 0; i < len; ++i) {
-            if (editors[i] instanceof ChangeRequestChangeOverTimeAttributeEditor) {
-                let editor: ChangeRequestChangeOverTimeAttributeEditor = editors[i] as ChangeRequestChangeOverTimeAttributeEditor;
-
-                let values = editor.getEditors();
-
-                let valLen = values.length;
-                for (let j = 0; j < valLen; ++j) {
-                    let period: TimeRangeEntry = values[j];
-
-                    if (period.startDate != null && period.endDate != null && this.dateService.between(date, period.startDate, period.endDate)) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
     }
 
     formatDate(date: string): string {
