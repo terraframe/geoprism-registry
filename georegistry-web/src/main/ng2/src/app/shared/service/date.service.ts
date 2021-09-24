@@ -39,6 +39,12 @@ export class DateService {
         type: ConflictType.MISSING_REFERENCE
     }
 
+    public startDateLaterEndDate: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("manage.versions.startdate.later.enddate.message"),
+        type: ConflictType.TIME_RANGE
+    };
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private localizationService: LocalizationService) { }
 
@@ -102,6 +108,7 @@ export class DateService {
             range.conflictMessages.delete(this.overlapMessage);
             range.conflictMessages.delete(this.mergeContiguousMessage);
             range.conflictMessages.delete(this.gapMessage);
+            range.conflictMessages.delete(this.startDateLaterEndDate);
         });
 
         // Filter DELETE entries from consideration
@@ -116,11 +123,7 @@ export class DateService {
                 let e1: any = this.getDateFromDateString(h1.endDate);
 
                 if (Utils.dateEndBeforeStart(s1, e1)) {
-                    h1.conflictMessages.add({
-                        severity: "ERROR",
-                        message: this.localizationService.decode("manage.versions.startdate.later.enddate.message"),
-                        type: ConflictType.TIME_RANGE
-                    } as ConflictMessage);
+                    h1.conflictMessages.add(this.startDateLaterEndDate);
 
                     hasConflict = true;
                 }
