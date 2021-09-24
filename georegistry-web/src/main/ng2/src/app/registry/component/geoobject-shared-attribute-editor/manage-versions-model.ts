@@ -4,7 +4,7 @@ import { ValueOverTimeDiff, SummaryKey } from "@registry/model/crtable";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 import { LayerColor } from "@registry/model/constants";
 import { LocalizedValue } from "@shared/model/core";
-import { AttributeTermType, Term } from "@registry/model/registry";
+import { AttributeTermType, ConflictMessage, Term } from "@registry/model/registry";
 
 export class Layer {
 
@@ -241,6 +241,26 @@ export class VersionDiffView {
 
   private localizeSummaryKey(): void {
       this.summaryKeyLocalized = this.component.lService.decode("changeovertime.manageVersions.summaryKey." + this.summaryKeyData);
+  }
+
+  private conflictMessagesHasSeverity(severity: string) {
+      let has = false;
+
+      this.editor.conflictMessages.forEach(msg => {
+          if (msg.severity === severity) {
+              has = true;
+          }
+      });
+
+      return has;
+  }
+
+  hasError(): boolean {
+      return this.editor.conflictMessages && this.editor.conflictMessages.size > 0 && this.conflictMessagesHasSeverity("ERROR");
+  }
+
+  hasWarning(): boolean {
+      return !this.hasError() && this.editor.conflictMessages && this.editor.conflictMessages.size > 0 && this.conflictMessagesHasSeverity("WARNING");
   }
 
 }

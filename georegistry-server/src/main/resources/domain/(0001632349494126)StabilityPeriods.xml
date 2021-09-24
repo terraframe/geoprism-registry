@@ -1,23 +1,23 @@
 <version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
     <createOrUpdate>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.stabilityPeriodsTitle">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.historyTitle">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="manage.versions.stabilityPeriodsTitle" />
+        <attribute name="storeKey" value="manage.versions.historyTitle" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Geo-Object History" />
+          <attribute name="defaultLocale" value="History" />
         </attributeStruct>
       </object>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.viewingPeriod">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewAll">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="manage.versions.viewingPeriod" />
+        <attribute name="storeKey" value="manage.versions.history.viewAll" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="Viewing" />
+          <attribute name="defaultLocale" value="view all" />
         </attributeStruct>
       </object>
-      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.viewingAll">
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewingAll">
         <attribute name="storeTag" value="UIText" />
-        <attribute name="storeKey" value="manage.versions.viewingAll" />
+        <attribute name="storeKey" value="manage.versions.history.viewingAll" />
         <attributeStruct name="storeValue">
           <attribute name="defaultLocale" value="Viewing All" />
         </attributeStruct>

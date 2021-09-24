@@ -9,14 +9,11 @@ import { GeoObjectSharedAttributeEditorComponent } from "./geoobject-shared-attr
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 
-export interface DateBoundary {
-
-    date: string;
-    isStart: boolean;
-
-}
+export interface DateBoundary { date: string; isStart: boolean; }
 
 export interface TimelineEntry { width: number, x: number, period: TimeRangeEntry }
+
+export interface DataTimeSpan {startDay: number, startDate: string, displayStartDate: string, endDay: number, endDate: string, displayEndDate: string, span: number}
 
 /*
  * This component is shared between:
@@ -41,11 +38,13 @@ export class StabilityPeriodComponent implements OnInit {
 
     periods: TimeRangeEntry[] = [];
 
-    timelines: [[TimelineEntry]];
+    timelines: [TimelineEntry[]];
 
     activeEntry: TimelineEntry = null;
 
     private infinityDayPadding: number = 15;
+
+    dataTimeSpan: DataTimeSpan = null;
 
     constructor(private lService: LocalizationService, public dateService: DateService) {}
 
@@ -70,6 +69,30 @@ export class StabilityPeriodComponent implements OnInit {
         }
     }
 
+    navigateRelative(amount: number) {
+        let timeline: TimelineEntry[] = this.timelines[0];
+        if (timeline == null || timeline.length === 0) { return; }
+
+        if (this.activeEntry == null) {
+            this.setActiveTimelineEntry(timeline[0]);
+            return;
+        }
+
+        let index = timeline.findIndex(entry => entry.period.startDate === this.activeEntry.period.startDate);
+
+        if (index !== -1) {
+            let nextIndex = index + amount;
+
+            if (nextIndex < 0) {
+                nextIndex = timeline.length - 1;
+            } else if (nextIndex >= timeline.length) {
+                nextIndex = 0;
+            }
+
+            this.setActiveTimelineEntry(timeline[nextIndex]);
+        }
+    }
+
     setActiveTimelineEntry(entry: TimelineEntry, refresh: boolean = true) {
         if (this.activeEntry != null && entry != null && entry.period.startDate === this.activeEntry.period.startDate) {
             entry = null;
@@ -84,28 +107,28 @@ export class StabilityPeriodComponent implements OnInit {
         this.generateTimelines();
     }
 
-    calculateDataTimeSpan(): {startDay: number, endDay: number, span: number} {
-        let startDay: number = null;
+    calculateDataTimeSpan(): void {
+        let startDate: string = null;
+        let endDate: string = null;
         let endDay: number = null;
+        let startDay: number = null;
 
-        if (this.periods.length === 1) {
-            startDay = this.dateService.getDateFromDateString(this.periods[0].startDate).getTime() / (1000 * 60 * 60 * 24);
-            endDay = this.dateService.getDateFromDateString(this.periods[0].endDate).getTime() / (1000 * 60 * 60 * 24);
-        } else {
-            startDay = this.dateService.getDateFromDateString(this.periods[0].startDate).getTime() / (1000 * 60 * 60 * 24);
+        if (this.periods.length > 0) {
+            startDate = this.periods[0].startDate;
+            endDate = this.dateService.formatDateForDisplay(this.periods[this.periods.length - 1].endDate);
 
-            if (this.periods[this.periods.length - 1].endDate === "5000-12-31") {
+            startDay = this.dateService.getDateFromDateString(startDate).getTime() / (1000 * 60 * 60 * 24);
+
+            if (endDate === "5000-12-31") {
                 endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].startDate).getTime() / (1000 * 60 * 60 * 24);
-
                 this.infinityDayPadding = (endDay - startDay) * 0.05;
-
                 endDay = this.infinityDayPadding + endDay;
             } else {
-                endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].endDate).getTime() / (1000 * 60 * 60 * 24);
+                endDay = this.dateService.getDateFromDateString(endDate).getTime() / (1000 * 60 * 60 * 24);
             }
         }
 
-        return { startDay: startDay, endDay: endDay, span: (endDay - startDay) };
+        this.dataTimeSpan = { startDay: startDay, startDate: startDate, displayStartDate: this.dateService.formatDateForDisplay(startDate), endDay: endDay, endDate: endDate, displayEndDate: this.dateService.formatDateForDisplay(endDate), span: (endDay - startDay) };
     }
 
     generateTimelines() {
@@ -118,11 +141,11 @@ export class StabilityPeriodComponent implements OnInit {
             return;
         }
 
-        let dataSpan: {startDay: number, endDay: number, span: number} = this.calculateDataTimeSpan();
+        this.calculateDataTimeSpan();
 
         let currentTimeline: any = [];
         this.timelines.push(currentTimeline);
-        let daysLeft = dataSpan.span;
+        let daysLeft = this.dataTimeSpan.span;
 
         let len = this.periods.length;
         for (let i = 0; i < len; ++i) {
@@ -140,24 +163,24 @@ export class StabilityPeriodComponent implements OnInit {
             let daysInPeriod: number = (endDay - startDay);
             if (daysLeft - daysInPeriod < 0) {
                 let daysInFirstEntry = daysLeft;
-                let timelineEntry1: TimelineEntry = { width: (daysInFirstEntry / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                let timelineEntry1: TimelineEntry = { width: (daysInFirstEntry / this.dataTimeSpan.span) * 100, x: ((startDay - this.dataTimeSpan.startDay) / this.dataTimeSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry1);
 
                 currentTimeline = [];
                 this.timelines.push(currentTimeline);
-                daysLeft = dataSpan.span;
+                daysLeft = this.dataTimeSpan.span;
 
-                let timelineEntry2: TimelineEntry = { width: ((daysInPeriod - daysInFirstEntry) / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                let timelineEntry2: TimelineEntry = { width: ((daysInPeriod - daysInFirstEntry) / this.dataTimeSpan.span) * 100, x: ((startDay - this.dataTimeSpan.startDay) / this.dataTimeSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry2);
             } else {
-                let timelineEntry: TimelineEntry = { width: (daysInPeriod / dataSpan.span) * 100, x: ((startDay - dataSpan.startDay) / dataSpan.span) * 100, period: period };
+                let timelineEntry: TimelineEntry = { width: (daysInPeriod / this.dataTimeSpan.span) * 100, x: ((startDay - this.dataTimeSpan.startDay) / this.dataTimeSpan.span) * 100, period: period };
                 currentTimeline.push(timelineEntry);
                 daysLeft = daysLeft - daysInPeriod;
 
                 if (daysLeft === 0) {
                     currentTimeline = [];
                     this.timelines.push(currentTimeline);
-                    daysLeft = dataSpan.span;
+                    daysLeft = this.dataTimeSpan.span;
                 }
             }
         }

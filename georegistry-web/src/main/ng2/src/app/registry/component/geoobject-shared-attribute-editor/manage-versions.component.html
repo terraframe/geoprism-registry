@@ -27,10 +27,10 @@
                       <ng-container *ngIf="!isRootOfHierarchy">
                         <!-- TODO : Fade in out disabled because it doesn't work all that well with stability periods   @fadeInOut -->
 	                      <tr  *ngFor="let viewModel of viewModels; let i = index;" class="version-row"
-	                          [ngClass]="{'error-border': viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0 && viewModel.editor.conflictMessage[0].severity === 'ERROR',
-	                          'warning-border': viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0 && viewModel.editor.conflictMessage[0].severity === 'WARNING',
-	                          'geometry-edit-active' : (viewModel.newLayer && viewModel.newLayer.isEditing) }">
-                            <td class="version-column-wrapper" [ngClass]="{'warning' : viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'}" >
+	                          [ngClass]="{ 'geometry-edit-active' : (viewModel.newLayer && viewModel.newLayer.isEditing) }">
+                            <td class="version-column-wrapper" [ngClass]="{'error-border': viewModel.hasError(),
+                            'warning-border': viewModel.hasWarning(),
+                            'warning' : viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'}" >
 	                          <div *ngIf="viewModel.summaryKey && viewModel.summaryKey !== 'UNMODIFIED'" class="version-column-indicator">
                                 {{viewModel.summaryKeyLocalized}}
                               </div>
@@ -235,8 +235,8 @@
 	                                </div>
 	                              </td>
 	                            </tr>
-	                            <tr *ngIf="viewModel.editor.conflictMessage && viewModel.editor.conflictMessage.length > 0">
-	                              <p *ngFor="let msg of viewModel.editor.conflictMessage" [ngClass]="{'error-message': msg.severity === 'ERROR', 'warning-message': msg.severity === 'WARNING'}" >
+	                            <tr *ngIf="viewModel.editor.conflictMessages && viewModel.editor.conflictMessages.size > 0">
+	                              <p *ngFor="let msg of viewModel.editor.conflictMessages" [ngClass]="{'error-message': msg.severity === 'ERROR', 'warning-message': msg.severity === 'WARNING'}" >
 	                                {{msg.message}}
 	                              </p>
 	                            </tr>

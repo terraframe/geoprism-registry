@@ -1,4 +1,4 @@
-import { ValueOverTime, AttributeType, TimeRangeEntry } from "@registry/model/registry";
+import { ValueOverTime, AttributeType, TimeRangeEntry, ConflictMessage } from "@registry/model/registry";
 import { CreateGeoObjectAction, UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff } from "@registry/model/crtable";
 import { v4 as uuid } from "uuid";
 // eslint-disable-next-line camelcase
@@ -16,7 +16,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     action: AbstractAction;
     changeRequestAttributeEditor: ChangeRequestChangeOverTimeAttributeEditor;
     attr: AttributeType;
-    conflictMessage: any;
+    conflictMessages: Set<ConflictMessage>;
 
     onChangeSubject : Subject<any> = new Subject<any>();
 
@@ -60,15 +60,13 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
      * If we're referencing an existing value over time, that object should exist on our GeoObject (which represents the current state of the database)
      */
     validateUpdateReference() {
-        if (!this.conflictMessage) {
-            this.conflictMessage = [];
+        let missingReference = this.changeRequestAttributeEditor.changeRequestEditor.dateService.missingReference;
+
+        if (!this.conflictMessages) {
+            this.conflictMessages = new Set();
         }
 
-        for (let i = this.conflictMessage.length - 1; i >= 0; --i) {
-            if (this.conflictMessage[i].type === ConflictType.MISSING_REFERENCE) {
-                this.conflictMessage.splice(i, 1);
-            }
-        }
+        this.conflictMessages.delete(missingReference);
 
         if (this.changeRequestAttributeEditor.changeRequestEditor.changeRequest.type === "UpdateGeoObject" && this.diff != null && this.diff.action !== "CREATE") {
             let existingVot = this.findExistingValueOverTimeByOid(this.diff.oid, this.attr.code);
@@ -76,11 +74,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             if (existingVot == null) {
                 this._isValid = false;
 
-                this.conflictMessage.push({
-                    severity: "ERROR",
-                    message: this.changeRequestAttributeEditor.changeRequestEditor.localizationService.decode("changeovertime.manageVersions.missingReference"),
-                    type: ConflictType.MISSING_REFERENCE
-                });
+                this.conflictMessages.add(missingReference);
             }
         }
     }
