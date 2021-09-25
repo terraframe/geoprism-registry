@@ -9,7 +9,7 @@ import { GeoObjectSharedAttributeEditorComponent } from "./geoobject-shared-attr
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
 import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 
-export interface DateBoundary { date: string; isStart: boolean; }
+export interface DateBoundary { date: string; isStart: boolean; isEnd: boolean }
 
 export interface TimelineEntry { width: number, x: number, period: TimeRangeEntry }
 
@@ -205,11 +205,18 @@ export class StabilityPeriodComponent implements OnInit {
                     let period: ValueOverTimeCREditor = values[j];
 
                     if (period.startDate != null && period.endDate != null && !period.isDelete()) {
-                        if (boundaries.findIndex(boundary => period.startDate === boundary.date && boundary.isStart) === -1) {
-                            boundaries.push({ date: period.startDate, isStart: true });
+                        let startIndex = boundaries.findIndex(boundary => period.startDate === boundary.date);
+                        if (startIndex !== -1) {
+                            boundaries[startIndex].isStart = true;
+                        } else {
+                            boundaries.push({ date: period.startDate, isStart: true, isEnd: false });
                         }
-                        if (boundaries.findIndex(boundary => period.endDate === boundary.date && !boundary.isStart) === -1) {
-                            boundaries.push({ date: period.endDate, isStart: false });
+
+                        let endIndex = boundaries.findIndex(boundary => period.endDate === boundary.date);
+                        if (endIndex !== -1) {
+                            boundaries[endIndex].isEnd = true;
+                        } else {
+                            boundaries.push({ date: period.endDate, isStart: false, isEnd: true });
                         }
                     }
                 }
@@ -231,19 +238,29 @@ export class StabilityPeriodComponent implements OnInit {
 
         // Loop over the boundaries and create versions between all the boundaries, but only if there is data between them
         this.periods = [];
-        let dlen = boundaries.length - 1;
+        let dlen = boundaries.length;
         for (let i = 0; i < dlen; ++i) {
             let current: DateBoundary = boundaries[i];
-            let next: DateBoundary = boundaries[i + 1];
+            let next: DateBoundary = i + 1 > dlen ? null : boundaries[i + 1];
 
-            if (current.isStart && this.changeRequestEditor.existsAtDate(this.dateService.addDay(1, current.date))) {
-                let startDate = (current.isStart ? current.date : this.dateService.addDay(1, current.date));
+            if (current.isEnd && (next != null && next.isStart && this.dateService.addDay(1, current.date) === next.date)) {
+                continue;
+            }
 
-                if (!(next.isStart && startDate === next.date)) {
-                    let endDate = (!next.isStart ? next.date : this.dateService.addDay(-1, next.date));
+            let startDate = (current.isStart ? current.date : this.dateService.addDay(1, current.date));
 
-                    this.periods.push({ startDate: startDate, endDate: endDate });
+            if (this.changeRequestEditor.existsAtDate(startDate)) {
+                let endDate;
+
+                if ((current.isStart && current.isEnd) || next == null) {
+                    endDate = current.date;
+
+                    // TODO : We need to create a period here to the next boundary.
+                } else {
+                    endDate = (!next.isStart ? next.date : this.dateService.addDay(-1, next.date));
                 }
+
+                this.periods.push({ startDate: startDate, endDate: endDate });
             }
         }
 

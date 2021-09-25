@@ -4,7 +4,6 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
 import { GovernanceStatus, ConflictType } from "./constants";
-import { SummaryKey } from "./crtable";
 import Utils from "@registry/utility/Utils";
 
 export const PRESENT: string = "5000-12-31";
@@ -438,7 +437,7 @@ export class MasterListView {
 
 export class MasterListByOrg {
     oid: string;
-	code: string;
+    code: string;
     label: string;
     write: boolean;
     lists: MasterListView[];
@@ -448,7 +447,7 @@ export class SynchronizationConfig {
     oid?: string;
     type?: string;
     systemLabel?: string;
-	isImport?: boolean;
+    isImport?: boolean;
     organization: string;
     system: string;
     hierarchy: string;
