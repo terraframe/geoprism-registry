@@ -142,7 +142,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     
     try
     {
-      MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson);
+      MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson, null);
 
       return exporter.export();
     }
