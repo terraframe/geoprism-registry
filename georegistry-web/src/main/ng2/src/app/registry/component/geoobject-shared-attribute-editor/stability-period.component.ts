@@ -243,22 +243,17 @@ export class StabilityPeriodComponent implements OnInit {
             let current: DateBoundary = boundaries[i];
             let next: DateBoundary = i + 1 > dlen ? null : boundaries[i + 1];
 
+            if (current.isStart && current.isEnd) {
+                this.periods.push({ startDate: current.date, endDate: current.date });
+            }
             if (current.isEnd && (next != null && next.isStart && this.dateService.addDay(1, current.date) === next.date)) {
                 continue;
             }
 
-            let startDate = (current.isStart ? current.date : this.dateService.addDay(1, current.date));
+            let startDate = (current.isEnd ? this.dateService.addDay(1, current.date) : current.date);
 
-            if (this.changeRequestEditor.existsAtDate(startDate)) {
-                let endDate;
-
-                if ((current.isStart && current.isEnd) || next == null) {
-                    endDate = current.date;
-
-                    // TODO : We need to create a period here to the next boundary.
-                } else {
-                    endDate = (!next.isStart ? next.date : this.dateService.addDay(-1, next.date));
-                }
+            if (next != null && this.changeRequestEditor.existsAtDate(startDate)) {
+                let endDate = (!next.isStart ? next.date : this.dateService.addDay(-1, next.date));
 
                 this.periods.push({ startDate: startDate, endDate: endDate });
             }
