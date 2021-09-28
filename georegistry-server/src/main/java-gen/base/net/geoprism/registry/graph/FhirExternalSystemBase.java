@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = 816558371)
+@com.runwaysdk.business.ClassSignature(hash = 1528495806)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,13 +11,65 @@ package net.geoprism.registry.graph;
 public abstract class FhirExternalSystemBase extends net.geoprism.registry.graph.ExternalSystem
 {
   public final static String CLASS = "net.geoprism.registry.graph.FhirExternalSystem";
+  public static java.lang.String OAUTHSERVER = "oauthServer";
+  public static java.lang.String PASSWORD = "password";
   public static java.lang.String SYSTEM = "system";
   public static java.lang.String URL = "url";
-  private static final long serialVersionUID = 816558371;
+  public static java.lang.String USERNAME = "username";
+  private static final long serialVersionUID = 1528495806;
   
   public FhirExternalSystemBase()
   {
     super();
+  }
+  
+  public net.geoprism.account.OauthServer getOauthServer()
+  {
+    if (this.getObjectValue(OAUTHSERVER) == null)
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.account.OauthServer.get( (String) this.getObjectValue(OAUTHSERVER));
+    }
+  }
+  
+  public String getOauthServerOid()
+  {
+    return (String) this.getObjectValue(OAUTHSERVER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getOauthServerMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.FhirExternalSystem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(OAUTHSERVER);
+  }
+  
+  public void setOauthServer(net.geoprism.account.OauthServer value)
+  {
+    this.setValue(OAUTHSERVER, value.getOid());
+  }
+  
+  public void setOauthServerId(java.lang.String oid)
+  {
+    this.setValue(OAUTHSERVER, oid);
+  }
+  
+  public String getPassword()
+  {
+    return (String) this.getObjectValue(PASSWORD);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getPasswordMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.FhirExternalSystem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(PASSWORD);
+  }
+  
+  public void setPassword(String value)
+  {
+    this.setValue(PASSWORD, value);
   }
   
   public String getSystem()
@@ -50,6 +102,22 @@ public abstract class FhirExternalSystemBase extends net.geoprism.registry.graph
   public void setUrl(String value)
   {
     this.setValue(URL, value);
+  }
+  
+  public String getUsername()
+  {
+    return (String) this.getObjectValue(USERNAME);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getUsernameMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.FhirExternalSystem.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(USERNAME);
+  }
+  
+  public void setUsername(String value)
+  {
+    this.setValue(USERNAME, value);
   }
   
   protected String getDeclaredType()

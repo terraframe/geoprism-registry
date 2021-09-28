@@ -1,0 +1,19 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdVertex name="net.geoprism.registry.graph.FhirExternalSystem">
+        <create>
+          <attributes>
+            <char name="username" label="Username" required="false" size="255" />
+            <char name="password" label="Password" required="false" size="255" />          
+            <reference name="oauthServer" type="net.geoprism.account.OauthServer" label="OAuth Server" required="false" />
+          </attributes>
+        </create>
+      </mdVertex>
+     </update>
+  </doIt>
+  <undoIt>
+    <delete>
+    </delete>
+  </undoIt>
+</version>

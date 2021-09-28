@@ -131,6 +131,9 @@ import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
+import net.geoprism.registry.etl.fhir.BasicFhirConnection;
+import net.geoprism.registry.etl.fhir.FhirConnection;
+import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
 import net.geoprism.registry.etl.fhir.FhirDataPopulator;
 import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.etl.fhir.MasterListFhirExporter;
@@ -251,7 +254,7 @@ public class MasterListVersion extends MasterListVersionBase
     {
       return false;
     }
-    
+
     if (attributeType.getName().equals(DefaultAttribute.EXISTS.getName()))
     {
       return false;
@@ -756,8 +759,9 @@ public class MasterListVersion extends MasterListVersionBase
   public void exportToFhir(FhirExternalSystem system, String implementation)
   {
     FhirDataPopulator populator = FhirFactory.getPopulator(implementation);
+    FhirConnection connection = FhirConnectionFactory.get(system);
 
-    MasterListFhirExporter exporter = new MasterListFhirExporter(this, system, populator, true);
+    MasterListFhirExporter exporter = new MasterListFhirExporter(this, connection, populator, true);
     exporter.export();
   }
 
@@ -808,14 +812,16 @@ public class MasterListVersion extends MasterListVersionBase
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
       mdBusiness.deleteAllRecords();
-      
+
       MdAttributeConcreteDAO status = (MdAttributeConcreteDAO) mdBusiness.definesAttribute("status");
-      if (status != null) {
+      if (status != null)
+      {
         MasterListAttributeGroup.remove(status);
         status.delete();
       }
       MdAttributeConcreteDAO statusDefaultLocale = (MdAttributeConcreteDAO) mdBusiness.definesAttribute("statusDefaultLocale");
-      if (statusDefaultLocale != null) {
+      if (statusDefaultLocale != null)
+      {
         MasterListAttributeGroup.remove(statusDefaultLocale);
         statusDefaultLocale.delete();
       }

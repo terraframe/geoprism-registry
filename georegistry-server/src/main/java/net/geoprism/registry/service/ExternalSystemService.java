@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -35,8 +35,10 @@ import net.geoprism.account.OauthServer;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
+import net.geoprism.registry.etl.OauthExternalSystem;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.view.Page;
 
 public class ExternalSystemService
@@ -55,7 +57,7 @@ public class ExternalSystemService
   {
     return applyInTrans(json);
   }
-  
+
   @Transaction
   private JsonObject applyInTrans(String json)
   {
@@ -63,45 +65,18 @@ public class ExternalSystemService
 
     ExternalSystem system = ExternalSystem.desieralize(jo);
     system.apply();
-    
-    if (system instanceof DHIS2ExternalSystem)
+
+    if (system instanceof OauthExternalSystem)
     {
-      DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
-      
-      if (jo.has(DHIS2ExternalSystem.OAUTH_SERVER) && !jo.get(DHIS2ExternalSystem.OAUTH_SERVER).isJsonNull())
+      OauthExternalSystem oauthSystem = (OauthExternalSystem) system;
+      oauthSystem.updateOauthServer(jo);
+
+      if (system instanceof DHIS2ExternalSystem)
       {
-        Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
-        OauthServer oauth = gson2.fromJson(jo.get(DHIS2ExternalSystem.OAUTH_SERVER), OauthServer.class);
-        
-        OauthServer dbServer = dhis2Sys.getOauthServer();
-        if (dbServer != null)
-        {
-          dbServer.lock();
-          dbServer.populate(oauth);
-          
-          oauth = dbServer;
-        }
-        
-        String systemLabel = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL)).getValue();
-        oauth.getDisplayLabel().setValue(systemLabel);
-        
-        oauth.apply();
-        
-        dhis2Sys.setOauthServer(oauth);
-        dhis2Sys.apply();
+
+        // Test the DHIS2 connection information
+        new DHIS2FeatureService().setExternalSystemDhis2Version((DHIS2ExternalSystem) system);
       }
-      else if (dhis2Sys.getOauthServer() != null)
-      {
-        OauthServer existingOauth = dhis2Sys.getOauthServer();
-        
-        dhis2Sys.setOauthServerId(null);
-        dhis2Sys.apply();
-        
-        existingOauth.delete();
-      }
-      
-      // Test the DHIS2 connection information
-      new DHIS2FeatureService().setExternalSystemDhis2Version(dhis2Sys);
     }
 
     return system.toJSON();
@@ -126,15 +101,15 @@ public class ExternalSystemService
     if (system instanceof DHIS2ExternalSystem)
     {
       DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
-      
+
       if (dhis2Sys.getOauthServer() != null)
       {
         OauthServer dbServer = dhis2Sys.getOauthServer();
-        
+
         dbServer.delete();
       }
     }
-    
+
     system.delete();
   }
 }

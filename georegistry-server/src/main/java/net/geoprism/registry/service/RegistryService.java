@@ -97,13 +97,13 @@ import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
+import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.localization.LocaleView;
 import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.OrganizationMetadata;
 import net.geoprism.registry.model.ServerChildTreeNode;
-import net.geoprism.registry.model.ServerElement;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -117,7 +117,6 @@ import net.geoprism.registry.query.ServerSynonymRestriction;
 import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
-import net.geoprism.registry.xml.XMLImporter;
 
 public class RegistryService
 {
@@ -306,14 +305,20 @@ public class RegistryService
     {
       OauthServer[] servers = OauthServer.getAll();
 
+      // Arrays.asList(servers).stream().filter(s ->
+      // FhirExternalSystem.isFhirOauth() )
+
       for (OauthServer server : servers)
       {
-        JsonObject json = new JsonObject();
+        if (!FhirExternalSystem.isFhirOauth(server))
+        {
+          JsonObject json = new JsonObject();
 
-        json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
-        json.addProperty("url", buildOauthServerUrl(server));
+          json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
+          json.addProperty("url", buildOauthServerUrl(server));
 
-        ja.add(json);
+          ja.add(json);
+        }
       }
     }
     else
@@ -987,7 +992,7 @@ public class RegistryService
 
       StringBuilder statement = new StringBuilder();
       statement.append("select from " + type.getMdVertex().getDBClassName() + " where ");
-      
+
       // Must be a child of parent type
       statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
       if (date != null)
@@ -995,7 +1000,7 @@ public class RegistryService
         statement.append("[:date between startDate AND endDate]");
       }
       statement.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
-      
+
       // Must have display label we expect
       statement.append("AND displayLabel_cot CONTAINS (");
       if (date != null)
@@ -1004,14 +1009,14 @@ public class RegistryService
       }
       statement.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
       statement.append(") ");
-      
+
       // Must not be invalid
       statement.append("AND invalid=false ");
-      
+
       statement.append("ORDER BY location.code ASC LIMIT 10");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-      
+
       if (date != null)
       {
         query.setParameter("date", date);
@@ -1105,7 +1110,7 @@ public class RegistryService
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
     ServerGeoObjectIF go = service.newInstance(type);
-    
+
     go.setInvalid(false);
 
     final GeoObjectOverTime goot = go.toGeoObjectOverTime();

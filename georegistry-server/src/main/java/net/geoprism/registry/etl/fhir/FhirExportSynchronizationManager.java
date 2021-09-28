@@ -70,46 +70,55 @@ public class FhirExportSynchronizationManager
   {
     final FhirExternalSystem system = (FhirExternalSystem) this.config.getSystem();
 
-    SortedSet<FhirSyncLevel> levels = this.config.getLevels();
-
-    int expectedLevel = 0;
-    long exportCount = 0;
-
-    for (FhirSyncLevel level : levels)
+    try (FhirConnection connection = FhirConnectionFactory.get(system))
     {
-      if (level.getLevel() != expectedLevel)
+      SortedSet<FhirSyncLevel> levels = this.config.getLevels();
+
+      int expectedLevel = 0;
+      long exportCount = 0;
+
+      for (FhirSyncLevel level : levels)
       {
-        throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
+        if (level.getLevel() != expectedLevel)
+        {
+          throw new ProgrammingErrorException("Unexpected level number [" + level.getLevel() + "].");
+        }
+
+        history.appLock();
+        history.setWorkProgress((long) expectedLevel);
+        history.setExportedRecords(exportCount);
+        history.apply();
+
+        MasterListVersion version = MasterListVersion.get(level.getVersionId());
+
+        FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
+
+        MasterListFhirExporter exporter = new MasterListFhirExporter(version, connection, populator, true);
+        long results = exporter.export();
+
+        exportCount += results;
+
+        expectedLevel++;
       }
 
       history.appLock();
+      history.setWorkTotal((long) expectedLevel);
       history.setWorkProgress((long) expectedLevel);
       history.setExportedRecords(exportCount);
+      history.clearStage();
+      history.addStage(ExportStage.COMPLETE);
       history.apply();
 
-      MasterListVersion version = MasterListVersion.get(level.getVersionId());
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
 
-      FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
-
-      MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, true);
-      long results = exporter.export();
-
-      exportCount += results;
-
-      expectedLevel++;
+      handleExportErrors();
     }
+    catch (Exception e)
+    {
+      // TODO Change to some sort of connection error message
 
-    history.appLock();
-    history.setWorkTotal((long) expectedLevel);
-    history.setWorkProgress((long) expectedLevel);
-    history.setExportedRecords(exportCount);
-    history.clearStage();
-    history.addStage(ExportStage.COMPLETE);
-    history.apply();
-
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
-
-    handleExportErrors();
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   private void handleExportErrors()
@@ -178,32 +187,41 @@ public class FhirExportSynchronizationManager
 
   public File writeToFile() throws IOException
   {
-    String name = SessionPredicate.generateId();
-
-    File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
-    root.mkdirs();
-
-    Bundle bundle = this.generateBundle();
-
-    FhirContext ctx = FhirContext.forR4();
-    IParser parser = ctx.newJsonParser();
-
-    try
-    {
-      parser.encodeResourceToWriter(bundle, new FileWriter(new File(root, "bundle.json")));
-    }
-    catch (DataFormatException | IOException e)
-    {
-      throw new ProgrammingErrorException(e);
-    }
-
-    return root;
-  }
-
-  public Bundle generateBundle()
-  {
     final FhirExternalSystem system = (FhirExternalSystem) this.config.getSystem();
 
+    try (FhirConnection connection = FhirConnectionFactory.get(system))
+    {
+      String name = SessionPredicate.generateId();
+
+      File root = new File(new File(VaultProperties.getPath("vault.default"), "files"), name);
+      root.mkdirs();
+
+      Bundle bundle = this.generateBundle(connection);
+
+      FhirContext ctx = FhirContext.forR4();
+      IParser parser = ctx.newJsonParser();
+
+      try
+      {
+        parser.encodeResourceToWriter(bundle, new FileWriter(new File(root, "bundle.json")));
+      }
+      catch (DataFormatException | IOException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
+
+      return root;
+    }
+    catch (Exception e)
+    {
+      // TODO Change to some sort of connection error message
+
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
+  public Bundle generateBundle(FhirConnection connection)
+  {
     SortedSet<FhirSyncLevel> levels = this.config.getLevels();
 
     int expectedLevel = 0;
@@ -221,7 +239,7 @@ public class FhirExportSynchronizationManager
 
       FhirDataPopulator populator = FhirFactory.getPopulator(level.getImplementation());
 
-      MasterListFhirExporter exporter = new MasterListFhirExporter(version, system, populator, false);
+      MasterListFhirExporter exporter = new MasterListFhirExporter(version, connection, populator, false);
       exporter.populateBundle(bundle);
 
       expectedLevel++;

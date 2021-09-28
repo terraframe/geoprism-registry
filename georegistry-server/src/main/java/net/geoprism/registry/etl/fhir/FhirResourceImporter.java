@@ -24,7 +24,7 @@ import net.geoprism.registry.graph.FhirExternalSystem;
 
 public class FhirResourceImporter
 {
-  private FhirExternalSystem    system;
+  private FhirConnection        connection;
 
   private FhirResourceProcessor processor;
 
@@ -36,11 +36,11 @@ public class FhirResourceImporter
 
   long                          exportCount = 0;
 
-  public FhirResourceImporter(FhirExternalSystem system, FhirResourceProcessor processor, ExportHistory history, Date since)
+  public FhirResourceImporter(FhirConnection connection, FhirResourceProcessor processor, ExportHistory history, Date since)
   {
     super();
 
-    this.system = system;
+    this.connection = connection;
     this.processor = processor;
     this.history = history;
     this.since = since;
@@ -48,14 +48,9 @@ public class FhirResourceImporter
 
   public void synchronize()
   {
-    this.processor.configure(this.system);
+    this.processor.configure(this.connection.getExternalSystem());
 
-    FhirContext ctx = FhirContext.forR4();
-
-    IRestfulClientFactory factory = ctx.getRestfulClientFactory();
-    factory.setSocketTimeout(-1);
-
-    IGenericClient client = factory.newGenericClient(system.getUrl());
+    IGenericClient client = this.connection.getClient();
 
     Bundle bundle = client.search().forResource(Location.class).lastUpdated(new DateRangeParam(this.since, null)).include(new Include("Location:organization")).returnBundle(Bundle.class).execute();
 
@@ -80,7 +75,7 @@ public class FhirResourceImporter
 
   public void synchronize(Bundle bundle)
   {
-    this.processor.configure(this.system);
+    this.processor.configure(this.connection.getExternalSystem());
 
     process(bundle);
   }

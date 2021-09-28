@@ -27,14 +27,11 @@ import com.runwaysdk.json.RunwayJsonAdapters;
 import net.geoprism.account.OauthServer;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.OauthExternalSystem;
 
-public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
+public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase implements OauthExternalSystem
 {
-  public static final String   OAUTH_SERVER            = "oAuthServer";
-
-  public static final String[] OAUTH_SERVER_JSON_ATTRS = new String[] { OauthServer.SECRETKEY, OauthServer.CLIENTID, OauthServer.PROFILELOCATION, OauthServer.AUTHORIZATIONLOCATION, OauthServer.TOKENLOCATION, OauthServer.SERVERTYPE };
-
-  private static final long    serialVersionUID        = -1956421203;
+  private static final long serialVersionUID = -1956421203;
 
   public DHIS2ExternalSystem()
   {
@@ -45,6 +42,19 @@ public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
   public boolean isExportSupported()
   {
     return true;
+  }
+
+  @Override
+  public void delete()
+  {
+    OauthServer oauth = this.getOauthServer();
+
+    super.delete();
+
+    if (oauth != null)
+    {
+      oauth.delete();
+    }
   }
 
   protected void populate(JsonObject json)

@@ -53,6 +53,7 @@ import net.geoprism.registry.MasterListBuilder;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.etl.fhir.BasicFhirConnection;
 import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.etl.fhir.MCSDFhirDataPopulator;
 import net.geoprism.registry.graph.ExternalSystem;
@@ -235,7 +236,7 @@ public class FhirExportTest
       SynchronizationConfig config = createSyncConfig(system, multiHierarchyList, multiHierarchyVersion);
 
       FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config.buildConfiguration(), null);
-      Bundle bundle = manager.generateBundle();
+      Bundle bundle = manager.generateBundle(new BasicFhirConnection(system));
 
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();
@@ -349,7 +350,7 @@ public class FhirExportTest
       SynchronizationConfig config = createSyncConfig(system, basicHierarchyList, basicHierarchyVersion);
 
       FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config.buildConfiguration(), null);
-      Bundle bundle = manager.generateBundle();
+      Bundle bundle = manager.generateBundle(new BasicFhirConnection(system));
 
       // Assert bundle values
       List<BundleEntryComponent> entries = bundle.getEntry();

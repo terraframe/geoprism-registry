@@ -38,6 +38,7 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
+import net.geoprism.registry.etl.fhir.BasicFhirConnection;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.etl.fhir.FhirResourceImporter;
@@ -155,7 +156,7 @@ public class FhirImportTest
       bundle.addEntry(new BundleEntryComponent().setResource((Resource) parser.parseResource(this.getClass().getResourceAsStream("/fhir/organization.json"))));
       bundle.addEntry(new BundleEntryComponent().setResource((Resource) parser.parseResource(this.getClass().getResourceAsStream("/fhir/location.json"))));
 
-      FhirResourceImporter importer = new FhirResourceImporter(system, processor, null, null);
+      FhirResourceImporter importer = new FhirResourceImporter(new BasicFhirConnection(system), processor, null, null);
       importer.synchronize(bundle);
 
       ServerGeoObjectIF geoobject = new ServerGeoObjectService().getGeoObjectByCode("USATestDataHsTwo", "USATestDataHealthStop");

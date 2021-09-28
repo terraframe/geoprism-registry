@@ -71,6 +71,8 @@ import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.etl.fhir.AbstractFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.BasicFhirResourceProcessor;
 import net.geoprism.registry.etl.fhir.Facility;
+import net.geoprism.registry.etl.fhir.FhirConnection;
+import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
 import net.geoprism.registry.etl.fhir.FhirResourceImporter;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -182,14 +184,17 @@ public class Sandbox
     exportBundle(url, new File("/home/jsmethie/Documents/IntraHealth/Bundle.json"));
   }
 
-  public static void testImport(String url) throws IOException, ClientProtocolException, InterruptedException
+  public static void testImport(String url) throws Exception
   {
     List<FhirExternalSystem> systems = FhirExternalSystem.getAll();
     final FhirExternalSystem system = systems.get(0);
 
-    FhirResourceImporter synchronizer = new FhirResourceImporter(system, new BasicFhirResourceProcessor(), null, null);
+    try (FhirConnection connection = FhirConnectionFactory.get(system))
+    {
+      FhirResourceImporter synchronizer = new FhirResourceImporter(connection, new BasicFhirResourceProcessor(), null, null);
 
-    synchronizer.synchronize();
+      synchronizer.synchronize();
+    }
   }
 
   private static void exportBundle(IGenericClient client, File file) throws FileNotFoundException, IOException
