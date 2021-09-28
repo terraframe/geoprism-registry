@@ -19,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -93,27 +92,7 @@ public class AllowAllClientFactory extends RestfulClientFactory
     {
       try
       {
-        HostnameVerifier hostnameVerifier = SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-
-        SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(SSLContext.getDefault(), hostnameVerifier);
-        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslSocketFactory).build();
-
-        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-        connectionManager.setMaxTotal(getPoolMaxTotal());
-        connectionManager.setDefaultMaxPerRoute(getPoolMaxPerRoute());
-
-        // TODO: Use of a deprecated method should be resolved.
-        RequestConfig defaultRequestConfig = RequestConfig.custom().setSocketTimeout(getSocketTimeout()).setConnectTimeout(getConnectTimeout()).setConnectionRequestTimeout(getConnectionRequestTimeout()).setStaleConnectionCheckEnabled(true).setProxy(myProxy).build();
-
-        HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connectionManager).setDefaultRequestConfig(defaultRequestConfig).disableCookieManagement();
-
-        if (myProxy != null && StringUtils.isNotBlank(getProxyUsername()) && StringUtils.isNotBlank(getProxyPassword()))
-        {
-          CredentialsProvider credsProvider = new BasicCredentialsProvider();
-          credsProvider.setCredentials(new AuthScope(myProxy.getHostName(), myProxy.getPort()), new UsernamePasswordCredentials(getProxyUsername(), getProxyPassword()));
-          builder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy());
-          builder.setDefaultCredentialsProvider(credsProvider);
-        }
+        HttpClientBuilder builder = getBuilder();
 
         myHttpClient = builder.build();
       }
@@ -124,6 +103,32 @@ public class AllowAllClientFactory extends RestfulClientFactory
     }
 
     return myHttpClient;
+  }
+
+  public HttpClientBuilder getBuilder() throws NoSuchAlgorithmException
+  {
+    HostnameVerifier hostnameVerifier = SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+
+    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(SSLContext.getDefault(), hostnameVerifier);
+    Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslSocketFactory).build();
+
+    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+    connectionManager.setMaxTotal(getPoolMaxTotal());
+    connectionManager.setDefaultMaxPerRoute(getPoolMaxPerRoute());
+
+    // TODO: Use of a deprecated method should be resolved.
+    RequestConfig defaultRequestConfig = RequestConfig.custom().setSocketTimeout(getSocketTimeout()).setConnectTimeout(getConnectTimeout()).setConnectionRequestTimeout(getConnectionRequestTimeout()).setStaleConnectionCheckEnabled(true).setProxy(myProxy).build();
+
+    HttpClientBuilder builder = HttpClients.custom().setConnectionManager(connectionManager).setDefaultRequestConfig(defaultRequestConfig).disableCookieManagement();
+
+    if (myProxy != null && StringUtils.isNotBlank(getProxyUsername()) && StringUtils.isNotBlank(getProxyPassword()))
+    {
+      CredentialsProvider credsProvider = new BasicCredentialsProvider();
+      credsProvider.setCredentials(new AuthScope(myProxy.getHostName(), myProxy.getPort()), new UsernamePasswordCredentials(getProxyUsername(), getProxyPassword()));
+      builder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy());
+      builder.setDefaultCredentialsProvider(credsProvider);
+    }
+    return builder;
   }
 
   @Override

@@ -73,7 +73,6 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
         }
         catch (ParseException e)
         {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }

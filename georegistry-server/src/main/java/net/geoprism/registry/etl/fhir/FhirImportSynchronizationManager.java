@@ -29,6 +29,7 @@ import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
+import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -76,9 +77,7 @@ public class FhirImportSynchronizationManager
     }
     catch (Exception e)
     {
-      // TODO Change to some sort of connection error message
-
-      throw new ProgrammingErrorException(e);
+      throw new HttpError(e);
     }
   }
 

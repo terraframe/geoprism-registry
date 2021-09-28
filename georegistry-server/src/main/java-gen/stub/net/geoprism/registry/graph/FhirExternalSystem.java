@@ -61,9 +61,20 @@ public class FhirExternalSystem extends FhirExternalSystemBase implements OauthE
   {
     super.populate(json);
 
-    this.setUrl(json.get(FhirExternalSystem.URL).getAsString());
-    this.setSystem(json.get(FhirExternalSystem.SYSTEM).getAsString());
-    this.setUsername(json.get(FhirExternalSystem.USERNAME).getAsString());
+    if (json.has(FhirExternalSystem.URL) && !json.get(FhirExternalSystem.URL).isJsonNull())
+    {
+      this.setUrl(json.get(FhirExternalSystem.URL).getAsString());
+    }
+
+    if (json.has(FhirExternalSystem.SYSTEM) && !json.get(FhirExternalSystem.SYSTEM).isJsonNull())
+    {
+      this.setSystem(json.get(FhirExternalSystem.SYSTEM).getAsString());
+    }
+
+    if (json.has(FhirExternalSystem.USERNAME) && !json.get(FhirExternalSystem.USERNAME).isJsonNull())
+    {
+      this.setUsername(json.get(FhirExternalSystem.USERNAME).getAsString());
+    }
 
     String password = json.has(FhirExternalSystem.PASSWORD) ? json.get(FhirExternalSystem.PASSWORD).getAsString() : null;
 

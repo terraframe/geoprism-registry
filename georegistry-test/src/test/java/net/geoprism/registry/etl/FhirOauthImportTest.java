@@ -155,21 +155,21 @@ public class FhirOauthImportTest
     return config;
   }
 
-  private HttpClientBuilder getHttpClientBuilder() throws NoSuchAlgorithmException
-  {
-    HostnameVerifier hostnameVerifier = SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
-
-    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(SSLContext.getDefault(), hostnameVerifier);
-    Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslSocketFactory).build();
-
-    BasicHttpClientConnectionManager connMgr = new BasicHttpClientConnectionManager(socketFactoryRegistry);
-
-    HttpClientBuilder b = HttpClientBuilder.create();
-    b.setConnectionManager(connMgr);
-
-    return b;
-  }
-
+//  private HttpClientBuilder getHttpClientBuilder() throws NoSuchAlgorithmException
+//  {
+//    HostnameVerifier hostnameVerifier = SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
+//
+//    SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(SSLContext.getDefault(), hostnameVerifier);
+//    Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create().register("http", PlainConnectionSocketFactory.getSocketFactory()).register("https", sslSocketFactory).build();
+//
+//    BasicHttpClientConnectionManager connMgr = new BasicHttpClientConnectionManager(socketFactoryRegistry);
+//
+//    HttpClientBuilder b = HttpClientBuilder.create();
+//    b.setConnectionManager(connMgr);
+//
+//    return b;
+//  }
+//
   @Request
   @Test
   public void testConnection() throws Exception
@@ -180,7 +180,7 @@ public class FhirOauthImportTest
     {
       system = createExternalSystem();
 
-      try (OauthFhirConnection connection = new OauthFhirConnection(system, system.getOauthServer(), this.getHttpClientBuilder()))
+      try (OauthFhirConnection connection = new OauthFhirConnection(system, system.getOauthServer()))
       {
         Assert.assertNotNull(connection.getAccessToken());
         Assert.assertNotNull(connection.getExpiresIn());

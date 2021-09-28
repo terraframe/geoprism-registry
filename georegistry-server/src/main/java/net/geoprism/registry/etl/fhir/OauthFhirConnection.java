@@ -1,6 +1,7 @@
 package net.geoprism.registry.etl.fhir;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +13,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,6 +23,7 @@ import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.client.interceptor.BearerTokenAuthInterceptor;
 import net.geoprism.account.OauthServer;
+import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.graph.FhirExternalSystem;
 
 public class OauthFhirConnection implements FhirConnection
@@ -30,8 +31,6 @@ public class OauthFhirConnection implements FhirConnection
   private FhirExternalSystem externalSystem;
 
   private OauthServer        oauth;
-
-  private HttpClientBuilder  builder;
 
   private FhirContext        ctx;
 
@@ -45,14 +44,8 @@ public class OauthFhirConnection implements FhirConnection
 
   public OauthFhirConnection(FhirExternalSystem externalSystem, OauthServer oauth)
   {
-    this(externalSystem, oauth, HttpClientBuilder.create());
-  }
-
-  public OauthFhirConnection(FhirExternalSystem externalSystem, OauthServer oauth, HttpClientBuilder builder)
-  {
     this.externalSystem = externalSystem;
     this.oauth = oauth;
-    this.builder = builder;
 
     this.ctx = FhirContext.forR4();
 
@@ -101,11 +94,14 @@ public class OauthFhirConnection implements FhirConnection
   @Override
   public void open()
   {
-    final String authUrl = this.oauth.getTokenLocation();
+    // TODO: This is garbage and needs to be removed after the demo and we can
+    // assume the oauth server has an actual url and legitimate https
+    // certificate
+    AllowAllClientFactory clientFactory = new AllowAllClientFactory(ctx);
 
-    try (CloseableHttpClient httpclient = this.builder.build())
+    try (CloseableHttpClient httpclient = clientFactory.getBuilder().build())
     {
-      HttpPost httpPost = new HttpPost(authUrl);
+      HttpPost httpPost = new HttpPost(this.oauth.getTokenLocation());
 
       List<NameValuePair> nvps = new ArrayList<>();
       nvps.add(new BasicNameValuePair("username", this.externalSystem.getUsername()));
@@ -136,7 +132,7 @@ public class OauthFhirConnection implements FhirConnection
         this.lastSessionRefresh = new Date().getTime();
       }
 
-      ctx.setRestfulClientFactory(new AllowAllClientFactory(ctx));
+      ctx.setRestfulClientFactory(clientFactory);
 
       IRestfulClientFactory factory = ctx.getRestfulClientFactory();
       factory.setSocketTimeout(-1);
@@ -146,9 +142,9 @@ public class OauthFhirConnection implements FhirConnection
       this.client = factory.newGenericClient(this.externalSystem.getUrl());
       this.client.registerInterceptor(authInterceptor);
     }
-    catch (IOException t)
+    catch (IOException | NoSuchAlgorithmException t)
     {
-      t.printStackTrace();
+      throw new HttpError(t);
     }
   }
 
