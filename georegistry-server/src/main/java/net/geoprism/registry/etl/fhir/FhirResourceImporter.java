@@ -17,11 +17,9 @@ import com.runwaysdk.system.scheduler.JobHistory;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.api.Include;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportHistory;
-import net.geoprism.registry.graph.FhirExternalSystem;
 
 public class FhirResourceImporter
 {
@@ -44,7 +42,7 @@ public class FhirResourceImporter
     this.connection = connection;
     this.processor = processor;
     this.history = history;
-    this.since = since;
+//    this.since = since;
   }
 
   public void synchronize()
