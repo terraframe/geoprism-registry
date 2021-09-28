@@ -44,9 +44,11 @@ export class PublishModalComponent implements OnInit {
 
     isNew: boolean = false;
 
+    originalPublishStartDate: string = null;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService,
-        private dateService: DateService) { }
+        private dateService: DateService) {}
 
     ngOnInit(): void {
         this.onMasterListChange = new Subject();

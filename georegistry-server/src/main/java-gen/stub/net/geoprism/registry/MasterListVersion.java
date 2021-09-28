@@ -703,7 +703,7 @@ public class MasterListVersion extends MasterListVersionBase
     LinkedList<ExecutableJob> jobs = new LinkedList<ExecutableJob>();
 
     PublishShapefileJobQuery psjq = new PublishShapefileJobQuery(new QueryFactory());
-    psjq.WHERE(psjq.getMasterList().EQ(this));
+    psjq.WHERE(psjq.getVersion().EQ(this));
 
     try (OIterator<? extends PublishShapefileJob> it = psjq.getIterator())
     {
