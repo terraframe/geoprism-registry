@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.historyTitle">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="manage.versions.historyTitle" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="History" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewAll">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="manage.versions.history.viewAll" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="view all" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewingAll">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="manage.versions.history.viewingAll" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Viewing All" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>

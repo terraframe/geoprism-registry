@@ -45,6 +45,7 @@ import { OrganizationModalComponent } from './component/organization/organizatio
 import { NewLocaleModalComponent } from './component/localization-manager/locale-modal.component'
 import { ImportLocalizationModalComponent } from './component/localization-manager/import-localization-modal.component';
 import { ExternalSystemModalComponent } from './component/external-system/external-system-modal.component';
+import { LocalizationFeedbackModalComponent } from './component/localization-manager/localization-feedback-modal.component';
 
 
 import { AdminRoutingModule } from './admin-routing.module';
@@ -79,11 +80,13 @@ import '../rxjs-extensions';
 		NewLocaleModalComponent,
 		RoleManagementComponent,
 		ExternalSystemModalComponent,
-		ImportLocalizationModalComponent
+		ImportLocalizationModalComponent,
+    LocalizationFeedbackModalComponent
 	],
 	exports: [
 		SystemLogoComponent,
-		SystemLogosComponent
+		SystemLogosComponent,
+    LocalizationFeedbackModalComponent
 	],
 	providers: [
 		SystemLogoService,
@@ -99,7 +102,8 @@ import '../rxjs-extensions';
 		NewLocaleModalComponent,
 		RoleManagementComponent,
 		ExternalSystemModalComponent,
-		ImportLocalizationModalComponent
+		ImportLocalizationModalComponent,
+    LocalizationFeedbackModalComponent
 	]
 })
 

@@ -1,8 +1,11 @@
+import { ChangeType } from "@registry/model/constants";
 import { ChangeRequest } from "@registry/model/crtable";
 import { AttributeType, GeoObjectOverTime, GeoObjectType, HierarchyOverTime, ValueOverTime } from "@registry/model/registry";
 import { DateService, LocalizationService } from "@shared/service";
+import { Subject } from "rxjs";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { StandardAttributeCRModel } from "./StandardAttributeCRModel";
+import { ValueOverTimeCREditor } from "./ValueOverTimeCREditor";
 
 export class ChangeRequestEditor {
 
@@ -22,6 +25,8 @@ export class ChangeRequestEditor {
     hierarchies: HierarchyOverTime[];
 
     private _isValid: boolean;
+
+    onChangeSubject : Subject<any> = new Subject<any>();
 
     localizationService: LocalizationService;
 
@@ -130,6 +135,26 @@ export class ChangeRequestEditor {
 
     public getEditors(): (ChangeRequestChangeOverTimeAttributeEditor | StandardAttributeCRModel)[] {
         return this.attributeEditors;
+    }
+
+    public onChange(type: ChangeType) {
+        this.onChangeSubject.next(type);
+    }
+
+    public existsAtDate(date: string) {
+        let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.geoObjectType, "exists");
+        let existEditors = (this.getEditorForAttribute(existsAttribute) as ChangeRequestChangeOverTimeAttributeEditor).getEditors();
+
+        let valLen = existEditors.length;
+        for (let j = 0; j < valLen; ++j) {
+            let editor: ValueOverTimeCREditor = existEditors[j];
+
+            if (editor.startDate != null && editor.endDate != null && !editor.isDelete() && editor.value === true && this.dateService.between(date, editor.startDate, editor.endDate)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

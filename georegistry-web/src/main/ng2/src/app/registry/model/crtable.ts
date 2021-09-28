@@ -114,7 +114,7 @@ export class ChangeRequest {
     pending: number;
     documents: Document[];
     actions: AbstractAction[];
-    current: ChangeRequestCurrentObject & UpdateChangeRequestCurrentObject;
+    current?: ChangeRequestCurrentObject & UpdateChangeRequestCurrentObject;
     type: string; // Can be one of ["CreateGeoObject", "UpdateGeoObject"]
     statusLabel?: string;
     phoneNumber?: string;

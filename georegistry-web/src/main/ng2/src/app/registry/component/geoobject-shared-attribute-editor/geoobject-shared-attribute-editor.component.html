@@ -1,4 +1,10 @@
 <div class="row">
+  <div class="col-md-12">
+    <stability-period *ngIf="showStabilityPeriods" [changeRequestEditor]="changeRequestEditor" [sharedAttributeEditor]="this" [filterDate]="filterDate" [latestPeriodIsActive]="filterDate == null"></stability-period>
+  </div>
+</div>
+
+<div class="row">
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
@@ -65,7 +71,7 @@
                   <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
                     <manage-versions
                         [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="attr"
-                        [readonly]="readOnly" [isNew]="isNew" >
+                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" >
                     </manage-versions>
                   </div>
 
@@ -97,7 +103,7 @@
 				      
 				        <div class="panel-body">
 				          <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="parentAttributeType"
-	                        [readonly]="readOnly" [isNew]="isNew" [hierarchy]="hierarchy"></manage-versions>
+	                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" [hierarchy]="hierarchy"></manage-versions>
 				        </div>
 			        </div>
 		        </li>
@@ -115,7 +121,7 @@
             
           <div class="panel-body">
             <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="geometryAttributeType"
-              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate"></manage-versions>
           </div>
         </div>
       </div>
@@ -130,7 +136,7 @@
             
           <div class="panel-body">
             <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="getAttribute('exists')"
-              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate"></manage-versions>
           </div>
         </div>
         <div class="panel panel-default">

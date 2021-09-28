@@ -9,29 +9,41 @@ import { ValueOverTimeCREditor } from "@registry/component/geoobject-shared-attr
 @Injectable()
 export class DateService {
 
-    overlapMessage: ConflictMessage = {
+    public overlapMessage: ConflictMessage = {
         severity: "ERROR",
         message: this.localizationService.decode("manage.versions.overlap.message"),
         type: ConflictType.TIME_RANGE
     }
 
-    mergeContiguousMessage: ConflictMessage = {
+    public mergeContiguousMessage: ConflictMessage = {
         severity: "ERROR",
         message: this.localizationService.decode("manage.versions.mergeContiguousRanges.message"),
         type: ConflictType.TIME_RANGE
     }
 
-    gapMessage: ConflictMessage = {
+    public gapMessage: ConflictMessage = {
         severity: "WARNING",
         message: this.localizationService.decode("manage.versions.gap.message"),
         type: ConflictType.TIME_RANGE
     }
 
-    outsideExistsMessage: ConflictMessage = {
+    public outsideExistsMessage: ConflictMessage = {
         severity: "ERROR",
         message: this.localizationService.decode("manage.versions.outsideExists.message"),
         type: ConflictType.OUTSIDE_EXISTS
     }
+
+    public missingReference: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("changeovertime.manageVersions.missingReference"),
+        type: ConflictType.MISSING_REFERENCE
+    }
+
+    public startDateLaterEndDate: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("manage.versions.startdate.later.enddate.message"),
+        type: ConflictType.TIME_RANGE
+    };
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private localizationService: LocalizationService) { }
@@ -88,20 +100,19 @@ export class DateService {
         let hasConflict = false;
 
         // clear all messages
-        ranges.forEach(attr => {
-            if (!attr.conflictMessage) {
-                attr.conflictMessage = [];
+        ranges.forEach(range => {
+            if (!range.conflictMessages) {
+                range.conflictMessages = new Set();
             }
 
-            for (let i = attr.conflictMessage.length - 1; i >= 0; --i) {
-                if (attr.conflictMessage[i].type === ConflictType.TIME_RANGE) {
-                    attr.conflictMessage.splice(i, 1);
-                }
-            }
+            range.conflictMessages.delete(this.overlapMessage);
+            range.conflictMessages.delete(this.mergeContiguousMessage);
+            range.conflictMessages.delete(this.gapMessage);
+            range.conflictMessages.delete(this.startDateLaterEndDate);
         });
 
         // Filter DELETE entries from consideration
-        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => !range.isDelete());
 
         // Check for overlaps
         for (let j = 0; j < filtered.length; j++) {
@@ -112,11 +123,7 @@ export class DateService {
                 let e1: any = this.getDateFromDateString(h1.endDate);
 
                 if (Utils.dateEndBeforeStart(s1, e1)) {
-                    h1.conflictMessage.push({
-                        severity: "ERROR",
-                        message: this.localizationService.decode("manage.versions.startdate.later.enddate.message"),
-                        type: ConflictType.TIME_RANGE
-                    } as ConflictMessage);
+                    h1.conflictMessages.add(this.startDateLaterEndDate);
 
                     hasConflict = true;
                 }
@@ -132,16 +139,16 @@ export class DateService {
 
                             // Determine if there is an overlap
                             if (Utils.dateRangeOverlaps(s1.getTime(), e1.getTime(), s2.getTime(), e2.getTime())) {
-                                h1.conflictMessage.push(this.overlapMessage);
+                                h1.conflictMessages.add(this.overlapMessage);
 
                                 if (s2.getTime() === e2.getTime()) {
-                                    h2.conflictMessage.push(this.overlapMessage);
+                                    h2.conflictMessages.add(this.overlapMessage);
                                 }
 
                                 hasConflict = true;
                             } else if (this.addDay(1, h1.endDate) === h2.startDate && Utils.areValuesEqual(attributeType, h1.value, h2.value)) {
-                                h1.conflictMessage.push(this.mergeContiguousMessage);
-                                h2.conflictMessage.push(this.mergeContiguousMessage);
+                                h1.conflictMessages.add(this.mergeContiguousMessage);
+                                h2.conflictMessages.add(this.mergeContiguousMessage);
                                 hasConflict = true;
                             }
                         } else if ((i === j - 1 || i === j + 1) && e1 && h2.startDate) {
@@ -150,8 +157,8 @@ export class DateService {
                             let s2: Date = this.getDateFromDateString(h2.startDate);
 
                             if (s2.getTime() <= e1) {
-                                h1.conflictMessage.push(this.overlapMessage);
-                                h2.conflictMessage.push(this.overlapMessage);
+                                h1.conflictMessages.add(this.overlapMessage);
+                                h2.conflictMessages.add(this.overlapMessage);
 
                                 hasConflict = true;
                             }
@@ -174,9 +181,9 @@ export class DateService {
                     let s2: any = new Date(next.startDate);
 
                     if (Utils.hasGap(e1.getTime(), s2.getTime())) {
-                        next.conflictMessage.push(this.gapMessage);
+                        next.conflictMessages.add(this.gapMessage);
 
-                        current.conflictMessage.push(this.gapMessage);
+                        current.conflictMessages.add(this.gapMessage);
                     }
                 }
             }
@@ -189,26 +196,56 @@ export class DateService {
         return hasConflict;
     }
 
+    public between(test: string | Date, startDate: string, endDate: string) {
+        if (test == null || startDate == null || endDate == null) {
+            return false;
+        }
+
+        let dTest: Date = test instanceof Date ? test : this.getDateFromDateString(test);
+        let dStart: Date = this.getDateFromDateString(startDate);
+        let dEnd: Date = this.getDateFromDateString(endDate);
+
+        return dTest >= dStart && dTest <= dEnd;
+    }
+
+    public addDay(amount: number, date: string): string {
+        var plus1: Date = this.getDateFromDateString(date);
+        plus1.setDate(plus1.getDate() + amount);
+        let splus1: string = this.getDateString(plus1);
+        return splus1;
+    }
+
+    public sort(votArr: TimeRangeEntry[]): void {
+      // Sort the data by start date
+        votArr.sort(function(a, b) {
+            if (a.startDate == null || a.startDate === "") {
+                return 1;
+            } else if (b.startDate == null || b.startDate === "") {
+                return -1;
+            }
+
+            let first: any = new Date(a.startDate);
+            let next: any = new Date(b.startDate);
+            return first - next;
+        });
+    }
+
     checkExistRanges(ranges: ValueOverTimeCREditor[], existEntries: ValueOverTimeCREditor[]): boolean {
         let hasConflict = false;
 
         // clear all messages
         ranges.forEach(range => {
-            if (!range.conflictMessage) {
-                range.conflictMessage = [];
+            if (!range.conflictMessages) {
+                range.conflictMessages = new Set();
             }
 
-            for (let i = range.conflictMessage.length - 1; i >= 0; --i) {
-                if (range.conflictMessage[i].type === ConflictType.OUTSIDE_EXISTS) {
-                    range.conflictMessage.splice(i, 1);
-                }
-            }
+            range.conflictMessages.delete(this.outsideExistsMessage);
         });
 
         // Filter DELETE entries from consideration
-        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => range.diff == null || range.diff.action !== "DELETE");
+        const filtered: ValueOverTimeCREditor[] = ranges.filter(range => !range.isDelete());
 
-        const filteredExists = existEntries.filter(range => range.diff == null || range.diff.action !== "DELETE");
+        const filteredExists = existEntries.filter(range => !range.isDelete());
 
         // Check for outside exists range
         for (let j = 0; j < filtered.length; j++) {
@@ -235,35 +272,13 @@ export class DateService {
                 }
 
                 if (!inRange) {
-                    h1.conflictMessage.push(this.outsideExistsMessage);
+                    h1.conflictMessages.add(this.outsideExistsMessage);
                     hasConflict = true;
                 }
             }
         }
 
         return hasConflict;
-    }
-
-    public addDay(amount: number, date: string): string {
-        var plus1: Date = this.getDateFromDateString(date);
-        plus1.setDate(plus1.getDate() + amount);
-        let splus1: string = this.getDateString(plus1);
-        return splus1;
-    }
-
-    sort(votArr: TimeRangeEntry[]): void {
-        // Sort the data by start date
-        votArr.sort(function(a, b) {
-            if (a.startDate == null || a.startDate === "") {
-                return 1;
-            } else if (b.startDate == null || b.startDate === "") {
-                return -1;
-            }
-
-            let first: any = new Date(a.startDate);
-            let next: any = new Date(b.startDate);
-            return first - next;
-        });
     }
 
     validateDate(date: Date, required: boolean, allowFutureDates: boolean): {message: string, valid: boolean} {
