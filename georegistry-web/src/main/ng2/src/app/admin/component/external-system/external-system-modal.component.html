@@ -1,244 +1,344 @@
 <div>
   <loading-bar></loading-bar>
 
-  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">    
-        <fieldset>
-          <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-               
-          <div class="heading text-center">
-            <h1><localize key="external.system.heading"></localize></h1>
-          </div>
-          
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.type"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="select">
-                <select type="text" [(ngModel)]="system.type" name="type" [disabled]="system.oid != null" required>
-                  <option></option>
-                  <option value="DHIS2ExternalSystem"><localize key="external.system.dhis2"></localize></option>
-                  <option value="RevealExternalSystem"><localize key="external.system.reveal"></localize></option>
-                  <option value="FhirExternalSystem"><localize key="external.system.fhir"></localize></option>
-                </select>
-              </span>
-            </div>
-          </div>     
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.organization"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="select">
-                <select type="text" [(ngModel)]="system.organization" name="organization" [disabled]="system.oid != null" required>
-                  <option></option>
-                  <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
-                </select>
-              </span>
-            </div>
-          </div>     
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.id"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="system.id" name="id" [disabled]="system.oid != null" required>
-              </span>
-            </div>
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.label"></localize></label>
-            </div>
-            <div class="holder" >
-              <span class="text">
+  <form #form="ngForm" class="modal-form" (ngSubmit)="form.valid && onSubmit()">
+    <fieldset>
+      <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-                <div class="form-group" *ngFor="let localeValue of system.label.localeValues">
-                  <label><convert-key-label [key]="localeValue.locale"></convert-key-label></label>
-                  <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+      <div class="heading text-center">
+        <h1>
+          <localize key="external.system.heading"></localize>
+        </h1>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.type"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="select">
+            <select type="text" [(ngModel)]="system.type" name="type" [disabled]="system.oid != null" required>
+              <option></option>
+              <option value="DHIS2ExternalSystem">
+                <localize key="external.system.dhis2"></localize>
+              </option>
+              <option value="RevealExternalSystem">
+                <localize key="external.system.reveal"></localize>
+              </option>
+              <option value="FhirExternalSystem">
+                <localize key="external.system.fhir"></localize>
+              </option>
+            </select>
+          </span>
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.organization"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="select">
+            <select type="text" [(ngModel)]="system.organization" name="organization" [disabled]="system.oid != null"
+              required>
+              <option></option>
+              <option *ngFor="let org of organizations" [value]="org.code">{{org.label.localizedValue}}</option>
+            </select>
+          </span>
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.id"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="system.id" name="id" [disabled]="system.oid != null" required>
+          </span>
+        </div>
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.label"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+
+            <div class="form-group" *ngFor="let localeValue of system.label.localeValues">
+              <label>
+                <convert-key-label [key]="localeValue.locale"></convert-key-label>
+              </label>
+              <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
+                class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+            </div>
+          </span>
+        </div>
+
+
+        <!--             <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues"> -->
+        <!--               <label for="labelInput"> -->
+        <!--                 <localize key="data.property.label.label"></localize>  -->
+        <!--                 <span  style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span> -->
+        <!--               </label> -->
+        <!--               <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" -->
+        <!--                 required> -->
+        <!--             </div> -->
+
+      </div>
+      <div class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.description"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <div class="form-group" *ngFor="let localeValue of system.description.localeValues">
+              <label>
+                <convert-key-label [key]="localeValue.locale"></convert-key-label>
+              </label>
+              <input [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input"
+                class="form-control">
+            </div>
+            <!-- <input type="text" [(ngModel)]="external.system.contactInfo" name="contact" required> -->
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.username"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="system.username" name="username" required>
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.password"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <div>
+            <input *ngIf="!editPassword" type="button" [value]="'external.system.editPassword' | localize"
+              class="btn btn-primary" (click)="editPassword = !editPassword" />
+            <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="button"
+              [value]="'external.system.editPasswordCancel' | localize" class="btn btn-default"
+              (click)="editPassword = !editPassword" />
+          </div>
+          <span *ngIf="editPassword" class="text">
+            <input type="password" [(ngModel)]="system.password" name="password" required>
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem'" class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.url"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="system.url" name="url" required>
+          </span>
+        </div>
+      </div>
+      <div *ngIf="system.type === 'FhirExternalSystem'" class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.system"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <span class="text">
+            <input type="text" [(ngModel)]="system.system" name="system" required>
+          </span>
+        </div>
+      </div>
+
+      <!--           <div class="row-holder"> -->
+      <!-- 	        <div  class="label-holder"> -->
+      <!--               <label><localize key="external.system.oauthHeader"></localize></label> -->
+      <!--           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="heading"> -->
+      <!--             <h3><localize key="external.system.oauthHeader"></localize></h3> -->
+      <!--           </div> -->
+      <ng-container *ngIf="isOauthSupported(system)">
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="external.system.oauthHeader"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <input *ngIf="system.oAuthServer == null" type="button" [value]="'external.system.enableOauth' | localize"
+              class="btn btn-primary" [disabled]="system.url == null" (click)="enableOAuth()" />
+            <hr *ngIf="system.oAuthServer != null" style="border-color:lightgrey;">
+          </div>
+        </div>
+        <div *ngIf="!oauthSupported">
+          <div class="alert alert-danger" role="alert">
+            <localize key="external.system.oauthNotSupported"></localize>
+          </div>
+        </div>
+        <div *ngIf="system.oAuthServer != null">
+          <!--
+              <div class="holder">
+                <div>
+                  <input type="button" value="Push to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />              
                 </div>
-              </span>
-            </div>
-            
-            
-<!--             <div class="form-group" *ngFor="let localeValue of hierarchyType.label.localeValues"> -->
-<!--               <label for="labelInput"> -->
-<!--                 <localize key="data.property.label.label"></localize>  -->
-<!--                 <span  style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span> -->
-<!--               </label> -->
-<!--               <input [disabled]="readOnly" [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input" class="form-control" -->
-<!--                 required> -->
-<!--             </div> -->
-            
-          </div>
-          <div class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.description"></localize></label>
-            </div>
-            <div class="holder" >
-              <span class="text">
-                <div class="form-group" *ngFor="let localeValue of system.description.localeValues">
-                  <label> <convert-key-label [key]="localeValue.locale"></convert-key-label></label>
-                  <input  [(ngModel)]="localeValue.value" [name]="'contact-' + localeValue.locale" type="input" class="form-control">
-                </div>
-                <!-- <input type="text" [(ngModel)]="external.system.contactInfo" name="contact" required> -->
-              </span>
-            </div>
-          </div>  
-          
-          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.username"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="system.username" name="username" required>
-              </span>
-            </div>
-          </div>
-          
-          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.password"></localize></label>
-            </div>          
-            <div class="holder" >
-	            <div>
-	              <input *ngIf="!editPassword" type="button" [value]="'external.system.editPassword' | localize" class="btn btn-primary" (click)="editPassword = !editPassword" />
-	              <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="button" [value]="'external.system.editPasswordCancel' | localize" class="btn btn-default" (click)="editPassword = !editPassword" />
-	            </div>
-              <span *ngIf="editPassword" class="text">
-                <input type="password" [(ngModel)]="system.password" name="password" required>
-              </span>
-            </div>
-          </div>
-          
-          <div *ngIf="system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.url"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="system.url" name="url" required>
-              </span>
-            </div>
-          </div>
-          <div *ngIf="system.type === 'FhirExternalSystem'" class="row-holder">
-            <div class="label-holder">
-              <label><localize key="external.system.system"></localize></label>
-            </div>          
-            <div class="holder" >
-              <span class="text">
-                <input type="text" [(ngModel)]="system.system" name="system" required>
-              </span>
-            </div>
-          </div>
-          
-<!--           <div class="row-holder"> -->
-<!-- 	        <div  class="label-holder"> -->
-<!--               <label><localize key="external.system.oauthHeader"></localize></label> -->
-<!--           <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="heading"> -->
-<!--             <h3><localize key="external.system.oauthHeader"></localize></h3> -->
-<!--           </div> -->
-          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
-	        <div  class="label-holder">
-              <label><localize key="external.system.oauthHeader"></localize></label>
-            </div>          
-            <div class="holder" >
-              <input *ngIf="system.oAuthServer == null && system.type === 'DHIS2ExternalSystem'" type="button" [value]="'external.system.enableOauth' | localize" class="btn btn-primary" [disabled]="system.url == null" (click)="enableOAuth()" />
-              <hr *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'" style="border-color:lightgrey;">
-            </div>
-          </div>
-          <div *ngIf="!oauthSupported">
-            <div class="alert alert-danger" role="alert"><localize key="external.system.oauthNotSupported"></localize></div>
-          </div>
-          <div *ngIf="system.oAuthServer != null && system.type === 'DHIS2ExternalSystem'">
-            <!--
-	          <div class="holder">
-	            <div>
-	              <input type="button" value="Push to DHIS2" [disabled]="system.url == null || system.username == null || system.password == null" class="btn btn-default" (click)="downloadDhis2Plugin()" />              
-	            </div>
-	          </div>
-	          -->
-	          <div class="row-holder">
-	            <div class="label-holder">
-	              <label><localize key="external.system.oauthHeader"></localize>&nbsp;<localize key="external.system.oauth.clientId"></localize></label>
-	            </div>
-	            <div class="holder" >
-	              <span class="text">
-	                <input type="text" [(ngModel)]="system.oAuthServer.clientId" name="clientId" required>
-	              </span>
-	            </div>
-	          </div>
-	          <div class="row-holder">
-	            <div class="label-holder">
-	              <label><localize key="external.system.oauthHeader"></localize>&nbsp;<localize key="external.system.oauth.secretKey"></localize></label>
-	            </div>
-	            <div class="holder" >
-	              <span class="text">
-	                <input type="text" [(ngModel)]="system.oAuthServer.secretKey" name="secretKey" required>
-	              </span>
-	            </div>
-	          </div>
-	          <div class="row-holder">
-	            <div class="label-holder">
-	              <label><localize key="external.system.oauthHeader"></localize>&nbsp;<localize key="external.system.oauth.profileLocation"></localize></label>
-	            </div>
-	            <div class="holder" >
-	              <span class="text">
-	                <input type="text" [(ngModel)]="system.oAuthServer.profileLocation" name="profileLocation"  required>
-	              </span>
-	            </div>
-	          </div>
-	          <div class="row-holder">
-              <div class="label-holder">
-                <label><localize key="external.system.oauthHeader"></localize>&nbsp;<localize key="external.system.oauth.tokenLocation"></localize></label>
               </div>
-              <div class="holder" >
+              -->
+          <ng-container *ngIf="system.type === 'FhirExternalSystem'">
+            <div class="row-holder">
+              <div class="label-holder">
+                <label>
+                  <localize key="external.system.username"></localize>
+                </label>
+              </div>
+              <div class="holder">
                 <span class="text">
-                  <input type="text" [(ngModel)]="system.oAuthServer.tokenLocation" name="tokenLocation"  required>
+                  <input type="text" [(ngModel)]="system.username" name="username" required>
                 </span>
               </div>
             </div>
+
             <div class="row-holder">
               <div class="label-holder">
-                <label><localize key="external.system.oauthHeader"></localize>&nbsp;<localize key="external.system.oauth.authorizationLocation"></localize></label>
+                <label>
+                  <localize key="external.system.password"></localize>
+                </label>
               </div>
-              <div class="holder" >
-                <span class="text">
-                  <input type="text" [(ngModel)]="system.oAuthServer.authorizationLocation" name="authorizationLocation"  required>
+              <div class="holder">
+                <div>
+                  <input *ngIf="!editPassword" type="button" [value]="'external.system.editPassword' | localize"
+                    class="btn btn-primary" (click)="editPassword = !editPassword" />
+                  <input *ngIf="editPassword && !isNew" style="margin-bottom:5px;" type="button"
+                    [value]="'external.system.editPasswordCancel' | localize" class="btn btn-default"
+                    (click)="editPassword = !editPassword" />
+                </div>
+                <span *ngIf="editPassword" class="text">
+                  <input type="password" [(ngModel)]="system.password" name="password" required>
                 </span>
               </div>
             </div>
-            
-            <div class="row-holder">
-              <div  class="label-holder">
-	            </div> 
-	            <div class="holder" >
-	              <input type="button" [value]="'external.system.oauth.removeOauth' | localize" class="btn btn-danger" (click)="removeOauth()" />
-	            </div>
-            </div>
-	      </div>
+          </ng-container>
 
-          <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
-            <div  class="label-holder">
-              <label><localize key="external.system.oauth.downloadDhis2PluginHeader"></localize></label>
-            </div> 
-            <div class="holder" >
-              <input type="button" [value]="'external.system.oauth.downloadDhis2Plugin' | localize" class="btn btn-primary" (click)="downloadDhis2Plugin()" />
-            </div>
-          </div>
 
           <div class="row-holder">
             <div class="label-holder">
-            </div>                    
+              <label>
+                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                  key="external.system.oauth.clientId"></localize>
+              </label>
+            </div>
             <div class="holder">
-              <div class="button-holder">
-                <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />              
-                <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary" [disabled]="!(form.valid)" />
-              </div>
+              <span class="text">
+                <input type="text" [(ngModel)]="system.oAuthServer.clientId" name="clientId" required>
+              </span>
             </div>
           </div>
-        </fieldset>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                  key="external.system.oauth.secretKey"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <span class="text">
+                <input type="text" [(ngModel)]="system.oAuthServer.secretKey" name="secretKey" required>
+              </span>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                  key="external.system.oauth.profileLocation"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <span class="text">
+                <input type="text" [(ngModel)]="system.oAuthServer.profileLocation" name="profileLocation" required>
+              </span>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                  key="external.system.oauth.tokenLocation"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <span class="text">
+                <input type="text" [(ngModel)]="system.oAuthServer.tokenLocation" name="tokenLocation" required>
+              </span>
+            </div>
+          </div>
+          <div class="row-holder">
+            <div class="label-holder">
+              <label>
+                <localize key="external.system.oauthHeader"></localize>&nbsp;<localize
+                  key="external.system.oauth.authorizationLocation"></localize>
+              </label>
+            </div>
+            <div class="holder">
+              <span class="text">
+                <input type="text" [(ngModel)]="system.oAuthServer.authorizationLocation" name="authorizationLocation"
+                  required>
+              </span>
+            </div>
+          </div>
+
+          <div class="row-holder">
+            <div class="label-holder">
+            </div>
+            <div class="holder">
+              <input type="button" [value]="'external.system.oauth.removeOauth' | localize" class="btn btn-danger"
+                (click)="removeOauth()" />
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <div *ngIf="system.type === 'DHIS2ExternalSystem'" class="row-holder">
+        <div class="label-holder">
+          <label>
+            <localize key="external.system.oauth.downloadDhis2PluginHeader"></localize>
+          </label>
+        </div>
+        <div class="holder">
+          <input type="button" [value]="'external.system.oauth.downloadDhis2Plugin' | localize" class="btn btn-primary"
+            (click)="downloadDhis2Plugin()" />
+        </div>
+      </div>
+
+      <div class="row-holder">
+        <div class="label-holder">
+        </div>
+        <div class="holder">
+          <div class="button-holder">
+            <input type="button" [value]="'dataset.cancel' | localize" class="btn btn-default" (click)="cancel()" />
+            <input type="submit" [value]="'dataset.submit' | localize" class="btn btn-primary"
+              [disabled]="!(form.valid)" />
+          </div>
+        </div>
+      </div>
+    </fieldset>
   </form>
 </div>

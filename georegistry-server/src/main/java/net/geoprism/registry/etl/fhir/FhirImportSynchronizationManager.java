@@ -20,6 +20,7 @@ package net.geoprism.registry.etl.fhir;
 
 import java.util.Date;
 
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.QueryFactory;
 
 import net.geoprism.registry.SynchronizationConfig;
@@ -28,6 +29,7 @@ import net.geoprism.registry.etl.FhirSyncImportConfig;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
+import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
 import net.geoprism.registry.ws.MessageType;
@@ -52,23 +54,31 @@ public class FhirImportSynchronizationManager
   {
     final FhirExternalSystem system = (FhirExternalSystem) this.details.getSystem();
 
-    FhirResourceProcessor processor = FhirFactory.getProcessor(this.details.getImplementation());
+    try (FhirConnection connection = FhirConnectionFactory.get(system))
+    {
 
-    FhirResourceImporter importer = new FhirResourceImporter(system, processor, this.history, this.config.getLastSynchDate());
-    importer.synchronize();
+      FhirResourceProcessor processor = FhirFactory.getProcessor(this.details.getImplementation());
 
-    history.appLock();
-    history.clearStage();
-    history.addStage(ExportStage.COMPLETE);
-    history.apply();
+      FhirResourceImporter importer = new FhirResourceImporter(connection, processor, this.history, this.config.getLastSynchDate());
+      importer.synchronize();
 
-    config.appLock();
-    config.setLastSynchDate(new Date());
-    config.apply();
+      history.appLock();
+      history.clearStage();
+      history.addStage(ExportStage.COMPLETE);
+      history.apply();
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+      config.appLock();
+      config.setLastSynchDate(new Date());
+      config.apply();
 
-    handleExportErrors();
+      NotificationFacade.queue(new GlobalNotificationMessage(MessageType.DATA_EXPORT_JOB_CHANGE, null));
+
+      handleExportErrors();
+    }
+    catch (Exception e)
+    {
+      throw new HttpError(e);
+    }
   }
 
   private void handleExportErrors()

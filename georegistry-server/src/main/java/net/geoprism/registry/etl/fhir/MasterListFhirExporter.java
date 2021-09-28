@@ -51,14 +51,11 @@ import com.vividsolutions.jts.io.geojson.GeoJsonWriter;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
-import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 import ca.uhn.fhir.rest.server.exceptions.BaseServerResponseException;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.etl.FhirResponseException;
-import net.geoprism.registry.graph.FhirExternalSystem;
 
 public class MasterListFhirExporter
 {
@@ -68,24 +65,16 @@ public class MasterListFhirExporter
 
   private FhirDataPopulator populator;
 
-  private FhirExportContext context;
+  private FhirConnection    connection;
 
-  public MasterListFhirExporter(MasterListVersion version, FhirExternalSystem system, FhirDataPopulator populator, boolean resolveIds)
+  public MasterListFhirExporter(MasterListVersion version, FhirConnection connection, FhirDataPopulator populator, boolean resolveIds)
   {
     this.version = version;
+    this.connection = connection;
     this.populator = populator;
     this.list = version.getMasterlist();
 
-    FhirContext ctx = FhirContext.forR4();
-
-    IRestfulClientFactory factory = ctx.getRestfulClientFactory();
-    factory.setSocketTimeout(-1);
-
-    IGenericClient client = factory.newGenericClient(system.getUrl());
-
-    this.context = new FhirExportContext(system, client);
-
-    this.populator.configure(context, version, resolveIds);
+    this.populator.configure(connection, version, resolveIds);
   }
 
   public MasterList getList()
@@ -106,7 +95,7 @@ public class MasterListFhirExporter
 
     try
     {
-      Bundle result = this.context.getClient().transaction().withBundle(collection).execute();
+      Bundle result = this.connection.getClient().transaction().withBundle(collection).execute();
 
       return result.getEntry().size();
     }
@@ -120,7 +109,7 @@ public class MasterListFhirExporter
 
   public void write(Bundle bundle, Writer writer)
   {
-    FhirContext ctx = this.context.getFhirContext();
+    FhirContext ctx = this.connection.getFhirContext();
     IParser parser = ctx.newJsonParser();
 
     // Serialize it
@@ -152,7 +141,7 @@ public class MasterListFhirExporter
         Identifier identifier = new Identifier();
         identifier.setValue(code);
 
-        String system = this.context.getSystem();
+        String system = this.connection.getSystem();
 
         if (system != null)
         {

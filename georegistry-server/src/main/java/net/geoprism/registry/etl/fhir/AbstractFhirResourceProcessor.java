@@ -73,7 +73,6 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
         }
         catch (ParseException e)
         {
-          // TODO Auto-generated catch block
           e.printStackTrace();
         }
       }
@@ -87,34 +86,33 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
   {
     Identifier identifier = this.getIdentifier(location);
 
-    String typeCode = this.getType(location);
-    String code = identifier.getValue();
-
-    ServerGeoObjectIF geoObject = this.getService().getGeoObjectByCode(code, typeCode);
-
-    if (geoObject == null)
+    if (identifier != null)
     {
-      geoObject = this.getService().newInstance(ServerGeoObjectType.get(typeCode));
-      geoObject.setCode(code);
+      String typeCode = this.getType(location);
+      String code = identifier.getValue();
+
+      ServerGeoObjectIF geoObject = this.getService().getGeoObjectByCode(code, typeCode);
+
+      if (geoObject == null)
+      {
+        geoObject = this.getService().newInstance(ServerGeoObjectType.get(typeCode));
+        geoObject.setCode(code);
+      }
+
+      Geometry geometry = this.getGeometry(location);
+
+      Date lastUpdated = location.getMeta().getLastUpdated();
+
+      this.populate(geoObject, location, lastUpdated);
+
+      geoObject.setGeometry(geometry, lastUpdated, ValueOverTime.INFINITY_END_DATE);
+      geoObject.apply(true);
     }
-
-    Geometry geometry = this.getGeometry(location);
-
-    Date lastUpdated = location.getMeta().getLastUpdated();
-
-    this.populate(geoObject, location, lastUpdated);
-
-    geoObject.setGeometry(geometry, lastUpdated, ValueOverTime.INFINITY_END_DATE);
-    geoObject.apply(true);
   }
 
   @Override
   public void process(Organization organization)
   {
-    // Identifier identifier = this.getIdentifier(organization);
-    //
-    // String type = this.getType(organization);
-    // String code = identifier.getValue();
   }
 
 }

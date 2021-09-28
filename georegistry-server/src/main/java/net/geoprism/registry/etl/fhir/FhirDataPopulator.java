@@ -10,7 +10,7 @@ public interface FhirDataPopulator
 {
   public String getLabel();
 
-  public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds);
+  public void configure(FhirConnection context, MasterListVersion version, boolean resolveIds);
 
   public void populate(Business row, Facility facility);
 

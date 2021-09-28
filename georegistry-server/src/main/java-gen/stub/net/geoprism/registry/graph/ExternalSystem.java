@@ -55,6 +55,11 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
 
   public abstract boolean isExportSupported();
 
+  public LocalizedValue getLocalizedLabel()
+  {
+    return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
+  }
+
   @Override
   @Transaction
   public void apply()

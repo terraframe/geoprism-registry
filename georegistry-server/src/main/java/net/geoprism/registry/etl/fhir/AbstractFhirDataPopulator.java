@@ -27,7 +27,7 @@ import net.geoprism.registry.model.ServerHierarchyType;
 
 public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator implements FhirDataPopulator
 {
-  private FhirExportContext   context;
+  private FhirConnection   context;
 
   private MasterListVersion   version;
 
@@ -49,7 +49,7 @@ public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator i
   }
 
   @Override
-  public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds)
+  public void configure(FhirConnection context, MasterListVersion version, boolean resolveIds)
   {
     this.context = context;
     this.version = version;
@@ -67,7 +67,7 @@ public abstract class AbstractFhirDataPopulator extends BasicFhirDataPopulator i
     return version;
   }
 
-  public FhirExportContext getContext()
+  public FhirConnection getContext()
   {
     return context;
   }

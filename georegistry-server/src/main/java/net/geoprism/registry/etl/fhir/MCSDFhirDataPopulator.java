@@ -37,7 +37,7 @@ public class MCSDFhirDataPopulator extends AbstractFhirDataPopulator implements 
   }
 
   @Override
-  public void configure(FhirExportContext context, MasterListVersion version, boolean resolveIds)
+  public void configure(FhirConnection context, MasterListVersion version, boolean resolveIds)
   {
     super.configure(context, version, resolveIds);
 

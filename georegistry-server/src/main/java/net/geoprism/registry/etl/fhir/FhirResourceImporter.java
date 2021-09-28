@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hl7.fhir.r4.hapi.fluentpath.FhirPathR4;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Bundle.BundleLinkComponent;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Resource;
@@ -24,7 +25,7 @@ import net.geoprism.registry.graph.FhirExternalSystem;
 
 public class FhirResourceImporter
 {
-  private FhirExternalSystem    system;
+  private FhirConnection        connection;
 
   private FhirResourceProcessor processor;
 
@@ -36,11 +37,11 @@ public class FhirResourceImporter
 
   long                          exportCount = 0;
 
-  public FhirResourceImporter(FhirExternalSystem system, FhirResourceProcessor processor, ExportHistory history, Date since)
+  public FhirResourceImporter(FhirConnection connection, FhirResourceProcessor processor, ExportHistory history, Date since)
   {
     super();
 
-    this.system = system;
+    this.connection = connection;
     this.processor = processor;
     this.history = history;
     this.since = since;
@@ -48,16 +49,11 @@ public class FhirResourceImporter
 
   public void synchronize()
   {
-    this.processor.configure(this.system);
+    this.processor.configure(this.connection.getExternalSystem());
 
-    FhirContext ctx = FhirContext.forR4();
+    IGenericClient client = this.connection.getClient();
 
-    IRestfulClientFactory factory = ctx.getRestfulClientFactory();
-    factory.setSocketTimeout(-1);
-
-    IGenericClient client = factory.newGenericClient(system.getUrl());
-
-    Bundle bundle = client.search().forResource(Location.class).lastUpdated(new DateRangeParam(this.since, null)).include(new Include("Location:organization")).returnBundle(Bundle.class).execute();
+    Bundle bundle = client.search().forResource(Location.class).count(2000).lastUpdated(new DateRangeParam(this.since, null)).include(new Include("Location:organization")).returnBundle(Bundle.class).execute();
 
     this.history.appLock();
     this.history.setWorkTotal(Long.valueOf(bundle.getTotal() * 2));
@@ -67,8 +63,18 @@ public class FhirResourceImporter
     {
       this.process(bundle);
 
-      if (bundle.getLink(Bundle.LINK_NEXT) != null)
+      BundleLinkComponent link = bundle.getLink(Bundle.LINK_NEXT);
+
+      if (link != null)
       {
+        // The link may come back with the local url instead of the global url
+        // As such replace the base local url with the base global url
+//        String localUrl = link.getUrl();
+//        String[] split = localUrl.split("\\?");
+//        String globalUrl = this.connection.getExternalSystem().getUrl() + "?" + split[1];
+//
+//        link.setUrl(globalUrl);
+//
         bundle = client.loadPage().next(bundle).execute();
       }
       else
@@ -80,7 +86,7 @@ public class FhirResourceImporter
 
   public void synchronize(Bundle bundle)
   {
-    this.processor.configure(this.system);
+    this.processor.configure(this.connection.getExternalSystem());
 
     process(bundle);
   }
