@@ -79,7 +79,8 @@
                               {{formatDate(master.publishingStartDate)}}
                     </span>
                     <date-field *ngIf="!readonly" [(value)]="master.publishingStartDate" [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'" 
-                        [allowFutureDates]="false" [required]="false" [disable]="readonly"></date-field>
+                        [allowFutureDates]="false" name="masterPublishingStartDate" [required]="false" [disable]="readonly"></date-field>
+                    <small *ngIf="(edit && originalPublishStartDate !== master.publishingStartDate)" class="form-text text-danger"><localize key="masterlist.change.frequency"></localize></small>
                 </div>
             </div>
             
