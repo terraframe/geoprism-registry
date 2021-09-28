@@ -198,10 +198,7 @@ public class FhirOauthImportTest
     {
       if (system != null)
       {
-        OauthServer server = system.getOauthServer();
-
         system.delete();
-        server.delete();
       }
     }
   }
