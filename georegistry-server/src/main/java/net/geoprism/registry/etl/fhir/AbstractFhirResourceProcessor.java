@@ -52,7 +52,7 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
     return service;
   }
 
-  protected Geometry getGeometry(Location location)
+  protected Geometry getGeometry(Location location, ServerGeoObjectType type)
   {
     Extension extension = location.getExtensionByUrl("http://hl7.org/fhir/StructureDefinition/location-boundary-geojson");
 
@@ -99,7 +99,7 @@ public abstract class AbstractFhirResourceProcessor implements FhirResourceProce
         geoObject.setCode(code);
       }
 
-      Geometry geometry = this.getGeometry(location);
+      Geometry geometry = this.getGeometry(location, geoObject.getType());
 
       Date lastUpdated = location.getMeta().getLastUpdated();
 
