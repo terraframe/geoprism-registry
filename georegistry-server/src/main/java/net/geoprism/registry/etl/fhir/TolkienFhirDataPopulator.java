@@ -83,6 +83,7 @@ public class TolkienFhirDataPopulator extends AbstractFhirDataPopulator implemen
     {
       location.getMeta().addProfile("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.FacilityLocation");
       location.addType(new CodeableConcept().addCoding(new Coding("urn:ietf:rfc:3986", "urn:ihe:iti:mcsd:2019:facility", "Facility")));
+      location.setPhysicalType(new CodeableConcept().setText("Building").addCoding(new Coding("http://terminology.hl7.org/CodeSystem/location-physical-type", "bu", "Building")));
 
       organization.getMeta().addProfile("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.FacilityOrganization");
       organization.addType(new CodeableConcept().addCoding(new Coding("urn:ietf:rfc:3986", "urn:ihe:iti:mcsd:2019:facility", "Facility")));
@@ -91,6 +92,7 @@ public class TolkienFhirDataPopulator extends AbstractFhirDataPopulator implemen
     {
       location.getMeta().addProfile("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionLocation");
       location.addType(new CodeableConcept().addCoding(new Coding("urn:ietf:rfc:3986", "urn:ihe:iti:mcsd:2019:jurisdiction", "Jurisdiction")));
+      location.setPhysicalType(new CodeableConcept().setText("Jurisdiction").addCoding(new Coding("http://terminology.hl7.org/CodeSystem/location-physical-type", "jdn", "Jurisdiction")));
 
       organization.getMeta().addProfile("http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionsOrganization");
       organization.addType(new CodeableConcept().addCoding(new Coding("urn:ietf:rfc:3986", "urn:ihe:iti:mcsd:2019:jurisdiction", "Jurisdiction")));
