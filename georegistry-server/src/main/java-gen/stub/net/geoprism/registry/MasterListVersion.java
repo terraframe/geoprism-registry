@@ -97,6 +97,9 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.AttributeBoolean;
+import com.runwaysdk.query.BasicCondition;
+import com.runwaysdk.query.ComponentQuery;
+import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.query.ValueQuery;
@@ -131,7 +134,6 @@ import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
-import net.geoprism.registry.etl.fhir.BasicFhirConnection;
 import net.geoprism.registry.etl.fhir.FhirConnection;
 import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
 import net.geoprism.registry.etl.fhir.FhirDataPopulator;
@@ -1473,66 +1475,13 @@ public class MasterListVersion extends MasterListVersionBase
 
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
 
-    DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-    filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-    if (filterJson != null && filterJson.length() > 0)
+    Map<MdAttributeConcreteDAOIF, Condition> conditionMap = this.buildQueryConditionsFromFilter(filterJson, null, query, mdBusiness);
+    
+    for (Condition condition : conditionMap.values())
     {
-      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
-
-      for (int i = 0; i < filters.size(); i++)
-      {
-        JsonObject filter = filters.get(i).getAsJsonObject();
-
-        String attribute = filter.get("attribute").getAsString();
-
-        if (mdBusiness.definesAttribute(attribute) instanceof MdAttributeMomentDAOIF)
-        {
-          JsonObject jObject = filter.get("value").getAsJsonObject();
-
-          try
-          {
-            if (jObject.has("start") && !jObject.get("start").isJsonNull())
-            {
-              String date = jObject.get("start").getAsString();
-
-              if (date.length() > 0)
-              {
-                query.WHERE(query.aDateTime(attribute).GE(filterFormat.parse(date)));
-              }
-            }
-
-            if (jObject.has("end") && !jObject.get("end").isJsonNull())
-            {
-              String date = jObject.get("end").getAsString();
-
-              if (date.length() > 0)
-              {
-                query.WHERE(query.aDateTime(attribute).LE(filterFormat.parse(date)));
-              }
-            }
-          }
-          catch (ParseException e)
-          {
-            throw new ProgrammingErrorException(e);
-          }
-        }
-        else if (mdBusiness.definesAttribute(attribute) instanceof MdAttributeBooleanDAOIF)
-        {
-          String value = filter.get("value").getAsString();
-
-          Boolean bVal = Boolean.valueOf(value);
-
-          query.WHERE( ( (AttributeBoolean) query.get(attribute) ).EQ(bVal));
-        }
-        else
-        {
-          String value = filter.get("value").getAsString();
-
-          query.WHERE(query.get(attribute).EQ(value));
-        }
-      }
+      query.WHERE(condition);
     }
+    
     return query;
   }
 
@@ -1562,7 +1511,7 @@ public class MasterListVersion extends MasterListVersionBase
 
     return null;
   }
-
+  
   public JsonArray values(String value, String attributeName, String valueAttribute, String filterJson)
   {
     DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
@@ -1580,54 +1529,11 @@ public class MasterListVersion extends MasterListVersionBase
 
     vQuery.FROM(query);
 
-    if (filterJson != null && filterJson.length() > 0)
+    Map<MdAttributeConcreteDAOIF, Condition> conditionMap = this.buildQueryConditionsFromFilter(filterJson, attributeName, query, mdBusiness);
+    
+    for (Condition condition : conditionMap.values())
     {
-      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
-
-      for (int i = 0; i < filters.size(); i++)
-      {
-        JsonObject filter = filters.get(i).getAsJsonObject();
-
-        String attribute = filter.get("attribute").getAsString();
-
-        if (mdBusiness.definesAttribute(attribute) instanceof MdAttributeMomentDAOIF)
-        {
-          JsonObject jObject = filter.get("value").getAsJsonObject();
-
-          try
-          {
-            if (jObject.has("start") && !jObject.get("start").isJsonNull())
-            {
-              String date = jObject.get("start").getAsString();
-
-              if (date.length() > 0)
-              {
-                vQuery.WHERE(query.aDateTime(attribute).GE(filterFormat.parse(date)));
-              }
-            }
-
-            if (jObject.has("end") && !jObject.get("end").isJsonNull())
-            {
-              String date = jObject.get("end").getAsString();
-
-              if (date.length() > 0)
-              {
-                vQuery.WHERE(query.aDateTime(attribute).LE(filterFormat.parse(date)));
-              }
-            }
-          }
-          catch (ParseException e)
-          {
-            throw new ProgrammingErrorException(e);
-          }
-        }
-        else
-        {
-          String v = filter.get("value").getAsString();
-
-          vQuery.WHERE(query.get(attribute).EQ(v));
-        }
-      }
+      vQuery.WHERE(condition);
     }
 
     if (value != null && value.length() > 0)
@@ -1658,6 +1564,93 @@ public class MasterListVersion extends MasterListVersionBase
     }
 
     return results;
+  }
+  
+  private Map<MdAttributeConcreteDAOIF, Condition> buildQueryConditionsFromFilter(String filterJson, String ignoreAttribute, ComponentQuery query, MdBusinessDAOIF mdBusiness)
+  {
+    Map<MdAttributeConcreteDAOIF, Condition> conditionMap = new HashMap<MdAttributeConcreteDAOIF, Condition>();
+    
+    if (filterJson != null && filterJson.length() > 0)
+    {
+      DateFormat filterFormat = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+      filterFormat.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      
+      JsonArray filters = JsonParser.parseString(filterJson).getAsJsonArray();
+
+      for (int i = 0; i < filters.size(); i++)
+      {
+        JsonObject filter = filters.get(i).getAsJsonObject();
+
+        String attribute = filter.get("attribute").getAsString();
+        
+        if (ignoreAttribute == null || !attribute.equals(ignoreAttribute))
+        {
+          MdAttributeConcreteDAOIF mdAttr = mdBusiness.definesAttribute(attribute);
+          
+          BasicCondition condition = null;
+          
+          if (mdAttr instanceof MdAttributeMomentDAOIF)
+          {
+            JsonObject jObject = filter.get("value").getAsJsonObject();
+  
+            try
+            {
+              if (jObject.has("start") && !jObject.get("start").isJsonNull())
+              {
+                String date = jObject.get("start").getAsString();
+  
+                if (date.length() > 0)
+                {
+                  condition = query.aDateTime(attribute).GE(filterFormat.parse(date));
+                }
+              }
+  
+              if (jObject.has("end") && !jObject.get("end").isJsonNull())
+              {
+                String date = jObject.get("end").getAsString();
+  
+                if (date.length() > 0)
+                {
+                  condition = query.aDateTime(attribute).LE(filterFormat.parse(date));
+                }
+              }
+            }
+            catch (ParseException e)
+            {
+              throw new ProgrammingErrorException(e);
+            }
+          }
+          else if (mdAttr instanceof MdAttributeBooleanDAOIF)
+          {
+            String value = filter.get("value").getAsString();
+  
+            Boolean bVal = Boolean.valueOf(value);
+  
+            condition = ( (AttributeBoolean) query.get(attribute) ).EQ(bVal);
+          }
+          else
+          {
+            String value = filter.get("value").getAsString();
+  
+            condition = query.get(attribute).EQ(value);
+          }
+          
+          if (condition != null)
+          {
+            if (conditionMap.containsKey(mdAttr))
+            {
+              conditionMap.put(mdAttr, conditionMap.get(mdAttr).OR(condition));
+            }
+            else
+            {
+              conditionMap.put(mdAttr, condition);
+            }
+          }
+        }
+      }
+    }
+    
+    return conditionMap;
   }
 
   public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)

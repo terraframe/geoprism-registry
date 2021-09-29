@@ -175,7 +175,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
         return attrs;
     }
 
-    getValues(attribute: any): void {
+    getTypeaheadDataObservable(attribute: any): void {
         return Observable.create((observer: any) => {
             this.message = null;
 
@@ -253,8 +253,6 @@ export class MasterListComponent implements OnInit, OnDestroy {
         attribute.value = e.item;
         attribute.isCollapsed = true;
 
-        // Remove the current attribute filter if it exists
-        this.filter = this.filter.filter(f => f.attribute !== attribute.base);
         this.selected = this.selected.filter(s => s !== attribute.base);
 
         this.list.attributes.forEach(attr => {
@@ -270,6 +268,7 @@ export class MasterListComponent implements OnInit, OnDestroy {
             this.selected.push(attribute.base);
             attribute.search = e.item.label;
         } else {
+            this.filter = this.filter.filter(f => f.attribute !== attribute.base);
             attribute.search = "";
         }
 
