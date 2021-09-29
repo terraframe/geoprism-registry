@@ -30,6 +30,28 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         this.hierarchy = hierarchy;
 
         this.getEditAction();
+
+        if (hierarchy != null) {
+            for (let j = 0; j < this.hierarchy.entries.length; j++) {
+                let hierarchyEntry = this.hierarchy.entries[j];
+
+                if (hierarchyEntry.parents == null) {
+                    hierarchyEntry.parents = {};
+                }
+                if (hierarchyEntry.loading == null) {
+                    hierarchyEntry.loading = {};
+                }
+
+                for (let i = 0; i < this.hierarchy.types.length; i++) {
+                    let current = this.hierarchy.types[i];
+
+                    if (hierarchyEntry.parents[current.code] == null) {
+                        hierarchyEntry.parents[current.code] = { text: "", geoObject: null };
+                    }
+                }
+            }
+        }
+
         this.editors = this.generateEditors();
     }
 
