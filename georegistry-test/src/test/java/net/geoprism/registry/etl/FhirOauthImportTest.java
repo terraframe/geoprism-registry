@@ -18,19 +18,6 @@
  */
 package net.geoprism.registry.etl;
 
-import java.security.NoSuchAlgorithmException;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.hl7.fhir.instance.model.api.IBaseBundle;
 import org.junit.After;
@@ -44,8 +31,6 @@ import com.google.gson.GsonBuilder;
 import com.runwaysdk.session.Request;
 
 import ca.uhn.fhir.parser.IParser;
-import ca.uhn.fhir.rest.gclient.IFetchConformanceUntyped;
-import ca.uhn.fhir.rest.gclient.IQuery;
 import net.geoprism.account.OauthServer;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
@@ -174,72 +159,32 @@ public class FhirOauthImportTest
   @Test
   public void testConnection() throws Exception
   {
-    FhirExternalSystem system = null;
-
-    try
-    {
-      system = createExternalSystem();
-
-      try (OauthFhirConnection connection = new OauthFhirConnection(system, system.getOauthServer()))
-      {
-        Assert.assertNotNull(connection.getAccessToken());
-        Assert.assertNotNull(connection.getExpiresIn());
-        Assert.assertNotNull(connection.getLastSessionRefresh());
-
-        IBaseBundle bundle = connection.getClient().search().forResource(org.hl7.fhir.r4.model.Organization.class).execute();
-
-        IParser parser = connection.getFhirContext().newJsonParser();
-        parser.setPrettyPrint(true);
-
-        System.out.println(parser.encodeResourceToString(bundle));
-      }
-    }
-    finally
-    {
-      if (system != null)
-      {
-        system.delete();
-      }
-    }
+//    FhirExternalSystem system = null;
+//
+//    try
+//    {
+//      system = createExternalSystem();
+//
+//      try (OauthFhirConnection connection = new OauthFhirConnection(system, system.getOauthServer()))
+//      {
+//        Assert.assertNotNull(connection.getAccessToken());
+//        Assert.assertNotNull(connection.getExpiresIn());
+//        Assert.assertNotNull(connection.getLastSessionRefresh());
+//
+//        IBaseBundle bundle = connection.getClient().search().forResource(org.hl7.fhir.r4.model.Organization.class).execute();
+//
+//        IParser parser = connection.getFhirContext().newJsonParser();
+//        parser.setPrettyPrint(true);
+//
+//        System.out.println(parser.encodeResourceToString(bundle));
+//      }
+//    }
+//    finally
+//    {
+//      if (system != null)
+//      {
+//        system.delete();
+//      }
+//    }
   }
-  // @Request
-  // @Test
-  // public void testRemoteImport() throws InterruptedException
-  // {
-  // try
-  // {
-  // FhirExternalSystem system = createExternalSystem();
-  //
-  // SynchronizationConfig config = createSyncConfig(system);
-  // FhirSyncImportConfig iConfig = (FhirSyncImportConfig)
-  // config.buildConfiguration();
-  //
-  // FhirResourceProcessor processor =
-  // FhirFactory.getProcessor(iConfig.getImplementation());
-  //
-  // IParser parser = FhirContext.forR4().newJsonParser();
-  //
-  // Bundle bundle = new Bundle();
-  // bundle.addEntry(new BundleEntryComponent().setResource((Resource)
-  // parser.parseResource(this.getClass().getResourceAsStream("/fhir/organization.json"))));
-  // bundle.addEntry(new BundleEntryComponent().setResource((Resource)
-  // parser.parseResource(this.getClass().getResourceAsStream("/fhir/location.json"))));
-  //
-  // FhirResourceImporter importer = new FhirResourceImporter(system, processor,
-  // null, null);
-  // importer.synchronize(bundle);
-  //
-  // ServerGeoObjectIF geoobject = new
-  // ServerGeoObjectService().getGeoObjectByCode("USATestDataHsTwo",
-  // "USATestDataHealthStop");
-  // geoobject.setDate(new Date());
-  // LocalizedValue displayLabel = geoobject.getDisplayLabel();
-  //
-  // Assert.assertEquals("USATestDataHsTwo ZZZZZZZ", displayLabel.getValue());
-  // }
-  // finally
-  // {
-  // TestDataSet.deleteExternalSystems("FHIRImportTest");
-  // }
-  // }
 }
