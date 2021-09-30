@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-md-12">
-    <stability-period *ngIf="showStabilityPeriods" [changeRequestEditor]="changeRequestEditor" [sharedAttributeEditor]="this" [filterDate]="filterDate" [latestPeriodIsActive]="filterDate == null"></stability-period>
+    <stability-period *ngIf="showStabilityPeriods" [changeRequestEditor]="changeRequestEditor" [sharedAttributeEditor]="this" [filterDate]="filterDate" [latestPeriodIsActive]="filterDate == null && changeRequestEditor.changeRequest.isNew"></stability-period>
   </div>
 </div>
 
