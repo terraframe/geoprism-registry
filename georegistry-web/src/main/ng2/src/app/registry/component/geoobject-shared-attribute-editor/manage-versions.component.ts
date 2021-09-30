@@ -130,7 +130,7 @@ export class ManageVersionsComponent implements OnInit {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (this.isInitialized && changes.showAllInstances.previousValue !== changes.showAllInstances.currentValue) {
+        if (this.isInitialized && changes.showAllInstances && changes.showAllInstances.previousValue !== changes.showAllInstances.currentValue) {
             this.calculateViewModels();
         }
     }
