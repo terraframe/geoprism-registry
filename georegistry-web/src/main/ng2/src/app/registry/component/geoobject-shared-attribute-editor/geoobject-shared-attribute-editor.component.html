@@ -5,6 +5,12 @@
 </div>
 
 <div class="row">
+  <div class="col-md-12">
+    <boolean-field *ngIf="changeRequestEditor.changeRequest.current" [(value)]="showAllInstances" label="Show all instances" [disable]="false"></boolean-field>
+  </div>
+</div>
+
+<div class="row">
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
@@ -45,16 +51,10 @@
                     
         <div class="col-md-12">
 
-<!--           <div class="row"> -->
-<!--             <div class="col-md-12"> -->
-<!--               <boolean-field [(value)]="showAllInstances" [label]="'Show all instances'" [disable]="false"></boolean-field> -->
-<!--             </div> -->
-<!--           </div> -->
-
           <span class="text"></span>
           <ul class="list-group">
             <li *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index" class="list-group-item" style="text-align:left;border:none;padding:0;">
-              <div class="panel panel-default">
+              <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(attr).hasChanges()" class="panel panel-default">
                 <div class="panel-heading">
                   <h4 style="margin:0;">
                     <span *ngIf="attr.code === 'code'"> 
@@ -71,7 +71,7 @@
                   <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
                     <manage-versions
                         [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="attr"
-                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" >
+                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" [showAllInstances]="showAllInstances" >
                     </manage-versions>
                   </div>
 
@@ -94,7 +94,7 @@
         <div class="col-md-12">
 	        <ul class="list-group">
 		        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
-		          <div class="panel panel-default">
+		          <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(parentAttributeType, hierarchy).hasChanges()" class="panel panel-default">
 	              <div class="panel-heading">
 	                <h4 style="margin:0;">
 	                  <span> {{hierarchy.label}} </span> 
@@ -103,7 +103,7 @@
 				      
 				        <div class="panel-body">
 				          <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="parentAttributeType"
-	                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" [hierarchy]="hierarchy"></manage-versions>
+	                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" [hierarchy]="hierarchy" [showAllInstances]="showAllInstances"></manage-versions>
 				        </div>
 			        </div>
 		        </li>
@@ -112,7 +112,7 @@
       </div>
       
       <div *ngIf="tabIndex === 2">
-        <div class="panel panel-default">
+        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(geometryAttributeType).hasChanges()" class="panel panel-default">
           <div class="panel-heading">
             <h4 style="margin:0;">
               <span> <localize key="shared.attributes.attribute.geometry.label"></localize> </span> 
@@ -121,13 +121,13 @@
             
           <div class="panel-body">
             <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="geometryAttributeType"
-              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate"></manage-versions>
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate" [showAllInstances]="showAllInstances"></manage-versions>
           </div>
         </div>
       </div>
       
       <div *ngIf="tabIndex === 3">
-        <div class="panel panel-default">
+        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('exists')).hasChanges()" class="panel panel-default">
           <div class="panel-heading">
             <h4 style="margin:0;">
               <span>{{getAttribute('exists').label.localizedValue}}</span> 
@@ -136,10 +136,10 @@
             
           <div class="panel-body">
             <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="getAttribute('exists')"
-              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate"></manage-versions>
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate" [showAllInstances]="showAllInstances"></manage-versions>
           </div>
         </div>
-        <div class="panel panel-default">
+        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('invalid')).hasChanges()" class="panel panel-default">
           <div class="panel-heading">
             <h4 style="margin:0;">
               <span>{{getAttribute('invalid').label.localizedValue}}</span> 

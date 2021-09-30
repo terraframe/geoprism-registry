@@ -40,6 +40,7 @@ import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { HierarchyCREditor } from "./HierarchyCREditor";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
+import { SimpleChanges } from "@angular/core";
 
 @Component({
     selector: "manage-versions",
@@ -101,9 +102,13 @@ export class ManageVersionsComponent implements OnInit {
 
     @Input() filterDate: string = null;
 
+    @Input() showAllInstances: boolean = true;
+
     viewModels: VersionDiffView[] = [];
 
     isRootOfHierarchy: boolean = false;
+
+    isInitialized: boolean = false;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(public geomService: GeometryService, public cdr: ChangeDetectorRef, public service: RegistryService, public lService: LocalizationService,
@@ -112,13 +117,21 @@ export class ManageVersionsComponent implements OnInit {
 
     ngOnInit(): void {
         this.changeRequestAttributeEditor = this.changeRequestEditor.getEditorForAttribute(this.attributeType, this.hierarchy) as ChangeRequestChangeOverTimeAttributeEditor;
+
         this.calculateViewModels();
         this.isRootOfHierarchy = this.attributeType.type === "_PARENT_" && (this.hierarchy == null || this.hierarchy.types == null || this.hierarchy.types.length === 0);
+        this.isInitialized = true;
     }
 
     ngAfterViewInit() {
         if (this.isNew && this.attributeType.code === "exists" && this.viewModels.length === 0) {
             this.onAddNewVersion();
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (this.isInitialized && changes.showAllInstances.previousValue !== changes.showAllInstances.currentValue) {
+            this.calculateViewModels();
         }
     }
 
@@ -202,14 +215,7 @@ export class ManageVersionsComponent implements OnInit {
     calculateViewModels(): void {
         let viewModels: VersionDiffView[] = [];
 
-        let includeUnmodified = false;
-
-        if (this.changeRequestEditor.changeRequest == null || this.changeRequestEditor.changeRequest.type === "CreateGeoObject" ||
-          (this.changeRequestEditor.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequestEditor.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequestEditor.changeRequest.approvalStatus !== "REJECTED")) {
-            includeUnmodified = true;
-        }
-
-        let editors = this.changeRequestAttributeEditor.getEditors(includeUnmodified);
+        let editors = this.changeRequestAttributeEditor.getEditors(this.showAllInstances);
         editors.forEach((editor: ValueOverTimeCREditor) => {
             if (this.filterDate == null || this.dateService.between(this.filterDate, editor.startDate, editor.endDate)) {
                 let view = new VersionDiffView(this, editor);

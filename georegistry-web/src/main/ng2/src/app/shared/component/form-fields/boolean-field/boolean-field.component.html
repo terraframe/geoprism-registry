@@ -1,8 +1,8 @@
-<div class="check-block">
-  <div (click)="toggle()" [ngClass]="{'chk-checked' : value, 'disabled': disable}" ng-style="chkstyle" class="chk-area">
+<div (click)="toggle()" class="check-block" [ngClass]="{'dizabled': disable}">
+  <div [ngClass]="{'chk-checked' : value}" ng-style="chkstyle" class="chk-area">
     <span></span>
   </div>
   
-  <label *ngIf="label.length > 0" class="checkbox-label" [ngClass]="{'disabled': disable}">{{label}}</label>
-  <label *ngIf="localizeLabelKey.length > 0" class="checkbox-label" [ngClass]="{'disabled': disable}"><localize key="{{localizeLabelKey}}"></localize></label>
+  <label *ngIf="label.length > 0" class="checkbox-label">{{label}}</label>
+  <label *ngIf="localizeLabelKey.length > 0" class="checkbox-label"><localize key="{{localizeLabelKey}}"></localize></label>
 </div>
