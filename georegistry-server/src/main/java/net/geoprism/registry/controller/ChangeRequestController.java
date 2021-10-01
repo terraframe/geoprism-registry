@@ -121,9 +121,9 @@ public class ChangeRequestController
    *          May be one of PENDING, REJECTED, ACCEPTED, INVALID
    */
   @Endpoint(error = ErrorSerialization.JSON, url = "get-all-requests", method = ServletMethod.GET)
-  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "oid") String oid)
+  public ResponseIF getAllRequests(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "sort") String sort, @RequestParamter(name = "oid") String oid)
   {
-    JsonObject paginated = service.getAllRequestsSerialized(request.getSessionId(), pageSize, pageNumber, filter, oid);
+    JsonObject paginated = service.getAllRequestsSerialized(request.getSessionId(), pageSize, pageNumber, filter, sort, oid);
 
     return new RestBodyResponse(paginated.toString());
   }
