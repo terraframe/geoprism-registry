@@ -223,19 +223,11 @@ export class AuthService {
     }
 
     isGeoObjectTypeOrSuperRC(got: { organizationCode: string, superTypeCode?: string, code: string }, allowRoleSuper: boolean = true): boolean {
-        if (allowRoleSuper && this.isSRA()) {
+        if (this.isGeoObjectTypeRC(got.organizationCode, got.code)) {
             return true;
+        } else if (got.superTypeCode != null) {
+            return this.isGeoObjectTypeRC(got.organizationCode, got.superTypeCode);
         }
-
-        for (let i = 0; i < this.user.roles.length; ++i) {
-            let role: RegistryRole = this.user.roles[i];
-
-            if (role.type === RegistryRoleType.RC && role.orgCode === got.organizationCode && role.geoObjectTypeCode === got.code) {
-                return true;
-            }
-        }
-
-        return allowRoleSuper && this.isGeoObjectTypeOrSuperRM(got);
     }
 
     isRC(isRCOnly: boolean): boolean {
