@@ -162,24 +162,21 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
 
         // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
         // on the GeoObject
-        if (this.changeRequestEditor.changeRequest == null || this.changeRequestEditor.changeRequest.type === "CreateGeoObject" ||
-          (this.changeRequestEditor.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequestEditor.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequestEditor.changeRequest.approvalStatus !== "REJECTED")) {
-            if (this.attribute.code === "_PARENT_") {
-                this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
-                    let editor = new HierarchyCREditor(this, this.attribute, this.editAction, entry, this.hierarchy);
+        if (this.attribute.code === "_PARENT_") {
+            this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
+                let editor = new HierarchyCREditor(this, this.attribute, this.editAction, entry, this.hierarchy);
+
+                editors.push(editor);
+            });
+        } else {
+            if (this.changeRequestEditor.geoObject.attributes[this.attribute.code]) {
+                this.changeRequestEditor.geoObject.attributes[this.attribute.code].values.forEach((vot: ValueOverTime) => {
+                    let editor = new ValueOverTimeCREditor(this, this.attribute, this.editAction);
+
+                    editor.valueOverTime = vot;
 
                     editors.push(editor);
                 });
-            } else {
-                if (this.changeRequestEditor.geoObject.attributes[this.attribute.code]) {
-                    this.changeRequestEditor.geoObject.attributes[this.attribute.code].values.forEach((vot: ValueOverTime) => {
-                        let editor = new ValueOverTimeCREditor(this, this.attribute, this.editAction);
-
-                        editor.valueOverTime = vot;
-
-                        editors.push(editor);
-                    });
-                }
             }
         }
 

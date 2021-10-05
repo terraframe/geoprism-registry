@@ -151,7 +151,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         let orgCode = got.organizationCode;
         this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
 
-        this.showAllInstances = this.changeRequestEditor.changeRequest.isNew;
+        this.showAllInstances = (this.changeRequestEditor.changeRequest.isNew === true);
     }
 
     setFilterDate(date: string, refresh: boolean = true) {
