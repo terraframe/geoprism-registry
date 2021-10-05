@@ -87,8 +87,6 @@ export class RequestTableComponent {
 
     hasBaseDropZoneOver: boolean = false;
 
-    waitingOnScroll: boolean = false;
-
     // Restrict page to the specified oid
     oid: string = null;
 
@@ -154,11 +152,6 @@ export class RequestTableComponent {
 
             this.error({ error: error });
         };
-
-        if (this.toggleId != null) {
-            this.onSelect({ selected: [{ oid: this.toggleId }] });
-            this.waitingOnScroll = true;
-        }
 
         this.refresh();
     }
