@@ -443,6 +443,8 @@ export class RequestTableComponent {
 
             if (firstAction.actionType === ActionTypes.UPDATEGEOOBJECTACTION) {
                 return true;
+            } else if (firstAction.actionType === ActionTypes.CREATEGEOOBJECTACTION && !(firstAction as CreateGeoObjectAction).geoObjectJson.attributes["exists"]) {
+                return true;
             } else {
                 return false;
             }

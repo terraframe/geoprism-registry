@@ -6,7 +6,7 @@
 
 <div class="row">
   <div class="col-md-12">
-    <boolean-field *ngIf="changeRequestEditor.changeRequest.current" [(value)]="showAllInstances" label="Show all instances" [disable]="false"></boolean-field>
+    <boolean-field *ngIf="!changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.type !== 'CreateGeoObject'" [(value)]="showAllInstances" label="Show all instances" [disable]="false"></boolean-field>
   </div>
 </div>
 
