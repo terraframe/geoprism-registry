@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -124,17 +124,6 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     uuidMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
     uuidMdAttr.apply();
 
-    // DefaultAttribute.CODE - defined by GeoEntity geoId
-    MdAttributeCharacter codeMdAttr = new MdAttributeCharacter();
-    codeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
-    codeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
-    codeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultDescription());
-    codeMdAttr.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-    codeMdAttr.setDefiningMdClass(definingMdBusiness);
-    codeMdAttr.setRequired(true);
-    codeMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
-    codeMdAttr.apply();
-
     // DefaultAttribute.TYPE - This is the display label of the Universal.
     // BusObject.mdBusiness.Universal.displayLabel
 
@@ -167,17 +156,6 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     uuidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
     uuidMdAttr.apply();
 
-    // DefaultAttribute.CODE - defined by GeoEntity geoId
-    MdAttributeCharacterDAO codeMdAttr = MdAttributeCharacterDAO.newInstance();
-    codeMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.CODE.getName());
-    codeMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultLocalizedName());
-    codeMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultDescription());
-    codeMdAttr.setValue(MdAttributeCharacterInfo.SIZE, MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-    codeMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdClass.getOid());
-    codeMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
-    codeMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
-    codeMdAttr.apply();
-    
     MdAttributeBooleanDAO existsMdAttr = MdAttributeBooleanDAO.newInstance();
     existsMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.EXISTS.getName());
     existsMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.EXISTS.getDefaultLocalizedName());
@@ -187,7 +165,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     existsMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
     existsMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
     existsMdAttr.apply();
-    
+
     MdAttributeBooleanDAO invalidMdAttr = MdAttributeBooleanDAO.newInstance();
     invalidMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.INVALID.getName());
     invalidMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.INVALID.getDefaultLocalizedName());
@@ -197,7 +175,7 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
     invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
     invalidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
     invalidMdAttr.apply();
-    
+
     // DefaultAttribute.DISPLAY_LABEL
     MdAttributeLocalCharacterEmbeddedDAO labelMdAttr = MdAttributeLocalCharacterEmbeddedDAO.newInstance();
     labelMdAttr.setValue(MdAttributeLocalCharacterEmbeddedInfo.NAME, DefaultAttribute.DISPLAY_LABEL.getName());
@@ -338,6 +316,31 @@ public class ServerGeoObjectTypeConverter extends LocalizedValueConverter
 
       create_AC_GeoObjectTypeRole(mdVertex, organizationCode, geoObjectType.getCode());
       assign_AC_GeoObjectTypeRole(mdVertex, mdBusiness, organizationCode, geoObjectType.getCode());
+    }
+
+    if (!isAbstract)
+    {
+      // DefaultAttribute.CODE
+      MdAttributeCharacter businessCodeMdAttr = new MdAttributeCharacter();
+      businessCodeMdAttr.setAttributeName(DefaultAttribute.CODE.getName());
+      businessCodeMdAttr.getDisplayLabel().setValue(DefaultAttribute.CODE.getDefaultLocalizedName());
+      businessCodeMdAttr.getDescription().setValue(DefaultAttribute.CODE.getDefaultDescription());
+      businessCodeMdAttr.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
+      businessCodeMdAttr.setDefiningMdClass(mdBusiness);
+      businessCodeMdAttr.setRequired(true);
+      businessCodeMdAttr.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
+      businessCodeMdAttr.apply();
+
+      // DefaultAttribute.CODE
+      MdAttributeCharacterDAO vertexCodeMdAttr = MdAttributeCharacterDAO.newInstance();
+      vertexCodeMdAttr.setValue(MdAttributeConcreteInfo.NAME, DefaultAttribute.CODE.getName());
+      vertexCodeMdAttr.setStructValue(MdAttributeConcreteInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultLocalizedName());
+      vertexCodeMdAttr.setStructValue(MdAttributeConcreteInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, DefaultAttribute.CODE.getDefaultDescription());
+      vertexCodeMdAttr.setValue(MdAttributeCharacterInfo.SIZE, MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
+      vertexCodeMdAttr.setValue(MdAttributeConcreteInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+      vertexCodeMdAttr.setValue(MdAttributeConcreteInfo.REQUIRED, MdAttributeBooleanInfo.TRUE);
+      vertexCodeMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.UNIQUE_INDEX.getOid());
+      vertexCodeMdAttr.apply();
     }
 
     // Build the parent class term root if it does not exist.

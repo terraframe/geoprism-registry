@@ -373,17 +373,6 @@ public class TestGeoObjectInfo
     // Assert.assertEquals(status.code, geoObj.getStatus().getCode());
   }
 
-  public void assertEquals(GeoEntity geoEnt)
-  {
-    Assert.assertEquals(this.getRegistryId(), geoEnt.getOid());
-    Assert.assertEquals(this.getCode(), geoEnt.getGeoId());
-    Assert.assertEquals(this.getDisplayLabel(), geoEnt.getDisplayLabel().getValue());
-    this.getGeoObjectType().assertEquals(geoEnt.getUniversal());
-
-    Assert.assertEquals(StringUtils.deleteWhitespace(this.getWkt()), StringUtils.deleteWhitespace(geoEnt.getWkt()));
-    // TODO : Check MultiPolygon and Point ?
-  }
-
   @Request
   public void addChild(TestGeoObjectInfo child, TestHierarchyTypeInfo hierarchy)
   {

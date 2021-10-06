@@ -30,7 +30,6 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
 {
   public final static String CLASS = "net.geoprism.registry.graph.GeoVertex";
   public static java.lang.String CREATEDATE = "createDate";
-  public static java.lang.String GEOID = "geoId";
   public static java.lang.String GEOLINE = "geoLine";
   public static java.lang.String GEOMULTILINE = "geoMultiLine";
   public static java.lang.String GEOMULTIPOINT = "geoMultiPoint";
@@ -62,23 +61,7 @@ public abstract class GeoVertexBase extends com.runwaysdk.business.graph.VertexO
   {
     this.setValue(CREATEDATE, value);
   }
-  
-  public String getGeoId()
-  {
-    return (String) this.getObjectValue(GEOID);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getGeoIdMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.GeoVertex.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(GEOID);
-  }
-  
-  public void setGeoId(String value)
-  {
-    this.setValue(GEOID, value);
-  }
-  
+    
   public com.vividsolutions.jts.geom.LineString getGeoLine()
   {
     return (com.vividsolutions.jts.geom.LineString) this.getObjectValue(GEOLINE);

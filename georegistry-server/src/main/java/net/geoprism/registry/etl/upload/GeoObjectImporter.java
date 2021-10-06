@@ -302,11 +302,11 @@ public class GeoObjectImporter implements ObjectImporterIF
         /*
          * 2. Check for serialization and term problems
          */
-        String geoId = this.getCode(row);
+        String code = this.getCode(row);
 
         ServerGeoObjectIF entity;
 
-        if (geoId == null || geoId.length() <= 0)
+        if (code == null || code.length() <= 0)
         {
           RequiredMappingException ex = new RequiredMappingException();
           ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
@@ -314,7 +314,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
 
         entity = service.newInstance(this.configuration.getType());
-        entity.setCode(geoId);
+        entity.setCode(code);
         entity.setInvalid(false);
 
         try
@@ -510,9 +510,9 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     try
     {
-      String geoId = this.getCode(row);
+      String code = this.getCode(row);
 
-      if (geoId == null || geoId.length() <= 0)
+      if (code == null || code.length() <= 0)
       {
         RequiredMappingException ex = new RequiredMappingException();
         ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
@@ -521,7 +521,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
       {
-        serverGo = service.getGeoObjectByCode(geoId, this.configuration.getType());
+        serverGo = service.getGeoObjectByCode(code, this.configuration.getType());
       }
 
       if (serverGo == null)
@@ -530,7 +530,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         {
           net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
           ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
-          ex.setDataIdentifier(geoId);
+          ex.setDataIdentifier(code);
           ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
@@ -538,7 +538,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         isNew = true;
 
         serverGo = service.newInstance(this.configuration.getType());
-        serverGo.setCode(geoId);
+        serverGo.setCode(code);
         serverGo.setInvalid(false);
       }
       else
@@ -790,11 +790,11 @@ public class GeoObjectImporter implements ObjectImporterIF
       throw ex;
     }
 
-    Object geoId = function.getValue(row);
+    Object code = function.getValue(row);
 
-    if (geoId != null)
+    if (code != null)
     {
-      return geoId.toString();
+      return code.toString();
     }
 
     return null;
