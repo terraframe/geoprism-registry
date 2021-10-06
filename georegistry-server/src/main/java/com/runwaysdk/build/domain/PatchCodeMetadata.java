@@ -28,7 +28,9 @@ import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdClassDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.DeleteContext;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
@@ -55,23 +57,31 @@ public class PatchCodeMetadata
   @Transaction
   private void transaction()
   {
-    MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS).definesAttribute("geoId").getBusinessDAO().delete();
-    
+    MdAttributeDAOIF mdAttributeGeoId = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS).definesAttribute("geoId");
+
+    if (mdAttributeGeoId != null)
+    {
+      mdAttributeGeoId.getBusinessDAO().delete();
+    }
+
     List<ServerGeoObjectType> types = ServiceFactory.getMetadataCache().getAllGeoObjectTypes();
     types = types.stream().filter(t -> t.getIsAbstract()).collect(Collectors.toList());
 
     for (ServerGeoObjectType type : types)
     {
-      System.out.println("Migrating code from type [" + type.getCode() + "]");
+      MdVertexDAOIF mdVertex = type.getMdVertex();
 
-      // Remove the code attribute
-      delete(type);
+      if (mdVertex.definesAttribute("geoId") != null)
+      {
+        // Remove the code attribute
+        delete(type);
 
-      create(type);
+        create(type);
+      }
     }
   }
 
-//  @Transaction
+  // @Transaction
   public void create(ServerGeoObjectType type)
   {
     List<ServerGeoObjectType> subtypes = type.getSubtypes();
@@ -97,7 +107,7 @@ public class PatchCodeMetadata
     }
   }
 
-//  @Transaction
+  // @Transaction
   public void delete(ServerGeoObjectType type)
   {
     DeleteContext context = new DeleteContext();
