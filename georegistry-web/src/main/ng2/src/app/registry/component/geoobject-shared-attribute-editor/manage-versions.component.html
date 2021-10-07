@@ -151,7 +151,7 @@
                                             <localize *ngIf="!viewModel.newLayer || !viewModel.newLayer.isRendering" key="changeovertime.manageVersions.geometry.view"></localize>
                                             <localize *ngIf="viewModel.newLayer && viewModel.newLayer.isRendering" key="changeovertime.manageVersions.geometry.hide"></localize>
                                           </button>
-                                          <button *ngIf="viewModel.newLayer && viewModel.newLayer.isRendering" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button"
+                                          <button *ngIf="viewModel.newLayer && viewModel.newLayer.isRendering && geoObjectType.isGeometryEditable" class="btn btn-primary" (click)="toggleGeometryEditing(viewModel)" role="button"
                                             [disabled]="readonly || viewModel.coordinate && ( (viewModel.coordinate.longValid != null && !viewModel.coordinate.longValid) || (viewModel.coordinate.latValid != null && !viewModel.coordinate.latValid) )">
                                             <localize *ngIf="viewModel.newLayer && !viewModel.newLayer.isEditing" key="changeovertime.manageVersions.geometry.edit"></localize>
                                             <localize *ngIf="viewModel.newLayer && viewModel.newLayer.isEditing" key="changeovertime.manageVersions.geometry.save"></localize>
