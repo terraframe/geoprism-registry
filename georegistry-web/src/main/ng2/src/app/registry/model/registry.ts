@@ -352,9 +352,9 @@ export class MasterList {
     typeLabel?: LocalizedValue;
     displayLabel: LocalizedValue;
     code: string;
-    representativityDate: Date;
-    publishingStartDate?: Date;
-    publishDate: Date;
+    representativityDate: string;
+    publishingStartDate?: string;
+    publishDate: string;
     descriptionLocal: LocalizedValue;
     processLocal: LocalizedValue;
     progressLocal: LocalizedValue;
@@ -376,7 +376,7 @@ export class MasterList {
     exploratory?: boolean;
     versions?: MasterListVersion[];
     subtypes?: { label: string, code: string }[];
-    subtypeHierarchies?: [];
+    subtypeHierarchies?: any[];
 }
 
 export class MasterListVersion {

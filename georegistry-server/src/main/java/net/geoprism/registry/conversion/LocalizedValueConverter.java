@@ -57,8 +57,7 @@ public class LocalizedValueConverter
    * TODO : This method will coalesce the value for all of the locales. So if the value is empty for a particular
    * locale, that locale will actually have the default locale placed in it. For this reason, usage of this method
    * should be deprecated for populating DTOS and the like, the coalescing of values should actually happen on the
-   * front-end, since that coalescing is actually use-case dependent. If you're looking for a method which does not
-   * perform this auto-coalescing, then use localizedValue.setLocaleMap(localStruct.getLocaleMap()).
+   * front-end, since that coalescing is actually use-case dependent.
    */
   public static LocalizedValue convert(LocalStruct localStruct)
   {
@@ -72,6 +71,15 @@ public class LocalizedValueConverter
       label.setValue(locale, localStruct.getValue(locale));
     }
 
+    return label;
+  }
+  
+  public static LocalizedValue convertNoAutoCoalesce(LocalStruct localStruct)
+  {
+    LocalizedValue label = new LocalizedValue(localStruct.getValue());
+    
+    label.setLocaleMap(localStruct.getLocaleMap());
+    
     return label;
   }
 

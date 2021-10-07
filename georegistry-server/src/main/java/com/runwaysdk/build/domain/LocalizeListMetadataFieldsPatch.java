@@ -10,6 +10,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.metadata.MdAttribute;
 import com.runwaysdk.system.metadata.MdAttributeLocalText;
 import com.runwaysdk.system.metadata.MdBusiness;
 
@@ -31,6 +32,15 @@ public class LocalizeListMetadataFieldsPatch
   public static java.lang.String ACKNOWLEDGEMENTS = "acknowledgements";
   public static java.lang.String DISCLAIMER = "disclaimer";
   
+  public static final String[] newAttrs = new String[] {
+    MasterList.DESCRIPTIONLOCAL, MasterList.PROCESSLOCAL, MasterList.PROGRESSLOCAL, MasterList.ACCESSCONSTRAINTSLOCAL,
+    MasterList.USECONSTRAINTSLOCAL, MasterList.ACKNOWLEDGEMENTSLOCAL, MasterList.DISCLAIMERLOCAL
+  };
+  
+  public static final String[] oldAttrs = new String[] {
+      LISTABSTRACT, PROCESS, PROGRESS, ACCESSCONSTRAINTS, USECONSTRAINTS, ACKNOWLEDGEMENTS, DISCLAIMER
+  };
+  
   public static void main(String[] args)
   {
     new LocalizeListMetadataFieldsPatch().doItInReq();
@@ -47,20 +57,14 @@ public class LocalizeListMetadataFieldsPatch
   {
     // First, define the new attributes
     logger.info("Defining new localized attributes for MasterList metadata.");
-    defineAttributes(new String[] {
-        MasterList.DESCRIPTIONLOCAL, MasterList.PROCESSLOCAL, MasterList.PROGRESSLOCAL, MasterList.ACCESSCONSTRAINTSLOCAL,
-        MasterList.USECONSTRAINTSLOCAL, MasterList.ACKNOWLEDGEMENTSLOCAL, MasterList.DISCLAIMERLOCAL
-    });
+    defineAttributes();
 
     // Then, patch all existing data by copying the data from the old attribute to the new attribute
     migrateExistingLists();
     
     // Finally, we can delete the old attributes.
     logger.info("Deleting unlocalized attributes for MasterList metadata.");
-    deleteAttributes(new String[] {
-        LISTABSTRACT, PROCESS, PROGRESS, ACCESSCONSTRAINTS,
-        USECONSTRAINTS, ACKNOWLEDGEMENTS, DISCLAIMER
-    });
+    deleteAttributes();
   }
   
   private void migrateExistingLists()
@@ -89,20 +93,24 @@ public class LocalizeListMetadataFieldsPatch
     }
   }
   
-  private void defineAttributes(String[] names)
+  private void defineAttributes()
   {
-    for (String name : names)
+    for (int i = 0; i < newAttrs.length; ++i)
     {
-      MdAttributeLocalText description = new MdAttributeLocalText();
-      description.setDefiningMdClass(masterlistMd);
-      description.setAttributeName(name);
-      description.apply();
+      String newAttrName = newAttrs[i];
+      MdAttributeConcreteDAO oldMdAttr = (MdAttributeConcreteDAO) MdAttributeConcreteDAO.getByKey(MasterList.CLASS + "." + oldAttrs[i]);
+      
+      MdAttributeLocalText mdAttr = new MdAttributeLocalText();
+      mdAttr.setDefiningMdClass(masterlistMd);
+      mdAttr.setAttributeName(newAttrName);
+      mdAttr.getDisplayLabel().setLocaleMap(oldMdAttr.getDisplayLabels());
+      mdAttr.apply();
     }
   }
   
-  private void deleteAttributes(String[] names)
+  private void deleteAttributes()
   {
-    for (String name : names)
+    for (String name : oldAttrs)
     {
       MdAttributeConcreteDAO attr = (MdAttributeConcreteDAO) MdAttributeConcreteDAO.getByKey(MasterList.CLASS + "." + name);
       attr.delete();
