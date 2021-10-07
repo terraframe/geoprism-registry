@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1023387615)
+@com.runwaysdk.business.ClassSignature(hash = -337952040)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,13 +11,22 @@ package net.geoprism.registry;
 public abstract class MasterListBase extends com.runwaysdk.business.Business
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  public static java.lang.String ACCESSCONSTRAINTS = "accessConstraints";
-  public static java.lang.String ACKNOWLEDGEMENTS = "acknowledgements";
+  public static java.lang.String ACCESSCONSTRAINTSLOCAL = "accessConstraintsLocal";
+  private com.runwaysdk.business.Struct accessConstraintsLocal = null;
+  
+  public static java.lang.String ACKNOWLEDGEMENTSLOCAL = "acknowledgementsLocal";
+  private com.runwaysdk.business.Struct acknowledgementsLocal = null;
+  
   public static java.lang.String CODE = "code";
   public static java.lang.String CONTACTNAME = "contactName";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String DISCLAIMER = "disclaimer";
+  public static java.lang.String DESCRIPTIONLOCAL = "descriptionLocal";
+  private com.runwaysdk.business.Struct descriptionLocal = null;
+  
+  public static java.lang.String DISCLAIMERLOCAL = "disclaimerLocal";
+  private com.runwaysdk.business.Struct disclaimerLocal = null;
+  
   public static java.lang.String DISPLAYLABEL = "displayLabel";
   private com.runwaysdk.business.Struct displayLabel = null;
   
@@ -47,13 +38,16 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LISTABSTRACT = "listAbstract";
   public static java.lang.String LOCKEDBY = "lockedBy";
   public static java.lang.String OID = "oid";
   public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String OWNER = "owner";
-  public static java.lang.String PROCESS = "process";
-  public static java.lang.String PROGRESS = "progress";
+  public static java.lang.String PROCESSLOCAL = "processLocal";
+  private com.runwaysdk.business.Struct processLocal = null;
+  
+  public static java.lang.String PROGRESSLOCAL = "progressLocal";
+  private com.runwaysdk.business.Struct progressLocal = null;
+  
   public static java.lang.String PUBLISHDATE = "publishDate";
   public static java.lang.String PUBLISHINGSTARTDATE = "publishingStartDate";
   public static java.lang.String REPRESENTATIVITYDATE = "representativityDate";
@@ -63,71 +57,56 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
   public static java.lang.String TELEPHONENUMBER = "telephoneNumber";
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
-  public static java.lang.String USECONSTRAINTS = "useConstraints";
+  public static java.lang.String USECONSTRAINTSLOCAL = "useConstraintsLocal";
+  private com.runwaysdk.business.Struct useConstraintsLocal = null;
+  
   public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
-  private static final long serialVersionUID = 1023387615;
+  private static final long serialVersionUID = -337952040;
   
   public MasterListBase()
   {
     super();
+    accessConstraintsLocal = super.getStruct("accessConstraintsLocal");
+    acknowledgementsLocal = super.getStruct("acknowledgementsLocal");
+    descriptionLocal = super.getStruct("descriptionLocal");
+    disclaimerLocal = super.getStruct("disclaimerLocal");
     displayLabel = super.getStruct("displayLabel");
+    processLocal = super.getStruct("processLocal");
+    progressLocal = super.getStruct("progressLocal");
+    useConstraintsLocal = super.getStruct("useConstraintsLocal");
   }
   
-  public String getAccessConstraints()
+  public net.geoprism.registry.MasterListAccessConstraintsLocal getAccessConstraintsLocal()
   {
-    return getValue(ACCESSCONSTRAINTS);
+    return (net.geoprism.registry.MasterListAccessConstraintsLocal) accessConstraintsLocal;
   }
   
-  public void validateAccessConstraints()
+  public void validateAccessConstraintsLocal()
   {
-    this.validateAttribute(ACCESSCONSTRAINTS);
+    this.validateAttribute(ACCESSCONSTRAINTSLOCAL);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAccessConstraintsMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ACCESSCONSTRAINTS);
-  }
-  
-  public void setAccessConstraints(String value)
-  {
-    if(value == null)
-    {
-      setValue(ACCESSCONSTRAINTS, "");
-    }
-    else
-    {
-      setValue(ACCESSCONSTRAINTS, value);
-    }
-  }
-  
-  public String getAcknowledgements()
-  {
-    return getValue(ACKNOWLEDGEMENTS);
-  }
-  
-  public void validateAcknowledgements()
-  {
-    this.validateAttribute(ACKNOWLEDGEMENTS);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAcknowledgementsMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getAccessConstraintsLocalMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(ACKNOWLEDGEMENTS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(ACCESSCONSTRAINTSLOCAL);
   }
   
-  public void setAcknowledgements(String value)
+  public net.geoprism.registry.MasterListAcknowledgementsLocal getAcknowledgementsLocal()
   {
-    if(value == null)
-    {
-      setValue(ACKNOWLEDGEMENTS, "");
-    }
-    else
-    {
-      setValue(ACKNOWLEDGEMENTS, value);
-    }
+    return (net.geoprism.registry.MasterListAcknowledgementsLocal) acknowledgementsLocal;
+  }
+  
+  public void validateAcknowledgementsLocal()
+  {
+    this.validateAttribute(ACKNOWLEDGEMENTSLOCAL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getAcknowledgementsLocalMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(ACKNOWLEDGEMENTSLOCAL);
   }
   
   public String getCode()
@@ -230,32 +209,36 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
   }
   
-  public String getDisclaimer()
+  public net.geoprism.registry.MasterListDescriptionLocal getDescriptionLocal()
   {
-    return getValue(DISCLAIMER);
+    return (net.geoprism.registry.MasterListDescriptionLocal) descriptionLocal;
   }
   
-  public void validateDisclaimer()
+  public void validateDescriptionLocal()
   {
-    this.validateAttribute(DISCLAIMER);
+    this.validateAttribute(DESCRIPTIONLOCAL);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getDisclaimerMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getDescriptionLocalMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(DISCLAIMER);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(DESCRIPTIONLOCAL);
   }
   
-  public void setDisclaimer(String value)
+  public net.geoprism.registry.MasterListDisclaimerLocal getDisclaimerLocal()
   {
-    if(value == null)
-    {
-      setValue(DISCLAIMER, "");
-    }
-    else
-    {
-      setValue(DISCLAIMER, value);
-    }
+    return (net.geoprism.registry.MasterListDisclaimerLocal) disclaimerLocal;
+  }
+  
+  public void validateDisclaimerLocal()
+  {
+    this.validateAttribute(DISCLAIMERLOCAL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getDisclaimerLocalMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(DISCLAIMERLOCAL);
   }
   
   public net.geoprism.registry.MasterListDisplayLabel getDisplayLabel()
@@ -520,34 +503,6 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(LASTUPDATEDBY);
   }
   
-  public String getListAbstract()
-  {
-    return getValue(LISTABSTRACT);
-  }
-  
-  public void validateListAbstract()
-  {
-    this.validateAttribute(LISTABSTRACT);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getListAbstractMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(LISTABSTRACT);
-  }
-  
-  public void setListAbstract(String value)
-  {
-    if(value == null)
-    {
-      setValue(LISTABSTRACT, "");
-    }
-    else
-    {
-      setValue(LISTABSTRACT, value);
-    }
-  }
-  
   public com.runwaysdk.system.SingleActor getLockedBy()
   {
     if (getValue(LOCKEDBY).trim().equals(""))
@@ -696,60 +651,36 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     }
   }
   
-  public String getProcess()
+  public net.geoprism.registry.MasterListProcessLocal getProcessLocal()
   {
-    return getValue(PROCESS);
+    return (net.geoprism.registry.MasterListProcessLocal) processLocal;
   }
   
-  public void validateProcess()
+  public void validateProcessLocal()
   {
-    this.validateAttribute(PROCESS);
+    this.validateAttribute(PROCESSLOCAL);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getProcessMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getProcessLocalMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(PROCESS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(PROCESSLOCAL);
   }
   
-  public void setProcess(String value)
+  public net.geoprism.registry.MasterListProgressLocal getProgressLocal()
   {
-    if(value == null)
-    {
-      setValue(PROCESS, "");
-    }
-    else
-    {
-      setValue(PROCESS, value);
-    }
+    return (net.geoprism.registry.MasterListProgressLocal) progressLocal;
   }
   
-  public String getProgress()
+  public void validateProgressLocal()
   {
-    return getValue(PROGRESS);
+    this.validateAttribute(PROGRESSLOCAL);
   }
   
-  public void validateProgress()
-  {
-    this.validateAttribute(PROGRESS);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getProgressMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getProgressLocalMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(PROGRESS);
-  }
-  
-  public void setProgress(String value)
-  {
-    if(value == null)
-    {
-      setValue(PROGRESS, "");
-    }
-    else
-    {
-      setValue(PROGRESS, value);
-    }
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(PROGRESSLOCAL);
   }
   
   public java.util.Date getPublishDate()
@@ -992,32 +923,20 @@ public abstract class MasterListBase extends com.runwaysdk.business.Business
     }
   }
   
-  public String getUseConstraints()
+  public net.geoprism.registry.MasterListUseConstraintsLocal getUseConstraintsLocal()
   {
-    return getValue(USECONSTRAINTS);
+    return (net.geoprism.registry.MasterListUseConstraintsLocal) useConstraintsLocal;
   }
   
-  public void validateUseConstraints()
+  public void validateUseConstraintsLocal()
   {
-    this.validateAttribute(USECONSTRAINTS);
+    this.validateAttribute(USECONSTRAINTSLOCAL);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getUseConstraintsMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getUseConstraintsLocalMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.MasterList.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(USECONSTRAINTS);
-  }
-  
-  public void setUseConstraints(String value)
-  {
-    if(value == null)
-    {
-      setValue(USECONSTRAINTS, "");
-    }
-    else
-    {
-      setValue(USECONSTRAINTS, value);
-    }
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(USECONSTRAINTSLOCAL);
   }
   
   public Boolean getValid()

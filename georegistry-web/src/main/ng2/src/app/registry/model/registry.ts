@@ -355,13 +355,13 @@ export class MasterList {
     representativityDate: Date;
     publishingStartDate?: Date;
     publishDate: Date;
-    listAbstract: string;
-    process: string;
-    progress: string;
-    accessConstraints: string;
-    useConstraints: string;
-    acknowledgements: string;
-    disclaimer: string;
+    descriptionLocal: LocalizedValue;
+    processLocal: LocalizedValue;
+    progressLocal: LocalizedValue;
+    accessConstraintsLocal: LocalizedValue;
+    useConstraintsLocal: LocalizedValue;
+    acknowledgementsLocal: LocalizedValue;
+    disclaimerLocal: LocalizedValue;
     contactName: string;
     organization: string;
     telephoneNumber: string;
@@ -376,6 +376,7 @@ export class MasterList {
     exploratory?: boolean;
     versions?: MasterListVersion[];
     subtypes?: { label: string, code: string }[];
+    subtypeHierarchies?: [];
 }
 
 export class MasterListVersion {

@@ -194,13 +194,13 @@ public class MasterListExcelExporter
     this.createRow(sheet, locale, metadata, rowNumber++, MasterList.CODE, this.list.getCode());
     this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.publishDate"), stripTime(this.version.getPublishDate()));
     this.createRow(sheet, rowNumber++, LocalizationFacade.getFromBundles("masterlist.forDate"), stripTime(this.version.getForDate()));
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.LISTABSTRACT, this.list.getListAbstract());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROCESS, this.list.getProcess());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROGRESS, this.list.getProgress());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ACCESSCONSTRAINTS, this.list.getAccessConstraints());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.USECONSTRAINTS, this.list.getUseConstraints());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ACKNOWLEDGEMENTS, this.list.getAcknowledgements());
-    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISCLAIMER, this.list.getDisclaimer());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DESCRIPTIONLOCAL, this.list.getDescriptionLocal().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROCESSLOCAL, this.list.getProcessLocal().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.PROGRESSLOCAL, this.list.getProgressLocal().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ACCESSCONSTRAINTSLOCAL, this.list.getAccessConstraintsLocal().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.USECONSTRAINTSLOCAL, this.list.getUseConstraintsLocal().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.ACKNOWLEDGEMENTSLOCAL, this.list.getAcknowledgementsLocal().getValue());
+    this.createRow(sheet, locale, metadata, rowNumber++, MasterList.DISCLAIMERLOCAL, this.list.getDisclaimerLocal().getValue());
 
     rowNumber++;
 
