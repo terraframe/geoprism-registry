@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.hierarchy;
 
@@ -52,7 +52,7 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class HierarchyService
 {
-  
+
   @Request(RequestType.SESSION)
   public JsonArray getHierarchyGroupedTypes(String sessionId)
   {
@@ -60,38 +60,36 @@ public class HierarchyService
     final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
     final RolePermissionService rps = ServiceFactory.getRolePermissionService();
     final boolean isSRA = rps.isSRA();
-    
+
     JsonArray allHiers = new JsonArray();
-    
+
     List<ServerHierarchyType> shts = ServiceFactory.getMetadataCache().getAllHierarchyTypes();
-    
+
     for (ServerHierarchyType sht : shts)
     {
       final String htOrgCode = sht.getOrganizationCode();
       final HierarchyType ht = sht.getType();
-      
-      if (hierarchyPermissions.canRead(ht.getOrganizationCode())
-          && (isSRA || rps.isRA(htOrgCode) || rps.isRM(htOrgCode)))
+
+      if (hierarchyPermissions.canRead(ht.getOrganizationCode()) && ( isSRA || rps.isRA(htOrgCode) || rps.isRM(htOrgCode) ))
       {
         JsonObject hierView = new JsonObject();
         hierView.addProperty("code", ht.getCode());
         hierView.addProperty("label", ht.getLabel().getValue());
         hierView.addProperty("orgCode", ht.getOrganizationCode());
-        
+
         JsonArray allHierTypes = new JsonArray();
-        
+
         Iterator<HierarchyNode> it = ht.getAllNodesIterator();
-        
+
         while (it.hasNext())
         {
           HierarchyNode hn = it.next();
-          
+
           GeoObjectType type = hn.getGeoObjectType();
           ServerGeoObjectType serverType = ServerGeoObjectType.get(type);
           final String gotOrgCode = type.getOrganizationCode();
-          
-          if (typePermissions.canRead(type.getOrganizationCode(), serverType, serverType.getIsPrivate())
-              && (isSRA || rps.isRA(gotOrgCode) || rps.isRM(gotOrgCode,serverType)))
+
+          if (typePermissions.canRead(type.getOrganizationCode(), serverType, serverType.getIsPrivate()) && ( isSRA || rps.isRA(gotOrgCode) || rps.isRM(gotOrgCode, serverType) ))
           {
             if (serverType.getIsAbstract())
             {
@@ -100,17 +98,17 @@ public class HierarchyService
               superView.addProperty("label", type.getLabel().getValue());
               superView.addProperty("orgCode", type.getOrganizationCode());
               superView.addProperty("isAbstract", true);
-              
+
               List<ServerGeoObjectType> subtypes = serverType.getSubtypes();
-              
-              for (ServerGeoObjectType subtype: subtypes)
+
+              for (ServerGeoObjectType subtype : subtypes)
               {
                 JsonObject typeView = new JsonObject();
                 typeView.addProperty("code", subtype.getCode());
                 typeView.addProperty("label", subtype.getLabel().getValue());
                 typeView.addProperty("orgCode", subtype.getOrganization().getCode());
                 typeView.add("super", superView);
-                
+
                 allHierTypes.add(typeView);
               }
             }
@@ -120,18 +118,18 @@ public class HierarchyService
               typeView.addProperty("code", type.getCode());
               typeView.addProperty("label", type.getLabel().getValue());
               typeView.addProperty("orgCode", type.getOrganizationCode());
-              
+
               allHierTypes.add(typeView);
             }
           }
         }
-        
+
         hierView.add("types", allHierTypes);
-        
+
         allHiers.add(hierView);
       }
     }
-    
+
     return allHiers;
   }
 
@@ -144,13 +142,14 @@ public class HierarchyService
 
     JsonArray hierarchies = new JsonArray();
 
-    HierarchyTypePermissionServiceIF pService = ServiceFactory.getHierarchyPermissionService();
+    HierarchyTypePermissionServiceIF htpService = ServiceFactory.getHierarchyPermissionService();
+    GeoObjectRelationshipPermissionServiceIF grpService = ServiceFactory.getGeoObjectRelationshipPermissionService();
 
     for (ServerHierarchyType sHT : hierarchyTypes)
     {
       HierarchyType hierarchyType = sHT.getType();
 
-      if (pService.canWrite(hierarchyType.getOrganizationCode()))
+      if (htpService.canRead(hierarchyType.getOrganizationCode()))
       {
         List<GeoObjectType> parents = geoObjectType.getTypeAncestors(sHT, true);
 
@@ -168,7 +167,7 @@ public class HierarchyService
             {
               ServerGeoObjectType pType = ServerGeoObjectType.get(parent);
 
-              if (!pType.getCode().equals(geoObjectType.getCode()))
+              if (!pType.getCode().equals(geoObjectType.getCode()) && grpService.canViewChild(hierarchyType.getOrganizationCode(), null, pType))
               {
                 JsonObject pObject = new JsonObject();
                 pObject.addProperty("code", pType.getCode());
@@ -192,7 +191,7 @@ public class HierarchyService
       {
         HierarchyType hierarchyType = sHT.getType();
 
-        if (pService.canWrite(hierarchyType.getOrganizationCode()))
+        if (htpService.canWrite(hierarchyType.getOrganizationCode()))
         {
           if (geoObjectType.isRoot(sHT))
           {
@@ -242,7 +241,7 @@ public class HierarchyService
   {
     return this.getHierarchiesForGeoObjectOverTimeInReq(code, typeCode);
   }
-  
+
   public JsonArray getHierarchiesForGeoObjectOverTimeInReq(String code, String typeCode)
   {
     ServerGeoObjectIF geoObject = ServiceFactory.getGeoObjectService().getGeoObjectByCode(code, typeCode);
@@ -259,13 +258,16 @@ public class HierarchyService
 
     Collection<ServerHierarchyType> hierarchies = pot.getHierarchies();
 
-    //Boolean isCR = ServiceFactory.getRolePermissionService().isRC() || ServiceFactory.getRolePermissionService().isAC();
+    // Boolean isCR = ServiceFactory.getRolePermissionService().isRC() ||
+    // ServiceFactory.getRolePermissionService().isAC();
 
     for (ServerHierarchyType hierarchy : hierarchies)
     {
       Organization organization = hierarchy.getOrganization();
 
-      //if ( ( isCR && !service.canAddChildCR(organization.getCode(), null, type) ) || ( !isCR && !service.canAddChild(organization.getCode(), null, type) ))
+      // if ( ( isCR && !service.canAddChildCR(organization.getCode(), null,
+      // type) ) || ( !isCR && !service.canAddChild(organization.getCode(),
+      // null, type) ))
       if (!service.canViewChild(organization.getCode(), null, type))
       {
         pot.remove(hierarchy);
@@ -326,8 +328,7 @@ public class HierarchyService
 
       Organization org = Organization.getByCode(ht.getOrganizationCode());
 
-      if ( (context.equals(PermissionContext.READ) && !hierPermServ.canRead(org.getCode()))
-           || (context.equals(PermissionContext.WRITE) && !hierPermServ.canWrite(org.getCode())) )
+      if ( ( context.equals(PermissionContext.READ) && !hierPermServ.canRead(org.getCode()) ) || ( context.equals(PermissionContext.WRITE) && !hierPermServ.canWrite(org.getCode()) ))
       {
         it.remove();
         continue;
