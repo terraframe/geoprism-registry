@@ -2440,7 +2440,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     catch (Throwable t)
     {
       logger.error("Error encountered while finding a geoObject of code [" + code + "].", t);
-      return null;
     }
     
     if (type == null)
