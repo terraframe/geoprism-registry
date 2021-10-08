@@ -62,7 +62,7 @@ export class ParentReferenceProblemWidgetComponent implements OnInit {
         let hierarchyCode = this.job.configuration.hierarchy;
 
         return Observable.create((observer: any) => {
-            this.service.getGeoObjectSuggestions(this.searchLabel, typeCode, parentCode, null, hierarchyCode, this.job.startDate).then(results => {
+            this.service.getGeoObjectSuggestions(this.searchLabel, typeCode, parentCode, null, hierarchyCode, this.job.startDate, this.job.endDate).then(results => {
                 observer.next(results);
             });
         });

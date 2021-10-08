@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.test;
 
@@ -79,7 +79,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   public void refreshMetadataCache()
   {
     refreshRequestMetadataCache();
-    
+
     this.getMetadataCache().rebuild();
 
     GeoObjectType[] gots = this.getGeoObjectTypes(new String[] {}, new String[] {}, PermissionContext.READ);
@@ -96,7 +96,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
       this.getMetadataCache().addHierarchyType(ht);
     }
   }
-  
+
   @Request
   private void refreshRequestMetadataCache()
   {
@@ -129,10 +129,10 @@ public class TestRegistryAdapterClient extends RegistryAdapter
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
       sDate = format.format(date);
     }
-    
-    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, sDate))).getAsJsonArray();
+
+    return JsonParser.parseString(responseToString(this.controller.getGeoObjectSuggestions(clientRequest, text, type, parent, parentTypeCode, hierarchy, sDate, sDate))).getAsJsonArray();
   }
-  
+
   public AttributeType createAttributeType(String geoObjectTypeCode, String attributeTypeJSON)
   {
     return responseToAttributeType(this.controller.createAttributeType(clientRequest, geoObjectTypeCode, attributeTypeJSON));
@@ -157,12 +157,12 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     this.controller.deleteTerm(clientRequest, parentTermCode, termCode);
   }
-  
+
   public GeoObjectType createGeoObjectType(String gtJSON)
   {
     return responseToGeoObjectType(this.controller.createGeoObjectType(this.clientRequest, gtJSON));
   }
-  
+
   public GeoObjectType updateGeoObjectType(String gtJSON)
   {
     return responseToGeoObjectType(this.controller.updateGeoObjectType(clientRequest, gtJSON));
@@ -172,7 +172,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return responseToGeoObject(this.controller.getGeoObject(this.clientRequest, registryId, code));
   }
-  
+
   public GeoObjectOverTime getGeoObjectOverTime(String registryId, String typeCode)
   {
     return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTime(clientRequest, registryId, typeCode));
@@ -182,7 +182,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return responseToGeoObject(this.controller.getGeoObjectByCode(this.clientRequest, code, typeCode));
   }
-  
+
   public GeoObjectOverTime getGeoObjectOverTimeByCode(String code, String typeCode)
   {
     return responseToGeoObjectOverTime(this.controller.getGeoObjectOverTimeByCode(clientRequest, code, typeCode));
@@ -192,7 +192,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return responseToGeoObject(this.controller.createGeoObject(this.clientRequest, jGeoObj));
   }
-  
+
   public GeoObjectOverTime createGeoObjectOverTime(String jGeoObj)
   {
     return responseToGeoObjectOverTime(this.controller.createGeoObjectOverTime(this.clientRequest, jGeoObj));
@@ -202,7 +202,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return responseToGeoObject(this.controller.updateGeoObject(this.clientRequest, jGeoObj));
   }
-  
+
   public GeoObjectOverTime updateGeoObjectOverTime(String jGeoObj)
   {
     return responseToGeoObjectOverTime(this.controller.updateGeoObjectOverTime(this.clientRequest, jGeoObj));
@@ -212,7 +212,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     String saCodes = this.serialize(codes);
     String saHierarchies = this.serialize(hierarchies);
-    
+
     if (pc == null)
     {
       pc = PermissionContext.READ;
@@ -227,7 +227,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
 
     return responseToHierarchyTypes(this.controller.getHierarchyTypes(this.clientRequest, saCodes, PermissionContext.READ.name()));
   }
-  
+
   public JsonObject hierarchyManagerInit()
   {
     return JsonParser.parseString(responseToString(this.controller.init(this.clientRequest))).getAsJsonObject();
@@ -264,12 +264,12 @@ public class TestRegistryAdapterClient extends RegistryAdapter
       throw new RuntimeException(e);
     }
   }
-  
+
   public JsonObject getConfigForExternalSystem(String externalSystemId, String hierarchyTypeCode)
   {
     return JsonParser.parseString(responseToString(new SynchronizationConfigController().getConfigForExternalSystem(this.clientRequest, externalSystemId, hierarchyTypeCode))).getAsJsonObject();
   }
-  
+
   public HierarchyType addToHierarchy(String hierarchyCode, String parentGeoObjectTypeCode, String childGeoObjectTypeCode)
   {
     return responseToHierarchyType(this.controller.addToHierarchy(this.clientRequest, hierarchyCode, parentGeoObjectTypeCode, childGeoObjectTypeCode));
@@ -305,7 +305,7 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return HierarchyType.fromJSON(responseToString(resp), this);
   }
-  
+
   protected GeoObjectOverTime responseToGeoObjectOverTime(ResponseIF resp)
   {
     return GeoObjectOverTime.fromJSON(this, responseToString(resp));
@@ -340,18 +340,18 @@ public class TestRegistryAdapterClient extends RegistryAdapter
   {
     return HierarchyType.fromJSONArray( ( responseToString(resp) ), this);
   }
-  
+
   private AttributeType responseToAttributeType(ResponseIF resp)
   {
     JsonObject attrObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
-    
+
     return AttributeType.parse(attrObj);
   }
-  
+
   private Term responseToTerm(ResponseIF resp)
   {
     JsonObject termObj = JsonParser.parseString(responseToString(resp)).getAsJsonObject();
-    
+
     return Term.fromJSON(termObj);
   }
 

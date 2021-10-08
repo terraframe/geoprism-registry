@@ -187,8 +187,8 @@ export class ManageVersionsComponent implements OnInit {
         }
     }
 
-    onAddNewVersion(): void {
-        let editor = this.changeRequestAttributeEditor.createNewVersion();
+    onAddNewVersion(original?: ValueOverTimeCREditor): void {
+        let editor = this.changeRequestAttributeEditor.createNewVersion(original);
 
         if (this.isNew && this.changeRequestEditor.geoObject.attributes["exists"]) {
             let values = this.changeRequestEditor.geoObject.attributes["exists"].values;
@@ -258,7 +258,7 @@ export class ManageVersionsComponent implements OnInit {
      * Hierarchy Editing
      */
 
-    getTypeAheadObservable(editor: HierarchyCREditor, date: string, type: any, entry: any, index: number): Observable<any> {
+    getTypeAheadObservable(editor: HierarchyCREditor, startDate: string, endDate: string, type: any, entry: any, index: number): Observable<any> {
         let geoObjectTypeCode = type.code;
 
         let parentCode = null;
@@ -299,14 +299,14 @@ export class ManageVersionsComponent implements OnInit {
                 }
             }
 
-            this.service.getGeoObjectSuggestions(entry.parents[type.code].text, geoObjectTypeCode, parentCode, parentTypeCode, hierarchyCode, date).then(results => {
+            this.service.getGeoObjectSuggestions(entry.parents[type.code].text, geoObjectTypeCode, parentCode, parentTypeCode, hierarchyCode, startDate, endDate).then(results => {
                 observer.next(results);
             });
         });
     }
 
     typeaheadOnSelect(editor: HierarchyCREditor, e: TypeaheadMatch, type: any, entry: any, date: string): void {
-      //        let ptn: ParentTreeNode = parent.ptn;
+        //        let ptn: ParentTreeNode = parent.ptn;
 
         entry.parents[type.code].text = e.item.name + " : " + e.item.code;
         entry.parents[type.code].goCode = e.item.code;

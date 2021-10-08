@@ -22,7 +22,7 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
 
     private _isValid: boolean;
 
-    onChangeSubject : Subject<any> = new Subject<any>();
+    onChangeSubject: Subject<any> = new Subject<any>();
 
     constructor(changeRequestEditor: ChangeRequestEditor, attribute: AttributeType, hierarchy: HierarchyOverTime) {
         this.changeRequestEditor = changeRequestEditor;
@@ -163,7 +163,7 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         // First, we have to create a view for every ValueOverTime object. This is done to simply display what's currently
         // on the GeoObject
         if (this.changeRequestEditor.changeRequest == null || this.changeRequestEditor.changeRequest.type === "CreateGeoObject" ||
-          (this.changeRequestEditor.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequestEditor.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequestEditor.changeRequest.approvalStatus !== "REJECTED")) {
+            (this.changeRequestEditor.changeRequest.approvalStatus !== "ACCEPTED" && this.changeRequestEditor.changeRequest.approvalStatus !== "PARTIAL" && this.changeRequestEditor.changeRequest.approvalStatus !== "REJECTED")) {
             if (this.attribute.code === "_PARENT_") {
                 this.hierarchy.entries.forEach((entry: HierarchyOverTimeEntry) => {
                     let editor = new HierarchyCREditor(this, this.attribute, this.editAction, entry, this.hierarchy);
@@ -217,7 +217,7 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
         return editors;
     }
 
-    public createNewVersion(): ValueOverTimeCREditor {
+    public createNewVersion(original?: ValueOverTimeCREditor): ValueOverTimeCREditor {
         let editor: ValueOverTimeCREditor;
 
         // Create an instance of the appropriate editor object
@@ -251,7 +251,13 @@ export class ChangeRequestChangeOverTimeAttributeEditor {
             let editors = this.getEditors(true);
 
             if (editors.length > 0) {
-                editor.value = JSON.parse(JSON.stringify(editors[editors.length - 1].value));
+
+                if (original != null) {
+                    editor.value = JSON.parse(JSON.stringify(original.value));
+                }
+                else {
+                    editor.value = JSON.parse(JSON.stringify(editors[editors.length - 1].value));
+                }
             } else {
                 editor.value = GeometryService.createEmptyGeometryValue(this.changeRequestEditor.geoObjectType.geometryType);
             }

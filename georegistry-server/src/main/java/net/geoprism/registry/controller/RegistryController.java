@@ -938,18 +938,18 @@ public class RegistryController
    * @returns @throws
    **/
   @Endpoint(url = "geoobject/suggestions", method = ServletMethod.GET, error = ErrorSerialization.JSON)
-  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "parentTypeCode") String parentTypeCode, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "date") String date)
+  public ResponseIF getGeoObjectSuggestions(ClientRequestIF request, @RequestParamter(name = "text") String text, @RequestParamter(name = "type") String type, @RequestParamter(name = "parent") String parent, @RequestParamter(name = "parentTypeCode") String parentTypeCode, @RequestParamter(name = "hierarchy") String hierarchy, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate)
   {
-    Date forDate = null;
+    Date forStartDate = null;
 
-    if (date != null && date.length() > 0)
+    if (startDate != null && startDate.length() > 0)
     {
       SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
       try
       {
-        forDate = format.parse(date);
+        forStartDate = format.parse(startDate);
       }
       catch (ParseException e)
       {
@@ -957,7 +957,24 @@ public class RegistryController
       }
     }
 
-    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, parentTypeCode, hierarchy, forDate);
+    Date forEndDate = null;
+
+    if (endDate != null && endDate.length() > 0)
+    {
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+      try
+      {
+        forEndDate = format.parse(endDate);
+      }
+      catch (ParseException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
+    }
+
+    JsonArray response = this.registryService.getGeoObjectSuggestions(request.getSessionId(), text, type, parent, parentTypeCode, hierarchy, forStartDate, forEndDate);
 
     return new RestBodyResponse(response);
   }

@@ -105,7 +105,7 @@
 			                                      [disabled]="readonly || viewModel.summaryKey === 'DELETE' || viewModel.startDate == null || viewModel.startDate === ''"
 			                                      [(ngModel)]="viewModel.value.parents[type.code].text" 
 			                                      [typeaheadAsync]="true"
-			                                      [typeahead]="getTypeAheadObservable(viewModel.editor, viewModel.startDate, type, viewModel.value, j)"
+			                                      [typeahead]="getTypeAheadObservable(viewModel.editor, viewModel.startDate, viewModel.endDate, type, viewModel.value, j)"
 			                                      (typeaheadOnSelect)="typeaheadOnSelect(viewModel.editor, $event, type, viewModel.value, viewModel.startDate)" 
 			                                      (typeaheadLoading)="viewModel.value.loading[type.code] = $event"
 			                                      [ngClass]="{'inline-loading':viewModel.value.loading[type.code], 'has-changed': (viewModel.oldValue && !isNew)}"                                                                
@@ -156,6 +156,8 @@
                                             <localize *ngIf="viewModel.newLayer && !viewModel.newLayer.isEditing" key="changeovertime.manageVersions.geometry.edit"></localize>
                                             <localize *ngIf="viewModel.newLayer && viewModel.newLayer.isEditing" key="changeovertime.manageVersions.geometry.save"></localize>
                                           </button>
+
+                                          <i *ngIf="!readonly && !isRootOfHierarchy && (!this.isNew || attributeType.code !== 'exists') && filterDate == null" class="fa fa-copy clickable" (click)="onAddNewVersion(viewModel.editor)"></i>                                          
                                         </td>
                                       </tr>
   

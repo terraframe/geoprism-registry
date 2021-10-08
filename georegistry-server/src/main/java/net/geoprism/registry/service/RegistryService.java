@@ -971,7 +971,7 @@ public class RegistryService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date date)
+  public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date startDate, Date endDate)
   {
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
@@ -980,8 +980,8 @@ public class RegistryService
     final List<ServerGeoObjectIF> results;
     if (parentTypeCode == null || parentTypeCode.length() == 0)
     {
-      final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, date);
-      query.setRestriction(new ServerLookupRestriction(text, date, parentCode, ht));
+      final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, startDate);
+      query.setRestriction(new ServerLookupRestriction(text, startDate, parentCode, ht));
       query.setLimit(10);
 
       results = query.getResults();
@@ -995,18 +995,22 @@ public class RegistryService
 
       // Must be a child of parent type
       statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
-      if (date != null)
+
+      if (startDate != null && endDate != null)
       {
-        statement.append("[:date between startDate AND endDate]");
+        statement.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
       }
+
       statement.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
 
       // Must have display label we expect
       statement.append("AND displayLabel_cot CONTAINS (");
-      if (date != null)
+
+      if (startDate != null && endDate != null)
       {
-        statement.append("  :date BETWEEN startDate AND endDate AND ");
+        statement.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
       }
+
       statement.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
       statement.append(") ");
 
@@ -1017,9 +1021,10 @@ public class RegistryService
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
 
-      if (date != null)
+      if (startDate != null && endDate != null)
       {
-        query.setParameter("date", date);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
       }
 
       if (text != null)
@@ -1036,7 +1041,7 @@ public class RegistryService
       results = new ArrayList<ServerGeoObjectIF>();
       for (VertexObject result : voResults)
       {
-        results.add(new VertexServerGeoObject(type, result, date));
+        results.add(new VertexServerGeoObject(type, result, startDate));
       }
     }
 
