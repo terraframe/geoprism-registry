@@ -37,7 +37,7 @@ public class TransitionEventService
   @Request(RequestType.SESSION)
   public JsonObject getDetails(String sessionId, String oid)
   {
-    return TransitionEvent.get(oid).toJson(true);
+    return TransitionEvent.get(oid).toJSON(true);
   }
 
   @Request(RequestType.SESSION)

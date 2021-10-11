@@ -57,7 +57,7 @@ public class Transition extends TransitionBase
       EdgeObject sourceEdge = this.addChild(source.getVertex(), MdEdgeDAO.getMdEdgeDAO(TRANSITION_SOURCE));
       sourceEdge.apply();
 
-      EdgeObject targetEdge = this.addChild(source.getVertex(), MdEdgeDAO.getMdEdgeDAO(TRANSITION_TARGET));
+      EdgeObject targetEdge = this.addChild(target.getVertex(), MdEdgeDAO.getMdEdgeDAO(TRANSITION_TARGET));
       targetEdge.apply();
     }
   }
@@ -75,7 +75,7 @@ public class Transition extends TransitionBase
   private VertexServerGeoObject getVertex(MdEdgeDAOIF mdEdge)
   {
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "'))");
+    statement.append("SELECT expand(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM :parent");
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());

@@ -21,6 +21,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.view.JsonSerializable;
@@ -37,18 +38,28 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     super();
   }
 
+  @Override
+  @Transaction
+  public void delete()
+  {
+    this.getTransitions().forEach(t -> t.delete());
+
+    super.delete();
+  }
+
   public List<Transition> getTransitions()
   {
     MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(TRANSITION_ASSIGNMENT);
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT expand(outE('" + mdEdge.getDBClassName() + "'))");
+    statement.append("SELECT expand(out('" + mdEdge.getDBClassName() + "'))");
     statement.append(" FROM :parent");
 
     GraphQuery<Transition> query = new GraphQuery<Transition>(statement.toString());
     query.setParameter("parent", this.getRID());
 
-    return query.getResults();
+    List<Transition> results = query.getResults();
+    return results;
   }
 
   @Transaction
@@ -59,7 +70,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   }
 
   @Transaction
-  public void addTransition(VertexServerGeoObject source, VertexServerGeoObject target, String transitionType)
+  public void addTransition(ServerGeoObjectIF source, ServerGeoObjectIF target, String transitionType)
   {
     String typeCode = this.getTypeCode();
 
@@ -80,7 +91,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
     Transition transition = new Transition();
     transition.setTransitionType(transitionType);
-    transition.apply(source, target);
+    transition.apply((VertexServerGeoObject) source, (VertexServerGeoObject) target);
 
     this.addTransition(transition);
   }
@@ -88,10 +99,10 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   @Override
   public JsonObject toJSON()
   {
-    return this.toJson(false);
+    return this.toJSON(false);
   }
 
-  public JsonObject toJson(boolean includeTransitions)
+  public JsonObject toJSON(boolean includeTransitions)
   {
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     LocalizedValue localizedValue = LocalizedValueConverter.convert(this.getEmbeddedComponent(TransitionEvent.DESCRIPTION));
@@ -136,7 +147,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
         event.addTransition(Transition.apply(event, object));
       }
 
-      return event.toJson(false);
+      return event.toJSON(false);
     }
     catch (ParseException e)
     {

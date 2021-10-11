@@ -1,0 +1,34 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create>
+      <mdVertex name="net.geoprism.registry.graph.TransitionEvent" label="Transition">
+        <attributes>
+          <date name="eventDate" label="Event Date" required="true" />
+          <text name="typeCode" label="Type Code" required="true" />          
+          <localCharEmbedded name="description" label="Label" required="false" />        
+        </attributes>
+      </mdVertex>       
+      <mdVertex name="net.geoprism.registry.graph.Transition" label="Transition">
+        <attributes>
+          <text name="transitionType" label="Transition Type" required="true" />
+        </attributes>
+      </mdVertex>       
+      <mdEdge name="net.geoprism.registry.graph.TransitionSource" label="Transition Source" parent="net.geoprism.registry.graph.Transition" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
+      </mdEdge>
+      <mdEdge name="net.geoprism.registry.graph.TransitionTarget" label="Transition Target" parent="net.geoprism.registry.graph.Transition" child="net.geoprism.registry.graph.GeoVertex" generateSource="false">
+      </mdEdge>
+      <mdEdge name="net.geoprism.registry.graph.TransitionAssignment" label="Transition Events" parent="net.geoprism.registry.graph.TransitionEvent" child="net.geoprism.registry.graph.Transition" generateSource="false">
+      </mdEdge>
+    </create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object key="net.geoprism.registry.graph.TransitionAssignment" type="com.runwaysdk.system.metadata.MdEdge" />
+      <object key="net.geoprism.registry.graph.TransitionTarget" type="com.runwaysdk.system.metadata.MdEdge" />      
+      <object key="net.geoprism.registry.graph.TransitionSource" type="com.runwaysdk.system.metadata.MdEdge" />      
+      <object key="net.geoprism.registry.graph.Transition" type="com.runwaysdk.system.metadata.MdVertex" />      
+      <object key="net.geoprism.registry.graph.TransitionEvent" type="com.runwaysdk.system.metadata.MdVertex" />            
+    </delete>
+  </undoIt>
+</version>
