@@ -1,6 +1,7 @@
 import { Component, ViewEncapsulation, ViewChild, ElementRef, Input } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
+import { Location } from "@angular/common";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import {
     trigger,
@@ -103,7 +104,7 @@ export class RequestTableComponent {
     isEditing: boolean = false;
 
     constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-        private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
+        private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService, private location: Location) {
         this.columns = [
             { name: localizationService.decode("change.request.user"), prop: "createdBy", sortable: false },
             { name: localizationService.decode("change.request.createDate"), prop: "createDate", sortable: false, width: 195 },
@@ -113,6 +114,11 @@ export class RequestTableComponent {
 
     ngOnInit(): void {
         this.oid = this.route.snapshot.paramMap.get("oid");
+
+        this.route.paramMap.subscribe(params => {
+            this.oid = params.get("oid");
+            this.refresh();
+        });
 
         if (this.oid != null) {
             this.toggleId = this.oid;
@@ -203,6 +209,11 @@ export class RequestTableComponent {
 
     public fileOverBase(e: any): void {
         this.hasBaseDropZoneOver = e;
+    }
+
+    pageChange(pageNumber: number = 1): void {
+        this.oid = null;
+        this.refresh(pageNumber);
     }
 
     refresh(pageNumber: number = 1): void {
@@ -381,6 +392,8 @@ export class RequestTableComponent {
     }
 
     toggle(event: any, oid: string): void {
+        this.location.replaceState("/registry/change-requests/" + oid);
+
         if (!event.target.parentElement.className.includes("btn") && !event.target.className.includes("btn")) {
             if (this.toggleId === oid) {
                 this.toggleId = null;
