@@ -1,4 +1,4 @@
-<div *ngIf="periods.length > 1" style="height: 90px;">
+<div *ngIf="periods.length > 1">
     <span>
       <localize key="manage.versions.historyTitle"></localize>
       <a *ngIf="this.activeEntry" (click)="setActiveTimelineEntry(null)" class="view-all"><localize key="manage.versions.history.viewAll"></localize></a>
@@ -20,8 +20,9 @@
 	      <a *ngFor="let entry of timeline" class="timeline-entry" [ngClass]="{'active-timeline-entry': this.activeEntry == null || (this.activeEntry != null && entry.period.startDate === this.activeEntry.period.startDate)}" (click)="setActiveTimelineEntry(entry)" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
 	      </a>
 	  </div>
-	  <div class="navigation-controls">
-	    <a (click)="navigateRelative(-1)">&lt;</a>
-	    <a (click)="navigateRelative(1)">&gt;</a>
+
+	  <div class="navigation-controls" style="padding-top:5px;">
+	   <a (click)="navigateRelative(-1)" style="float:left;"><i class="fa fa-chevron-left"></i></a>
+	    <a (click)="navigateRelative(1)" style="float:right;"><i class="fa fa-chevron-right"></i></a>
 	  </div>
 </div>

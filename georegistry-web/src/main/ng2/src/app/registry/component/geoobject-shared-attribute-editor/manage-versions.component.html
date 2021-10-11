@@ -207,7 +207,7 @@
 	                                  <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
 	                                </h5>
 	                            
-	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" ></date-field>
+	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate && !readonly ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
 	                                  <p class="warning-text display-current-value">
@@ -222,7 +222,7 @@
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
 	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
-	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" ></date-field>
+	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate && !readonly ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
 	                    
 	                                  <!--
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">

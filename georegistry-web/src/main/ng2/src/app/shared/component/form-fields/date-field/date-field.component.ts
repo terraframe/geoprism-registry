@@ -29,6 +29,7 @@ export class DateFieldComponent {
     @Input() required: boolean = false;
     @Input() placement: string = "bottom";
     @Input() oldDate: string = null;
+    @Input() title: string = "";
 
     _value: Date;
     // eslint-disable-next-line accessor-pairs
