@@ -6,10 +6,13 @@ import java.util.List;
 import org.hl7.fhir.r4.hapi.fluentpath.FhirPathR4;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleLinkComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Resource;
 
+import com.runwaysdk.build.domain.AddWritePermissions;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.system.scheduler.JobHistory;
@@ -23,6 +26,8 @@ import net.geoprism.registry.etl.export.ExportHistory;
 
 public class FhirResourceImporter
 {
+  private static Logger         logger      = LoggerFactory.getLogger(FhirResourceImporter.class);
+
   private FhirConnection        connection;
 
   private FhirResourceProcessor processor;
@@ -42,7 +47,7 @@ public class FhirResourceImporter
     this.connection = connection;
     this.processor = processor;
     this.history = history;
-//    this.since = since;
+    // this.since = since;
   }
 
   public void synchronize()
@@ -67,12 +72,13 @@ public class FhirResourceImporter
       {
         // The link may come back with the local url instead of the global url
         // As such replace the base local url with the base global url
-//        String localUrl = link.getUrl();
-//        String[] split = localUrl.split("\\?");
-//        String globalUrl = this.connection.getExternalSystem().getUrl() + "?" + split[1];
-//
-//        link.setUrl(globalUrl);
-//
+        // String localUrl = link.getUrl();
+        // String[] split = localUrl.split("\\?");
+        // String globalUrl = this.connection.getExternalSystem().getUrl() + "?"
+        // + split[1];
+        //
+        // link.setUrl(globalUrl);
+        //
         bundle = client.loadPage().next(bundle).execute();
       }
       else
@@ -174,6 +180,11 @@ public class FhirResourceImporter
   @Transaction
   private void recordExportError(Exception ex, ExportHistory history, Resource resource)
   {
+    if (ex instanceof ProgrammingErrorException)
+    {
+      logger.error("Unknown error while processing the FHIR resource [" + resource.getId() + "]", ex);
+    }
+
     if (this.history != null)
     {
       ExportError exportError = new ExportError();

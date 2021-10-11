@@ -75,6 +75,10 @@ public class FhirImportSynchronizationManager
 
       handleExportErrors();
     }
+    catch (ExportJobHasErrors e)
+    {
+      throw e;
+    }
     catch (Exception e)
     {
       throw new HttpError(e);
