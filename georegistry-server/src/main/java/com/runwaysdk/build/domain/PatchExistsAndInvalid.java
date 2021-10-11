@@ -38,6 +38,7 @@ import com.runwaysdk.constants.IndexTypes;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
@@ -60,6 +61,7 @@ import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
 
+import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.MasterListVersionQuery;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
@@ -221,7 +223,15 @@ public class PatchExistsAndInvalid
     {
       for (MasterListVersion version : it)
       {
-        ServerGeoObjectType type = version.getMasterlist().getGeoObjectType();
+//        ServerGeoObjectType type = version.getMasterlist().getGeoObjectType();
+        
+        // We are accessing it in this weird way because MasterList was changed to have new localized attributes. If we run this patch
+        // before masterlist is patched then simply instantiating a MasterList object will throw an error when it tries to load the structs.
+        BusinessDAO versionDAO = (BusinessDAO) BusinessDAO.get(version.getOid());
+        String masterListOid = versionDAO.getValue(MasterListVersion.MASTERLIST);
+        BusinessDAO masterListDAO = (BusinessDAO) BusinessDAO.get(masterListOid);
+        String universalOid = masterListDAO.getValue(MasterList.UNIVERSAL);
+        ServerGeoObjectType type = ServerGeoObjectType.get(Universal.get(universalOid));
         
         // Patch metadata
         //AttributeType existsAttr = type.getAttribute(DefaultAttribute.EXISTS.getName()).get();
@@ -235,7 +245,7 @@ public class PatchExistsAndInvalid
         
         PublishMasterListVersionJob job = new PublishMasterListVersionJob();
         job.setMasterListVersion(version);
-        job.setMasterList(version.getMasterlist());
+        job.setMasterListId(masterListOid);
         job.apply();
     
 //        job.start();
