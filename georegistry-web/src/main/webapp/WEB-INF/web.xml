@@ -20,9 +20,9 @@
 
 -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" metadata-complete="true" version="3.0">
-  <display-name>Geoprism</display-name>
+  <display-name>Georegistry</display-name>
   <description>
-	Geoprism
+	Georegistry
   </description>
   <mime-mapping>
     <extension>wsdl</extension>

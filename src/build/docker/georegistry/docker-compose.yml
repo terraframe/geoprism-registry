@@ -40,7 +40,7 @@ services:
       POSTGRES_ROOT_USERNAME: postgres
       POSTGRES_ROOT_PASSWORD: georegistry
     ports:
-      - "8085:8080"
+      - "8080:8080"
       - "8443:8443"
     volumes:
       - ../../../../envcfg/prod:/usr/local/tomcat/webapps/ROOT/appcfg
