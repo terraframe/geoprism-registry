@@ -56,7 +56,7 @@ export class StabilityPeriodComponent implements OnInit {
         });
 
         let timeline = this.timelines[0];
-        if (timeline && timeline.length > 0) {
+        if (timeline && timeline.length > 1) {
             if (this.filterDate != null) {
                 let index = timeline.findIndex(entry => this.dateService.between(this.filterDate, entry.period.startDate, entry.period.endDate));
 
@@ -94,6 +94,10 @@ export class StabilityPeriodComponent implements OnInit {
     }
 
     setActiveTimelineEntry(entry: TimelineEntry, refresh: boolean = true) {
+        if (this.periods.length <= 1) {
+            entry = null;
+        }
+
         if (this.activeEntry != null && entry != null && entry.period.startDate === this.activeEntry.period.startDate) {
             entry = null;
         }
@@ -120,9 +124,13 @@ export class StabilityPeriodComponent implements OnInit {
             startDay = this.dateService.getDateFromDateString(startDate).getTime() / (1000 * 60 * 60 * 24);
 
             if (endDate === "5000-12-31") {
-                endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].startDate).getTime() / (1000 * 60 * 60 * 24);
-                this.infinityDayPadding = (endDay - startDay) * 0.05;
-                endDay = this.infinityDayPadding + endDay;
+                if (this.periods.length > 1) {
+                    endDay = this.dateService.getDateFromDateString(this.periods[this.periods.length - 1].startDate).getTime() / (1000 * 60 * 60 * 24);
+                    this.infinityDayPadding = (endDay - startDay) * 0.05;
+                    endDay = this.infinityDayPadding + endDay;
+                } else {
+                    endDay = startDay + this.infinityDayPadding;
+                }
             } else {
                 endDay = this.dateService.getDateFromDateString(endDate).getTime() / (1000 * 60 * 60 * 24);
             }
@@ -138,7 +146,6 @@ export class StabilityPeriodComponent implements OnInit {
             return;
         } else if (this.periods.length === 1) {
             this.setActiveTimelineEntry(null, false);
-            return;
         }
 
         this.calculateDataTimeSpan();
