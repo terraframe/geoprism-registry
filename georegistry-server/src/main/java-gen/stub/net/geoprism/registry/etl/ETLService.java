@@ -259,19 +259,19 @@ public class ETLService
       {
         cond = cond.OR(loopCond);
       }
-      
-      
-      // If they have permission to an abstract parent type, then they also have permission to all its children.
+
+      // If they have permission to an abstract parent type, then they also have
+      // permission to all its children.
       Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
-      
+
       if (op.isPresent() && op.get().getIsAbstract())
       {
         List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
-        
+
         for (ServerGeoObjectType subType : subTypes)
         {
           Condition superCond = ihq.getGeoObjectTypeCode().EQ(subType.getCode()).AND(ihq.getOrganization().EQ(subType.getOrganization()));
-          
+
           cond = cond.OR(superCond);
         }
       }
@@ -396,6 +396,11 @@ public class ETLService
       jo.addProperty("exportedRecords", eHist.getExportedRecords());
 
       jo.addProperty("stage", eHist.getStage().get(0).name());
+    }
+
+    if (job instanceof DataExportJob)
+    {
+      jo.addProperty("configuration", ( (DataExportJob) job ).getConfigOid());
     }
 
     if (hist.getStatus().get(0).equals(AllJobStatus.FAILURE) && hist.getErrorJson().length() > 0)

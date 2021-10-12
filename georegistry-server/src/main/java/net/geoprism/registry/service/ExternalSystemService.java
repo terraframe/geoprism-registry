@@ -35,8 +35,10 @@ import net.geoprism.account.OauthServer;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
+import net.geoprism.registry.etl.OauthExternalSystem;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
+import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.view.Page;
 
 public class ExternalSystemService
@@ -55,7 +57,7 @@ public class ExternalSystemService
   {
     return applyInTrans(json);
   }
-  
+
   @Transaction
   private JsonObject applyInTrans(String json)
   {
@@ -63,45 +65,18 @@ public class ExternalSystemService
 
     ExternalSystem system = ExternalSystem.desieralize(jo);
     system.apply();
-    
-    if (system instanceof DHIS2ExternalSystem)
+
+    if (system instanceof OauthExternalSystem)
     {
-      DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
-      
-      if (jo.has(DHIS2ExternalSystem.OAUTH_SERVER) && !jo.get(DHIS2ExternalSystem.OAUTH_SERVER).isJsonNull())
+      OauthExternalSystem oauthSystem = (OauthExternalSystem) system;
+      oauthSystem.updateOauthServer(jo);
+
+      if (system instanceof DHIS2ExternalSystem)
       {
-        Gson gson2 = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwayDeserializer()).create();
-        OauthServer oauth = gson2.fromJson(jo.get(DHIS2ExternalSystem.OAUTH_SERVER), OauthServer.class);
-        
-        OauthServer dbServer = dhis2Sys.getOauthServer();
-        if (dbServer != null)
-        {
-          dbServer.lock();
-          dbServer.populate(oauth);
-          
-          oauth = dbServer;
-        }
-        
-        String systemLabel = LocalizedValueConverter.convert(system.getEmbeddedComponent(ExternalSystem.LABEL)).getValue();
-        oauth.getDisplayLabel().setValue(systemLabel);
-        
-        oauth.apply();
-        
-        dhis2Sys.setOauthServer(oauth);
-        dhis2Sys.apply();
+
+        // Test the DHIS2 connection information
+        new DHIS2FeatureService().setExternalSystemDhis2Version((DHIS2ExternalSystem) system);
       }
-      else if (dhis2Sys.getOauthServer() != null)
-      {
-        OauthServer existingOauth = dhis2Sys.getOauthServer();
-        
-        dhis2Sys.setOauthServerId(null);
-        dhis2Sys.apply();
-        
-        existingOauth.delete();
-      }
-      
-      // Test the DHIS2 connection information
-      new DHIS2FeatureService().setExternalSystemDhis2Version(dhis2Sys);
     }
 
     return system.toJSON();
@@ -126,15 +101,15 @@ public class ExternalSystemService
     if (system instanceof DHIS2ExternalSystem)
     {
       DHIS2ExternalSystem dhis2Sys = (DHIS2ExternalSystem) system;
-      
+
       if (dhis2Sys.getOauthServer() != null)
       {
         OauthServer dbServer = dhis2Sys.getOauthServer();
-        
+
         dbServer.delete();
       }
     }
-    
+
     system.delete();
   }
 }

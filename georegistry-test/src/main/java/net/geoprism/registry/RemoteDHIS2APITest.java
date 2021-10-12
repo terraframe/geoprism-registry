@@ -66,7 +66,7 @@ import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
 import net.geoprism.registry.etl.DHIS2AttributeMapping;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.DHIS2TermAttributeMapping;
-import net.geoprism.registry.etl.SyncLevel;
+import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.export.ExportHistory;
 import net.geoprism.registry.etl.export.ExportStage;
 import net.geoprism.registry.etl.export.dhis2.DHIS2OptionCache;
@@ -351,24 +351,24 @@ public class RemoteDHIS2APITest
     dhis2Config.setOrganization(org);
 
     // Populate Levels
-    SortedSet<SyncLevel> levels = new TreeSet<SyncLevel>();
+    SortedSet<DHIS2SyncLevel> levels = new TreeSet<DHIS2SyncLevel>();
     
-    SyncLevel level1 = new SyncLevel();
+    DHIS2SyncLevel level1 = new DHIS2SyncLevel();
     level1.setGeoObjectType(RemoteDHIS2Dataset.REMOTE_GOT_PARENT.getServerObject().getCode());
-    level1.setSyncType(SyncLevel.Type.RELATIONSHIPS);
+    level1.setSyncType(DHIS2SyncLevel.Type.RELATIONSHIPS);
     level1.setLevel(0);
     levels.add(level1);
 
-    SyncLevel level2 = new SyncLevel();
+    DHIS2SyncLevel level2 = new DHIS2SyncLevel();
     level2.setGeoObjectType(AllAttributesDataset.GOT_ALL.getServerObject().getCode());
-    level2.setSyncType(SyncLevel.Type.ALL);
+    level2.setSyncType(DHIS2SyncLevel.Type.ALL);
     level2.setMappings(getDefaultMappings());
     level2.setLevel(1);
     levels.add(level2);
 
-    SyncLevel level3 = new SyncLevel();
+    DHIS2SyncLevel level3 = new DHIS2SyncLevel();
     level3.setGeoObjectType(got.getServerObject().getCode());
-    level3.setSyncType(SyncLevel.Type.ALL);
+    level3.setSyncType(DHIS2SyncLevel.Type.ALL);
     level3.setMappings(getDefaultMappings());
     level3.setLevel(2);
     levels.add(level3);

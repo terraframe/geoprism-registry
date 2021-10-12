@@ -203,6 +203,17 @@ public class MasterListController
     return response;
   }
 
+  @Endpoint(url = "export-to-fhir", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF exportToFhir(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "systemId") String systemId, @RequestParamter(name = "implementation") String implementation) throws JSONException
+  {
+    final String jobId = service.exportToFhir(request.getSessionId(), oid, systemId, implementation);
+
+    final RestResponse response = new RestResponse();
+    response.set("job", jobId);
+
+    return response;
+  }
+
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {

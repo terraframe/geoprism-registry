@@ -48,6 +48,7 @@ import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.Users;
 
 import net.geoprism.GeoprismUser;
+import net.geoprism.registry.action.ChangeRequest.ChangeRequestType;
 import net.geoprism.registry.action.ChangeRequestPermissionService.ChangeRequestPermissionAction;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.cache.ServerMetadataCache;
@@ -129,7 +130,6 @@ public class ChangeRequestJsonAdapters
     {
       final ServerMetadataCache cache = ServiceFactory.getMetadataCache();
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-      ServerGeoObjectService serverGOService = new ServerGeoObjectService();
       type = cr.getGeoObjectType();
       
       AllGovernanceStatus status = cr.getApprovalStatus().get(0);
@@ -156,7 +156,7 @@ public class ChangeRequestJsonAdapters
       
       addCurrent(cr, object, context);
       
-      object.addProperty("type", this.hasCreate ? "CreateGeoObject" : "UpdateGeoObject");
+      object.addProperty("type", this.hasCreate ? ChangeRequestType.CreateGeoObject.name() : ChangeRequestType.UpdateGeoObject.name());
       
       // Create and populate the "organization". This object will contain a code and label for the Organization in the CR.
       JsonObject organization = new JsonObject();
@@ -183,34 +183,7 @@ public class ChangeRequestJsonAdapters
       // Create and populate the "geoObject". This object will contain a code and label for the GeoObject in the CR.
       JsonObject geoObject = new JsonObject();
       geoObject.addProperty("code", cr.getGeoObjectCode());
-      if (this.hasCreate)
-      {
-        try
-        {
-          GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), ((CreateGeoObjectAction) cr.getAllAction().next()).getGeoObjectJson());
-          
-          // Quick little hack to localize a value when it's not in a database or part of a Runway object.
-          LocalizedValueStore lvs = new LocalizedValueStore();
-          lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(new Date()).getLocaleMap());
-          
-          geoObject.addProperty("label", lvs.getStoreValue().getValue());
-        }
-        catch (Exception e)
-        {
-          geoObject.addProperty("label", cr.getGeoObjectCode());
-        }
-      }
-      else
-      {
-        if (type != null)
-        {
-          ServerGeoObjectIF serverGO = serverGOService.getGeoObjectByCode(cr.getGeoObjectCode(), cr.getGeoObjectTypeCode());
-          if (serverGO != null)
-          {
-            geoObject.addProperty("label", serverGO.getDisplayLabel().getValue());
-          }
-        }
-      }
+      geoObject.addProperty("label", cr.getLocalizedGeoObjectDisplayLabel());
       object.add("geoObject", geoObject);
       
       return object;

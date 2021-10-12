@@ -19,29 +19,45 @@
 package net.geoprism.registry.action;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessQuery;
 import com.runwaysdk.business.RelationshipQuery;
+import com.runwaysdk.business.rbac.RoleDAO;
+import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.MdRelationshipDAOIF;
 import com.runwaysdk.dataaccess.metadata.MdRelationshipDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizedValueStore;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.SingleActor;
 import com.runwaysdk.system.VaultFile;
 
+import net.geoprism.EmailSetting;
+import net.geoprism.GeoprismUser;
+import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ServiceFactory;
@@ -50,6 +66,13 @@ import net.geoprism.registry.view.JsonSerializable;
 public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 {
   private static final long serialVersionUID = 763209854;
+  
+  private static final Logger logger = LoggerFactory.getLogger(ChangeRequest.class);
+  
+  public static enum ChangeRequestType {
+    CreateGeoObject,
+    UpdateGeoObject
+  }
 
   public ChangeRequest()
   {
@@ -186,6 +209,116 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     return object;
   }
   
+  @Override
+  public void apply()
+  {
+    final boolean isNew = this.isNew();
+    
+    super.apply();
+    
+    // Send an email to RMs telling them about this new CR
+    try
+    {
+      if (isNew)
+      {
+        SingleActor createdBy = this.getCreatedBy();
+  
+        if (createdBy instanceof GeoprismUser)
+        {
+          // Get all RM's for the GOT and Org
+          String rmRoleName = RegistryRole.Type.getRM_RoleName(this.getOrganizationCode(), this.getGeoObjectTypeCode());
+          RoleDAOIF role = RoleDAO.findRole(rmRoleName);
+          Set<SingleActorDAOIF> actors = role.assignedActors();
+          
+          List<String> toAddresses = new ArrayList<String>();
+          for (SingleActorDAOIF actor : actors)
+          {
+            if (actor.getType().equals(GeoprismUser.CLASS))
+            {
+              GeoprismUser geoprismUser = GeoprismUser.get(actor.getOid());
+              
+              String email = geoprismUser.getEmail();
+              
+              if (email != null && email.length() > 0 && !email.contains("@noreply"))
+              {
+                toAddresses.add(geoprismUser.getEmail());
+              }
+            }
+          }
+          
+          if (toAddresses.size() > 0)
+          {
+            String email = ( (GeoprismUser) createdBy ).getEmail();
+    
+            if (email != null && email.length() > 0)
+            {
+              String subject = LocalizationFacade.getFromBundles("change.request.email.submit.subject");
+    
+              String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
+              body = body.replaceAll("\\\\n", "\n");
+              body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
+              body = body.replaceAll("\\{geoobject\\}", this.getLocalizedGeoObjectDisplayLabel());
+              
+              String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+              body = body.replaceAll("\\{link\\}", link);
+    
+               EmailSetting.sendEmail(subject, body, toAddresses.toArray(new String[toAddresses.size()]));
+            }
+          }
+        }
+      }
+    }
+    catch(Throwable t)
+    {
+      t.printStackTrace();
+    }
+  }
+  
+  public String getLocalizedGeoObjectDisplayLabel()
+  {
+    if (this.getChangeRequestType().equals(ChangeRequestType.CreateGeoObject))
+    {
+      try
+      {
+        GeoObjectOverTime goTime = GeoObjectOverTime.fromJSON(ServiceFactory.getAdapter(), ((CreateGeoObjectAction) this.getAllAction().next()).getGeoObjectJson());
+        
+        // Quick little hack to localize a value when it's not in a database or part of a Runway object.
+        LocalizedValueStore lvs = new LocalizedValueStore();
+        lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(new Date()).getLocaleMap());
+        
+        return lvs.getStoreValue().getValue();
+      }
+      catch (Exception e)
+      {
+        logger.error("Error occurred while getting localized label from GeoObject with code [" + this.getGeoObjectCode() + "].", e);
+      }
+    }
+    else
+    {
+      ServerGeoObjectIF serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), this.getGeoObjectTypeCode());
+      if (serverGO != null)
+      {
+        return serverGO.getDisplayLabel().getValue();
+      }
+    }
+    
+    return this.getGeoObjectCode();
+  }
+  
+  public ChangeRequestType getChangeRequestType()
+  {
+    List<AbstractAction> actions = this.getOrderedActions();
+    
+    if (actions.size() == 1 && actions.get(0) instanceof CreateGeoObjectAction)
+    {
+      return ChangeRequestType.CreateGeoObject;
+    }
+    else
+    {
+      return ChangeRequestType.UpdateGeoObject;
+    }
+  }
+  
   @Transaction
   public void reject(String maintainerNotes, String additionalNotes)
   {
@@ -204,10 +337,6 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   {
     if (this.getApprovalStatus().contains(AllGovernanceStatus.PENDING))
     {
-//      List<String> accepted = new LinkedList<String>();
-
-//      List<String> rejected = new LinkedList<String>();
-
       List<AbstractAction> actions = this.getOrderedActions();
 
       Set<AllGovernanceStatus> statuses = new TreeSet<AllGovernanceStatus>();
@@ -227,15 +356,11 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
 
           action.execute();
 
-//          accepted.add(action.getMessage());
-
           statuses.add(AllGovernanceStatus.ACCEPTED);
         }
         else if (action.getApprovalStatus().contains(AllGovernanceStatus.ACCEPTED))
         {
           action.execute();
-
-//          accepted.add(action.getMessage());
 
           statuses.add(AllGovernanceStatus.ACCEPTED);
         }
@@ -260,55 +385,40 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       this.apply();
 
       // Email the contributor
-//      SingleActor actor = this.getCreatedBy();
-//
-//      if (sendEmail && actor instanceof GeoprismUser)
-//      {
-//        String email = ( (GeoprismUser) actor ).getEmail();
-//
-//        if (email != null && email.length() > 0)
-//        {
-//          String subject = LocalizationFacade.getFromBundles("change.request.email.subject");
-//          subject = subject.replaceAll("\\{0\\}", status.getDisplayLabel());
-//
-//          String body = new String();
-//
-//          if (accepted.size() > 0)
-//          {
-//            body += append(accepted, "change.request.email.body.approved");
-//          }
-//
-//          if (rejected.size() > 0)
-//          {
-//            if (accepted.size() > 0)
-//            {
-//              body += "\n";
-//              body += "\n";
-//            }
-//
-//            body += append(rejected, "change.request.email.body.rejected");
-//          }
-//
-//          // EmailSetting.sendEmail(subject, body, new String[] { email });
-//        }
-//      }
+      try
+      {
+        SingleActor actor = this.getCreatedBy();
+  
+        if (actor instanceof GeoprismUser)
+        {
+          String email = ( (GeoprismUser) actor ).getEmail();
+  
+          if (email != null && email.length() > 0 && !email.contains("@noreply"))
+          {
+            final String statusLabel = status.getDisplayLabel().toLowerCase(Session.getCurrentLocale());
+            
+            String subject = LocalizationFacade.getFromBundles("change.request.email.implement.subject");
+            subject = subject.replaceAll("\\{status\\}", StringUtils.capitalize(statusLabel));
+  
+            String body = LocalizationFacade.getFromBundles("change.request.email.implement.body");
+            body = body.replaceAll("\\\\n", "\n");
+            body = body.replaceAll("\\{status\\}", statusLabel);
+            body = body.replaceAll("\\{geoobject\\}", this.getGeoObject().getDisplayLabel().getValue());
+            
+            String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
+            body = body.replaceAll("\\{link\\}", link);
+  
+             EmailSetting.sendEmail(subject, body, new String[] { email });
+          }
+        }
+      }
+      catch(Throwable t)
+      {
+        t.printStackTrace();
+      }
     }
   }
-
-//  private String append(List<String> list, String key)
-//  {
-//    String body = LocalizationFacade.getFromBundles(key);
-//
-//    String messages = "\n";
-//
-//    for (String message : list)
-//    {
-//      messages += message + "\n";
-//    }
-//
-//    return body.replaceAll("\\{0\\}", messages);
-//  }
-
+  
   @Transaction
   public void setAllActionsStatus(AllGovernanceStatus status)
   {

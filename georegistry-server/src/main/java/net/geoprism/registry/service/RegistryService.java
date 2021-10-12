@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -84,6 +85,7 @@ import com.runwaysdk.system.metadata.MdTermRelationshipQuery;
 import net.geoprism.account.OauthServer;
 import net.geoprism.account.OauthServerIF;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.OrganizationQuery;
@@ -95,6 +97,7 @@ import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.geoobjecttype.GeoObjectTypeService;
+import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.hierarchy.HierarchyService;
 import net.geoprism.registry.localization.DefaultLocaleView;
 import net.geoprism.registry.localization.LocaleView;
@@ -302,14 +305,20 @@ public class RegistryService
     {
       OauthServer[] servers = OauthServer.getAll();
 
+      // Arrays.asList(servers).stream().filter(s ->
+      // FhirExternalSystem.isFhirOauth() )
+
       for (OauthServer server : servers)
       {
-        JsonObject json = new JsonObject();
+        if (!FhirExternalSystem.isFhirOauth(server))
+        {
+          JsonObject json = new JsonObject();
 
-        json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
-        json.addProperty("url", buildOauthServerUrl(server));
+          json.add("label", LocalizedValueConverter.convert(server.getDisplayLabel()).toJSON());
+          json.addProperty("url", buildOauthServerUrl(server));
 
-        ja.add(json);
+          ja.add(json);
+        }
       }
     }
     else
@@ -326,7 +335,7 @@ public class RegistryService
 
     return ja.toString();
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject initHierarchyManager(String sessionId)
   {
@@ -380,7 +389,7 @@ public class RegistryService
     response.add("hierarchies", hierarchies);
     response.add("organizations", organizations);
     response.add("locales", this.getLocales(sessionId));
-    
+
     return response;
   }
 
@@ -642,7 +651,7 @@ public class RegistryService
 
     return lTypes.toArray(new GeoObjectType[lTypes.size()]);
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject serialize(String sessionId, GeoObjectType got)
   {
@@ -670,6 +679,24 @@ public class RegistryService
     ServiceFactory.getMetadataCache().addGeoObjectType(type);
 
     return type.getType();
+  }
+
+  /**
+   * Creates a {@link GeoObjectType} from the given JSON.
+   * 
+   * @param sessionId
+   * @param gtJSON
+   *          JSON of the {@link GeoObjectType} to be created.
+   * @return newly created {@link GeoObjectType}
+   */
+  @Request(RequestType.SESSION)
+  public void importTypes(String sessionId, String orgCode, InputStream istream)
+  {
+    ServiceFactory.getGeoObjectTypePermissionService().enforceCanCreate(orgCode, true);
+
+    GeoRegistryUtil.importTypes(orgCode, istream);
+
+    this.refreshMetadataCache();
   }
 
   /**
@@ -946,11 +973,6 @@ public class RegistryService
   @Request(RequestType.SESSION)
   public JsonArray getGeoObjectSuggestions(String sessionId, String text, String typeCode, String parentCode, String parentTypeCode, String hierarchyCode, Date date)
   {
-    if (date == null)
-    {
-      date = ValueOverTime.INFINITY_END_DATE;
-    }
-
     final ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
     ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
@@ -970,14 +992,35 @@ public class RegistryService
 
       StringBuilder statement = new StringBuilder();
       statement.append("select from " + type.getMdVertex().getDBClassName() + " where ");
-      statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')[:date between startDate AND endDate].inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
+
+      // Must be a child of parent type
+      statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
+      if (date != null)
+      {
+        statement.append("[:date between startDate AND endDate]");
+      }
+      statement.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
+
+      // Must have display label we expect
       statement.append("AND displayLabel_cot CONTAINS (");
-      statement.append("  :date BETWEEN startDate AND endDate");
-      statement.append("  AND " + AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
-      statement.append(") ORDER BY location.code ASC LIMIT 10");
+      if (date != null)
+      {
+        statement.append("  :date BETWEEN startDate AND endDate AND ");
+      }
+      statement.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
+      statement.append(") ");
+
+      // Must not be invalid
+      statement.append("AND invalid=false ");
+
+      statement.append("ORDER BY location.code ASC LIMIT 10");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
-      query.setParameter("date", date);
+
+      if (date != null)
+      {
+        query.setParameter("date", date);
+      }
 
       if (text != null)
       {
@@ -1068,6 +1111,8 @@ public class RegistryService
 
     ServerGeoObjectIF go = service.newInstance(type);
 
+    go.setInvalid(false);
+
     final GeoObjectOverTime goot = go.toGeoObjectOverTime();
     ServerParentTreeNodeOverTime pot = go.getParentsOverTime(null, true);
 
@@ -1114,12 +1159,12 @@ public class RegistryService
     JsonArray array = new JsonArray();
 
     array.add(new DefaultLocaleView().toJson());
-    
+
     for (SupportedLocaleIF locale : locales)
     {
       array.add(LocaleView.fromSupportedLocale(locale).toJson());
     }
-    
+
     return array;
   }
 

@@ -74,6 +74,7 @@ export class MasterListManagerComponent implements OnInit {
             this.bsModalRef.content.edit = true;
             this.bsModalRef.content.readonly = !list.write;
             this.bsModalRef.content.master = list;
+            this.bsModalRef.content.originalPublishStartDate = list.publishingStartDate;
             this.bsModalRef.content.isNew = false;
 
             this.bsModalRef.content.onMasterListChange.subscribe(ret => {

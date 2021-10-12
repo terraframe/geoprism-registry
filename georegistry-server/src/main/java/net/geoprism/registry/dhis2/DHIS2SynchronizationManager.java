@@ -65,7 +65,7 @@ import net.geoprism.registry.dhis2.DHIS2FeatureService.DHIS2SyncError;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExportJobHasErrors;
 import net.geoprism.registry.etl.NewGeoObjectInvalidSyncTypeError;
-import net.geoprism.registry.etl.SyncLevel;
+import net.geoprism.registry.etl.DHIS2SyncLevel;
 import net.geoprism.registry.etl.export.ExportError;
 import net.geoprism.registry.etl.export.ExportErrorQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -100,7 +100,8 @@ public class DHIS2SynchronizationManager
   public DHIS2SynchronizationManager(DHIS2TransportServiceIF dhis2, DHIS2SyncConfig dhis2Config, ExportHistory history)
   {
     this.dhis2 = dhis2;
-    this.date = todaysDate();
+    //this.date = todaysDate();
+    this.date = null;
     this.history = history;
     this.dhis2Config = dhis2Config;
   }
@@ -161,12 +162,12 @@ public class DHIS2SynchronizationManager
     long total = 0;
     long exportCount = 0;
     
-    SortedSet<SyncLevel> levels = dhis2Config.getLevels();
+    SortedSet<DHIS2SyncLevel> levels = dhis2Config.getLevels();
     
     Boolean includeTranslations = LocalizationFacade.getInstalledLocales().size() > 0;
 
     int expectedLevel = 0;
-    for (SyncLevel level : levels)
+    for (DHIS2SyncLevel level : levels)
     {
       if (level.getLevel() != expectedLevel)
       {
@@ -342,7 +343,7 @@ public class DHIS2SynchronizationManager
    * @throws ExportError
    */
   @Transaction
-  private void exportGeoObject(DHIS2SyncConfig dhis2Config, SyncLevel level, SortedSet<SyncLevel> levels, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws DHIS2SyncError
+  private void exportGeoObject(DHIS2SyncConfig dhis2Config, DHIS2SyncLevel level, SortedSet<DHIS2SyncLevel> levels, Long rowIndex, VertexServerGeoObject serverGo, Boolean includeTranslations) throws DHIS2SyncError
   {
     DHIS2ImportResponse resp = null;
     
@@ -356,7 +357,7 @@ public class DHIS2SynchronizationManager
       externalId = serverGo.getExternalId(dhis2Config.getSystem());
       boolean isNew = (externalId == null);
 
-      if (isNew && level.getSyncType() != SyncLevel.Type.ALL)
+      if (isNew && level.getSyncType() != DHIS2SyncLevel.Type.ALL)
       {
         NewGeoObjectInvalidSyncTypeError err = new NewGeoObjectInvalidSyncTypeError();
         err.setGeoObject(serverGo.getDisplayLabel().getValue());
@@ -385,11 +386,11 @@ public class DHIS2SynchronizationManager
         JsonArray orgUnits = new JsonArray();
         metadataPayload.add("organisationUnits", orgUnits);
         
-        if (level.getSyncType() == SyncLevel.Type.ALL)
+        if (level.getSyncType() == DHIS2SyncLevel.Type.ALL)
         {
           orgUnits.add(orgUnitJsonTree);
         }
-        else if (level.getSyncType() == SyncLevel.Type.RELATIONSHIPS)
+        else if (level.getSyncType() == DHIS2SyncLevel.Type.RELATIONSHIPS)
         {
           if (!orgUnitJsonTree.has("parent"))
           {
@@ -424,7 +425,7 @@ public class DHIS2SynchronizationManager
           
           orgUnits.add(orgUnitRelationships);
         }
-        else if (level.getSyncType() == SyncLevel.Type.ORG_UNITS)
+        else if (level.getSyncType() == DHIS2SyncLevel.Type.ORG_UNITS)
         {
           JsonObject orgUnitAttributes = orgUnitJsonTree.deepCopy();
           

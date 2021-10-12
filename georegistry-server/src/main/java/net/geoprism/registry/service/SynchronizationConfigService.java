@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -32,6 +34,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
@@ -50,7 +53,12 @@ import net.geoprism.dhis2.dhis2adapter.response.model.OrganisationUnitGroup;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.dhis2.DHIS2FeatureService;
 import net.geoprism.registry.dhis2.DHIS2ServiceFactory;
+import net.geoprism.registry.dhis2.DHIS2SynchronizationManager;
+import net.geoprism.registry.etl.DHIS2SyncConfig;
+import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.FhirSyncExportConfig;
 import net.geoprism.registry.etl.export.DataExportJob;
 import net.geoprism.registry.etl.export.DataExportJobQuery;
 import net.geoprism.registry.etl.export.ExportHistory;
@@ -58,11 +66,13 @@ import net.geoprism.registry.etl.export.ExportHistoryQuery;
 import net.geoprism.registry.etl.export.HttpError;
 import net.geoprism.registry.etl.export.LoginException;
 import net.geoprism.registry.etl.export.dhis2.DHIS2TransportServiceIF;
+import net.geoprism.registry.etl.fhir.FhirExportSynchronizationManager;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.permission.PermissionContext;
+import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 import net.geoprism.registry.view.JsonWrapper;
 import net.geoprism.registry.view.Page;
 
@@ -130,7 +140,7 @@ public class SynchronizationConfigService
     try
     {
       DHIS2TransportServiceIF dhis2 = DHIS2ServiceFactory.buildDhis2TransportService(system);
-      
+
       JsonArray jaGroups = new JsonArray();
 
       MetadataGetResponse<OrganisationUnitGroup> resp = dhis2.<OrganisationUnitGroup> metadataGet(OrganisationUnitGroup.class);
@@ -232,6 +242,31 @@ public class SynchronizationConfigService
   public void unlock(String sessionId, String oid)
   {
     SynchronizationConfig.unlock(oid);
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream generateFile(String sessionId, String oid)
+  {
+    SynchronizationConfig synchorinzation = SynchronizationConfig.get(oid);
+
+    ServiceFactory.getRolePermissionService().enforceRA(synchorinzation.getOrganization().getCode());
+
+    ExternalSystemSyncConfig config = synchorinzation.buildConfiguration();
+
+    if (config instanceof FhirSyncExportConfig)
+    {
+      try
+      {
+        FhirExportSynchronizationManager manager = new FhirExportSynchronizationManager((FhirSyncExportConfig) config, null);
+        return manager.generateZipFile();
+      }
+      catch (IOException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
+    }
+
+    throw new UnsupportedOperationException();
   }
 
   @Request(RequestType.SESSION)

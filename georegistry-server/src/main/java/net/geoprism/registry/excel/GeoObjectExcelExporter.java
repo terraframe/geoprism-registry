@@ -45,6 +45,7 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
@@ -123,7 +124,7 @@ public class GeoObjectExcelExporter
     Row header = sheet.createRow(0);
 
     boolean includeCoordinates = this.type.getGeometryType().equals(GeometryType.POINT);
-    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, false, locales).attributes(this.type.getType());
+    Collection<AttributeType> attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), includeCoordinates, true, locales).attributes(this.type.getType());
 
     // Get the ancestors of the type
     List<GeoObjectType> dtoAncestors = this.type.getTypeAncestors(this.hierarchy, true);
@@ -183,6 +184,10 @@ public class GeoObjectExcelExporter
           if (attribute instanceof AttributeTermType)
           {
             cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
+          }
+          else if (attribute instanceof AttributeClassificationType)
+          {
+            cell.setCellValue(GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
           }
           else if (attribute instanceof AttributeLocalType)
           {

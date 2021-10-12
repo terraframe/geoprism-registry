@@ -23,7 +23,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subject } from 'rxjs';
 
-import { ExternalSystem, Organization, OAuthServer } from '@shared/model/core';
+import { ExternalSystem, Organization } from '@shared/model/core';
 
 import { LocalizationService, AuthService, ExternalSystemService } from '@shared/service';
 
@@ -38,12 +38,12 @@ declare var acp: any;
 })
 export class ExternalSystemModalComponent implements OnInit {
 
-  context: string;
+	context: string;
 
 	message: string = null;
-	
+
 	editPassword: boolean = false;
-	
+
 	isNew: boolean = false;
 
 	system: ExternalSystem = {
@@ -57,14 +57,14 @@ export class ExternalSystemModalComponent implements OnInit {
 	};
 
 	organizations: Organization[] = [];
-	
+
 	oauthSupported: boolean = true;
 
 
 	public onSuccess: Subject<ExternalSystem>;
 
 	constructor(private systemService: ExternalSystemService, private authService: AuthService, public bsModalRef: BsModalRef, private lService: LocalizationService) {
-	  this.context = acp as string;
+		this.context = acp as string;
 	}
 
 	ngOnInit(): void {
@@ -80,50 +80,50 @@ export class ExternalSystemModalComponent implements OnInit {
 			this.system = system;
 			this.isNew = false;
 		}
-		else
-		{
-		  this.isNew = true;
-		  this.editPassword = true;
+		else {
+			this.isNew = true;
+			this.editPassword = true;
 		}
 	}
-	
+
 	enableOAuth(): void {
-	  if (!this.system.url.endsWith("/"))
-	  {
-	    this.system.url = this.system.url + "/";
-	  }
-	  
-	  this.oauthSupported = true;
-	  this.message = null;
-	  
-	  this.systemService.getSystemCapabilities(this.system).then(capabilities => {
-      if (capabilities.oauth)
-      {
-        this.system.oAuthServer = {
-          authorizationLocation: this.system.url + "uaa/oauth/authorize",
-          tokenLocation: this.system.url + "uaa/oauth/token",
-          profileLocation: this.system.url + "api/me",
-          clientId: "georegistry",
-          secretKey: "",
-          serverType: "DHIS2"
-        };
-      }
-      else
-      {
-        this.oauthSupported = false;
-      }
-    }).catch((err: HttpErrorResponse) => {
-      this.error(err);
-    });
-	}
-	
-	removeOauth(): void {
-	  delete this.system.oAuthServer;
+		if (!this.system.url.endsWith("/")) {
+			this.system.url = this.system.url + "/";
+		}
+
+		this.oauthSupported = true;
+		this.message = null;
+
+		this.systemService.getSystemCapabilities(this.system).then(capabilities => {
+			if (capabilities.oauth) {
+				this.system.oAuthServer = {
+					authorizationLocation: this.system.url + "uaa/oauth/authorize",
+					tokenLocation: this.system.url + "uaa/oauth/token",
+					profileLocation: this.system.url + "api/me",
+					clientId: "georegistry",
+					secretKey: "",
+					serverType: "DHIS2"
+				};
+			}
+			else {
+				this.oauthSupported = false;
+			}
+		}).catch((err: HttpErrorResponse) => {
+			this.error(err);
+		});
 	}
 
-  downloadDhis2Plugin(): void {
-    window.location.href = this.context + "/external-system/download-dhis2-plugin";
-  }
+	removeOauth(): void {
+		delete this.system.oAuthServer;
+	}
+
+	isOauthSupported(system:ExternalSystem) : boolean {
+		return system.type === 'DHIS2ExternalSystem' || system.type === 'FhirExternalSystem';
+	}
+
+	downloadDhis2Plugin(): void {
+		window.location.href = this.context + "/external-system/download-dhis2-plugin";
+	}
 
 	cancel(): void {
 		this.bsModalRef.hide();

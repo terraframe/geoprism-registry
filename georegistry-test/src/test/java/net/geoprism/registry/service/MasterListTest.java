@@ -24,7 +24,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.json.JSONObject;
@@ -38,19 +40,27 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.SmartExceptionDTO;
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.constants.ComponentInfo;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.constants.graph.MdClassificationInfo;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.database.DuplicateDataDatabaseException;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.DuplicateMasterListException;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListBuilder;
 import net.geoprism.registry.MasterListQuery;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.Organization;
@@ -65,61 +75,15 @@ import net.geoprism.registry.test.USATestData;
 
 public class MasterListTest
 {
-  private static class MasterListBuilder
-  {
-    private Organization            org;
+  private static String                      CLASSIFICATION_TYPE = "test.classification.TestClassification";
 
-    private TestHierarchyTypeInfo   ht;
+  private static String                      CODE                = "Test Term";
 
-    private TestGeoObjectTypeInfo   info;
+  private static USATestData                 testData;
 
-    private String                  visibility;
+  private static AttributeTermType           testTerm;
 
-    private boolean                 isMaster;
-
-    private TestGeoObjectTypeInfo[] parents;
-
-    private TestHierarchyTypeInfo[] subtypeHierarchies;
-
-    public void setOrg(Organization org)
-    {
-      this.org = org;
-    }
-
-    public void setHt(TestHierarchyTypeInfo ht)
-    {
-      this.ht = ht;
-    }
-
-    public void setInfo(TestGeoObjectTypeInfo info)
-    {
-      this.info = info;
-    }
-
-    public void setVisibility(String visibility)
-    {
-      this.visibility = visibility;
-    }
-
-    public void setMaster(boolean isMaster)
-    {
-      this.isMaster = isMaster;
-    }
-
-    public void setParents(TestGeoObjectTypeInfo... parents)
-    {
-      this.parents = parents;
-    }
-
-    public void setSubtypeHierarchies(TestHierarchyTypeInfo... subtypeHierarchies)
-    {
-      this.subtypeHierarchies = subtypeHierarchies;
-    }
-  }
-
-  private static USATestData       testData;
-
-  private static AttributeTermType testTerm;
+  private static AttributeClassificationType testClassification;
 
   @BeforeClass
   public static void setUpClass()
@@ -133,21 +97,55 @@ public class MasterListTest
   @Request
   private static void setUpInReq()
   {
-    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
-    // testTerm = (AttributeTermType)
-    // ServiceFactory.getRegistryService().createAttributeType(null,
-    // USATestData.STATE.getCode(), testTerm.toJSON().toString());
+    MdClassificationDAO mdClassification = MdClassificationDAO.newInstance();
+    mdClassification.setValue(MdClassificationInfo.PACKAGE, "test.classification");
+    mdClassification.setValue(MdClassificationInfo.TYPE_NAME, "TestClassification");
+    mdClassification.setValue(MdClassificationInfo.GENERATE_SOURCE, MdAttributeBooleanInfo.FALSE);
+    mdClassification.setStructValue(MdClassificationInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    mdClassification.apply();
+
+    MdVertexDAOIF referenceMdVertexDAO = mdClassification.getReferenceMdVertexDAO();
+
+    VertexObject root = new VertexObject(referenceMdVertexDAO.definesType());
+    root.setValue(AbstractClassification.CODE, CODE);
+    root.setEmbeddedValue(AbstractClassification.DISPLAYLABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Test Classification");
+    root.apply();
+
+    mdClassification.setValue(MdClassificationInfo.ROOT, root.getOid());
+    mdClassification.apply();
+
+    testClassification = (AttributeClassificationType) AttributeType.factory("testClassification", new LocalizedValue("testClassificationLocalName"), new LocalizedValue("testClassificationLocalDescrip"), AttributeClassificationType.TYPE, false, false, false);
+    testClassification.setClassificationType(CLASSIFICATION_TYPE);
+    testClassification.setRootTerm(new Term(CODE, new LocalizedValue("Test Classification"), new LocalizedValue("Test Classification")));
 
     ServerGeoObjectType got = ServerGeoObjectType.get(USATestData.STATE.getCode());
+    testClassification = (AttributeClassificationType) got.createAttributeType(testClassification.toJSON().toString());
+
+    testTerm = (AttributeTermType) AttributeType.factory("testTerm", new LocalizedValue("testTermLocalName"), new LocalizedValue("testTermLocalDescrip"), AttributeTermType.TYPE, false, false, false);
+
     testTerm = (AttributeTermType) got.createAttributeType(testTerm.toJSON().toString());
+
+    USATestData.COLORADO.setDefaultValue(testClassification.getName(), CODE);
   }
 
   @AfterClass
-  public static void cleanUpClass()
+  @Request
+  public static void classTearDown()
   {
     if (testData != null)
     {
       testData.tearDownMetadata();
+    }
+
+    USATestData.COLORADO.removeDefaultValue(testClassification.getName());
+
+    try
+    {
+      MdClassificationDAO.getMdClassificationDAO(CLASSIFICATION_TYPE).getBusinessDAO().delete();
+    }
+    catch (Exception e)
+    {
+      // skip
     }
   }
 
@@ -412,7 +410,7 @@ public class MasterListTest
 
       try
       {
-        MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+        MasterListVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
 
         try
         {
@@ -440,22 +438,23 @@ public class MasterListTest
   {
     TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
+      MasterListBuilder.Hierarchy hierarchy = new MasterListBuilder.Hierarchy();
+      hierarchy.setType(USATestData.HIER_ADMIN);
+      hierarchy.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+      hierarchy.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+
       MasterListBuilder builder = new MasterListBuilder();
       builder.setOrg(USATestData.ORG_NPS.getServerObject());
-      builder.setHt(USATestData.HIER_ADMIN);
       builder.setInfo(USATestData.HEALTH_FACILITY);
       builder.setVisibility(MasterList.PUBLIC);
       builder.setMaster(false);
-      builder.setParents(USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
-      builder.setSubtypeHierarchies(USATestData.HIER_REPORTS_TO);
+      builder.setHts(hierarchy);
 
-      JsonObject json = getJson(builder);
-
-      MasterList test = MasterList.create(json);
+      MasterList test = builder.build();
 
       try
       {
-        MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+        MasterListVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
 
         try
         {
@@ -498,6 +497,11 @@ public class MasterListTest
           version.delete();
         }
       }
+      catch (Throwable t)
+      {
+        t.printStackTrace();
+        throw new RuntimeException(t);
+      }
       finally
       {
         test.delete();
@@ -519,7 +523,7 @@ public class MasterListTest
       test.setValid(false);
       test.apply();
 
-      MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+      MasterListVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
       version.delete();
     }
     finally
@@ -895,75 +899,18 @@ public class MasterListTest
   @Request
   public static JsonObject getJson(Organization org, TestHierarchyTypeInfo ht, TestGeoObjectTypeInfo info, String visibility, boolean isMaster, TestGeoObjectTypeInfo... parents)
   {
+    MasterListBuilder.Hierarchy hierarchy = new MasterListBuilder.Hierarchy();
+    hierarchy.setType(ht);
+    hierarchy.setParents(parents);
+
     MasterListBuilder builder = new MasterListBuilder();
     builder.setOrg(org);
-    builder.setHt(ht);
     builder.setInfo(info);
     builder.setVisibility(visibility);
     builder.setMaster(isMaster);
-    builder.setParents(parents);
+    builder.setHts(hierarchy);
 
-    return getJson(builder);
-  }
-
-  @Request
-  public static JsonObject getJson(MasterListBuilder builder)
-  {
-    JsonArray pArray = new JsonArray();
-    for (TestGeoObjectTypeInfo parent : builder.parents)
-    {
-      JsonObject object = new JsonObject();
-      object.addProperty("code", parent.getCode());
-      object.addProperty("selected", true);
-
-      pArray.add(object);
-    }
-
-    JsonObject hierarchy = new JsonObject();
-    hierarchy.addProperty("code", builder.ht.getCode());
-    hierarchy.add("parents", pArray);
-
-    JsonArray array = new JsonArray();
-    array.add(hierarchy);
-
-    MasterList list = new MasterList();
-    list.setUniversal(builder.info.getUniversal());
-    list.getDisplayLabel().setValue("Test List");
-    list.setCode("TEST_CODE");
-    list.setRepresentativityDate(new Date());
-    list.setPublishDate(new Date());
-    list.setListAbstract("My Abstract");
-    list.setProcess("Process");
-    list.setProgress("Progress");
-    list.setAccessConstraints("Access Contraints");
-    list.setUseConstraints("User Constraints");
-    list.setAcknowledgements("Acknowledgements");
-    list.setDisclaimer("Disclaimer");
-    list.setContactName("Contact Name");
-    list.setOrganization(builder.org);
-    list.setTelephoneNumber("Telephone Number");
-    list.setEmail("Email");
-    list.setHierarchies(array.toString());
-    list.addFrequency(ChangeFrequency.ANNUAL);
-    list.setIsMaster(builder.isMaster);
-    list.setVisibility(builder.visibility);
-
-    if (builder.subtypeHierarchies != null)
-    {
-      JsonArray hArray = new JsonArray();
-      for (TestHierarchyTypeInfo ht : builder.subtypeHierarchies)
-      {
-        JsonObject object = new JsonObject();
-        object.addProperty("code", ht.getCode());
-        object.addProperty("selected", true);
-
-        hArray.add(object);
-
-      }
-      list.setSubtypeHierarchies(hArray.toString());
-    }
-
-    return list.toJSON();
+    return builder.buildJSON();
   }
 
 }

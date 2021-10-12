@@ -1,6 +1,7 @@
 import { Component, ViewEncapsulation, ViewChild, ElementRef, Input } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
+import { Location } from "@angular/common";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import {
     trigger,
@@ -87,8 +88,6 @@ export class RequestTableComponent {
 
     hasBaseDropZoneOver: boolean = false;
 
-    waitingOnScroll: boolean = false;
-
     // Restrict page to the specified oid
     oid: string = null;
 
@@ -105,7 +104,7 @@ export class RequestTableComponent {
     isEditing: boolean = false;
 
     constructor(private service: ChangeRequestService, private geomService: GeometryService, private modalService: BsModalService, private authService: AuthService, private localizationService: LocalizationService,
-        private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService) {
+        private eventService: EventService, private route: ActivatedRoute, private router: Router, private dateService: DateService, private location: Location) {
         this.columns = [
             { name: localizationService.decode("change.request.user"), prop: "createdBy", sortable: false },
             { name: localizationService.decode("change.request.createDate"), prop: "createDate", sortable: false, width: 195 },
@@ -115,6 +114,11 @@ export class RequestTableComponent {
 
     ngOnInit(): void {
         this.oid = this.route.snapshot.paramMap.get("oid");
+
+        this.route.paramMap.subscribe(params => {
+            this.oid = params.get("oid");
+            this.refresh();
+        });
 
         if (this.oid != null) {
             this.toggleId = this.oid;
@@ -154,11 +158,6 @@ export class RequestTableComponent {
 
             this.error({ error: error });
         };
-
-        if (this.toggleId != null) {
-            this.onSelect({ selected: [{ oid: this.toggleId }] });
-            this.waitingOnScroll = true;
-        }
 
         this.refresh();
     }
@@ -212,6 +211,11 @@ export class RequestTableComponent {
         this.hasBaseDropZoneOver = e;
     }
 
+    pageChange(pageNumber: number = 1): void {
+        this.oid = null;
+        this.refresh(pageNumber);
+    }
+
     refresh(pageNumber: number = 1): void {
         this.geomService.destroy();
 
@@ -223,9 +227,9 @@ export class RequestTableComponent {
             this.requests.forEach((req) => {
                 if (!req.current.geoObject) {
                     for (let i = 0; i < req.actions.length; i++) {
-                        if (req.actions[0].actionType === "CreateGeoObjectAction") {
+                        if (req.actions[0].actionType === ActionTypes.CREATEGEOOBJECTACTION) {
                             // This is the state of the Geo-Object as the Registry Contributor configured it.
-                            req.current.geoObject = JSON.parse(JSON.stringify(req.actions[0].geoObjectJson));
+                            req.current.geoObject = JSON.parse(JSON.stringify((req.actions[0] as CreateGeoObjectAction).geoObjectJson));
                         }
                     }
                 }
@@ -357,10 +361,9 @@ export class RequestTableComponent {
     onUpdate(changeRequest: ChangeRequest): void {
         if (changeRequest != null) {
             this.service.update(changeRequest).then(request => {
-
-                // TODO update the individual change request
-
                 this.refresh();
+
+                this.isEditing = false;
             }).catch((response: HttpErrorResponse) => {
                 this.error(response);
             });
@@ -389,6 +392,8 @@ export class RequestTableComponent {
     }
 
     toggle(event: any, oid: string): void {
+        this.location.replaceState("/registry/change-requests/" + oid);
+
         if (!event.target.parentElement.className.includes("btn") && !event.target.className.includes("btn")) {
             if (this.toggleId === oid) {
                 this.toggleId = null;
@@ -450,6 +455,8 @@ export class RequestTableComponent {
             let firstAction = request.actions[0];
 
             if (firstAction.actionType === ActionTypes.UPDATEGEOOBJECTACTION) {
+                return true;
+            } else if (firstAction.actionType === ActionTypes.CREATEGEOOBJECTACTION && !(firstAction as CreateGeoObjectAction).geoObjectJson.attributes["exists"]) {
                 return true;
             } else {
                 return false;

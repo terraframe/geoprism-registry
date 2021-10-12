@@ -44,6 +44,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -80,7 +81,6 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 import net.geoprism.gis.geoserver.SessionPredicate;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.io.GeoObjectUtil;
 import net.geoprism.registry.io.ImportAttributeSerializer;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -100,8 +100,8 @@ public class GeoObjectAtTimeShapefileExporter
   private Collection<AttributeType> attributes;
 
   private Map<String, String>       columnNames;
-  
-  private Collection<Locale> locales;
+
+  private Collection<Locale>        locales;
 
   public GeoObjectAtTimeShapefileExporter(ServerGeoObjectType type, Date date)
   {
@@ -112,7 +112,7 @@ public class GeoObjectAtTimeShapefileExporter
   {
     this.type = type;
     this.date = date;
-    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, false, locales).attributes(this.type.getType());
+    this.attributes = new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, locales).attributes(this.type.getType());
     this.columnNames = new HashMap<String, String>();
     this.locales = locales;
   }
@@ -265,18 +265,22 @@ public class GeoObjectAtTimeShapefileExporter
 
       for (VertexServerGeoObject object : objects)
       {
-        if (object.getStatus(this.date).equals(GeoObjectStatus.ACTIVE))
+        if (!object.getInvalid())
         {
           builder.set(GEOM, object.getGeometry());
 
           this.attributes.forEach(attribute -> {
             String name = attribute.getName();
             String columnName = this.getColumnName(name);
-            Object value = name.equals(GeoObject.CODE) ? object.getValue(name) : object.getValue(name, this.date);
+            Object value = attribute.isChangeOverTime() ? object.getValue(name, this.date) : object.getValue(name);
 
             if (attribute instanceof AttributeTermType)
             {
               builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeTermType) attribute, value));
+            }
+            else if (attribute instanceof AttributeClassificationType)
+            {
+              builder.set(columnName, GeoObjectUtil.convertToTermString((AttributeClassificationType) attribute, value));
             }
             else if (attribute instanceof AttributeLocalType)
             {
@@ -410,6 +414,10 @@ public class GeoObjectAtTimeShapefileExporter
       return Long.class;
     }
     else if (attribute instanceof AttributeTermType)
+    {
+      return String.class;
+    }
+    else if (attribute instanceof AttributeClassificationType)
     {
       return String.class;
     }

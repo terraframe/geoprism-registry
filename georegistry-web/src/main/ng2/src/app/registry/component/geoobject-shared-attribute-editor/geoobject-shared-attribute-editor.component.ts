@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from "@angular/core";
+import { Component, OnInit, ViewChild, Input, ViewChildren, QueryList } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import {
     trigger,
@@ -13,11 +13,11 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { GeometryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
-import { GeoObjectType, GeoObjectOverTime, AttributeType, AttributeTermType, Term, HierarchyOverTime } from "@registry/model/registry";
-import {  UpdateAttributeAction, AbstractAction, ChangeRequest } from "@registry/model/crtable";
+import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTime } from "@registry/model/registry";
+import { UpdateAttributeOverTimeAction, AbstractAction, CreateGeoObjectAction, ChangeRequest } from "@registry/model/crtable";
 import { ActionTypes } from "@registry/model/constants";
-
-import Utils from "../../utility/Utils";
+import { ChangeRequestEditor } from "./change-request-editor";
+import { ManageVersionsComponent } from "./manage-versions.component";
 
 @Component({
     selector: "geoobject-shared-attribute-editor",
@@ -62,62 +62,48 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     // The changed state of the GeoObject in the GeoRegistry
     @Input() postGeoObject: GeoObjectOverTime = null;
 
-    // Array of Actions that will be part of a Change Request Object
-    @Input() actions: AbstractAction[] = [];
-
-    calculatedGeoObject: any = {};
-
     showAllInstances: boolean = false;
 
     tabIndex: number = 0;
 
     isContributorOnly: boolean = false;
 
-    @Input() animate: boolean = false;
-
     // The current state of the GeoObject in the GeoRegistry
 //    @Input() action: Action = null;
+
+    changeRequestEditor: ChangeRequestEditor;
 
     @Input() geoObjectType: GeoObjectType;
 
     @Input() attributeExcludes: string[] = [];
 
-    @Input() forDate: Date = new Date();
-
     @Input() readOnly: boolean = false;
 
     @Input() isNew: boolean = false;
-
-    @Input() isEditingGeometries = false;
 
     @Input() isGeometryInlined = false;
 
     @Input() changeRequest: ChangeRequest;
 
-    @ViewChild("geometryEditor") geometryEditor;
-
-    @Output() valid = new EventEmitter<boolean>();
-
-    @Output() onManageVersion = new EventEmitter<AttributeType>();
-
-    // Observable subject for MasterList changes.  Called when an update is successful
-    @Output() onChange = new EventEmitter<GeoObjectOverTime>();
-
-    @Input() customEvent: boolean = false;
-
     @Input() hierarchies: HierarchyOverTime[];
 
     modifiedTermOption: Term = null;
     currentTermOption: Term = null;
-    isValid: boolean = true;
 
-    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate"];
+    @Input() filterDate: string = null;
+
+    // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
+    geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
     @ViewChild("attributeForm") attributeForm;
 
-    parentAttributeType: AttributeType;
+    @ViewChildren(ManageVersionsComponent) manageVersions: QueryList<any>;
 
-    geometryAttributeType: AttributeType;
+    public parentAttributeType: AttributeType;
+
+    public geometryAttributeType: AttributeType;
+
+    showStabilityPeriods = false;
 
     constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
         this.isContributorOnly = this.authService.isContributerOnly();
@@ -132,65 +118,134 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
-        let geomAttr = null;
-        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
-            if (this.geoObjectType.attributes[i].code === "geometry") {
-                geomAttr = this.geoObjectType.attributes[i];
-            }
-        }
-        if (geomAttr == null) {
+        this.geometryAttributeType = this.getAttribute("geometry");
+        if (this.geometryAttributeType == null) {
             this.geometryAttributeType = new AttributeType("geometry", "geometry", new LocalizedValue("Geometry", null), new LocalizedValue("Geometry", null), true, false, false, true);
         }
 
         this.parentAttributeType = new AttributeType("_PARENT_", "_PARENT_", new LocalizedValue("Parents", null), new LocalizedValue("Parents", null), true, false, false, true);
-        this.onCodeChange();
-    }
 
-    ngAfterViewInit() {
-        this.attributeForm.statusChanges.subscribe(result => {
-            this.isValid = (result === "VALID" || result === "DISABLED");
-
-            this.valid.emit(this.isValid);
-        });
-    }
-
-    changePage(nextPage: number): void {
-        this.geomService.destroy(false);
-        
-        this.tabIndex = nextPage;
-
-        if (nextPage === 2) {
-            this.isEditingGeometries = true;
+        if (this.changeRequest == null) {
+            this.changeRequest = this.createNewChangeRequest();
         } else {
-            this.isEditingGeometries = false;
+            if (!this.changeRequest.actions) {
+                this.changeRequest.actions = [];
+            }
+
+            if (this.changeRequest.actions.length === 0 && this.isNew) {
+                this.changeRequest.actions = this.createNewChangeRequest().actions;
+            }
+        }
+
+        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService);
+
+        if (this.shouldForceSetExist()) {
+            this.changePage(3);
+        }
+
+        if (this.isNew) {
+            this.filterDate = null;
+        }
+
+        let got = this.changeRequest.current ? this.changeRequest.current.geoObjectType : this.postGeoObject.geoObjectType;
+        let orgCode = got.organizationCode;
+        this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
+
+        this.showAllInstances = (this.changeRequestEditor.changeRequest.isNew || this.changeRequestEditor.changeRequest.type === "CreateGeoObject");
+    }
+
+    setFilterDate(date: string, refresh: boolean = true) {
+        this.filterDate = date;
+
+        if (this.manageVersions != null) {
+            this.manageVersions.forEach(manageVersion => manageVersion.setFilterDate(this.filterDate, refresh));
         }
     }
 
-    setBoolean(attribute, value): void {
-        attribute.value = value;
+    getChangeRequestEditor(): ChangeRequestEditor {
+        return this.changeRequestEditor;
     }
 
-    formatDate(date: string): string {
-        return this.dateService.formatDateForDisplay(date);
+    createNewChangeRequest(): ChangeRequest {
+        let cr = new ChangeRequest();
+        cr.approvalStatus = "PENDING";
+        cr.actions = [];
+
+        if (this.isNew) {
+            cr.type = "CreateGeoObject";
+
+            let createAction: CreateGeoObjectAction = new CreateGeoObjectAction();
+            createAction.geoObjectJson = this.postGeoObject;
+            createAction.parentJson = this.hierarchies;
+            cr.actions[0] = createAction;
+        } else {
+            cr.type = "UpdateGeoObject";
+        }
+
+        return cr;
+    }
+
+    shouldForceSetExist() {
+        let isNew = this.changeRequestEditor.changeRequest.isNew;
+
+        if (isNew && !this.readOnly && this.postGeoObject.attributes["exists"]) {
+            let values = this.postGeoObject.attributes["exists"].values;
+
+            if (values && values.length > 0) {
+                let value = values[0];
+
+                return value.startDate == null || value.endDate == null || value.value === undefined || value.value === null;
+            }
+        }
+
+        return isNew && !this.readOnly;
+    }
+
+    getAttribute(name: string): AttributeType {
+        if (name === "_PARENT_") {
+            return this.parentAttributeType;
+        } else if (name === "geometry") {
+            return this.geometryAttributeType;
+        }
+
+        for (let i = 0; i < this.geoObjectType.attributes.length; ++i) {
+            if (this.geoObjectType.attributes[i].code === name) {
+                return this.geoObjectType.attributes[i];
+            }
+        }
+
+        return null;
+    }
+
+    changePage(nextPage: number): void {
+        if (this.shouldForceSetExist() && nextPage !== 3) {
+            return;
+        }
+
+        this.geomService.destroy(false);
+
+        this.tabIndex = nextPage;
     }
 
     hasChanges(tabIndex: number) {
-        let len = this.actions.length;
+        let len = this.changeRequest.actions.length;
 
         if (len > 0) {
             for (let i = 0; i < len; ++i) {
-                let action: AbstractAction = this.actions[i];
+                let action: AbstractAction = this.changeRequest.actions[i];
 
                 if (action.actionType === ActionTypes.CREATEGEOOBJECTACTION) {
                     return false;
                 } else if (action.actionType === ActionTypes.UPDATEATTRIBUTETACTION) {
-                    let updateAttrAction: UpdateAttributeAction = action as UpdateAttributeAction;
+                    let updateAttrAction: UpdateAttributeOverTimeAction = action as UpdateAttributeOverTimeAction;
 
                     if (updateAttrAction.attributeName === "_PARENT_" && tabIndex === 1) {
                         return true;
                     } else if (updateAttrAction.attributeName === "geometry" && tabIndex === 2) {
                         return true;
-                    } else if (tabIndex === 0 && updateAttrAction.attributeName !== "_PARENT_" && updateAttrAction.attributeName !== "geometry") {
+                    } else if ((updateAttrAction.attributeName === "invalid" || updateAttrAction.attributeName === "exists") && tabIndex === 3) {
+                        return true;
+                    } else if (tabIndex === 0 && updateAttrAction.attributeName !== "_PARENT_" && updateAttrAction.attributeName !== "geometry" && updateAttrAction.attributeName !== "exists" && updateAttrAction.attributeName !== "invalid") {
                         return true;
                     }
                 }
@@ -200,21 +255,44 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         return false;
     }
 
-    onCodeChange(): void {
-        let newVal = this.postGeoObject.attributes["code"];
-        this.geoObjectType.attributes.forEach(att => {
-            if (att.code === "code") {
-                att.isValid = (newVal != null) && newVal.length > 0;
+    hasErrors(tabIndex: number) {
+        let attributeEditors = this.changeRequestEditor.getEditors();
+
+        if (tabIndex === 0) {
+            let filter = ["invalid", "exists", "_PARENT_", "geometry"];
+            let filteredEditors = attributeEditors.filter(editor => filter.indexOf(editor.attribute.code) === -1);
+
+            for (let i = 0; i < filteredEditors.length; ++i) {
+                let editor = filteredEditors[i];
+
+                if (!editor.isValid()) {
+                    return true;
+                }
             }
-        });
+        } else if (tabIndex === 1) {
+            for (let i = 0; i < this.hierarchies.length; ++i) {
+                let hierarchy = this.hierarchies[i];
+
+                if (!this.changeRequestEditor.getEditorForAttribute(this.parentAttributeType, hierarchy).isValid()) {
+                    return true;
+                }
+            }
+        } else if (tabIndex === 2) {
+            return !this.changeRequestEditor.getEditorForAttribute(this.geometryAttributeType).isValid();
+        } else if (tabIndex === 3) {
+            let invalid = this.getAttribute("invalid");
+
+            let existsAttribute: AttributeType = GeoObjectType.getAttribute(this.changeRequestEditor.geoObjectType, "exists");
+            let existsEditor = this.changeRequestEditor.getEditorForAttribute(existsAttribute);
+
+            return (Object.prototype.hasOwnProperty.call(invalid, "isValid") && !invalid.isValid) ||
+            !existsEditor.isValid();
+        }
+
+        return false;
     }
 
-    // Invoked when the dates have changed on an attribute
-    // After each change we must check to see if all attributes
-    // are now valid or not
-    onIsValidChange(valid:boolean, attribute: AttributeType): void {
-        attribute.isValid = valid;
-
+    public isValid(): boolean {
         let allValid:boolean = true;
 
         this.geoObjectType.attributes.forEach(att => {
@@ -231,82 +309,11 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             allValid = false;
         }
 
-        this.valid.emit(allValid);
-    }
-
-    isNullValue(vot: any) {
-        return vot == null || vot.value == null || vot.value === "";
-    }
-
-    onSelectPropertyOption(event: any, option: any): void {
-        this.currentTermOption = JSON.parse(JSON.stringify(this.modifiedTermOption));
-    }
-
-    getGeoObjectTypeTermAttributeOptions(termAttributeCode: string) {
-        for (let i = 0; i < this.geoObjectType.attributes.length; i++) {
-            let attr: any = this.geoObjectType.attributes[i];
-
-            if (attr.type === "term" && attr.code === termAttributeCode) {
-                attr = <AttributeTermType>attr;
-                let attrOpts = attr.rootTerm.children;
-
-                if (attr.code === "status") {
-                    return Utils.removeStatuses(attrOpts);
-                } else {
-                    return attrOpts;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    isStatusChanged(post, pre) {
-        if ((pre != null && post == null) || (post != null && pre == null)) {
-            return true;
-        } else if (pre == null && post == null) {
-            return false;
-        }
-
-        if ((pre.length === 0 && post.length > 0) || (post.length === 0 && pre.length > 0)) {
-            return true;
-        }
-
-        let preCompare = pre;
-        if (Array.isArray(pre)) {
-            preCompare = pre[0];
-        }
-
-        let postCompare = post;
-        if (Array.isArray(post)) {
-            postCompare = post[0];
-        }
-
-        return preCompare !== postCompare;
-    }
-
-    getTypeDefinition(key: string): string {
-        for (let i = 0; i < this.geoObjectType.attributes.length; i++) {
-            let attr = this.geoObjectType.attributes[i];
-
-            if (attr.code === key) {
-                return attr.type;
-            }
-        }
-
-        return null;
+        return allValid && this.changeRequestEditor.validate();
     }
 
     public getActions(): AbstractAction[] {
-        return this.actions;
-    }
-
-    public getIsValid(): boolean {
-        return this.isValid;
-    }
-
-    public getGeoObject(): any {
-        // return this.postGeoObject;
+        return this.changeRequestEditor.changeRequest.actions;
     }
 
 }

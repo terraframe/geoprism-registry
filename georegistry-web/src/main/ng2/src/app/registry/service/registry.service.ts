@@ -804,15 +804,31 @@ export class RegistryService {
             .toPromise();
     }
 
-    getOrganizations(): Promise<Organization[]> {
-        this.eventService.start();
+	getOrganizations(): Promise<Organization[]> {
 
-        return this.http
-            .get<Organization[]>(acp + "/cgr/organizations/get-all")
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
+		this.eventService.start();
+
+		return this.http
+			.get<Organization[]>(acp + '/cgr/organizations/get-all')
+			.pipe(finalize(() => {
+				this.eventService.complete();
+			}))
+			.toPromise();
+	}
+
+  exportToFhir(oid: string, systemId: string): Promise<MasterListVersion> {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    let params = {
+      oid: oid,
+      systemId: systemId
+    } as any;
+
+    return this.http
+      .post<MasterListVersion>(acp + '/master-list/export-to-fhir', JSON.stringify(params), { headers: headers })
+      .toPromise();
+  }
 
 }

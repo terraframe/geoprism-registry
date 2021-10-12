@@ -19,7 +19,6 @@
       </a>
 
     </div>
-
     <hr style="border-top:solid 3px #6BA542" />
 
   </div>
@@ -31,9 +30,11 @@
       <thead>
         <tr style="height: 50px;color: grey;">
           <th style="vertical-align: middle;"> <localize key="change.request.contributor.label"></localize> </th>
-          <th style="vertical-align: middle;"> <localize key="change.request.id.label"></localize> </th>
+          <th style="vertical-align: middle;"> <localize key="geoObjectType.label"></localize> </th>
+          <th style="vertical-align: middle;"> <localize key="geoObject.label"></localize> </th>
           <th style="vertical-align: middle;"> <localize key="change.request.date.contributed.label"></localize> </th>
           <th style="vertical-align: middle;"> <localize key="change.request.status.label"></localize> </th>
+          <th style="vertical-align: middle;"> <localize key="change.request.id.label"></localize> </th>
           <!-- <th style="vertical-align: middle;">Actions</th> -->
           <th></th>
         </tr>
@@ -42,21 +43,27 @@
         <ng-template ngFor let-req [ngForOf]="requests | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }" [ngForTrackBy]="requestTrackBy">
         
           <tr class="clickable" [ngClass]="{'row-active':toggleId === req.oid}" (click)="toggle($event, req.oid)" style="height: 50px;">
-            <td class="col-md-3">
+            <td class="col-md-1">
               <h5><strong>{{req.createdBy}}</strong></h5>
             </td>
-            <td class="col-md-4">
-              <h5><strong>{{req.oid}}</strong></h5>
+            <td class="col-md-2">
+              <h5><strong>{{req.geoObjectType.label}}</strong></h5>
             </td>
-            <td class="col-md-2" style="vertical-align: middle; color:grey;">
+            <td class="col-md-2">
+              <h5><strong>{{req.geoObject.label}}</strong></h5>
+            </td>
+            <td class="col-md-1" style="vertical-align: middle; color:grey;">
                <span class="date-string-display">
                   {{formatDate(req.createDate)}}
                </span>
             </td>
-            <td class="col-md-2">
+            <td class="col-md-1">
               <h5 [ngClass]="{'status-pending':req.approvalStatus === 'PENDING', 'status-accepted':req.approvalStatus === 'ACCEPTED', 'status-partial':req.approvalStatus === 'PARTIAL', 'status-rejected':req.approvalStatus === 'REJECTED'}">
                  <strong>{{req.statusLabel}}</strong>
               </h5>
+            </td>
+            <td class="col-md-2">
+              <h5><strong>{{req.oid}}</strong></h5>
             </td>
             <td class="col-md-1" style="vertical-align:middle;text-align:right;padding-right:25px;">
               <i class="arrow arrow-right" aria-hidden="true"></i>
@@ -66,7 +73,7 @@
           <!-- Action panel only shows when activated with click -->
           <tr [@fadeInOut] *ngIf="toggleId === req.oid" style="background-color:#f7f7f7;" [ngClass]="{'status-pending-container':req.approvalStatus === 'PENDING', 'status-accepted-container':req.approvalStatus === 'ACCEPTED', 'status-partial-container':req.approvalStatus === 'PARTIAL', 'status-rejected-container':req.approvalStatus === 'REJECTED'}">
             
-            <td colspan="5">
+            <td colspan="7">
               <div class="geoobject-panel-header">
               
                     <div>
@@ -110,9 +117,7 @@
 	                              [readOnly]="!canEdit(req)"  
 	                              [geoObjectType]="req.current.geoObjectType"
                                 [postGeoObject]="req.type == 'UpdateGeoObject' ? req.current.geoObject : req.actions[0].geoObjectJson" 
-	                              [actions]="req.actions"
 	                              [changeRequest]="req"
-	                              [forDate]="today"
 	                              [hierarchies]="req.type == 'UpdateGeoObject' ? req.current.hierarchies : req.actions[0].parentJson"
 	                              [isGeometryInlined]="true"
                                 [isNew]="req.type === 'CreateGeoObject'"
@@ -204,7 +209,7 @@
     </table>
     <div class="solid-table-footer">
 	    <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-        <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
+        <pagination-controls (pageChange)="pageChange($event)"></pagination-controls>
 	    </div>
     </div>
   </div>   

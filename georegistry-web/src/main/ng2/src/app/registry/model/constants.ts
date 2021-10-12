@@ -27,5 +27,20 @@ export enum ImportStrategy {
 
 export enum ConflictType {
     MISSING_REFERENCE = "MISSING_REFERENCE",
-    TIME_RANGE = "TIME_RANGE"
+    TIME_RANGE = "TIME_RANGE",
+    OUTSIDE_EXISTS = "OUTSIDE_EXISTS"
+}
+
+export enum ChangeType
+{
+    END_DATE = "endDate",
+    START_DATE = "startDate",
+    VALUE = "value",
+    REMOVE = "remove",
+    ADD = "add"
+}
+
+export enum LayerColor {
+  "OLD" = "#A4A4A4",
+  "NEW" = "#0062AA"
 }

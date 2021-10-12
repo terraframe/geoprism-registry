@@ -114,7 +114,7 @@ public class ShapefileService
 
   private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
-    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, true, LocalizationFacade.getInstalledLocales())).toString());
+    JSONObject type = new JSONObject(geoObjectType.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), false, false, LocalizationFacade.getInstalledLocales())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)

@@ -1,0 +1,83 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<CGR
+  xsi:noNamespaceSchemaLocation="classpath:xsd/cgr.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <type
+    code="REG"
+    label="Region (MOHA)"
+    description="1st subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="PRO"
+    label="Province (MOHA)"
+    description="2nd subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="CTY"
+    label="County (MOHA)"
+    description="3rd subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="SHR"
+    label="Shire (MOHA)"
+    description="4th subnational level administrative units"
+    visibility="PUBLIC"
+    geometryType="POLYGON"
+    isGeometryEditable="false">
+  </type>
+  <type
+    code="VIL"
+    label="Village (MOHA)"
+    description="A group of at least 50 inhabited households but smaller than a City"
+    visibility="PUBLIC"
+    geometryType="POINT"
+    isGeometryEditable="true">
+  </type>
+  <hierarchy
+    code="ADM_H"
+    label="Administrative structure hierarchy"
+    description="Administrative structure of the Tolkien Region"
+    progress="Final"
+    disclaimer="The information contained in this hierarchy is being distributed without warranty of any kind, either expressed or implied. The responsibility for the interpretation and use of the dataset lies with the user. In no event shall the Ministry of Home Affairs be liable for damages arising from its use"
+    accessConstraints="The access to this data is limited  to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    useConstraints="The use of this data is limited  to the to the users of the Common Geo-Registry tool for demonstrations purposes only"
+    acknowledgement="Please acknowledge the Survey Department, Ministry of Home Affairs of the Middle Earth when using this hierarchy">
+    <child code="REG">
+      <child code="PRO">
+        <child code="CTY">
+          <child code="SHR">
+            <child code="VIL" />
+          </child>
+        </child>
+      </child>
+    </child>
+  </hierarchy>
+</CGR>

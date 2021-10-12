@@ -45,15 +45,20 @@ import net.geoprism.registry.view.JsonSerializable;
 public abstract class ExternalSystem extends ExternalSystemBase implements JsonSerializable
 {
   private static final long serialVersionUID = 1516759164;
-  
+
   public ExternalSystem()
   {
     super();
   }
 
-  public abstract ExternalSystemSyncConfig configuration();
+  public abstract ExternalSystemSyncConfig configuration(Boolean isImport);
 
   public abstract boolean isExportSupported();
+
+  public LocalizedValue getLocalizedLabel()
+  {
+    return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
+  }
 
   @Override
   @Transaction
@@ -80,24 +85,24 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
   {
     this.delete(true);
   }
-  
+
   public void delete(Boolean checkReferencedData)
   {
     if (checkReferencedData && getReferencedDataCount() > 0)
     {
       throw new ObjectHasDataException();
     }
-    
+
     List<SynchronizationConfig> configs = SynchronizationConfig.getAll(this);
 
     for (SynchronizationConfig config : configs)
     {
       config.delete();
     }
-    
+
     super.delete();
   }
-  
+
   public long getReferencedDataCount()
   {
     final MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
@@ -106,9 +111,9 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     builder.append("SELECT COUNT(*) FROM " + mdEdge.getDBClassName());
 
     builder.append(" WHERE out = :system");
-    
+
     final GraphQuery<Long> query = new GraphQuery<Long>(builder.toString());
-    
+
     query.setParameter("system", this.getRID());
 
     return query.getSingleResult();
@@ -138,10 +143,10 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     object.addProperty(ExternalSystem.ORGANIZATION, this.getOrganization().getCode());
     object.add(ExternalSystem.LABEL, LocalizedValueConverter.convert(this.getEmbeddedComponent(LABEL)).toJSON());
     object.add(ExternalSystem.DESCRIPTION, LocalizedValueConverter.convert(this.getEmbeddedComponent(DESCRIPTION)).toJSON());
-    
+
     return object;
   }
-  
+
   public LocalizedValue getDisplayLabel()
   {
     return LocalizedValueConverter.convert(this.getEmbeddedComponent(ExternalSystem.LABEL));
@@ -249,6 +254,10 @@ public abstract class ExternalSystem extends ExternalSystemBase implements JsonS
     if (type.equals(RevealExternalSystem.class.getSimpleName()))
     {
       return new RevealExternalSystem();
+    }
+    else if (type.equals(FhirExternalSystem.class.getSimpleName()))
+    {
+      return new FhirExternalSystem();
     }
 
     return new DHIS2ExternalSystem();

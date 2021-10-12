@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.commongeoregistry.adapter.GeoObjectTypeNotFoundException;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.geotools.geometry.jts.GeometryBuilder;
@@ -103,7 +102,7 @@ public class GeoObjectServiceTest
 
         FastTestDataset.CAMBODIA.assertEquals(geoObj);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
   }
@@ -121,7 +120,7 @@ public class GeoObjectServiceTest
         
         FastTestDataset.PROV_CENTRAL_PRIVATE.assertEquals(geoObj);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
 
@@ -157,7 +156,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
   }
@@ -188,7 +187,7 @@ public class GeoObjectServiceTest
         GeoObject geoObj = adapter.getGeoObjectByCode(FastTestDataset.PROV_CENTRAL_PRIVATE.getCode(), FastTestDataset.PROV_CENTRAL_PRIVATE.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObject.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus().getCode());
+        Assert.assertEquals(true, geoObj.getExists());
       });
     }
 
@@ -249,7 +248,7 @@ public class GeoObjectServiceTest
 
         TEST_GO.assertEquals(returned);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, returned.getStatus().getCode());
+        Assert.assertEquals(true, returned.getExists());
 
         TEST_GO.assertApplied();
         TEST_GO.delete();
@@ -292,7 +291,7 @@ public class GeoObjectServiceTest
 
         TEST_GO_PRIVATE.assertEquals(returned);
 
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.PENDING.code, returned.getStatus().getCode());
+        Assert.assertEquals(true, returned.getExists());
 
         TEST_GO_PRIVATE.assertApplied();
         TEST_GO_PRIVATE.delete();
@@ -468,11 +467,43 @@ public class GeoObjectServiceTest
     // orientdb inconsistencies
     Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
   }
+  
+  @Test
+  public void testGetGeoObjectSuggestionsOnDate()
+  {
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
+
+    Assert.assertEquals(1, results.size());
+
+    JsonObject result = results.get(0).getAsJsonObject();
+
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
+    // // This is commented out because the ids are different due to postgres +
+    // orientdb inconsistencies
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+  }
 
   @Test
   public void testGetGeoObjectSuggestionsNoParent()
   {
     JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, null);
+
+    Assert.assertEquals(1, results.size());
+
+    JsonObject result = results.get(0).getAsJsonObject();
+
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.get("name").getAsString());
+    // Assert.assertEquals(testData.CAMBODIA.getOid(), result.getString("id"));
+    // // This is commented out because the ids are different due to postgres +
+    // orientdb inconsistencies
+    Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.get(GeoObject.CODE).getAsString());
+  }
+  
+  @Test
+  public void testGetGeoObjectSuggestionsNoParentOnDate()
+  {
+    JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Assert.assertEquals(1, results.size());
 

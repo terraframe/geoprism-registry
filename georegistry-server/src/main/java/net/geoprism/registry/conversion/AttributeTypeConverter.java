@@ -23,10 +23,10 @@ import java.util.Locale;
 
 import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -34,9 +34,11 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
+import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDateDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF;
@@ -46,11 +48,12 @@ import com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLocalDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.RelationshipDAOIF;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
+import com.runwaysdk.dataaccess.graph.VertexObjectDAOIF;
 import com.runwaysdk.session.Session;
-
-import net.geoprism.registry.service.ServiceFactory;
 
 public class AttributeTypeConverter extends LocalizedValueConverter
 {
@@ -59,8 +62,8 @@ public class AttributeTypeConverter extends LocalizedValueConverter
     Locale locale = Session.getCurrentLocale();
 
     String attributeName = mdAttribute.definesAttribute();
-    LocalizedValue displayLabel = this.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
-    LocalizedValue description = this.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
+    LocalizedValue displayLabel = AttributeTypeConverter.convert(mdAttribute.getDisplayLabel(locale), mdAttribute.getDisplayLabels());
+    LocalizedValue description = AttributeTypeConverter.convert(mdAttribute.getDescription(locale), mdAttribute.getDescriptions());
     boolean required = mdAttribute.isRequired();
     boolean unique = mdAttribute.isUnique();
 
@@ -101,17 +104,31 @@ public class AttributeTypeConverter extends LocalizedValueConverter
     {
       return AttributeType.factory(attributeName, displayLabel, description, AttributeIntegerType.TYPE, required, unique, isChangeOverTime);
     }
+    else if (mdAttribute instanceof MdAttributeClassificationDAOIF)
+    {
+      MdClassificationDAOIF mdClassification = ( (MdAttributeClassificationDAOIF) mdAttribute ).getMdClassificationDAOIF();
+
+      AttributeClassificationType attributeType = (AttributeClassificationType) AttributeType.factory(attributeName, displayLabel, description, AttributeClassificationType.TYPE, required, unique, isChangeOverTime);
+      attributeType.setClassificationType(mdClassification.definesType());
+
+      VertexObjectDAOIF root = ( (MdAttributeClassificationDAOIF) mdAttribute ).getRoot();
+
+      if (root != null)
+      {
+        VertexObject classification = VertexObject.instantiate((VertexObjectDAO) root);
+        VertexTermConverter termBuilder = new VertexTermConverter(classification);
+        Term adapterTerm = termBuilder.build();
+
+        attributeType.setRootTerm(adapterTerm);
+      }
+
+      return attributeType;
+    }
     else if (mdAttribute instanceof MdAttributeEnumerationDAOIF || mdAttribute instanceof MdAttributeTermDAOIF)
     {
       AttributeTermType attributeType = (AttributeTermType) AttributeType.factory(attributeName, displayLabel, description, AttributeTermType.TYPE, required, unique, isChangeOverTime);
 
-      if (mdAttribute instanceof MdAttributeEnumerationDAOIF && mdAttribute.definesAttribute().equals(DefaultAttribute.STATUS.getName()))
-      {
-        Term rootStatusTerm = ServiceFactory.getMetadataCache().getTerm(DefaultTerms.GeoObjectStatusTerm.ROOT.code).get();
-
-        attributeType.setRootTerm(rootStatusTerm);
-      }
-      else if (mdAttribute instanceof MdAttributeTermDAOIF)
+      if (mdAttribute instanceof MdAttributeTermDAOIF)
       {
         List<RelationshipDAOIF> rels = ( (MdAttributeTermDAOIF) mdAttribute ).getAllAttributeRoots();
 

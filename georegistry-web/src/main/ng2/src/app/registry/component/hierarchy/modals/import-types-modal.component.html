@@ -1,0 +1,47 @@
+<div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="heading text-center">
+      <h1> <localize key="hierarchy.sidebar.importTypes"></localize> </h1>
+    </div> 
+    <form #form="ngForm" class="modal-form" autocomplete="off">
+      <fieldset>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label> <localize key="attribute.organization.label"></localize> </label>
+          </div>
+          <div class="holder">
+            <select (change)="onSelect($event.target.value)">
+              <option></option>
+              <option *ngFor="let organization of organizations" value={{organization.code}}>{{organization.label.localizedValue}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label> <localize key="hierarchy.sidebar.xmlFile"></localize> </label>
+          </div>
+          <div class="holder">
+            <input class="ghost-input" #myFile name="file" type="file" ng2FileSelect [uploader]="uploader" accept=".xml" required /> 
+          </div>
+        </div>
+        <div class="row-holder">
+          <div class="label-holder"></div>
+          <div class="holder">
+            <div class="button-holder">
+              <button type="button" (click)="bsModalRef.hide()" class="btn btn-default" role="button" aria-disabled="false">
+                <span>
+                  <localize key="modal.button.cancel"></localize>
+                </span>
+              </button>
+              <button type="submit" (click)="onClick()" class="btn btn-primary" role="button" aria-disabled="false">
+                <span>
+                  <localize key="modal.button.ok"></localize>
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+</div>

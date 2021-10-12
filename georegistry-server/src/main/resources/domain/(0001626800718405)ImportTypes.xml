@@ -1,0 +1,70 @@
+<!--
+
+    Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+
+    This file is part of Geoprism Registry(tm).
+
+    Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdUtil name="net.geoprism.registry.GeoRegistryUtil" label="Geo Registry Util">
+        <create>
+          <mdMethod name="importTypes" label="Import types" returnType="void" static="true">
+            <mdParameter name="orgCode" label="Organization code" order="0" type="java.lang.String" />
+            <mdParameter name="istream" label="Input Stream" order="1" type="java.io.InputStream" />
+          </mdMethod>          
+        </create>
+      </mdUtil>
+    </update>
+    <createOrUpdate>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.importTypes">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.importTypes" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Import Types" />
+        </attributeStruct>
+      </object>    
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="hierarchy.sidebar.xmlFile">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="hierarchy.sidebar.xmlFile" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="XML File" />
+        </attributeStruct>
+      </object>    
+    </createOrUpdate>    
+    <permissions>
+      <method methodName="importTypes" type="net.geoprism.registry.GeoRegistryUtil">
+        <assignedRole roleName="Administrator" />
+      </method>    
+      <role roleName="geoprism.admin.Administrator">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.GeoRegistryUtil">
+            <mdMethodPermission methodName="importTypes">
+              <operation name="EXECUTE" />
+            </mdMethodPermission>
+          </mdBusinessPermission>
+        </grant>
+      </role>
+    </permissions>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdMethod" key="net.geoprism.registry.GeoRegistryUtil.importTypes" ></object>
+    </delete>
+  </undoIt>
+</version>

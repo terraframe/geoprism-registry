@@ -20,6 +20,7 @@ package net.geoprism.registry.shapefile;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -31,11 +32,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.geotools.data.DefaultTransaction;
@@ -68,6 +71,7 @@ import com.runwaysdk.dataaccess.MdAttributeLongDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTextDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.gis.dataaccess.MdAttributeGeometryDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributeLineStringDAOIF;
 import com.runwaysdk.gis.dataaccess.MdAttributeMultiLineStringDAOIF;
@@ -87,6 +91,8 @@ import net.geoprism.gis.geoserver.SessionPredicate;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.excel.MasterListExcelExporter;
+import net.geoprism.registry.excel.MasterListExcelExporter.MasterListExcelExporterSheet;
 
 public class MasterListShapefileExporter
 {
@@ -156,7 +162,8 @@ public class MasterListShapefileExporter
     Map<String, Serializable> params = new HashMap<String, Serializable>();
     params.put("url", file.toURI().toURL());
     params.put("create spatial index", Boolean.TRUE);
-
+    params.put("charset", "UTF-8");
+    
     ShapefileDataStore dataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
     dataStore.setCharset(Charset.forName("UTF-8"));
     dataStore.createSchema(featureType);
@@ -194,8 +201,77 @@ public class MasterListShapefileExporter
     }
 
     dataStore.dispose();
+    
+    this.writeEncodingFile(directory);
+    
+    this.writeDictionaryFile(directory);
 
     return directory;
+  }
+  
+  /**
+   * Writes an additional "data dictionary" / metadata excel spreadsheet to the directory, which is intended to be
+   * part of the final Shapfile. This is useful for downstream developers trying to make sense of the GIS data.
+   * 
+   * See also:
+   * - https://github.com/terraframe/geoprism-registry/issues/628
+   */
+  private void writeDictionaryFile(File directory)
+  {
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.version.getMdBusinessOid());
+
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> this.version.isValid(mdAttribute)).collect(Collectors.toList());
+
+    mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
+    
+    String excelFilter;
+    if (filterJson == null)
+    {
+      excelFilter = "[{attribute:invalid,value:false}]";
+    }
+    else
+    {
+      excelFilter = new String(filterJson);
+    }
+    
+    try
+    {
+      File file = new File(directory, "metadata.xlsx");
+      FileOutputStream fos = new FileOutputStream(file);
+      
+      MasterListExcelExporter exporter = new MasterListExcelExporter(this.version, mdBusiness, mdAttributes, excelFilter, new MasterListExcelExporterSheet[] {MasterListExcelExporterSheet.DICTIONARY, MasterListExcelExporterSheet.METADATA});
+
+      Workbook wb = exporter.createWorkbook();
+      
+      wb.write(fos);
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+  
+  /**
+   * Writes an additional .cpg file in the provided directory. This file contains the content "UTF-8". This file
+   * is not part of the official Shapefile spec, however it has become an unofficial addendum for specifying an
+   * encoding.
+   * 
+   * See also:
+   * - https://github.com/terraframe/geoprism-registry/issues/671
+   * - https://gis.stackexchange.com/questions/3529/which-character-encoding-is-used-by-the-dbf-file-in-shapefiles
+   */
+  private void writeEncodingFile(File directory)
+  {
+    File cpg = new File(directory, this.getList().getCode() + ".cpg");
+    
+    try
+    {
+      FileUtils.write(cpg, "UTF-8", Charset.forName("UTF-8"));
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
   }
 
   public InputStream export() throws IOException

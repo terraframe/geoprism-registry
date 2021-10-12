@@ -1,0 +1,20 @@
+<div class="modal-body">
+	<form class="modal-form">
+
+		<div class="row">
+			<div class="col-md-12 text-center">
+				<textarea style="width:100%; height: 500px;">{{message}}</textarea>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				<div class="button-holder">
+					<button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+						<localize key="modal.button.close"></localize>
+					</button>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>

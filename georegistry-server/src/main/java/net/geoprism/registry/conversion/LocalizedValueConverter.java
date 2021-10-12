@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -34,8 +33,8 @@ import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.graph.GraphObject;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.attributes.entity.AttributeLocal;
+import com.runwaysdk.dataaccess.graph.GraphObjectDAO;
 import com.runwaysdk.dataaccess.graph.VertexObjectDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.localization.LocalizationFacade;
@@ -43,7 +42,6 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
 
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -55,35 +53,12 @@ public class LocalizedValueConverter
     return ServiceFactory.getMetadataCache().getTerm(code).get();
   }
 
-  public Term geoObjectStatusToTerm(GeoObjectStatus gos)
-  {
-    return geoObjectStatusToTerm(gos.getEnumName());
-  }
-
-  public Term geoObjectStatusToTerm(String termCode)
-  {
-    if (termCode.equals(GeoObjectStatus.ACTIVE.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.INACTIVE.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.NEW.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.PENDING.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code);
-    }
-    else
-    {
-      throw new ProgrammingErrorException("Unknown Status [" + termCode + "].");
-    }
-  }
-
+  /*
+   * TODO : This method will coalesce the value for all of the locales. So if the value is empty for a particular
+   * locale, that locale will actually have the default locale placed in it. For this reason, usage of this method
+   * should be deprecated for populating DTOS and the like, the coalescing of values should actually happen on the
+   * front-end, since that coalescing is actually use-case dependent.
+   */
   public static LocalizedValue convert(LocalStruct localStruct)
   {
     LocalizedValue label = new LocalizedValue(localStruct.getValue());
@@ -96,6 +71,15 @@ public class LocalizedValueConverter
       label.setValue(locale, localStruct.getValue(locale));
     }
 
+    return label;
+  }
+  
+  public static LocalizedValue convertNoAutoCoalesce(LocalStruct localStruct)
+  {
+    LocalizedValue label = new LocalizedValue(localStruct.getValue());
+    
+    label.setLocaleMap(localStruct.getLocaleMap());
+    
     return label;
   }
 
@@ -154,7 +138,7 @@ public class LocalizedValueConverter
     }
   }
   
-  public static LocalizedValue convert(VertexObjectDAO graphObject)
+  public static LocalizedValue convert(GraphObjectDAO graphObject)
   {
     String attributeName = Session.getCurrentLocale().toString();
     String defaultLocale = (String) graphObject.getObjectValue(MdAttributeLocalInfo.DEFAULT_LOCALE);

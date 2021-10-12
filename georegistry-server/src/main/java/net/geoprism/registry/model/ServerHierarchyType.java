@@ -81,7 +81,7 @@ import net.geoprism.registry.graph.MultipleHierarchyRootsException;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.service.ServiceFactory;
 
-public class ServerHierarchyType
+public class ServerHierarchyType implements ServerElement
 {
 
   private HierarchyType      type;
@@ -99,7 +99,7 @@ public class ServerHierarchyType
     this.entityRelationship = entityRelationship;
     this.mdEdge = mdEdge;
   }
-  
+
   private HierarchyNode buildHierarchy(HierarchyNode parentNode, Universal parentUniversal, MdTermRelationship mdTermRel)
   {
     List<Universal> childUniversals = new LinkedList<Universal>();
@@ -128,11 +128,11 @@ public class ServerHierarchyType
     return parentNode;
 
   }
-  
+
   public void buildHierarchyNodes()
   {
     this.type.clearRootGeoObjectTypes();
-    
+
     Universal rootUniversal = Universal.getByKey(Universal.ROOT);
 
     // Copy all of the children to a list so as not to have recursion with open
@@ -148,7 +148,7 @@ public class ServerHierarchyType
     {
       i.close();
     }
-    
+
     for (Universal childUniversal : childUniversals)
     {
       ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(childUniversal);
@@ -236,6 +236,41 @@ public class ServerHierarchyType
   public String getCode()
   {
     return this.type.getCode();
+  }
+
+  public String getProgress()
+  {
+    return this.type.getProgress();
+  }
+
+  public String getAccessConstraints()
+  {
+    return this.type.getAccessConstraints();
+  }
+
+  public String getUseConstraints()
+  {
+    return this.type.getUseConstraints();
+  }
+
+  public String getAcknowledgement()
+  {
+    return this.type.getAcknowledgement();
+  }
+
+  public String getDisclaimer()
+  {
+    return this.type.getDisclaimer();
+  }
+
+  public List<HierarchyNode> getRootGeoObjectTypes()
+  {
+    return this.type.getRootGeoObjectTypes();
+  }
+
+  public MetadataDisplayLabel getDescription()
+  {
+    return this.entityRelationship.getDescription();
   }
 
   public MetadataDisplayLabel getDisplayLabel()
@@ -361,6 +396,11 @@ public class ServerHierarchyType
 
   public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType)
   {
+    this.addToHierarchy(parentType, childType, true);
+  }
+
+  public void addToHierarchy(ServerGeoObjectType parentType, ServerGeoObjectType childType, boolean refresh)
+  {
     if (parentType.getIsAbstract())
     {
       AbstractParentException exception = new AbstractParentException();
@@ -411,7 +451,10 @@ public class ServerHierarchyType
 
     // No exceptions thrown. Refresh the HierarchyType object to include the new
     // relationships.
-    this.refresh();
+    if (refresh)
+    {
+      this.refresh();
+    }
   }
 
   /**
@@ -916,7 +959,7 @@ public class ServerHierarchyType
   {
     return ServiceFactory.getMetadataCache().getAllHierarchyTypes();
   }
-  
+
   @Override
   public String toString()
   {

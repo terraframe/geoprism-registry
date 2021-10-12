@@ -1,0 +1,59 @@
+.timeline {
+	  height: 50px;
+	  width:100%;
+	  position:relative;
+}
+.timeline a:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.timeline a:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.timeline-entry {
+	  height: 50px;
+	  border:1px solid lightgrey;
+	  position: absolute;
+	  display: inline-block;
+}
+
+.timeline-entry.not-clickable {
+	  cursor: default;
+}
+
+.active-timeline-entry {
+	  background-color:#EDF4E8;
+	  border-color: #6ba542;
+}
+
+.navigation-controls {
+	  width: 100%;
+	  text-align:center;
+}
+
+.navigation-controls a {
+/* 	  margin-right: 40px; */
+/* 	  margin-left: 40px; */
+
+	  
+	  /* Disable selection of text */
+	  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+.view-all {
+	  margin-left: 1em;
+	  font-size: 0.8em;
+}
+
+.viewing-all {
+	  padding-left: 1em;
+    font-size: 0.8em;
+}

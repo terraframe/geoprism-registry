@@ -58,6 +58,7 @@ export class MasterListHistoryComponent implements OnInit {
         });
         this.bsModalRef.content.readonly = true;
         this.bsModalRef.content.master = this.list;
+        this.bsModalRef.content.originalPublishStartDate = this.list.publishingStartDate;
         this.bsModalRef.content.isNew = false;
     }
 

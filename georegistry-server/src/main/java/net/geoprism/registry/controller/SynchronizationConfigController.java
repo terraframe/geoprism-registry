@@ -26,12 +26,14 @@ import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
+import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.dhis2.DHIS2FeatureService;
+import net.geoprism.registry.etl.fhir.FhirFactory;
 import net.geoprism.registry.service.SynchronizationConfigService;
 
 @Controller(url = "synchronization-config")
@@ -43,20 +45,20 @@ public class SynchronizationConfigController
   {
     this.service = new SynchronizationConfigService();
   }
-  
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-config-for-es")
   public ResponseIF getConfigForExternalSystem(ClientRequestIF request, @RequestParamter(name = "externalSystemId") String externalSystemId, @RequestParamter(name = "hierarchyTypeCode") String hierarchyTypeCode)
   {
     JsonObject resp = this.service.getConfigForExternalSystem(request.getSessionId(), externalSystemId, hierarchyTypeCode);
-    
+
     return new RestBodyResponse(resp);
   }
-  
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-custom-attr")
   public ResponseIF getCustomAttributeConfiguration(ClientRequestIF request, @RequestParamter(name = "geoObjectTypeCode") String geoObjectTypeCode, @RequestParamter(name = "externalId") String externalId)
   {
     JsonArray resp = new DHIS2FeatureService().getDHIS2AttributeConfiguration(request.getSessionId(), externalId, geoObjectTypeCode);
-    
+
     return new RestBodyResponse(resp);
   }
 
@@ -122,5 +124,27 @@ public class SynchronizationConfigController
     this.service.run(request.getSessionId(), oid);
 
     return new RestResponse();
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "generate-file")
+  public ResponseIF generateFile(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    return new InputStreamResponse(this.service.generateFile(request.getSessionId(), oid), "application/zip", "bundles.zip");
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-export-implementations")
+  public ResponseIF getFhirExportImplementations(ClientRequestIF request)
+  {
+    JsonArray implementations = FhirFactory.getExportImplementations();
+
+    return new RestBodyResponse(implementations);
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-fhir-import-implementations")
+  public ResponseIF getFhirImportImplementations(ClientRequestIF request)
+  {
+    JsonArray implementations = FhirFactory.getImportImplementations();
+
+    return new RestBodyResponse(implementations);
   }
 }

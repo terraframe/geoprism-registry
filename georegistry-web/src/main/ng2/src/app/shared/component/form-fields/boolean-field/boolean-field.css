@@ -2,10 +2,46 @@
     margin: 10px 0px 0 0;
 }
 
-.disabled{
+.dizabled{
     cursor: not-allowed;
 }
 
-label.disabled{
+label.dizabled{
     color: lightgrey;
+}
+
+.check-block {
+	  cursor: pointer;
+}
+
+.check-block label {
+    cursor: pointer;
+    
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.dizabled {
+    cursor: not-allowed;
+}
+
+.dizabled > label {
+    cursor: not-allowed;
+}
+
+.dizabled > div {
+    cursor: not-allowed;
+}
+
+.dizabled > span {
+    cursor: not-allowed;
+}
+
+.dizabled > div.chk-area {
+    cursor: not-allowed;
 }

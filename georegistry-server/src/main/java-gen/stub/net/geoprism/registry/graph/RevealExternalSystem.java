@@ -36,7 +36,7 @@ public class RevealExternalSystem extends RevealExternalSystemBase
   }
 
   @Override
-  public ExternalSystemSyncConfig configuration()
+  public ExternalSystemSyncConfig configuration(Boolean isImport)
   {
     throw new UnsupportedOperationException();
   }

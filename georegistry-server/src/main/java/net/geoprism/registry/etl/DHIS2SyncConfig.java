@@ -28,27 +28,54 @@ import com.google.gson.reflect.TypeToken;
 
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
+import net.geoprism.registry.model.ServerHierarchyType;
 
 public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
-  public static final String ATTRIBUTES      = "attributes";
-  
-  public static final String LEVELS          = "levels";
+  public static final String            ATTRIBUTES      = "attributes";
 
-  public static final String GEO_OBJECT_TYPE = "geoObjectType";
+  public static final String            HIERARCHY       = "hierarchyCode";
 
-  public static final String TYPE            = "type";
-  
-  private SortedSet<SyncLevel>    levels;
-  
-  public SortedSet<SyncLevel> getLevels()
+  public static final String            LEVELS          = "levels";
+
+  public static final String            GEO_OBJECT_TYPE = "geoObjectType";
+
+  public static final String            TYPE            = "type";
+
+  private SortedSet<DHIS2SyncLevel>     levels;
+
+  private String                        hierarchyCode;
+
+  private transient ServerHierarchyType hierarchy;
+
+  public SortedSet<DHIS2SyncLevel> getLevels()
   {
     return levels;
   }
 
-  public void setLevels(SortedSet<SyncLevel> levels)
+  public void setLevels(SortedSet<DHIS2SyncLevel> levels)
   {
     this.levels = levels;
+  }
+
+  public String getHierarchyCode()
+  {
+    return hierarchyCode;
+  }
+
+  public void setHierarchyCode(String hierarchyCode)
+  {
+    this.hierarchyCode = hierarchyCode;
+  }
+
+  public ServerHierarchyType getHierarchy()
+  {
+    return hierarchy;
+  }
+
+  public void setHierarchy(ServerHierarchyType hierarchy)
+  {
+    this.hierarchy = hierarchy;
   }
 
   @Override
@@ -64,13 +91,21 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
     JsonObject json = config.getConfigurationJson();
 
+    String hierarchyCode = json.get(DHIS2SyncConfig.HIERARCHY).getAsString();
+
+    this.setHierarchyCode(hierarchyCode);
+    this.setHierarchy(ServerHierarchyType.get(hierarchyCode));
+
     JsonArray jaLevels = json.get(LEVELS).getAsJsonArray();
-//    this.levels =  new GsonBuilder().create().fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
-    
+    // this.levels = new GsonBuilder().create().fromJson(jaLevels, new
+    // TypeToken<SortedSet<SyncLevel>>() {}.getType());
+
     GsonBuilder builder = new GsonBuilder();
     builder.registerTypeAdapter(DHIS2AttributeMapping.class, new DHIS2AttributeMapping.DHIS2AttributeMappingDeserializer());
     Gson gson = builder.create();
-    this.levels = gson.fromJson(jaLevels, new TypeToken<SortedSet<SyncLevel>>() {}.getType());
+    this.levels = gson.fromJson(jaLevels, new TypeToken<SortedSet<DHIS2SyncLevel>>()
+    {
+    }.getType());
   }
 
 }

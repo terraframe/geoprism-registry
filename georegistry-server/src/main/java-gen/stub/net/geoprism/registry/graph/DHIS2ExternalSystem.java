@@ -27,24 +27,34 @@ import com.runwaysdk.json.RunwayJsonAdapters;
 import net.geoprism.account.OauthServer;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
 import net.geoprism.registry.etl.ExternalSystemSyncConfig;
+import net.geoprism.registry.etl.OauthExternalSystem;
 
-public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
+public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase implements OauthExternalSystem
 {
-  public static final String OAUTH_SERVER = "oAuthServer";
-  
-  public static final String[] OAUTH_SERVER_JSON_ATTRS = new String[] {OauthServer.SECRETKEY, OauthServer.CLIENTID, OauthServer.PROFILELOCATION, OauthServer.AUTHORIZATIONLOCATION, OauthServer.TOKENLOCATION, OauthServer.SERVERTYPE};
-  
   private static final long serialVersionUID = -1956421203;
 
   public DHIS2ExternalSystem()
   {
     super();
   }
-  
+
   @Override
   public boolean isExportSupported()
   {
     return true;
+  }
+
+  @Override
+  public void delete()
+  {
+    OauthServer oauth = this.getOauthServer();
+
+    super.delete();
+
+    if (oauth != null)
+    {
+      oauth.delete();
+    }
   }
 
   protected void populate(JsonObject json)
@@ -70,7 +80,7 @@ public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
     object.addProperty(DHIS2ExternalSystem.USERNAME, this.getUsername());
     object.addProperty(DHIS2ExternalSystem.URL, this.getUrl());
     object.addProperty(DHIS2ExternalSystem.VERSION, this.getVersion());
-    
+
     if (this.getOauthServer() != null)
     {
       Gson gson = new GsonBuilder().registerTypeAdapter(OauthServer.class, new RunwayJsonAdapters.RunwaySerializer(OAUTH_SERVER_JSON_ATTRS)).create();
@@ -82,7 +92,7 @@ public class DHIS2ExternalSystem extends DHIS2ExternalSystemBase
   }
 
   @Override
-  public ExternalSystemSyncConfig configuration()
+  public ExternalSystemSyncConfig configuration(Boolean isImport)
   {
     return new DHIS2SyncConfig();
   }

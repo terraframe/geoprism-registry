@@ -4,7 +4,7 @@ import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService } from "@shared/service";
 import { ImportConfiguration } from "./io";
 import { GovernanceStatus, ConflictType } from "./constants";
-import { SummaryKey } from "./crtable";
+import Utils from "@registry/utility/Utils";
 
 export const PRESENT: string = "5000-12-31";
 
@@ -44,6 +44,7 @@ export class GeoObject {
         sequence: string
         createDate: string,
         lastUpdateDate: string,
+        invalid: boolean,
         writable?: boolean
     };
 }
@@ -63,6 +64,41 @@ export class GeoObjectType {
     isPrivate?: boolean;
     canDrag?: boolean;
     permissions?: string[];
+
+    public static getAttribute(type: GeoObjectType, name: string) {
+        let len = type.attributes.length;
+        for (let i = 0; i < len; i++) {
+            let attr: any = type.attributes[i];
+
+            if (attr.code === name) {
+                return attr;
+            }
+        }
+
+        return null;
+    }
+
+    public static getGeoObjectTypeTermAttributeOptions(geoObjectType: GeoObjectType, termAttributeCode: string) {
+        for (let i = 0; i < geoObjectType.attributes.length; i++) {
+            let attr: any = geoObjectType.attributes[i];
+
+            if (attr.type === "term" && attr.code === termAttributeCode) {
+                attr = <AttributeTermType>attr;
+                let attrOpts = attr.rootTerm.children;
+
+                // only remove status of the required status type
+                if (attrOpts.length > 0) {
+                    if (attr.code === "status") {
+                        return Utils.removeStatuses(attrOpts);
+                    } else {
+                        return attrOpts;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
 }
 
 export class Task {
@@ -139,8 +175,8 @@ export class ConflictMessage {
 export interface TimeRangeEntry {
     startDate: string;
     endDate: string;
-    conflictMessage?: any[];
-    summaryKeyData?: SummaryKey;
+    oid?: string;
+    value?: any;
 }
 
 export class ValueOverTime implements TimeRangeEntry {
@@ -170,6 +206,8 @@ export class AttributeType {
     precision?: number;
     scale?: number;
     isValid?: boolean;
+    isValidReason?: {timeConflict: boolean, existConflict: boolean, dateField: boolean};
+    isValidReasonHierarchy?: any;
 
     constructor(code: string, type: string, label: LocalizedValue, description: LocalizedValue, isDefault: boolean, required: boolean, unique: boolean, isChangeOverTime: boolean) {
 
@@ -314,16 +352,16 @@ export class MasterList {
     typeLabel?: LocalizedValue;
     displayLabel: LocalizedValue;
     code: string;
-    representativityDate: Date;
-    publishingStartDate?: Date;
-    publishDate: Date;
-    listAbstract: string;
-    process: string;
-    progress: string;
-    accessConstraints: string;
-    useConstraints: string;
-    acknowledgements: string;
-    disclaimer: string;
+    representativityDate: string;
+    publishingStartDate?: string;
+    publishDate: string;
+    descriptionLocal: LocalizedValue;
+    processLocal: LocalizedValue;
+    progressLocal: LocalizedValue;
+    accessConstraintsLocal: LocalizedValue;
+    useConstraintsLocal: LocalizedValue;
+    acknowledgementsLocal: LocalizedValue;
+    disclaimerLocal: LocalizedValue;
     contactName: string;
     organization: string;
     telephoneNumber: string;
@@ -338,6 +376,7 @@ export class MasterList {
     exploratory?: boolean;
     versions?: MasterListVersion[];
     subtypes?: { label: string, code: string }[];
+    subtypeHierarchies?: any[];
 }
 
 export class MasterListVersion {
@@ -386,26 +425,30 @@ export class HierarchyOverTimeEntryParent {
     goCode?: string;
 }
 
+export class MasterListView {
+    label: string;
+    oid: string;
+    createDate: string;
+    lastUpdateDate: string;
+    isMaster: boolean;
+    write: boolean;
+    read: boolean;
+    visibility: string;
+}
+
 export class MasterListByOrg {
     oid: string;
+    code: string;
     label: string;
     write: boolean;
-    lists: {
-        label: string,
-        oid: string,
-        createDate: string,
-        lastUpdateDate: string,
-        isMaster: boolean,
-        write: boolean,
-        read: boolean,
-        visibility: string
-    }[];
+    lists: MasterListView[];
 }
 
 export class SynchronizationConfig {
     oid?: string;
     type?: string;
     systemLabel?: string;
+    isImport?: boolean;
     organization: string;
     system: string;
     hierarchy: string;

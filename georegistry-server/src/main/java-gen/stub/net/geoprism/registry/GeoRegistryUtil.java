@@ -44,20 +44,26 @@ import net.geoprism.registry.excel.MasterListExcelExporter;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
+import net.geoprism.registry.xml.XMLImporter;
 
 public class GeoRegistryUtil extends GeoRegistryUtilBase
 {
-  private static final long serialVersionUID = 2034796376;
-  
-  public static final TimeZone SYSTEM_TIMEZONE = TimeZone.getTimeZone("UTC");
+  private static final long    serialVersionUID = 2034796376;
+
+  public static final TimeZone SYSTEM_TIMEZONE  = TimeZone.getTimeZone("UTC");
 
   public GeoRegistryUtil()
   {
     super();
   }
-  
+
   public static String formatIso8601(Date date, boolean includeTime)
   {
+    if (date == null)
+    {
+      return "null";
+    }
+    
     if (!includeTime)
     {
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -71,7 +77,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
       return formatter.format(date);
     }
   }
-  
+
   public static Date parseIso8601(String date)
   {
     String s = "2020-02-13T18:51:09.840Z";
@@ -105,6 +111,10 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
+    
+    if (filterJson.contains("invalid")) {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
+    }
 
     try
     {
@@ -126,9 +136,13 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
+    if (filterJson.contains("invalid")) {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
+    }
+    
     try
     {
-      MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson);
+      MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson, null);
 
       return exporter.export();
     }
@@ -136,6 +150,15 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     {
       throw new ProgrammingErrorException(e);
     }
+  }
+
+  @Authenticate
+  public static void importTypes(String orgCode, InputStream istream)
+  {
+    Organization organization = Organization.getByCode(orgCode);
+
+    XMLImporter xmlImporter = new XMLImporter();
+    xmlImporter.importXMLDefinitions(organization, istream);
   }
 
 }

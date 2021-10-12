@@ -52,6 +52,8 @@ public class PublishMasterListJob extends PublishMasterListJobBase
   @Override
   public void execute(ExecutionContext executionContext) throws Throwable
   {
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
     this.getMasterList().publishFrequencyVersions();
   }
   

@@ -43,7 +43,7 @@ export class FeaturePanelComponent implements OnInit {
     @Output() panelCancel = new EventEmitter<void>();
     @Output() panelSubmit = new EventEmitter<{isChangeRequest:boolean, geoObject?: any, changeRequestId?: string}>();
 
-    isValid: boolean = true;
+    _isValid: boolean = true;
 
     bsModalRef: BsModalRef;
 
@@ -80,7 +80,11 @@ export class FeaturePanelComponent implements OnInit {
     }
 
     setValid(valid: boolean): void {
-        this.isValid = valid;
+        this._isValid = valid;
+    }
+
+    isValid(): boolean {
+        return this._isValid && this.attributeEditor && this.attributeEditor.isValid();
     }
 
     updateCode(code: string): void {
@@ -130,6 +134,12 @@ export class FeaturePanelComponent implements OnInit {
         // }
     }
 
+    canSubmit(): boolean {
+        return this.isValid() &&
+          (this.isMaintainer || (this.reason && this.reason.trim().length > 0)) &&
+          (this.isNew || (this.attributeEditor && this.attributeEditor.getChangeRequestEditor().hasChanges()));
+    }
+
     onSubmit(): void {
         if (this.isNew) {
             this.service.applyGeoObjectCreate(this.hierarchies, this.postGeoObject, this.isNew, this.datasetId, this.reason).then((applyInfo: any) => {
@@ -164,21 +174,6 @@ export class FeaturePanelComponent implements OnInit {
     onManageHiearchyVersion(hierarchy: HierarchyOverTime): void {
         this.hierarchy = hierarchy;
         this.mode = this.MODE.HIERARCHY;
-    }
-
-    onAttributeChange(postGeoObject: GeoObjectOverTime): void {
-        this.postGeoObject = postGeoObject;
-
-        this.mode = this.MODE.ATTRIBUTES;
-    }
-
-    onHierarchyChange(hierarchy: HierarchyOverTime): void {
-        const index = this.hierarchies.findIndex(h => h.code === hierarchy.code);
-        if (index !== -1) {
-            this.hierarchies[index] = hierarchy;
-        }
-
-        this.mode = this.MODE.ATTRIBUTES;
     }
 
     onEditAttributes(): void {

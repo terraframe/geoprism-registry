@@ -28,19 +28,17 @@ import net.geoprism.registry.model.ServerHierarchyType;
 
 public abstract class ExternalSystemSyncConfig
 {
-  private transient ExternalSystem      system;
+  private transient ExternalSystem system;
 
-  private transient Organization        organization;
+  private transient Organization   organization;
 
-  private transient ServerHierarchyType hierarchy;
-
-  private transient LocalizedValue      label;
+  private transient LocalizedValue label;
 
   public ExternalSystem getSystem()
   {
     return system;
   }
-  
+
   public void setSystem(ExternalSystem system)
   {
     this.system = system;
@@ -56,16 +54,6 @@ public abstract class ExternalSystemSyncConfig
     this.organization = organization;
   }
 
-  public ServerHierarchyType getHierarchy()
-  {
-    return hierarchy;
-  }
-
-  public void setHierarchy(ServerHierarchyType hierarchy)
-  {
-    this.hierarchy = hierarchy;
-  }
-
   public LocalizedValue getLabel()
   {
     return label;
@@ -78,7 +66,6 @@ public abstract class ExternalSystemSyncConfig
 
   public void populate(SynchronizationConfig config)
   {
-    this.setHierarchy(config.getServerHierarchyType());
     this.setLabel(LocalizedValueConverter.convert(config.getLabel()));
     this.setOrganization(config.getOrganization());
   }

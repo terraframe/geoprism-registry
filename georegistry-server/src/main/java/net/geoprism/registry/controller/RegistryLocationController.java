@@ -118,6 +118,7 @@ public class RegistryLocationController
       return dateFormat.parse(date);
     }
 
-    return ValueOverTime.INFINITY_END_DATE;
+    return null;
+    // return ValueOverTime.INFINITY_END_DATE;
   }
 }

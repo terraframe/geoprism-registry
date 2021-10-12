@@ -12,7 +12,8 @@ import { NgxPaginationModule } from "ngx-pagination";
 import { ProgressbarModule } from "ngx-bootstrap/progressbar";
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { TabsModule } from "ngx-bootstrap/tabs";
-
+import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
+import { ExportSystemModalComponent } from './component/master-list/export-system-modal.component';
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
@@ -43,7 +44,9 @@ import { ExportFormatModalComponent } from "./component/master-list/export-forma
 import { RequestTableComponent } from "./component/crtable/request-table.component";
 import { CreateUpdateGeoObjectDetailComponent } from "./component/crtable/action-detail/create-update-geo-object/detail.component";
 import { GeoObjectSharedAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
+import { StabilityPeriodComponent } from "./component/geoobject-shared-attribute-editor/stability-period.component";
 import { ManageVersionsComponent } from "./component/geoobject-shared-attribute-editor/manage-versions.component";
+import { StandardAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/standard-attribute-editor.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
 import { ChangeRequestPageComponent } from "./component/change-request-page/change-request-page.component";
 import { GeoObjectEditorComponent } from "./component/geoobject-editor/geoobject-editor.component";
@@ -68,7 +71,8 @@ import { RowValidationProblemWidgetComponent } from "./component/scheduled-jobs/
 import { StepIndicatorComponent } from "./component/scheduled-jobs/step-indicator.component";
 import { ImportProblemWidgetComponent } from "./component/scheduled-jobs/conflict-widgets/import-problem-widget.component";
 import { TaskViewerComponent } from "./component/task-viewer/task-viewer.component";
-
+import { FhirExportSynchronizationConfigComponent } from './component/synchronization-config/fhir-export-synchronization-config.component';
+import { Dhis2SynchronizationConfigComponent } from './component/synchronization-config/dhis2-synchronization-config.component';
 import { SynchronizationConfigManagerComponent } from "./component/synchronization-config/synchronization-config-manager.component";
 import { SynchronizationConfigModalComponent } from "./component/synchronization-config/synchronization-config-modal.component";
 import { SynchronizationConfigComponent } from "./component/synchronization-config/synchronization-config.component";
@@ -102,6 +106,7 @@ import { SharedModule } from "../shared/shared.module";
 import { AccordionModule } from "ngx-bootstrap/accordion";
 
 import "../rxjs-extensions";
+import { FhirImportSynchronizationConfigComponent } from "./component/synchronization-config/fhir-import-synchronization-config.component";
 
 @NgModule({
     imports: [
@@ -127,6 +132,11 @@ import "../rxjs-extensions";
         HierarchyComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
+        ImportTypesModalComponent,
+        ExportSystemModalComponent,
+        FhirExportSynchronizationConfigComponent,
+        FhirImportSynchronizationConfigComponent,
+        Dhis2SynchronizationConfigComponent,
         CreateHierarchyTypeModalComponent,
         AddChildToHierarchyModalComponent,
         CreateGeoObjTypeModalComponent,
@@ -152,7 +162,9 @@ import "../rxjs-extensions";
         LocalizedInputComponent,
         LocalizedTextComponent,
         GeoObjectSharedAttributeEditorComponent,
+        StabilityPeriodComponent,
         ManageVersionsComponent,
+        StandardAttributeEditorComponent,
         SubmitChangeRequestComponent,
         GeoObjectEditorComponent,
         GeoObjectAttributeExcludesPipe,
@@ -240,7 +252,9 @@ import "../rxjs-extensions";
         ReuploadModalComponent,
         StepIndicatorComponent,
         SynchronizationConfigModalComponent,
-        ContextLayerModalComponent
+        ContextLayerModalComponent,
+        ExportSystemModalComponent
+
     ]
 })
 export class RegistryModule { }

@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -43,6 +45,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.ClientRequestIF;
+import com.runwaysdk.controller.MultipartFileParameter;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.mvc.Controller;
@@ -58,7 +61,6 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.service.AccountService;
-import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.ExternalSystemService;
 import net.geoprism.registry.service.RegistryService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -81,36 +83,42 @@ public class RegistryController
   public ResponseIF manage()
   {
     ViewResponse resp = new ViewResponse(JSP_DIR + INDEX_JSP);
-    
+
     String customFont = GeoregistryProperties.getCustomFont();
     if (customFont != null && customFont.length() > 0)
     {
       resp.set("customFont", customFont);
     }
-    
+
     return resp;
   }
 
-//  /**
-//   * Submits a change request to the GeoRegistry. These actions will be reviewed
-//   * by an Administrator and if the actions are approved they may be executed
-//   * and accepted as formal changes to the GeoRegistry.
-//   * 
-//   * @param request
-//   * @param uid
-//   * @return
-//   * @throws JSONException
-//   */
-//  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = RegistryUrls.SUBMIT_CHANGE_REQUEST)
-//  public ResponseIF submitChangeRequest(ClientRequestIF request, @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS) String actions) throws JSONException
-//  {
-//    new ChangeRequestService().submitChangeRequest(request.getSessionId(), actions);
-//
-//    return new RestResponse();
-//  }
-  
+  // /**
+  // * Submits a change request to the GeoRegistry. These actions will be
+  // reviewed
+  // * by an Administrator and if the actions are approved they may be executed
+  // * and accepted as formal changes to the GeoRegistry.
+  // *
+  // * @param request
+  // * @param uid
+  // * @return
+  // * @throws JSONException
+  // */
+  // @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url
+  // = RegistryUrls.SUBMIT_CHANGE_REQUEST)
+  // public ResponseIF submitChangeRequest(ClientRequestIF request,
+  // @RequestParamter(name = RegistryUrls.SUBMIT_CHANGE_REQUEST_PARAM_ACTIONS)
+  // String actions) throws JSONException
+  // {
+  // new ChangeRequestService().submitChangeRequest(request.getSessionId(),
+  // actions);
+  //
+  // return new RestResponse();
+  // }
   /**
-   * Returns an OauthServer configuration with the specified id. If an id is not provided, this endpoint will return all configurations (in your organization).
+   * Returns an OauthServer configuration with the specified id. If an id is not
+   * provided, this endpoint will return all configurations (in your
+   * organization).
    * 
    * @param request
    * @param id
@@ -124,13 +132,15 @@ public class RegistryController
 
     return new RestBodyResponse(json);
   }
-  
+
   /**
-   * Returns information which is available to public users (without permissions) which will allow them to login as an oauth user.
+   * Returns information which is available to public users (without
+   * permissions) which will allow them to login as an oauth user.
    * 
    * @param request
    * @param id
-   * @return A json array of OauthServer configurations with only publicly available information.
+   * @return A json array of OauthServer configurations with only publicly
+   *         available information.
    * @throws JSONException
    */
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "oauth/get-public")
@@ -616,7 +626,7 @@ public class RegistryController
     for (int i = 0; i < gots.length; ++i)
     {
       JsonObject jo = this.registryService.serialize(request.getSessionId(), gots[i]);
-      
+
       jarray.add(jo);
     }
 
@@ -763,6 +773,25 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
+  }
+
+  /**
+   * Create the {@link HierarchyType} from the given JSON.
+   * 
+   * @param sessionId
+   * @param htJSON
+   *          JSON of the {@link HierarchyType} to be created.
+   * @throws IOException
+   */
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "import-types")
+  public ResponseIF importTypes(ClientRequestIF request, @RequestParamter(name = "orgCode") String orgCode, @RequestParamter(name = "file") MultipartFileParameter file) throws IOException
+  {
+    try (InputStream istream = file.getInputStream())
+    {
+      ServiceFactory.getRegistryService().importTypes(request.getSessionId(), orgCode, istream);
+
+      return new RestResponse();
+    }
   }
 
   /**
@@ -964,7 +993,7 @@ public class RegistryController
 
     return new RestBodyResponse(hierarchyType.toJSON(serializer));
   }
-  
+
   @Endpoint(url = "init-settings", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF initSettings(ClientRequestIF request) throws ParseException
   {
@@ -975,18 +1004,18 @@ public class RegistryController
     CustomSerializer serializer = this.registryService.serializer(request.getSessionId());
 
     JsonObject settingsView = new JsonObject();
-    
+
     JsonArray orgsJson = new JsonArray();
     for (OrganizationDTO org : orgs)
     {
       orgsJson.add(org.toJSON(serializer));
     }
     settingsView.add("organizations", orgsJson);
-    
+
     settingsView.add("locales", jaLocales);
-    
+
     settingsView.add("externalSystems", esPage);
-    
+
     settingsView.add("sras", sraPage);
 
     return new RestBodyResponse(settingsView);

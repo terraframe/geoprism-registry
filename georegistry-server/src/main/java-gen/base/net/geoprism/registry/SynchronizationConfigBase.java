@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -2137953209)
+@com.runwaysdk.business.ClassSignature(hash = -2053968632)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -34,10 +34,12 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String HIERARCHY = "hierarchy";
+  public static java.lang.String ISIMPORT = "isImport";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LABEL = "label";
   private com.runwaysdk.business.Struct label = null;
   
+  public static java.lang.String LASTSYNCHDATE = "lastSynchDate";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LOCKEDBY = "lockedBy";
@@ -48,7 +50,7 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String SYSTEM = "system";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -2137953209;
+  private static final long serialVersionUID = -2053968632;
   
   public SynchronizationConfigBase()
   {
@@ -232,6 +234,34 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
     }
   }
   
+  public Boolean getIsImport()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISIMPORT));
+  }
+  
+  public void validateIsImport()
+  {
+    this.validateAttribute(ISIMPORT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getIsImportMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(ISIMPORT);
+  }
+  
+  public void setIsImport(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(ISIMPORT, "");
+    }
+    else
+    {
+      setValue(ISIMPORT, java.lang.Boolean.toString(value));
+    }
+  }
+  
   public String getKeyName()
   {
     return getValue(KEYNAME);
@@ -274,6 +304,34 @@ public abstract class SynchronizationConfigBase extends com.runwaysdk.business.B
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeLocalCharacterDAOIF)mdClassIF.definesAttribute(LABEL);
+  }
+  
+  public java.util.Date getLastSynchDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(LASTSYNCHDATE));
+  }
+  
+  public void validateLastSynchDate()
+  {
+    this.validateAttribute(LASTSYNCHDATE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF getLastSynchDateMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.SynchronizationConfig.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF)mdClassIF.definesAttribute(LASTSYNCHDATE);
+  }
+  
+  public void setLastSynchDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(LASTSYNCHDATE, "");
+    }
+    else
+    {
+      setValue(LASTSYNCHDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
+    }
   }
   
   public java.util.Date getLastUpdateDate()

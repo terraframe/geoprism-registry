@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.service;
 
-import org.commongeoregistry.adapter.constants.DefaultTerms;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.geotools.geometry.jts.GeometryBuilder;
 import org.junit.After;
@@ -106,7 +105,7 @@ public class GeoObjectOverTimeServiceTest
         GeoObjectOverTime geoObj = adapter.getGeoObjectOverTimeByCode(FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode());
 
         Assert.assertEquals(geoObj.toJSON().toString(), GeoObjectOverTime.fromJSON(adapter, geoObj.toJSON().toString()).toJSON().toString());
-        Assert.assertEquals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code, geoObj.getStatus(TestDataSet.DEFAULT_OVER_TIME_DATE).getCode());
+        Assert.assertEquals(true, geoObj.getExists(TestDataSet.DEFAULT_OVER_TIME_DATE));
       });
     }
   }
@@ -226,5 +225,5 @@ public class GeoObjectOverTimeServiceTest
       });
     }
   }
-
+  
 }

@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import com.runwaysdk.configuration.ConfigurationManager;
 import com.runwaysdk.configuration.ConfigurationReaderIF;
 
@@ -65,5 +69,17 @@ public class GeoregistryProperties
     String font = Singleton.INSTANCE.props.getString("custom.font", "");
     
     return font;
+  }
+  
+  public static List<String> getCorsWhitelist()
+  {
+    String whitelist = Singleton.INSTANCE.props.getString("cgr.cors.whitelist", "");
+    
+    if (whitelist == null || whitelist.length() == 0)
+    {
+      return new ArrayList<String>();
+    }
+    
+    return Arrays.asList(whitelist.split(","));
   }
 }

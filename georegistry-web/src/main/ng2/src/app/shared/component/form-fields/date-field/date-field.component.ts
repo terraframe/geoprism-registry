@@ -29,6 +29,7 @@ export class DateFieldComponent {
     @Input() required: boolean = false;
     @Input() placement: string = "bottom";
     @Input() oldDate: string = null;
+    @Input() title: string = "";
 
     _value: Date;
     // eslint-disable-next-line accessor-pairs
@@ -126,37 +127,13 @@ export class DateFieldComponent {
 
     toggle(event: Date): void {
         setTimeout(() => {
-            let newValue: Date;
-
-            // event can be null if manually clearing the input
-            if (event) {
-                newValue = event;
-
-                this.valid = true;
-                this.message = "";
-
-                if (!this.allowFutureDates && newValue > this.today) {
-                    this.valid = false;
-                    this.message = this.localizationService.decode("date.inpu.data.in.future.error.message");
-                } else if (!(newValue instanceof Date)) {
-                    this.valid = false;
-                    this.message = this.localizationService.decode("date.inpu.data.invalid.error.message");
-                } else if (newValue instanceof Date && isNaN(newValue.getTime())) {
-                    this.valid = false;
-                    this.message = this.localizationService.decode("date.inpu.data.invalid.error.message");
-                }
-            } else {
-                // date required
-                if (this.required) {
-                    this.valid = false;
-                    this.message = this.localizationService.decode("manage.versions.date.required.message");
-                }
-            }
-
+            let validity = this.dateService.validateDate(event, this.required, this.allowFutureDates);
+            this.valid = validity.valid;
+            this.message = validity.message;
 
             if (this.valid) {
                 // Must adhere to the ISO 8601 format
-                let formattedDate = this.dateService.getDateString(newValue);
+                let formattedDate = this.dateService.getDateString(event);
 
                 if (formattedDate === PRESENT) {
                     this.valueIsPresent = true;

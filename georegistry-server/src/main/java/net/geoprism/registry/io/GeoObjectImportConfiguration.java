@@ -32,6 +32,7 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeDateType;
 import org.commongeoregistry.adapter.metadata.AttributeFloatType;
 import org.commongeoregistry.adapter.metadata.AttributeIntegerType;
@@ -260,7 +261,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, true, LocalizationFacade.getInstalledLocales())).toString());
+    JSONObject type = new JSONObject(this.type.toJSON(new ImportAttributeSerializer(Session.getCurrentLocale(), this.includeCoordinates, false, LocalizationFacade.getInstalledLocales())).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
@@ -470,14 +471,15 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
         }
       }
     }
-    
-    // If the hierarchy is inherited, we need to resolve the hierarchy inheritance chain and set them properly on the Location objects
+
+    // If the hierarchy is inherited, we need to resolve the hierarchy
+    // inheritance chain and set them properly on the Location objects
     // To do this, we must start from the bottom and resolve upwards
     ServerHierarchyType ht = this.hierarchy;
-    for (int i = this.locations.size()-1; i >= 0; --i)
+    for (int i = this.locations.size() - 1; i >= 0; --i)
     {
       Location loc = this.locations.get(i);
-      
+
       ht = got.findHierarchy(ht, loc.getType());
       loc.setHierarchy(ht);
     }
@@ -497,7 +499,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     {
       return AttributeBooleanType.TYPE;
     }
-    else if (attributeType.equals(AttributeTermType.TYPE) || attributeType.equals(AttributeCharacterType.TYPE) || attributeType.equals(AttributeLocalType.TYPE))
+    else if (attributeType.equals(AttributeClassificationType.TYPE) || attributeType.equals(AttributeTermType.TYPE) || attributeType.equals(AttributeCharacterType.TYPE) || attributeType.equals(AttributeLocalType.TYPE))
     {
       return GeoObjectImportConfiguration.TEXT;
     }

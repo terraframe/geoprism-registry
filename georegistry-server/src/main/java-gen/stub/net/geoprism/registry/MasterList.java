@@ -115,7 +115,7 @@ public class MasterList extends MasterListBase
      * Changing the frequency requires that any existing published version be
      * deleted
      */
-    if (this.isModified(MasterList.FREQUENCY))
+    if (this.isModified(MasterList.FREQUENCY) || this.isModified(MasterList.PUBLISHINGSTARTDATE))
     {
       final List<MasterListVersion> versions = this.getVersions(MasterListVersion.PUBLISHED);
 
@@ -237,16 +237,16 @@ public class MasterList extends MasterListBase
       {
         String hCode = hierarchy.get("code").getAsString();
         ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-        
+
         List<GeoObjectType> dtoAncestors = type.getTypeAncestors(hierarchyType, true);
 
         List<ServerGeoObjectType> ancestors = new LinkedList<ServerGeoObjectType>();
-        
+
         for (GeoObjectType ancestor : dtoAncestors)
         {
           ancestors.add(ServerGeoObjectType.get(ancestor));
         }
-        
+
         map.put(hierarchyType, ancestors);
       }
     }
@@ -275,6 +275,7 @@ public class MasterList extends MasterListBase
 
   public List<Date> getFrequencyDates(Date startDate, Date endDate)
   {
+    final Date today = new Date();
     LinkedList<Date> dates = new LinkedList<Date>();
 
     if (startDate != null && endDate != null)
@@ -285,6 +286,12 @@ public class MasterList extends MasterListBase
       if (frequencies.contains(ChangeFrequency.ANNUAL))
       {
         Calendar end = getEndOfYear(endDate);
+        
+        if (end.getTime().after(today))
+        {
+          end.add(Calendar.YEAR, -1);
+        }
+        
         Calendar calendar = getEndOfYear(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -297,6 +304,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.BIANNUAL))
       {
         Calendar end = getEndOfHalfYear(endDate);
+        
+        while (end.getTime().after(today))
+        {
+          end.add(Calendar.MONTH, -6);
+        }
+        
         Calendar calendar = getEndOfHalfYear(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -310,6 +323,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.QUARTER))
       {
         Calendar end = getEndOfQuarter(endDate);
+        
+        while (end.getTime().after(today))
+        {
+          end.add(Calendar.MONTH, -3);
+        }
+        
         Calendar calendar = getEndOfQuarter(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -323,6 +342,12 @@ public class MasterList extends MasterListBase
       else if (frequencies.contains(ChangeFrequency.MONTHLY))
       {
         Calendar end = getEndOfMonth(endDate);
+        
+        while (end.getTime().after(today))
+        {
+          end.add(Calendar.MONTH, -1);
+        }
+        
         Calendar calendar = getEndOfMonth(startDate);
 
         while (calendar.before(end) || calendar.equals(end))
@@ -448,15 +473,16 @@ public class MasterList extends MasterListBase
     object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
     object.add("typeLabel", type.getLabel().toJSON(serializer));
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
-    object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON(serializer));
+    object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
-    object.addProperty(MasterList.LISTABSTRACT, this.getListAbstract());
-    object.addProperty(MasterList.PROCESS, this.getProcess());
-    object.addProperty(MasterList.PROGRESS, this.getProgress());
-    object.addProperty(MasterList.ACCESSCONSTRAINTS, this.getAccessConstraints());
-    object.addProperty(MasterList.USECONSTRAINTS, this.getUseConstraints());
-    object.addProperty(MasterList.ACKNOWLEDGEMENTS, this.getAcknowledgements());
-    object.addProperty(MasterList.DISCLAIMER, this.getDisclaimer());
+    object.add(MasterList.DESCRIPTIONLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
+    object.add(MasterList.DESCRIPTIONLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
+    object.add(MasterList.PROCESSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getProcessLocal()).toJSON(serializer));
+    object.add(MasterList.PROGRESSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getProgressLocal()).toJSON(serializer));
+    object.add(MasterList.ACCESSCONSTRAINTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getAccessConstraintsLocal()).toJSON(serializer));
+    object.add(MasterList.USECONSTRAINTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getUseConstraintsLocal()).toJSON(serializer));
+    object.add(MasterList.ACKNOWLEDGEMENTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getAcknowledgementsLocal()).toJSON(serializer));
+    object.add(MasterList.DISCLAIMERLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisclaimerLocal()).toJSON(serializer));
     object.addProperty(MasterList.CONTACTNAME, this.getContactName());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
@@ -504,7 +530,7 @@ public class MasterList extends MasterListBase
 
     for (MasterListVersion version : versions)
     {
-      version.createMdAttributeFromAttributeType(type, attributeType, locales);
+      MasterListVersion.createMdAttributeFromAttributeType(version, type, attributeType, locales);
     }
   }
 
@@ -581,6 +607,13 @@ public class MasterList extends MasterListBase
 
       if (range != null)
       {
+        Date endDate = range.getSecond();
+        
+        if (endDate.after(new Date()))
+        {
+          endDate = new Date();
+        }
+        
         List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
 
         for (Date date : dates)
@@ -606,7 +639,7 @@ public class MasterList extends MasterListBase
   private Pair<Date, Date> getDateRange(final ServerGeoObjectType objectType)
   {
     Pair<Date, Date> range = VertexServerGeoObject.getDataRange(objectType);
-    
+
     // Only use the publishing start date if there is an actual range of data
     if (this.getPublishingStartDate() != null && range != null)
     {
@@ -647,13 +680,13 @@ public class MasterList extends MasterListBase
       list.setUniversal(type.getUniversal());
       LocalizedValueConverter.populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
-      list.setListAbstract(object.get(MasterList.LISTABSTRACT).getAsString());
-      list.setProcess(object.get(MasterList.PROCESS).getAsString());
-      list.setProgress(object.get(MasterList.PROGRESS).getAsString());
-      list.setAccessConstraints(object.get(MasterList.ACCESSCONSTRAINTS).getAsString());
-      list.setUseConstraints(object.get(MasterList.USECONSTRAINTS).getAsString());
-      list.setAcknowledgements(object.get(MasterList.ACKNOWLEDGEMENTS).getAsString());
-      list.setDisclaimer(object.get(MasterList.DISCLAIMER).getAsString());
+      list.getDescriptionLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.DESCRIPTIONLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getProcessLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.PROCESSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getProgressLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.PROGRESSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getAccessConstraintsLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.ACCESSCONSTRAINTSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getUseConstraintsLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.USECONSTRAINTSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getAcknowledgementsLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.ACKNOWLEDGEMENTSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getDisclaimerLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.DISCLAIMERLOCAL).getAsJsonObject()).getLocaleMap());
       list.setContactName(object.get(MasterList.CONTACTNAME).getAsString());
       list.setTelephoneNumber(object.get(MasterList.TELEPHONENUMBER).getAsString());
       list.setEmail(object.get(MasterList.EMAIL).getAsString());
@@ -1082,6 +1115,7 @@ public class MasterList extends MasterListBase
 
       JsonObject object = new JsonObject();
       object.addProperty("oid", org.getOid());
+      object.addProperty("code", org.getCode());
       object.addProperty("label", org.getDisplayLabel().getValue());
       object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
       object.add("lists", lists);

@@ -1,0 +1,60 @@
+{
+  "resourceType": "Organization",
+  "id": "USATestDataHsTwo",
+  "meta": {
+    "profile": [ "http://ihe.net/fhir/StructureDefinition/IHE.mCSD.Organization", "http://ihe.net/fhir/StructureDefinition/IHE.mCSD.JurisdictionsOrganization" ]
+  },
+  "extension": [ {
+    "url": "http://ihe.net/fhir/StructureDefinition/IHE.mCSD.hierarchy.extension",
+    "extension": [ {
+      "url": "part-of",
+      "valueReference": {
+        "reference": "Organization/USATestDataColoradoDistrictOne"
+      }
+    }, {
+      "url": "hierarchy-type",
+      "valueCodeableConcept": {
+        "coding": [ {
+          "code": "USATestDataAdminCode"
+        } ],
+        "text": "USATestDataAdmin Display Label"
+      }
+    } ]
+  }, {
+    "url": "http://ihe.net/fhir/StructureDefinition/IHE.mCSD.hierarchy.extension",
+    "extension": [ {
+      "url": "part-of",
+      "valueReference": {
+        "reference": "Organization/USATestDataHpTwo"
+      }
+    }, {
+      "url": "hierarchy-type",
+      "valueCodeableConcept": {
+        "coding": [ {
+          "code": "USATestDataReportsToCode"
+        } ],
+        "text": "USATestDataReportsTo Display Label"
+      }
+    } ]
+  } ],
+  "identifier": [ {
+    "system": "localhost",
+    "value": "USATestDataHsTwo"
+  } ],
+  "type": [ {
+    "coding": [ {
+      "system": "localhost",
+      "code": "USATestDataHealthStop",
+      "display": "USATestDataHealthStop"
+    } ],
+    "text": "USATestDataHealthStop"
+  }, {
+    "coding": [ {
+      "system": "urn:ietf:rfc:3986",
+      "code": "urn:ihe:iti:mcsd:2019:jurisdiction",
+      "display": "Jurisdiction"
+    } ]
+  } ],
+  "name": "USATestDataHsTwo",
+  "alias": [ "USATestDataHsTwo" ]
+}

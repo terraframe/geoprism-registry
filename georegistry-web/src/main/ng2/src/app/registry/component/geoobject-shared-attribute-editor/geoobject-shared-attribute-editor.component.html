@@ -1,18 +1,38 @@
 <div class="row">
+  <div class="col-md-12">
+    <stability-period *ngIf="showStabilityPeriods" [changeRequestEditor]="changeRequestEditor" [sharedAttributeEditor]="this" [filterDate]="filterDate" [latestPeriodIsActive]="filterDate == null && changeRequestEditor.changeRequest.isNew"></stability-period>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <boolean-field *ngIf="!changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.type !== 'CreateGeoObject'" [(value)]="showAllInstances" label="Show all instances" [disable]="false"></boolean-field>
+  </div>
+</div>
+
+<div class="row">
   <!-- <div class="label-holder"></div> -->
   <div class="col-md-12">
     <div class="btn-group geobject-editor-tab-holder">
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0}" (click)="changePage(0);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 0, disabled: shouldForceSetExist()}" (click)="changePage(0);"> 
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabZero"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
+        <div class="errorSpan"><span *ngIf="hasErrors(0)" class="tabHasErrors"></span></div>
+        <span class="changeSpan"><span *ngIf="hasChanges(0)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, tabHasChanges: hasChanges(2)}" (click)="changePage(1);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 1, disabled: shouldForceSetExist()}" (click)="changePage(1);"> 
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabOne"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
+        <div class="errorSpan"><span *ngIf="hasErrors(1)" class="tabHasErrors"></span></div>
+        <span class="changeSpan"><span *ngIf="hasChanges(1)" class="tabHasChanges"></span></span>
       </label> 
-      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, tabHasChanges: hasChanges(3)}" (click)="changePage(2);"> 
+      <label class="btn full-width-radio-button" [ngClass]="{active: tabIndex === 2, disabled: shouldForceSetExist()}" (click)="changePage(2);"> 
         <span style="display:inline-block; width:90%;"><localize key="geoobject.editor.tabTwo"></localize></span>
-        <span style="display:inline-block; width:10%; text-align:right;"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+        <div class="errorSpan"><span *ngIf="hasErrors(2)" class="tabHasErrors"></span></div>
+        <span class="changeSpan"><span *ngIf="hasChanges(2)" class="tabHasChanges"></span></span>
+      </label>
+      <label class="btn full-width-radio-button settings" [ngClass]="{active: tabIndex === 3}" (click)="changePage(3);"> 
+        <span style="display:inline-block; width:90%;"><i class="fa fa-cog"></i></span>
+        <div class="errorSpan"><span *ngIf="hasErrors(3)" class="tabHasErrors"></span></div>
+        <span class="changeSpan"><span *ngIf="hasChanges(3)" class="tabHasChanges"></span></span>
       </label>
     </div>
   </div>
@@ -21,7 +41,7 @@
 <form class="modal-form" name="geobject-shared-attribute-editor" #attributeForm="ngForm">
   <fieldset>
     <!-- <div class="col-md-12"> -->
-    <div *ngIf="postGeoObject">
+    <div *ngIf="changeRequestEditor && changeRequestEditor.geoObject">
       <div *ngIf="tabIndex === 0" class="row">
         <!-- <div class="label-holder">
                         <label>
@@ -31,16 +51,10 @@
                     
         <div class="col-md-12">
 
-<!--           <div class="row"> -->
-<!--             <div class="col-md-12"> -->
-<!--               <boolean-field [(value)]="showAllInstances" [label]="'Show all instances'" [disable]="false"></boolean-field> -->
-<!--             </div> -->
-<!--           </div> -->
-
           <span class="text"></span>
           <ul class="list-group">
             <li *ngFor="let attr of geoObjectType.attributes | geoObjectAttributeExcludesFilter:geoObjectAttributeExcludes; let i = index" class="list-group-item" style="text-align:left;border:none;padding:0;">
-              <div class="panel panel-default">
+              <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(attr).hasChanges()" class="panel panel-default">
                 <div class="panel-heading">
                   <h4 style="margin:0;">
                     <span *ngIf="attr.code === 'code'"> 
@@ -54,18 +68,22 @@
                 </div>
 
                 <div class="panel-body">
-                  <div *ngIf="attr.code === 'code'">
-                    <input *ngIf="postGeoObject" type="text" [(ngModel)]="postGeoObject.attributes[attr.code]" id="mod-{{attr.code}}" 
-                        (change)="onCodeChange()" name="mod-{{attr.code}}" [disabled]="!isNew || readOnly" required>
-                  </div>
-
-                  <div *ngIf="attr.code !== 'code'">
+                  <div *ngIf="attr.code !== 'code' && attr.isChangeOverTime">
                     <manage-versions
-                        [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':attr, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, attr)" [isNew]="isNew" [selectedTab]="tabIndex" >
+                        [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="attr"
+                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" [showAllInstances]="showAllInstances" >
                     </manage-versions>
                   </div>
 
+                  <div *ngIf="!attr.isChangeOverTime">
+                    <input *ngIf="changeRequestEditor.geoObject && attr.code === 'code'" type="text" [(ngModel)]="changeRequestEditor.getEditorForAttribute(attr).value" id="mod-{{attr.code}}" 
+                        name="mod-{{attr.code}}" [disabled]="readOnly || (attr.code === 'code' && !isNew)" [style]="(readOnly || (attr.code === 'code' && !isNew)) ? '' : 'color:#333'" required>
+
+                    <div *ngIf="attr.code !== 'code'">
+                        <standard-attribute-editor [changeRequestEditor]="changeRequestEditor" [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="attr" [geoObject]="changeRequestEditor.geoObject"
+                          [readonly]="readOnly" [isNew]="isNew"></standard-attribute-editor>
+                    </div>
+                  </div>
                 </div>
               </div>
             </li>
@@ -73,26 +91,28 @@
         </div>
       </div>
       <div *ngIf="tabIndex === 1" class="row">
-        <ul class="list-group">
-	        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
-	          <div class="panel panel-default">
-              <div class="panel-heading">
-                <h4 style="margin:0;">
-                  <span> {{hierarchy.label}} </span> 
-                </h4>
-              </div>
-			      
-			        <div class="panel-body">
-			          <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':parentAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-                        [readonly]="readOnly" (isValidChange)="onIsValidChange($event, parentAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [hierarchy]="hierarchy"></manage-versions>
+        <div class="col-md-12">
+	        <ul class="list-group">
+		        <li *ngFor="let hierarchy of hierarchies" class="list-group-item" style="text-align:left;border:none;padding:0;">
+		          <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(parentAttributeType, hierarchy).hasChanges()" class="panel panel-default">
+	              <div class="panel-heading">
+	                <h4 style="margin:0;">
+	                  <span> {{hierarchy.label}} </span> 
+	                </h4>
+	              </div>
+				      
+				        <div class="panel-body">
+				          <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="parentAttributeType"
+	                        [readonly]="readOnly" [isNew]="isNew" [filterDate]="filterDate" [hierarchy]="hierarchy" [showAllInstances]="showAllInstances"></manage-versions>
+				        </div>
 			        </div>
-		        </div>
-	        </li>
-        </ul>
+		        </li>
+	        </ul>
+        </div>
       </div>
       
       <div *ngIf="tabIndex === 2">
-        <div class="panel panel-default">
+        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(geometryAttributeType).hasChanges()" class="panel panel-default">
           <div class="panel-heading">
             <h4 style="margin:0;">
               <span> <localize key="shared.attributes.attribute.geometry.label"></localize> </span> 
@@ -100,11 +120,37 @@
           </div>
             
           <div class="panel-body">
-            <manage-versions [geoObjectType]="geoObjectType" [isNewGeoObject]="false" [attributeData]="{'attributeType':geometryAttributeType, 'actions':actions, 'changeRequest':changeRequest, 'geoObject':postGeoObject}"
-              [readonly]="readOnly" (isValidChange)="onIsValidChange($event, geometryAttributeType)" [isNew]="isNew" [selectedTab]="tabIndex" [isGeometryInlined]="isGeometryInlined"></manage-versions>
+            <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="geometryAttributeType"
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate" [showAllInstances]="showAllInstances"></manage-versions>
           </div>
         </div>
-
+      </div>
+      
+      <div *ngIf="tabIndex === 3">
+        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('exists')).hasChanges()" class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span>{{getAttribute('exists').label.localizedValue}}</span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <manage-versions [geoObjectType]="geoObjectType" [changeRequestEditor]="changeRequestEditor" [attributeType]="getAttribute('exists')"
+              [readonly]="readOnly" [isNew]="isNew" [isGeometryInlined]="isGeometryInlined" [filterDate]="filterDate" [showAllInstances]="showAllInstances"></manage-versions>
+          </div>
+        </div>
+        <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('invalid')).hasChanges()" class="panel panel-default">
+          <div class="panel-heading">
+            <h4 style="margin:0;">
+              <span>{{getAttribute('invalid').label.localizedValue}}</span> 
+            </h4>
+          </div>
+            
+          <div class="panel-body">
+            <standard-attribute-editor [changeRequestEditor]="changeRequestEditor" [geoObjectType]="geoObjectType" [changeRequest]="changeRequest" [attributeType]="getAttribute('invalid')" [geoObject]="changeRequestEditor.geoObject"
+              [readonly]="readOnly" [isNew]="isNew"></standard-attribute-editor>
+          </div>
+        </div>
       </div>
     </div>
     <!-- </div> -->

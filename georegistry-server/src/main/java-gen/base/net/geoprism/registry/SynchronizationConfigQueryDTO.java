@@ -18,7 +18,7 @@
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -556568432)
+@com.runwaysdk.business.ClassSignature(hash = -2078785455)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -28,7 +28,7 @@ package net.geoprism.registry;
  */
 public class SynchronizationConfigQueryDTO extends com.runwaysdk.business.BusinessQueryDTO
 {
-private static final long serialVersionUID = -556568432;
+private static final long serialVersionUID = -2078785455;
 
   protected SynchronizationConfigQueryDTO(String type)
   {

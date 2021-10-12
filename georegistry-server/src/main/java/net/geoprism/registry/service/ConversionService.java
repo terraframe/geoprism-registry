@@ -19,13 +19,15 @@
 package net.geoprism.registry.service;
 
 import org.commongeoregistry.adapter.Term;
-import org.commongeoregistry.adapter.constants.DefaultTerms;
+import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
-import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdClassificationDAOIF;
+import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
+import com.runwaysdk.system.AbstractClassification;
 
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoObjectStatus;
 import net.geoprism.registry.conversion.TermConverter;
 
 public class ConversionService
@@ -78,9 +80,9 @@ public class ConversionService
   {
     if (code == null)
     {
-      return null;  
+      return null;
     }
-    
+
     return ServiceFactory.getMetadataCache().getTerm(code).get();
   }
 
@@ -94,84 +96,6 @@ public class ConversionService
   //
   // }
 
-  public GeoObjectStatus termToGeoObjectStatus(Term term)
-  {
-    if (term == null)
-    {
-      return null;
-    }
-
-    return this.termToGeoObjectStatus(term.getCode());
-  }
-
-  public GeoObjectStatus termToGeoObjectStatus(String termCode)
-  {
-    if (termCode == null)
-    {
-      return null;
-    }
-    
-    if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code))
-    {
-      return GeoObjectStatus.ACTIVE;
-    }
-    else if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code))
-    {
-      return GeoObjectStatus.INACTIVE;
-    }
-    else if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.NEW.code))
-    {
-      return GeoObjectStatus.NEW;
-    }
-    else if (termCode.equals(DefaultTerms.GeoObjectStatusTerm.PENDING.code))
-    {
-      return GeoObjectStatus.PENDING;
-    }
-    else
-    {
-      throw new ProgrammingErrorException("Unknown Status Term [" + termCode + "].");
-    }
-  }
-
-  public Term geoObjectStatusToTerm(GeoObjectStatus gos)
-  {
-    if (gos == null)
-    {
-      return null;
-    }
-    
-    return geoObjectStatusToTerm(gos.getEnumName());
-  }
-
-  public Term geoObjectStatusToTerm(String termCode)
-  {
-    if (termCode == null)
-    {
-      return null;
-    }
-    
-    if (termCode.equals(GeoObjectStatus.ACTIVE.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.ACTIVE.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.INACTIVE.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.INACTIVE.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.NEW.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.NEW.code);
-    }
-    else if (termCode.equals(GeoObjectStatus.PENDING.getEnumName()))
-    {
-      return getTerm(DefaultTerms.GeoObjectStatusTerm.PENDING.code);
-    }
-    else
-    {
-      throw new ProgrammingErrorException("Unknown Status [" + termCode + "].");
-    }
-  }
-  
   public Classifier termToClassifier(AttributeTermType attr, Term term)
   {
     Term root = attr.getRootTerm();
@@ -179,7 +103,20 @@ public class ConversionService
 
     String classifierKey = Classifier.buildKey(parent, term.getCode());
     Classifier classifier = Classifier.getByKey(classifierKey);
-    
+
     return classifier;
+  }
+
+  public VertexObject termToClassification(AttributeClassificationType attr, Term term)
+  {
+    return this.termToClassification(attr, term.getCode());
+  }
+
+  public VertexObject termToClassification(AttributeClassificationType attr, String code)
+  {
+    String classificationType = attr.getClassificationType();
+    MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+
+    return AbstractClassification.get(code, mdClassificationDAO);
   }
 }

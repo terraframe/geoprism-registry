@@ -31,6 +31,9 @@
                                 <button type="submit" (click)="onView(version)" class="btn btn-primary" role="button">
                                     <localize key="modal.button.view"></localize>
                                 </button>
+                                <button *ngIf="list && (list.write)" type="submit" (click)="onExportToFhir(version)" class="btn btn-default" role="button">
+                                    <localize key="masterlist.export-to-fhir"></localize>                                    
+                                </button>                                
                                 <button *ngIf="list && (list.write)" type="submit" (click)="onPublishShapefile(version)" class="btn btn-default" role="button">
                                     <localize key="masterlist.publish-shapefile"></localize>
                                 </button>                                
@@ -81,6 +84,7 @@
                                             <span style="display: block;"> {{job.type}} </span>
                                             <span style="display: block;"> {{job.status}} </span>
                                             <span *ngIf="job.exception" style="display: block;"> {{job.exception.message}} </span>
+                                            <span *ngIf="job.message" style="display: block;"> {{job.message}} </span>                                            
                                         </p>
                                     </div>
                                 </td>

@@ -49,19 +49,18 @@ export class Organization {
 }
 
 export class ExternalSystem {
-
-    oid?: string;
-    id: string;
-    type: string;
-    organization: string;
-    label: LocalizedValue;
-    description: LocalizedValue;
-    username?: string;
-    password?: string;
-    url?: string;
-    version?: string;
-    oAuthServer?: OAuthServer;
-
+	oid?: string;
+	id: string;
+	type: string;
+	organization: string;
+	label: LocalizedValue;
+	description: LocalizedValue;
+	username?: string;
+	password?: string;
+	url?: string;
+	system?: string;
+	version?: string;
+	oAuthServer?: OAuthServer;
 }
 
 export class OAuthServer {
@@ -110,6 +109,38 @@ export class LocalizedValue {
         }
 
         return this.localizedValue;
+    }
+
+    /*
+     * Populates lv1 with all values contained in lv2
+     */
+    public static populate(lv1: LocalizedValue, lv2: LocalizedValue) {
+        if (lv1 == null || lv2 == null) {
+            return;
+        }
+
+        lv1.localizedValue = lv2.localizedValue;
+
+        if (lv2.localeValues != null) {
+            lv2.localeValues.forEach(lv2lv => {
+                if (lv1.localeValues) {
+                    let found = false;
+
+                    lv1.localeValues.forEach(lv1lv => {
+                        if (!found && lv1lv.locale === lv2lv.locale) {
+                            lv1lv.value = lv2lv.value;
+                            found = true;
+                        }
+                    });
+
+                    if (!found) {
+                        lv1.localeValues.push(JSON.parse(JSON.stringify(lv2lv)));
+                    }
+                } else {
+                    lv1.localeValues = lv2.localeValues;
+                }
+            });
+        }
     }
 
 }
