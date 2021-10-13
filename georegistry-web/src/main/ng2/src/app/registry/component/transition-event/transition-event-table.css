@@ -1,0 +1,125 @@
+.vertical-center {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+.status-pending {
+	color: orange;
+}
+
+.status-accepted,
+.status-partial {
+	color: #6BA542;
+}
+
+.status-rejected {
+	color: #d43f3a;
+}
+
+.status-pending-container {
+	border: solid 2px orange;
+}
+.status-accepted-container,
+.status-partial-container {
+	border: solid 2px #6BA542;
+}
+.status-rejected-container {
+	border: solid 2px #d43f3a;
+}
+
+.cr-filter-link-active,
+.cr-filter-link-active:active {
+	/* border: solid 1px #6BA542; */
+    border-radius: 10px;
+    background: #6BA542;
+    color: white;
+    font-weight: bold;
+    padding: 3px 15px 3px 15px;
+}
+.cr-filter-link-active:hover,
+.cr-filter-link-active:focus {
+	color:white;
+}
+
+/* .btn {
+	border: 2px solid; 
+}
+.btn:disabled {
+	border: none;
+}
+
+.btn.btn-danger {
+	background-color:#ffeeed; 
+	color:#d43f3a;
+}
+.btn.btn-danger:hover,
+.btn.btn-danger:active {
+	color:#d43f3a;
+	background-color:#fff7f6; 
+	border-color: #d43f3a;
+}
+.btn.btn-danger:disabled:hover {
+	background-color:#ffeeed; 
+}
+
+.btn.btn-warning {
+	background-color: #ffefd7;
+	color: orange;
+}
+.btn.btn-warning:hover {
+	background-color: #fff4e5;
+	border-color: orange;
+}
+.btn.btn-warning:disabled {
+	background-color: #ffefd7;
+}
+
+.clickable:hover {
+	background-color: #f7f7f7;
+	cursor: pointer;
+}
+.clickable:hover .arrow.arrow-right {
+	transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+} */
+
+tr.row-active {
+	background-color:#f7f7f7;
+}
+
+
+.arrow {
+  border: solid black;
+  border-width: 0 1px 1px 0;
+  display: inline-block;
+  padding: 5px;
+}
+.arrow-right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+.arrow-down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+}
+
+.form-group textarea:focus {
+	border-color: #edf4e8;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107,165,66,.6);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(107,165,66,.6);
+
+}
+textarea[readonly]:focus {
+	box-shadow: none;
+	border: 1px solid #ccc;
+	cursor: not-allowed;
+}
+
+
+.geoobject-panel-header{
+    width: 100%;
+    background: grey;
+    color: white;
+    padding: 10px;
+}

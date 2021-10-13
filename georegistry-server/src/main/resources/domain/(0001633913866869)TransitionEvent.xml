@@ -20,7 +20,46 @@
       <mdEdge name="net.geoprism.registry.graph.TransitionAssignment" label="Transition Events" parent="net.geoprism.registry.graph.TransitionEvent" child="net.geoprism.registry.graph.Transition" generateSource="false">
       </mdEdge>
     </create>
-    <update></update>
+    <permissions>
+      <role roleName="geoprism.admin.Administrator">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.TransitionEvent">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.Transition">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionSource">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionTarget">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionAssignment">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>      
+          <mdBusinessPermission type="net.geoprism.registry.graph.TransitionEvent">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdBusinessPermission type="net.geoprism.registry.graph.Transition">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionSource">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionTarget">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionAssignment">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>    
   </doIt>
   <undoIt>
     <delete>

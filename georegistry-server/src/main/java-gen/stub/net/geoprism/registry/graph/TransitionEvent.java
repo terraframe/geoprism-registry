@@ -106,11 +106,13 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     LocalizedValue localizedValue = LocalizedValueConverter.convert(this.getEmbeddedComponent(TransitionEvent.DESCRIPTION));
+    ServerGeoObjectType type = ServerGeoObjectType.get(this.getTypeCode());
 
     JsonObject object = new JsonObject();
     object.addProperty(TransitionEvent.OID, this.getOid());
-    object.addProperty(TransitionEvent.TYPECODE, this.getTypeCode());
+    object.addProperty(TransitionEvent.TYPECODE, type.getCode());
     object.addProperty(TransitionEvent.EVENTDATE, format.format(this.getEventDate()));
+    object.addProperty("typeLabel", type.getLabel().getValue());
     object.add(TransitionEvent.DESCRIPTION, localizedValue.toJSON());
 
     if (includeTransitions)

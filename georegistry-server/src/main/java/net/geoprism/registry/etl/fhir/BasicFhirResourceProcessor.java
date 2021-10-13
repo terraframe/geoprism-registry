@@ -70,6 +70,7 @@ public class BasicFhirResourceProcessor extends AbstractFhirResourceProcessor im
       }
     }
 
+    // TODO Throw new exception type
     throw new ProgrammingErrorException("Unable to derive the CGR GeoObject-Type for the organization [" + organization.getId() + "]");
   }
 
@@ -89,6 +90,7 @@ public class BasicFhirResourceProcessor extends AbstractFhirResourceProcessor im
       }
     }
 
+    // TODO Throw new exception type
     throw new ProgrammingErrorException("Unable to derive the CGR GeoObject-Type for the location [" + location.getId() + "]");
   }
 

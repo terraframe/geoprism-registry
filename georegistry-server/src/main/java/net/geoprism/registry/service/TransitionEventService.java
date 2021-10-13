@@ -24,14 +24,13 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.graph.TransitionEvent;
-import net.geoprism.registry.view.Page;
 
 public class TransitionEventService
 {
   @Request(RequestType.SESSION)
-  public Page<TransitionEvent> page(String sessionId, Integer pageSize, Integer pageNumber)
+  public JsonObject page(String sessionId, Integer pageSize, Integer pageNumber)
   {
-    return TransitionEvent.page(pageSize, pageNumber);
+    return TransitionEvent.page(pageSize, pageNumber).toJSON();
   }
 
   @Request(RequestType.SESSION)

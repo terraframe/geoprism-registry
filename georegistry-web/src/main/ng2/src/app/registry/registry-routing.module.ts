@@ -19,6 +19,7 @@ import { LocationManagerComponent } from "./component/location-manager/location-
 import { DatasetLocationManagerComponent } from "./component/location-manager/dataset-location-manager.component";
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
+import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 
 const routes: Routes = [
     {
@@ -130,7 +131,13 @@ const routes: Routes = [
         path: 'sync/details/:config/:oid',
         component: SyncDetailsComponent,
         canActivate: [MaintainerGuard]
-    }
+    },
+    {
+        path: "transition-events",
+        component: TransitionEventTableComponent,
+        canActivate: [MaintainerGuard]
+    },
+
 ];
 
 @NgModule({

@@ -1049,13 +1049,16 @@ public class RegistryService
 
     for (ServerGeoObjectIF object : results)
     {
-      if (ServiceFactory.getGeoObjectPermissionService().canRead(object.getType().getOrganization().getCode(), object.getType()))
+      ServerGeoObjectType objectType = object.getType();
+
+      if (ServiceFactory.getGeoObjectPermissionService().canRead(objectType.getOrganization().getCode(), objectType))
       {
         JsonObject result = new JsonObject();
         result.addProperty("id", object.getRunwayId());
         result.addProperty("name", object.getDisplayLabel().getValue());
         result.addProperty(GeoObject.CODE, object.getCode());
         result.addProperty(GeoObject.UID, object.getUid());
+        result.addProperty("typeCode", objectType.getCode());
 
         array.add(result);
       }

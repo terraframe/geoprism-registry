@@ -1,0 +1,165 @@
+<ng-template #customItemTemplate let-model="item" let-index="index">
+    <h5>{{model.name }} : {{ model.code }}</h5>
+</ng-template>
+
+<div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <form #form="ngForm" class="modal-form" autocomplete="off">
+
+        <fieldset *ngIf="event != null">
+            <div class="row-holder" *ngFor="let localeValue of event.description.localeValues">
+                <div class="label-holder">
+                    <label> Description
+                        <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                            </convert-key-label>)</span>
+                    </label>
+                </div>
+                <div class="holder">
+                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
+                        class="form-control" [disabled]="readonly"
+                        [required]="localeValue.locale === 'defaultLocale'" />
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label for="typeCode">
+                        <localize key="io.geoObjectType"></localize>
+                    </label>
+                </div>
+                <div *ngIf="!readonly && types != null" class="holder">
+                    <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="event.typeCode"
+                        (change)="onChange()" required>
+                        <option></option>
+                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+                    </select>
+                </div>
+                <div *ngIf="readonly" class="holder">
+                    <input [(ngModel)]="event.typeLabel" name="typeCode" type="text" class="form-control"
+                        disabled />
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label>
+                        Event Date
+                    </label>
+                </div>
+                <div class="holder">
+                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
+                        {{formatDate(event.eventDate)}}
+                    </span>
+                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
+                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true"
+                        [disable]="readonly"></date-field>
+                </div>
+            </div>
+
+
+            <div class="row-holder" *ngIf="event.typeCode != null && event.eventDate != null && event.eventDate !== ''">
+                <div class="label-holder">
+                    <label>
+                        Transitions
+                    </label>
+                </div>
+                <div class="holder">
+                    <table class="table">
+                        <thead>
+                            <tr style="height: 50px;color: grey;">
+                                <th style="vertical-align: middle;"> To </th>
+                                <th style="vertical-align: middle;"> From </th>
+                                <th style="vertical-align: middle;"> </th>
+                                <th *ngIf="!readonly"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let transition of event.transitions; let i = index;" style="height: 50px;">
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" autocomplete="off"
+                                            [name]="'transition.target-' + i" [disabled]="readonly"
+                                            [(ngModel)]="transition.targetText" [typeaheadAsync]="true"
+                                            [typeahead]="getTypeAheadObservable(transition, 'targetText')"
+                                            (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"
+                                            [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
+                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+
+                                        <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
+                                            (click)="clear(transition, 'targetText')">
+                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                        </span>
+
+                                        <!-- Hack: This is needed for formatting  -->
+                                        <span *ngIf="readonly" class="input-group-addon addon-alert">
+                                        </span>
+                                    </div>
+
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" autocomplete="off"
+                                            [name]="'transition.source-' + i" [disabled]="readonly"
+                                            [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
+                                            [typeahead]="getTypeAheadObservable(transition, 'sourceText')"
+                                            (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
+                                            [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
+                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+
+                                        <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
+                                            (click)="clear(transition, 'sourceText')">
+                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                        </span>
+
+                                        <!-- Hack: This is needed for formatting  -->
+                                        <span *ngIf="readonly" class="input-group-addon addon-alert">
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <select [name]="'transition.transitionType-' + i" class="select-area"
+                                        [(ngModel)]="transition.transitionType" [disabled]="readonly" required>
+                                        <option></option>
+                                        <option value="PARTIAL">Partial</option>
+                                        <option value="FULL">Full</option>
+                                    </select>
+                                </td>
+                                <td *ngIf="!readonly">
+                                    <span class="clickable" (click)="remove(i)">
+                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div *ngIf="!readonly" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                        <div class="col-md-6">
+                            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                                <localize key="hierarchy.management.button.create"></localize>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row-holder">
+                <div class="label-holder"></div>
+                <div class="holder">
+                    <div class="button-holder">
+                        <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                            <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+                        </button>
+                        <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
+                            role="button" [disabled]="form.invalid">
+                            <localize key="io.submit"></localize>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+    <!-- </div> -->
+</div>

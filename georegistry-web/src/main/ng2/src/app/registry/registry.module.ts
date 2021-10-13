@@ -107,6 +107,9 @@ import { AccordionModule } from "ngx-bootstrap/accordion";
 
 import "../rxjs-extensions";
 import { FhirImportSynchronizationConfigComponent } from "./component/synchronization-config/fhir-import-synchronization-config.component";
+import { TransitionEventService } from "./service/transition-event.service";
+import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
+import { TransitionEventModalComponent } from "./component/transition-event/transition-event-modal.component";
 
 @NgModule({
     imports: [
@@ -209,7 +212,9 @@ import { FhirImportSynchronizationConfigComponent } from "./component/synchroniz
         ContextLayerModalComponent,
         LayerPanelComponent,
         FeaturePanelComponent,
-        GeometryPanelComponent
+        GeometryPanelComponent,
+        TransitionEventTableComponent,
+        TransitionEventModalComponent
     ],
     providers: [
         MapService,
@@ -223,7 +228,8 @@ import { FhirImportSynchronizationConfigComponent } from "./component/synchroniz
         DatePipe,
         ToEpochDateTimePipe,
         StepIndicatorComponent,
-        SynchronizationConfigService
+        SynchronizationConfigService,
+        TransitionEventService
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -253,8 +259,8 @@ import { FhirImportSynchronizationConfigComponent } from "./component/synchroniz
         StepIndicatorComponent,
         SynchronizationConfigModalComponent,
         ContextLayerModalComponent,
-        ExportSystemModalComponent
-
+        ExportSystemModalComponent,
+        TransitionEventModalComponent
     ]
 })
 export class RegistryModule { }
