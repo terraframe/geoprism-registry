@@ -19,6 +19,49 @@
       </mdEdge>
       <mdEdge name="net.geoprism.registry.graph.TransitionAssignment" label="Transition Events" parent="net.geoprism.registry.graph.TransitionEvent" child="net.geoprism.registry.graph.Transition" generateSource="false">
       </mdEdge>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="transition.event.events">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="transition.event.events" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Events" />
+        </attributeStruct>
+      </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="transition.event.partial">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="transition.event.partial" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Partial" />
+        </attributeStruct>
+      </object>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="transition.event.full">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="transition.event.full" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Full" />
+        </attributeStruct>
+      </object>            
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="transition.event.transitions">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="transition.event.transitions" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Transitions" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="transition.event.to">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="transition.event.to" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="To" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="transition.event.from">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="transition.event.from" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="From" />
+        </attributeStruct>
+      </object>                  
+      
     </create>
     <permissions>
       <role roleName="geoprism.admin.Administrator">

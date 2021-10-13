@@ -10,7 +10,7 @@
         <fieldset *ngIf="event != null">
             <div class="row-holder" *ngFor="let localeValue of event.description.localeValues">
                 <div class="label-holder">
-                    <label> Description
+                    <label> <localize key="external.system.description"></localize>
                         <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
                             </convert-key-label>)</span>
                     </label>
@@ -44,7 +44,7 @@
             <div class="row-holder">
                 <div class="label-holder">
                     <label>
-                        Event Date
+                        <localize key="change.request.createDate"></localize>
                     </label>
                 </div>
                 <div class="holder">
@@ -61,15 +61,15 @@
             <div class="row-holder" *ngIf="event.typeCode != null && event.eventDate != null && event.eventDate !== ''">
                 <div class="label-holder">
                     <label>
-                        Transitions
+                        <localize key="transition.event.transitions"></localize>
                     </label>
                 </div>
                 <div class="holder">
                     <table class="table">
                         <thead>
                             <tr style="height: 50px;color: grey;">
-                                <th style="vertical-align: middle;"> To </th>
-                                <th style="vertical-align: middle;"> From </th>
+                                <th style="vertical-align: middle;"> <localize key="transition.event.to"></localize> </th>
+                                <th style="vertical-align: middle;"> <localize key="transition.event.from"></localize> </th>
                                 <th style="vertical-align: middle;"> </th>
                                 <th *ngIf="!readonly"></th>
                             </tr>
@@ -121,8 +121,8 @@
                                     <select [name]="'transition.transitionType-' + i" class="select-area"
                                         [(ngModel)]="transition.transitionType" [disabled]="readonly" required>
                                         <option></option>
-                                        <option value="PARTIAL">Partial</option>
-                                        <option value="FULL">Full</option>
+                                        <option value="PARTIAL"><localize key="transition.event.partial"></localize></option>
+                                        <option value="FULL"><localize key="transition.event.full"></localize></option>
                                     </select>
                                 </td>
                                 <td *ngIf="!readonly">

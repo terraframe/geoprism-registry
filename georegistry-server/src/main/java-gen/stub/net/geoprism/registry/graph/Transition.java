@@ -114,13 +114,13 @@ public class Transition extends TransitionBase
 
       if (! ( subtypes.contains(source.getType()) || type.getCode().equals(source.getType().getCode()) ))
       {
-        // TODO Change exception type
+        // This should be prevented by the front-end
         throw new ProgrammingErrorException("Source type must be a subtype of (" + type.getCode() + ")");
       }
 
       if (! ( subtypes.contains(target.getType()) || type.getCode().equals(target.getType().getCode()) ))
       {
-        // TODO Change exception type
+        // This should be prevented by the front-end
         throw new ProgrammingErrorException("Target type must be a subtype of (" + type.getCode() + ")");
       }
 
