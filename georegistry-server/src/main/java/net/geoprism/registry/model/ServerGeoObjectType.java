@@ -101,6 +101,7 @@ import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.conversion.TermConverter;
 import net.geoprism.registry.graph.GeoVertexType;
+import net.geoprism.registry.graph.TransitionEvent;
 import net.geoprism.registry.service.ChangeRequestService;
 import net.geoprism.registry.service.SearchService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -355,7 +356,8 @@ public class ServerGeoObjectType implements ServerElement
     new SearchService().clear(this.getCode());
 
     new ChangeRequestService().markAllAsInvalid(this);
-    ;
+    
+    TransitionEvent.removeAll(this);
   }
 
   public void update(GeoObjectType geoObjectTypeNew)

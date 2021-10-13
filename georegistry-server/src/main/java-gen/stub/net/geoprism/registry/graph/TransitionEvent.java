@@ -19,11 +19,13 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -130,14 +132,17 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     try
     {
+      String typeCode = json.get(TransitionEvent.TYPECODE).getAsString();
+      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+
+      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(type.getOrganization().getCode(), type);
+
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
-
       LocalizedValue description = LocalizedValue.fromJSON(json.get(TransitionEvent.DESCRIPTION).getAsJsonObject());
-
       TransitionEvent event = json.has(OID) ? TransitionEvent.get(json.get(OID).getAsString()) : new TransitionEvent();
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, description);
       event.setEventDate(format.parse(json.get(TransitionEvent.EVENTDATE).getAsString()));
-      event.setTypeCode(json.get(TransitionEvent.TYPECODE).getAsString());
+      event.setTypeCode(typeCode);
       event.apply();
 
       JsonArray transitions = json.get("transitions").getAsJsonArray();
@@ -184,5 +189,22 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
 
     return new Page<TransitionEvent>(count, pageNumber, pageSize, query.getResults());
+  }
+
+  @Transaction
+  public static void removeAll(ServerGeoObjectType type)
+  {
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
+    MdAttributeDAOIF typeCode = mdVertex.definesAttribute(TransitionEvent.TYPECODE);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE " + typeCode.getColumnName() + " = :typeCode");
+
+    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
+    query.setParameter("typeCode", type.getCode());
+
+    List<TransitionEvent> results = query.getResults();
+    results.forEach(event -> event.delete());
   }
 }
