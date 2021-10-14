@@ -1,0 +1,86 @@
+pipeline {
+    agent {
+        docker {
+            alwaysPull true
+            image '961902606948.dkr.ecr.us-west-2.amazonaws.com/tfbuilder:nonroot'
+            registryUrl 'https://961902606948.dkr.ecr.us-west-2.amazonaws.com'
+            registryCredentialsId 'ecr:us-west-2:aws-tf-builder'
+            args '--network host'
+        }
+    }
+    
+    stages {
+        stage('Build Adapter') {
+            when {
+                environment name: 'build_artifact', value: 'true'
+            }
+            steps {
+                git branch: 'dev', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/common-geo-registry-adapter.git'
+              
+                configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
+                    sh 'cd java && mvn -U -B -s $MAVEN_SETTINGS_XML clean deploy'
+                }
+            }
+        }
+        stage('Build Georegistry') {
+            when {
+                environment name: 'build_artifact', value: 'true'
+            }
+            steps {
+                git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
+                
+                sh 'pwd && ls'
+                
+                sh '. $NVM_DIR/nvm.sh > /dev/null && nvm install lts/erbium > /dev/null && cd georegistry-web/src/main/ng2 && npm install && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile'
+                
+                
+                configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
+                    sh 'mvn -U -B -s $MAVEN_SETTINGS_XML clean deploy'
+                }
+            }
+        }
+        stage('Deploy') {
+            environment {
+                ANSIBLE_HOST_KEY_CHECKING = false
+            }
+            when {
+                environment name: 'deploy', value: 'true'
+            }
+            steps {
+                dir('geoprism-platform') {
+                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-platform.git'
+                }
+                dir('geoprism-cloud') {
+                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-cloud.git'
+                }
+                dir('georegistry') {
+                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
+                }
+                
+                dir('geoprism-cloud/ansible') {
+                    sh '([ -h ./inventory ] && unlink ./inventory) || true'
+                    sh '([ -d ./inventory ] && rm -r ./inventory) || true'
+                    sh 'ln -s ../../geoprism-platform/ansible/inventory ./inventory'
+                    
+                    sh '([ -h ../permissions ] && unlink ../permissions) || true'
+                    sh 'ln -s ../geoprism-platform/permissions ../permissions'
+                    sh 'find ../../geoprism-platform/permissions -type f -exec chmod 400 {} \\;'
+                    
+                    sh 'ansible-playbook georegistry.yml -vv -i inventory/georegistry/$environment.ini --extra-vars "clean_db=$clean_db clean_orientdb=$clean_db artifact_version=$version"'
+                }
+            }
+        }
+        stage('Snapshot') {
+            when {
+                environment name: 'environment', value: 'demo'
+            }
+            steps {
+                dir('geoprism-platform') {
+                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-platform.git'
+                }
+                
+                sh 'ansible-playbook geoprism-platform/ansible/aws/snapshot.yml -i inventory/georegistry/aws-$environment.ini'
+            }
+        }
+    }
+}
