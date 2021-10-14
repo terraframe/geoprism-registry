@@ -6,10 +6,12 @@ import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
@@ -38,7 +40,7 @@ public class Transition extends TransitionBase
     object.addProperty(OID, this.getOid());
     object.addProperty("sourceCode", source.getCode());
     object.addProperty("sourceType", source.getType().getCode());
-    object.addProperty("sourceText", source.getLabel());    
+    object.addProperty("sourceText", source.getLabel());
     object.addProperty("targetCode", target.getCode());
     object.addProperty("targetType", target.getType().getCode());
     object.addProperty("targetText", target.getLabel());
@@ -132,6 +134,30 @@ public class Transition extends TransitionBase
     }
 
     return transition;
+  }
+
+  @Transaction
+  public static void removeAll(ServerGeoObjectType type)
+  {
+    removeAll(type, TRANSITION_SOURCE);
+    removeAll(type, TRANSITION_TARGET);
+  }
+
+  @Transaction
+  public static void removeAll(ServerGeoObjectType type, String edgeType)
+  {
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
+    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(edgeType);
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT expand(out) FROM " + mdEdge.getDBClassName());
+    statement.append(" WHERE in.@class = :vertexClass");
+
+    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
+    query.setParameter("vertexClass", mdVertex.getDBClassName());
+
+    List<TransitionEvent> results = query.getResults();
+    results.forEach(event -> event.delete());
   }
 
 }
