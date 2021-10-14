@@ -15,10 +15,12 @@ pipeline {
                 environment name: 'build_artifact', value: 'true'
             }
             steps {
-                git branch: 'dev', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/common-geo-registry-adapter.git'
-              
-                configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
-                    sh 'cd java && mvn -U -B -s $MAVEN_SETTINGS_XML clean deploy'
+            	dir('adapter') {
+                    git branch: 'dev', credentialsId: 'terraframe-builder-global', poll: false, url: 'git@github.com:terraframe/common-geo-registry-adapter.git'
+					
+	                configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
+	                    sh 'cd java && mvn -U -B -s $MAVEN_SETTINGS_XML clean deploy'
+	                }
                 }
             }
         }
@@ -27,15 +29,27 @@ pipeline {
                 environment name: 'build_artifact', value: 'true'
             }
             steps {
-                git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
-                
-                sh 'pwd && ls'
-                
-                sh '. $NVM_DIR/nvm.sh > /dev/null && nvm install lts/erbium > /dev/null && cd georegistry-web/src/main/ng2 && npm install && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile'
-                
-                
-                configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
-                    sh 'mvn -U -B -s $MAVEN_SETTINGS_XML clean deploy'
+            	dir('georegistry') {
+                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
+					
+	                sh '. $NVM_DIR/nvm.sh > /dev/null && nvm install lts/erbium > /dev/null && cd georegistry-web/src/main/ng2 && npm install && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile'
+					
+					
+	                configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
+	                    sh 'mvn -U -B -s $MAVEN_SETTINGS_XML clean deploy'
+	                }
+                }
+            }
+        }
+        stage('Build Docker') {
+            when {
+                environment name: 'build_artifact', value: 'true'
+            }
+            steps {
+            	dir('georegistry') {
+                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
+                    
+	                sh 'cd src/build/docker/georegistry && ./build.sh'
                 }
             }
         }
