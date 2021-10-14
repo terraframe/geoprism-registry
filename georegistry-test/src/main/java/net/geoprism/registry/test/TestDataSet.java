@@ -173,7 +173,7 @@ abstract public class TestDataSet
     a.setTime(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
     Calendar b = Calendar.getInstance(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    DEFAULT_TIME_YEAR_DIFF = ( b.get(Calendar.YEAR) - a.get(Calendar.YEAR) ) + 1;
+    DEFAULT_TIME_YEAR_DIFF = ( b.get(Calendar.YEAR) - a.get(Calendar.YEAR) );
   }
 
   abstract public String getTestDataKey();

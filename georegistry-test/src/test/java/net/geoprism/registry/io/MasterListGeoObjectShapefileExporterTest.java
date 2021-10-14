@@ -244,7 +244,7 @@ public class MasterListGeoObjectShapefileExporterTest
 
     File[] files = directory.listFiles();
 
-    Assert.assertEquals(5, files.length);
+    Assert.assertEquals(7, files.length);
   }
 
   @Test

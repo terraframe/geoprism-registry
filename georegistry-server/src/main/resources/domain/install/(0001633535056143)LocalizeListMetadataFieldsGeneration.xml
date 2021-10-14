@@ -1,0 +1,32 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <create></create>
+    <update>
+      <mdBusiness name="net.geoprism.registry.MasterList">
+        <create>
+          <attributes>
+            <localText name="descriptionLocal"/>
+            <localText name="processLocal"/>
+            <localText name="progressLocal"/>
+            <localText name="accessConstraintsLocal"/>
+            <localText name="useConstraintsLocal"/>
+            <localText name="acknowledgementsLocal"/>
+            <localText name="disclaimerLocal"/>
+          </attributes>
+        </create>
+      </mdBusiness>
+    </update>
+    <delete>
+      <object key="net.geoprism.registry.MasterList.listAbstract" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+      <object key="net.geoprism.registry.MasterList.process" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+      <object key="net.geoprism.registry.MasterList.progress" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+      <object key="net.geoprism.registry.MasterList.accessConstraints" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+      <object key="net.geoprism.registry.MasterList.useConstraints" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+      <object key="net.geoprism.registry.MasterList.acknowledgements" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+      <object key="net.geoprism.registry.MasterList.disclaimer" type="com.runwaysdk.system.metadata.MdAttributeText"/>
+    </delete>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
