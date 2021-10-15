@@ -153,7 +153,14 @@ public class Sandbox
 
   public static void main(String[] args) throws Exception
   {
-    test();
+    String url = "http://localhost:8082/gofr/fhir/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e?_getpages=ee514824-fd7c-440e-b9ce-ec0c03a89179&_getpagesoffset=20&_count=20&_pretty=true&_include=Location%3Aorganization&_bundletype=searchset";
+    
+    String[] split = url.split("\\?");
+    
+    System.out.println("https://global/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e" + "?" + split[1]);
+
+    
+//    test();
 
   }
 
