@@ -43,7 +43,7 @@ services:
       - "8080:8080"
       - "8443:8443"
     volumes:
-      - ../../../../envcfg/prod:/usr/local/tomcat/webapps/ROOT/appcfg
+      - /data/georegistry:/data/geoprism
     depends_on:
       - postgres
       - orientdb

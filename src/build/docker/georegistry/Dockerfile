@@ -11,9 +11,6 @@ RUN mkdir -p $CATALINA_HOME/wars
 RUN wget -nv -O $CATALINA_HOME/wars/geoserver.war "http://nexus.terraframe.com/service/local/repositories/allrepos/content/org/geoserver/geoserver/$GEOSERVER_VERSION/geoserver-$GEOSERVER_VERSION.war"
 RUN mkdir -p $CATALINA_HOME/webapps/geoserver && cd $CATALINA_HOME/webapps/geoserver && $JAVA_HOME/bin/jar xf $CATALINA_HOME/wars/geoserver.war
 
-# Download CGR WAR
-#RUN wget -nv -O $CATALINA_HOME/wars/geoprism.war "http://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=net.geoprism&a=georegistry-web&p=war&v=$CGR_VERSION"
-
 # Copy CGR WAR
 COPY target/georegistry.war $CATALINA_HOME/wars/geoprism.war
 
@@ -26,7 +23,7 @@ RUN wget -nv -O $CATALINA_HOME/webapps/ROOT/WEB-INF/classes/log4j2.xml https://r
 RUN sed -i -e 's/<Root level="error">/<Root level="$LOG_LEVEL">/g' $CATALINA_HOME/webapps/ROOT/WEB-INF/classes/log4j2.xml
 
 # Pre-load with a default appcfg
-# COPY ../../../envcfg/prod $CATALINA_HOME/appcfg
+COPY target/appcfg $CATALINA_HOME/appcfg
 
 RUN wget -nv -O $CATALINA_HOME/bin/wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
 RUN chmod +x $CATALINA_HOME/bin/wait-for-it.sh
