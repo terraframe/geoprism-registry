@@ -42,14 +42,22 @@ pipeline {
             }
         }
         stage('Build Docker') {
+            environment {
+                DOCKER_HUB_TFBUILDER = credentials('DOCKER_HUB_TFBUILDER_CREDENTIALS')
+                DOCKER_HUB_TFBUILDER_USERNAME = $DOCKER_HUB_TFBUILDER_USR
+                DOCKER_HUB_TFBUILDER_PASSWORD = $DOCKER_HUB_TFBUILDER_PSW
+            }
             when {
                 environment name: 'build_artifact', value: 'true'
             }
             steps {
             	dir('georegistry') {
-                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
-                    
-	                sh 'cd src/build/docker/georegistry && ./build.sh'
+                  git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
+                  
+                  dir ('src/build/docker/georegistry') {
+                      sh './build.sh'
+                      sh '.deploy.sh'
+                  }
                 }
             }
         }
