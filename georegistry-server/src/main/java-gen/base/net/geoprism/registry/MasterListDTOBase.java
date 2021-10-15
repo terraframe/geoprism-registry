@@ -18,11 +18,11 @@
  */
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1857915297)
+@com.runwaysdk.business.ClassSignature(hash = 475505752)
 public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.MasterList";
-  private static final long serialVersionUID = -1857915297;
+  private static final long serialVersionUID = 475505752;
   
   protected MasterListDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -45,13 +45,14 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
     return CLASS;
   }
   
-  public static java.lang.String ACCESSCONSTRAINTS = "accessConstraints";
-  public static java.lang.String ACKNOWLEDGEMENTS = "acknowledgements";
+  public static java.lang.String ACCESSCONSTRAINTSLOCAL = "accessConstraintsLocal";
+  public static java.lang.String ACKNOWLEDGEMENTSLOCAL = "acknowledgementsLocal";
   public static java.lang.String CODE = "code";
   public static java.lang.String CONTACTNAME = "contactName";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String DISCLAIMER = "disclaimer";
+  public static java.lang.String DESCRIPTIONLOCAL = "descriptionLocal";
+  public static java.lang.String DISCLAIMERLOCAL = "disclaimerLocal";
   public static java.lang.String DISPLAYLABEL = "displayLabel";
   public static java.lang.String EMAIL = "email";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
@@ -61,13 +62,12 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
-  public static java.lang.String LISTABSTRACT = "listAbstract";
   public static java.lang.String LOCKEDBY = "lockedBy";
   public static java.lang.String OID = "oid";
   public static java.lang.String ORGANIZATION = "organization";
   public static java.lang.String OWNER = "owner";
-  public static java.lang.String PROCESS = "process";
-  public static java.lang.String PROGRESS = "progress";
+  public static java.lang.String PROCESSLOCAL = "processLocal";
+  public static java.lang.String PROGRESSLOCAL = "progressLocal";
   public static java.lang.String PUBLISHDATE = "publishDate";
   public static java.lang.String PUBLISHINGSTARTDATE = "publishingStartDate";
   public static java.lang.String REPRESENTATIVITYDATE = "representativityDate";
@@ -77,81 +77,57 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
   public static java.lang.String TELEPHONENUMBER = "telephoneNumber";
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
-  public static java.lang.String USECONSTRAINTS = "useConstraints";
+  public static java.lang.String USECONSTRAINTSLOCAL = "useConstraintsLocal";
   public static java.lang.String VALID = "valid";
   public static java.lang.String VISIBILITY = "visibility";
-  public String getAccessConstraints()
+  public net.geoprism.registry.MasterListAccessConstraintsLocalDTO getAccessConstraintsLocal()
   {
-    return getValue(ACCESSCONSTRAINTS);
+    return (net.geoprism.registry.MasterListAccessConstraintsLocalDTO) this.getAttributeStructDTO(ACCESSCONSTRAINTSLOCAL).getStructDTO();
   }
   
-  public void setAccessConstraints(String value)
+  public boolean isAccessConstraintsLocalWritable()
   {
-    if(value == null)
-    {
-      setValue(ACCESSCONSTRAINTS, "");
-    }
-    else
-    {
-      setValue(ACCESSCONSTRAINTS, value);
-    }
+    return isWritable(ACCESSCONSTRAINTSLOCAL);
   }
   
-  public boolean isAccessConstraintsWritable()
+  public boolean isAccessConstraintsLocalReadable()
   {
-    return isWritable(ACCESSCONSTRAINTS);
+    return isReadable(ACCESSCONSTRAINTSLOCAL);
   }
   
-  public boolean isAccessConstraintsReadable()
+  public boolean isAccessConstraintsLocalModified()
   {
-    return isReadable(ACCESSCONSTRAINTS);
+    return isModified(ACCESSCONSTRAINTSLOCAL);
   }
   
-  public boolean isAccessConstraintsModified()
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getAccessConstraintsLocalMd()
   {
-    return isModified(ACCESSCONSTRAINTS);
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(ACCESSCONSTRAINTSLOCAL).getAttributeMdDTO();
   }
   
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getAccessConstraintsMd()
+  public net.geoprism.registry.MasterListAcknowledgementsLocalDTO getAcknowledgementsLocal()
   {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ACCESSCONSTRAINTS).getAttributeMdDTO();
+    return (net.geoprism.registry.MasterListAcknowledgementsLocalDTO) this.getAttributeStructDTO(ACKNOWLEDGEMENTSLOCAL).getStructDTO();
   }
   
-  public String getAcknowledgements()
+  public boolean isAcknowledgementsLocalWritable()
   {
-    return getValue(ACKNOWLEDGEMENTS);
+    return isWritable(ACKNOWLEDGEMENTSLOCAL);
   }
   
-  public void setAcknowledgements(String value)
+  public boolean isAcknowledgementsLocalReadable()
   {
-    if(value == null)
-    {
-      setValue(ACKNOWLEDGEMENTS, "");
-    }
-    else
-    {
-      setValue(ACKNOWLEDGEMENTS, value);
-    }
+    return isReadable(ACKNOWLEDGEMENTSLOCAL);
   }
   
-  public boolean isAcknowledgementsWritable()
+  public boolean isAcknowledgementsLocalModified()
   {
-    return isWritable(ACKNOWLEDGEMENTS);
+    return isModified(ACKNOWLEDGEMENTSLOCAL);
   }
   
-  public boolean isAcknowledgementsReadable()
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getAcknowledgementsLocalMd()
   {
-    return isReadable(ACKNOWLEDGEMENTS);
-  }
-  
-  public boolean isAcknowledgementsModified()
-  {
-    return isModified(ACKNOWLEDGEMENTS);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getAcknowledgementsMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(ACKNOWLEDGEMENTS).getAttributeMdDTO();
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(ACKNOWLEDGEMENTSLOCAL).getAttributeMdDTO();
   }
   
   public String getCode()
@@ -290,41 +266,54 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CREATEDBY).getAttributeMdDTO();
   }
   
-  public String getDisclaimer()
+  public net.geoprism.registry.MasterListDescriptionLocalDTO getDescriptionLocal()
   {
-    return getValue(DISCLAIMER);
+    return (net.geoprism.registry.MasterListDescriptionLocalDTO) this.getAttributeStructDTO(DESCRIPTIONLOCAL).getStructDTO();
   }
   
-  public void setDisclaimer(String value)
+  public boolean isDescriptionLocalWritable()
   {
-    if(value == null)
-    {
-      setValue(DISCLAIMER, "");
-    }
-    else
-    {
-      setValue(DISCLAIMER, value);
-    }
+    return isWritable(DESCRIPTIONLOCAL);
   }
   
-  public boolean isDisclaimerWritable()
+  public boolean isDescriptionLocalReadable()
   {
-    return isWritable(DISCLAIMER);
+    return isReadable(DESCRIPTIONLOCAL);
   }
   
-  public boolean isDisclaimerReadable()
+  public boolean isDescriptionLocalModified()
   {
-    return isReadable(DISCLAIMER);
+    return isModified(DESCRIPTIONLOCAL);
   }
   
-  public boolean isDisclaimerModified()
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getDescriptionLocalMd()
   {
-    return isModified(DISCLAIMER);
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(DESCRIPTIONLOCAL).getAttributeMdDTO();
   }
   
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getDisclaimerMd()
+  public net.geoprism.registry.MasterListDisclaimerLocalDTO getDisclaimerLocal()
   {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(DISCLAIMER).getAttributeMdDTO();
+    return (net.geoprism.registry.MasterListDisclaimerLocalDTO) this.getAttributeStructDTO(DISCLAIMERLOCAL).getStructDTO();
+  }
+  
+  public boolean isDisclaimerLocalWritable()
+  {
+    return isWritable(DISCLAIMERLOCAL);
+  }
+  
+  public boolean isDisclaimerLocalReadable()
+  {
+    return isReadable(DISCLAIMERLOCAL);
+  }
+  
+  public boolean isDisclaimerLocalModified()
+  {
+    return isModified(DISCLAIMERLOCAL);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getDisclaimerLocalMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(DISCLAIMERLOCAL).getAttributeMdDTO();
   }
   
   public net.geoprism.registry.MasterListDisplayLabelDTO getDisplayLabel()
@@ -657,43 +646,6 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LASTUPDATEDBY).getAttributeMdDTO();
   }
   
-  public String getListAbstract()
-  {
-    return getValue(LISTABSTRACT);
-  }
-  
-  public void setListAbstract(String value)
-  {
-    if(value == null)
-    {
-      setValue(LISTABSTRACT, "");
-    }
-    else
-    {
-      setValue(LISTABSTRACT, value);
-    }
-  }
-  
-  public boolean isListAbstractWritable()
-  {
-    return isWritable(LISTABSTRACT);
-  }
-  
-  public boolean isListAbstractReadable()
-  {
-    return isReadable(LISTABSTRACT);
-  }
-  
-  public boolean isListAbstractModified()
-  {
-    return isModified(LISTABSTRACT);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getListAbstractMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(LISTABSTRACT).getAttributeMdDTO();
-  }
-  
   public com.runwaysdk.system.SingleActorDTO getLockedBy()
   {
     if(getValue(LOCKEDBY) == null || getValue(LOCKEDBY).trim().equals(""))
@@ -795,78 +747,54 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(OWNER).getAttributeMdDTO();
   }
   
-  public String getProcess()
+  public net.geoprism.registry.MasterListProcessLocalDTO getProcessLocal()
   {
-    return getValue(PROCESS);
+    return (net.geoprism.registry.MasterListProcessLocalDTO) this.getAttributeStructDTO(PROCESSLOCAL).getStructDTO();
   }
   
-  public void setProcess(String value)
+  public boolean isProcessLocalWritable()
   {
-    if(value == null)
-    {
-      setValue(PROCESS, "");
-    }
-    else
-    {
-      setValue(PROCESS, value);
-    }
+    return isWritable(PROCESSLOCAL);
   }
   
-  public boolean isProcessWritable()
+  public boolean isProcessLocalReadable()
   {
-    return isWritable(PROCESS);
+    return isReadable(PROCESSLOCAL);
   }
   
-  public boolean isProcessReadable()
+  public boolean isProcessLocalModified()
   {
-    return isReadable(PROCESS);
+    return isModified(PROCESSLOCAL);
   }
   
-  public boolean isProcessModified()
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getProcessLocalMd()
   {
-    return isModified(PROCESS);
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(PROCESSLOCAL).getAttributeMdDTO();
   }
   
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getProcessMd()
+  public net.geoprism.registry.MasterListProgressLocalDTO getProgressLocal()
   {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(PROCESS).getAttributeMdDTO();
+    return (net.geoprism.registry.MasterListProgressLocalDTO) this.getAttributeStructDTO(PROGRESSLOCAL).getStructDTO();
   }
   
-  public String getProgress()
+  public boolean isProgressLocalWritable()
   {
-    return getValue(PROGRESS);
+    return isWritable(PROGRESSLOCAL);
   }
   
-  public void setProgress(String value)
+  public boolean isProgressLocalReadable()
   {
-    if(value == null)
-    {
-      setValue(PROGRESS, "");
-    }
-    else
-    {
-      setValue(PROGRESS, value);
-    }
+    return isReadable(PROGRESSLOCAL);
   }
   
-  public boolean isProgressWritable()
+  public boolean isProgressLocalModified()
   {
-    return isWritable(PROGRESS);
+    return isModified(PROGRESSLOCAL);
   }
   
-  public boolean isProgressReadable()
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getProgressLocalMd()
   {
-    return isReadable(PROGRESS);
-  }
-  
-  public boolean isProgressModified()
-  {
-    return isModified(PROGRESS);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getProgressMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(PROGRESS).getAttributeMdDTO();
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(PROGRESSLOCAL).getAttributeMdDTO();
   }
   
   public java.util.Date getPublishDate()
@@ -1153,41 +1081,29 @@ public abstract class MasterListDTOBase extends com.runwaysdk.business.BusinessD
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(UNIVERSAL).getAttributeMdDTO();
   }
   
-  public String getUseConstraints()
+  public net.geoprism.registry.MasterListUseConstraintsLocalDTO getUseConstraintsLocal()
   {
-    return getValue(USECONSTRAINTS);
+    return (net.geoprism.registry.MasterListUseConstraintsLocalDTO) this.getAttributeStructDTO(USECONSTRAINTSLOCAL).getStructDTO();
   }
   
-  public void setUseConstraints(String value)
+  public boolean isUseConstraintsLocalWritable()
   {
-    if(value == null)
-    {
-      setValue(USECONSTRAINTS, "");
-    }
-    else
-    {
-      setValue(USECONSTRAINTS, value);
-    }
+    return isWritable(USECONSTRAINTSLOCAL);
   }
   
-  public boolean isUseConstraintsWritable()
+  public boolean isUseConstraintsLocalReadable()
   {
-    return isWritable(USECONSTRAINTS);
+    return isReadable(USECONSTRAINTSLOCAL);
   }
   
-  public boolean isUseConstraintsReadable()
+  public boolean isUseConstraintsLocalModified()
   {
-    return isReadable(USECONSTRAINTS);
+    return isModified(USECONSTRAINTSLOCAL);
   }
   
-  public boolean isUseConstraintsModified()
+  public final com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO getUseConstraintsLocalMd()
   {
-    return isModified(USECONSTRAINTS);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeTextMdDTO getUseConstraintsMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeTextMdDTO) getAttributeDTO(USECONSTRAINTS).getAttributeMdDTO();
+    return (com.runwaysdk.transport.metadata.AttributeLocalTextMdDTO) getAttributeDTO(USECONSTRAINTSLOCAL).getAttributeMdDTO();
   }
   
   public Boolean getValid()

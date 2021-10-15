@@ -56,15 +56,13 @@
 <!--             </div> -->
 <!--         </div> -->
 
-        <div *ngIf="isWritable" class="row form-group">
-          <div class="col-md-12 table-responsive" style="">
-	          <boolean-field [(value)]="showInvalid" (change)="onShowInvalidChange()" [localizeLabelKey]="'masterlist.showInvalid'" ></boolean-field>
-          </div>
-        </div>
         <div class="row form-group">
             <div class="col-md-12">
                 <div class="button-holder pull-right">
             
+                    <span *ngIf="isWritable" class="clickable" style="vertical-align:middle;display:inline-block;">
+                        <boolean-field [(value)]="showInvalid" (change)="onShowInvalidChange()" [localizeLabelKey]="'masterlist.showInvalid'" ></boolean-field>
+                    </span>
                     <span class="clickable" (click)="clearFilters()" style="padding: 10px;">
                         <span class="fa-stack fa-md">
                             <i class="fa fa-filter fa-stack-2x" style="font-size: 25px;"></i>

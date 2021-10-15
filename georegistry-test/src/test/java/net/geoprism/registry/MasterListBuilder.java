@@ -1,3 +1,21 @@
+/**
+ * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
+ *
+ * This file is part of Geoprism Registry(tm).
+ *
+ * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.geoprism.registry;
 
 import java.util.Date;
@@ -139,13 +157,13 @@ public class MasterListBuilder
     list.setCode(this.code);
     list.setRepresentativityDate(new Date());
     list.setPublishDate(new Date());
-    list.setListAbstract("My Abstract");
-    list.setProcess("Process");
-    list.setProgress("Progress");
-    list.setAccessConstraints("Access Contraints");
-    list.setUseConstraints("User Constraints");
-    list.setAcknowledgements("Acknowledgements");
-    list.setDisclaimer("Disclaimer");
+    list.getDescriptionLocal().setValue("My Abstract");
+    list.getProcessLocal().setValue("Process");
+    list.getProgressLocal().setValue("Progress");
+    list.getAccessConstraintsLocal().setValue("Access Contraints");
+    list.getUseConstraintsLocal().setValue("User Constraints");
+    list.getAcknowledgementsLocal().setValue("Acknowledgements");
+    list.getDisclaimerLocal().setValue("Disclaimer");
     list.setContactName("Contact Name");
     list.setOrganization(this.org);
     list.setTelephoneNumber("Telephone Number");

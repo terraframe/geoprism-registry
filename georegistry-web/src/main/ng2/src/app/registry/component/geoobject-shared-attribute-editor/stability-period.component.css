@@ -3,16 +3,29 @@
 	  width:100%;
 	  position:relative;
 }
+.timeline a:first-child {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.timeline a:last-child {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
 
 .timeline-entry {
 	  height: 50px;
-	  border:1px solid black;
+	  border:1px solid lightgrey;
 	  position: absolute;
 	  display: inline-block;
 }
 
+.timeline-entry.not-clickable {
+	  cursor: default;
+}
+
 .active-timeline-entry {
-	  background-color: rgb(114, 159, 207);
+	  background-color:#EDF4E8;
+	  border-color: #6ba542;
 }
 
 .navigation-controls {
@@ -21,8 +34,9 @@
 }
 
 .navigation-controls a {
-	  margin-right: 40px;
-	  margin-left: 40px;
+/* 	  margin-right: 40px; */
+/* 	  margin-left: 40px; */
+
 	  
 	  /* Disable selection of text */
 	  -webkit-touch-callout: none; /* iOS Safari */

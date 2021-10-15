@@ -82,7 +82,9 @@ import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.CreatePermissionException;
 import com.runwaysdk.session.ReadPermissionException;
 import com.runwaysdk.session.Session;
@@ -90,6 +92,8 @@ import com.runwaysdk.session.WritePermissionException;
 import com.runwaysdk.system.AbstractClassification;
 import com.runwaysdk.system.gis.geo.AllowedIn;
 import com.runwaysdk.system.gis.geo.GeoEntity;
+import com.runwaysdk.system.metadata.MdVertex;
+import com.runwaysdk.system.metadata.MdVertexQuery;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
@@ -2421,7 +2425,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       if (isCodeAttribute(attr))
       {
         DuplicateGeoObjectCodeException ex = new DuplicateGeoObjectCodeException();
-        ex.setGeoObjectType(type.getLabel().getValue());
+        ex.setGeoObjectType(findTypeLabelFromGeoObjectCode(e.getValues().get(0)));
         ex.setValue(e.getValues().get(0));
         throw ex;
       }
@@ -2448,7 +2452,56 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       throw ex;
     }
   }
-
+  
+  private static String findTypeLabelFromGeoObjectCode(String code)
+  {
+    ServerGeoObjectType type = null;
+    
+    try
+    {
+      type = findTypeOfGeoObjectCode(code);
+    }
+    catch (Throwable t)
+    {
+      logger.error("Error encountered while finding a geoObject of code [" + code + "].", t);
+    }
+    
+    if (type == null)
+    {
+      return "?";
+    }
+    else
+    {
+      return type.getLabel().getValue();
+    }
+  }
+  
+  /**
+   * Finds the ServerGeoObjectType associated with the particular Geo-Object code.
+   * 
+   * @return
+   */
+  public static ServerGeoObjectType findTypeOfGeoObjectCode(String code)
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT @class FROM geo_vertex WHERE code=:code");
+    
+    GraphQuery<String> query = new GraphQuery<String>(statement.toString());
+    query.setParameter("code", code);
+    
+    String className = query.getSingleResult();
+    
+    MdVertexQuery mvq = new MdVertexQuery(new QueryFactory());
+    
+    mvq.WHERE(mvq.getDbClassName().EQ(className));
+    
+    MdVertex mdVertex = mvq.getIterator().getAll().get(0);
+    
+    ServerGeoObjectType foundType = ServerGeoObjectType.get(MdGeoVertexDAO.get(mdVertex.getOid()));
+    
+    return foundType;
+  }
+  
   public static boolean isCodeAttribute(MdAttributeDAOIF attr)
   {
     String attributeName = attr.definesAttribute();

@@ -20,7 +20,7 @@ export class PublishModalComponent implements OnInit {
     currentDate: Date = new Date();
     message: string = null;
 
-    master: any;
+    master: MasterList;
 
     /*
      * Observable subject for MasterList changes.  Called when an update is successful
@@ -77,13 +77,13 @@ export class PublishModalComponent implements OnInit {
                 representativityDate: null,
                 publishingStartDate: null,
                 publishDate: null,
-                listAbstract: "",
-                process: "",
-                progress: "",
-                accessConstraints: "",
-                useConstraints: "",
-                acknowledgements: "",
-                disclaimer: "",
+                descriptionLocal: this.lService.create(),
+                processLocal: this.lService.create(),
+                progressLocal: this.lService.create(),
+                accessConstraintsLocal: this.lService.create(),
+                useConstraintsLocal: this.lService.create(),
+                acknowledgementsLocal: this.lService.create(),
+                disclaimerLocal: this.lService.create(),
                 contactName: "",
                 organization: "",
                 telephoneNumber: "",
@@ -143,6 +143,10 @@ export class PublishModalComponent implements OnInit {
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+
+    stringify(obj: any): string {
+        return JSON.stringify(obj);
     }
 
     onCancel(): void {

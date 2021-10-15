@@ -135,67 +135,75 @@
                 </div>
             </div> -->
 
-            <div class="row-holder">
+
+            <div class="row-holder" *ngFor="let localeValue of master.descriptionLocal.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.listAbstract"></localize>
+                    <label> <localize key="masterlist.listAbstract"></localize> 
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">
-                    <textarea [(ngModel)]="master.listAbstract" name="listAbstract" class="form-control" [disabled]="readonly"></textarea>
+                    <textarea [(ngModel)]="localeValue.value" name="'description-' + localeValue.locale" class="form-control" [disabled]="readonly" [required]="false"></textarea>
                 </div>
             </div>
-            <div class="row-holder">
+            <div class="row-holder" *ngFor="let localeValue of master.processLocal.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.process"></localize>
+                    <label> <localize key="masterlist.process"></localize> 
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">
-                    <textarea [(ngModel)]="master.process" name="process" class="form-control" [disabled]="readonly"></textarea>
+                    <textarea [(ngModel)]="localeValue.value" name="'process-' + localeValue.locale" class="form-control" [disabled]="readonly" [required]="false"></textarea>
                 </div>
             </div>
-            <div class="row-holder">
+            <div class="row-holder" *ngFor="let localeValue of master.progressLocal.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.progress"></localize>
+                    <label> <localize key="masterlist.progress"></localize> 
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">
-                    <input [(ngModel)]="master.progress" name="progress" type="text" class="form-control" [disabled]="readonly" />
+                    <input [(ngModel)]="localeValue.value" [name]="'progress-' + localeValue.locale" type="text" class="form-control" [disabled]="readonly" [required]="false" />
                 </div>
             </div>
-            <div class="row-holder">
+            <div class="row-holder" *ngFor="let localeValue of master.accessConstraintsLocal.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.accessConstraints"></localize>
+                    <label> <localize key="masterlist.accessConstraints"></localize> 
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">
-                    <input [(ngModel)]="master.accessConstraints" name="accessConstraints" type="text" class="form-control" [disabled]="readonly" />
+                    <input [(ngModel)]="localeValue.value" [name]="'accessConstraints-' + localeValue.locale" type="text" class="form-control" [disabled]="readonly" [required]="false" />
                 </div>
             </div>
-            <div class="row-holder">
+            <div class="row-holder" *ngFor="let localeValue of master.useConstraintsLocal.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.useConstraints"></localize>
+                    <label> <localize key="masterlist.useConstraints"></localize> 
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">
-                    <input [(ngModel)]="master.useConstraints" name="useConstraints" type="text" class="form-control" [disabled]="readonly" />
+                    <input [(ngModel)]="localeValue.value" [name]="'useConstraints-' + localeValue.locale" type="text" class="form-control" [disabled]="readonly" [required]="false" />
                 </div>
             </div>
-            <div class="row-holder">
+            <div class="row-holder" *ngFor="let localeValue of master.acknowledgementsLocal.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.acknowledgements"></localize>
+                    <label> <localize key="masterlist.acknowledgements"></localize> 
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">
-                    <textarea [(ngModel)]="master.acknowledgements" name="acknowledgements" class="form-control" [disabled]="readonly"></textarea>
+                    <textarea [(ngModel)]="localeValue.value" name="'acknowledgements-' + localeValue.locale" class="form-control" [disabled]="readonly" [required]="false"></textarea>
                 </div>
             </div>
-            <div class="row-holder">
+            <div class="row-holder" *ngFor="let localeValue of master.disclaimerLocal.localeValues">
                 <div class="label-holder">
-                    <label> <localize key="masterlist.disclaimer"></localize>
+                    <label> <localize key="masterlist.disclaimer"></localize> 
+                    <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
                     </label>
                 </div>
                 <div class="holder">
-                    <textarea [(ngModel)]="master.disclaimer" name="disclaimer" class="form-control" [disabled]="readonly"></textarea>
+                    <textarea [(ngModel)]="localeValue.value" name="'disclaimer-' + localeValue.locale" class="form-control" [disabled]="readonly" [required]="false"></textarea>
                 </div>
             </div>
 

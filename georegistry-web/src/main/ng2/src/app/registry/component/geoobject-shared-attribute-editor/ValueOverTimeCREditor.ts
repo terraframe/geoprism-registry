@@ -273,6 +273,19 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
                 value = [value];
             } else if (this.attr.type === "date") {
                 value = new Date(value).getTime();
+            } else if (this.attr.type === "geometry") {
+                let maxCoordinatePrecision = 6;
+
+                if (value.type === "MultiPoint") {
+                    for (let i = 0; i < value.coordinates.length; ++i) {
+                        let coordinate: number[] = value.coordinates[i];
+
+                        coordinate[0] = Number.parseFloat(coordinate[0].toFixed(maxCoordinatePrecision));
+                        coordinate[1] = Number.parseFloat(coordinate[1].toFixed(maxCoordinatePrecision));
+                    }
+                } else {
+                    value.coordinates = [Number.parseFloat(value.coordinates[0].toFixed(maxCoordinatePrecision)), Number.parseFloat(value.coordinates[1].toFixed(maxCoordinatePrecision))];
+                }
             }
         } else if (value == null) {
             if (this.attr.type === "geometry") {

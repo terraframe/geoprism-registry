@@ -24,7 +24,8 @@ label.settings > span > i.fa.fa-cog {
 }
 
 .full-width-radio-button .errorSpan {
-  left: 2.5px;
+    display: inline-block;
+    position: relative;
 }
 
 .full-width-radio-button .changeSpan {

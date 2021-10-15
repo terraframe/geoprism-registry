@@ -151,7 +151,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
         let orgCode = got.organizationCode;
         this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
 
-        this.showAllInstances = this.changeRequestEditor.changeRequest.isNew;
+        this.showAllInstances = (this.changeRequestEditor.changeRequest.isNew || this.changeRequestEditor.changeRequest.type === "CreateGeoObject");
     }
 
     setFilterDate(date: string, refresh: boolean = true) {
@@ -186,7 +186,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     }
 
     shouldForceSetExist() {
-        if (this.isNew && this.postGeoObject.attributes["exists"]) {
+        let isNew = this.changeRequestEditor.changeRequest.isNew;
+
+        if (isNew && !this.readOnly && this.postGeoObject.attributes["exists"]) {
             let values = this.postGeoObject.attributes["exists"].values;
 
             if (values && values.length > 0) {
@@ -196,7 +198,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
-        return this.isNew;
+        return isNew && !this.readOnly;
     }
 
     getAttribute(name: string): AttributeType {

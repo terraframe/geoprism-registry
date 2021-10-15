@@ -209,7 +209,7 @@
     </table>
     <div class="solid-table-footer">
 	    <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-        <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
+        <pagination-controls (pageChange)="pageChange($event)"></pagination-controls>
 	    </div>
     </div>
   </div>   

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -199,13 +199,13 @@ public class MasterListTest
     list.setCode("TEST_CODE");
     list.setRepresentativityDate(new Date());
     list.setPublishDate(new Date());
-    list.setListAbstract("My Abstract");
-    list.setProcess("Process");
-    list.setProgress("Progress");
-    list.setAccessConstraints("Access Contraints");
-    list.setUseConstraints("User Constraints");
-    list.setAcknowledgements("Acknowledgements");
-    list.setDisclaimer("Disclaimer");
+    list.getDescriptionLocal().setValue("My Abstract");
+    list.getProcessLocal().setValue("Process");
+    list.getProgressLocal().setValue("Progress");
+    list.getAccessConstraintsLocal().setValue("Access Contraints");
+    list.getUseConstraintsLocal().setValue("User Constraints");
+    list.getAcknowledgementsLocal().setValue("Acknowledgements");
+    list.getDisclaimerLocal().setValue("Disclaimer");
     list.setContactName("Contact Name");
     list.setOrganization(USATestData.ORG_NPS.getServerObject());
     list.setTelephoneNumber("Telephone Number");
@@ -220,13 +220,13 @@ public class MasterListTest
     Assert.assertEquals(list.getDisplayLabel().getValue(), test.getDisplayLabel().getValue());
     Assert.assertEquals(list.getRepresentativityDate(), test.getRepresentativityDate());
     Assert.assertEquals(list.getPublishDate(), test.getPublishDate());
-    Assert.assertEquals(list.getListAbstract(), test.getListAbstract());
-    Assert.assertEquals(list.getProcess(), test.getProcess());
-    Assert.assertEquals(list.getProgress(), test.getProgress());
-    Assert.assertEquals(list.getAccessConstraints(), test.getAccessConstraints());
-    Assert.assertEquals(list.getUseConstraints(), test.getUseConstraints());
-    Assert.assertEquals(list.getAcknowledgements(), test.getAcknowledgements());
-    Assert.assertEquals(list.getDisclaimer(), test.getDisclaimer());
+    Assert.assertEquals(list.getDescriptionLocal().getValue(), test.getDescriptionLocal().getValue());
+    Assert.assertEquals(list.getProcessLocal().getValue(), test.getProcessLocal().getValue());
+    Assert.assertEquals(list.getProgressLocal().getValue(), test.getProgressLocal().getValue());
+    Assert.assertEquals(list.getAccessConstraintsLocal().getValue(), test.getAccessConstraintsLocal().getValue());
+    Assert.assertEquals(list.getUseConstraintsLocal().getValue(), test.getUseConstraintsLocal().getValue());
+    Assert.assertEquals(list.getAcknowledgementsLocal().getValue(), test.getAcknowledgementsLocal().getValue());
+    Assert.assertEquals(list.getDisclaimerLocal().getValue(), test.getDisclaimerLocal().getValue());
     Assert.assertEquals(list.getContactName(), test.getContactName());
     Assert.assertEquals(list.getOrganization(), test.getOrganization());
     Assert.assertEquals(list.getTelephoneNumber(), test.getTelephoneNumber());

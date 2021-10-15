@@ -31,11 +31,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
+import com.runwaysdk.query.AggregateFunction;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OrderBy;
+import com.runwaysdk.query.OrderBy.SortOrder;
 import com.runwaysdk.query.QueryFactory;
+import com.runwaysdk.query.Selectable;
+import com.runwaysdk.query.SelectableSQLDate;
+import com.runwaysdk.query.ValueQuery;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -198,15 +205,15 @@ public class ChangeRequestService
     {
       query.WHERE(query.getApprovalStatus().containsAll(AllGovernanceStatus.valueOf(filter)));
     }
-
-    if (oid != null)
+    
+    filterQueryBasedOnPermissions(query);
+    
+    if (oid != null && oid.length() > 0)
     {
-      query.WHERE(query.getOid().EQ(oid));
+      pageNumber = this.findPageNumber(oid, query, pageSize);
     }
 
     query.restrictRows(pageSize, pageNumber);
-
-    filterQueryBasedOnPermissions(query);
 
     List<? extends ChangeRequest> list = query.getIterator().getAll();
 
@@ -222,6 +229,77 @@ public class ChangeRequestService
     }
 
     return new Page(query.getCount(), pageNumber, pageSize, list);
+  }
+  
+  // An attempt to do this without selectable sqls
+//  private int findPageNumber(String crOid, ChangeRequestQuery query, int pageSize)
+//  {
+//    QueryFactory qf = new QueryFactory();
+//    ValueQuery vq = new ValueQuery(qf);
+//    
+//    vq.FROM(query);
+//    
+//    vq.SELECT(query.getOid());
+//    vq.SELECT(query.getCreateDate());
+//    
+//    Selectable createDate = query.getCreateDate();
+//    
+//    vq.SELECT(vq.RANK("rn").OVER(null, new OrderBy(createDate, SortOrder.DESC)));
+//    
+//    vq.WHERE(query.getOid().EQ(crOid));
+//    
+//    ValueObject vo = vq.getIterator().getAll().get(0);
+//    
+//    long rowNum = Long.parseLong(vo.getValue("rn"));
+//    
+//    int pageNum = (int) ( (rowNum / pageSize) + 1 );
+//    
+//    return pageNum;
+//  }
+  
+  private int findPageNumber(String crOid, ChangeRequestQuery query, int pageSize)
+  {
+    QueryFactory qf = new QueryFactory();
+    ValueQuery innerVq = new ValueQuery(qf);
+    
+    innerVq.FROM("(" + query.getSQL() + ")", "sub1");
+    
+    innerVq.SELECT(innerVq.aSQLCharacter("oid", "oid"));
+    
+    // The rank function is forcing a group by, which we don't want to do. It also doesn't use our alias.
+    //SelectableSQLDate createDate = innerVq.aSQLDate(query.getCreateDate().getColumnAlias(), query.getCreateDate().getColumnAlias());
+    //AggregateFunction rank = innerVq.RANK("rn").OVER(null, new OrderBy(createDate, SortOrder.DESC));
+    Selectable rank = innerVq.aSQLInteger("rn", "(ROW_NUMBER() OVER (ORDER BY " + query.getCreateDate().getColumnAlias() + " DESC))");
+    
+    innerVq.SELECT(rank);
+    
+    ValueQuery outerVq = new ValueQuery(qf);
+    
+    outerVq.FROM("(" + innerVq.getSQL() + ")", "sub2");
+    
+    Selectable oidSel = outerVq.aSQLCharacter("oid", "oid");
+    
+    outerVq.SELECT(oidSel);
+    outerVq.SELECT(outerVq.aSQLInteger("rn", "rn"));
+    
+    outerVq.WHERE(oidSel.EQ(crOid));
+    
+    List<ValueObject> voList = outerVq.getIterator().getAll();
+    
+    if (voList.size() > 0)
+    {
+      ValueObject vo = voList.get(0);
+      
+      long rowNum = Long.parseLong(vo.getValue("rn"));
+      
+      int pageNum = (int) ( (rowNum / pageSize) + 1 );
+      
+      return pageNum;
+    }
+    else
+    {
+      return 1;
+    }
   }
 
   public void filterQueryBasedOnPermissions(ChangeRequestQuery crq)

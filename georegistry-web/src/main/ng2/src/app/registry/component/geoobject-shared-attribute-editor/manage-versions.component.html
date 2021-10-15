@@ -209,7 +209,7 @@
 	                                  <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
 	                                </h5>
 	                            
-	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" ></date-field>
+	                                <date-field #dateFieldComponents [customStyles]="(viewModel.oldStartDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.startDate" label="" [inputName]="'startDate_' + i" (change)="onDateChange()" [allowFutureDates]="false" [required]="true" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate && !readonly ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
 	                                
 	                                <div *ngIf="viewModel.oldStartDate && !isNew">
 	                                  <p class="warning-text display-current-value">
@@ -224,7 +224,7 @@
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
 	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
-	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" ></date-field>
+	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate && !readonly ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
 	                    
 	                                  <!--
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">
@@ -265,7 +265,7 @@
             </ul>
             
             <!-- TODO : This code copy/pasted into standard-attribute-editor.component.html -->
-            <div *ngIf="!changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.approvalStatus === 'PENDING' && changeRequestEditor.changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && changeRequestAttributeEditor.hasChanges()" style="margin-left: 15px;">
+            <div *ngIf="!changeRequestEditor.changeRequest.isNew && changeRequestEditor.changeRequest.type !== 'CreateGeoObject' && changeRequestEditor.changeRequest.approvalStatus === 'PENDING' && changeRequestEditor.changeRequest.permissions.includes('WRITE_APPROVAL_STATUS') && changeRequestAttributeEditor.hasChanges()" style="margin-left: 15px;">
               <button [disabled]="changeRequestAttributeEditor.editAction.approvalStatus === 'ACCEPTED'" type="submit" (click)="onApprove()" class="btn btn-primary" role="button" [title]="'change.request.action.accept.btn.hover' | localize">
                 <localize key="change.request.accept.btn"></localize>
               </button>

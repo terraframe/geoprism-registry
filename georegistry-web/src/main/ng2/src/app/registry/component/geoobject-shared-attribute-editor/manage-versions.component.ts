@@ -7,7 +7,8 @@ import {
     EventEmitter,
     ViewChildren,
     QueryList,
-    ElementRef
+    ElementRef,
+    SimpleChanges
 } from "@angular/core";
 import {
     trigger,
@@ -40,7 +41,6 @@ import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { HierarchyCREditor } from "./HierarchyCREditor";
 import { ChangeRequestEditor } from "./change-request-editor";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
-import { SimpleChanges } from "@angular/core";
 
 @Component({
     selector: "manage-versions",

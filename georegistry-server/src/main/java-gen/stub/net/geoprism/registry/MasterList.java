@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or (at your
- * option) any later version.
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
- * for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -473,15 +473,16 @@ public class MasterList extends MasterListBase
     object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
     object.add("typeLabel", type.getLabel().toJSON(serializer));
     object.addProperty(MasterList.TYPE_CODE, type.getCode());
-    object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convert(this.getDisplayLabel()).toJSON(serializer));
+    object.add(MasterList.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
     object.addProperty(MasterList.CODE, this.getCode());
-    object.addProperty(MasterList.LISTABSTRACT, this.getListAbstract());
-    object.addProperty(MasterList.PROCESS, this.getProcess());
-    object.addProperty(MasterList.PROGRESS, this.getProgress());
-    object.addProperty(MasterList.ACCESSCONSTRAINTS, this.getAccessConstraints());
-    object.addProperty(MasterList.USECONSTRAINTS, this.getUseConstraints());
-    object.addProperty(MasterList.ACKNOWLEDGEMENTS, this.getAcknowledgements());
-    object.addProperty(MasterList.DISCLAIMER, this.getDisclaimer());
+    object.add(MasterList.DESCRIPTIONLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
+    object.add(MasterList.DESCRIPTIONLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescriptionLocal()).toJSON(serializer));
+    object.add(MasterList.PROCESSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getProcessLocal()).toJSON(serializer));
+    object.add(MasterList.PROGRESSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getProgressLocal()).toJSON(serializer));
+    object.add(MasterList.ACCESSCONSTRAINTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getAccessConstraintsLocal()).toJSON(serializer));
+    object.add(MasterList.USECONSTRAINTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getUseConstraintsLocal()).toJSON(serializer));
+    object.add(MasterList.ACKNOWLEDGEMENTSLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getAcknowledgementsLocal()).toJSON(serializer));
+    object.add(MasterList.DISCLAIMERLOCAL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisclaimerLocal()).toJSON(serializer));
     object.addProperty(MasterList.CONTACTNAME, this.getContactName());
     object.addProperty(MasterList.TELEPHONENUMBER, this.getTelephoneNumber());
     object.addProperty(MasterList.EMAIL, this.getEmail());
@@ -679,13 +680,13 @@ public class MasterList extends MasterListBase
       list.setUniversal(type.getUniversal());
       LocalizedValueConverter.populate(list.getDisplayLabel(), label);
       list.setCode(object.get(MasterList.CODE).getAsString());
-      list.setListAbstract(object.get(MasterList.LISTABSTRACT).getAsString());
-      list.setProcess(object.get(MasterList.PROCESS).getAsString());
-      list.setProgress(object.get(MasterList.PROGRESS).getAsString());
-      list.setAccessConstraints(object.get(MasterList.ACCESSCONSTRAINTS).getAsString());
-      list.setUseConstraints(object.get(MasterList.USECONSTRAINTS).getAsString());
-      list.setAcknowledgements(object.get(MasterList.ACKNOWLEDGEMENTS).getAsString());
-      list.setDisclaimer(object.get(MasterList.DISCLAIMER).getAsString());
+      list.getDescriptionLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.DESCRIPTIONLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getProcessLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.PROCESSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getProgressLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.PROGRESSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getAccessConstraintsLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.ACCESSCONSTRAINTSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getUseConstraintsLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.USECONSTRAINTSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getAcknowledgementsLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.ACKNOWLEDGEMENTSLOCAL).getAsJsonObject()).getLocaleMap());
+      list.getDisclaimerLocal().setLocaleMap(LocalizedValue.fromJSON(object.get(MasterList.DISCLAIMERLOCAL).getAsJsonObject()).getLocaleMap());
       list.setContactName(object.get(MasterList.CONTACTNAME).getAsString());
       list.setTelephoneNumber(object.get(MasterList.TELEPHONENUMBER).getAsString());
       list.setEmail(object.get(MasterList.EMAIL).getAsString());
