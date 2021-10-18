@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -56,6 +56,7 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
+import com.runwaysdk.dataaccess.MdClassDAOIF;
 import com.runwaysdk.dataaccess.MdClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
@@ -85,6 +86,7 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdClass;
 import com.runwaysdk.system.metadata.MdClassification;
 import com.runwaysdk.system.metadata.MdTermRelationship;
 
@@ -360,7 +362,7 @@ public class ServerGeoObjectType implements ServerElement
 
     // Delete the transition and transition events
     TransitionEvent.removeAll(this);
-    
+
     Transition.removeAll(this);
   }
 
@@ -512,127 +514,7 @@ public class ServerGeoObjectType implements ServerElement
   @Transaction
   public MdAttributeConcrete createMdAttributeFromAttributeType(AttributeType attributeType)
   {
-    MdAttributeConcrete mdAttribute = null;
-
-    if (attributeType.getType().equals(AttributeCharacterType.TYPE))
-    {
-      mdAttribute = new MdAttributeCharacter();
-      MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
-      mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
-    }
-    else if (attributeType.getType().equals(AttributeDateType.TYPE))
-    {
-      mdAttribute = new MdAttributeDateTime();
-    }
-    else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
-    {
-      mdAttribute = new MdAttributeLong();
-    }
-    else if (attributeType.getType().equals(AttributeFloatType.TYPE))
-    {
-      AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
-
-      mdAttribute = new MdAttributeDouble();
-      mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
-      mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
-    }
-    else if (attributeType.getType().equals(AttributeTermType.TYPE))
-    {
-      mdAttribute = new MdAttributeTerm();
-      MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
-
-      MdBusiness classifierMdBusiness = MdBusiness.getMdBusiness(Classifier.CLASS);
-      mdAttributeTerm.setMdBusiness(classifierMdBusiness);
-      // TODO implement support for multi-term
-      // mdAttribute = new MdAttributeMultiTerm();
-      // MdAttributeMultiTerm mdAttributeMultiTerm =
-      // (MdAttributeMultiTerm)mdAttribute;
-      //
-      // MdBusiness classifierMdBusiness =
-      // MdBusiness.getMdBusiness(Classifier.CLASS);
-      // mdAttributeMultiTerm.setMdBusiness(classifierMdBusiness);
-    }
-    else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
-    {
-      AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
-      String classificationType = attributeClassificationType.getClassificationType();
-
-      MdClassification mdClassification = MdClassification.getByKey(classificationType);
-      MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
-
-      mdAttribute = new MdAttributeClassification();
-      MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
-      mdAttributeTerm.setReferenceMdClassification(mdClassification);
-
-      Term root = attributeClassificationType.getRootTerm();
-
-      if (root != null)
-      {
-        VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
-
-        mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
-      }
-    }
-    else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
-    {
-      mdAttribute = new MdAttributeBoolean();
-    }
-
-    mdAttribute.setAttributeName(attributeType.getName());
-    mdAttribute.setValue(MdAttributeConcreteInfo.REQUIRED, Boolean.toString(attributeType.isRequired()));
-
-    if (attributeType.isUnique())
-    {
-      mdAttribute.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
-    }
-
-    LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-    LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
-
-    mdAttribute.setDefiningMdClass(this.mdBusiness);
-    mdAttribute.apply();
-
-    if (attributeType.getType().equals(AttributeTermType.TYPE))
-    {
-      MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
-
-      // Build the parent class term root if it does not exist.
-      Classifier classTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(this.mdBusiness);
-
-      // Create the root term node for this attribute
-      Classifier attributeTermRoot = TermConverter.buildIfNotExistAttribute(this.mdBusiness, mdAttributeTerm.getAttributeName(), classTerm);
-
-      // Make this the root term of the multi-attribute
-      attributeTermRoot.addClassifierTermAttributeRoots(mdAttributeTerm).apply();
-
-      AttributeTermType attributeTermType = (AttributeTermType) attributeType;
-
-      LocalizedValue label = LocalizedValueConverter.convert(attributeTermRoot.getDisplayLabel());
-
-      org.commongeoregistry.adapter.Term term = new org.commongeoregistry.adapter.Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
-      attributeTermType.setRootTerm(term);
-
-      // MdAttributeMultiTerm mdAttributeMultiTerm =
-      // (MdAttributeMultiTerm)mdAttribute;
-      //
-      // // Build the parent class term root if it does not exist.
-      // Classifier classTerm =
-      // this.buildIfNotExistdMdBusinessClassifier(mdBusiness);
-      //
-      // // Create the root term node for this attribute
-      // Classifier attributeTermRoot =
-      // this.buildIfNotExistAttribute(mdBusiness, mdAttributeMultiTerm);
-      // classTerm.addIsAChild(attributeTermRoot).apply();
-      //
-      // // Make this the root term of the multi-attribute
-      // attributeTermRoot.addClassifierMultiTermAttributeRoots(mdAttributeMultiTerm).apply();
-      //
-      // AttributeTermType attributeTermType = (AttributeTermType)attributeType;
-      //
-      // Term term = new Term(attributeTermRoot.getKey(),
-      // attributeTermRoot.getDisplayLabel().getValue(), "");
-      // attributeTermType.setRootTerm(term);
-    }
+    MdAttributeConcrete mdAttribute = ServerGeoObjectType.createMdAttributeFromAttributeType(this.mdBusiness, attributeType);
 
     MasterList.createMdAttribute(this, attributeType);
 
@@ -665,7 +547,7 @@ public class ServerGeoObjectType implements ServerElement
   @Transaction
   public void deleteMdAttributeFromAttributeType(String attributeName)
   {
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(attributeName);
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(this.mdBusiness, attributeName);
 
     if (mdAttributeConcreteDAOIF != null)
     {
@@ -701,28 +583,12 @@ public class ServerGeoObjectType implements ServerElement
     }
   }
 
-  /**
-   * Returns the {link MdAttributeConcreteDAOIF} for the given
-   * {@link AttributeType} defined on the given {@link MdBusiness} or null no
-   * such attribute is defined.
-   * 
-   * @param attributeName
-   * 
-   * @return
-   */
-  public MdAttributeConcreteDAOIF getMdAttribute(String attributeName)
-  {
-    MdBusinessDAOIF mdBusinessDAOIF = (MdBusinessDAOIF) getMdBusinessDAO();
-
-    return mdBusinessDAOIF.definesAttribute(attributeName);
-  }
-
   public AttributeType updateAttributeType(String attributeTypeJSON)
   {
     JsonObject attrObj = JsonParser.parseString(attributeTypeJSON).getAsJsonObject();
     AttributeType attrType = AttributeType.parse(attrObj);
 
-    MdAttributeConcrete mdAttribute = this.updateMdAttributeFromAttributeType(attrType);
+    MdAttributeConcrete mdAttribute = ServerGeoObjectType.updateMdAttributeFromAttributeType(this.mdBusiness, attrType);
     attrType = new AttributeTypeConverter().build(MdAttributeConcreteDAO.get(mdAttribute.getOid()));
 
     this.type.addAttribute(attrType);
@@ -731,89 +597,6 @@ public class ServerGeoObjectType implements ServerElement
     this.refreshCache();
 
     return attrType;
-  }
-
-  /**
-   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness}
-   * from the given {@link AttributeType}
-   * 
-   * @pre assumes no attribute has been defined on the type with the given name.
-   * 
-   * @param mdBusiness
-   *          Type to receive attribute definition
-   * @param attributeType
-   *          newly defined attribute
-   * 
-   * @return {@link AttributeType}
-   */
-  @Transaction
-  public MdAttributeConcrete updateMdAttributeFromAttributeType(AttributeType attributeType)
-  {
-    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(attributeType.getName());
-
-    if (mdAttributeConcreteDAOIF != null)
-    {
-      // Get the type safe version
-      MdAttributeConcrete mdAttribute = (MdAttributeConcrete) BusinessFacade.get(mdAttributeConcreteDAOIF);
-      mdAttribute.lock();
-
-      try
-      {
-        // The name cannot be updated
-        // mdAttribute.setAttributeName(attributeType.getName());
-        LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
-        LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
-
-        if (attributeType instanceof AttributeFloatType)
-        {
-          // Refresh the terms
-          AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
-
-          mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
-          mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
-        }
-        else if (attributeType instanceof AttributeClassificationType)
-        {
-          MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
-
-          AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
-          String classificationType = attributeClassificationType.getClassificationType();
-
-          MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
-
-          Term root = attributeClassificationType.getRootTerm();
-
-          if (root != null)
-          {
-            VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
-
-            mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
-          }
-        }
-
-        mdAttribute.apply();
-      }
-      finally
-      {
-        mdAttribute.unlock();
-      }
-
-      if (attributeType instanceof AttributeTermType)
-      {
-        // Refresh the terms
-        AttributeTermType attributeTermType = (AttributeTermType) attributeType;
-
-        org.commongeoregistry.adapter.Term getRootTerm = attributeTermType.getRootTerm();
-        String classifierKey = TermConverter.buildClassifierKeyFromTermCode(getRootTerm.getCode());
-
-        TermConverter termBuilder = new TermConverter(classifierKey);
-        attributeTermType.setRootTerm(termBuilder.build());
-      }
-
-      return mdAttribute;
-    }
-
-    return null;
   }
 
   public List<ServerGeoObjectType> getChildren(ServerHierarchyType hierarchy)
@@ -1240,5 +1023,209 @@ public class ServerGeoObjectType implements ServerElement
   // String ownerActorOid = this.universal.getOwnerOid();
   // Organization.getRootOrganization(ownerActorOid)
   // }
+
+  /**
+   * Returns the {link MdAttributeConcreteDAOIF} for the given
+   * {@link AttributeType} defined on the given {@link MdBusiness} or null no
+   * such attribute is defined.
+   * 
+   * @param attributeName
+   * 
+   * @return
+   */
+  public static MdAttributeConcreteDAOIF getMdAttribute(MdClass mdClass, String attributeName)
+  {
+    MdClassDAOIF mdClassDAO = (MdClassDAOIF) BusinessFacade.getEntityDAO(mdClass);
+
+    return (MdAttributeConcreteDAOIF) mdClassDAO.definesAttribute(attributeName);
+  }
+
+  public static MdAttributeConcrete createMdAttributeFromAttributeType(MdClass mdClass, AttributeType attributeType)
+  {
+    MdAttributeConcrete mdAttribute = null;
+
+    if (attributeType.getType().equals(AttributeCharacterType.TYPE))
+    {
+      mdAttribute = new MdAttributeCharacter();
+      MdAttributeCharacter mdAttributeCharacter = (MdAttributeCharacter) mdAttribute;
+      mdAttributeCharacter.setDatabaseSize(MdAttributeCharacterInfo.MAX_CHARACTER_SIZE);
+    }
+    else if (attributeType.getType().equals(AttributeDateType.TYPE))
+    {
+      mdAttribute = new MdAttributeDateTime();
+    }
+    else if (attributeType.getType().equals(AttributeIntegerType.TYPE))
+    {
+      mdAttribute = new MdAttributeLong();
+    }
+    else if (attributeType.getType().equals(AttributeFloatType.TYPE))
+    {
+      AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
+
+      mdAttribute = new MdAttributeDouble();
+      mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
+      mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
+    }
+    else if (attributeType.getType().equals(AttributeTermType.TYPE))
+    {
+      mdAttribute = new MdAttributeTerm();
+      MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
+
+      MdBusiness classifierMdBusiness = MdBusiness.getMdBusiness(Classifier.CLASS);
+      mdAttributeTerm.setMdBusiness(classifierMdBusiness);
+      // TODO implement support for multi-term
+      // mdAttribute = new MdAttributeMultiTerm();
+      // MdAttributeMultiTerm mdAttributeMultiTerm =
+      // (MdAttributeMultiTerm)mdAttribute;
+      //
+      // MdBusiness classifierMdBusiness =
+      // MdBusiness.getMdBusiness(Classifier.CLASS);
+      // mdAttributeMultiTerm.setMdBusiness(classifierMdBusiness);
+    }
+    else if (attributeType.getType().equals(AttributeClassificationType.TYPE))
+    {
+      AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
+      String classificationType = attributeClassificationType.getClassificationType();
+
+      MdClassification mdClassification = MdClassification.getByKey(classificationType);
+      MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+
+      mdAttribute = new MdAttributeClassification();
+      MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
+      mdAttributeTerm.setReferenceMdClassification(mdClassification);
+
+      Term root = attributeClassificationType.getRootTerm();
+
+      if (root != null)
+      {
+        VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
+
+        mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
+      }
+    }
+    else if (attributeType.getType().equals(AttributeBooleanType.TYPE))
+    {
+      mdAttribute = new MdAttributeBoolean();
+    }
+
+    mdAttribute.setAttributeName(attributeType.getName());
+    mdAttribute.setValue(MdAttributeConcreteInfo.REQUIRED, Boolean.toString(attributeType.isRequired()));
+
+    if (attributeType.isUnique())
+    {
+      mdAttribute.addIndexType(MdAttributeIndices.UNIQUE_INDEX);
+    }
+
+    LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+    LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
+
+    mdAttribute.setDefiningMdClass(mdClass);
+    mdAttribute.apply();
+
+    if (attributeType.getType().equals(AttributeTermType.TYPE))
+    {
+      MdAttributeTerm mdAttributeTerm = (MdAttributeTerm) mdAttribute;
+
+      // Build the parent class term root if it does not exist.
+      Classifier classTerm = TermConverter.buildIfNotExistdMdBusinessClassifier(mdClass);
+
+      // Create the root term node for this attribute
+      Classifier attributeTermRoot = TermConverter.buildIfNotExistAttribute(mdClass, mdAttributeTerm.getAttributeName(), classTerm);
+
+      // Make this the root term of the multi-attribute
+      attributeTermRoot.addClassifierTermAttributeRoots(mdAttributeTerm).apply();
+
+      AttributeTermType attributeTermType = (AttributeTermType) attributeType;
+
+      LocalizedValue label = LocalizedValueConverter.convert(attributeTermRoot.getDisplayLabel());
+
+      org.commongeoregistry.adapter.Term term = new org.commongeoregistry.adapter.Term(attributeTermRoot.getClassifierId(), label, new LocalizedValue(""));
+      attributeTermType.setRootTerm(term);
+    }
+    return mdAttribute;
+  }
+
+  /**
+   * Creates an {@link MdAttributeConcrete} for the given {@link MdBusiness}
+   * from the given {@link AttributeType}
+   * 
+   * @pre assumes no attribute has been defined on the type with the given name.
+   * 
+   * @param mdBusiness
+   *          Type to receive attribute definition
+   * @param attributeType
+   *          newly defined attribute
+   * 
+   * @return {@link AttributeType}
+   */
+  @Transaction
+  public static MdAttributeConcrete updateMdAttributeFromAttributeType(MdClass mdClass, AttributeType attributeType)
+  {
+    MdAttributeConcreteDAOIF mdAttributeConcreteDAOIF = getMdAttribute(mdClass, attributeType.getName());
+
+    if (mdAttributeConcreteDAOIF != null)
+    {
+      // Get the type safe version
+      MdAttributeConcrete mdAttribute = (MdAttributeConcrete) BusinessFacade.get(mdAttributeConcreteDAOIF);
+      mdAttribute.lock();
+
+      try
+      {
+        // The name cannot be updated
+        // mdAttribute.setAttributeName(attributeType.getName());
+        LocalizedValueConverter.populate(mdAttribute.getDisplayLabel(), attributeType.getLabel());
+        LocalizedValueConverter.populate(mdAttribute.getDescription(), attributeType.getDescription());
+
+        if (attributeType instanceof AttributeFloatType)
+        {
+          // Refresh the terms
+          AttributeFloatType attributeFloatType = (AttributeFloatType) attributeType;
+
+          mdAttribute.setValue(MdAttributeDoubleInfo.LENGTH, Integer.toString(attributeFloatType.getPrecision()));
+          mdAttribute.setValue(MdAttributeDoubleInfo.DECIMAL, Integer.toString(attributeFloatType.getScale()));
+        }
+        else if (attributeType instanceof AttributeClassificationType)
+        {
+          MdAttributeClassification mdAttributeTerm = (MdAttributeClassification) mdAttribute;
+
+          AttributeClassificationType attributeClassificationType = (AttributeClassificationType) attributeType;
+          String classificationType = attributeClassificationType.getClassificationType();
+
+          MdClassificationDAOIF mdClassificationDAO = MdClassificationDAO.getMdClassificationDAO(classificationType);
+
+          Term root = attributeClassificationType.getRootTerm();
+
+          if (root != null)
+          {
+            VertexObject classification = AbstractClassification.get(root.getCode(), mdClassificationDAO);
+
+            mdAttributeTerm.setValue(MdAttributeClassification.ROOT, classification.getOid());
+          }
+        }
+
+        mdAttribute.apply();
+      }
+      finally
+      {
+        mdAttribute.unlock();
+      }
+
+      if (attributeType instanceof AttributeTermType)
+      {
+        // Refresh the terms
+        AttributeTermType attributeTermType = (AttributeTermType) attributeType;
+
+        org.commongeoregistry.adapter.Term getRootTerm = attributeTermType.getRootTerm();
+        String classifierKey = TermConverter.buildClassifierKeyFromTermCode(getRootTerm.getCode());
+
+        TermConverter termBuilder = new TermConverter(classifierKey);
+        attributeTermType.setRootTerm(termBuilder.build());
+      }
+
+      return mdAttribute;
+    }
+
+    return null;
+  }
 
 }

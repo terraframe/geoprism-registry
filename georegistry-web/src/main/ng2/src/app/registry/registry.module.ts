@@ -110,6 +110,10 @@ import { FhirImportSynchronizationConfigComponent } from "./component/synchroniz
 import { TransitionEventService } from "./service/transition-event.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { TransitionEventModalComponent } from "./component/transition-event/transition-event-modal.component";
+import { ProgrammaticTypeManagerComponent } from "./component/programmatic-type/programmatic-type-manager.component";
+import { ProgrammaticTypeService } from "./service/programmatic-type.service";
+import { CreateProgrammaticTypeModalComponent } from "./component/programmatic-type/modals/create-programmatic-type-modal.component";
+import { ManageProgrammaticTypeModalComponent } from "./component/programmatic-type/modals/manage-programmatic-type-modal.component";
 
 @NgModule({
     imports: [
@@ -214,7 +218,10 @@ import { TransitionEventModalComponent } from "./component/transition-event/tran
         FeaturePanelComponent,
         GeometryPanelComponent,
         TransitionEventTableComponent,
-        TransitionEventModalComponent
+        TransitionEventModalComponent,
+        ProgrammaticTypeManagerComponent,
+        CreateProgrammaticTypeModalComponent,
+        ManageProgrammaticTypeModalComponent        
     ],
     providers: [
         MapService,
@@ -229,7 +236,8 @@ import { TransitionEventModalComponent } from "./component/transition-event/tran
         ToEpochDateTimePipe,
         StepIndicatorComponent,
         SynchronizationConfigService,
-        TransitionEventService
+        TransitionEventService,
+        ProgrammaticTypeService
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -260,7 +268,9 @@ import { TransitionEventModalComponent } from "./component/transition-event/tran
         SynchronizationConfigModalComponent,
         ContextLayerModalComponent,
         ExportSystemModalComponent,
-        TransitionEventModalComponent
+        TransitionEventModalComponent,
+        CreateProgrammaticTypeModalComponent,
+        ManageProgrammaticTypeModalComponent
     ]
 })
 export class RegistryModule { }

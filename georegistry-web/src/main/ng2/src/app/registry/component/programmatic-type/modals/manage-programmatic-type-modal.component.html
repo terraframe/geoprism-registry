@@ -1,0 +1,110 @@
+<div>
+
+  <!--
+
+    <modal-step-indicator></modal-step-indicator>
+  -->
+
+  <ng-container *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'">
+    <form #form="ngForm" *ngIf="type" class="modal-form" (ngSubmit)="form.valid">
+      <div class="heading text-center">
+        <h1>
+          <localize key="hierarchy.management.edit.geoobjecttype.title"></localize>
+          : {{type.displayLabel.localizedValue}}
+        </h1>
+      </div>
+      <fieldset>
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="data.property.label.code"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text"> <input type="text" [(ngModel)]="type.code" name="code" disabled required>
+            </span>
+          </div>
+        </div>
+
+        <localized-input [disabled]="readOnly" [(value)]="type.displayLabel" key="data.property.label.label">
+        </localized-input>
+        <!--  
+  <localized-text [disabled]="readOnly" [(value)]="type.description" key="data.property.label.description"></localized-text>
+-->
+
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="attribute.organization.label"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <span class="text"> <input type="text" [(ngModel)]="type.organizationLabel" name="organization" disabled
+                required></span>
+          </div>
+        </div>
+
+        <div class="row-holder">
+          <div class="label-holder">
+            <label>
+              <localize key="hierarchy.management.manage.attributes.label.displayAttributes"></localize>
+            </label>
+          </div>
+          <div class="holder">
+            <div class="panel panel-default">
+              <div class="panel-body">
+
+                <div class="table-responsive">
+                  <table class="table">
+                    <tbody>
+                      <tr *ngFor="let attr of type.attributes">
+                        <td>{{attr.label.localizedValue}}</td>
+                        <td class="button-column" style="width: 60px;">
+                          <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                            [title]="'modal.button.edit' | localize"></a>
+                          <a class="fa fa-trash-o ico-remove" [routerLink]=""
+                            (click)="removeAttributeType(attr, $event)" [title]="'modal.button.remove' | localize"></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <i class="fa fa-plus clickable" style="font-size:20px;margin:10px 0 10px 0;" aria-hidden="true"
+                  (click)="createAttribute()">
+                  <localize key="modal.button.add"></localize>
+                </i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row-holder">
+          <div class="button-holder">
+            <button type="button" class="btn btn-default" (click)="close()">
+              <localize key="modal.button.cancel"></localize>
+            </button>
+            <button *ngIf="!readOnly" type="button" class="btn btn-primary" [disabled]="form.invalid"
+              (click)="update()">
+              <localize key="modal.button.submit"></localize>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </ng-container>
+
+  <define-attribute-modal-content *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'" [geoObjectType]="geoObjectType"
+    (geoObjectTypeChange)="handleChange($event)"></define-attribute-modal-content>
+
+  <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" [geoObjectType]="geoObjectType"
+    [attribute]="modalState.attribute" (geoObjectTypeChange)="onGeoObjectTypeChange($event)">
+  </edit-attribute-modal-content>
+
+  <manage-term-options *ngIf="modalState.state === 'MANAGE-TERM-OPTION'" [geoObjectType]="geoObjectType"
+    [attribute]="modalState.attribute"></manage-term-options>
+
+  <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" [geoObjectType]="geoObjectType"
+    [attribute]="modalState.attribute" [termOption]="modalState.termOption"></edit-term-option-input>
+
+</div>

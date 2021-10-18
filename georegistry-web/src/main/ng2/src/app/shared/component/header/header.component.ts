@@ -69,6 +69,8 @@ export class CgrHeaderComponent {
         } else if (item === "LISTS") {
             // return this.service.hasExactRole(RegistryRoleType.SRA) || this.service.hasExactRole(RegistryRoleType.RA) || this.service.hasExactRole(RegistryRoleType.RM) || this.service.hasExactRole(RegistryRoleType.RC) || this.service.hasExactRole(RegistryRoleType.AC);
             return true;
+        } else if (item === "PROGRAMMATIC-TYPES") {
+            return true;
         } else if (this.service.hasExactRole(RegistryRoleType.SRA)) {
             return true;
         } else if (item === "IMPORT") {

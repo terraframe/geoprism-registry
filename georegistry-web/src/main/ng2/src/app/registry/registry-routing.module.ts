@@ -20,6 +20,7 @@ import { DatasetLocationManagerComponent } from "./component/location-manager/da
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
+import { ProgrammaticTypeManagerComponent } from "./component/programmatic-type/programmatic-type-manager.component";
 
 const routes: Routes = [
     {
@@ -137,7 +138,11 @@ const routes: Routes = [
         component: TransitionEventTableComponent,
         canActivate: [MaintainerGuard]
     },
-
+    {
+        path: "programmatic-types",
+        component: ProgrammaticTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
 ];
 
 @NgModule({

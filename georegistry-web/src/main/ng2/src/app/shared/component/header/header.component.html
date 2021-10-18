@@ -32,6 +32,8 @@
                 <li *ngIf="shouldShowMenuItem('EVENTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/transition-events" routerLinkActive="active">Transition Events </a></li>
                 <li *ngIf="shouldShowMenuItem('TASKS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/tasks" routerLinkActive="active"><localize key="header.tasks"></localize></a></li>
                 <!-- <li *ngIf="shouldShowMenuItem('CONFIGS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/synchronization-configs" routerLinkActive="active"><localize key="synchronization.config.manager"></localize></a></li> -->
+                <hr>
+                <li *ngIf="shouldShowMenuItem('PROGRAMMATIC-TYPES')" role="menuitem"><a class="dropdown-item" routerLink="/registry/programmatic-types" routerLinkActive="active">Programmatic Types</a></li>
                 
                 <hr>
                 <li *ngIf="shouldShowMenuItem('SETTINGS')" role="menuitem"><a class="dropdown-item" routerLink="/admin/settings" routerLinkActive="active"><localize key="settings.menu"></localize> </a></li>

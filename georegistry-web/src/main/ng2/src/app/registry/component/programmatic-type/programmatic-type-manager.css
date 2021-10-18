@@ -1,0 +1,210 @@
+li.list-group-item {
+	font-size: 14px;
+	border: none;
+}
+
+li.list-group-item.active {
+    background-color: #DBD7A5;
+}
+
+li.list-group-item.got-li-item
+{
+	border-top: 15px solid #a0a0a0;
+	border-radius: 5px;
+}
+
+li.list-group-item.got-li-item.got-group-parent{
+}
+li.list-group-item.got-li-item.got-group-child {
+	margin-left: 40px;
+}
+li.list-group-item.got-li-item.got-group-child:before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    border-left: 3px solid white;
+    height: 44px;
+    width: 1px;
+    top: -10px;
+}
+
+li.list-group-item.hier-li-item {
+	background: #6e6775;
+    border: 2px solid #3E2A5A;
+    color: white;
+}
+li.list-group-item.hier-li-item i.fa {
+	color: white;
+}
+
+li.list-group-item.hier-li-item.primary
+{
+	background: #3E2A5A;
+}
+
+
+ul li:first-child:before {
+   /* first li's line */
+   top: 6px; /* moves the line down so that it disappears under the bullet. Adjust manually */
+}
+
+ul li:last-child:before {
+    /* last li's line */
+   height: 6px; /* shorten the line so it goes only up to the bullet. Is equal to first-child:before's top */
+}
+
+/* li.list-group-item.got-li-item.got-group-parent:before { */
+/*     background-color: white; */
+/*     width: 3px; */
+/*     content: ''; */
+/*     position: absolute; */
+/*     top: 40px; */
+/*     bottom: -35px; */
+/*     left: 14px; */
+/* } */
+/* li.list-group-item.got-li-item.got-group-child:before { */
+/*     background-color: white; */
+/*     width: 25px; */
+/*     height: 3px; */
+/*     content: ''; */
+/*     position: absolute; */
+/*     top: 14px; */
+/*     left: -16px; */
+/* } */
+
+
+.got-org-label-wrapper{
+	padding: 7px 0;
+}
+.got-org-label-wrapper > label {
+	border-bottom: solid 1px;
+	width: 100%;
+}
+
+.sidebar-section-content {
+	overflow-y: auto;
+}
+
+.hierarchy-sidebar button {
+	margin:0;
+}
+
+.hierarchy-sidebar {
+    z-index: 999;
+    background: #f1f1f1;
+/*     color: #fff; */
+	transition: all 0.3s;
+  	padding:0;
+    vertical-align: top;
+    height: calc(100vh - 143px);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.hierarchy-content {
+	height: calc(100vh - 143px);
+    overflow: auto;
+}
+
+#overflow-div {
+	top: 0;
+}
+
+.upload-text {
+	position:relative;
+	top:40%;
+}
+
+.sidebar-section {
+/* 	background: #505050; */
+	text-align: left;
+/*   color:#fff; */
+}
+
+
+
+.hierarchy-sidebar-content .panel-body {
+/* 	color: #6e6775; */
+	background-color: #f1f1f1;
+	max-height: 500px;
+    overflow: auto;
+}
+
+.sidebar-section-header {
+	margin-left:20px;
+	cursor: pointer;
+}
+
+
+accordion-group.panel {
+/* 	background-color: #505050; */
+}
+
+li.list-group-item {
+	background-color: rgba(255, 255, 255, 1.0);
+	margin-bottom:5px;
+}
+
+.drop-box-container {
+    width: 80%;
+    border: 3px grey dashed;
+    border-radius: 5px;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+.hierarchy-drop-box {
+  position:relative;
+  height: 100%;
+  cursor: default;
+}
+
+li.got-li-item.dragging {
+	position: fixed;
+	cursor: grabbing !important;
+	z-index: 99999999;
+}
+
+[data-candrag="true"] {
+	cursor: pointer;
+}
+[data-candrag="false"] {
+  cursor: not-allowed;
+}
+
+#NodeTooltip {
+	opacity:0;
+	left:-10000;
+	top:-10000;
+	position:fixed;
+	width: 400px;
+	min-width: 400px;
+}
+#NodeTooltip .modal-form {
+	padding-top:10px;
+}
+#NodeTooltip .modal-form .holder {
+	padding-bottom: 0px;
+}
+#NodeTooltip .label-holder {
+	width: 40%;
+}
+#NodeTooltip .holder {
+	width: 60%;
+}
+#NodeTooltip .holder label {
+  line-height:2.8;
+}
+
+:host /deep/ .panel .panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+/*     color: white;         adjust as needed */
+    margin-top: -30px;
+}
+:host /deep/ .panel.panel-open .panel-heading .accordion-toggle:after {
+    /* symbol for "collapsed" panels */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+}

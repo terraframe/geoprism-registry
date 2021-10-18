@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
@@ -31,6 +31,7 @@ import com.runwaysdk.session.Request;
 import com.runwaysdk.system.metadata.MdAttributeMultiTerm;
 import com.runwaysdk.system.metadata.MdAttributeTerm;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.runwaysdk.system.metadata.MdClass;
 
 import net.geoprism.ontology.Classifier;
 import net.geoprism.ontology.ClassifierIsARelationship;
@@ -129,15 +130,15 @@ public class TermConverter
    * Builds if not exists a {@link Classifier} object as a parent of terms that
    * pertain to the given {@link MdBusiness}.
    * 
-   * @param mdBusiness
+   * @param mdClass
    *          {@link MdBusiness}
    * 
    * @return {@link Classifier} object as a parent of terms that pertain to the
    *         given {@link MdBusiness}.
    */
-  public static Classifier buildIfNotExistdMdBusinessClassifier(MdBusiness mdBusiness)
+  public static Classifier buildIfNotExistdMdBusinessClassifier(MdClass mdClass)
   {
-    String classTermKey = buildRootClassKey(mdBusiness.getTypeName());
+    String classTermKey = buildRootClassKey(mdClass.getTypeName());
 
     Classifier classTerm = null;
 
@@ -148,15 +149,15 @@ public class TermConverter
     catch (DataNotFoundException e)
     {
 
-      String classifierId = buildRootClassClassifierId(mdBusiness.getTypeName());
+      String classifierId = buildRootClassClassifierId(mdClass.getTypeName());
 
       classTerm = new Classifier();
       classTerm.setClassifierId(classifierId);
       classTerm.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
       // This will set the value of the display label to the locale of the user
       // performing the action.
-      classTerm.getDisplayLabel().setValue(mdBusiness.getDisplayLabel().getValue());
-      classTerm.getDisplayLabel().setDefaultValue(mdBusiness.getDisplayLabel().getDefaultValue());
+      classTerm.getDisplayLabel().setValue(mdClass.getDisplayLabel().getValue());
+      classTerm.getDisplayLabel().setDefaultValue(mdClass.getDisplayLabel().getDefaultValue());
       classTerm.apply();
 
       Classifier rootClassTerm = Classifier.getByKey(RegistryConstants.TERM_CLASS);
@@ -171,7 +172,7 @@ public class TermConverter
    * Builds if not exists a {@link Classifier} object as a parent of terms of
    * the given {@link MdAttributeTerm} or a {@link MdAttributeMultiTerm}.
    * 
-   * @param mdBusiness
+   * @param mdClass
    *          {@link MdBusiness}
    * @param mdAttributeTermOrMultiName
    *          the name of the {@link MdAttributeTerm} or a
@@ -181,9 +182,9 @@ public class TermConverter
    * @return {@link Classifier} object as a parent of terms that pertain to the
    *         given {@link MdBusiness}.
    */
-  public static Classifier buildIfNotExistAttribute(MdBusiness mdBusiness, String mdAttributeTermOrMultiName, Classifier parent)
+  public static Classifier buildIfNotExistAttribute(MdClass mdClass, String mdAttributeTermOrMultiName, Classifier parent)
   {
-    String attributeTermKey = buildtAtttributeKey(mdBusiness.getTypeName(), mdAttributeTermOrMultiName);
+    String attributeTermKey = buildtAtttributeKey(mdClass.getTypeName(), mdAttributeTermOrMultiName);
 
     Classifier attributeTerm = null;
 
@@ -193,15 +194,15 @@ public class TermConverter
     }
     catch (DataNotFoundException e)
     {
-      String classifierId = buildtAtttributeClassifierId(mdBusiness.getTypeName(), mdAttributeTermOrMultiName);
+      String classifierId = buildtAtttributeClassifierId(mdClass.getTypeName(), mdAttributeTermOrMultiName);
 
       attributeTerm = new Classifier();
       attributeTerm.setClassifierId(classifierId);
       attributeTerm.setClassifierPackage(RegistryConstants.REGISTRY_PACKAGE);
       // This will set the value of the display label to the locale of the user
       // performing the action.
-      attributeTerm.getDisplayLabel().setValue(mdBusiness.getDisplayLabel().getValue());
-      attributeTerm.getDisplayLabel().setDefaultValue(mdBusiness.getDisplayLabel().getDefaultValue());
+      attributeTerm.getDisplayLabel().setValue(mdClass.getDisplayLabel().getValue());
+      attributeTerm.getDisplayLabel().setDefaultValue(mdClass.getDisplayLabel().getDefaultValue());
       attributeTerm.apply();
 
       if (parent != null)
