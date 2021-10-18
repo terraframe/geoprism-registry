@@ -24,13 +24,53 @@ pipeline {
                 }
             }
         }
+        stage('Run Tests') {
+            when {
+                environment name: 'run_tests', value: 'true'
+            }
+            steps {
+              dir('georegistry') {
+                git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
+        
+                sh 'mvn clean install -B'
+              }
+              
+              dir('georegistry/georegistry-server') {
+                sh 'mvn install -B -P database -Ddb.clean=true -Ddatabase.port=5432 -Ddb.patch=false -Ddb.rootUser=postgres -Ddb.rootPass=postgres -Ddb.rootDb=postgres'
+              }
+              
+              dir('georegistry/georegistry-test') {
+                sh 'mvn test -Dappcfg=../envcfg/dev -Ddatabase.port=5432 -Dproject.basedir=../'
+              }
+            }
+            post {
+              always {
+                junit 'georegistry/georegistry-test/target/surefire-reports/*.xml'
+              }
+            }
+        }
+        stage('Deploy Test Results') {
+            when {
+                environment name: 'run_tests', value: 'true'
+            }
+            steps {
+              dir('georegistry/georegistry-site') {
+                configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
+                  sh 'sed -i -e 's#../../common-geo-registry-adapter#../../adapter#g' pom.xml'
+                  sh 'mvn -s $MAVEN_SETTINGS_XML surefire-report:report-only -Daggregate=true'
+                  sh 'mvn -s $MAVEN_SETTINGS_XML site -DgenerateReports=false'
+                  sh 'mvn -s $MAVEN_SETTINGS_XML -rf net.geoprism:georegistry-site site:deploy -DgenerateReports=false'
+                }
+              }
+            }
+        }
         stage('Build Georegistry') {
             when {
                 environment name: 'build_artifact', value: 'true'
             }
             steps {
             	dir('georegistry') {
-                    git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
+                  git branch: 'dev', credentialsId: 'terraframe-builder-global', url: 'git@github.com:terraframe/geoprism-registry.git'
 					
 	                sh '. $NVM_DIR/nvm.sh > /dev/null && nvm install lts/erbium > /dev/null && cd georegistry-web/src/main/ng2 && npm install && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config config/webpack.prod.js --profile'
 					
