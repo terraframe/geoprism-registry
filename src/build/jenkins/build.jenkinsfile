@@ -56,7 +56,7 @@ pipeline {
             steps {
               dir('georegistry/georegistry-site') {
                 configFileProvider([configFile(fileId: '644bceb0-dc9a-48b9-b071-11ffb2ffeff5', variable: 'MAVEN_SETTINGS_XML')]) {
-                  sh 'sed -i -e 's#../../common-geo-registry-adapter#../../adapter#g' pom.xml'
+                  sh "sed -i -e 's#../../common-geo-registry-adapter#../../adapter#g' pom.xml"
                   sh 'mvn -s $MAVEN_SETTINGS_XML surefire-report:report-only -Daggregate=true'
                   sh 'mvn -s $MAVEN_SETTINGS_XML site -DgenerateReports=false'
                   sh 'mvn -s $MAVEN_SETTINGS_XML -rf net.geoprism:georegistry-site site:deploy -DgenerateReports=false'
