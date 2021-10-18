@@ -1,3 +1,8 @@
+#!/bin/bash
+# Run with elevated 'sudo' permissions as necessary
+
+set -e
+
 ([ -d target ] && rm -rf target) || true
 mkdir target
 cp ../../../../georegistry-web/target/georegistry.war target/georegistry.war

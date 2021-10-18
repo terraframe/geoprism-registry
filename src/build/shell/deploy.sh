@@ -68,11 +68,13 @@ if [ "$build_artifact" == "true" ]; then
   
   cd $WORKSPACE/georegistry
   mvn clean deploy -B -Djavax.net.ssl.trustStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/tomcat.truststore -Djavax.net.ssl.trustStorePassword=2v8hVW2rPFncN6m -Djavax.net.ssl.keyStore=$WORKSPACE/georegistry/georegistry-web/src/test/resources/keystore.ks -Djavax.net.ssl.keyStorePassword=2v8hVW2rPFncN6m
-  
-  # Build a Docker image
-  cd $WORKSPACE/georegistry/src/build/docker/georegistry
-  ./build.sh
+else
+  wget -nv -O $WORKSPACE/georegistry/georegistry-web/target/georegistry.war "http://nexus.terraframe.com/service/local/artifact/maven/redirect?r=allrepos&g=net.geoprism&a=georegistry-web&p=war&v=$tag"
 fi
+
+# Build a Docker image
+cd $WORKSPACE/georegistry/src/build/docker/georegistry
+./build.sh
 
 :
 : ----------------------------------
