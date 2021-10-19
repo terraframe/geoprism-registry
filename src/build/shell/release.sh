@@ -152,7 +152,7 @@ if [ "$release_docker" == "true" ]; then
   fi
 
   cd $WORKSPACE
-  git clone -b dockerize git@github.com:terraframe/geoprism-platform.git # TODO : Change branch here to master
+  git clone -b dockerize git@github.com:terraframe/geoprism-registry.git # TODO : Change branch here to master
   
   cd $WORKSPACE/geoprism-registry/src/build/docker/georegistry
   ./build.sh
