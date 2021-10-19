@@ -148,9 +148,12 @@ if [ "$release_docker" == "true" ]; then
   if [ "$release_georegistry" == "false" ]; then
     cd $WORKSPACE
     mkdir -p geoprism-registry/target
-    wget https://nexus.terraframe.com/content/repositories/allrepos/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O geoprism-registry/target/georegistry.war
+    wget -nv https://nexus.terraframe.com/content/repositories/allrepos/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O geoprism-registry/target/georegistry.war
   fi
 
+  cd $WORKSPACE
+  git clone -b dockerize git@github.com:terraframe/geoprism-platform.git # TODO : Change branch here to master
+  
   cd $WORKSPACE/geoprism-registry/src/build/docker/georegistry
   ./build.sh
   ./release.sh
