@@ -22,8 +22,10 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 
+import com.runwaysdk.dataaccess.MdClassDAOIF;
 import com.runwaysdk.dataaccess.MdEntityDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
+import com.runwaysdk.dataaccess.metadata.MdClassDAO;
 import com.runwaysdk.dataaccess.metadata.MdEntityDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -296,11 +298,15 @@ public class TermConverter
     {
       for (MdAttributeTerm mdAttributeTerm : attrTerm)
       {
-        MdEntityDAOIF mdEntityDAOIF = MdEntityDAO.get(mdAttributeTerm.getDefiningMdClassId());
-        ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(mdEntityDAOIF.getTypeName());
-        Organization organization = geoObjectType.getOrganization();
+        MdClassDAOIF mdEntityDAOIF = MdClassDAO.get(mdAttributeTerm.getDefiningMdClassId());
+        ServerGeoObjectType geoObjectType = ServerGeoObjectType.get(mdEntityDAOIF.getTypeName(), true);
 
-        service.enforceActorHasPermission(organization.getCode(), geoObjectType, geoObjectType.getIsPrivate(), action);
+        if (geoObjectType != null)
+        {
+          Organization organization = geoObjectType.getOrganization();
+
+          service.enforceActorHasPermission(organization.getCode(), geoObjectType, geoObjectType.getIsPrivate(), action);
+        }
       }
     }
   }

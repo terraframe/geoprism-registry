@@ -5,6 +5,7 @@ import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
 import { PageResult } from "@shared/model/core";
 import { ProgrammaticType, ProgrammaticTypeByOrg } from "@registry/model/programmatic-type";
+import { AttributeType } from "@registry/model/registry";
 
 
 declare let acp: any;
@@ -87,7 +88,7 @@ export class ProgrammaticTypeService {
             .toPromise();
     }
 
-    removeAttributeType(typeCode: string, attributeName:string): Promise<void> {
+    addAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -95,11 +96,40 @@ export class ProgrammaticTypeService {
         this.eventService.start();
 
         return this.http
-            .post<void>(acp + "/programmatic-type/remove", JSON.stringify({ typeCode: typeCode, attributeName:attributeName }), { headers: headers })
+            .post<AttributeType>(acp + "/programmatic-type/add-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
             .toPromise();
     }
 
+    updateAttributeType(typeCode: string, attribute: AttributeType): Promise<AttributeType> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<AttributeType>(acp + "/programmatic-type/update-attribute", JSON.stringify({ typeCode: typeCode, attributeType: attribute }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+    deleteAttributeType(typeCode: string, attributeName: string): Promise<boolean> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<boolean>(acp + "/programmatic-type/remove-attribute", JSON.stringify({ typeCode: typeCode, attributeName: attributeName }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
 }

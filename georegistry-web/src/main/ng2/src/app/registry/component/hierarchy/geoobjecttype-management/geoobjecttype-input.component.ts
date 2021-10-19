@@ -14,7 +14,7 @@ import { LocalizationService, ModalStepIndicatorService } from "@shared/service"
 
 import { GeoObjectType, ManageGeoObjectTypeModalState, AttributeType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
+import { RegistryService } from "@registry/service";
 
 @Component({
     selector: "geoobjecttype-input",
@@ -44,7 +44,10 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     @Input() readOnly: boolean = false;
     @Input() geoObjectType: GeoObjectType;
+    
     @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+    @Output() stateChange : EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
+
     editGeoObjectType: GeoObjectType;
 
     organizationLabel: string;
@@ -59,7 +62,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     message: string = null;
 
-    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
+    // modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
 
     modalStepConfig: StepConfig = {
         steps: [
@@ -69,18 +72,19 @@ export class GeoObjectTypeInputComponent implements OnInit {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService,
-        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
+        private modalStepIndicatorService: ModalStepIndicatorService,
         private localizationService: LocalizationService, private registryService: RegistryService) { }
 
     ngOnInit(): void {
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
-        this.geoObjectTypeManagementService.setModalState(this.modalState);
+
+        // this.geoObjectTypeManagementService.setModalState(this.modalState);
 
         this.fetchOrganizationLabel();
     }
 
     defineAttributeModal(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
     }
 
     fetchOrganizationLabel(): void {
@@ -96,12 +100,12 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     manageAttributes(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageAttributes, attribute: "", termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageAttributes, attribute: "", termOption: "" });
     }
 
-    onModalStateChange(state: ManageGeoObjectTypeModalState): void {
-        this.modalState = state;
-    }
+    // onModalStateChange(state: ManageGeoObjectTypeModalState): void {
+    //     this.modalState = state;
+    // }
 
     update(): void {
         this.registryService.updateGeoObjectType(this.editGeoObjectType).then(geoObjectType => {
@@ -146,7 +150,7 @@ export class GeoObjectTypeInputComponent implements OnInit {
     }
 
     editAttribute(attr: AttributeType, e: any): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
     }
 
     removeAttributeType(attr: AttributeType, e: any): void {

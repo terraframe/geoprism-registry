@@ -1,19 +1,25 @@
-
 <form>
 
   <modal-step-indicator></modal-step-indicator>
 
-  <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" [readOnly]="readOnly" (geoObjectTypeChange)="onGeoObjectTypeChange($event)" [geoObjectType]="geoObjectType" [setGeoObjectType]="geoObjectType"></geoobjecttype-input>
+  <geoobjecttype-input *ngIf="modalState.state === 'MANAGE-GEO-OBJECT-TYPE'" [readOnly]="readOnly"
+    [geoObjectType]="geoObjectType" [setGeoObjectType]="geoObjectType" (stateChange)="onModalStateChange($event)"
+    (geoObjectTypeChange)="onGeoObjectTypeChange($event)"></geoobjecttype-input>
 
-<!--   @Deprecate -->
-<!--   <manage-attributes-modal *ngIf="modalState.state === 'MANAGE-ATTRIBUTES'" [geoObjectType]="geoObjectType" (geoObjectTypeChange)="onGeoObjectTypeChange($event)"></manage-attributes-modal> -->
+  <define-attribute-modal-content *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'" [geoObjectType]="geoObjectType"
+    [service]="service" (stateChange)="onModalStateChange($event)"
+    (geoObjectTypeChange)="onGeoObjectTypeChange($event)"></define-attribute-modal-content>
 
-  <define-attribute-modal-content *ngIf="modalState.state === 'DEFINE-ATTRIBUTE'" [geoObjectType]="geoObjectType" (geoObjectTypeChange)="onGeoObjectTypeChange($event)"></define-attribute-modal-content>
+  <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" [geoObjectType]="geoObjectType"
+    [attribute]="modalState.attribute" [service]="service" (stateChange)="onModalStateChange($event)"
+    (geoObjectTypeChange)="onGeoObjectTypeChange($event)">
+  </edit-attribute-modal-content>
 
-  <edit-attribute-modal-content *ngIf="modalState.state === 'EDIT-ATTRIBUTE'" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute" (geoObjectTypeChange)="onGeoObjectTypeChange($event)"></edit-attribute-modal-content>
+  <manage-term-options *ngIf="modalState.state === 'MANAGE-TERM-OPTION'" [attribute]="modalState.attribute"
+    (stateChange)="onModalStateChange($event)"></manage-term-options>
 
-  <manage-term-options *ngIf="modalState.state === 'MANAGE-TERM-OPTION'" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute"></manage-term-options>
-
-  <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" [geoObjectType]="geoObjectType" [attribute]="modalState.attribute" [termOption]="modalState.termOption"></edit-term-option-input>
+  <edit-term-option-input *ngIf="modalState.state === 'EDIT-TERM-OPTION'" [attribute]="modalState.attribute"
+    [termOption]="modalState.termOption" (stateChange)="onModalStateChange($event)">
+  </edit-term-option-input>
 
 </form>

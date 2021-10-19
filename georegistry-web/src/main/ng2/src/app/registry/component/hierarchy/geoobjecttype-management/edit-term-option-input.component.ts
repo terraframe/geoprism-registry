@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, EventEmitter, Output } from "@angular/core";
 import {
     trigger,
     style,
@@ -14,7 +14,7 @@ import { ErrorHandler } from "@shared/component";
 
 import { GeoObjectType, AttributeTermType, Term, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
+import { RegistryService } from "@registry/service";
 
 @Component({
     selector: "edit-term-option-input",
@@ -25,24 +25,25 @@ import { RegistryService, GeoObjectTypeManagementService } from "@registry/servi
             [
                 transition(
                     ":enter", [
-                        style({ opacity: 0 }),
-                        animate("500ms", style({ opacity: 1 }))
-                    ]
+                    style({ opacity: 0 }),
+                    animate("500ms", style({ opacity: 1 }))
+                ]
                 ),
                 transition(
                     ":leave", [
-                        style({ opacity: 1 }),
-                        animate("0ms", style({ opacity: 0 }))
-                    ]
+                    style({ opacity: 1 }),
+                    animate("0ms", style({ opacity: 0 }))
+                ]
                 )]
         )
     ]
 })
 export class EditTermOptionInputComponent implements OnInit {
 
-    @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeTermType = null;
     @Input() termOption: Term;
+
+    @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
 
     message: string = null;
     modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.editAttribute, attribute: this.attribute, termOption: "" };
@@ -58,8 +59,8 @@ export class EditTermOptionInputComponent implements OnInit {
     };
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
-        private localizeService: LocalizationService, private registryService: RegistryService) { }
+    constructor(public bsModalRef: BsModalRef, private modalStepIndicatorService: ModalStepIndicatorService,
+                private localizeService: LocalizationService, private registryService: RegistryService) { }
 
     ngOnInit(): void {
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
@@ -81,7 +82,8 @@ export class EditTermOptionInputComponent implements OnInit {
                 this.attribute.rootTerm.children[index] = data;
             }
 
-            this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: this.attribute, termOption: null });
+            this.stateChange.emit({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: null });
+
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -99,7 +101,7 @@ export class EditTermOptionInputComponent implements OnInit {
     }
 
     cancel(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: null });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: null });
     }
 
     error(err: HttpErrorResponse): void {

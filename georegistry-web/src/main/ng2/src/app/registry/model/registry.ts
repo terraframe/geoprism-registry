@@ -49,7 +49,12 @@ export class GeoObject {
     };
 }
 
-export class GeoObjectType {
+export interface AttributedType {
+    code: string;
+    attributes?: Array<AttributeType | AttributeTermType | AttributeDecimalType>;
+}
+
+export class GeoObjectType implements AttributedType {
     code: string;
     label: LocalizedValue;
     description: LocalizedValue;

@@ -8,7 +8,7 @@ import {
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
-import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState, AttributedType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 import { ErrorHandler } from "@shared/component";
@@ -16,7 +16,7 @@ import { StepConfig } from "@shared/model/modal";
 
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
+import { AttributeTypeService, RegistryService } from "@registry/service";
 
 import { AttributeInputComponent } from "../geoobjecttype-management/attribute-input.component";
 
@@ -39,9 +39,12 @@ import { AttributeInputComponent } from "../geoobjecttype-management/attribute-i
 })
 export class EditAttributeModalContentComponent implements OnInit {
 
-    @Input() geoObjectType: GeoObjectType;
+    @Input() geoObjectType: AttributedType;
     @Input() attribute: AttributeType = null;
-    @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+    @Input() service: AttributeTypeService;
+
+    @Output() geoObjectTypeChange: EventEmitter<AttributedType> = new EventEmitter<AttributedType>();
+    @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
 
     message: string = null;
     modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.editAttribute, attribute: this.attribute, termOption: "" };
@@ -58,9 +61,7 @@ export class EditAttributeModalContentComponent implements OnInit {
     // eslint-disable-next-line no-useless-constructor
     constructor(public bsModalRef: BsModalRef,
         private modalStepIndicatorService: ModalStepIndicatorService,
-        private geoObjectTypeManagementService: GeoObjectTypeManagementService,
-        private localizeService: LocalizationService,
-        private registryService: RegistryService) { }
+        private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
         this.modalStepIndicatorService.setStepConfig(this.modalStepConfig);
@@ -74,7 +75,7 @@ export class EditAttributeModalContentComponent implements OnInit {
     }
 
     handleOnSubmit(): void {
-        this.registryService.updateAttributeType(this.geoObjectType.code, this.attribute).then(data => {
+        this.service.updateAttributeType(this.geoObjectType.code, this.attribute).then(data => {
             for (let i = 0; i < this.geoObjectType.attributes.length; i++) {
                 let attr = this.geoObjectType.attributes[i];
                 if (attr.code === data.code) {
@@ -83,12 +84,16 @@ export class EditAttributeModalContentComponent implements OnInit {
                 }
             }
 
-            this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
+            this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
 
             this.geoObjectTypeChange.emit(this.geoObjectType);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+
+    onModalStateChange(state: ManageGeoObjectTypeModalState): void {
+        this.stateChange.emit(state);
     }
 
     isFormValid(): boolean {
@@ -103,11 +108,11 @@ export class EditAttributeModalContentComponent implements OnInit {
     }
 
     cancel(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
     }
 
     back(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" });
     }
 
     error(err: HttpErrorResponse): void {

@@ -4,34 +4,57 @@
         <div class="">
             <div class="">
                 <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
-            
+
                 <div class="heading">
                     <h1>
-                        <localize key="hierarchy.management.edit.attribute.title"></localize>: {{attribute.label.localizedValue}}
+                        <localize key="hierarchy.management.edit.attribute.title"></localize>:
+                        {{attribute.label.localizedValue}}
                     </h1>
-                    
-                    <h4 class="sub-title" *ngIf="attribute.type === 'character'"><localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize key="data.type.label.text"></localize></h4>
-                    <h4 class="sub-title" *ngIf="attribute.type === 'integer'"><localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize key="data.type.label.integer"></localize></h4>
-                    <h4 class="sub-title" *ngIf="attribute.type === 'float'"><localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize key="data.type.label.float"></localize></h4>
-                    <h4 class="sub-title" *ngIf="attribute.type === 'boolean'"><localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize key="data.type.label.boolean"></localize></h4>
-                    <h4 class="sub-title" *ngIf="attribute.type === 'date'"><localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize key="data.type.label.date"></localize></h4>
-                    <h4 class="sub-title" *ngIf="attribute.type === 'term'"><localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize key="data.type.label.term"></localize></h4>                    
+
+                    <h4 class="sub-title" *ngIf="attribute.type === 'character'">
+                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
+                            key="data.type.label.text"></localize>
+                    </h4>
+                    <h4 class="sub-title" *ngIf="attribute.type === 'integer'">
+                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
+                            key="data.type.label.integer"></localize>
+                    </h4>
+                    <h4 class="sub-title" *ngIf="attribute.type === 'float'">
+                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
+                            key="data.type.label.float"></localize>
+                    </h4>
+                    <h4 class="sub-title" *ngIf="attribute.type === 'boolean'">
+                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
+                            key="data.type.label.boolean"></localize>
+                    </h4>
+                    <h4 class="sub-title" *ngIf="attribute.type === 'date'">
+                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
+                            key="data.type.label.date"></localize>
+                    </h4>
+                    <h4 class="sub-title" *ngIf="attribute.type === 'term'">
+                        <localize key="hierarchy.management.edit.attribute.subtitle"></localize>: <localize
+                            key="data.type.label.term"></localize>
+                    </h4>
                 </div>
-                
-                
+
+
 
                 <fieldset>
 
-                    <attribute-input [disableCodeField]="true" [excludeDescription]="attribute.type === 'term' ? true : false" [isDecimal]="attribute.type === 'float' ? true : false" [(attribute)]="attribute"></attribute-input>
+                    <attribute-input [disableCodeField]="true"
+                        [excludeDescription]="attribute.type === 'term' ? true : false"
+                        [isDecimal]="attribute.type === 'float' ? true : false" [(attribute)]="attribute">
+                    </attribute-input>
 
                     <!-- *ngIf="attribute.type === 'term' && isFormValid()" -->
-                    <term-option-widget *ngIf="attribute.type === 'term' && isFormValid()" [(attribute)]="attribute" [geoObjectType]="geoObjectType"></term-option-widget>
+                    <term-option-widget *ngIf="attribute.type === 'term' && isFormValid()" [(attribute)]="attribute"
+                        [geoObjectType]="geoObjectType" (stateChange)="onModalStateChange($event)"></term-option-widget>
 
                     <div class="row">
                         <div class="col-md-12">
-                        <!-- <div class="label-holder"> 
+                            <!-- <div class="label-holder"> 
                         </div> -->
-                        <!-- <div class="holder"> -->
+                            <!-- <div class="holder"> -->
                             <div class="button-holder">
                                 <button type="button" class="btn btn-default" (click)="cancel()">
                                     <localize key="modal.button.cancel"></localize>
@@ -46,6 +69,6 @@
             </div>
         </div>
     </form>
-    
+
 
 </div>

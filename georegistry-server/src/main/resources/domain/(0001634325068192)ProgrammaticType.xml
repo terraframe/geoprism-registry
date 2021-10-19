@@ -2,6 +2,7 @@
   xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <doIt>
+<!-- 
     <create>
       <mdBusiness
         name="net.geoprism.registry.ProgrammaticType"
@@ -47,7 +48,9 @@
           </mdBusinessPermission>
         </grant>
       </role>
-    </permissions>    
+    </permissions>  
+ -->  
+      
   </doIt>
   <undoIt>
     <delete>

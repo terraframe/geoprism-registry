@@ -42,12 +42,12 @@
                         <tbody>
                             <tr *ngFor="let type of org.types; let i = index;" class="clickable">
                                 <td style="width: 70%; vertical-align: middle;">
-                                  <a [routerLink]="'/registry/master-type-view/' + type.oid" routerLinkActive="active">
+                                  <a (click)="onView(type)" routerLinkActive="active">
                                     {{type.displayLabel.localizedValue}}
                                   </a>
                                 </td>
                                 <td style="width: 30%; text-align: right;">
-                                    <button type="submit" (click)="onView(type.oid)" class="btn btn-primary" role="button">
+                                    <button type="submit" (click)="onView(type)" class="btn btn-primary" role="button">
                                         <localize key="modal.button.view"></localize>
                                     </button>
                                     <button type="submit" (click)="onEdit(org, type)" class="btn btn-default" role="button">

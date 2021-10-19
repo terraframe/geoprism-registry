@@ -50,8 +50,17 @@ export class ProgrammaticTypeManagerComponent implements OnInit {
         });
     }
 
-    onView(code: string): void {
-        // this.router.navigate(["/registry/master-list-view/", code])
+    onView(type: ProgrammaticType): void {
+        this.service.edit(type.oid).then(t => {
+            this.bsModalRef = this.modalService.show(ManageProgrammaticTypeModalComponent, {
+                animated: true,
+                backdrop: true,
+                ignoreBackdropClick: true
+            });
+            this.bsModalRef.content.init(t, true);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     onEdit(org: ProgrammaticTypeByOrg, type: ProgrammaticType): void {

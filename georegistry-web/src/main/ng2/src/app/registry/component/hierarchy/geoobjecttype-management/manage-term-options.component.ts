@@ -13,8 +13,8 @@ import { StepConfig, ModalTypes } from "@shared/model/modal";
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 import { LocalizationService, ModalStepIndicatorService } from "@shared/service";
 
-import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
-import { GeoObjectType, AttributeTermType, Term } from "@registry/model/registry";
+import { RegistryService } from "@registry/service";
+import { GeoObjectType, AttributeTermType, Term, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
 @Component({
@@ -36,25 +36,27 @@ import { GeoObjectTypeModalStates } from "@registry/model/constants";
             [
                 transition(
                     ":enter", [
-                        style({ opacity: 0 }),
-                        animate("500ms", style({ opacity: 1 }))
-                    ]
+                    style({ opacity: 0 }),
+                    animate("500ms", style({ opacity: 1 }))
+                ]
                 ),
                 transition(
                     ":leave", [
-                        style({ opacity: 1 }),
-                        animate("0ms", style({ opacity: 0 }))
+                    style({ opacity: 1 }),
+                    animate("0ms", style({ opacity: 0 }))
 
-                    ]
+                ]
                 )]
         )
     ]
 })
 export class ManageTermOptionsComponent implements OnInit {
 
-    @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeTermType;
+
     @Output() attributeChange = new EventEmitter<AttributeTermType>();
+    @Output() stateChange: EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
+
     message: string = null;
     termOption: Term;
     state: string = "none";
@@ -69,7 +71,7 @@ export class ManageTermOptionsComponent implements OnInit {
     };
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService,
+    constructor(public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef,
         private modalService: BsModalService, private localizeService: LocalizationService, private modalStepIndicatorService: ModalStepIndicatorService,
         private registryService: RegistryService) { }
 
@@ -159,7 +161,7 @@ export class ManageTermOptionsComponent implements OnInit {
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
         this.bsModalRef.content.type = ModalTypes.danger;
 
-        (<ConfirmModalComponent> this.bsModalRef.content).onConfirm.subscribe(data => {
+        (<ConfirmModalComponent>this.bsModalRef.content).onConfirm.subscribe(data => {
             this.deleteTermOption(termOption);
         });
     }
@@ -171,7 +173,7 @@ export class ManageTermOptionsComponent implements OnInit {
             termOption: JSON.parse(JSON.stringify(termOption))
         };
 
-        this.geoObjectTypeManagementService.setModalState(state);
+        this.stateChange.emit(state);
     }
 
     clearTermOption(): void {
@@ -190,7 +192,7 @@ export class ManageTermOptionsComponent implements OnInit {
     }
 
     close(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.editAttribute, attribute: this.attribute, termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.editAttribute, attribute: this.attribute, termOption: "" });
     }
 
     error(err: HttpErrorResponse): void {

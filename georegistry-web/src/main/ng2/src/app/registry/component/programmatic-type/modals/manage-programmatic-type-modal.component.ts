@@ -6,7 +6,7 @@ import {
     transition
 } from "@angular/animations";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { Subject, Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
 import { ProgrammaticType } from "@registry/model/programmatic-type";
@@ -45,7 +45,6 @@ export class ManageProgrammaticTypeModalComponent implements OnInit {
     modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
 
     message: string = null;
-    modalStateSubscription: Subscription;
     type: ProgrammaticType;
     public onProgrammaticTypeChange: Subject<ProgrammaticType>;
     readOnly: boolean = false;
@@ -57,21 +56,17 @@ export class ManageProgrammaticTypeModalComponent implements OnInit {
         this.onProgrammaticTypeChange = new Subject();
     }
 
-    ngOnDestroy() {
-        this.modalStateSubscription.unsubscribe();
-    }
-
     init(type: ProgrammaticType, readOnly: boolean) {
         this.type = type;
         this.readOnly = readOnly;
     }
 
     createAttribute(): void {
-        this.modalState = { state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" };
+        this.onModalStateChange({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
     }
 
     editAttribute(attr: AttributeType, e: any): void {
-        this.modalState = { state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" };
+        this.onModalStateChange({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
     }
 
     removeAttributeType(attr: AttributeType, e: any): void {
@@ -86,7 +81,7 @@ export class ManageProgrammaticTypeModalComponent implements OnInit {
         confirmBsModalRef.content.type = ModalTypes.danger;
 
         confirmBsModalRef.content.onConfirm.subscribe(data => {
-            this.service.removeAttributeType(this.type.code, attr.code).then(() => {
+            this.service.deleteAttributeType(this.type.code, attr.code).then(() => {
 
                 this.type.attributes.splice(this.type.attributes.indexOf(attr), 1);
 
@@ -97,19 +92,36 @@ export class ManageProgrammaticTypeModalComponent implements OnInit {
         });
     }
 
-    onModalStateChange(state: any): void {
+    onModalStateChange(state: ManageGeoObjectTypeModalState): void {
+        this.modalState = state;
     }
 
-    handleChange(data: any): void {
+    onTypeChange(data: ProgrammaticType): void {
         this.onProgrammaticTypeChange.next(data);
     }
 
     update(): void {
+        this.service.apply(this.type).then(type => {
+            this.onProgrammaticTypeChange.next(type);
 
+            this.bsModalRef.hide();
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     close(): void {
-        this.bsModalRef.hide();
+
+        if (this.type.oid != null) {
+            this.service.unlock(this.type.oid).then(() => {
+                this.bsModalRef.hide();
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });    
+        }
+        else {
+            this.bsModalRef.hide();
+        }
     }
 
     error(err: HttpErrorResponse): void {

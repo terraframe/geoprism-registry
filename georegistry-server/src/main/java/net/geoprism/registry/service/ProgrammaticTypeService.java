@@ -139,16 +139,16 @@ public class ProgrammaticTypeService
    * @pre given {@link ProgrammaticType} must already exist.
    * 
    * @param sessionId
-   * @param oid
+   * @param code
    *          string of the {@link ProgrammaticType} to be updated.
    * @param attributeName
    *          Name of the attribute to be removed from the ProgrammaticType
    * @return updated {@link ProgrammaticType}
    */
   @Request(RequestType.SESSION)
-  public void removeAttributeType(String sessionId, String oid, String attributeName)
+  public void removeAttributeType(String sessionId, String programmaticTypeCode, String attributeName)
   {
-    ProgrammaticType got = ProgrammaticType.get(oid);
+    ProgrammaticType got = ProgrammaticType.getByCode(programmaticTypeCode);
 
 //    ServiceFactory.getProgrammaticTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
 

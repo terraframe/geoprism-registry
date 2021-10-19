@@ -1,5 +1,4 @@
 import { ChangeRequestService } from './change-request.service';
-import { GeoObjectTypeManagementService } from './geoobjecttype-management.service';
 import { HierarchyService } from './hierarchy.service';
 import { IOService } from './io.service';
 import { LocalizationManagerService } from './localization-manager.service';
@@ -11,7 +10,6 @@ import { GeometryService} from './geometry.service';
 
 export const services: any[] = [
 	ChangeRequestService,
-	GeoObjectTypeManagementService,
 	HierarchyService,
 	IOService,
 	LocalizationManagerService,
@@ -23,7 +21,6 @@ export const services: any[] = [
 ];
 
 export * from './change-request.service';
-export * from './geoobjecttype-management.service';
 export * from './hierarchy.service';
 export * from './io.service';
 export * from './localization-manager.service';

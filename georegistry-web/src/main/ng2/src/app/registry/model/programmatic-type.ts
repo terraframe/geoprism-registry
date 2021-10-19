@@ -1,7 +1,7 @@
 import { LocalizedValue } from "@shared/model/core";
-import { AttributeDecimalType, AttributeTermType, AttributeType } from "./registry";
+import { AttributeDecimalType, AttributedType, AttributeTermType, AttributeType } from "./registry";
 
-export class ProgrammaticType {
+export class ProgrammaticType implements AttributedType {
     oid?: string;
     code: string;
     organization: string;

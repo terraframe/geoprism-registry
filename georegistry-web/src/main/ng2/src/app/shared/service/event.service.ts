@@ -1,7 +1,4 @@
 import { Injectable } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
-
-declare let acp;
 
 export interface IEventListener {
     start(): void;
@@ -30,14 +27,19 @@ export class EventService {
     }
 
     public start(): void {
-        for (const listener of this.listeners) {
-            listener.start();
-        }
+
+        setTimeout(() => {
+            for (const listener of this.listeners) {
+                listener.start();
+            }
+        }, 1);
     }
 
     public complete(): void {
-        for (const listener of this.listeners) {
-            listener.complete();
-        }
+        setTimeout(() => {
+            for (const listener of this.listeners) {
+                listener.complete();
+            }
+        }, 1);
     }
 }

@@ -98,7 +98,6 @@ import { LocalizationManagerService } from "./service/localization-manager.servi
 import { ChangeRequestService } from "./service/change-request.service";
 import { IOService } from "./service/io.service";
 import { MapService } from "./service/map.service";
-import { GeoObjectTypeManagementService } from "./service/geoobjecttype-management.service";
 
 import { RegistryRoutingModule } from "./registry-routing.module";
 import { SharedModule } from "../shared/shared.module";
@@ -229,7 +228,6 @@ import { ManageProgrammaticTypeModalComponent } from "./component/programmatic-t
         LocalizationManagerService,
         ChangeRequestService,
         IOService,
-        GeoObjectTypeManagementService,
         RegistryService,
         TaskService,
         DatePipe,

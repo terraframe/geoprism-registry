@@ -26,7 +26,8 @@ import { finalize } from "rxjs/operators";
 import {
     GeoObject, GeoObjectType, AttributeType, Term, MasterList, MasterListVersion, ParentTreeNode,
     ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage,
-    MasterListByOrg
+    MasterListByOrg,
+    AttributedType
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
@@ -37,8 +38,16 @@ import { EventService } from "@shared/service";
 
 declare let acp: any;
 
+export interface AttributeTypeService {
+    addAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType>;
+
+    updateAttributeType(geoObjTypeId: string, attribute: AttributeType): Promise<AttributeType>;
+
+    deleteAttributeType(geoObjTypeId: string, attributeName: string): Promise<boolean>;
+}
+
 @Injectable()
-export class RegistryService {
+export class RegistryService implements AttributeTypeService {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }

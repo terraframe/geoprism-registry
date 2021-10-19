@@ -6,13 +6,12 @@ import {
     transition
 } from "@angular/animations";
 import { BsModalRef } from "ngx-bootstrap/modal";
-import { Subject, Subscription } from "rxjs";
+import { Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler } from "@shared/component";
 import { ManageGeoObjectTypeModalState, GeoObjectType } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
-
-import { GeoObjectTypeManagementService } from "@registry/service";
+import { RegistryService } from "@registry/service";
 
 @Component({
     selector: "manage-geoobjecttype-modal",
@@ -40,28 +39,21 @@ import { GeoObjectTypeManagementService } from "@registry/service";
 })
 export class ManageGeoObjectTypeModalComponent implements OnInit {
 
-    message: string = null;
     modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: "", termOption: "" };
-    modalStateSubscription: Subscription;
+
+    message: string = null;
     geoObjectType: GeoObjectType;
     public onGeoObjectTypeSubmitted: Subject<GeoObjectType>;
     readOnly: boolean = false;
 
-    constructor(public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, geoObjectTypeManagementService: GeoObjectTypeManagementService) {
-        this.modalStateSubscription = geoObjectTypeManagementService.modalStepChange.subscribe(modalState => {
-            this.modalState = modalState;
-        });
+    constructor(private service: RegistryService, public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef) {
     }
 
     ngOnInit(): void {
         this.onGeoObjectTypeSubmitted = new Subject();
     }
 
-    ngOnDestroy() {
-        this.modalStateSubscription.unsubscribe();
-    }
-
-    onModalStateChange(state: any): void {
+    onModalStateChange(state: ManageGeoObjectTypeModalState): void {
         this.modalState = state;
     }
 

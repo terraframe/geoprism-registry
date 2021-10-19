@@ -10,7 +10,7 @@ import { LocalizationService, ModalStepIndicatorService } from "@shared/service"
 import { GeoObjectType, AttributeType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
 
-import { RegistryService, GeoObjectTypeManagementService } from "@registry/service";
+import { RegistryService } from "@registry/service";
 
 @Component({
     selector: "manage-attributes-modal",
@@ -21,7 +21,9 @@ export class ManageAttributesModalComponent implements OnInit {
 
     @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeType = null;
+
     @Output() geoObjectTypeChange: EventEmitter<GeoObjectType> = new EventEmitter<GeoObjectType>();
+    @Output() stateChange : EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
 
     message: string = null;
     modalStepConfig: StepConfig = {
@@ -40,7 +42,7 @@ export class ManageAttributesModalComponent implements OnInit {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(public bsModalRef: BsModalRef, public confirmBsModalRef: BsModalRef, private modalService: BsModalService, private localizeService: LocalizationService,
-        private modalStepIndicatorService: ModalStepIndicatorService, private geoObjectTypeManagementService: GeoObjectTypeManagementService, private registryService: RegistryService) { }
+        private modalStepIndicatorService: ModalStepIndicatorService, private registryService: RegistryService) { }
 
     ngOnInit(): void {
         this.onDeleteAttribute = new Subject();
@@ -52,11 +54,11 @@ export class ManageAttributesModalComponent implements OnInit {
     }
 
     defineAttributeModal(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.defineAttribute, attribute: "", termOption: "" });
     }
 
     editAttribute(attr: AttributeType, e: any): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.editAttribute, attribute: attr, termOption: "" });
     }
 
     removeAttributeType(attr: AttributeType, e: any): void {
@@ -90,7 +92,7 @@ export class ManageAttributesModalComponent implements OnInit {
     }
 
     close(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: this.attribute, termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageGeoObjectType, attribute: this.attribute, termOption: "" });
     }
 
     error(err: HttpErrorResponse): void {

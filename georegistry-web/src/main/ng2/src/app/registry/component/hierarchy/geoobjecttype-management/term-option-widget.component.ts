@@ -8,9 +8,8 @@ import {
 } from "@angular/animations";
 import { BsModalRef } from "ngx-bootstrap/modal";
 
-import { GeoObjectType, AttributeTermType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
+import { AttributeTermType, ManageGeoObjectTypeModalState } from "@registry/model/registry";
 import { GeoObjectTypeModalStates } from "@registry/model/constants";
-import { GeoObjectTypeManagementService } from "@registry/service/geoobjecttype-management.service";
 
 @Component({
     selector: "term-option-widget",
@@ -47,15 +46,15 @@ import { GeoObjectTypeManagementService } from "@registry/service/geoobjecttype-
 })
 export class TermOptionWidgetComponent implements OnInit {
 
-    @Input() geoObjectType: GeoObjectType;
     @Input() attribute: AttributeTermType = null;
-    @Output() attributeChange = new EventEmitter<AttributeTermType>();
+
+    @Output() stateChange : EventEmitter<ManageGeoObjectTypeModalState> = new EventEmitter<ManageGeoObjectTypeModalState>();
+
     message: string = null;
     state: string = "none";
-    modalState: ManageGeoObjectTypeModalState = { state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: "" };
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef, private geoObjectTypeManagementService: GeoObjectTypeManagementService) { }
+    constructor(public bsModalRef: BsModalRef, private cdr: ChangeDetectorRef) { }
 
     ngOnInit(): void {
 
@@ -105,7 +104,7 @@ export class TermOptionWidgetComponent implements OnInit {
     // }
 
     openAddTermOptionForm(): void {
-        this.geoObjectTypeManagementService.setModalState({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: "" });
+        this.stateChange.emit({ state: GeoObjectTypeModalStates.manageTermOption, attribute: this.attribute, termOption: "" });
     }
 
 }
