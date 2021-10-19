@@ -8,5 +8,5 @@ mkdir target
 cp ../../../../georegistry-web/target/georegistry.war target/georegistry.war
 cp -R ../../../../envcfg/prod target/appcfg
 
-docker build -t georegistry .
-docker save georegistry:latest | gzip > target/georegistry.dimg.gz
+docker build -t geoprism-registry .
+docker save geoprism-registry:latest | gzip > target/georegistry.dimg.gz
