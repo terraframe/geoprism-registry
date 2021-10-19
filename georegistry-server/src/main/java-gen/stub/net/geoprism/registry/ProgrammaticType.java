@@ -5,18 +5,15 @@ import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.runwaysdk.constants.EntityInfo;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
-import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
@@ -105,7 +102,10 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
     this.deleteMdAttributeFromAttributeType(attributeName);
 
     // Refresh the users session
-    ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    if (Session.getCurrentSession() != null)
+    {
+      ( (Session) Session.getCurrentSession() ).reloadPermissions();
+    }
   }
 
   /**

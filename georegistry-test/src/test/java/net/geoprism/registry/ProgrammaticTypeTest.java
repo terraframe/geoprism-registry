@@ -70,6 +70,31 @@ public class ProgrammaticTypeTest
 
   @Test
   @Request
+  public void testGetByCode()
+  {
+    String code = "TEST_PROG";
+    String orgCode = FastTestDataset.ORG_CGOV.getCode();
+    String label = "Test Prog";
+
+    JsonObject object = new JsonObject();
+    object.addProperty(ProgrammaticType.CODE, code);
+    object.addProperty(ProgrammaticType.ORGANIZATION, orgCode);
+    object.add(ProgrammaticType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+
+    ProgrammaticType type = ProgrammaticType.apply(object);
+
+    try
+    {
+      Assert.assertNotNull(ProgrammaticType.getByCode(type.getCode()));
+    }
+    finally
+    {
+      type.delete();
+    }
+  }
+
+  @Test
+  @Request
   public void testUpdate()
   {
     String code = "TEST_PROG";
@@ -367,6 +392,152 @@ public class ProgrammaticTypeTest
       JsonObject json = types.get(0).getAsJsonObject();
 
       Assert.assertEquals(type.getCode(), json.get("code").getAsString());
+    }
+    finally
+    {
+      type.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testToJson()
+  {
+    String code = "TEST_PROG";
+    String orgCode = FastTestDataset.ORG_CGOV.getCode();
+    String label = "Test Prog";
+
+    JsonObject object = new JsonObject();
+    object.addProperty(ProgrammaticType.CODE, code);
+    object.addProperty(ProgrammaticType.ORGANIZATION, orgCode);
+    object.add(ProgrammaticType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+
+    ProgrammaticType type = ProgrammaticType.apply(object);
+
+    try
+    {
+      JsonObject json = type.toJSON();
+
+      Assert.assertEquals(type.getCode(), json.get("code").getAsString());
+      Assert.assertFalse(json.has("attributes"));
+    }
+    finally
+    {
+      type.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testToJsonWithAttributes()
+  {
+    String code = "TEST_PROG";
+    String orgCode = FastTestDataset.ORG_CGOV.getCode();
+    String label = "Test Prog";
+
+    JsonObject object = new JsonObject();
+    object.addProperty(ProgrammaticType.CODE, code);
+    object.addProperty(ProgrammaticType.ORGANIZATION, orgCode);
+    object.add(ProgrammaticType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+
+    ProgrammaticType type = ProgrammaticType.apply(object);
+
+    try
+    {
+      JsonObject json = type.toJSON(true);
+
+      Assert.assertEquals(type.getCode(), json.get("code").getAsString());
+      Assert.assertTrue(json.has("attributes"));
+    }
+    finally
+    {
+      type.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveAttribute()
+  {
+    String code = "TEST_PROG";
+    String orgCode = FastTestDataset.ORG_CGOV.getCode();
+    String label = "Test Prog";
+
+    JsonObject object = new JsonObject();
+    object.addProperty(ProgrammaticType.CODE, code);
+    object.addProperty(ProgrammaticType.ORGANIZATION, orgCode);
+    object.add(ProgrammaticType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+
+    ProgrammaticType type = ProgrammaticType.apply(object);
+
+    try
+    {
+      AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
+
+      type.createAttributeType(expected);
+
+      Map<String, AttributeType> attributeMap = type.getAttributeMap();
+
+      Assert.assertTrue(attributeMap.containsKey(expected.getName()));
+
+      type.removeAttribute(expected.getName());
+
+      attributeMap = type.getAttributeMap();
+
+      Assert.assertFalse(attributeMap.containsKey(expected.getName()));
+    }
+    finally
+    {
+      type.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemove()
+  {
+    String code = "TEST_PROG";
+    String orgCode = FastTestDataset.ORG_CGOV.getCode();
+    String label = "Test Prog";
+
+    JsonObject object = new JsonObject();
+    object.addProperty(ProgrammaticType.CODE, code);
+    object.addProperty(ProgrammaticType.ORGANIZATION, orgCode);
+    object.add(ProgrammaticType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+
+    ProgrammaticType type = ProgrammaticType.apply(object);
+    type.delete();
+
+    Assert.assertNull(ProgrammaticType.getByCode(type.getCode()));
+  }
+
+  @Test
+  @Request
+  public void testGetAttribute()
+  {
+    String code = "TEST_PROG";
+    String orgCode = FastTestDataset.ORG_CGOV.getCode();
+    String label = "Test Prog";
+
+    JsonObject object = new JsonObject();
+    object.addProperty(ProgrammaticType.CODE, code);
+    object.addProperty(ProgrammaticType.ORGANIZATION, orgCode);
+    object.add(ProgrammaticType.DISPLAYLABEL, new LocalizedValue(label).toJSON());
+
+    ProgrammaticType type = ProgrammaticType.apply(object);
+
+    try
+    {
+      AttributeCharacterType expected = new AttributeCharacterType("testCharacter", new LocalizedValue("Test Character"), new LocalizedValue("Test True"), false, false, false);
+
+      type.createAttributeType(expected);
+
+      AttributeType actual = type.getAttribute(expected.getName());
+
+      Assert.assertTrue(actual instanceof AttributeCharacterType);
+      Assert.assertEquals(expected.getName(), actual.getName());
+      Assert.assertEquals(expected.getLabel().getValue(), actual.getLabel().getValue());
+      Assert.assertEquals(expected.getIsDefault(), actual.getIsDefault());
     }
     finally
     {
