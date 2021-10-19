@@ -3,8 +3,6 @@
 
 set -e
 
-docker build -t georegistry .
-
 docker tag georegistry:latest terraframe/geoprism-registry:latest
 
 echo $DOCKER_HUB_TFBUILDER_PSW | docker login --username $DOCKER_HUB_TFBUILDER_USR --password-stdin terraframe/geoprism-registry

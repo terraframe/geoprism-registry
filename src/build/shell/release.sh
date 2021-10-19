@@ -144,6 +144,18 @@ if [ "$release_georegistry" == "true" ]; then
   git push
 fi
 
+if [ "$release_docker" == "true" ]; then
+  if [ "$release_georegistry" == "false" ]; then
+    cd $WORKSPACE
+    mkdir -p geoprism-registry/target
+    wget https://nexus.terraframe.com/content/repositories/allrepos/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O geoprism-registry/target/georegistry.war
+  fi
+
+  cd $WORKSPACE/geoprism-registry/src/build/docker/georegistry
+  ./build.sh
+  ./release.sh
+fi
+
 if [ "$tag_platform" == "true" ]; then
   cd $WORKSPACE
   git clone -b master git@github.com:terraframe/geoprism-platform.git
@@ -170,7 +182,7 @@ if [ "$release_github" == "true" ]; then
   
   gh config set prompt disabled
   
-  wget https://nexus.terraframe.com/content/repositories/allrepos//net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
+  wget https://nexus.terraframe.com/content/repositories/allrepos/net/geoprism/georegistry-web/$CGR_RELEASE_VERSION/georegistry-web-$CGR_RELEASE_VERSION.war -O georegistry-web-$CGR_RELEASE_VERSION.war
   wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-common/$CGR_RELEASE_VERSION/cgradapter-common-$CGR_RELEASE_VERSION.jar -O cgradapter-common-$CGR_RELEASE_VERSION.jar
   wget https://nexus.terraframe.com/content/repositories/allrepos/com/cgr/adapter/cgradapter-android/$CGR_RELEASE_VERSION/cgradapter-android-$CGR_RELEASE_VERSION.aar -O cgradapter-android-$CGR_RELEASE_VERSION.aar
   
