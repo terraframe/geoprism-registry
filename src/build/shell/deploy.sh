@@ -76,9 +76,11 @@ else
   fi
 fi
 
-# Build a Docker image
-cd $WORKSPACE/georegistry/src/build/docker/georegistry
-./build.sh
+if [ "$tag" == "latest" ]; then
+  # Build a Docker image
+  cd $WORKSPACE/georegistry/src/build/docker/georegistry
+  ./build.sh
+fi
 
 :
 : ----------------------------------
