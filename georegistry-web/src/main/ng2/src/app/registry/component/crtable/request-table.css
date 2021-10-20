@@ -28,6 +28,10 @@
 	border: solid 2px #d43f3a;
 }
 
+.cr-sort-arrow {
+	font-size: 14px;
+}
+
 .cr-filter-link-active,
 .cr-filter-link-active:active {
 	/* border: solid 1px #6BA542; */

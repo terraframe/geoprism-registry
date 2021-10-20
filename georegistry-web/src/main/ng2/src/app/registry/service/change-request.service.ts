@@ -61,11 +61,12 @@ export class ChangeRequestService {
             .toPromise();
     }
 
-    getAllRequests(pageSize: number, pageNumber: number, filter: string, oid:string): Promise<PageResult<ChangeRequest>> {
+    getAllRequests(pageSize: number, pageNumber: number, filter: string, sort: any[], oid:string): Promise<PageResult<ChangeRequest>> {
         let params: HttpParams = new HttpParams();
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString());
         params = params.set("filter", filter);
+        params = params.set("sort", JSON.stringify(sort));
 
         if (oid != null) {
             params = params.set("oid", oid);

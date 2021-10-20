@@ -214,6 +214,14 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   {
     final boolean isNew = this.isNew();
     
+    // Cache the Geo-Object label and type label on this object for sorting purposes
+    VertexServerGeoObject vsGo = this.getGeoObject();
+    ServerGeoObjectType type = vsGo.getType();
+    
+    this.getGeoObjectLabel().setLocaleMap(vsGo.getDisplayLabel().getLocaleMap());
+    this.getGeoObjectTypeLabel().setLocaleMap(type.getLabel().getLocaleMap());
+    
+    
     super.apply();
     
     // Send an email to RMs telling them about this new CR

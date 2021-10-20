@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = -1332859592)
+@com.runwaysdk.business.ClassSignature(hash = 1127078500)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -193,6 +175,29 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel()
+  {
+    return getGeoObjectLabel(null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL);
+
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL);
+
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL, mdAttributeIF, this, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
   {
     return getGeoObjectTypeCode(null);
@@ -208,6 +213,29 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, displayLabel);
+
+  }
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel()
+  {
+    return getGeoObjectTypeLabel(null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL);
+
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL);
+
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -438,6 +466,25 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     else if (name.equals(net.geoprism.registry.action.ChangeRequest.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      String error = "Attribute type ["+mdAttributeIF.getType()+"] is invalid.";
+      throw new com.runwaysdk.query.QueryException(error);
+    }
+  }
+
+  protected com.runwaysdk.query.AttributeLocal localFactory( com.runwaysdk.dataaccess.MdAttributeLocalDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdLocalStructDAOIF mdLocalStructIF, String structTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL)) 
+    {
+       return new net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL)) 
+    {
+       return new net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -746,9 +793,15 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.query.SelectableChar getGeoObjectCode();
     public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias);
     public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias, String displayLabel);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel();
+    public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
     public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
     public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel();
+    public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -992,6 +1045,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel()
+  {
+    return getGeoObjectLabel(null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
   {
     return getGeoObjectTypeCode(null);
@@ -1007,6 +1077,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, displayLabel);
+
+  }
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel()
+  {
+    return getGeoObjectTypeLabel(null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -1459,6 +1546,25 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     }
   }
 
+  protected com.runwaysdk.query.AttributeLocal localFactory( com.runwaysdk.dataaccess.MdAttributeLocalDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdLocalStructDAOIF mdLocalStructIF, String structTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL)) 
+    {
+       return new net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL)) 
+    {
+       return new net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      String error = "Attribute type ["+mdAttributeIF.getType()+"] is invalid.";
+      throw new com.runwaysdk.query.QueryException(error);
+    }
+  }
+
   protected com.runwaysdk.query.AttributeEnumeration enumerationFactory( com.runwaysdk.dataaccess.MdAttributeEnumerationDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  String mdEnumerationTableName, com.runwaysdk.dataaccess.MdBusinessDAOIF masterListMdBusinessIF, String masterListTalbeAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1504,9 +1610,15 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.query.SelectableChar getGeoObjectCode();
     public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias);
     public com.runwaysdk.query.SelectableChar getGeoObjectCode(String alias, String displayLabel);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel();
+    public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode();
     public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias);
     public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel();
+    public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias);
+    public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -1743,6 +1855,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTCODE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel()
+  {
+    return getGeoObjectLabel(null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF getGeoObjectLabel(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode()
   {
     return getGeoObjectTypeCode(null);
@@ -1758,6 +1887,23 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.query.SelectableChar getGeoObjectTypeCode(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPECODE, alias, displayLabel);
+
+  }
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel()
+  {
+    return getGeoObjectTypeLabel(null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF getGeoObjectTypeLabel(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -1970,6 +2116,25 @@ public  class ChangeRequestQuery extends com.runwaysdk.query.GeneratedBusinessQu
     else if (name.equals(net.geoprism.registry.action.ChangeRequest.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else 
+    {
+      String error = "Attribute type ["+mdAttributeIF.getType()+"] is invalid.";
+      throw new com.runwaysdk.query.QueryException(error);
+    }
+  }
+
+  protected com.runwaysdk.query.AttributeLocal localFactory( com.runwaysdk.dataaccess.MdAttributeLocalDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdLocalStructDAOIF mdLocalStructIF, String structTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
+  {
+    String name = mdAttributeIF.definesAttribute();
+    
+    if (name.equals(net.geoprism.registry.action.ChangeRequest.GEOOBJECTLABEL)) 
+    {
+       return new net.geoprism.registry.action.ChangeRequestGeoObjectLabelQuery.ChangeRequestGeoObjectLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.action.ChangeRequest.GEOOBJECTTYPELABEL)) 
+    {
+       return new net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabelQuery.ChangeRequestGeoObjectTypeLabelQueryStruct((com.runwaysdk.dataaccess.MdAttributeLocalDAOIF)mdAttributeIF,  attributeNamespace, definingTableName, definingTableAlias, mdLocalStructIF, structTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
