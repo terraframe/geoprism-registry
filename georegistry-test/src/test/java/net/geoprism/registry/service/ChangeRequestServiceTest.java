@@ -278,7 +278,7 @@ public class ChangeRequestServiceTest
   {
     ChangeRequestService service = new ChangeRequestService();
     
-    Page<ChangeRequest> page = service.getAllRequests(request.getSessionId(), 10, 1, "", null);
+    Page<ChangeRequest> page = service.getAllRequests(request.getSessionId(), 10, 1, "", "", null);
     
     JsonObject joPage = toJson(request.getSessionId(), page);
     JsonArray jaResults = joPage.get("resultSet").getAsJsonArray();

@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -292,14 +294,23 @@ public class ChangeRequestService
     QueryFactory qf = new QueryFactory();
     ValueQuery innerVq = new ValueQuery(qf);
     
-    innerVq.FROM("(" + query.getSQL() + ")", "sub1");
+    String sub1Sql = query.getSQL();
+    
+    innerVq.FROM("(" + sub1Sql + ")", "sub1");
+    
+    String createDateAlias = query.getCreateDate().getColumnAlias();
+    
+    Matcher m = Pattern.compile("change_request_\\d+\\.create_date AS (create_date_\\d+),").matcher(sub1Sql);
+    if (m.find( )) {
+       createDateAlias = m.group(1);
+    }
     
     innerVq.SELECT(innerVq.aSQLCharacter("oid", "oid"));
     
     // The rank function is forcing a group by, which we don't want to do. It also doesn't use our alias.
     //SelectableSQLDate createDate = innerVq.aSQLDate(query.getCreateDate().getColumnAlias(), query.getCreateDate().getColumnAlias());
     //AggregateFunction rank = innerVq.RANK("rn").OVER(null, new OrderBy(createDate, SortOrder.DESC));
-    Selectable rank = innerVq.aSQLInteger("rn", "(ROW_NUMBER() OVER (ORDER BY " + query.getCreateDate().getColumnAlias() + " DESC))");
+    Selectable rank = innerVq.aSQLInteger("rn", "(ROW_NUMBER() OVER (ORDER BY " + createDateAlias + " DESC))");
     
     innerVq.SELECT(rank);
     
