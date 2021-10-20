@@ -19,7 +19,7 @@ RUN mkdir -p $CATALINA_HOME/wars/geoprism && cd $CATALINA_HOME/wars/geoprism && 
 RUN mv $CATALINA_HOME/wars/geoprism $CATALINA_HOME/webapps/ROOT
 
 # Log4j properties
-RUN wget -nv -O $CATALINA_HOME/webapps/ROOT/WEB-INF/classes/log4j2.xml https://raw.githubusercontent.com/terraframe/geoprism-cloud/dev/ansible/roles/webserver-extension/files/log4j2.xml
+RUN wget -nv -O $CATALINA_HOME/webapps/ROOT/WEB-INF/classes/log4j2.xml https://raw.githubusercontent.com/terraframe/geoprism-cloud/dev/ansible/roles/webserver/files/log4j2.xml
 RUN sed -i -e 's/<Root level="error">/<Root level="$LOG_LEVEL">/g' $CATALINA_HOME/webapps/ROOT/WEB-INF/classes/log4j2.xml
 
 # Pre-load with a default appcfg
