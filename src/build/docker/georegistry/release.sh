@@ -5,6 +5,6 @@ set -e
 
 docker tag geoprism-registry:latest terraframe/geoprism-registry:latest
 
-echo $DOCKER_HUB_TFBUILDER_PSW | docker login --username $DOCKER_HUB_TFBUILDER_USR --password-stdin terraframe/geoprism-registry
+echo $DOCKER_HUB_TFBUILDER_PSW | docker login --username $DOCKER_HUB_TFBUILDER_USR --password-stdin
 
 docker push terraframe/geoprism-registry:latest
