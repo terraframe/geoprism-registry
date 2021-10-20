@@ -20,9 +20,9 @@
 
 -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" metadata-complete="true" version="3.0">
-  <display-name>Geoprism</display-name>
+  <display-name>Georegistry</display-name>
   <description>
-	Geoprism
+	Georegistry
   </description>
   <mime-mapping>
     <extension>wsdl</extension>
@@ -107,16 +107,4 @@
     <exception-type>com.runwaysdk.session.InvalidSessionExceptionDTO</exception-type>
     <location>/net/geoprism/login/login.jsp</location>
   </error-page>
-  
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>https-only</web-resource-name>
-      <url-pattern>/*</url-pattern>
-      <http-method>GET</http-method>
-      <http-method>POST</http-method>
-    </web-resource-collection>
-    <user-data-constraint>
-      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-    </user-data-constraint>
-  </security-constraint>
 </web-app>

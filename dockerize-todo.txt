@@ -1,0 +1,29 @@
+-- Notes --
+Best way to test right now is to add
+POSTGRES_ROOT_PASSWORD and POSTGRES_ROOT_USERNAME params to cargo run launch, delete your database, and boot.
+
+
+-- TODO --
+- Hopefully there is no ramifications from making the DatabaseBuilder do install or patch (but not install and then patch).
+- Rewrite ansible scripts
+- Do we want to embed SSL into this?
+- Documentation
+
+
+-- DONE --
+- Write a Dockerfile and docker-compose file and get it to boot from fresh install
+- Make sure we can boot when the database doesn't yet exist and our db builder will create it
+- Make sure that we can boot whether or not a database exists, i.e. clean install or patch
+
+
+
+
+==== Idiot-proof Environment Setup ====
+- Switch projects to docker branches
+-- georegistry to 'dockerize'
+-- geoprism to 'dockerize'
+-- runway to 'docker'
+- Pull and merge latest code into branches
+- Switch poms to correct versions
+- maven clean install on projects
+- Make sure cargo run has envs
