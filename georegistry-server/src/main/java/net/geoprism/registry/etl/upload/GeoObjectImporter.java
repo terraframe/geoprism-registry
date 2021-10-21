@@ -18,7 +18,6 @@
  */
 package net.geoprism.registry.etl.upload;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,7 +35,6 @@ import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
-import org.commongeoregistry.adapter.dataaccess.ValueOverTimeDTO;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
 import org.commongeoregistry.adapter.metadata.AttributeClassificationType;
@@ -57,9 +55,7 @@ import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.dataaccess.MdAttributeClassificationDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdBusinessDAOIF;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.RequestState;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.session.SessionFacade;
@@ -75,9 +71,7 @@ import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.geoobject.ImportOutOfRangeException;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
-import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.io.AmbiguousParentException;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.IgnoreRowException;
@@ -178,8 +172,6 @@ public class GeoObjectImporter implements ObjectImporterIF
   {
     protected ServerGeoObjectIF parent;
 
-    protected ServerGeoObjectIF serverGO;
-
     protected GeoObjectParentErrorBuilder()
     {
 
@@ -188,16 +180,6 @@ public class GeoObjectImporter implements ObjectImporterIF
     public ServerGeoObjectIF getParent()
     {
       return this.parent;
-    }
-
-    public ServerGeoObjectIF getServerGO()
-    {
-      return this.serverGO;
-    }
-
-    public void setServerGO(ServerGeoObjectIF serverGo)
-    {
-      this.serverGO = serverGo;
     }
 
     public void setParent(ServerGeoObjectIF parent)
@@ -455,7 +437,7 @@ public class GeoObjectImporter implements ObjectImporterIF
         }
       }
     }
-    catch (RecordedErrorException e)
+    catch (GeoObjectRecordedErrorException e)
     {
       this.recordError(e);
     }
@@ -469,7 +451,7 @@ public class GeoObjectImporter implements ObjectImporterIF
   }
 
   @Transaction
-  private void recordError(RecordedErrorException e)
+  private void recordError(GeoObjectRecordedErrorException e)
   {
     JSONObject obj = new JSONObject(e.getObjectJson());
 
@@ -482,7 +464,7 @@ public class GeoObjectImporter implements ObjectImporterIF
     this.progressListener.recordError(e.getError(), obj.toString(), e.getObjectType(), this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setWorkProgress(this.progressListener.getRawWorkProgress() + 1);
     this.progressListener.setImportedRecords(this.progressListener.getRawImportedRecords());
-    this.configuration.addException(e);
+    this.getConfiguration().addException(e);
   }
 
   @Transaction
@@ -548,7 +530,6 @@ public class GeoObjectImporter implements ObjectImporterIF
 
       try
       {
-        parentBuilder.setServerGO(serverGo);
 
         LocalizedValue entityName = this.getName(row);
         if (entityName != null && this.hasValue(entityName))
@@ -757,7 +738,7 @@ public class GeoObjectImporter implements ObjectImporterIF
 
     obj.put("isNew", isNew);
 
-    RecordedErrorException re = new RecordedErrorException();
+    GeoObjectRecordedErrorException re = new GeoObjectRecordedErrorException();
     re.setError(t);
     re.setObjectJson(obj.toString());
     re.setObjectType(ERROR_OBJECT_TYPE);

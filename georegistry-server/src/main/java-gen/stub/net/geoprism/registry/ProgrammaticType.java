@@ -12,6 +12,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
+import com.runwaysdk.constants.MdAttributeGraphReferenceInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.graph.MdVertexInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeMultiTermDAOIF;
@@ -19,6 +21,7 @@ import com.runwaysdk.dataaccess.MdAttributeTermDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeGraphReferenceDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
@@ -32,6 +35,7 @@ import net.geoprism.ontology.Classifier;
 import net.geoprism.registry.conversion.AttributeTypeConverter;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.TermConverter;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
@@ -39,6 +43,8 @@ import net.geoprism.registry.view.JsonSerializable;
 public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerializable
 {
   private static final long serialVersionUID = 88826735;
+
+  public static String      GEO_OBJECT       = "geoObject";
 
   public ProgrammaticType()
   {
@@ -148,7 +154,7 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
     MdVertexDAOIF mdVertex = this.getMdVertexDAO();
 
     return mdVertex.definesAttributes().stream().filter(attr -> {
-      return !attr.isSystem() && !attr.definesAttribute().equals(ProgrammaticType.SEQ);
+      return !attr.isSystem() && !attr.definesAttribute().equals(ProgrammaticType.SEQ) && !attr.definesAttribute().equals(ProgrammaticType.GEO_OBJECT);
     }).map(attr -> converter.build(attr)).collect(Collectors.toMap(AttributeType::getName, attr -> attr));
   }
 
@@ -243,6 +249,14 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
       mdVertex.apply();
 
       // TODO CREATE the edge between this class and GeoVertex??
+      MdVertexDAOIF mdGeoVertexDAO = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
+
+      MdAttributeGraphReferenceDAO mdGeoObject = MdAttributeGraphReferenceDAO.newInstance();
+      mdGeoObject.setValue(MdAttributeGraphReferenceInfo.REFERENCE_MD_VERTEX, mdGeoVertexDAO.getOid());
+      mdGeoObject.setValue(MdAttributeGraphReferenceInfo.DEFINING_MD_CLASS, mdVertex.getOid());
+      mdGeoObject.setValue(MdAttributeGraphReferenceInfo.NAME, GEO_OBJECT);
+      mdGeoObject.setStructValue(MdAttributeGraphReferenceInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Geo Object");
+      mdGeoObject.apply();
 
       programmaticType.setMdVertexId(mdVertex.getOid());
     }

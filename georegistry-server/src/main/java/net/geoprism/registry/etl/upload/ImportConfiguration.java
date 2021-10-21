@@ -4,21 +4,21 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -29,58 +29,57 @@ import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterTyp
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
+import net.geoprism.registry.io.Location;
 
-abstract public class ImportConfiguration
+public abstract class ImportConfiguration
 {
-  public static final String                   FORMAT_TYPE                  = "formatType";
+  public static final String               FORMAT_TYPE                  = "formatType";
 
-  public static final String                   OBJECT_TYPE                  = "objectType";
+  public static final String               OBJECT_TYPE                  = "objectType";
 
-  public static final String                   HISTORY_ID                   = "historyId";
+  public static final String               HISTORY_ID                   = "historyId";
 
-  public static final String                   JOB_ID                       = "jobId";
+  public static final String               JOB_ID                       = "jobId";
 
-  public static final String                   VAULT_FILE_ID                = "vaultFileId";
+  public static final String               VAULT_FILE_ID                = "vaultFileId";
 
-  public static final String                   FILE_NAME                    = "fileName";
+  public static final String               FILE_NAME                    = "fileName";
 
-  public static final String                   IMPORT_STRATEGY              = "importStrategy";
+  public static final String               IMPORT_STRATEGY              = "importStrategy";
 
-  public static final String                   EXTERNAL_SYSTEM_ID           = "externalSystemId";
+  public static final String               EXTERNAL_SYSTEM_ID           = "externalSystemId";
 
-  private static final String                  IS_EXTERNAL                  = "isExternal";
+  private static final String              IS_EXTERNAL                  = "isExternal";
 
-  public static final String                   EXTERNAL_ID_ATTRIBUTE_TARGET = "externalIdAttributeTarget";
+  public static final String               EXTERNAL_ID_ATTRIBUTE_TARGET = "externalIdAttributeTarget";
 
-  public static final String                   COPY_BLANK                   = "copyBlank";
+  public static final String               COPY_BLANK                   = "copyBlank";
 
-  protected String                             formatType;
+  protected String                         formatType;
 
-  protected String                             objectType;
+  protected String                         objectType;
 
-  protected String                             historyId;
+  protected String                         historyId;
 
-  protected String                             jobId;
+  protected String                         jobId;
 
-  protected String                             vaultFileId;
+  protected String                         vaultFileId;
 
-  protected String                             fileName;
+  protected String                         fileName;
 
-  protected Boolean                            isExternal                   = false;
+  protected Boolean                        isExternal                   = false;
 
-  protected Boolean                            copyBlank                    = true;
+  protected Boolean                        copyBlank                    = true;
 
-  protected String                             externalSystemId             = null;
+  protected String                         externalSystemId             = null;
 
-  protected ExternalSystem                     externalSystem               = null;
+  protected ExternalSystem                 externalSystem               = null;
 
-  protected ShapefileFunction                  externalIdFunction           = null;
+  protected ShapefileFunction              externalIdFunction           = null;
 
-  protected LinkedList<RecordedErrorException> errors                       = new LinkedList<RecordedErrorException>();
+  protected Map<String, ShapefileFunction> functions;
 
-  protected Map<String, ShapefileFunction>     functions;
-
-  protected ImportStrategy                     importStrategy;
+  protected ImportStrategy                 importStrategy;
 
   public static enum ImportStrategy {
     NEW_AND_UPDATE, NEW_ONLY, UPDATE_ONLY
@@ -91,6 +90,10 @@ abstract public class ImportConfiguration
   {
 
   }
+
+  protected abstract void enforcePermissions();
+
+  public abstract List<Location> getLocations();
 
   public static ImportConfiguration build(String json)
   {
@@ -290,10 +293,7 @@ abstract public class ImportConfiguration
 
   abstract public JSONObject toJSON();
 
-  public boolean hasExceptions()
-  {
-    return this.errors.size() > 0;
-  }
+  public abstract boolean hasExceptions();
 
   public String getFileName()
   {
@@ -303,23 +303,6 @@ abstract public class ImportConfiguration
   public void setFileName(String fileName)
   {
     this.fileName = fileName;
-  }
-
-  /**
-   * Be careful when using this method because if an import was resumed half-way
-   * through then this won't include errors which were created last time the
-   * import ran. You probably want to query the database instead.
-   * 
-   * @return
-   */
-  public LinkedList<RecordedErrorException> getExceptions()
-  {
-    return this.errors;
-  }
-
-  public void addException(RecordedErrorException e)
-  {
-    this.errors.add(e);
   }
 
   public ShapefileFunction getFunction(String attributeName)

@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -51,75 +51,79 @@ import com.runwaysdk.session.Session;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
 {
-  public static final String       PARENT_EXCLUSION       = "##PARENT##";
+  public static final String                          PARENT_EXCLUSION       = "##PARENT##";
 
-  public static final String       START_DATE             = "startDate";
+  public static final String                          START_DATE             = "startDate";
 
-  public static final String       END_DATE               = "endDate";
+  public static final String                          END_DATE               = "endDate";
 
-  public static final String       TARGET                 = "target";
+  public static final String                          TARGET                 = "target";
 
-  public static final String       BASE_TYPE              = "baseType";
+  public static final String                          BASE_TYPE              = "baseType";
 
-  public static final String       TEXT                   = "text";
+  public static final String                          TEXT                   = "text";
 
-  public static final String       LATITUDE               = "latitude";
+  public static final String                          LATITUDE               = "latitude";
 
-  public static final String       LONGITUDE              = "longitude";
+  public static final String                          LONGITUDE              = "longitude";
 
-  public static final String       NUMERIC                = "numeric";
+  public static final String                          NUMERIC                = "numeric";
 
-  public static final String       HIERARCHY              = "hierarchy";
+  public static final String                          HIERARCHY              = "hierarchy";
 
-  public static final String       LOCATIONS              = "locations";
+  public static final String                          LOCATIONS              = "locations";
 
-  public static final String       TYPE                   = "type";
+  public static final String                          TYPE                   = "type";
 
-  public static final String       HAS_POSTAL_CODE        = "hasPostalCode";
+  public static final String                          HAS_POSTAL_CODE        = "hasPostalCode";
 
-  public static final String       POSTAL_CODE            = "postalCode";
+  public static final String                          POSTAL_CODE            = "postalCode";
 
-  public static final String       SHEET                  = "sheet";
+  public static final String                          SHEET                  = "sheet";
 
-  public static final String       EXCLUSIONS             = "exclusions";
+  public static final String                          EXCLUSIONS             = "exclusions";
 
-  public static final String       VALUE                  = "value";
+  public static final String                          VALUE                  = "value";
 
-  public static final String       LONGITUDE_KEY          = "georegistry.longitude.label";
+  public static final String                          LONGITUDE_KEY          = "georegistry.longitude.label";
 
-  public static final String       LATITUDE_KEY           = "georegistry.latitude.label";
+  public static final String                          LATITUDE_KEY           = "georegistry.latitude.label";
 
-  public static final String       DATE_FORMAT            = "yyyy-MM-dd";
+  public static final String                          DATE_FORMAT            = "yyyy-MM-dd";
 
-  public static final String       MATCH_STRATEGY         = "matchStrategy";
+  public static final String                          MATCH_STRATEGY         = "matchStrategy";
 
-  public static final String       REVEAL_GEOMETRY_COLUMN = "revealGeometryColumn";
+  public static final String                          REVEAL_GEOMETRY_COLUMN = "revealGeometryColumn";
 
-  private String                   revealGeometryColumn;
+  private String                                      revealGeometryColumn;
 
-  private ServerGeoObjectType      type;
+  private ServerGeoObjectType                         type;
 
-  private GeoObject                root;
+  private GeoObject                                   root;
 
-  private Map<String, Set<String>> exclusions;
+  private Map<String, Set<String>>                    exclusions;
 
-  private boolean                  includeCoordinates;
+  private boolean                                     includeCoordinates;
 
-  private List<Location>           locations;
+  private List<Location>                              locations;
 
-  private ServerHierarchyType      hierarchy;
+  private ServerHierarchyType                         hierarchy;
 
-  private Boolean                  postalCode;
+  private Boolean                                     postalCode;
 
-  private Date                     startDate;
+  private Date                                        startDate;
 
-  private Date                     endDate;
+  private Date                                        endDate;
+
+  private LinkedList<GeoObjectRecordedErrorException> errors                 = new LinkedList<GeoObjectRecordedErrorException>();
 
   public GeoObjectImportConfiguration()
   {
@@ -248,6 +252,29 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   public void setRevealGeometryColumn(String revealGeometryColumn)
   {
     this.revealGeometryColumn = revealGeometryColumn;
+  }
+
+  /**
+   * Be careful when using this method because if an import was resumed half-way
+   * through then this won't include errors which were created last time the
+   * import ran. You probably want to query the database instead.
+   * 
+   * @return
+   */
+  public LinkedList<GeoObjectRecordedErrorException> getExceptions()
+  {
+    return this.errors;
+  }
+
+  public void addException(GeoObjectRecordedErrorException e)
+  {
+    this.errors.add(e);
+  }
+
+  @Override
+  public boolean hasExceptions()
+  {
+    return this.errors.size() > 0;
   }
 
   @Request
@@ -549,5 +576,18 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     LocalizedValue description = new LocalizedValue("");
 
     return new AttributeFloatType(GeoObjectImportConfiguration.LONGITUDE, label, description, false, false, false);
+  }
+
+  @Override
+  protected void enforcePermissions()
+  {
+    if (this.getImportStrategy() == ImportStrategy.NEW_ONLY)
+    {
+      ServiceFactory.getGeoObjectPermissionService().enforceCanCreate(type.getOrganization().getCode(), type);
+    }
+    else
+    {
+      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(type.getOrganization().getCode(), type);
+    }
   }
 }

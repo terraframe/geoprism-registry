@@ -28,7 +28,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 public class ObjectImporterFactory
 {
   public static enum ObjectImportType {
-    GEO_OBJECT
+    GEO_OBJECT, PROGRAMMATIC_OBJECT
   }
   
   public static ObjectImporterIF getImporter(String type, ImportConfiguration config, ImportProgressListenerIF progress)

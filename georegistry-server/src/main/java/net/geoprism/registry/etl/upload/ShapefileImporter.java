@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.upload;
 
@@ -60,11 +60,6 @@ import net.geoprism.data.importer.SimpleFeatureRow;
 import net.geoprism.registry.etl.CloseableDelegateFile;
 import net.geoprism.registry.etl.ImportFileFormatException;
 import net.geoprism.registry.etl.ImportStage;
-import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.GeoObjectPermissionService;
-import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
 
 /**
  * Class responsible for reading data from a shapefile row by row and making
@@ -75,21 +70,19 @@ import net.geoprism.registry.permission.GeoObjectPermissionServiceIF;
  */
 public class ShapefileImporter implements FormatSpecificImporterIF
 {
-  protected static final Logger          logger                     = LoggerFactory.getLogger(ShapefileImporter.class);
+  protected static final Logger      logger     = LoggerFactory.getLogger(ShapefileImporter.class);
 
-  protected ApplicationResource          resource;
+  protected ApplicationResource      resource;
 
-  protected ObjectImporterIF             objectImporter;
+  protected ObjectImporterIF         objectImporter;
 
-  protected ImportProgressListenerIF     progressListener;
+  protected ImportProgressListenerIF progressListener;
 
-  protected Long                         startIndex                 = 0L;
+  protected Long                     startIndex = 0L;
 
-  protected GeoObjectImportConfiguration config;
+  protected ImportConfiguration      config;
 
-  private GeoObjectPermissionServiceIF   geoObjectPermissionService = new GeoObjectPermissionService();
-
-  public ShapefileImporter(ApplicationResource resource, GeoObjectImportConfiguration config, ImportProgressListenerIF progressListener)
+  public ShapefileImporter(ApplicationResource resource, ImportConfiguration config, ImportProgressListenerIF progressListener)
   {
     this.resource = resource;
     this.progressListener = progressListener;
@@ -213,7 +206,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
    *          Log file writer
    * @throws InvocationTargetException
    * @throws IOException
-   * @throws InterruptedException 
+   * @throws InterruptedException
    */
   @Request
   private void process(ImportStage stage, File shp) throws InvocationTargetException, IOException, InterruptedException
@@ -221,17 +214,8 @@ public class ShapefileImporter implements FormatSpecificImporterIF
     /*
      * Check permissions
      */
-    GeoObjectImportConfiguration config = this.getObjectImporter().getConfiguration();
-    ServerGeoObjectType type = config.getType();
-
-    if (config.getImportStrategy() == ImportStrategy.NEW_ONLY)
-    {
-      this.geoObjectPermissionService.enforceCanCreate(type.getOrganization().getCode(), type);
-    }
-    else
-    {
-      this.geoObjectPermissionService.enforceCanWrite(type.getOrganization().getCode(), type);
-    }
+    ImportConfiguration config = this.getObjectImporter().getConfiguration();
+    config.enforcePermissions();
 
     FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
 
@@ -297,7 +281,8 @@ public class ShapefileImporter implements FormatSpecificImporterIF
         }
       }
     }
-    catch(Throwable t) {
+    catch (Throwable t)
+    {
       t.printStackTrace();
     }
     finally

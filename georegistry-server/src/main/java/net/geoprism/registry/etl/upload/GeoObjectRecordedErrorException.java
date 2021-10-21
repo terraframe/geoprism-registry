@@ -22,7 +22,7 @@ import com.runwaysdk.RunwayException;
 
 import net.geoprism.registry.etl.upload.GeoObjectImporter.GeoObjectParentErrorBuilder;
 
-public class RecordedErrorException extends RunwayException
+public class GeoObjectRecordedErrorException extends RunwayException
 {
 
   private static final long serialVersionUID = 711088516551711518L;
@@ -35,7 +35,7 @@ public class RecordedErrorException extends RunwayException
   
   private GeoObjectParentErrorBuilder parentBuilder;
   
-  public RecordedErrorException()
+  public GeoObjectRecordedErrorException()
   {
     super("");
   }

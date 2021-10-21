@@ -1,4 +1,4 @@
-package net.geoprism.registry;
+package net.geoprism.registry.business;
 
 import java.util.Map;
 
@@ -18,6 +18,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.session.Request;
 
+import net.geoprism.registry.ProgrammaticType;
 import net.geoprism.registry.test.FastTestDataset;
 
 public class ProgrammaticTypeTest
