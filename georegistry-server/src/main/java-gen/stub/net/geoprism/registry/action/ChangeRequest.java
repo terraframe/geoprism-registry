@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTimeJsonAdapters;
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.action.geoobject.CreateGeoObjectAction;
 import net.geoprism.registry.action.geoobject.UpdateAttributeAction;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -214,6 +216,10 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
   {
     final boolean isNew = this.isNew();
     
+    // Cache the Geo-Object label and type label on this object for sorting purposes
+    this.getGeoObjectLabel().setLocaleMap(this.getGeoObjectDisplayLabel().getLocaleMap());
+    this.getGeoObjectTypeLabel().setLocaleMap(this.getGeoObjectType().getLabel().getLocaleMap());
+    
     super.apply();
     
     // Send an email to RMs telling them about this new CR
@@ -257,7 +263,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
               String body = LocalizationFacade.getFromBundles("change.request.email.submit.body");
               body = body.replaceAll("\\\\n", "\n");
               body = body.replaceAll("\\{user\\}", ( (GeoprismUser) createdBy ).getUsername());
-              body = body.replaceAll("\\{geoobject\\}", this.getLocalizedGeoObjectDisplayLabel());
+              body = body.replaceAll("\\{geoobject\\}", this.getGeoObjectDisplayLabel().getValue());
               
               String link = GeoregistryProperties.getRemoteServerUrl() + "cgr/manage#/registry/change-requests/" + this.getOid();
               body = body.replaceAll("\\{link\\}", link);
@@ -274,7 +280,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     }
   }
   
-  public String getLocalizedGeoObjectDisplayLabel()
+  public LocalizedValue getGeoObjectDisplayLabel()
   {
     if (this.getChangeRequestType().equals(ChangeRequestType.CreateGeoObject))
     {
@@ -286,7 +292,7 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
         LocalizedValueStore lvs = new LocalizedValueStore();
         lvs.getStoreValue().setLocaleMap(goTime.getDisplayLabel(new Date()).getLocaleMap());
         
-        return lvs.getStoreValue().getValue();
+        return LocalizedValueConverter.convertNoAutoCoalesce(lvs.getStoreValue());
       }
       catch (Exception e)
       {
@@ -298,11 +304,13 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
       ServerGeoObjectIF serverGO = new ServerGeoObjectService().getGeoObjectByCode(this.getGeoObjectCode(), this.getGeoObjectTypeCode());
       if (serverGO != null)
       {
-        return serverGO.getDisplayLabel().getValue();
+        return serverGO.getDisplayLabel();
       }
     }
     
-    return this.getGeoObjectCode();
+    LocalizedValue lv = new LocalizedValue(this.getGeoObjectCode());
+    lv.setValue(LocalizedValue.DEFAULT_LOCALE, this.getGeoObjectCode());
+    return lv;
   }
   
   public ChangeRequestType getChangeRequestType()

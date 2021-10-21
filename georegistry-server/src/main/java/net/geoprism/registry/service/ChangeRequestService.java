@@ -22,6 +22,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
@@ -35,6 +37,7 @@ import com.runwaysdk.dataaccess.ValueObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.AggregateFunction;
+import com.runwaysdk.query.AttributeLocal;
 import com.runwaysdk.query.Condition;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.OrderBy;
@@ -189,17 +192,16 @@ public class ChangeRequestService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject getAllRequestsSerialized(String sessionId, int pageSize, int pageNumber, String filter, String oid)
+  public JsonObject getAllRequestsSerialized(String sessionId, int pageSize, int pageNumber, String filter, String sort, String oid)
   {
-    return this.getAllRequests(sessionId, pageSize, pageNumber, filter, oid).toJSON();
+    return this.getAllRequests(sessionId, pageSize, pageNumber, filter, sort, oid).toJSON();
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Request(RequestType.SESSION)
-  public Page<ChangeRequest> getAllRequests(String sessionId, int pageSize, int pageNumber, String filter, String oid)
+  public Page<ChangeRequest> getAllRequests(String sessionId, int pageSize, int pageNumber, String filter, String sort, String oid)
   {
     ChangeRequestQuery query = new ChangeRequestQuery(new QueryFactory());
-    query.ORDER_BY_DESC(query.getCreateDate());
 
     if (filter != null && filter.length() > 0 && !filter.equals("ALL"))
     {
@@ -214,6 +216,36 @@ public class ChangeRequestService
     }
 
     query.restrictRows(pageSize, pageNumber);
+    
+    if (sort != null && sort.length() > 0 && sort != "[]")
+    {
+      JsonArray ja = JsonParser.parseString(sort).getAsJsonArray();
+      
+      for (int i = 0; i < ja.size(); ++i)
+      {
+        JsonObject jo = ja.get(i).getAsJsonObject();
+        
+        boolean ascending = jo.get("ascending").getAsBoolean();
+        String attribute = jo.get("attribute").getAsString();
+        
+        Selectable sel = query.get(attribute);
+        
+        if (attribute.equals(ChangeRequest.GEOOBJECTLABEL) || attribute.equals(ChangeRequest.GEOOBJECTTYPELABEL))
+        {
+          sel = ( (AttributeLocal) sel ).localize();
+        }
+        else if (attribute.equals(ChangeRequest.APPROVALSTATUS))
+        {
+          sel = query.getApprovalStatus().getEnumName();
+        }
+        
+        query.ORDER_BY(sel, ascending ? SortOrder.ASC : SortOrder.DESC);
+      }
+    }
+    else
+    {
+      query.ORDER_BY_DESC(query.getCreateDate());
+    }
 
     List<? extends ChangeRequest> list = query.getIterator().getAll();
 
@@ -262,14 +294,23 @@ public class ChangeRequestService
     QueryFactory qf = new QueryFactory();
     ValueQuery innerVq = new ValueQuery(qf);
     
-    innerVq.FROM("(" + query.getSQL() + ")", "sub1");
+    String sub1Sql = query.getSQL();
+    
+    innerVq.FROM("(" + sub1Sql + ")", "sub1");
+    
+    String createDateAlias = query.getCreateDate().getColumnAlias();
+    
+    Matcher m = Pattern.compile("change_request_\\d+\\.create_date AS (create_date_\\d+),").matcher(sub1Sql);
+    if (m.find( )) {
+       createDateAlias = m.group(1);
+    }
     
     innerVq.SELECT(innerVq.aSQLCharacter("oid", "oid"));
     
     // The rank function is forcing a group by, which we don't want to do. It also doesn't use our alias.
     //SelectableSQLDate createDate = innerVq.aSQLDate(query.getCreateDate().getColumnAlias(), query.getCreateDate().getColumnAlias());
     //AggregateFunction rank = innerVq.RANK("rn").OVER(null, new OrderBy(createDate, SortOrder.DESC));
-    Selectable rank = innerVq.aSQLInteger("rn", "(ROW_NUMBER() OVER (ORDER BY " + query.getCreateDate().getColumnAlias() + " DESC))");
+    Selectable rank = innerVq.aSQLInteger("rn", "(ROW_NUMBER() OVER (ORDER BY " + createDateAlias + " DESC))");
     
     innerVq.SELECT(rank);
     
