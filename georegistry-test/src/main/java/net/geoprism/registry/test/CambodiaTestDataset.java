@@ -61,6 +61,14 @@ public class CambodiaTestDataset extends TestDataSet
   
   public static final TestGeoObjectInfo     GO_Oddar_Meanchey              = new TestGeoObjectInfo("OddarMeanchey", GOT_Province);
   
+  public static final TestGeoObjectInfo     GO_Siem_Reap              = new TestGeoObjectInfo("SiemReap", GOT_Province);
+  
+  public static final TestGeoObjectInfo     GO_Pursat              = new TestGeoObjectInfo("Pursat", GOT_Province);
+  
+  public static final TestGeoObjectInfo     GO_BanteayAmpil              = new TestGeoObjectInfo("BanteayAmpil", GOT_District);
+  
+  public static final TestGeoObjectInfo     GO_ChongKal              = new TestGeoObjectInfo("ChongKal", GOT_District);
+  
   public static final TestUserInfo          USER_CGOV_RM          = new TestUserInfo("cgovrm", "cgovrm", "cgovrm@noreply.com", new String[] { RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRM_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
 
   public static final TestUserInfo          USER_CGOV_RC          = new TestUserInfo("cgovrc", "cgovrc", "cgovrc@noreply.com", new String[] { RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Country.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Province.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_District.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Commune.getCode()), RegistryRole.Type.getRC_RoleName(ORG_CENTRAL.getCode(), GOT_Village.getCode()) });
@@ -114,6 +122,10 @@ public class CambodiaTestDataset extends TestDataSet
 
     managedGeoObjectInfos.add(GO_Cambodia);
     managedGeoObjectInfos.add(GO_Oddar_Meanchey);
+    managedGeoObjectInfos.add(GO_Siem_Reap);
+    managedGeoObjectInfos.add(GO_Pursat);
+    managedGeoObjectInfos.add(GO_BanteayAmpil);
+    managedGeoObjectInfos.add(GO_ChongKal);
     
     managedUsers.add(USER_ORG_RA);
     managedUsers.add(USER_MOH_RA);
@@ -173,7 +185,14 @@ public class CambodiaTestDataset extends TestDataSet
   {
 //    GO_Cambodia.getGeoEntity().addLink(GeoEntity.getRoot(), HIER_ADMIN.getServerObject().getEntityType());
     
+    // Provinces
     GO_Cambodia.addChild(GO_Oddar_Meanchey, HIER_ADMIN);
+    GO_Cambodia.addChild(GO_Siem_Reap, HIER_ADMIN);
+    GO_Cambodia.addChild(GO_Pursat, HIER_ADMIN);
+    
+    // Districts
+    GO_Oddar_Meanchey.addChild(GO_BanteayAmpil, HIER_ADMIN);
+    GO_Oddar_Meanchey.addChild(GO_ChongKal, HIER_ADMIN);
   }
   
   @Transaction
