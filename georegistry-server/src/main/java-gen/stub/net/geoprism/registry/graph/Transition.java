@@ -146,6 +146,7 @@ public class Transition extends TransitionBase
   {
     Transition transition = object.has(OID) ? Transition.get(object.get(OID).getAsString()) : new Transition();
     transition.setTransitionType(object.get(Transition.TRANSITIONTYPE).getAsString());
+    transition.setImpact(object.get(Transition.IMPACT).getAsString());
 
     if (transition.isNew())
     {
