@@ -215,7 +215,7 @@ public class ShapefileImporter implements FormatSpecificImporterIF
      * Check permissions
      */
     ImportConfiguration config = this.getObjectImporter().getConfiguration();
-    config.enforcePermissions();
+    config.enforceCreatePermissions();
 
     FileDataStore myData = FileDataStoreFinder.getDataStore(shp);
 

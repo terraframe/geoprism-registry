@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -42,10 +42,12 @@ import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.ProgrammaticType;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
+import net.geoprism.registry.etl.upload.ProgrammaticObjectImportConfiguration;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -57,6 +59,11 @@ public class ExcelService
 
   @Request(RequestType.SESSION)
   public JSONObject getExcelConfiguration(String sessionId, String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  {
+    return getExcelConfiguration(type, startDate, endDate, fileName, fileStream, strategy, copyBlank);
+  }
+
+  public JSONObject getExcelConfiguration(String type, Date startDate, Date endDate, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
     // Save the file to the file system
     try
@@ -117,6 +124,61 @@ public class ExcelService
     }
   }
 
+  public JSONObject getProgrammaticTypeConfiguration(String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  {
+    // Save the file to the file system
+    try
+    {
+      ProgrammaticType programmaticType = ProgrammaticType.getByCode(type);
+
+      VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
+
+      try (InputStream is = vf.openNewStream())
+      {
+        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+        ExcelFieldContentsHandler handler = new ExcelFieldContentsHandler();
+        ExcelDataFormatter formatter = new ExcelDataFormatter();
+
+        ExcelSheetReader reader = new ExcelSheetReader(handler, formatter);
+        reader.process(is);
+
+        JSONObject object = new JSONObject();
+        object.put(ProgrammaticObjectImportConfiguration.TYPE, this.getType(programmaticType));
+        object.put(ProgrammaticObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
+        object.put(ProgrammaticObjectImportConfiguration.VAULT_FILE_ID, vf.getOid());
+        object.put(ProgrammaticObjectImportConfiguration.FILE_NAME, fileName);
+        object.put(ProgrammaticObjectImportConfiguration.IMPORT_STRATEGY, strategy.name());
+        object.put(ProgrammaticObjectImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
+        object.put(ProgrammaticObjectImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.PROGRAMMATIC_OBJECT.name());
+        object.put(ProgrammaticObjectImportConfiguration.COPY_BLANK, copyBlank);
+
+        if (date != null)
+        {
+          object.put(ProgrammaticObjectImportConfiguration.DATE, format.format(date));
+        }
+
+        return object;
+      }
+    }
+    catch (InvalidFormatException e)
+    {
+      InvalidExcelFileException ex = new InvalidExcelFileException(e);
+      ex.setFileName(fileName);
+
+      throw ex;
+    }
+    catch (RunwayException | SmartException e)
+    {
+      throw e;
+    }
+    catch (Exception e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+
   private JSONObject getType(ServerGeoObjectType geoObjectType)
   {
     final boolean includeCoordinates = geoObjectType.getGeometryType().equals(GeometryType.POINT) || geoObjectType.getGeometryType().equals(GeometryType.MULTIPOINT);
@@ -131,6 +193,22 @@ public class ExcelService
       String attributeType = attribute.getString(AttributeType.JSON_TYPE);
 
       attribute.put(GeoObjectImportConfiguration.BASE_TYPE, GeoObjectImportConfiguration.getBaseType(attributeType));
+    }
+
+    return type;
+  }
+
+  private JSONObject getType(ProgrammaticType pType)
+  {
+    JSONObject type = new JSONObject(pType.toJSON(true).toString());
+    JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
+
+    for (int i = 0; i < attributes.length(); i++)
+    {
+      JSONObject attribute = attributes.getJSONObject(i);
+      String attributeType = attribute.getString(AttributeType.JSON_TYPE);
+
+      attribute.put(ProgrammaticObjectImportConfiguration.BASE_TYPE, ProgrammaticObjectImportConfiguration.getBaseType(attributeType));
     }
 
     return type;

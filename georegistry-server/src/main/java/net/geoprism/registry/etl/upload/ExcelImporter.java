@@ -217,7 +217,7 @@ public class ExcelImporter implements FormatSpecificImporterIF
        * Check permissions
        */
       ImportConfiguration config = this.getObjectImporter().getConfiguration();
-      config.enforcePermissions();
+      config.enforceCreatePermissions();
 
       // TODO Determine permissions for
 

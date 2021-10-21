@@ -46,6 +46,8 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
 
   public static String      GEO_OBJECT       = "geoObject";
 
+  public static String      JSON_ATTRIBUTES  = "attributes";
+
   public ProgrammaticType()
   {
     super();
@@ -200,7 +202,7 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
         return a.getName().compareTo(b.getName());
       }).map(a -> a.toJSON()).collect(collector);
 
-      object.add("attributes", attributes);
+      object.add(JSON_ATTRIBUTES, attributes);
     }
 
     return object;

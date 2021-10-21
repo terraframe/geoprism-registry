@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
+import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
@@ -91,7 +92,11 @@ public abstract class ImportConfiguration
 
   }
 
-  protected abstract void enforcePermissions();
+  public abstract void enforceCreatePermissions();
+
+  public abstract void enforceExecutePermissions();
+  
+  public abstract void populate(ImportHistory history);
 
   public abstract List<Location> getLocations();
 
@@ -119,6 +124,12 @@ public abstract class ImportConfiguration
     {
       GeoObjectImportConfiguration config = new GeoObjectImportConfiguration();
       config.fromJSON(json, includeCoordinates);
+      return config;
+    }
+    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.PROGRAMMATIC_OBJECT.name()))
+    {
+      ProgrammaticObjectImportConfiguration config = new ProgrammaticObjectImportConfiguration();
+      config.fromJSON(json, false);
       return config;
     }
     else

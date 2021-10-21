@@ -51,10 +51,13 @@ import com.runwaysdk.session.Session;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.Organization;
+import net.geoprism.registry.etl.ImportHistory;
 import net.geoprism.registry.etl.upload.GeoObjectRecordedErrorException;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
 public class GeoObjectImportConfiguration extends ImportConfiguration
@@ -579,7 +582,7 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
   }
 
   @Override
-  protected void enforcePermissions()
+  public void enforceCreatePermissions()
   {
     if (this.getImportStrategy() == ImportStrategy.NEW_ONLY)
     {
@@ -589,5 +592,34 @@ public class GeoObjectImportConfiguration extends ImportConfiguration
     {
       ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(type.getOrganization().getCode(), type);
     }
+  }
+
+  @Override
+  public void enforceExecutePermissions()
+  {
+    Organization org = type.getOrganization();
+
+    RolePermissionService perms = ServiceFactory.getRolePermissionService();
+    if (perms.isRA())
+    {
+      perms.enforceRA(org.getCode());
+    }
+    else if (perms.isRM())
+    {
+      perms.enforceRM(org.getCode(), type);
+    }
+    else
+    {
+      perms.enforceRM();
+    }
+  }
+
+  @Override
+  public void populate(ImportHistory history)
+  {
+    Organization org = type.getOrganization();
+
+    history.setOrganization(org);
+    history.setGeoObjectTypeCode(type.getCode());
   }
 }

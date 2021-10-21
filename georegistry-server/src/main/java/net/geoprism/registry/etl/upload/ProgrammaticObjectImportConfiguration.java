@@ -47,9 +47,14 @@ import com.runwaysdk.session.Request;
 import net.geoprism.data.importer.BasicColumnFunction;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.ProgrammaticType;
+import net.geoprism.registry.etl.ImportHistory;
+import net.geoprism.registry.io.ConstantShapefileFunction;
 import net.geoprism.registry.io.LocalizedValueFunction;
 import net.geoprism.registry.io.Location;
+import net.geoprism.registry.io.ParentMatchStrategy;
+import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class ProgrammaticObjectImportConfiguration extends ImportConfiguration
@@ -209,7 +214,7 @@ public class ProgrammaticObjectImportConfiguration extends ImportConfiguration
     SimpleDateFormat format = new SimpleDateFormat(ProgrammaticObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JSONObject type = new JSONObject(this.type.toJSON().toString());
+    JSONObject type = new JSONObject(this.type.toJSON(true).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
 
     for (int i = 0; i < attributes.length(); i++)
@@ -292,9 +297,9 @@ public class ProgrammaticObjectImportConfiguration extends ImportConfiguration
     JSONArray locations = config.has(LOCATIONS) ? config.getJSONArray(LOCATIONS) : new JSONArray();
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
     String code = type.getString(GeoObjectType.JSON_CODE);
-    ProgrammaticType got = ProgrammaticType.getByCode(code);
+    ProgrammaticType programmaticType = ProgrammaticType.getByCode(code);
 
-    this.setType(got);
+    this.setType(programmaticType);
 
     try
     {
@@ -308,25 +313,17 @@ public class ProgrammaticObjectImportConfiguration extends ImportConfiguration
       throw new ProgrammingErrorException(e);
     }
 
-    // if (config.has(HIERARCHY))
-    // {
-    // String hCode = config.getString(HIERARCHY);
-    //
-    // if (hCode.length() > 0)
-    // {
-    //
-    // ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
-    // List<GeoObjectType> ancestors = got.getTypeAncestors(hierarchyType,
-    // true);
-    //
-    // this.setHierarchy(hierarchyType);
-    //
-    // if (ancestors.size() > 0)
-    // {
-    // this.setRoot(null);
-    // }
-    // }
-    // }
+    if (config.has(HIERARCHY))
+    {
+      String hCode = config.getString(HIERARCHY);
+
+      if (hCode.length() > 0)
+      {
+        ServerHierarchyType hierarchyType = ServerHierarchyType.get(hCode);
+
+        this.setHierarchy(hierarchyType);
+      }
+    }
 
     if (config.has(EXCLUSIONS))
     {
@@ -374,35 +371,27 @@ public class ProgrammaticObjectImportConfiguration extends ImportConfiguration
 
     for (int i = 0; i < locations.length(); i++)
     {
-      // JSONObject location = locations.getJSONObject(i);
+      JSONObject location = locations.getJSONObject(i);
 
-      // if (location.has(TARGET) && location.getString(TARGET).length() > 0 &&
-      // location.has(MATCH_STRATEGY) &&
-      // location.getString(MATCH_STRATEGY).length() > 0)
-      // {
-      // String pCode = location.getString(AttributeType.JSON_CODE);
-      // ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
-      // ServerHierarchyType pHierarchy = got.findHierarchy(this.hierarchy,
-      // pType);
-      //
-      // String target = location.getString(TARGET);
-      // ParentMatchStrategy matchStrategy =
-      // ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
-      //
-      // // This is supported for testing reasons. On a live server all data
-      // // coming in with use BasicColumnFunctions
-      // if (location.has("type") &&
-      // location.getString("type").equals(ConstantShapefileFunction.class.getName()))
-      // {
-      // this.addParent(new Location(pType, pHierarchy, new
-      // ConstantShapefileFunction(target), matchStrategy));
-      // }
-      // else
-      // {
-      // this.addParent(new Location(pType, pHierarchy, new
-      // BasicColumnFunction(target), matchStrategy));
-      // }
-      // }
+      if (location.has(TARGET) && location.getString(TARGET).length() > 0 && location.has(MATCH_STRATEGY) && location.getString(MATCH_STRATEGY).length() > 0)
+      {
+        String pCode = location.getString(AttributeType.JSON_CODE);
+        ServerGeoObjectType pType = ServerGeoObjectType.get(pCode);
+
+        String target = location.getString(TARGET);
+        ParentMatchStrategy matchStrategy = ParentMatchStrategy.valueOf(location.getString(MATCH_STRATEGY));
+
+        // This is supported for testing reasons. On a live server all data
+        // coming in with use BasicColumnFunctions
+        if (location.has("type") && location.getString("type").equals(ConstantShapefileFunction.class.getName()))
+        {
+          this.addLocation(new Location(pType, this.hierarchy, new ConstantShapefileFunction(target), matchStrategy));
+        }
+        else
+        {
+          this.addLocation(new Location(pType, this.hierarchy, new BasicColumnFunction(target), matchStrategy));
+        }
+      }
     }
 
     // If the hierarchy is inherited, we need to resolve the hierarchy
@@ -469,8 +458,23 @@ public class ProgrammaticObjectImportConfiguration extends ImportConfiguration
   }
 
   @Override
-  protected void enforcePermissions()
+  public void enforceCreatePermissions()
   {
     // TODO determine permissions
+  }
+
+  @Override
+  public void enforceExecutePermissions()
+  {
+    // TODO determine permissions
+  }
+
+  @Override
+  public void populate(ImportHistory history)
+  {
+    Organization org = type.getOrganization();
+
+    history.setOrganization(org);
+    history.setGeoObjectTypeCode(type.getCode());
   }
 }
