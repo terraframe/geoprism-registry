@@ -109,6 +109,96 @@
       </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.merge">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.merge" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Merge" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.split">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.split" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Split" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.upgrade">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.upgrade" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Upgrade" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.downgrade">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.downgrade" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Downgrade" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.reassign">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.reassign" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Reassign" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
         key="transition.event.events">
         <attribute
           name="storeTag"

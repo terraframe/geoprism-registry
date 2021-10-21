@@ -10,6 +10,7 @@ export class Transition {
     targetType: string;
     targetText?: string;
     transitionType: string;
+    impact: string;
 
 }
 

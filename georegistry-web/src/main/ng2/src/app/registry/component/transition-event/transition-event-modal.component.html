@@ -8,6 +8,22 @@
     <form #form="ngForm" class="modal-form" autocomplete="off">
 
         <fieldset *ngIf="event != null">
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label>
+                        <localize key="change.request.createDate"></localize>
+                    </label>
+                </div>
+                <div class="holder">
+                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
+                        {{formatDate(event.eventDate)}}
+                    </span>
+                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
+                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true"
+                        [disable]="readonly"></date-field>
+                </div>
+            </div>
+        
             <div class="row-holder" *ngFor="let localeValue of event.description.localeValues">
                 <div class="label-holder">
                     <label> <localize key="external.system.description"></localize>
@@ -60,23 +76,6 @@
                 </div>
             </div>
 
-            <div class="row-holder">
-                <div class="label-holder">
-                    <label>
-                        <localize key="change.request.createDate"></localize>
-                    </label>
-                </div>
-                <div class="holder">
-                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
-                        {{formatDate(event.eventDate)}}
-                    </span>
-                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
-                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true"
-                        [disable]="readonly"></date-field>
-                </div>
-            </div>
-
-
             <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.afterTypeCode != null && event.eventDate != null && event.eventDate !== ''">
                 <div class="label-holder">
                     <label>
@@ -88,8 +87,9 @@
                         <thead>
                             <tr style="height: 50px;color: grey;">
                                 <th style="vertical-align: middle;"> <localize key="transition.event.to"></localize> </th>
-                                <th style="vertical-align: middle;"> <localize key="transition.event.from"></localize> </th>
                                 <th style="vertical-align: middle;"> </th>
+                                <th style="vertical-align: middle;"> <localize key="transition.event.from"></localize> </th>
+                                <th style="vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
                                 <th *ngIf="!readonly"></th>
                             </tr>
                         </thead>
@@ -117,6 +117,14 @@
 
                                 </td>
                                 <td>
+                                    <select [name]="'transition.impact-' + i" class="select-area"
+                                        [(ngModel)]="transition.impact" [disabled]="false" required>
+                                        <option></option>
+                                        <option value="PARTIAL"><localize key="transition.event.partial"></localize></option>
+                                        <option value="FULL"><localize key="transition.event.full"></localize></option>
+                                    </select>
+                                </td>
+                                <td>
                                     <div class="input-group">
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.source-' + i" [disabled]="readonly"
@@ -138,15 +146,18 @@
                                 </td>
                                 <td>
                                     <select [name]="'transition.transitionType-' + i" class="select-area"
-                                        [(ngModel)]="transition.transitionType" [disabled]="readonly" required>
+                                        [(ngModel)]="transition.transitionType" [disabled]="false" required>
                                         <option></option>
-                                        <option value="PARTIAL"><localize key="transition.event.partial"></localize></option>
-                                        <option value="FULL"><localize key="transition.event.full"></localize></option>
+                                        <option value="MERGE"><localize key="transition.event.type.merge"></localize></option>
+                                        <option value="SPLIT"><localize key="transition.event.type.split"></localize></option>
+                                        <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
+                                        <option value="DOWNGRADE"><localize key="transition.event.type.downgrade"></localize></option>
+                                        <option value="REASSIGN"><localize key="transition.event.type.reassign"></localize></option>
                                     </select>
                                 </td>
-                                <td *ngIf="!readonly">
+                                <td *ngIf="!readonly" style="vertical-align: middle;">
                                     <span class="clickable" (click)="remove(i)">
-                                        <i class="fa fa-times" aria-hidden="true"></i>
+                                        <a class="fa fa-trash" style="font-size:30px;" aria-hidden="true"></a>
                                     </span>
                                 </td>
                             </tr>
@@ -154,9 +165,7 @@
                     </table>
                     <div *ngIf="!readonly" style="margin-top: 30px; margin-bottom: 30px;" class="row">
                         <div class="col-md-6">
-                            <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
-                                <localize key="hierarchy.management.button.create"></localize>
-                            </button>
+                            <a class="fa fa-plus" style="font-size:30px;" (click)="onCreate()"></a>
                         </div>
                     </div>
 
