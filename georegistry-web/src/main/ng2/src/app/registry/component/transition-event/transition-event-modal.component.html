@@ -24,19 +24,38 @@
 
             <div class="row-holder">
                 <div class="label-holder">
-                    <label for="typeCode">
-                        <localize key="io.geoObjectType"></localize>
+                    <label for="beforeTypeCode">
+                        <localize key="transition.event.beforeType"></localize>
                     </label>
                 </div>
                 <div *ngIf="!readonly && types != null" class="holder">
-                    <select id="typeCode" name="typeCode" class="select-area" [(ngModel)]="event.typeCode"
+                    <select id="beforeTypeCode" name="beforeTypeCode" class="select-area" [(ngModel)]="event.beforeTypeCode"
                         (change)="onChange()" required>
                         <option></option>
                         <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
                     </select>
                 </div>
                 <div *ngIf="readonly" class="holder">
-                    <input [(ngModel)]="event.typeLabel" name="typeCode" type="text" class="form-control"
+                    <input [(ngModel)]="event.beforeTypeLabel" name="typeCode" type="text" class="form-control"
+                        disabled />
+                </div>
+            </div>
+            
+            <div class="row-holder">
+                <div class="label-holder">
+                    <label for="afterTypeCode">
+                        <localize key="transition.event.afterType"></localize>
+                    </label>
+                </div>
+                <div *ngIf="!readonly && types != null" class="holder">
+                    <select id="afterTypeCode" name="afterTypeCode" class="select-area" [(ngModel)]="event.afterTypeCode"
+                        (change)="onChange()" required>
+                        <option></option>
+                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+                    </select>
+                </div>
+                <div *ngIf="readonly" class="holder">
+                    <input [(ngModel)]="event.afterTypeLabel" name="typeCode" type="text" class="form-control"
                         disabled />
                 </div>
             </div>
@@ -58,7 +77,7 @@
             </div>
 
 
-            <div class="row-holder" *ngIf="event.typeCode != null && event.eventDate != null && event.eventDate !== ''">
+            <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.afterTypeCode != null && event.eventDate != null && event.eventDate !== ''">
                 <div class="label-holder">
                     <label>
                         <localize key="transition.event.transitions"></localize>
@@ -81,7 +100,7 @@
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.target-' + i" [disabled]="readonly"
                                             [(ngModel)]="transition.targetText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(transition, 'targetText')"
+                                            [typeahead]="getTypeAheadObservable(transition, this.event.afterTypeCode, 'targetText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
                                             [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
@@ -102,7 +121,7 @@
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.source-' + i" [disabled]="readonly"
                                             [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(transition, 'sourceText')"
+                                            [typeahead]="getTypeAheadObservable(transition, this.event.beforeTypeCode, 'sourceText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
                                             [typeaheadMinLength]="0" [typeaheadWaitMs]="300">

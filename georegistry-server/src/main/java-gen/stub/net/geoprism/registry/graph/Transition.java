@@ -25,6 +25,21 @@ public class Transition extends TransitionBase
   public static String      TRANSITION_TARGET = "net.geoprism.registry.graph.TransitionTarget";
 
   private static final long serialVersionUID  = -1384043682;
+  
+  public static enum TransitionImpact
+  {
+    PARTIAL,
+    FULL;
+  }
+  
+  public static enum TransitionType
+  {
+    MERGE,
+    SPLIT,
+    UPGRADE,
+    DOWNGRADE,
+    REASSIGN;
+  }
 
   public Transition()
   {
@@ -45,15 +60,18 @@ public class Transition extends TransitionBase
     object.addProperty("targetType", target.getType().getCode());
     object.addProperty("targetText", target.getLabel());
     object.addProperty(Transition.TRANSITIONTYPE, this.getTransitionType());
+    object.addProperty(Transition.IMPACT, this.getImpact());
 
     return object;
   }
 
   @Transaction
-  public void apply(VertexServerGeoObject source, VertexServerGeoObject target)
+  public void apply(TransitionEvent event, VertexServerGeoObject source, VertexServerGeoObject target)
   {
     boolean isNew = this.isNew();
-
+    
+    this.validate(event, source, target);
+    
     super.apply();
 
     if (isNew)
@@ -64,6 +82,16 @@ public class Transition extends TransitionBase
       EdgeObject targetEdge = this.addChild(target.getVertex(), MdEdgeDAO.getMdEdgeDAO(TRANSITION_TARGET));
       targetEdge.apply();
     }
+  }
+  
+  public void setTransitionType(TransitionType value)
+  {
+    this.setTransitionType(value.name());
+  }
+  
+  public void setImpact(TransitionImpact value)
+  {
+    this.setImpact(value.name());
   }
 
   public VertexServerGeoObject getSource()
@@ -92,6 +120,27 @@ public class Transition extends TransitionBase
 
     return new VertexServerGeoObject(type, vertex);
   }
+  
+  public void validate(TransitionEvent event, VertexServerGeoObject source, VertexServerGeoObject target)
+  {
+    ServerGeoObjectType beforeType = ServerGeoObjectType.get(event.getBeforeTypeCode());
+    ServerGeoObjectType afterType = ServerGeoObjectType.get(event.getAfterTypeCode());
+
+    List<ServerGeoObjectType> beforeSubtypes = beforeType.getSubtypes();
+    List<ServerGeoObjectType> afterSubtypes = afterType.getSubtypes();
+
+    if (! ( beforeSubtypes.contains(source.getType()) || beforeType.getCode().equals(source.getType().getCode()) ))
+    {
+      // This should be prevented by the front-end
+      throw new ProgrammingErrorException("Source type must be a subtype of (" + beforeType.getCode() + ")");
+    }
+
+    if (! ( afterSubtypes.contains(target.getType()) || afterType.getCode().equals(target.getType().getCode()) ))
+    {
+      // This should be prevented by the front-end
+      throw new ProgrammingErrorException("Target type must be a subtype of (" + afterType.getCode() + ")");
+    }
+  }
 
   public static Transition apply(TransitionEvent event, JsonObject object)
   {
@@ -100,11 +149,6 @@ public class Transition extends TransitionBase
 
     if (transition.isNew())
     {
-      String typeCode = event.getTypeCode();
-
-      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-      List<ServerGeoObjectType> subtypes = type.getSubtypes();
-
       String sourceCode = object.get("sourceCode").getAsString();
       String sourceType = object.get("sourceType").getAsString();
 
@@ -114,19 +158,7 @@ public class Transition extends TransitionBase
       VertexServerGeoObject source = new VertexGeoObjectStrategy(ServerGeoObjectType.get(sourceType)).getGeoObjectByCode(sourceCode);
       VertexServerGeoObject target = new VertexGeoObjectStrategy(ServerGeoObjectType.get(targetType)).getGeoObjectByCode(targetCode);
 
-      if (! ( subtypes.contains(source.getType()) || type.getCode().equals(source.getType().getCode()) ))
-      {
-        // This should be prevented by the front-end
-        throw new ProgrammingErrorException("Source type must be a subtype of (" + type.getCode() + ")");
-      }
-
-      if (! ( subtypes.contains(target.getType()) || type.getCode().equals(target.getType().getCode()) ))
-      {
-        // This should be prevented by the front-end
-        throw new ProgrammingErrorException("Target type must be a subtype of (" + type.getCode() + ")");
-      }
-
-      transition.apply(source, target);
+      transition.apply(event, source, target);
     }
     else
     {

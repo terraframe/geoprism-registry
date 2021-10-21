@@ -74,7 +74,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         }
         else {
             this.event = {
-                typeCode: '',
+                beforeTypeCode: '',
+                afterTypeCode: '',
                 eventDate: '',
                 description: this.lService.create(),
                 transitions: []
@@ -96,11 +97,11 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.event.transitions = [];
     }
 
-    getTypeAheadObservable(transition: Transition, property: string): Observable<any> {
+    getTypeAheadObservable(transition: Transition, typeCode: string, property: string): Observable<any> {
 
         return new Observable((observer: any) => {
 
-            this.rService.getGeoObjectSuggestions(transition[property], this.event.typeCode, null, null, null, this.event.eventDate, this.event.eventDate).then(results => {
+            this.rService.getGeoObjectSuggestions(transition[property], typeCode, null, null, null, this.event.eventDate, this.event.eventDate).then(results => {
                 observer.next(results);
             });
         });

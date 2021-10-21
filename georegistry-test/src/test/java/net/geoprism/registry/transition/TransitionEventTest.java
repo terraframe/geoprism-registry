@@ -20,20 +20,22 @@ import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.Transition;
+import net.geoprism.registry.graph.Transition.TransitionImpact;
+import net.geoprism.registry.graph.Transition.TransitionType;
 import net.geoprism.registry.graph.TransitionEvent;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.test.USATestData;
+import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.view.Page;
 
 public class TransitionEventTest
 {
-  private static USATestData testData;
+  private static FastTestDataset testData;
 
   @BeforeClass
   public static void setUpClass()
   {
-    testData = USATestData.newTestData();
+    testData = FastTestDataset.newTestData();
     testData.setUpMetadata();
   }
 
@@ -52,7 +54,7 @@ public class TransitionEventTest
   {
     testData.setUpInstanceData();
 
-    testData.logIn(USATestData.USER_NPS_RA);
+    testData.logIn(FastTestDataset.USER_CGOV_RA);
   }
 
   @After
@@ -73,7 +75,8 @@ public class TransitionEventTest
     {
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
       event.setEventDate(new Date());
-      event.setTypeCode(USATestData.COUNTY.getCode());
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
 
       Assert.assertTrue(event.isAppliedToDb());
@@ -99,16 +102,18 @@ public class TransitionEventTest
       LocalizedValue expectedDescription = new LocalizedValue("Test");
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, expectedDescription);
       event.setEventDate(date);
-      event.setTypeCode(USATestData.DISTRICT.getCode());
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
 
       Assert.assertTrue(event.isAppliedToDb());
 
-      event.addTransition(USATestData.CO_D_ONE.getServerObject(), USATestData.CO_D_TWO.getServerObject(), "PARTIAL");
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
       JsonObject json = event.toJSON(true);
 
-      Assert.assertEquals(USATestData.DISTRICT.getCode(), json.get(TransitionEvent.TYPECODE).getAsString());
+      Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), json.get(TransitionEvent.BEFORETYPECODE).getAsString());
+      Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), json.get(TransitionEvent.AFTERTYPECODE).getAsString());
       Assert.assertEquals(format.format(date), json.get(TransitionEvent.EVENTDATE).getAsString());
 
       LocalizedValue actualDescription = LocalizedValue.fromJSON(json.get(TransitionEvent.DESCRIPTION).getAsJsonObject());
@@ -121,11 +126,12 @@ public class TransitionEventTest
 
       JsonObject object = transitions.get(0).getAsJsonObject();
 
-      Assert.assertEquals(USATestData.DISTRICT.getCode(), object.get("sourceType").getAsString());
-      Assert.assertEquals(USATestData.CO_D_ONE.getCode(), object.get("sourceCode").getAsString());
-      Assert.assertEquals(USATestData.DISTRICT.getCode(), object.get("targetType").getAsString());
-      Assert.assertEquals(USATestData.CO_D_TWO.getCode(), object.get("targetCode").getAsString());
-      Assert.assertEquals("PARTIAL", object.get(Transition.TRANSITIONTYPE).getAsString());
+      Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), object.get("sourceType").getAsString());
+      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), object.get("sourceCode").getAsString());
+      Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), object.get("targetType").getAsString());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), object.get("targetCode").getAsString());
+      Assert.assertEquals(TransitionType.REASSIGN.name(), object.get(Transition.TRANSITIONTYPE).getAsString());
+      Assert.assertEquals(TransitionImpact.FULL.name(), object.get(Transition.IMPACT).getAsString());
     }
     finally
     {
@@ -143,10 +149,11 @@ public class TransitionEventTest
     {
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
       event.setEventDate(new Date());
-      event.setTypeCode(USATestData.DISTRICT.getCode());
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
 
-      event.addTransition(USATestData.CO_D_ONE.getServerObject(), USATestData.CO_D_TWO.getServerObject(), "PARTIAL");
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
       List<Transition> transitions = event.getTransitions();
 
@@ -156,8 +163,8 @@ public class TransitionEventTest
       VertexServerGeoObject source = transition.getSource();
       VertexServerGeoObject target = transition.getTarget();
 
-      Assert.assertEquals(USATestData.CO_D_ONE.getCode(), source.getCode());
-      Assert.assertEquals(USATestData.CO_D_TWO.getCode(), target.getCode());
+      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), source.getCode());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
     }
     finally
     {
@@ -175,10 +182,11 @@ public class TransitionEventTest
     {
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
       event.setEventDate(new Date());
-      event.setTypeCode(USATestData.DISTRICT.getCode());
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
 
-      event.addTransition(USATestData.CO_C_ONE.getServerObject(), USATestData.CO_D_TWO.getServerObject(), "PARTIAL");
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.DIST_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
     }
     finally
     {
@@ -199,7 +207,8 @@ public class TransitionEventTest
       LocalizedValue expectedDescription = new LocalizedValue("Test");
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, expectedDescription);
       event.setEventDate(date);
-      event.setTypeCode(USATestData.DISTRICT.getCode());
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
 
       Page<TransitionEvent> page = TransitionEvent.page(10, 1);

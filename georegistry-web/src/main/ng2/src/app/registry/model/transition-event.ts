@@ -1,6 +1,7 @@
 import { LocalizedValue } from "@shared/model/core";
 
 export class Transition {
+
     oid?: string;
     sourceCode: string;
     sourceType: string;
@@ -9,13 +10,18 @@ export class Transition {
     targetType: string;
     targetText?: string;
     transitionType: string;
+
 }
 
 export class TransitionEvent {
+
     oid?: string;
-    typeCode: string;
-    typeLabel?: string;
+    beforeTypeCode: string;
+    afterTypeCode: string;
+    beforeTypeLabel?: string;
+    afterTypeLabel?: string;
     eventDate: string;
     description: LocalizedValue;
     transitions?: Transition[];
+
 }

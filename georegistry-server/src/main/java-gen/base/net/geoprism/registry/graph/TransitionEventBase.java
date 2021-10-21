@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -625138547)
+@com.runwaysdk.business.ClassSignature(hash = 1075539855)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,16 +11,49 @@ package net.geoprism.registry.graph;
 public abstract class TransitionEventBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.TransitionEvent";
+  public static java.lang.String AFTERTYPECODE = "afterTypeCode";
+  public static java.lang.String BEFORETYPECODE = "beforeTypeCode";
   public static java.lang.String DESCRIPTION = "description";
   public static java.lang.String EVENTDATE = "eventDate";
   public static java.lang.String OID = "oid";
   public static java.lang.String SEQ = "seq";
-  public static java.lang.String TYPECODE = "typeCode";
-  private static final long serialVersionUID = -625138547;
+  private static final long serialVersionUID = 1075539855;
   
   public TransitionEventBase()
   {
     super();
+  }
+  
+  public String getAfterTypeCode()
+  {
+    return (String) this.getObjectValue(AFTERTYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAfterTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(AFTERTYPECODE);
+  }
+  
+  public void setAfterTypeCode(String value)
+  {
+    this.setValue(AFTERTYPECODE, value);
+  }
+  
+  public String getBeforeTypeCode()
+  {
+    return (String) this.getObjectValue(BEFORETYPECODE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getBeforeTypeCodeMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(BEFORETYPECODE);
+  }
+  
+  public void setBeforeTypeCode(String value)
+  {
+    this.setValue(BEFORETYPECODE, value);
   }
   
   public com.runwaysdk.ComponentIF getDescription()
@@ -80,22 +113,6 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   public void setSeq(Long value)
   {
     this.setValue(SEQ, value);
-  }
-  
-  public String getTypeCode()
-  {
-    return (String) this.getObjectValue(TYPECODE);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTypeCodeMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TYPECODE);
-  }
-  
-  public void setTypeCode(String value)
-  {
-    this.setValue(TYPECODE, value);
   }
   
   protected String getDeclaredType()

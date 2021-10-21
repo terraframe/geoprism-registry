@@ -12,8 +12,12 @@
             label="Event Date"
             required="true" />
           <text
-            name="typeCode"
-            label="Type Code"
+            name="beforeTypeCode"
+            label="Before Type Code"
+            required="true" />
+          <text
+            name="afterTypeCode"
+            label="After Type Code"
             required="true" />
           <localCharEmbedded
             name="description"
@@ -28,6 +32,10 @@
           <text
             name="transitionType"
             label="Transition Type"
+            required="true" />
+          <text
+            name="impact"
+            label="Transition Impact (Partial / Full)"
             required="true" />
         </attributes>
       </mdVertex>
@@ -54,6 +62,51 @@
       </mdEdge>
     </create>
     <createOrUpdate>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="header.transitionEvents">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="header.transitionEvents" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Transition Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.beforeType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.beforeType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.afterType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.afterType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Type" />
+        </attributeStruct>
+      </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
         key="transition.event.events">

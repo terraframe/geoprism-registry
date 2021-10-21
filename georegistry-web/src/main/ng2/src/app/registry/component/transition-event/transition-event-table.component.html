@@ -17,7 +17,8 @@
             <tr style="height: 50px;color: grey;">
               <th style="vertical-align: middle;"> <localize key="external.system.description"></localize> </th>
               <th style="vertical-align: middle;"> <localize key="change.request.createDate"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="io.geoObjectType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="transition.event.beforeType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="transition.event.afterType"></localize> </th>
               <th></th>
             </tr>
           </thead>
@@ -33,7 +34,10 @@
                   <h5><strong>{{formatDate(event.eventDate)}}</strong></h5>
                 </td>
                 <td class="col-md-1">
-                  <h5><strong>{{event.typeLabel}}</strong></h5>
+                  <h5><strong>{{event.beforeTypeLabel}}</strong></h5>
+                </td>
+                <td class="col-md-1">
+                  <h5><strong>{{event.afterTypeLabel}}</strong></h5>
                 </td>
                 <td class="col-md-1" style="vertical-align:middle;text-align:right;padding-right:25px;">
                   <i class="arrow arrow-right" aria-hidden="true"></i>

@@ -1,13 +1,11 @@
 package net.geoprism.registry.graph;
 
-import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
@@ -26,6 +24,8 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
+import net.geoprism.registry.graph.Transition.TransitionImpact;
+import net.geoprism.registry.graph.Transition.TransitionType;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -76,30 +76,14 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     EdgeObject targetEdge = this.addChild(transition, MdEdgeDAO.getMdEdgeDAO(TRANSITION_ASSIGNMENT));
     targetEdge.apply();
   }
-
+  
   @Transaction
-  public void addTransition(ServerGeoObjectIF source, ServerGeoObjectIF target, String transitionType)
+  public void addTransition(ServerGeoObjectIF source, ServerGeoObjectIF target, TransitionType transitionType, TransitionImpact impact)
   {
-    String typeCode = this.getTypeCode();
-
-    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
-    List<ServerGeoObjectType> subtypes = type.getSubtypes();
-
-    if (! ( subtypes.contains(source.getType()) || type.getCode().equals(source.getType().getCode()) ))
-    {
-      // This should be prevented by the front-end
-      throw new ProgrammingErrorException("Source type must be a subtype of (" + type.getCode() + ")");
-    }
-
-    if (! ( subtypes.contains(target.getType()) || type.getCode().equals(target.getType().getCode()) ))
-    {
-      // This should be prevented by the front-end
-      throw new ProgrammingErrorException("Target type must be a subtype of (" + type.getCode() + ")");
-    }
-
     Transition transition = new Transition();
     transition.setTransitionType(transitionType);
-    transition.apply((VertexServerGeoObject) source, (VertexServerGeoObject) target);
+    transition.setImpact(impact);
+    transition.apply(this, (VertexServerGeoObject) source, (VertexServerGeoObject) target);
 
     this.addTransition(transition);
   }
@@ -114,13 +98,16 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     LocalizedValue localizedValue = LocalizedValueConverter.convert(this.getEmbeddedComponent(TransitionEvent.DESCRIPTION));
-    ServerGeoObjectType type = ServerGeoObjectType.get(this.getTypeCode());
+    ServerGeoObjectType beforeType = ServerGeoObjectType.get(this.getBeforeTypeCode());
+    ServerGeoObjectType afterType = ServerGeoObjectType.get(this.getAfterTypeCode());
 
     JsonObject object = new JsonObject();
     object.addProperty(TransitionEvent.OID, this.getOid());
-    object.addProperty(TransitionEvent.TYPECODE, type.getCode());
+    object.addProperty(TransitionEvent.BEFORETYPECODE, beforeType.getCode());
+    object.addProperty(TransitionEvent.AFTERTYPECODE, afterType.getCode());
     object.addProperty(TransitionEvent.EVENTDATE, format.format(this.getEventDate()));
-    object.addProperty("typeLabel", type.getLabel().getValue());
+    object.addProperty("beforeTypeLabel", beforeType.getLabel().getValue());
+    object.addProperty("afterTypeLabel", afterType.getLabel().getValue());
     object.add(TransitionEvent.DESCRIPTION, localizedValue.toJSON());
 
     if (includeTransitions)
@@ -138,17 +125,21 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     try
     {
-      String typeCode = json.get(TransitionEvent.TYPECODE).getAsString();
-      ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+      String beforeTypeCode = json.get(TransitionEvent.BEFORETYPECODE).getAsString();
+      String afterTypeCode = json.get(TransitionEvent.AFTERTYPECODE).getAsString();
+      ServerGeoObjectType beforeType = ServerGeoObjectType.get(beforeTypeCode);
+      ServerGeoObjectType afterType = ServerGeoObjectType.get(afterTypeCode);
 
-      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(type.getOrganization().getCode(), type);
+      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(beforeType.getOrganization().getCode(), beforeType);
+      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(afterType.getOrganization().getCode(), afterType);
 
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       LocalizedValue description = LocalizedValue.fromJSON(json.get(TransitionEvent.DESCRIPTION).getAsJsonObject());
       TransitionEvent event = json.has(OID) ? TransitionEvent.get(json.get(OID).getAsString()) : new TransitionEvent();
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, description);
       event.setEventDate(format.parse(json.get(TransitionEvent.EVENTDATE).getAsString()));
-      event.setTypeCode(typeCode);
+      event.setBeforeTypeCode(beforeTypeCode);
+      event.setAfterTypeCode(afterTypeCode);
       event.apply();
 
       JsonArray transitions = json.get("transitions").getAsJsonArray();
@@ -201,11 +192,12 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   public static void removeAll(ServerGeoObjectType type)
   {
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
-    MdAttributeDAOIF typeCode = mdVertex.definesAttribute(TransitionEvent.TYPECODE);
+    MdAttributeDAOIF beforeTypeCode = mdVertex.definesAttribute(TransitionEvent.BEFORETYPECODE);
+    MdAttributeDAOIF afterTypeCode = mdVertex.definesAttribute(TransitionEvent.AFTERTYPECODE);
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
-    statement.append(" WHERE " + typeCode.getColumnName() + " = :typeCode");
+    statement.append(" WHERE " + beforeTypeCode.getColumnName() + " = :typeCode OR " + afterTypeCode.getColumnName() + " = :typeCode");
 
     GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
     query.setParameter("typeCode", type.getCode());

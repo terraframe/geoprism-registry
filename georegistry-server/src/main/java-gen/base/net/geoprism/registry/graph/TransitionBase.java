@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph;
 
-@com.runwaysdk.business.ClassSignature(hash = -1444143922)
+@com.runwaysdk.business.ClassSignature(hash = -1167116602)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,14 +11,31 @@ package net.geoprism.registry.graph;
 public abstract class TransitionBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.Transition";
+  public static java.lang.String IMPACT = "impact";
   public static java.lang.String OID = "oid";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String TRANSITIONTYPE = "transitionType";
-  private static final long serialVersionUID = -1444143922;
+  private static final long serialVersionUID = -1167116602;
   
   public TransitionBase()
   {
     super();
+  }
+  
+  public String getImpact()
+  {
+    return (String) this.getObjectValue(IMPACT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getImpactMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.Transition.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(IMPACT);
+  }
+  
+  public void setImpact(String value)
+  {
+    this.setValue(IMPACT, value);
   }
   
   public String getOid()
