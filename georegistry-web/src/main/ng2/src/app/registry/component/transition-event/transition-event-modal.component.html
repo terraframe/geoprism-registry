@@ -2,16 +2,16 @@
     <h5>{{model.name }} : {{ model.code }}</h5>
 </ng-template>
 
-<div class="modal-body">
+<div class="modal-body row">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <form #form="ngForm" class="modal-form" autocomplete="off">
+    <form #form="ngForm" class="modal-form col-md-8" autocomplete="off">
 
         <fieldset *ngIf="event != null">
             <div class="row-holder">
                 <div class="label-holder">
                     <label>
-                        <localize key="change.request.createDate"></localize>
+                        <localize key="transition.event.date"></localize>
                     </label>
                 </div>
                 <div class="holder">
@@ -20,7 +20,7 @@
                     </span>
                     <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
                         [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true"
-                        [disable]="readonly"></date-field>
+                        [disable]="readonly || event.transitions.length > 0"></date-field>
                 </div>
             </div>
         
@@ -46,7 +46,7 @@
                 </div>
                 <div *ngIf="!readonly && types != null" class="holder">
                     <select id="beforeTypeCode" name="beforeTypeCode" class="select-area" [(ngModel)]="event.beforeTypeCode"
-                        (change)="onChange()" required>
+                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
                         <option></option>
                         <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
                     </select>
@@ -65,7 +65,7 @@
                 </div>
                 <div *ngIf="!readonly && types != null" class="holder">
                     <select id="afterTypeCode" name="afterTypeCode" class="select-area" [(ngModel)]="event.afterTypeCode"
-                        (change)="onChange()" required>
+                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
                         <option></option>
                         <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
                     </select>
@@ -77,24 +77,41 @@
             </div>
 
             <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.afterTypeCode != null && event.eventDate != null && event.eventDate !== ''">
-                <div class="label-holder">
-                    <label>
-                        <localize key="transition.event.transitions"></localize>
-                    </label>
-                </div>
-                <div class="holder">
                     <table class="table">
                         <thead>
                             <tr style="height: 50px;color: grey;">
-                                <th style="vertical-align: middle;"> <localize key="transition.event.to"></localize> </th>
-                                <th style="vertical-align: middle;"> </th>
-                                <th style="vertical-align: middle;"> <localize key="transition.event.from"></localize> </th>
-                                <th style="vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
-                                <th *ngIf="!readonly"></th>
+                                <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.before"></localize> </th>
+                                <th style="width: 12%; vertical-align: middle;"> </th>
+                                <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.after"></localize> </th>
+                                <th style="width: 14%; vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
+                                <th style="width: 4%; vertical-align: middle;" *ngIf="!readonly"></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let transition of event.transitions; let i = index;" style="height: 50px;">
+                                <td>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" autocomplete="off"
+                                            [name]="'transition.source-' + i" [disabled]="readonly"
+                                            [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
+                                            [typeahead]="getTypeAheadObservable(transition, this.event.beforeTypeCode, 'sourceText')"
+                                            (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
+                                            [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
+                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+
+                                        <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
+                                            (click)="clear(transition, 'sourceText')">
+                                            <i class="fa fa-times" aria-hidden="true"></i>
+                                        </span>
+
+                                        <!-- Hack: This is needed for formatting  -->
+                                        <span *ngIf="readonly" class="input-group-addon addon-alert">
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="text" [name]="'transition.impact-' + i" class="form-control" [ngModel]="localizeTransitionImpact(transition.impact)" disabled required>
+                                </td>
                                 <td>
                                     <div class="input-group">
                                         <input type="text" class="form-control" autocomplete="off"
@@ -117,42 +134,11 @@
 
                                 </td>
                                 <td>
-                                    <select [name]="'transition.impact-' + i" class="select-area"
-                                        [(ngModel)]="transition.impact" [disabled]="false" required>
-                                        <option></option>
-                                        <option value="PARTIAL"><localize key="transition.event.partial"></localize></option>
-                                        <option value="FULL"><localize key="transition.event.full"></localize></option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" autocomplete="off"
-                                            [name]="'transition.source-' + i" [disabled]="readonly"
-                                            [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(transition, this.event.beforeTypeCode, 'sourceText')"
-                                            (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
-                                            [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
-                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
-
-                                        <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
-                                            (click)="clear(transition, 'sourceText')">
-                                            <i class="fa fa-times" aria-hidden="true"></i>
-                                        </span>
-
-                                        <!-- Hack: This is needed for formatting  -->
-                                        <span *ngIf="readonly" class="input-group-addon addon-alert">
-                                        </span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <select [name]="'transition.transitionType-' + i" class="select-area"
+                                    <input *ngIf="transition.transitionType !== 'UPGRADE' && transition.transitionType !== 'DOWNGRADE'" type="text" [name]="'transition.transitionType-' + i" class="form-control" [ngModel]="localizeTransitionType(transition.transitionType)" disabled required>
+                                    <select *ngIf="transition.transitionType === 'UPGRADE' || transition.transitionType === 'DOWNGRADE'" [name]="'transition.transitionType-updown-' + i" class="select-area"
                                         [(ngModel)]="transition.transitionType" [disabled]="false" required>
-                                        <option></option>
-                                        <option value="MERGE"><localize key="transition.event.type.merge"></localize></option>
-                                        <option value="SPLIT"><localize key="transition.event.type.split"></localize></option>
                                         <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
                                         <option value="DOWNGRADE"><localize key="transition.event.type.downgrade"></localize></option>
-                                        <option value="REASSIGN"><localize key="transition.event.type.reassign"></localize></option>
                                     </select>
                                 </td>
                                 <td *ngIf="!readonly" style="vertical-align: middle;">
@@ -170,7 +156,6 @@
                     </div>
 
                 </div>
-            </div>
 
             <div class="row-holder">
                 <div class="label-holder"></div>
@@ -189,5 +174,13 @@
 
         </fieldset>
     </form>
-    <!-- </div> -->
+    
+    <div class="col-md-4">
+      <div class="row" style="text-align: center;">
+        <label class="col-md-6"><localize key="transition.event.before"></localize></label>
+        <label class="col-md-6"><localize key="transition.event.after"></localize></label>
+      </div>
+    
+      <div style="margin-top: 50px;" id="svgHolder"></div>
+    </div>
 </div>

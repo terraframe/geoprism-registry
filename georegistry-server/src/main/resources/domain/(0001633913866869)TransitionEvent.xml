@@ -89,7 +89,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Before Type" />
+            value="Geo-object type before" />
         </attributeStruct>
       </object>
       <object
@@ -104,7 +104,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="After Type" />
+            value="Geo-object type after" />
         </attributeStruct>
       </object>
       <object
@@ -259,32 +259,47 @@
       </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
-        key="transition.event.to">
+        key="transition.event.after">
         <attribute
           name="storeTag"
           value="UIText" />
         <attribute
           name="storeKey"
-          value="transition.event.to" />
+          value="transition.event.after" />
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="To" />
+            value="After" />
         </attributeStruct>
       </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
-        key="transition.event.from">
+        key="transition.event.before">
         <attribute
           name="storeTag"
           value="UIText" />
         <attribute
           name="storeKey"
-          value="transition.event.from" />
+          value="transition.event.before" />
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="From" />
+            value="Before" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
         </attributeStruct>
       </object>
       <object

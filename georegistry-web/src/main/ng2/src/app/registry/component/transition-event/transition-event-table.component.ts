@@ -1,12 +1,6 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-import { Router, ActivatedRoute } from "@angular/router";
 import { HttpErrorResponse } from "@angular/common/http";
-import {
-    trigger,
-    style,
-    animate,
-    transition
-} from "@angular/animations";
+import { trigger, style, animate, transition } from "@angular/animations";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 
 import { ErrorHandler } from "@shared/component";
@@ -61,16 +55,14 @@ export class TransitionEventTableComponent {
 
     bsModalRef: BsModalRef;
 
-
+    // eslint-disable-next-line no-useless-constructor
     constructor(private service: TransitionEventService, private modalService: BsModalService, private dateService: DateService) { }
 
     ngOnInit(): void {
-
         this.refresh();
     }
 
     refresh(pageNumber: number = 1): void {
-
         this.service.getPage(this.page.pageSize, pageNumber).then(page => {
             this.page = page;
         }).catch((response: HttpErrorResponse) => {
@@ -97,7 +89,7 @@ export class TransitionEventTableComponent {
                 backdrop: true,
                 ignoreBackdropClick: true
             });
-            this.bsModalRef.content.init(true, response);
+            this.bsModalRef.content.init(false, response);
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -110,4 +102,5 @@ export class TransitionEventTableComponent {
     public error(err: any): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);
     }
+
 }
