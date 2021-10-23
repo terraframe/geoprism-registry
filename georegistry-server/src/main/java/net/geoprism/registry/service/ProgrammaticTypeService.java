@@ -57,6 +57,12 @@ public class ProgrammaticTypeService
   }
 
   @Request(RequestType.SESSION)
+  public JsonArray getAll(String sessionId)
+  {
+    return ProgrammaticType.getAll();
+  }
+
+  @Request(RequestType.SESSION)
   public void remove(String sessionId, String oid)
   {
     ProgrammaticType type = ProgrammaticType.get(oid);
@@ -150,7 +156,8 @@ public class ProgrammaticTypeService
   {
     ProgrammaticType got = ProgrammaticType.getByCode(programmaticTypeCode);
 
-//    ServiceFactory.getProgrammaticTypePermissionService().enforceCanWrite(got.getOrganization().getCode(), got, got.getIsPrivate());
+    // ServiceFactory.getProgrammaticTypePermissionService().enforceCanWrite(got.getOrganization().getCode(),
+    // got, got.getIsPrivate());
 
     got.removeAttribute(attributeName);
   }

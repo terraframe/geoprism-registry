@@ -124,6 +124,12 @@ public class ExcelService
     }
   }
 
+  @Request(RequestType.SESSION)
+  public JSONObject getProgrammaticTypeConfiguration(String sessionId, String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  {
+    return this.getProgrammaticTypeConfiguration(type, date, fileName, fileStream, strategy, copyBlank);
+  }
+
   public JSONObject getProgrammaticTypeConfiguration(String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
     // Save the file to the file system

@@ -283,9 +283,9 @@ public class ProgrammaticObjectImporterTest
       }
     }
 
-    result.put(ImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL);
-    result.put(ImportConfiguration.OBJECT_TYPE, ObjectImportType.PROGRAMMATIC_OBJECT);
-    result.put(ImportConfiguration.IMPORT_STRATEGY, strategy);
+    result.put(ProgrammaticObjectImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL);
+    result.put(ProgrammaticObjectImportConfiguration.OBJECT_TYPE, ObjectImportType.PROGRAMMATIC_OBJECT);
+    result.put(ProgrammaticObjectImportConfiguration.IMPORT_STRATEGY, strategy);
 
     return result;
   }

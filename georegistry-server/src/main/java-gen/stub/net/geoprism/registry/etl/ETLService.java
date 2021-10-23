@@ -92,8 +92,7 @@ public class ETLService
     {
       String historyId = config.getHistoryId();
       ImportHistory hist = ImportHistory.get(historyId);
-
-      this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
+      hist.getConfig().enforceExecutePermissions();
 
       if (!hist.getStage().get(0).equals(ImportStage.VALIDATION_RESOLVE))
       {
@@ -139,8 +138,7 @@ public class ETLService
     ImportConfiguration config = ImportConfiguration.build(json);
 
     ImportHistory hist = ImportHistory.get(config.getHistoryId());
-
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
+    hist.getConfig().enforceExecutePermissions();
 
     VaultFile vf = VaultFile.get(config.getVaultFileId());
     vf.delete();
@@ -168,9 +166,7 @@ public class ETLService
   public JsonObject doImport(String sessionId, String json)
   {
     ImportConfiguration config = ImportConfiguration.build(json);
-
-    ServerGeoObjectType type = ( (GeoObjectImportConfiguration) config ).getType();
-    this.checkPermissions(type.getOrganization().getCode(), type);
+    config.enforceExecutePermissions();
 
     ImportHistory hist;
 
@@ -620,8 +616,8 @@ public class ETLService
     ImportHistory hist = ImportHistory.get(historyId);
     DataImportJob job = (DataImportJob) hist.getAllJob().getAll().get(0);
     GeoprismUser user = GeoprismUser.get(job.getRunAsUser().getOid());
+    hist.getConfig().enforceExecutePermissions();
 
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
 
     JsonObject jo = this.serializeHistory(hist, user, job);
 
@@ -651,24 +647,6 @@ public class ETLService
     return jo;
   }
 
-  private void checkPermissions(String orgCode, ServerGeoObjectType type)
-  {
-    RolePermissionService perms = ServiceFactory.getRolePermissionService();
-
-    if (perms.isRA())
-    {
-      perms.enforceRA(orgCode);
-    }
-    else if (perms.isRM())
-    {
-      perms.enforceRM(orgCode, type);
-    }
-    else
-    {
-      perms.enforceRM();
-    }
-  }
-
   @Request(RequestType.SESSION)
   public void submitImportErrorResolution(String sessionId, String json)
   {
@@ -681,8 +659,7 @@ public class ETLService
     JsonObject config = JsonParser.parseString(json).getAsJsonObject();
 
     ImportHistory hist = ImportHistory.get(config.get("historyId").getAsString());
-
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
+    hist.getConfig().enforceExecutePermissions();
 
     ImportError err = ImportError.get(config.get("importErrorId").getAsString());
 
@@ -752,8 +729,7 @@ public class ETLService
     ValidationProblem problem = ValidationProblem.get(config.get("validationProblemId").getAsString());
 
     ImportHistory hist = problem.getHistory();
-
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
+    hist.getConfig().enforceExecutePermissions();
 
     String resolution = config.get("resolution").getAsString();
 
@@ -821,8 +797,7 @@ public class ETLService
   public void resolveImport(String sessionId, String historyId)
   {
     ImportHistory hist = ImportHistory.get(historyId);
-
-    this.checkPermissions(hist.getOrganization().getCode(), hist.getServerGeoObjectType());
+    hist.getConfig().enforceExecutePermissions();
 
     if (hist.getStage().get(0).equals(ImportStage.IMPORT_RESOLVE))
     {

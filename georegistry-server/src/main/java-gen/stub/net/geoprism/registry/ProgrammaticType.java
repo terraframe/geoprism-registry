@@ -11,6 +11,10 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.ComponentIF;
+import com.runwaysdk.business.BusinessFacade;
+import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeGraphReferenceInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
@@ -25,10 +29,14 @@ import com.runwaysdk.dataaccess.metadata.MdAttributeGraphReferenceDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.gis.constants.MdGeoVertexInfo;
+import com.runwaysdk.gis.dataaccess.metadata.graph.MdGeoVertexDAO;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.Roles;
+import com.runwaysdk.system.gis.metadata.graph.MdGeoVertex;
 import com.runwaysdk.system.metadata.MdAttributeConcrete;
+import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.metadata.MdVertex;
 
 import net.geoprism.ontology.Classifier;
@@ -42,11 +50,13 @@ import net.geoprism.registry.view.JsonSerializable;
 
 public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerializable
 {
-  private static final long serialVersionUID = 88826735;
+  private static final long  serialVersionUID = 88826735;
 
-  public static String      GEO_OBJECT       = "geoObject";
+  public static final String GEO_OBJECT       = "geoObject";
 
-  public static String      JSON_ATTRIBUTES  = "attributes";
+  public static final String JSON_ATTRIBUTES  = "attributes";
+
+  public static final String JSON_CODE        = "code";
 
   public ProgrammaticType()
   {
@@ -240,7 +250,9 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
     programmaticType.setOrganization(organization);
     LocalizedValueConverter.populate(programmaticType.getDisplayLabel(), localizedValue);
 
-    if (programmaticType.isNew())
+    boolean isNew = programmaticType.isNew();
+
+    if (isNew)
     {
       MdVertexDAO mdVertex = MdVertexDAO.newInstance();
       mdVertex.setValue(MdGeoVertexInfo.PACKAGE, RegistryConstants.PROGRAMMATIC_PACKAGE);
@@ -261,6 +273,15 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
       mdGeoObject.apply();
 
       programmaticType.setMdVertexId(mdVertex.getOid());
+
+      // Assign permissions
+      Roles role = Roles.findRoleByName(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+
+      RoleDAO roleDAO = (RoleDAO) BusinessFacade.getEntityDAO(role);
+      roleDAO.grantPermission(Operation.CREATE, mdVertex.getOid());
+      roleDAO.grantPermission(Operation.DELETE, mdVertex.getOid());
+      roleDAO.grantPermission(Operation.WRITE, mdVertex.getOid());
+      roleDAO.grantPermission(Operation.WRITE_ALL, mdVertex.getOid());
     }
 
     programmaticType.apply();
@@ -322,6 +343,29 @@ public class ProgrammaticType extends ProgrammaticTypeBase implements JsonSerial
 
       response.add(object);
     }
+
+    return response;
+  }
+
+  public static JsonArray getAll()
+  {
+    JsonArray response = new JsonArray();
+
+    Organization.getOrganizations().stream().filter(o -> Organization.isMember(o)).forEach(org -> {
+
+      ProgrammaticTypeQuery query = new ProgrammaticTypeQuery(new QueryFactory());
+      query.WHERE(query.getOrganization().EQ(org));
+      query.ORDER_BY_DESC(query.getDisplayLabel().localize());
+
+      try (OIterator<? extends ProgrammaticType> it = query.getIterator())
+      {
+        while (it.hasNext())
+        {
+          ProgrammaticType type = it.next();
+          response.add(type.toJSON());
+        }
+      }
+    });
 
     return response;
   }

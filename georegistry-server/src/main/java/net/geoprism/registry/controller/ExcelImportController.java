@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -83,4 +83,25 @@ public class ExcelImportController
   {
     return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), type, hierarchyType), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
+
+  @Endpoint(url = "get-programmatic-config", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF getProgrammaticConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "date") String date, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy, @RequestParamter(name = "copyBlank") Boolean copyBlank) throws IOException, JSONException, ParseException
+  {
+    try (InputStream stream = file.getInputStream())
+    {
+      String fileName = file.getFilename();
+
+      SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+      format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+      Date sDate = date != null ? format.parse(date) : null;
+
+      ImportStrategy strategy = ImportStrategy.valueOf(sStrategy);
+
+      JSONObject configuration = service.getProgrammaticTypeConfiguration(request.getSessionId(), type, sDate, fileName, stream, strategy, copyBlank);
+
+      return new RestBodyResponse(configuration);
+    }
+  }
+
 }

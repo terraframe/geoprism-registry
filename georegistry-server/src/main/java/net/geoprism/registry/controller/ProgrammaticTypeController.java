@@ -48,6 +48,12 @@ public class ProgrammaticTypeController
     return new RestBodyResponse(service.listByOrg(request.getSessionId()));
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-all")
+  public ResponseIF getAll(ClientRequestIF request)
+  {
+    return new RestBodyResponse(service.getAll(request.getSessionId()));
+  }
+  
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "type") String typeJSON)
   {
