@@ -28,6 +28,19 @@ export class ProgrammaticTypeService {
             .toPromise();
     }
 
+    getAll(): Promise<ProgrammaticType[]> {
+        let params: HttpParams = new HttpParams();
+
+        this.eventService.start();
+
+        return this.http.get<ProgrammaticType[]>(acp + "/programmatic-type/get-all", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+
     apply(type: ProgrammaticType): Promise<ProgrammaticType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"

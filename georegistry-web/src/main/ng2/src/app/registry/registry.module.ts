@@ -113,6 +113,7 @@ import { ProgrammaticTypeManagerComponent } from "./component/programmatic-type/
 import { ProgrammaticTypeService } from "./service/programmatic-type.service";
 import { CreateProgrammaticTypeModalComponent } from "./component/programmatic-type/modals/create-programmatic-type-modal.component";
 import { ManageProgrammaticTypeModalComponent } from "./component/programmatic-type/modals/manage-programmatic-type-modal.component";
+import { ProgrammaticImporterComponent } from "./component/programmatic-importer/programmatic-importer.component";
 
 @NgModule({
     imports: [
@@ -220,7 +221,8 @@ import { ManageProgrammaticTypeModalComponent } from "./component/programmatic-t
         TransitionEventModalComponent,
         ProgrammaticTypeManagerComponent,
         CreateProgrammaticTypeModalComponent,
-        ManageProgrammaticTypeModalComponent        
+        ManageProgrammaticTypeModalComponent,
+        ProgrammaticImporterComponent
     ],
     providers: [
         MapService,

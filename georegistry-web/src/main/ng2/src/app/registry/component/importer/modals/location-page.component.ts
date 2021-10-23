@@ -13,13 +13,14 @@ import { IOService } from '@registry/service';
 export class LocationPageComponent implements OnInit {
 
     @Input() configuration: ImportConfiguration;
+    @Input() property: string;
     @Output() configurationChange = new EventEmitter<ImportConfiguration>();
     @Output() stateChange = new EventEmitter<string>();
 
     constructor( private service: IOService ) { }
 
     ngOnInit(): void {
-        this.service.getTypeAncestors( this.configuration.type.code, this.configuration.hierarchy, true ).then( locations => {
+        this.service.getTypeAncestors( this.configuration[this.property].code, this.configuration.hierarchy, true ).then( locations => {
             this.configuration.locations = locations;
         } );
     }

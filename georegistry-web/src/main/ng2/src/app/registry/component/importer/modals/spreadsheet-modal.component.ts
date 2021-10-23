@@ -10,111 +10,114 @@ import { ErrorHandler, SuccessModalComponent, ConfirmModalComponent } from '@sha
 import { ImportConfiguration } from '@registry/model/io';
 import { IOService } from '@registry/service';
 
-@Component( {
+@Component({
     selector: 'spreadsheet-modal',
     templateUrl: './spreadsheet-modal.component.html',
     styleUrls: []
-} )
-export class SpreadsheetModalComponent implements OnInit {
+})
+export class SpreadsheetModalComponent {
 
     configuration: ImportConfiguration;
     message: string = null;
     state: string = 'MAP';
+    property: string;
 
-  constructor( private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
-    private localizeService: LocalizationService, private router: Router ) {
+    constructor(private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
+        private localizeService: LocalizationService, private router: Router) {
     }
 
-    ngOnInit(): void {
+    init(configuration: ImportConfiguration, property: string = 'type'): void {
+        this.configuration = configuration;
+        this.property = property;
     }
 
-    onStateChange( event: string ): void {
-        if ( event === 'BACK' ) {
+    onStateChange(event: string): void {
+        if (event === 'BACK') {
             this.handleBack();
         }
-        else if ( event === 'NEXT' ) {
+        else if (event === 'NEXT') {
             this.handleNext();
         }
-        else if ( event === 'CANCEL' ) {
+        else if (event === 'CANCEL') {
             this.handleCancel();
         }
     }
 
     handleBack(): void {
-        if ( this.state === 'LOCATION' ) {
+        if (this.state === 'LOCATION') {
             this.state = 'MAP';
         }
     }
 
     handleNext(): void {
-        if ( this.state === 'MAP' ) {
-            if ( !this.configuration.postalCode ) {
+        if (this.state === 'MAP') {
+            if (!this.configuration.postalCode) {
                 this.state = 'LOCATION';
             }
             else {
                 this.handleSubmit();
             }
         }
-        else if ( this.state === 'LOCATION' ) {
+        else if (this.state === 'LOCATION') {
             this.handleSubmit();
         }
-        else if ( this.state === 'LOCATION-PROBLEM' ) {
+        else if (this.state === 'LOCATION-PROBLEM') {
 
-            if ( this.configuration.termProblems != null ) {
+            if (this.configuration.termProblems != null) {
                 this.state = 'TERM-PROBLEM';
             }
             else {
                 this.handleSubmit();
             }
         }
-        else if ( this.state === 'TERM-PROBLEM' ) {
+        else if (this.state === 'TERM-PROBLEM') {
             this.handleSubmit();
         }
     }
 
     handleSubmit(): void {
-        this.service.importSpreadsheet( this.configuration ).then( config => {
+        this.service.importSpreadsheet(this.configuration).then(config => {
 
-            if ( config.locationProblems != null ) {
+            if (config.locationProblems != null) {
                 this.state = 'LOCATION-PROBLEM';
                 this.configuration = config;
             }
-            else if ( config.termProblems != null ) {
+            else if (config.termProblems != null) {
                 this.state = 'TERM-PROBLEM';
                 this.configuration = config;
             }
             else {
-              this.bsModalRef.hide()
+                this.bsModalRef.hide()
 
-              this.bsModalRef = this.modalService.show( ConfirmModalComponent, {
+                this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
                     animated: true,
                     backdrop: true,
                     ignoreBackdropClick: true,
-                } );
-                this.bsModalRef.content.message = this.localizeService.decode( "data.import.go.to.scheduled.jobs.confirm.message" );
-                this.bsModalRef.content.submitText = this.localizeService.decode( "data.import.go.to.scheduled.jobs.button" );
+                });
+                this.bsModalRef.content.message = this.localizeService.decode("data.import.go.to.scheduled.jobs.confirm.message");
+                this.bsModalRef.content.submitText = this.localizeService.decode("data.import.go.to.scheduled.jobs.button");
 
-                ( <ConfirmModalComponent>this.bsModalRef.content ).onConfirm.subscribe( data => {
+                (<ConfirmModalComponent>this.bsModalRef.content).onConfirm.subscribe(data => {
                     this.router.navigate(['/registry/scheduled-jobs']);
-                } );
+                });
 
             }
-        } ).catch(( err: HttpErrorResponse) => {
-            this.error( err );
-        } );
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
 
     }
 
     handleCancel(): void {
-        this.service.cancelImport( this.configuration ).then( response => {
+        this.service.cancelImport(this.configuration).then(response => {
             this.bsModalRef.hide()
-        } ).catch(( err: HttpErrorResponse) => {
-            this.error( err );
-        } );
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
-    error( err: HttpErrorResponse ): void {
-            this.message = ErrorHandler.getMessageFromError(err);
+    error(err: HttpErrorResponse): void {
+        this.message = ErrorHandler.getMessageFromError(err);
     }
 
 }

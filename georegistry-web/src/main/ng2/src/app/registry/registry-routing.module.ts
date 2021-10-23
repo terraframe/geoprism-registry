@@ -21,6 +21,7 @@ import { DatasetLocationManagerComponent } from "./component/location-manager/da
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { ProgrammaticTypeManagerComponent } from "./component/programmatic-type/programmatic-type-manager.component";
+import { ProgrammaticImporterComponent } from "./component/programmatic-importer/programmatic-importer.component";
 
 const routes: Routes = [
     {
@@ -141,6 +142,11 @@ const routes: Routes = [
     {
         path: "programmatic-types",
         component: ProgrammaticTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: "programmatic-importer",
+        component: ProgrammaticImporterComponent,
         canActivate: [AuthGuard]
     },
 ];

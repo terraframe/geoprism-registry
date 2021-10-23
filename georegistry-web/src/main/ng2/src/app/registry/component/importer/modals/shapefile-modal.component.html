@@ -6,7 +6,7 @@
       <attributes-page [(configuration)]="configuration" (stateChange)="onStateChange($event)"></attributes-page>
     </div>
     <div *ngIf="state === 'LOCATION'">
-      <location-page [(configuration)]="configuration" (stateChange)="onStateChange($event)"></location-page>
+      <location-page [(configuration)]="configuration" property="type" (stateChange)="onStateChange($event)"></location-page>
     </div>
     <div *ngIf="state === 'LOCATION-PROBLEM'">
       <location-problem-page [(configuration)]="configuration" (stateChange)="onStateChange($event)"></location-problem-page>
