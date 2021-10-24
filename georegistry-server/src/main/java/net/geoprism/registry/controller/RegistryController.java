@@ -871,7 +871,7 @@ public class RegistryController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "geoobjecttype/get-ancestors")
-  public ResponseIF getTypeAncestors(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "includeInheritedTypes") Boolean includeInheritedTypes)
+  public ResponseIF getTypeAncestors(ClientRequestIF request, @RequestParamter(name = "code") String code, @RequestParamter(name = "hierarchyCode") String hierarchyCode, @RequestParamter(name = "includeInheritedTypes") Boolean includeInheritedTypes, @RequestParamter(name = "includeChild") Boolean includeChild)
   {
     if (includeInheritedTypes == null)
     {
@@ -880,7 +880,7 @@ public class RegistryController
 
     JsonArray response = new JsonArray();
 
-    List<GeoObjectType> ancestors = this.registryService.getAncestors(request.getSessionId(), code, hierarchyCode, includeInheritedTypes);
+    List<GeoObjectType> ancestors = this.registryService.getAncestors(request.getSessionId(), code, hierarchyCode, includeInheritedTypes, includeChild);
 
     for (GeoObjectType ancestor : ancestors)
     {

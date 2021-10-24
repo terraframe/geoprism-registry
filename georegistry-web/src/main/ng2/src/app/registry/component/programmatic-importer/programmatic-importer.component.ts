@@ -207,7 +207,7 @@ export class ProgrammaticImporterComponent implements OnInit {
             configuration.geoObjectType = {code: this.typeCode};
 
             this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
-            this.bsModalRef.content.init(configuration, 'geoObjectType');
+            this.bsModalRef.content.init(configuration, 'geoObjectType', true);
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
             const error = JSON.parse(response);
