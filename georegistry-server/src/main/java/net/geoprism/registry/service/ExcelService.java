@@ -42,12 +42,12 @@ import net.geoprism.data.etl.excel.ExcelDataFormatter;
 import net.geoprism.data.etl.excel.ExcelSheetReader;
 import net.geoprism.data.etl.excel.InvalidExcelFileException;
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.ProgrammaticType;
+import net.geoprism.registry.BusinessType;
 import net.geoprism.registry.etl.FormatSpecificImporterFactory.FormatImporterType;
 import net.geoprism.registry.etl.ObjectImporterFactory;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportConfiguration.ImportStrategy;
-import net.geoprism.registry.etl.upload.ProgrammaticObjectImportConfiguration;
+import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
 import net.geoprism.registry.excel.ExcelFieldContentsHandler;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.io.ImportAttributeSerializer;
@@ -125,17 +125,17 @@ public class ExcelService
   }
 
   @Request(RequestType.SESSION)
-  public JSONObject getProgrammaticTypeConfiguration(String sessionId, String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public JSONObject getBusinessTypeConfiguration(String sessionId, String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
-    return this.getProgrammaticTypeConfiguration(type, date, fileName, fileStream, strategy, copyBlank);
+    return this.getBusinessTypeConfiguration(type, date, fileName, fileStream, strategy, copyBlank);
   }
 
-  public JSONObject getProgrammaticTypeConfiguration(String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
+  public JSONObject getBusinessTypeConfiguration(String type, Date date, String fileName, InputStream fileStream, ImportStrategy strategy, Boolean copyBlank)
   {
     // Save the file to the file system
     try
     {
-      ProgrammaticType programmaticType = ProgrammaticType.getByCode(type);
+      BusinessType businessType = BusinessType.getByCode(type);
 
       VaultFile vf = VaultFile.createAndApply(fileName, fileStream);
 
@@ -151,18 +151,18 @@ public class ExcelService
         reader.process(is);
 
         JSONObject object = new JSONObject();
-        object.put(ProgrammaticObjectImportConfiguration.TYPE, this.getType(programmaticType));
-        object.put(ProgrammaticObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
-        object.put(ProgrammaticObjectImportConfiguration.VAULT_FILE_ID, vf.getOid());
-        object.put(ProgrammaticObjectImportConfiguration.FILE_NAME, fileName);
-        object.put(ProgrammaticObjectImportConfiguration.IMPORT_STRATEGY, strategy.name());
-        object.put(ProgrammaticObjectImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
-        object.put(ProgrammaticObjectImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.PROGRAMMATIC_OBJECT.name());
-        object.put(ProgrammaticObjectImportConfiguration.COPY_BLANK, copyBlank);
+        object.put(BusinessObjectImportConfiguration.TYPE, this.getType(businessType));
+        object.put(BusinessObjectImportConfiguration.SHEET, handler.getSheets().getJSONObject(0));
+        object.put(BusinessObjectImportConfiguration.VAULT_FILE_ID, vf.getOid());
+        object.put(BusinessObjectImportConfiguration.FILE_NAME, fileName);
+        object.put(BusinessObjectImportConfiguration.IMPORT_STRATEGY, strategy.name());
+        object.put(BusinessObjectImportConfiguration.FORMAT_TYPE, FormatImporterType.EXCEL.name());
+        object.put(BusinessObjectImportConfiguration.OBJECT_TYPE, ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name());
+        object.put(BusinessObjectImportConfiguration.COPY_BLANK, copyBlank);
 
         if (date != null)
         {
-          object.put(ProgrammaticObjectImportConfiguration.DATE, format.format(date));
+          object.put(BusinessObjectImportConfiguration.DATE, format.format(date));
         }
 
         return object;
@@ -204,7 +204,7 @@ public class ExcelService
     return type;
   }
 
-  private JSONObject getType(ProgrammaticType pType)
+  private JSONObject getType(BusinessType pType)
   {
     JSONObject type = new JSONObject(pType.toJSON(true).toString());
     JSONArray attributes = type.getJSONArray(GeoObjectType.JSON_ATTRIBUTES);
@@ -214,7 +214,7 @@ public class ExcelService
       JSONObject attribute = attributes.getJSONObject(i);
       String attributeType = attribute.getString(AttributeType.JSON_TYPE);
 
-      attribute.put(ProgrammaticObjectImportConfiguration.BASE_TYPE, ProgrammaticObjectImportConfiguration.getBaseType(attributeType));
+      attribute.put(BusinessObjectImportConfiguration.BASE_TYPE, BusinessObjectImportConfiguration.getBaseType(attributeType));
     }
 
     return type;

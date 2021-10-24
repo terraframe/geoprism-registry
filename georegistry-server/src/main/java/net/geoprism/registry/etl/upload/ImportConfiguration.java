@@ -126,9 +126,9 @@ public abstract class ImportConfiguration
       config.fromJSON(json, includeCoordinates);
       return config;
     }
-    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.PROGRAMMATIC_OBJECT.name()))
+    else if (objectType.equals(ObjectImporterFactory.ObjectImportType.BUSINESS_OBJECT.name()))
     {
-      ProgrammaticObjectImportConfiguration config = new ProgrammaticObjectImportConfiguration();
+      BusinessObjectImportConfiguration config = new BusinessObjectImportConfiguration();
       config.fromJSON(json, false);
       return config;
     }

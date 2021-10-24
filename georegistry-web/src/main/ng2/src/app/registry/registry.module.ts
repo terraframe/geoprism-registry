@@ -109,11 +109,11 @@ import { FhirImportSynchronizationConfigComponent } from "./component/synchroniz
 import { TransitionEventService } from "./service/transition-event.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { TransitionEventModalComponent } from "./component/transition-event/transition-event-modal.component";
-import { ProgrammaticTypeManagerComponent } from "./component/programmatic-type/programmatic-type-manager.component";
-import { ProgrammaticTypeService } from "./service/programmatic-type.service";
-import { CreateProgrammaticTypeModalComponent } from "./component/programmatic-type/modals/create-programmatic-type-modal.component";
-import { ManageProgrammaticTypeModalComponent } from "./component/programmatic-type/modals/manage-programmatic-type-modal.component";
-import { ProgrammaticImporterComponent } from "./component/programmatic-importer/programmatic-importer.component";
+import { BusinessTypeManagerComponent } from "./component/business-type/business-type-manager.component";
+import { BusinessTypeService } from "./service/business-type.service";
+import { CreateBusinessTypeModalComponent } from "./component/business-type/modals/create-business-type-modal.component";
+import { ManageBusinessTypeModalComponent } from "./component/business-type/modals/manage-business-type-modal.component";
+import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
 
 @NgModule({
     imports: [
@@ -219,10 +219,10 @@ import { ProgrammaticImporterComponent } from "./component/programmatic-importer
         GeometryPanelComponent,
         TransitionEventTableComponent,
         TransitionEventModalComponent,
-        ProgrammaticTypeManagerComponent,
-        CreateProgrammaticTypeModalComponent,
-        ManageProgrammaticTypeModalComponent,
-        ProgrammaticImporterComponent
+        BusinessTypeManagerComponent,
+        CreateBusinessTypeModalComponent,
+        ManageBusinessTypeModalComponent,
+        BusinessImporterComponent
     ],
     providers: [
         MapService,
@@ -237,7 +237,7 @@ import { ProgrammaticImporterComponent } from "./component/programmatic-importer
         StepIndicatorComponent,
         SynchronizationConfigService,
         TransitionEventService,
-        ProgrammaticTypeService
+        BusinessTypeService
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -269,8 +269,8 @@ import { ProgrammaticImporterComponent } from "./component/programmatic-importer
         ContextLayerModalComponent,
         ExportSystemModalComponent,
         TransitionEventModalComponent,
-        CreateProgrammaticTypeModalComponent,
-        ManageProgrammaticTypeModalComponent
+        CreateBusinessTypeModalComponent,
+        ManageBusinessTypeModalComponent
     ]
 })
 export class RegistryModule { }

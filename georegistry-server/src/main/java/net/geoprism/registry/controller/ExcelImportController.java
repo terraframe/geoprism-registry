@@ -84,8 +84,8 @@ public class ExcelImportController
     return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), type, hierarchyType), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "export.xlsx");
   }
 
-  @Endpoint(url = "get-programmatic-config", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF getProgrammaticConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "date") String date, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy, @RequestParamter(name = "copyBlank") Boolean copyBlank) throws IOException, JSONException, ParseException
+  @Endpoint(url = "get-business-config", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+  public ResponseIF getBusinessConfiguration(ClientRequestIF request, @RequestParamter(name = "type") String type, @RequestParamter(name = "date") String date, @RequestParamter(name = "file") MultipartFileParameter file, @RequestParamter(name = "strategy") String sStrategy, @RequestParamter(name = "copyBlank") Boolean copyBlank) throws IOException, JSONException, ParseException
   {
     try (InputStream stream = file.getInputStream())
     {
@@ -98,7 +98,7 @@ public class ExcelImportController
 
       ImportStrategy strategy = ImportStrategy.valueOf(sStrategy);
 
-      JSONObject configuration = service.getProgrammaticTypeConfiguration(request.getSessionId(), type, sDate, fileName, stream, strategy, copyBlank);
+      JSONObject configuration = service.getBusinessTypeConfiguration(request.getSessionId(), type, sDate, fileName, stream, strategy, copyBlank);
 
       return new RestBodyResponse(configuration);
     }

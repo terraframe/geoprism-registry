@@ -1,0 +1,76 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+
+    <div id="app-container" class="container-fluid">
+
+        <div class="heading">
+            <h2>
+                Organizations
+            </h2>
+        </div>
+
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="row" *ngFor="let org of orgs;">
+            <div class="col-md-12 order-md-1">
+                <div style="margin-top: 30px;" class="row">
+                    <div class="col-md-12">
+                        <div class="py-5">
+                            <h3>{{org.label}}</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="org.types && org.types.length === 0" class="row">
+                    <div class="col-md-12">
+                        <div class="py-5">
+                            <p class="inline-message">There are no business types available for this organization.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <ul *ngIf="org.types && org.types.length > 0" class="type-group" style="border-bottom: 2px solid lightgrey; margin-top: 30px;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 70%;">Business Types</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let type of org.types; let i = index;" class="clickable">
+                                <td style="width: 70%; vertical-align: middle;">
+                                  <a (click)="onView(type)" routerLinkActive="active">
+                                    {{type.displayLabel.localizedValue}}
+                                  </a>
+                                </td>
+                                <td style="width: 30%; text-align: right;">
+                                    <button type="submit" (click)="onView(type)" class="btn btn-primary" role="button">
+                                        <localize key="modal.button.view"></localize>
+                                    </button>
+                                    <button type="submit" (click)="onEdit(org, type)" class="btn btn-default" role="button">
+                                        <localize key="modal.button.edit"></localize>
+                                    </button>
+                                    <button type="submit" (click)="onDelete(org, type)" class="btn btn-danger" role="button">
+                                        <localize key="modal.button.delete"></localize>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </ul>
+                <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                    <div class="col-md-6">
+                        <div *ngIf="org.write">
+                            <button type="submit" (click)="onCreate(org)" class="btn btn-primary" role="button">
+                                <localize key="hierarchy.management.button.create"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

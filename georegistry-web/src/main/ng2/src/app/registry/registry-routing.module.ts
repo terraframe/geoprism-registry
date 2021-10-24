@@ -20,8 +20,8 @@ import { DatasetLocationManagerComponent } from "./component/location-manager/da
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
-import { ProgrammaticTypeManagerComponent } from "./component/programmatic-type/programmatic-type-manager.component";
-import { ProgrammaticImporterComponent } from "./component/programmatic-importer/programmatic-importer.component";
+import { BusinessTypeManagerComponent } from "./component/business-type/business-type-manager.component";
+import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
 
 const routes: Routes = [
     {
@@ -140,13 +140,13 @@ const routes: Routes = [
         canActivate: [MaintainerGuard]
     },
     {
-        path: "programmatic-types",
-        component: ProgrammaticTypeManagerComponent,
+        path: "business-types",
+        component: BusinessTypeManagerComponent,
         canActivate: [AuthGuard]
     },
     {
-        path: "programmatic-importer",
-        component: ProgrammaticImporterComponent,
+        path: "business-importer",
+        component: BusinessImporterComponent,
         canActivate: [AuthGuard]
     },
 ];

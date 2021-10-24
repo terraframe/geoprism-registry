@@ -24,7 +24,7 @@ public interface RegistryConstants
 {
   public static final String REGISTRY_PACKAGE                 = "net.geoprism.registry";
 
-  public static final String PROGRAMMATIC_PACKAGE             = REGISTRY_PACKAGE + ".programmatic";
+  public static final String BUSINESS_PACKAGE                 = REGISTRY_PACKAGE + ".business";
 
   public static final String UNIVERSAL_GRAPH_PACKAGE          = REGISTRY_PACKAGE + ".graph";
 

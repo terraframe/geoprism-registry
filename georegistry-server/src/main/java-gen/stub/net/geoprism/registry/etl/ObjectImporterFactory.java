@@ -22,14 +22,14 @@ import net.geoprism.registry.etl.upload.GeoObjectImporter;
 import net.geoprism.registry.etl.upload.ImportConfiguration;
 import net.geoprism.registry.etl.upload.ImportProgressListenerIF;
 import net.geoprism.registry.etl.upload.ObjectImporterIF;
-import net.geoprism.registry.etl.upload.ProgrammaticObjectImportConfiguration;
-import net.geoprism.registry.etl.upload.ProgrammaticObjectImporter;
+import net.geoprism.registry.etl.upload.BusinessObjectImportConfiguration;
+import net.geoprism.registry.etl.upload.BusinessObjectImporter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 
 public class ObjectImporterFactory
 {
   public static enum ObjectImportType {
-    GEO_OBJECT, PROGRAMMATIC_OBJECT
+    GEO_OBJECT, BUSINESS_OBJECT
   }
 
   public static ObjectImporterIF getImporter(String type, ImportConfiguration config, ImportProgressListenerIF progress)
@@ -38,9 +38,9 @@ public class ObjectImporterFactory
     {
       return new GeoObjectImporter((GeoObjectImportConfiguration) config, progress);
     }
-    else if (type.equals(ObjectImportType.PROGRAMMATIC_OBJECT.name()))
+    else if (type.equals(ObjectImportType.BUSINESS_OBJECT.name()))
     {
-      return new ProgrammaticObjectImporter((ProgrammaticObjectImportConfiguration) config, progress);
+      return new BusinessObjectImporter((BusinessObjectImportConfiguration) config, progress);
     }
     else
     {

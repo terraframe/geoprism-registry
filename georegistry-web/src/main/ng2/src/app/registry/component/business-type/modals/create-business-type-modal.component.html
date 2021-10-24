@@ -1,0 +1,72 @@
+<form #form="ngForm" (ngSubmit)="form.valid && handleOnSubmit()" class="modal-form">
+
+  <div class="modal-body">
+    <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+    <div class="heading text-center">
+      <h1>
+        Business Type
+      </h1>
+    </div> 
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <div>
+            <label for="codeInput">
+              <localize key="data.property.label.code"></localize>
+            </label>
+            <input [(ngModel)]="type.code" name="code" type="text" class="form-control" id="codeInput"
+              required>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group" *ngFor="let localeValue of type.displayLabel.localeValues">
+          <label>
+            <localize key="data.property.label.label"></localize> 
+            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)</span>
+          </label>
+          <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="input"
+            class="form-control" [required]="localeValue.locale === 'defaultLocale'">
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <localized-text [(value)]="type.description" key="data.property.label.description" [inlinelayout]="true"></localized-text>
+      </div>
+    </div>
+            
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="organization">
+            <localize key="attribute.organization.label"></localize>
+          </label>
+          <span class="text">
+            <input type="text" name="organization" [(ngModel)]="type.organizationLabel" disabled required>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="button-holder">
+          <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+            <localize key="modal.button.cancel"></localize>
+          </button>
+          <button type="submit" [disabled]="form.invalid" class="btn btn-primary">
+            <localize key="modal.button.ok"></localize>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</form>
