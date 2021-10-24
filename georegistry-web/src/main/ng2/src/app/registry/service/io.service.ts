@@ -66,11 +66,12 @@ export class IOService {
             .toPromise();
     }
 
-    getTypeAncestors(code: string, hierarchyCode: string, includeInheritedTypes: boolean): Promise<Location[]> {
+    getTypeAncestors(code: string, hierarchyCode: string, includeInheritedTypes: boolean, includeChild: boolean = false): Promise<Location[]> {
         let params: HttpParams = new HttpParams();
         params = params.set("code", code);
         params = params.set("hierarchyCode", hierarchyCode);
         params = params.set("includeInheritedTypes", includeInheritedTypes.toString());
+        params = params.set("includeChild", includeChild.toString());
 
         return this.http
             .get<Location[]>(acp + "/cgr/geoobjecttype/get-ancestors", { params: params })

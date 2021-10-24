@@ -247,11 +247,12 @@ export class DataImporterComponent implements OnInit {
 
             if (this.format === "SHAPEFILE") {
                 this.bsModalRef = this.modalService.show(ShapefileModalComponent, { backdrop: true, ignoreBackdropClick: true });
+                this.bsModalRef.content.configuration = configuration;
             } else {
                 this.bsModalRef = this.modalService.show(SpreadsheetModalComponent, { backdrop: true, ignoreBackdropClick: true });
+                this.bsModalRef.content.init(configuration);
             }
 
-            this.bsModalRef.content.configuration = configuration;
         };
         this.uploader.onErrorItem = (item: any, response: string, status: number, headers: any) => {
             const error = JSON.parse(response);

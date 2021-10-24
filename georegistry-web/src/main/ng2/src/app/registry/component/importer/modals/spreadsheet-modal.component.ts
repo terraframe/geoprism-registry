@@ -21,14 +21,16 @@ export class SpreadsheetModalComponent {
     message: string = null;
     state: string = 'MAP';
     property: string;
+    includeChild: boolean;
 
     constructor(private service: IOService, public bsModalRef: BsModalRef, private modalService: BsModalService,
         private localizeService: LocalizationService, private router: Router) {
     }
 
-    init(configuration: ImportConfiguration, property: string = 'type'): void {
+    init(configuration: ImportConfiguration, property: string = 'type', includeChild: boolean = false): void {
         this.configuration = configuration;
         this.property = property;
+        this.includeChild = includeChild;
     }
 
     onStateChange(event: string): void {
