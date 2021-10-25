@@ -97,7 +97,12 @@
                                             [typeahead]="getTypeAheadObservable(transition, this.event.beforeTypeCode, 'sourceText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
-                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300" container="#typeaheadParentS">
+
+                                        <div style="position: absolute;">
+                                            <div id="typeaheadParentS" style="position: fixed; z-index: 10;">
+                                            </div>
+                                        </div>
 
                                         <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
                                             (click)="clear(transition, 'sourceText')">
@@ -113,14 +118,19 @@
                                     <input type="text" [name]="'transition.impact-' + i" class="form-control" [ngModel]="localizeTransitionImpact(transition.impact)" disabled required>
                                 </td>
                                 <td>
-                                    <div class="input-group">
+                                    <div  class="input-group">
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.target-' + i" [disabled]="readonly"
                                             [(ngModel)]="transition.targetText" [typeaheadAsync]="true"
                                             [typeahead]="getTypeAheadObservable(transition, this.event.afterTypeCode, 'targetText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
-                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300">
+                                            [typeaheadMinLength]="0" [typeaheadWaitMs]="300" container="#typeaheadParentT">
+                                        
+                                        <div style="position: absolute;">
+                                            <div id="typeaheadParentT" style="position: fixed; z-index: 10;">
+                                            </div>
+                                        </div>
 
                                         <span *ngIf="!readonly" class="input-group-addon clickable addon-alert"
                                             (click)="clear(transition, 'targetText')">
@@ -131,7 +141,6 @@
                                         <span *ngIf="readonly" class="input-group-addon addon-alert">
                                         </span>
                                     </div>
-
                                 </td>
                                 <td>
                                     <input *ngIf="transition.transitionType !== 'UPGRADE' && transition.transitionType !== 'DOWNGRADE'" type="text" [name]="'transition.transitionType-' + i" class="form-control" [ngModel]="localizeTransitionType(transition.transitionType)" disabled required>

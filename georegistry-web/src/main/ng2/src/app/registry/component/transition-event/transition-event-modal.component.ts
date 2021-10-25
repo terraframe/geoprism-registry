@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Observable, Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -22,6 +22,8 @@ export const TREE_SCALE_FACTOR_Y: number = 1.8;
     styleUrls: []
 })
 export class TransitionEventModalComponent implements OnInit, OnDestroy {
+
+    @ViewChild("typeaheadParent") typeaheadParent;
 
     message: string = null;
 
@@ -149,6 +151,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
     remove(index: number): void {
         this.event.transitions.splice(index, 1);
+        this.onChange();
     }
 
     onSubmit(): void {
@@ -196,28 +199,20 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             }
         });
 
-        /*
-        <option value="MERGE"><localize key="transition.event.type.merge"></localize></option>
-        <option value="SPLIT"><localize key="transition.event.type.split"></localize></option>
-        <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
-        <option value="DOWNGRADE"><localize key="transition.event.type.downgrade"></localize></option>
-        <option value="REASSIGN"><localize key="transition.event.type.reassign"></localize></option>
-        */
-
         this.event.transitions.forEach(trans => {
             if (trans.sourceCode != null && trans.sourceCode !== "" && trans.targetCode != null && trans.targetCode !== "") {
                 let sourceStats = stats[trans.sourceCode];
                 let targetStats = stats[trans.targetCode];
 
-                if (sourceStats.source > 1) {
+                if (trans.sourceType !== trans.targetType) {
+                    trans.impact = "FULL";
+                    trans.transitionType = "UPGRADE";
+                } else if (sourceStats.source > 1) {
                     trans.impact = "PARTIAL";
                     trans.transitionType = "SPLIT";
                 } else {
                     if (targetStats.target > 1) {
                         trans.transitionType = "MERGE";
-                    } else if (trans.sourceType !== trans.targetType) {
-                        trans.impact = "FULL";
-                        trans.transitionType = "UPGRADE";
                     } else {
                         trans.transitionType = "REASSIGN";
                     }
@@ -243,9 +238,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             svg.attr("id", "svg");
         }
 
-        let data = this.generateD3Data();
-
-        let width = 100;
+        let appData = this.generateAppData();
+        let renderingData = this.generateRenderingData(appData);
 
         /*
         let autoBox = function autoBox() {
@@ -256,30 +250,21 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         };
         */
 
-        let tree = data => {
-            const root: any = d3.hierarchy(data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
-            root.dx = 10;
-            root.dy = width / (root.height + 1);
-            return d3.cluster().nodeSize([root.dx, root.dy])(root);
-        };
-
         let chart = () => {
-            const root = tree(data);
+            const root = renderingData.d3;
 
-            // const svg = d3.create("svg");
-
-            svg.append("g")
+            let links = svg.append("g")
               .attr("fill", "none")
               .attr("stroke", "#555")
               .attr("stroke-opacity", 0.4)
-              .attr("stroke-width", 1.5)
-            .selectAll("path")
+              .attr("stroke-width", 1.5);
+            links.selectAll("path")
               .data(root.links())
               .join("path")
                 .style("display", function(d: any) {
                     return d.source.depth === 0 ? "none" : null;
                 })
-                .attr("d", d => `
+                .attr("d", (d: any) => `
                   M${d.target.y},${d.target.x}
                    ${d.source.y},${d.source.x}
                 `);
@@ -291,9 +276,9 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     .style("display", function(d: any) {
                         return d.depth === 0 ? "none" : null;
                     })
-                    .attr("cx", d => d.y)
-                    .attr("cy", d => d.x)
-                    .attr("fill", d => d.children ? "#555" : "#999")
+                    .attr("cx", (d: any) => d.y)
+                    .attr("cy", (d: any) => d.x)
+                    .attr("fill", (d: any) => d.children ? "#555" : "#999")
                     .attr("r", 2.5);
 
             svg.append("g")
@@ -307,15 +292,23 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 .style("display", function(d: any) {
                     return d.depth === 0 ? "none" : null;
                 })
-                .attr("x", d => d.y)
-                .attr("y", d => d.x)
+                .attr("x", (d: any) => d.y)
+                .attr("y", (d: any) => d.x)
                 .attr("dy", "0.31em")
-                .attr("dx", d => d.children ? -6 : 6)
-                .text(d => d.data.name)
-              .filter(d => d.children)
+                .attr("dx", (d: any) => (d.depth === 1) ? -6 : 6)
+                .text((d: any) => d.data.name)
+              .filter((d: any) => d.depth === 1)
                 .attr("text-anchor", "end")
               .clone(true).lower()
                 .attr("stroke", "white");
+
+            renderingData.multipleParentLinks.forEach(function(link) {
+                links.append("path")
+                    .attr("d", () => `
+                      M${link.parent.y},${link.parent.x}
+                       ${link.child.y},${link.child.x}
+                    `);
+            });
 
             // return svg.attr("viewBox", autoBox).node();
         }
@@ -325,35 +318,101 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.calculateSvgViewBox();
     }
 
-    generateD3Data(): any {
+    generateRenderingData(appData: any): any {
+        let width = 100;
+
+        const root: any = d3.hierarchy(appData.d3Data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
+        root.dx = 10;
+        root.dy = width / (root.height + 1);
+        let d3RenderingData = d3.tree().nodeSize([root.dx, root.dy])(root);
+
+        let multipleParentLinks = [];
+        appData.multipleParentLinks.forEach(function(link) {
+            let parentNode = root.find(node => node.data.isSource && node.data.code === link.parent.code);
+            let childNode = root.find(node => !node.data.isSource && node.data.code === link.child.code);
+
+            if (parentNode != null && childNode != null) {
+                multipleParentLinks.push({
+                    parent: parentNode,
+                    child: childNode
+                });
+            }
+        });
+
+        return {
+            d3: d3RenderingData,
+            multipleParentLinks: multipleParentLinks
+        };
+    }
+
+    generateAppData(): any {
         let children = [];
+        let multipleParentLinks = []; // D3 can't handle multiple parents so we have to draw them ourselves.
+
+        let isChildOfOtherNode = (code: string) => {
+            for (let i = 0; i < children.length; ++i) {
+                let child = children[i];
+
+                if (child.children) {
+                    for (let j = 0; j < child.children.length; ++j) {
+                        let grandChild = child.children[j];
+
+                        if (grandChild.code === code) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        };
 
         this.event.transitions.forEach(trans => {
             if (trans.sourceCode != null && trans.sourceCode !== "" && trans.targetCode != null && trans.targetCode !== "") {
                 let index = children.findIndex(child => child.code === trans.sourceCode);
+
+                let childExists = isChildOfOtherNode(trans.targetCode);
+                let grandChild = null;
+                if (!childExists) {
+                    grandChild = {
+                        name: trans.targetText,
+                        code: trans.targetCode,
+                        isSource: false,
+                        children: []
+                    };
+                } else {
+                    multipleParentLinks.push({
+                        child: {
+                            code: trans.targetCode,
+                            text: trans.targetText,
+                            type: trans.targetType
+                        },
+                        parent: {
+                            code: trans.sourceCode,
+                            text: trans.sourceText,
+                            type: trans.sourceType
+                        }
+                    });
+                }
 
                 if (index !== -1) {
                     let child = children[index];
 
                     let index2 = child.children.findIndex(child => child.code === trans.targetCode);
 
-                    if (index2 != null) {
-                        child.children.push({
-                            name: trans.targetText,
-                            code: trans.targetCode,
-                            children: []
-                        });
+                    if (index2 != null && grandChild != null) {
+                        child.children.push(grandChild);
                     }
                 } else {
-                    let child = {
+                    let child: any = {
                         name: trans.sourceText,
                         code: trans.sourceCode,
-                        children: [{
-                            name: trans.targetText,
-                            code: trans.targetCode,
-                            children: []
-                        }]
+                        isSource: true
                     };
+
+                    if (grandChild != null) {
+                        child.children = [grandChild];
+                    }
 
                     children.push(child);
                 }
@@ -361,8 +420,11 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         });
 
         return {
-            name: "root",
-            children: children
+            d3Data: {
+                name: "root",
+                children: children
+            },
+            multipleParentLinks: multipleParentLinks
         };
     }
 
@@ -379,7 +441,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         width = (width + xPadding * 2) * TREE_SCALE_FACTOR_X;
         height = (height + yPadding * 2) * TREE_SCALE_FACTOR_Y;
 
-        //d3.select("#svgHolder").style("width", width + "px");
+        // d3.select("#svgHolder").style("width", width + "px");
         // d3.select("#svgHolder").style("height", height + "px");
     }
 
