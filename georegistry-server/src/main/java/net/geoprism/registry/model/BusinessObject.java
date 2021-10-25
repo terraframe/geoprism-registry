@@ -1,5 +1,7 @@
 package net.geoprism.registry.model;
 
+import org.commongeoregistry.adapter.constants.DefaultAttribute;
+
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
@@ -13,7 +15,9 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class BusinessObject
 {
-  private VertexObject     vertex;
+  public static String CODE = "code";
+
+  private VertexObject vertex;
 
   private BusinessType type;
 
@@ -33,11 +37,14 @@ public class BusinessObject
     return vertex;
   }
 
-  public static BusinessObject newInstance(BusinessType type)
+  public String getCode()
   {
-    VertexObject vertex = VertexObject.instantiate(VertexObjectDAO.newInstance(type.getMdVertexDAO()));
+    return this.getObjectValue(DefaultAttribute.CODE.getName());
+  }
 
-    return new BusinessObject(vertex, type);
+  public void setCode(String code)
+  {
+    this.setValue(DefaultAttribute.CODE.getName(), code);
   }
 
   public void setValue(String attributeName, Object value)
@@ -91,6 +98,13 @@ public class BusinessObject
     return null;
   }
 
+  public static BusinessObject newInstance(BusinessType type)
+  {
+    VertexObject vertex = VertexObject.instantiate(VertexObjectDAO.newInstance(type.getMdVertexDAO()));
+
+    return new BusinessObject(vertex, type);
+  }
+
   public static BusinessObject get(BusinessType type, String attributeName, Object value)
   {
     MdVertexDAOIF mdVertex = type.getMdVertexDAO();
@@ -111,6 +125,11 @@ public class BusinessObject
     }
 
     return null;
+  }
+
+  public static BusinessObject getByCode(BusinessType type, Object value)
+  {
+    return BusinessObject.get(type, DefaultAttribute.CODE.getName(), value);
   }
 
 }

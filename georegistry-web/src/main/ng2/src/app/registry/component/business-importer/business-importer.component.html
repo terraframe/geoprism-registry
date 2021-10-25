@@ -60,11 +60,12 @@
                                     <label class="col-md-2 text-right" for="businessTypeCode"> Business
                                         Type</label>
                                     <div class="col-md-8">
-                                        <select id="businessTypeCode" name="businessTypeCode"
-                                            class="select-area" [(ngModel)]="businessTypeCode" required>
+                                        <select id="businessTypeCode" name="businessTypeCode" class="select-area"
+                                            [(ngModel)]="businessTypeCode" required>
                                             <option></option>
                                             <option *ngFor="let businessType of businessTypes"
-                                                value={{businessType.code}}>{{businessType.displayLabel.localizedValue}}</option>
+                                                value={{businessType.code}}>{{businessType.displayLabel.localizedValue}}
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="col-md-2"></div>
@@ -146,8 +147,8 @@
                                 <div class="form-group row">
                                     <div class="col-md-2"></div>
                                     <div class="button-holder col-md-8 text-right">
-                                        <button type="submit" class="btn btn-primary"
-                                            [disabled]="form.invalid" (click)="onClick()">
+                                        <button type="submit" class="btn btn-primary" [disabled]="form.invalid"
+                                            (click)="onClick()">
                                             <localize key="io.submit"></localize>
                                         </button>
                                     </div>

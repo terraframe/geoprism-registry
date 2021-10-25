@@ -61,11 +61,13 @@
                     <tbody>
                       <tr *ngFor="let attr of type.attributes">
                         <td>{{attr.label.localizedValue}}</td>
-                        <td *ngIf="!readOnly" class="button-column" style="width: 60px;">
-                          <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
+                        <td class="button-column" style="width: 60px;">
+                          <ng-container *ngIf="!readOnly && !attr.isDefault">
+                            <a class="fa fa-pencil ico-edit" [routerLink]="" (click)="editAttribute(attr, $event)"
                             [title]="'modal.button.edit' | localize"></a>
-                          <a class="fa fa-trash-o ico-remove" [routerLink]=""
+                            <a class="fa fa-trash-o ico-remove" [routerLink]=""
                             (click)="removeAttributeType(attr, $event)" [title]="'modal.button.remove' | localize"></a>
+                          </ng-container>
                         </td>
                       </tr>
                     </tbody>

@@ -32,7 +32,6 @@ import org.commongeoregistry.adapter.Term;
 import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.commongeoregistry.adapter.dataaccess.GeoObject;
 import org.commongeoregistry.adapter.dataaccess.GeoObjectOverTime;
-import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.dataaccess.UnknownTermException;
 import org.commongeoregistry.adapter.metadata.AttributeBooleanType;
 import org.commongeoregistry.adapter.metadata.AttributeCharacterType;
@@ -62,9 +61,8 @@ import com.runwaysdk.system.AbstractClassification;
 import net.geoprism.data.importer.FeatureRow;
 import net.geoprism.data.importer.ShapefileFunction;
 import net.geoprism.ontology.Classifier;
-import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.BusinessType;
-import net.geoprism.registry.etl.InvalidExternalIdException;
+import net.geoprism.registry.GeoregistryProperties;
 import net.geoprism.registry.etl.ParentReferenceProblem;
 import net.geoprism.registry.etl.RowValidationProblem;
 import net.geoprism.registry.etl.TermReferenceProblem;
@@ -76,9 +74,11 @@ import net.geoprism.registry.io.IgnoreRowException;
 import net.geoprism.registry.io.Location;
 import net.geoprism.registry.io.ParentCodeException;
 import net.geoprism.registry.io.ParentMatchStrategy;
+import net.geoprism.registry.io.RequiredMappingException;
 import net.geoprism.registry.io.TermValueException;
-import net.geoprism.registry.model.GeoObjectMetadata;
 import net.geoprism.registry.model.BusinessObject;
+import net.geoprism.registry.model.GeoObjectMetadata;
+import net.geoprism.registry.model.GeoObjectTypeMetadata;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
@@ -115,26 +115,26 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   }
 
-  private static final Logger                     logger                     = LoggerFactory.getLogger(BusinessObjectImporter.class);
+  private static final Logger                 logger                     = LoggerFactory.getLogger(BusinessObjectImporter.class);
 
-  protected static final String                   ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
+  protected static final String               ERROR_OBJECT_TYPE          = GeoObjectOverTime.class.getName();
 
   protected BusinessObjectImportConfiguration configuration;
 
-  protected Map<String, ServerGeoObjectIF>        cache;
+  protected Map<String, ServerGeoObjectIF>    cache;
 
-  protected static final String                   parentConcatToken          = "&";
+  protected static final String               parentConcatToken          = "&";
 
-  protected ImportProgressListenerIF              progressListener;
+  protected ImportProgressListenerIF          progressListener;
 
-  protected FormatSpecificImporterIF              formatImporter;
+  protected FormatSpecificImporterIF          formatImporter;
 
-  private long                                    lastValidateSessionRefresh = 0;
+  private long                                lastValidateSessionRefresh = 0;
 
-  private long                                    lastImportSessionRefresh   = 0;
+  private long                                lastImportSessionRefresh   = 0;
 
   // Refresh the user's session every X amount of records
-  private static final long                       refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
+  private static final long                   refreshSessionRecordCount  = GeoregistryProperties.getRefreshSessionRecordCount();
 
   public BusinessObjectImporter(BusinessObjectImportConfiguration configuration, ImportProgressListenerIF progressListener)
   {
@@ -156,9 +156,9 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
   protected class GeoObjectErrorBuilder
   {
-    protected ServerGeoObjectIF  geoObject;
+    protected ServerGeoObjectIF geoObject;
 
-    protected BusinessObject object;
+    protected BusinessObject    object;
 
     protected GeoObjectErrorBuilder()
     {
@@ -275,15 +275,14 @@ public class BusinessObjectImporter implements ObjectImporterIF
         /*
          * 2. Check for serialization and term problems
          */
-        // String code = this.getCode(row);
-        //
-        //
-        // if (code == null || code.length() <= 0)
-        // {
-        // RequiredMappingException ex = new RequiredMappingException();
-        // ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-        // throw ex;
-        // }
+        String code = this.getCode(row);
+
+        if (code == null || code.length() <= 0)
+        {
+          RequiredMappingException ex = new RequiredMappingException();
+          ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+          throw ex;
+        }
 
         BusinessObject entity;
 
@@ -311,18 +310,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
                 this.setValue(entity, attributeType, attributeName, value);
               }
             }
-          }
-        }
-
-        if (this.configuration.isExternalImport())
-        {
-          ShapefileFunction function = this.configuration.getExternalIdFunction();
-
-          Object value = function.getValue(row);
-
-          if (value == null || ! ( value instanceof String || value instanceof Integer || value instanceof Long ) || ( value instanceof String && ( (String) value ).length() == 0 ))
-          {
-            throw new InvalidExternalIdException();
           }
         }
       }
@@ -437,20 +424,18 @@ public class BusinessObjectImporter implements ObjectImporterIF
 
     try
     {
-//      String code = this.getCode(row);
-//
-//      if (code == null || code.length() <= 0)
-//      {
-//        RequiredMappingException ex = new RequiredMappingException();
-//        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
-//        throw ex;
-//      }
+      String code = this.getCode(row);
 
-      // TODO Handle updating an existing object
+      if (code == null || code.length() <= 0)
+      {
+        RequiredMappingException ex = new RequiredMappingException();
+        ex.setAttributeLabel(GeoObjectTypeMetadata.getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
+        throw ex;
+      }
+
       if (this.configuration.getImportStrategy().equals(ImportStrategy.UPDATE_ONLY) || this.configuration.getImportStrategy().equals(ImportStrategy.NEW_AND_UPDATE))
       {
-        // businessObject = service.getGeoObjectByCode(code,
-        // this.configuration.getType());
+        businessObject = BusinessObject.getByCode(this.configuration.getType(), code);
       }
 
       if (businessObject == null)
@@ -459,7 +444,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         {
           net.geoprism.registry.DataNotFoundException ex = new net.geoprism.registry.DataNotFoundException();
           ex.setTypeLabel(GeoObjectMetadata.get().getClassDisplayLabel());
-          ex.setDataIdentifier("Test");
+          ex.setDataIdentifier(code);
           ex.setAttributeLabel(GeoObjectMetadata.get().getAttributeDisplayLabel(DefaultAttribute.CODE.getName()));
           throw ex;
         }
@@ -467,6 +452,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         isNew = true;
 
         businessObject = BusinessObject.newInstance(this.configuration.getType());
+        businessObject.setCode(code);
       }
 
       builder.setObject(businessObject);
@@ -515,7 +501,7 @@ public class BusinessObjectImporter implements ObjectImporterIF
         data.setGoJson(businessObject.toJSON().toString());
         data.setNew(isNew);
         data.setParentBuilder(builder);
-        
+
         businessObject.setGeoObject(geoObject);
         businessObject.apply();
       }
@@ -562,6 +548,34 @@ public class BusinessObjectImporter implements ObjectImporterIF
     re.setObjectType(ERROR_OBJECT_TYPE);
     re.setBuilder(parentBuilder);
     throw re;
+  }
+
+  /**
+   * @param feature
+   *          Shapefile feature
+   * 
+   * @return The geoId as defined by the 'oid' attribute on the feature. If the
+   *         geoId is null then a blank geoId is returned.
+   */
+  protected String getCode(FeatureRow row)
+  {
+    ShapefileFunction function = this.configuration.getFunction(BusinessObject.CODE);
+
+    if (function == null)
+    {
+      RequiredMappingException ex = new RequiredMappingException();
+      ex.setAttributeLabel(this.configuration.getType().getAttribute(BusinessObject.CODE).getLabel().getValue());
+      throw ex;
+    }
+
+    Object code = function.getValue(row);
+
+    if (code != null)
+    {
+      return code.toString();
+    }
+
+    return null;
   }
 
   /**
@@ -701,19 +715,19 @@ public class BusinessObjectImporter implements ObjectImporterIF
         }
         else
         {
-//          if (context.length() == 0)
-//          {
-//            GeoObject root = this.configuration.getRoot();
-//
-//            if (root != null)
-//            {
-//              JSONObject element = new JSONObject();
-//              element.put("label", root.getLocalizedDisplayLabel());
-//              element.put("type", root.getType().getLabel().getValue());
-//
-//              context.put(element);
-//            }
-//          }
+          // if (context.length() == 0)
+          // {
+          // GeoObject root = this.configuration.getRoot();
+          //
+          // if (root != null)
+          // {
+          // JSONObject element = new JSONObject();
+          // element.put("label", root.getLocalizedDisplayLabel());
+          // element.put("type", root.getType().getLabel().getValue());
+          //
+          // context.put(element);
+          // }
+          // }
 
           if (ms.equals(ParentMatchStrategy.CODE))
           {
@@ -756,33 +770,6 @@ public class BusinessObjectImporter implements ObjectImporterIF
   {
     ShapefileFunction function = location.getFunction();
     return function.getValue(feature);
-  }
-
-  /**
-   * @param feature
-   * @return The entityName as defined by the 'name' attribute of the feature
-   */
-  private LocalizedValue getName(FeatureRow row)
-  {
-    ShapefileFunction function = this.configuration.getFunction(GeoObject.DISPLAY_LABEL);
-
-    if (function == null)
-    {
-      // RequiredMappingException ex = new RequiredMappingException();
-      // ex.setAttributeLabel(this.configuration.getType().getAttribute(GeoObject.DISPLAY_LABEL).get().getLabel().getValue());
-      // throw ex;
-
-      return null;
-    }
-
-    Object attribute = function.getValue(row);
-
-    if (attribute != null)
-    {
-      return (LocalizedValue) attribute;
-    }
-
-    return null;
   }
 
   protected void setTermValue(BusinessObject entity, AttributeType attributeType, String attributeName, Object value)

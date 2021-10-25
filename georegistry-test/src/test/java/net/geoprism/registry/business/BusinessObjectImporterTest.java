@@ -16,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
+import com.runwaysdk.dataaccess.DuplicateDataException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.ExecutionContext;
@@ -48,11 +49,13 @@ import net.geoprism.registry.test.TestDataSet;
 
 public class BusinessObjectImporterTest
 {
-  private static FastTestDataset  testData;
+  private static FastTestDataset testData;
 
-  private static BusinessType type;
+  private static BusinessType    type;
 
-  private static AttributeType    attributeType;
+  private static AttributeType   attributeType;
+
+  private static String          TEST_CODE = "testCode";
 
   @BeforeClass
   public static void setUpClass()
@@ -104,13 +107,14 @@ public class BusinessObjectImporterTest
 
   @Test
   @Request
-  public void testImportValue() throws InterruptedException
+  public void testImportValueNewOnly() throws InterruptedException
   {
     String value = "Test Text";
     String rowAttribute = "Bad";
 
     HashMap<String, Object> row = new HashMap<String, Object>();
     row.put(rowAttribute, value);
+    row.put(BusinessObject.CODE, TEST_CODE);
 
     BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
     configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
@@ -118,6 +122,7 @@ public class BusinessObjectImporterTest
     configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
     configuration.setCopyBlank(false);
     configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+    configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
 
     BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
     importer.importRow(new MapFeatureRow(row));
@@ -130,7 +135,137 @@ public class BusinessObjectImporterTest
     }
     finally
     {
-      result.delete();
+      if (result != null)
+      {
+        result.delete();
+      }
+    }
+  }
+
+  @Test
+  @Request
+  public void testImportValueUpdateAndNew() throws InterruptedException
+  {
+    String value = "Test Text";
+    String rowAttribute = "Bad";
+
+    HashMap<String, Object> row = new HashMap<String, Object>();
+    row.put(rowAttribute, value);
+    row.put(BusinessObject.CODE, TEST_CODE);
+
+    BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
+    configuration.setImportStrategy(ImportStrategy.NEW_AND_UPDATE);
+    configuration.setType(type);
+    configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+    configuration.setCopyBlank(false);
+    configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+    configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
+
+    BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
+    importer.importRow(new MapFeatureRow(row));
+
+    BusinessObject result = BusinessObject.get(type, attributeType.getName(), value);
+
+    try
+    {
+      Assert.assertNotNull(result);
+    }
+    finally
+    {
+      if (result != null)
+      {
+        result.delete();
+      }
+    }
+  }
+
+  @Test
+  @Request
+  public void testUpdateValue() throws InterruptedException
+  {
+    BusinessObject object = BusinessObject.newInstance(type);
+    object.setCode(TEST_CODE);
+    object.apply();
+
+    try
+    {
+      String value = "Test Text";
+      String rowAttribute = "Bad";
+
+      HashMap<String, Object> row = new HashMap<String, Object>();
+      row.put(rowAttribute, value);
+      row.put(BusinessObject.CODE, TEST_CODE);
+
+      BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
+      configuration.setImportStrategy(ImportStrategy.UPDATE_ONLY);
+      configuration.setType(type);
+      configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+      configuration.setCopyBlank(false);
+      configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+      configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
+
+      BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
+      importer.importRow(new MapFeatureRow(row));
+
+      Assert.assertFalse(configuration.hasExceptions());
+
+      BusinessObject result = BusinessObject.getByCode(type, TEST_CODE);
+
+      Assert.assertEquals(result.getObjectValue(attributeType.getName()), value);
+    }
+    finally
+    {
+      if (object != null)
+      {
+        object.delete();
+      }
+    }
+  }
+
+  @Test
+  @Request
+  public void testImportValueExistingNewOnly() throws InterruptedException
+  {
+    BusinessObject object = BusinessObject.newInstance(type);
+    object.setCode(TEST_CODE);
+    object.apply();
+
+    try
+    {
+      String value = "Test Text";
+      String rowAttribute = "Bad";
+
+      HashMap<String, Object> row = new HashMap<String, Object>();
+      row.put(rowAttribute, value);
+      row.put(BusinessObject.CODE, TEST_CODE);
+
+      BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
+      configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
+      configuration.setType(type);
+      configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
+      configuration.setCopyBlank(false);
+      configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+      configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
+
+      BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
+      importer.importRow(new MapFeatureRow(row));
+
+      Assert.assertTrue(configuration.hasExceptions());
+
+      LinkedList<BusinessObjectRecordedErrorException> exceptions = configuration.getExceptions();
+
+      Assert.assertEquals(1, exceptions.size());
+
+      BusinessObjectRecordedErrorException exception = exceptions.get(0);
+
+      Assert.assertTrue(exception.getError() instanceof DuplicateDataException);
+    }
+    finally
+    {
+      if (object != null)
+      {
+        object.delete();
+      }
     }
   }
 
@@ -148,6 +283,7 @@ public class BusinessObjectImporterTest
     HashMap<String, Object> row = new HashMap<String, Object>();
     row.put(rowAttribute, value);
     row.put(geoAttribute, FastTestDataset.DIST_CENTRAL.getCode());
+    row.put(BusinessObject.CODE, TEST_CODE);
 
     BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
     configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
@@ -156,6 +292,7 @@ public class BusinessObjectImporterTest
     configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
     configuration.setCopyBlank(false);
     configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+    configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
     configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
 
     BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
@@ -196,6 +333,7 @@ public class BusinessObjectImporterTest
     HashMap<String, Object> row = new HashMap<String, Object>();
     row.put(rowAttribute, value);
     row.put(geoAttribute, "Blarg");
+    row.put(BusinessObject.CODE, TEST_CODE);
 
     BusinessObjectImportConfiguration configuration = new BusinessObjectImportConfiguration();
     configuration.setImportStrategy(ImportStrategy.NEW_ONLY);
@@ -204,6 +342,7 @@ public class BusinessObjectImporterTest
     configuration.setDate(FastTestDataset.DEFAULT_END_TIME_DATE);
     configuration.setCopyBlank(false);
     configuration.setFunction(attributeType.getName(), new BasicColumnFunction(rowAttribute));
+    configuration.setFunction(BusinessObject.CODE, new BasicColumnFunction(BusinessObject.CODE));
     configuration.addLocation(new Location(got, hierarchy, new BasicColumnFunction(geoAttribute), ParentMatchStrategy.CODE));
 
     BusinessObjectImporter importer = new BusinessObjectImporter(configuration, new NullImportProgressListener());
@@ -261,8 +400,23 @@ public class BusinessObjectImporterTest
     Assert.assertEquals(new Long(2), hist.getImportedRecords());
     Assert.assertEquals(ImportStage.COMPLETE, hist.getStage().get(0));
 
-    Assert.assertNotNull(BusinessObject.get(type, attributeType.getName(), "0001"));
-    Assert.assertNotNull(BusinessObject.get(type, attributeType.getName(), "0002"));
+    assertAndDelete(BusinessObject.get(type, attributeType.getName(), "0001"));
+    assertAndDelete(BusinessObject.get(type, attributeType.getName(), "0002"));
+  }
+
+  public void assertAndDelete(BusinessObject o1)
+  {
+    try
+    {
+      Assert.assertNotNull(o1);
+    }
+    finally
+    {
+      if (o1 != null)
+      {
+        o1.delete();
+      }
+    }
   }
 
   private JSONObject getTestConfiguration(InputStream istream, ExcelService service, ImportStrategy strategy)
@@ -277,7 +431,7 @@ public class BusinessObjectImporterTest
 
       String attributeName = attribute.getString(AttributeType.JSON_CODE);
 
-      if (attributeName.equals(attributeType.getName()))
+      if (attributeName.equals(attributeType.getName()) || attributeName.equals(BusinessObject.CODE))
       {
         attribute.put(BusinessObjectImportConfiguration.TARGET, "Code");
       }

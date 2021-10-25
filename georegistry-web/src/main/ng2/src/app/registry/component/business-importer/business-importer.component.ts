@@ -25,7 +25,7 @@ export class BusinessImporterComponent implements OnInit {
 
     currentDate: Date = new Date();
 
-    showImportConfig: boolean = false;
+    showImportConfig: boolean = true;
 
     isValid: boolean = false;
 
@@ -55,7 +55,9 @@ export class BusinessImporterComponent implements OnInit {
 
     importStrategy: ImportStrategy;
     importStrategies: any[] = [
+        { strategy: ImportStrategy.NEW_AND_UPDATE, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_AND_UPDATE") },
         { strategy: ImportStrategy.NEW_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.NEW_ONLY") },
+        { strategy: ImportStrategy.UPDATE_ONLY, label: this.localizationService.decode("etl.import.ImportStrategy.UPDATE_ONLY") }
     ]
 
     /*
