@@ -1,4 +1,4 @@
-<div>
+<div *ngIf="dataTimeSpan">
     <span>
       <localize key="manage.versions.historyTitle"></localize>
       <a *ngIf="this.activeEntry" (click)="setActiveTimelineEntry(null)" class="view-all"><localize key="manage.versions.history.viewAll"></localize></a>
