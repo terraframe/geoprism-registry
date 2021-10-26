@@ -23,7 +23,7 @@ import com.google.gson.JsonParser;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.graph.TransitionEvent;
+import net.geoprism.registry.graph.transition.TransitionEvent;
 
 public class TransitionEventService
 {

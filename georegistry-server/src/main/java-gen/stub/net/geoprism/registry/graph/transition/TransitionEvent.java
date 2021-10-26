@@ -1,4 +1,4 @@
-package net.geoprism.registry.graph;
+package net.geoprism.registry.graph.transition;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,8 +24,8 @@ import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.graph.Transition.TransitionImpact;
-import net.geoprism.registry.graph.Transition.TransitionType;
+import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
+import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -37,7 +37,7 @@ import net.geoprism.registry.view.Page;
 
 public class TransitionEvent extends TransitionEventBase implements JsonSerializable
 {
-  public static String      TRANSITION_ASSIGNMENT = "net.geoprism.registry.graph.TransitionAssignment";
+  public static String      TRANSITION_ASSIGNMENT = "net.geoprism.registry.graph.transition.TransitionAssignment";
 
   private static final long serialVersionUID      = 112753140;
 

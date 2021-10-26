@@ -19,10 +19,10 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 
 import net.geoprism.registry.conversion.LocalizedValueConverter;
-import net.geoprism.registry.graph.Transition;
-import net.geoprism.registry.graph.Transition.TransitionImpact;
-import net.geoprism.registry.graph.Transition.TransitionType;
-import net.geoprism.registry.graph.TransitionEvent;
+import net.geoprism.registry.graph.transition.Transition;
+import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
+import net.geoprism.registry.graph.transition.Transition.TransitionType;
+import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.test.FastTestDataset;

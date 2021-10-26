@@ -1,6 +1,6 @@
-package net.geoprism.registry.graph;
+package net.geoprism.registry.graph.transition;
 
-@com.runwaysdk.business.ClassSignature(hash = 1075539855)
+@com.runwaysdk.business.ClassSignature(hash = 585019516)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -10,14 +10,14 @@ package net.geoprism.registry.graph;
  */
 public abstract class TransitionEventBase extends com.runwaysdk.business.graph.VertexObject
 {
-  public final static String CLASS = "net.geoprism.registry.graph.TransitionEvent";
+  public final static String CLASS = "net.geoprism.registry.graph.transition.TransitionEvent";
   public static java.lang.String AFTERTYPECODE = "afterTypeCode";
   public static java.lang.String BEFORETYPECODE = "beforeTypeCode";
   public static java.lang.String DESCRIPTION = "description";
   public static java.lang.String EVENTDATE = "eventDate";
   public static java.lang.String OID = "oid";
   public static java.lang.String SEQ = "seq";
-  private static final long serialVersionUID = 1075539855;
+  private static final long serialVersionUID = 585019516;
   
   public TransitionEventBase()
   {
@@ -31,7 +31,7 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   
   public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getAfterTypeCodeMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.TransitionEvent.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(AFTERTYPECODE);
   }
   
@@ -47,7 +47,7 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   
   public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getBeforeTypeCodeMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.TransitionEvent.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(BEFORETYPECODE);
   }
   
@@ -63,7 +63,7 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   
   public static com.runwaysdk.dataaccess.MdAttributeDAOIF getDescriptionMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.TransitionEvent.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeDAOIF)mdClassIF.definesAttribute(DESCRIPTION);
   }
   
@@ -79,7 +79,7 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   
   public static com.runwaysdk.dataaccess.MdAttributeDateDAOIF getEventDateMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.TransitionEvent.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeDateDAOIF)mdClassIF.definesAttribute(EVENTDATE);
   }
   
@@ -95,7 +95,7 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   
   public static com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF getOidMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.TransitionEvent.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
@@ -106,7 +106,7 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   
   public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getSeqMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.TransitionEvent.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.TransitionEvent.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(SEQ);
   }
   
@@ -120,20 +120,20 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
     return CLASS;
   }
   
-  public com.runwaysdk.business.graph.EdgeObject addTransitionAssignmentChild(net.geoprism.registry.graph.Transition transition)
+  public com.runwaysdk.business.graph.EdgeObject addTransitionAssignmentChild(net.geoprism.registry.graph.transition.Transition transition)
   {
-    return super.addChild(transition, "net.geoprism.registry.graph.TransitionAssignment");
+    return super.addChild(transition, "net.geoprism.registry.graph.transition.TransitionAssignment");
   }
   
-  public void removeTransitionAssignmentChild(net.geoprism.registry.graph.Transition transition)
+  public void removeTransitionAssignmentChild(net.geoprism.registry.graph.transition.Transition transition)
   {
-    super.removeChild(transition, "net.geoprism.registry.graph.TransitionAssignment");
+    super.removeChild(transition, "net.geoprism.registry.graph.transition.TransitionAssignment");
   }
   
   @SuppressWarnings("unchecked")
-  public java.util.List<net.geoprism.registry.graph.Transition> getTransitionAssignmentChildTransitions()
+  public java.util.List<net.geoprism.registry.graph.transition.Transition> getTransitionAssignmentChildTransitions()
   {
-    return super.getChildren("net.geoprism.registry.graph.TransitionAssignment",net.geoprism.registry.graph.Transition.class);
+    return super.getChildren("net.geoprism.registry.graph.transition.TransitionAssignment",net.geoprism.registry.graph.transition.Transition.class);
   }
   
   public static TransitionEvent get(String oid)

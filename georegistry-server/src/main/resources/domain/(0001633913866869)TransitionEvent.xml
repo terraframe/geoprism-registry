@@ -4,7 +4,7 @@
   <doIt>
     <create>
       <mdVertex
-        name="net.geoprism.registry.graph.TransitionEvent"
+        name="net.geoprism.registry.graph.transition.TransitionEvent"
         label="Transition">
         <attributes>
           <date
@@ -26,7 +26,7 @@
         </attributes>
       </mdVertex>
       <mdVertex
-        name="net.geoprism.registry.graph.Transition"
+        name="net.geoprism.registry.graph.transition.Transition"
         label="Transition">
         <attributes>
           <text
@@ -40,24 +40,24 @@
         </attributes>
       </mdVertex>
       <mdEdge
-        name="net.geoprism.registry.graph.TransitionSource"
+        name="net.geoprism.registry.graph.transition.TransitionSource"
         label="Transition Source"
-        parent="net.geoprism.registry.graph.Transition"
+        parent="net.geoprism.registry.graph.transition.Transition"
         child="net.geoprism.registry.graph.GeoVertex"
         generateSource="false">
       </mdEdge>
       <mdEdge
-        name="net.geoprism.registry.graph.TransitionTarget"
+        name="net.geoprism.registry.graph.transition.TransitionTarget"
         label="Transition Target"
-        parent="net.geoprism.registry.graph.Transition"
+        parent="net.geoprism.registry.graph.transition.Transition"
         child="net.geoprism.registry.graph.GeoVertex"
         generateSource="false">
       </mdEdge>
       <mdEdge
-        name="net.geoprism.registry.graph.TransitionAssignment"
+        name="net.geoprism.registry.graph.transition.TransitionAssignment"
         label="Transition Events"
-        parent="net.geoprism.registry.graph.TransitionEvent"
-        child="net.geoprism.registry.graph.Transition"
+        parent="net.geoprism.registry.graph.transition.TransitionEvent"
+        child="net.geoprism.registry.graph.transition.Transition"
         generateSource="false">
       </mdEdge>
     </create>
@@ -321,38 +321,38 @@
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.graph.TransitionEvent">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.TransitionEvent">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.Transition">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionSource">
+          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionSource">
             <operation name="ALL" />
           </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionTarget">
+          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionTarget">
             <operation name="ALL" />
           </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionAssignment">
+          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionAssignment">
             <operation name="ALL" />
           </mdRelationshipPermission>
         </grant>
       </role>
       <role roleName="cgr.RegistryMaintainer">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.graph.TransitionEvent">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.TransitionEvent">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.Transition">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionSource">
+          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionSource">
             <operation name="ALL" />
           </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionTarget">
+          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionTarget">
             <operation name="ALL" />
           </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionAssignment">
+          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionAssignment">
             <operation name="ALL" />
           </mdRelationshipPermission>
         </grant>
@@ -362,19 +362,19 @@
   <undoIt>
     <delete>
       <object
-        key="net.geoprism.registry.graph.TransitionAssignment"
+        key="net.geoprism.registry.graph.transition.TransitionAssignment"
         type="com.runwaysdk.system.metadata.MdEdge" />
       <object
-        key="net.geoprism.registry.graph.TransitionTarget"
+        key="net.geoprism.registry.graph.transition.TransitionTarget"
         type="com.runwaysdk.system.metadata.MdEdge" />
       <object
-        key="net.geoprism.registry.graph.TransitionSource"
+        key="net.geoprism.registry.graph.transition.TransitionSource"
         type="com.runwaysdk.system.metadata.MdEdge" />
       <object
-        key="net.geoprism.registry.graph.Transition"
+        key="net.geoprism.registry.graph.transition.Transition"
         type="com.runwaysdk.system.metadata.MdVertex" />
       <object
-        key="net.geoprism.registry.graph.TransitionEvent"
+        key="net.geoprism.registry.graph.transition.TransitionEvent"
         type="com.runwaysdk.system.metadata.MdVertex" />
     </delete>
   </undoIt>

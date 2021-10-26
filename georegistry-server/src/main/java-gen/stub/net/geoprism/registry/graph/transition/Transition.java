@@ -1,4 +1,4 @@
-package net.geoprism.registry.graph;
+package net.geoprism.registry.graph.transition;
 
 import java.util.List;
 
@@ -20,11 +20,13 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class Transition extends TransitionBase
 {
-  public static String      TRANSITION_SOURCE = "net.geoprism.registry.graph.TransitionSource";
+  private static final long serialVersionUID = 1506268214;
+  
+  public static String      TRANSITION_PACKAGE = "net.geoprism.registry.graph.transition";
+  
+  public static String      TRANSITION_SOURCE = TRANSITION_PACKAGE + ".TransitionSource";
 
-  public static String      TRANSITION_TARGET = "net.geoprism.registry.graph.TransitionTarget";
-
-  private static final long serialVersionUID  = -1384043682;
+  public static String      TRANSITION_TARGET = TRANSITION_PACKAGE + ".TransitionTarget";
   
   public static enum TransitionImpact
   {
@@ -192,5 +194,4 @@ public class Transition extends TransitionBase
     List<TransitionEvent> results = query.getResults();
     results.forEach(event -> event.delete());
   }
-
 }

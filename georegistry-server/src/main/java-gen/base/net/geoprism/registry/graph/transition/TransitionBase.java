@@ -1,6 +1,6 @@
-package net.geoprism.registry.graph;
+package net.geoprism.registry.graph.transition;
 
-@com.runwaysdk.business.ClassSignature(hash = -1167116602)
+@com.runwaysdk.business.ClassSignature(hash = -1163958029)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -10,12 +10,12 @@ package net.geoprism.registry.graph;
  */
 public abstract class TransitionBase extends com.runwaysdk.business.graph.VertexObject
 {
-  public final static String CLASS = "net.geoprism.registry.graph.Transition";
+  public final static String CLASS = "net.geoprism.registry.graph.transition.Transition";
   public static java.lang.String IMPACT = "impact";
   public static java.lang.String OID = "oid";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String TRANSITIONTYPE = "transitionType";
-  private static final long serialVersionUID = -1167116602;
+  private static final long serialVersionUID = -1163958029;
   
   public TransitionBase()
   {
@@ -29,7 +29,7 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   
   public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getImpactMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.Transition.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.Transition.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(IMPACT);
   }
   
@@ -45,7 +45,7 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   
   public static com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF getOidMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.Transition.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.Transition.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
   }
   
@@ -56,7 +56,7 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   
   public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getSeqMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.Transition.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.Transition.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(SEQ);
   }
   
@@ -72,7 +72,7 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   
   public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getTransitionTypeMd()
   {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.Transition.CLASS);
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.Transition.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(TRANSITIONTYPE);
   }
   
@@ -88,50 +88,50 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   
   public com.runwaysdk.business.graph.EdgeObject addTransitionSourceChild(net.geoprism.registry.graph.GeoVertex geoVertex)
   {
-    return super.addChild(geoVertex, "net.geoprism.registry.graph.TransitionSource");
+    return super.addChild(geoVertex, "net.geoprism.registry.graph.transition.TransitionSource");
   }
   
   public void removeTransitionSourceChild(net.geoprism.registry.graph.GeoVertex geoVertex)
   {
-    super.removeChild(geoVertex, "net.geoprism.registry.graph.TransitionSource");
+    super.removeChild(geoVertex, "net.geoprism.registry.graph.transition.TransitionSource");
   }
   
   @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getTransitionSourceChildGeoVertexs()
   {
-    return super.getChildren("net.geoprism.registry.graph.TransitionSource",net.geoprism.registry.graph.GeoVertex.class);
+    return super.getChildren("net.geoprism.registry.graph.transition.TransitionSource",net.geoprism.registry.graph.GeoVertex.class);
   }
   
   public com.runwaysdk.business.graph.EdgeObject addTransitionTargetChild(net.geoprism.registry.graph.GeoVertex geoVertex)
   {
-    return super.addChild(geoVertex, "net.geoprism.registry.graph.TransitionTarget");
+    return super.addChild(geoVertex, "net.geoprism.registry.graph.transition.TransitionTarget");
   }
   
   public void removeTransitionTargetChild(net.geoprism.registry.graph.GeoVertex geoVertex)
   {
-    super.removeChild(geoVertex, "net.geoprism.registry.graph.TransitionTarget");
+    super.removeChild(geoVertex, "net.geoprism.registry.graph.transition.TransitionTarget");
   }
   
   @SuppressWarnings("unchecked")
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getTransitionTargetChildGeoVertexs()
   {
-    return super.getChildren("net.geoprism.registry.graph.TransitionTarget",net.geoprism.registry.graph.GeoVertex.class);
+    return super.getChildren("net.geoprism.registry.graph.transition.TransitionTarget",net.geoprism.registry.graph.GeoVertex.class);
   }
   
-  public com.runwaysdk.business.graph.EdgeObject addTransitionAssignmentParent(net.geoprism.registry.graph.TransitionEvent transitionEvent)
+  public com.runwaysdk.business.graph.EdgeObject addTransitionAssignmentParent(net.geoprism.registry.graph.transition.TransitionEvent transitionEvent)
   {
-    return super.addParent(transitionEvent, "net.geoprism.registry.graph.TransitionAssignment");
+    return super.addParent(transitionEvent, "net.geoprism.registry.graph.transition.TransitionAssignment");
   }
   
-  public void removeTransitionAssignmentParent(net.geoprism.registry.graph.TransitionEvent transitionEvent)
+  public void removeTransitionAssignmentParent(net.geoprism.registry.graph.transition.TransitionEvent transitionEvent)
   {
-    super.removeParent(transitionEvent, "net.geoprism.registry.graph.TransitionAssignment");
+    super.removeParent(transitionEvent, "net.geoprism.registry.graph.transition.TransitionAssignment");
   }
   
   @SuppressWarnings("unchecked")
-  public java.util.List<net.geoprism.registry.graph.TransitionEvent> getTransitionAssignmentParentTransitionEvents()
+  public java.util.List<net.geoprism.registry.graph.transition.TransitionEvent> getTransitionAssignmentParentTransitionEvents()
   {
-    return super.getParents("net.geoprism.registry.graph.TransitionAssignment", net.geoprism.registry.graph.TransitionEvent.class);
+    return super.getParents("net.geoprism.registry.graph.transition.TransitionAssignment", net.geoprism.registry.graph.transition.TransitionEvent.class);
   }
   
   public static Transition get(String oid)

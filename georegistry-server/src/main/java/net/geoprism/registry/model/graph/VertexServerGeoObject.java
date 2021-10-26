@@ -119,7 +119,7 @@ import net.geoprism.registry.geoobject.ValueOutOfRangeException;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.graph.GeoVertexSynonym;
-import net.geoprism.registry.graph.Transition;
+import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.io.TermValueException;
 import net.geoprism.registry.model.AbstractServerGeoObject;
 import net.geoprism.registry.model.GeoObjectMetadata;
@@ -2135,7 +2135,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
 
-      if (!mdEdge.definesType().equals(GeoVertex.EXTERNAL_ID))
+      if (isEdgeAHierarchyType(mdEdge.definesType()))
       {
         VertexObject childVertex = edge.getChild();
 
@@ -2163,20 +2163,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return tnRoot;
   }
-
-  private static boolean isValidEdge(MdEdgeDAOIF mdEdge)
+  
+  public static boolean isEdgeAHierarchyType(String edgeClass)
   {
-    String type = mdEdge.definesType();
-
-    if (type.equals(GeoVertex.EXTERNAL_ID) 
-        || type.equals(Transition.TRANSITION_SOURCE) 
-        || type.equals(Transition.TRANSITION_TARGET) 
-        || mdEdge.definesType().startsWith(SearchService.PACKAGE))
-    {
-      return false;
-    }
-
-    return true;
+    return edgeClass != null && edgeClass.length() > 0 &&
+        edgeClass.startsWith(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE) &&
+        !edgeClass.equals(GeoVertex.EXTERNAL_ID) &&
+        !edgeClass.startsWith(SearchService.PACKAGE) &&
+        !edgeClass.startsWith(Transition.TRANSITION_PACKAGE);
   }
 
   protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn, Date date)
@@ -2243,7 +2237,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
 
-      if (isValidEdge(mdEdge))
+      if (isEdgeAHierarchyType(mdEdge.definesType()))
       {
         final VertexObject parentVertex = edge.getParent();
 
@@ -2322,7 +2316,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
 
-      if (isValidEdge(mdEdge))
+      if (isEdgeAHierarchyType(mdEdge.definesType()))
       {
         ServerHierarchyType ht = ServerHierarchyType.get(mdEdge);
 
