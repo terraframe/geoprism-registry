@@ -17,7 +17,7 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class Transition extends TransitionBase
 {
-  private static final long serialVersionUID   = 1506268214;
+  private static final long serialVersionUID = 1506268214;
 
   public static enum TransitionImpact {
     PARTIAL, FULL;
@@ -34,8 +34,8 @@ public class Transition extends TransitionBase
 
   public JsonObject toJSON()
   {
-    VertexServerGeoObject source = this.getSource();
-    VertexServerGeoObject target = this.getTarget();
+    VertexServerGeoObject source = this.getSourceVertex();
+    VertexServerGeoObject target = this.getTargetVertex();
 
     JsonObject object = new JsonObject();
     object.addProperty(OID, this.getOid());
@@ -72,12 +72,12 @@ public class Transition extends TransitionBase
     this.setImpact(value.name());
   }
 
-  public VertexServerGeoObject getSource()
+  public VertexServerGeoObject getSourceVertex()
   {
     return getVertex(SOURCE);
   }
 
-  public VertexServerGeoObject getTarget()
+  public VertexServerGeoObject getTargetVertex()
   {
     return getVertex(TARGET);
   }
@@ -131,21 +131,19 @@ public class Transition extends TransitionBase
 
     if (transition.isNew())
     {
-      String sourceCode = object.get("sourceCode").getAsString();
-      String sourceType = object.get("sourceType").getAsString();
-
-      String targetCode = object.get("targetCode").getAsString();
-      String targetType = object.get("targetType").getAsString();
-
-      VertexServerGeoObject source = new VertexGeoObjectStrategy(ServerGeoObjectType.get(sourceType)).getGeoObjectByCode(sourceCode);
-      VertexServerGeoObject target = new VertexGeoObjectStrategy(ServerGeoObjectType.get(targetType)).getGeoObjectByCode(targetCode);
-
-      transition.apply(event, source, target);
+      transition.setValue(Transition.EVENT, event);
     }
-    else
-    {
-      transition.apply();
-    }
+
+    String sourceCode = object.get("sourceCode").getAsString();
+    String sourceType = object.get("sourceType").getAsString();
+
+    String targetCode = object.get("targetCode").getAsString();
+    String targetType = object.get("targetType").getAsString();
+
+    VertexServerGeoObject source = new VertexGeoObjectStrategy(ServerGeoObjectType.get(sourceType)).getGeoObjectByCode(sourceCode);
+    VertexServerGeoObject target = new VertexGeoObjectStrategy(ServerGeoObjectType.get(targetType)).getGeoObjectByCode(targetCode);
+
+    transition.apply(event, source, target);
 
     return transition;
   }

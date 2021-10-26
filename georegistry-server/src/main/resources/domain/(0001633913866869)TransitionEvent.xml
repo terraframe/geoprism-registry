@@ -47,15 +47,13 @@
             label="Target"
             required="true"
             type="net.geoprism.registry.graph.GeoVertex" />                        
+          <graphReference
+            name="event"
+            label="Event"
+            required="true"
+            type="net.geoprism.registry.graph.transition.TransitionEvent" />                        
         </attributes>
       </mdVertex>
-      <mdEdge
-        name="net.geoprism.registry.graph.transition.TransitionAssignment"
-        label="Transition Events"
-        parent="net.geoprism.registry.graph.transition.TransitionEvent"
-        child="net.geoprism.registry.graph.transition.Transition"
-        generateSource="false">
-      </mdEdge>
     </create>
     <createOrUpdate>
       <object
@@ -323,9 +321,6 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionAssignment">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
         </grant>
       </role>
       <role roleName="cgr.RegistryMaintainer">
@@ -336,18 +331,12 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionAssignment">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
         </grant>
       </role>
     </permissions>
   </doIt>
   <undoIt>
     <delete>
-      <object
-        key="net.geoprism.registry.graph.transition.TransitionAssignment"
-        type="com.runwaysdk.system.metadata.MdEdge" />
       <object
         key="net.geoprism.registry.graph.transition.Transition"
         type="com.runwaysdk.system.metadata.MdVertex" />

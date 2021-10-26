@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph.transition;
 
-@com.runwaysdk.business.ClassSignature(hash = 810830629)
+@com.runwaysdk.business.ClassSignature(hash = -1683255043)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -11,17 +11,34 @@ package net.geoprism.registry.graph.transition;
 public abstract class TransitionBase extends com.runwaysdk.business.graph.VertexObject
 {
   public final static String CLASS = "net.geoprism.registry.graph.transition.Transition";
+  public static java.lang.String EVENT = "event";
   public static java.lang.String IMPACT = "impact";
   public static java.lang.String OID = "oid";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SOURCE = "source";
   public static java.lang.String TARGET = "target";
   public static java.lang.String TRANSITIONTYPE = "transitionType";
-  private static final long serialVersionUID = 810830629;
+  private static final long serialVersionUID = -1683255043;
   
   public TransitionBase()
   {
     super();
+  }
+  
+  public net.geoprism.registry.graph.transition.TransitionEvent getEvent()
+  {
+    return (net.geoprism.registry.graph.transition.TransitionEvent) this.getObjectValue(EVENT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF getEventMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.Transition.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF)mdClassIF.definesAttribute(EVENT);
+  }
+  
+  public void setEvent(net.geoprism.registry.graph.transition.TransitionEvent value)
+  {
+    this.setValue(EVENT, value);
   }
   
   public String getImpact()
@@ -67,10 +84,10 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
     this.setValue(SEQ, value);
   }
   
-//  public net.geoprism.registry.graph.GeoVertex getSource()
-//  {
-//    return (net.geoprism.registry.graph.GeoVertex) this.getObjectValue(SOURCE);
-//  }
+  public net.geoprism.registry.graph.GeoVertex getSource()
+  {
+    return (net.geoprism.registry.graph.GeoVertex) this.getObjectValue(SOURCE);
+  }
   
   public static com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF getSourceMd()
   {
@@ -83,10 +100,10 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
     this.setValue(SOURCE, value);
   }
   
-//  public net.geoprism.registry.graph.GeoVertex getTarget()
-//  {
-//    return (net.geoprism.registry.graph.GeoVertex) this.getObjectValue(TARGET);
-//  }
+  public net.geoprism.registry.graph.GeoVertex getTarget()
+  {
+    return (net.geoprism.registry.graph.GeoVertex) this.getObjectValue(TARGET);
+  }
   
   public static com.runwaysdk.dataaccess.MdAttributeGraphReferenceDAOIF getTargetMd()
   {
@@ -118,22 +135,6 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   protected String getDeclaredType()
   {
     return CLASS;
-  }
-  
-  public com.runwaysdk.business.graph.EdgeObject addTransitionAssignmentParent(net.geoprism.registry.graph.transition.TransitionEvent transitionEvent)
-  {
-    return super.addParent(transitionEvent, "net.geoprism.registry.graph.transition.TransitionAssignment");
-  }
-  
-  public void removeTransitionAssignmentParent(net.geoprism.registry.graph.transition.TransitionEvent transitionEvent)
-  {
-    super.removeParent(transitionEvent, "net.geoprism.registry.graph.transition.TransitionAssignment");
-  }
-  
-  @SuppressWarnings("unchecked")
-  public java.util.List<net.geoprism.registry.graph.transition.TransitionEvent> getTransitionAssignmentParentTransitionEvents()
-  {
-    return super.getParents("net.geoprism.registry.graph.transition.TransitionAssignment", net.geoprism.registry.graph.transition.TransitionEvent.class);
   }
   
   public static Transition get(String oid)

@@ -26,6 +26,7 @@ import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.test.FastTestDataset;
+import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.Page;
 
 public class TransitionEventTest
@@ -160,8 +161,8 @@ public class TransitionEventTest
       Assert.assertEquals(1, transitions.size());
 
       Transition transition = transitions.get(0);
-      VertexServerGeoObject source = transition.getSource();
-      VertexServerGeoObject target = transition.getTarget();
+      VertexServerGeoObject source = transition.getSourceVertex();
+      VertexServerGeoObject target = transition.getTargetVertex();
 
       Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), source.getCode());
       Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
@@ -244,13 +245,43 @@ public class TransitionEventTest
 
       event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      List<TransitionEvent> results = TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject(), event.getEventDate(), event.getEventDate());
+      List<TransitionEvent> results = TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject());
 
       Assert.assertEquals(1, results.size());
 
       TransitionEvent result = results.get(0);
 
       Assert.assertEquals(event.getOid(), result.getOid());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testGetHistoricalReport()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      List<HistoricalRow> results = TransitionEvent.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+
+      Assert.assertEquals(1, results.size());
+
+      HistoricalRow result = results.get(0);
+
+      Assert.assertEquals(event.getOid(), result.getEventId());
     }
     finally
     {
@@ -274,11 +305,11 @@ public class TransitionEventTest
 
       event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(1, TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+      Assert.assertEquals(1, TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject()).size());
 
       TransitionEvent.removeAll(FastTestDataset.PROVINCE.getServerObject());
 
-      Assert.assertEquals(0, TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+      Assert.assertEquals(0, TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject()).size());
     }
     finally
     {
@@ -302,11 +333,11 @@ public class TransitionEventTest
 
       event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Assert.assertEquals(1, TransitionEvent.getAll(FastTestDataset.COUNTRY.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+      Assert.assertEquals(1, TransitionEvent.getAll(FastTestDataset.COUNTRY.getServerObject()).size());
 
       TransitionEvent.removeAll(FastTestDataset.COUNTRY.getServerObject());
 
-      Assert.assertEquals(0, TransitionEvent.getAll(FastTestDataset.COUNTRY.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+      Assert.assertEquals(0, TransitionEvent.getAll(FastTestDataset.COUNTRY.getServerObject()).size());
     }
     finally
     {

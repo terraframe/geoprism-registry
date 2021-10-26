@@ -12,13 +12,10 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
@@ -30,14 +27,13 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
 public class TransitionEvent extends TransitionEventBase implements JsonSerializable
 {
-  public static String      TRANSITION_ASSIGNMENT = "net.geoprism.registry.graph.transition.TransitionAssignment";
-
-  private static final long serialVersionUID      = 112753140;
+  private static final long serialVersionUID = 112753140;
 
   public TransitionEvent()
   {
@@ -55,24 +51,18 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
   public List<Transition> getTransitions()
   {
-    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(TRANSITION_ASSIGNMENT);
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
+    MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(Transition.EVENT);
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT expand(out('" + mdEdge.getDBClassName() + "'))");
-    statement.append(" FROM :parent");
+    statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE " + mdAttribute.getColumnName() + " = :event");
 
     GraphQuery<Transition> query = new GraphQuery<Transition>(statement.toString());
-    query.setParameter("parent", this.getRID());
+    query.setParameter("event", this.getRID());
 
     List<Transition> results = query.getResults();
     return results;
-  }
-
-  @Transaction
-  public void addTransition(Transition transition)
-  {
-    EdgeObject targetEdge = this.addChild(transition, MdEdgeDAO.getMdEdgeDAO(TRANSITION_ASSIGNMENT));
-    targetEdge.apply();
   }
 
   @Transaction
@@ -81,9 +71,8 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     Transition transition = new Transition();
     transition.setTransitionType(transitionType);
     transition.setImpact(impact);
+    transition.setEvent(this);
     transition.apply(this, (VertexServerGeoObject) source, (VertexServerGeoObject) target);
-
-    this.addTransition(transition);
   }
 
   @Override
@@ -146,7 +135,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       {
         JsonObject object = transitions.get(i).getAsJsonObject();
 
-        event.addTransition(Transition.apply(event, object));
+        Transition.apply(event, object);
       }
 
       return event.toJSON(false);
@@ -204,8 +193,32 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     results.forEach(event -> event.delete());
   }
 
-  public static List<TransitionEvent> getAll(ServerGeoObjectType type, Date startDate, Date endDate)
+  public static List<TransitionEvent> getAll(ServerGeoObjectType type)
   {
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
+    MdAttributeDAOIF beforeTypeCode = mdVertex.definesAttribute(TransitionEvent.BEFORETYPECODE);
+    MdAttributeDAOIF afterTypeCode = mdVertex.definesAttribute(TransitionEvent.AFTERTYPECODE);
+
+    List<ServerGeoObjectType> types = new LinkedList<ServerGeoObjectType>();
+    types.add(type);
+    types.addAll(type.getSubtypes());
+
+    List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE (" + beforeTypeCode.getColumnName() + " IN :typeCode");
+    statement.append(" OR " + afterTypeCode.getColumnName() + " IN :typeCode )");
+
+    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
+    query.setParameter("typeCode", codes);
+
+    return query.getResults();
+  }
+
+  public static List<HistoricalRow> getHistoricalReport(ServerGeoObjectType type, Date startDate, Date endDate)
+  {
+    MdVertexDAOIF transitionVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
     MdAttributeDAOIF beforeTypeCode = mdVertex.definesAttribute(TransitionEvent.BEFORETYPECODE);
     MdAttributeDAOIF afterTypeCode = mdVertex.definesAttribute(TransitionEvent.AFTERTYPECODE);
@@ -218,16 +231,27 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT FROM " + mdVertex.getDBClassName());
-    statement.append(" WHERE (" + beforeTypeCode.getColumnName() + " IN :typeCode");
-    statement.append(" OR " + afterTypeCode.getColumnName() + " IN :typeCode )");
-    statement.append(" AND " + eventDate.getColumnName() + " BETWEEN :startDate AND :endDate");
+    statement.append("SELECT event.oid AS eventId");
+    statement.append(", event.eventDate AS eventDate");
+    statement.append(", transitionType AS eventType");
+    statement.append(", event.description AS description");
+    statement.append(", event.beforeTypeCode AS beforeType");
+    statement.append(", source.code AS beforeCode");
+    statement.append(", source.displayLabel_cot.value[0] AS beforeLabel");
+    statement.append(", event.afterTypeCode AS afterType");
+    statement.append(", target.code AS afterCode");
+    statement.append(", target.displayLabel_cot.value[0] AS afterLabel");
+    statement.append(" FROM " + transitionVertex.getDBClassName());
+    statement.append(" WHERE ( event." + beforeTypeCode.getColumnName() + " IN :typeCode");
+    statement.append(" OR event." + afterTypeCode.getColumnName() + " IN :typeCode )");
+    statement.append(" AND event." + eventDate.getColumnName() + " BETWEEN :startDate AND :endDate");
+    statement.append(" ORDER BY event." + eventDate.getColumnName());
 
-    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
+    GraphQuery<List<?>> query = new GraphQuery<List<?>>(statement.toString());
     query.setParameter("typeCode", codes);
     query.setParameter("startDate", startDate);
     query.setParameter("endDate", endDate);
 
-    return query.getResults();
+    return query.getRawResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
   }
 }
