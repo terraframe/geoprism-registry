@@ -220,14 +220,14 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 if (trans.sourceType !== trans.targetType) {
                     trans.typeUpdown = "UPGRADE";
                     trans.typePart = trans.transitionType;
-                    trans.transitionType = trans.typeUpdown + "-" + trans.transitionType;
+                    trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
                 }
             }
         });
     }
 
     onChangeTypeUpdown(transition: any): void {
-        transition.transitionType = transition.typeUpdown + "-" + transition.typePart;
+        transition.transitionType = transition.typeUpdown + "_" + transition.typePart;
     }
 
     /* D3 Stuff */
