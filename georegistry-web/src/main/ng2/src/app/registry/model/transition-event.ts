@@ -13,6 +13,7 @@ export class Transition {
     impact: string;
     typeUpdown?: string;
     typePart?: string;
+
 }
 
 export class TransitionEvent {

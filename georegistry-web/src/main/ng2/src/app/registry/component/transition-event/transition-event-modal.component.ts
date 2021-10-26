@@ -51,7 +51,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.onEventChange = new Subject();
 
-        this.iService.listGeoObjectTypes(true).then(types => {
+        this.iService.listGeoObjectTypes(false).then(types => {
             let myOrgTypes = [];
             for (let i = 0; i < types.length; ++i) {
                 const orgCode = types[i].orgCode;
