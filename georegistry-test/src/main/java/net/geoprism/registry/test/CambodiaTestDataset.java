@@ -65,6 +65,10 @@ public class CambodiaTestDataset extends TestDataSet
   
   public static final TestGeoObjectInfo     GO_Pursat              = new TestGeoObjectInfo("Pursat", GOT_Province);
   
+  public static final TestGeoObjectInfo     GO_Banteay_Meanchey              = new TestGeoObjectInfo("BanteayMeanchey", GOT_Province);
+  
+  public static final TestGeoObjectInfo     GO_Battambang              = new TestGeoObjectInfo("Battambang", GOT_Province);
+  
   public static final TestGeoObjectInfo     GO_BanteayAmpil              = new TestGeoObjectInfo("BanteayAmpil", GOT_District);
   
   public static final TestGeoObjectInfo     GO_ChongKal              = new TestGeoObjectInfo("ChongKal", GOT_District);
@@ -124,6 +128,8 @@ public class CambodiaTestDataset extends TestDataSet
     managedGeoObjectInfos.add(GO_Oddar_Meanchey);
     managedGeoObjectInfos.add(GO_Siem_Reap);
     managedGeoObjectInfos.add(GO_Pursat);
+    managedGeoObjectInfos.add(GO_Banteay_Meanchey);
+    managedGeoObjectInfos.add(GO_Battambang);
     managedGeoObjectInfos.add(GO_BanteayAmpil);
     managedGeoObjectInfos.add(GO_ChongKal);
     
@@ -189,6 +195,8 @@ public class CambodiaTestDataset extends TestDataSet
     GO_Cambodia.addChild(GO_Oddar_Meanchey, HIER_ADMIN);
     GO_Cambodia.addChild(GO_Siem_Reap, HIER_ADMIN);
     GO_Cambodia.addChild(GO_Pursat, HIER_ADMIN);
+    GO_Cambodia.addChild(GO_Banteay_Meanchey, HIER_ADMIN);
+    GO_Cambodia.addChild(GO_Battambang, HIER_ADMIN);
     
     // Districts
     GO_Oddar_Meanchey.addChild(GO_BanteayAmpil, HIER_ADMIN);
