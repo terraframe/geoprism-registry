@@ -84,6 +84,7 @@
                                 <th style="width: 12%; vertical-align: middle;"> </th>
                                 <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.after"></localize> </th>
                                 <th style="width: 14%; vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
+                                <th style="width: 4%; vertical-align: middle;"></th>
                                 <th style="width: 4%; vertical-align: middle;" *ngIf="!readonly"></th>
                             </tr>
                         </thead>
@@ -143,12 +144,15 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <input *ngIf="transition.transitionType !== 'UPGRADE' && transition.transitionType !== 'DOWNGRADE'" type="text" [name]="'transition.transitionType-' + i" class="form-control" [ngModel]="localizeTransitionType(transition.transitionType)" disabled required>
-                                    <select *ngIf="transition.transitionType === 'UPGRADE' || transition.transitionType === 'DOWNGRADE'" [name]="'transition.transitionType-updown-' + i" class="select-area"
-                                        [(ngModel)]="transition.transitionType" [disabled]="false" required>
+                                    <input *ngIf="!transition.typeUpdown" type="text" [name]="'transition.transitionType-' + i" class="form-control" [ngModel]="localizeTransitionType(transition.transitionType)" disabled required>
+                                    <select *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + i" class="select-area"
+                                        [(ngModel)]="transition.typeUpdown" (change)="onChangeTypeUpdown(transition)" [disabled]="false" required>
                                         <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
                                         <option value="DOWNGRADE"><localize key="transition.event.type.downgrade"></localize></option>
                                     </select>
+                                </td>
+                                <td *ngIf="transition.typeUpdown">
+                                    <input style="min-width:80px;" type="text" [name]="'transition.typePart-' + i" class="form-control" [ngModel]="localizeTransitionType(transition.typePart)" disabled required>
                                 </td>
                                 <td *ngIf="!readonly" style="vertical-align: middle;">
                                     <span class="clickable" (click)="remove(i)">

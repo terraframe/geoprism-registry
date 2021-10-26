@@ -51,7 +51,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.onEventChange = new Subject();
 
-        this.iService.listGeoObjectTypes(true).then(types => {
+        this.iService.listGeoObjectTypes(false).then(types => {
             let myOrgTypes = [];
             for (let i = 0; i < types.length; ++i) {
                 const orgCode = types[i].orgCode;
@@ -146,7 +146,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     }
 
     localizeTransitionType(type: string): string {
-        return this.lService.decode("transition.event.type." + type.toLowerCase());
+        return type == null ? null : this.lService.decode("transition.event.type." + type.toLowerCase());
     }
 
     remove(index: number): void {
@@ -204,10 +204,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 let sourceStats = stats[trans.sourceCode];
                 let targetStats = stats[trans.targetCode];
 
-                if (trans.sourceType !== trans.targetType) {
-                    trans.impact = "FULL";
-                    trans.transitionType = "UPGRADE";
-                } else if (sourceStats.source > 1) {
+                if (sourceStats.source > 1) {
                     trans.impact = "PARTIAL";
                     trans.transitionType = "SPLIT";
                 } else {
@@ -219,8 +216,18 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
                     trans.impact = "FULL";
                 }
+
+                if (trans.sourceType !== trans.targetType) {
+                    trans.typeUpdown = "UPGRADE";
+                    trans.typePart = trans.transitionType;
+                    trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
+                }
             }
         });
+    }
+
+    onChangeTypeUpdown(transition: any): void {
+        transition.transitionType = transition.typeUpdown + "_" + transition.typePart;
     }
 
     /* D3 Stuff */

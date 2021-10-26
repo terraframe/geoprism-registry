@@ -24,7 +24,9 @@ public class Transition extends TransitionBase
   }
 
   public static enum TransitionType {
-    MERGE, SPLIT, UPGRADE, DOWNGRADE, REASSIGN;
+    MERGE, SPLIT, REASSIGN,
+    UPGRADE_MERGE, UPGRADE_SPLIT, UPGRADE_REASSIGN,
+    DOWNGRADE_MERGE, DOWNGRADE_SPLIT, DOWNGRADE_REASSIGN;
   }
 
   public Transition()
