@@ -146,7 +146,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     }
 
     localizeTransitionType(type: string): string {
-        return this.lService.decode("transition.event.type." + type.toLowerCase());
+        return type == null ? null : this.lService.decode("transition.event.type." + type.toLowerCase());
     }
 
     remove(index: number): void {
@@ -204,10 +204,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 let sourceStats = stats[trans.sourceCode];
                 let targetStats = stats[trans.targetCode];
 
-                if (trans.sourceType !== trans.targetType) {
-                    trans.impact = "FULL";
-                    trans.transitionType = "UPGRADE";
-                } else if (sourceStats.source > 1) {
+                if (sourceStats.source > 1) {
                     trans.impact = "PARTIAL";
                     trans.transitionType = "SPLIT";
                 } else {
@@ -219,8 +216,18 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
                     trans.impact = "FULL";
                 }
+
+                if (trans.sourceType !== trans.targetType) {
+                    trans.typeUpdown = "UPGRADE";
+                    trans.typePart = trans.transitionType;
+                    trans.transitionType = trans.typeUpdown + "-" + trans.transitionType;
+                }
             }
         });
+    }
+
+    onChangeTypeUpdown(transition: any): void {
+        transition.transitionType = transition.typeUpdown + "-" + transition.typePart;
     }
 
     /* D3 Stuff */

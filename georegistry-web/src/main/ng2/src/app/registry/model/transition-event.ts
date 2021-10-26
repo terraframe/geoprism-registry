@@ -11,7 +11,8 @@ export class Transition {
     targetText?: string;
     transitionType: string;
     impact: string;
-
+    typeUpdown?: string;
+    typePart?: string;
 }
 
 export class TransitionEvent {
