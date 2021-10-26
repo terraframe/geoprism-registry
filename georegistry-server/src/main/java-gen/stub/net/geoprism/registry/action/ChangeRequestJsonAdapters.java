@@ -183,7 +183,7 @@ public class ChangeRequestJsonAdapters
       // Create and populate the "geoObject". This object will contain a code and label for the GeoObject in the CR.
       JsonObject geoObject = new JsonObject();
       geoObject.addProperty("code", cr.getGeoObjectCode());
-      geoObject.addProperty("label", cr.getLocalizedGeoObjectDisplayLabel());
+      geoObject.addProperty("label", cr.getGeoObjectDisplayLabel().getValue());
       object.add("geoObject", geoObject);
       
       return object;

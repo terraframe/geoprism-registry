@@ -86,6 +86,8 @@ export class RequestTableComponent {
 
     filterCriteria: string = "ALL";
 
+    sort: any[] = [{ attribute: "createDate", ascending: false }];
+
     hasBaseDropZoneOver: boolean = false;
 
     // Restrict page to the specified oid
@@ -162,6 +164,31 @@ export class RequestTableComponent {
         this.refresh();
     }
 
+    isSorting(attribute: string) {
+        return this.sort.length > 0 && this.sort[0].attribute === attribute;
+    }
+
+    isAscending(attribute: string) {
+        return this.sort.length > 0 && this.sort[0].ascending;
+    }
+
+    onSort(attribute: string) {
+        let index = this.sort.findIndex(item => item.attribute === attribute);
+
+        if (index !== -1) {
+            let item = this.sort[index];
+
+            item.ascending = !item.ascending;
+        } else {
+            this.sort = [{
+                attribute: attribute,
+                ascending: true
+            }];
+        }
+
+        this.refresh();
+    }
+
     getGOTLabel(action: any): string {
         if (action.geoObjectJson && action.geoObjectJson.attributes && action.geoObjectJson.attributes.displayLabel && action.geoObjectJson.attributes.displayLabel.values &&
             action.geoObjectJson.attributes.displayLabel.values[0] && action.geoObjectJson.attributes.displayLabel.values[0].value && action.geoObjectJson.attributes.displayLabel.values[0].value.localeValues &&
@@ -219,7 +246,7 @@ export class RequestTableComponent {
     refresh(pageNumber: number = 1): void {
         this.geomService.destroy();
 
-        this.service.getAllRequests(this.page.pageSize, pageNumber, this.filterCriteria, this.oid).then(requests => {
+        this.service.getAllRequests(this.page.pageSize, pageNumber, this.filterCriteria, this.sort, this.oid).then(requests => {
             this.page = requests;
             this.requests = requests.resultSet;
 
@@ -244,7 +271,7 @@ export class RequestTableComponent {
 
         this.geomService.destroy();
 
-        this.service.getAllRequests(this.page.pageSize, 1, "ALL", this.oid).then(requests => {
+        this.service.getAllRequests(this.page.pageSize, 1, "ALL", this.sort, this.oid).then(requests => {
             this.requests = requests.resultSet;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);

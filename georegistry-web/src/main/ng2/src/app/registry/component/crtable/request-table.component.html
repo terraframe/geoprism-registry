@@ -29,12 +29,12 @@
     <table class="table">
       <thead>
         <tr style="height: 50px;color: grey;">
-          <th style="vertical-align: middle;"> <localize key="change.request.contributor.label"></localize> </th>
-          <th style="vertical-align: middle;"> <localize key="geoObjectType.label"></localize> </th>
-          <th style="vertical-align: middle;"> <localize key="geoObject.label"></localize> </th>
-          <th style="vertical-align: middle;"> <localize key="change.request.date.contributed.label"></localize> </th>
-          <th style="vertical-align: middle;"> <localize key="change.request.status.label"></localize> </th>
-          <th style="vertical-align: middle;"> <localize key="change.request.id.label"></localize> </th>
+          <th style="vertical-align: middle;"><a (click)="onSort('createdBy')"><localize key="change.request.contributor.label"></localize></a><i *ngIf="isSorting('createdBy')" [ngClass]="isAscending('createdBy') ? 'fa-arrow-down' : 'fa-arrow-up'" class="fa cr-sort-arrow"></i></th>
+          <th style="vertical-align: middle;"><a (click)="onSort('geoObjectTypeLabel')"><localize key="geoObjectType.label"></localize></a><i *ngIf="isSorting('geoObjectTypeLabel')" [ngClass]="isAscending('geoObjectTypeLabel') ? 'fa-arrow-down' : 'fa-arrow-up'" class="fa cr-sort-arrow"></i></th>
+          <th style="vertical-align: middle;"><a (click)="onSort('geoObjectLabel')"><localize key="geoObject.label"></localize></a><i *ngIf="isSorting('geoObjectLabel')" [ngClass]="isAscending('geoObjectLabel') ? 'fa-arrow-down' : 'fa-arrow-up'" class="fa cr-sort-arrow"></i></th>
+          <th style="vertical-align: middle;"><a (click)="onSort('createDate')"><localize key="change.request.date.contributed.label"></localize></a><i *ngIf="isSorting('createDate')" [ngClass]="isAscending('createDate') ? 'fa-arrow-down' : 'fa-arrow-up'" class="fa cr-sort-arrow"></i></th>
+          <th style="vertical-align: middle;"><a (click)="onSort('approvalStatus')"><localize key="change.request.status.label"></localize></a><i *ngIf="isSorting('approvalStatus')" [ngClass]="isAscending('approvalStatus') ? 'fa-arrow-down' : 'fa-arrow-up'" class="fa cr-sort-arrow"></i></th>
+          <th style="vertical-align: middle;"><a (click)="onSort('oid')"><localize key="change.request.id.label"></localize></a><i *ngIf="isSorting('oid')" [ngClass]="isAscending('oid') ? 'fa-arrow-down' : 'fa-arrow-up'" class="fa cr-sort-arrow"></i></th>
           <!-- <th style="vertical-align: middle;">Actions</th> -->
           <th></th>
         </tr>

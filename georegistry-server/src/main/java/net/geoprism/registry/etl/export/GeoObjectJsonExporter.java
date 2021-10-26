@@ -67,7 +67,7 @@ public class GeoObjectJsonExporter
 
   private GeoObjectExportFormat     format;
 
-  private ExternalSystem            externalSystem;
+  private ExternalSystem            externalSystem = null;
 
   private RevealSerializer          revealJsonAdapter;
 
@@ -82,9 +82,13 @@ public class GeoObjectJsonExporter
     this.since = since;
     this.includeLevel = includeLevel == null ? Boolean.FALSE : includeLevel;
     this.format = format == null ? GeoObjectExportFormat.JSON_CGR : format;
-    this.externalSystem = ExternalSystem.getByExternalSystemId(externalSystemId);
     this.pageSize = pageSize;
     this.pageNumber = pageNumber;
+    
+    if (externalSystemId != null)
+    {
+      this.externalSystem = ExternalSystem.getByExternalSystemId(externalSystemId);
+    }
 
     init();
   }

@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.action;
 
-@com.runwaysdk.business.ClassSignature(hash = 1219438081)
+@com.runwaysdk.business.ClassSignature(hash = 824408301)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -36,7 +18,13 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
   public static java.lang.String CREATEDBY = "createdBy";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String GEOOBJECTCODE = "geoObjectCode";
+  public static java.lang.String GEOOBJECTLABEL = "geoObjectLabel";
+  private com.runwaysdk.business.Struct geoObjectLabel = null;
+  
   public static java.lang.String GEOOBJECTTYPECODE = "geoObjectTypeCode";
+  public static java.lang.String GEOOBJECTTYPELABEL = "geoObjectTypeLabel";
+  private com.runwaysdk.business.Struct geoObjectTypeLabel = null;
+  
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
@@ -48,11 +36,13 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = 1219438081;
+  private static final long serialVersionUID = 824408301;
   
   public ChangeRequestBase()
   {
     super();
+    geoObjectLabel = super.getStruct("geoObjectLabel");
+    geoObjectTypeLabel = super.getStruct("geoObjectTypeLabel");
   }
   
   public String getAdditionalNotes()
@@ -273,6 +263,22 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
     }
   }
   
+  public net.geoprism.registry.action.ChangeRequestGeoObjectLabel getGeoObjectLabel()
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectLabel) geoObjectLabel;
+  }
+  
+  public void validateGeoObjectLabel()
+  {
+    this.validateAttribute(GEOOBJECTLABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeoObjectLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.ChangeRequest.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOOBJECTLABEL);
+  }
+  
   public String getGeoObjectTypeCode()
   {
     return getValue(GEOOBJECTTYPECODE);
@@ -299,6 +305,22 @@ public abstract class ChangeRequestBase extends com.runwaysdk.business.Business
     {
       setValue(GEOOBJECTTYPECODE, value);
     }
+  }
+  
+  public net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabel getGeoObjectTypeLabel()
+  {
+    return (net.geoprism.registry.action.ChangeRequestGeoObjectTypeLabel) geoObjectTypeLabel;
+  }
+  
+  public void validateGeoObjectTypeLabel()
+  {
+    this.validateAttribute(GEOOBJECTTYPELABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeoObjectTypeLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.action.ChangeRequest.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOOBJECTTYPELABEL);
   }
   
   public String getKeyName()
