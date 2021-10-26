@@ -3,14 +3,11 @@ package net.geoprism.registry.graph.transition;
 import java.util.List;
 
 import com.google.gson.JsonObject;
-import com.runwaysdk.business.graph.EdgeObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
-import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
@@ -20,27 +17,14 @@ import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class Transition extends TransitionBase
 {
-  private static final long serialVersionUID = 1506268214;
-  
-  public static String      TRANSITION_PACKAGE = "net.geoprism.registry.graph.transition";
-  
-  public static String      TRANSITION_SOURCE = TRANSITION_PACKAGE + ".TransitionSource";
+  private static final long serialVersionUID   = 1506268214;
 
-  public static String      TRANSITION_TARGET = TRANSITION_PACKAGE + ".TransitionTarget";
-  
-  public static enum TransitionImpact
-  {
-    PARTIAL,
-    FULL;
+  public static enum TransitionImpact {
+    PARTIAL, FULL;
   }
-  
-  public static enum TransitionType
-  {
-    MERGE,
-    SPLIT,
-    UPGRADE,
-    DOWNGRADE,
-    REASSIGN;
+
+  public static enum TransitionType {
+    MERGE, SPLIT, UPGRADE, DOWNGRADE, REASSIGN;
   }
 
   public Transition()
@@ -70,27 +54,19 @@ public class Transition extends TransitionBase
   @Transaction
   public void apply(TransitionEvent event, VertexServerGeoObject source, VertexServerGeoObject target)
   {
-    boolean isNew = this.isNew();
-    
     this.validate(event, source, target);
-    
+
+    this.setValue(Transition.SOURCE, source.getVertex());
+    this.setValue(Transition.TARGET, target.getVertex());
+
     super.apply();
-
-    if (isNew)
-    {
-      EdgeObject sourceEdge = this.addChild(source.getVertex(), MdEdgeDAO.getMdEdgeDAO(TRANSITION_SOURCE));
-      sourceEdge.apply();
-
-      EdgeObject targetEdge = this.addChild(target.getVertex(), MdEdgeDAO.getMdEdgeDAO(TRANSITION_TARGET));
-      targetEdge.apply();
-    }
   }
-  
+
   public void setTransitionType(TransitionType value)
   {
     this.setTransitionType(value.name());
   }
-  
+
   public void setImpact(TransitionImpact value)
   {
     this.setImpact(value.name());
@@ -98,31 +74,34 @@ public class Transition extends TransitionBase
 
   public VertexServerGeoObject getSource()
   {
-    return getVertex(MdEdgeDAO.getMdEdgeDAO(TRANSITION_SOURCE));
+    return getVertex(SOURCE);
   }
 
   public VertexServerGeoObject getTarget()
   {
-    return getVertex(MdEdgeDAO.getMdEdgeDAO(TRANSITION_TARGET));
+    return getVertex(TARGET);
   }
 
-  private VertexServerGeoObject getVertex(MdEdgeDAOIF mdEdge)
+  private VertexServerGeoObject getVertex(String attributeName)
   {
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
+    MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(attributeName);
+
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT expand(out('" + mdEdge.getDBClassName() + "'))");
+    statement.append("SELECT expand(" + mdAttribute.getColumnName() + ")");
     statement.append(" FROM :parent");
 
     GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
     query.setParameter("parent", this.getRID());
 
     VertexObject vertex = query.getSingleResult();
-    MdVertexDAOIF mdVertex = (MdVertexDAOIF) vertex.getMdClass();
+    MdVertexDAOIF geoVertex = (MdVertexDAOIF) vertex.getMdClass();
 
-    ServerGeoObjectType type = ServerGeoObjectType.get(mdVertex);
+    ServerGeoObjectType type = ServerGeoObjectType.get(geoVertex);
 
     return new VertexServerGeoObject(type, vertex);
   }
-  
+
   public void validate(TransitionEvent event, VertexServerGeoObject source, VertexServerGeoObject target)
   {
     ServerGeoObjectType beforeType = ServerGeoObjectType.get(event.getBeforeTypeCode());
@@ -174,24 +153,19 @@ public class Transition extends TransitionBase
   @Transaction
   public static void removeAll(ServerGeoObjectType type)
   {
-    removeAll(type, TRANSITION_SOURCE);
-    removeAll(type, TRANSITION_TARGET);
-  }
-
-  @Transaction
-  public static void removeAll(ServerGeoObjectType type, String edgeType)
-  {
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
-    MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(edgeType);
+    MdAttributeDAOIF sourceAttribute = mdVertex.definesAttribute(Transition.SOURCE);
+    MdAttributeDAOIF targetAttribute = mdVertex.definesAttribute(Transition.TARGET);
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT expand(out) FROM " + mdEdge.getDBClassName());
-    statement.append(" WHERE in.@class = :vertexClass");
+    statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE " + sourceAttribute.getColumnName() + ".@class = :vertexClass");
+    statement.append(" OR " + targetAttribute.getColumnName() + ".@class = :vertexClass");
 
-    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
-    query.setParameter("vertexClass", mdVertex.getDBClassName());
+    GraphQuery<Transition> query = new GraphQuery<Transition>(statement.toString());
+    query.setParameter("vertexClass", type.getMdVertex().getDBClassName());
 
-    List<TransitionEvent> results = query.getResults();
+    List<Transition> results = query.getResults();
     results.forEach(event -> event.delete());
   }
 }

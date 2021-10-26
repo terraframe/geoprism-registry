@@ -74,7 +74,7 @@ public class TransitionEventTest
     try
     {
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
-      event.setEventDate(new Date());
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
       event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
       event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
@@ -97,7 +97,7 @@ public class TransitionEventTest
 
     try
     {
-      Date date = new Date();
+      Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
       LocalizedValue expectedDescription = new LocalizedValue("Test");
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, expectedDescription);
@@ -148,7 +148,7 @@ public class TransitionEventTest
     try
     {
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
-      event.setEventDate(new Date());
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
       event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
       event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
@@ -172,6 +172,148 @@ public class TransitionEventTest
     }
   }
 
+  @Test
+  @Request
+  public void testRemoveTransitionsByTarget()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Assert.assertEquals(1, event.getTransitions().size());
+
+      Transition.removeAll(FastTestDataset.PROVINCE.getServerObject());
+
+      Assert.assertEquals(0, event.getTransitions().size());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveTransitionsBySource()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Assert.assertEquals(1, event.getTransitions().size());
+
+      Transition.removeAll(FastTestDataset.COUNTRY.getServerObject());
+
+      Assert.assertEquals(0, event.getTransitions().size());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testGetAll()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      List<TransitionEvent> results = TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject(), event.getEventDate(), event.getEventDate());
+
+      Assert.assertEquals(1, results.size());
+
+      TransitionEvent result = results.get(0);
+
+      Assert.assertEquals(event.getOid(), result.getOid());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveEventsByTarget()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Assert.assertEquals(1, TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+
+      TransitionEvent.removeAll(FastTestDataset.PROVINCE.getServerObject());
+
+      Assert.assertEquals(0, TransitionEvent.getAll(FastTestDataset.PROVINCE.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testRemoveEventsBySource()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Assert.assertEquals(1, TransitionEvent.getAll(FastTestDataset.COUNTRY.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+
+      TransitionEvent.removeAll(FastTestDataset.COUNTRY.getServerObject());
+
+      Assert.assertEquals(0, TransitionEvent.getAll(FastTestDataset.COUNTRY.getServerObject(), event.getEventDate(), event.getEventDate()).size());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
   @Test(expected = ProgrammingErrorException.class)
   @Request
   public void testAddTransitionBadType()
@@ -181,7 +323,7 @@ public class TransitionEventTest
     try
     {
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
-      event.setEventDate(new Date());
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
       event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
       event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
       event.apply();
@@ -202,7 +344,7 @@ public class TransitionEventTest
 
     try
     {
-      Date date = new Date();
+      Date date = FastTestDataset.DEFAULT_OVER_TIME_DATE;
 
       LocalizedValue expectedDescription = new LocalizedValue("Test");
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, expectedDescription);

@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,8 +18,6 @@ import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdEdgeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTimeCollection;
 import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
@@ -30,7 +29,6 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
@@ -76,7 +74,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     EdgeObject targetEdge = this.addChild(transition, MdEdgeDAO.getMdEdgeDAO(TRANSITION_ASSIGNMENT));
     targetEdge.apply();
   }
-  
+
   @Transaction
   public void addTransition(ServerGeoObjectIF source, ServerGeoObjectIF target, TransitionType transitionType, TransitionImpact impact)
   {
@@ -206,17 +204,30 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     results.forEach(event -> event.delete());
   }
 
-  public void generateHistoricalReport(ServerGeoObjectType type, Date date)
+  public static List<TransitionEvent> getAll(ServerGeoObjectType type, Date startDate, Date endDate)
   {
-    VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, date);
-    List<ServerGeoObjectIF> results = query.getResults();
-    
-    for(ServerGeoObjectIF result : results) {
-      type.getAttributeMap().forEach((attributeName, attributeType) -> {
-        ValueOverTimeCollection collection = result.getValuesOverTime(attributeName);
-        
-        List<ValueOverTime> changes = collection.asList().stream().filter(vot -> vot.getStartDate().after(date)).collect(Collectors.toList());
-      });      
-    }
+    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
+    MdAttributeDAOIF beforeTypeCode = mdVertex.definesAttribute(TransitionEvent.BEFORETYPECODE);
+    MdAttributeDAOIF afterTypeCode = mdVertex.definesAttribute(TransitionEvent.AFTERTYPECODE);
+    MdAttributeDAOIF eventDate = mdVertex.definesAttribute(TransitionEvent.EVENTDATE);
+
+    List<ServerGeoObjectType> types = new LinkedList<ServerGeoObjectType>();
+    types.add(type);
+    types.addAll(type.getSubtypes());
+
+    List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    statement.append(" WHERE (" + beforeTypeCode.getColumnName() + " IN :typeCode");
+    statement.append(" OR " + afterTypeCode.getColumnName() + " IN :typeCode )");
+    statement.append(" AND " + eventDate.getColumnName() + " BETWEEN :startDate AND :endDate");
+
+    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
+    query.setParameter("typeCode", codes);
+    query.setParameter("startDate", startDate);
+    query.setParameter("endDate", endDate);
+
+    return query.getResults();
   }
 }
