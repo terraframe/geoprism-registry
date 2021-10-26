@@ -19,7 +19,7 @@
 
                 <div class="heading">
                     <h2>
-                        Import Business Data
+                        <localize key="business.data.import"></localize>
                     </h2>
                 </div>
 
@@ -57,8 +57,7 @@
                         <div>
                             <form #form="ngForm" autocomplete="off">
                                 <div class="form-group row">
-                                    <label class="col-md-2 text-right" for="businessTypeCode"> Business
-                                        Type</label>
+                                    <label class="col-md-2 text-right" for="businessTypeCode"> <localize key="business.data.type"></localize></label>
                                     <div class="col-md-8">
                                         <select id="businessTypeCode" name="businessTypeCode" class="select-area"
                                             [(ngModel)]="businessTypeCode" required>

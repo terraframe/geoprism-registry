@@ -11,7 +11,8 @@
     <form #form="ngForm" *ngIf="type" class="modal-form" (ngSubmit)="form.valid">
       <div class="heading text-center">
         <h1>
-          {{readOnly ? 'View type' : 'Edit type'}}
+          <localize *ngIf="readOnly" key="business.data.view.type"></localize>
+          <localize *ngIf="!readOnly" key="business.data.edit.type"></localize>
           : {{type.displayLabel.localizedValue}}
         </h1>
       </div>

@@ -7,7 +7,7 @@
 
         <div class="heading">
             <h2>
-                Organizations
+                <localize key="settings.organizations.heading"></localize>
             </h2>
         </div>
 
@@ -26,7 +26,7 @@
                 <div *ngIf="org.types && org.types.length === 0" class="row">
                     <div class="col-md-12">
                         <div class="py-5">
-                            <p class="inline-message">There are no business types available for this organization.</p>
+                            <p class="inline-message"><localize key="business.data.noTypes"></localize></p>
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th style="width: 70%;">Business Types</th>
+                                <th style="width: 70%;"><localize key="business.data.types"></localize></th>
                                 <th></th>
                             </tr>
                         </thead>

@@ -32,6 +32,113 @@
         </attributes>
       </mdBusiness>
     </create>
+    <createOrUpdate>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="business.data.types">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="business.data.types" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Business Types" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="business.data.noTypes">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="business.data.noTypes" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="There are no business types available for this organization." />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="business.data.edit.type">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="business.data.edit.type" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Edit type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="business.data.view.type">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="business.data.view.type" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="View type" />
+        </attributeStruct>
+      </object>      
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="business.data.type">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="business.data.type" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Business Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="business.data.import">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="business.data.import" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Import Business Data" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="business.data.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="business.data.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Date" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>    
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>
