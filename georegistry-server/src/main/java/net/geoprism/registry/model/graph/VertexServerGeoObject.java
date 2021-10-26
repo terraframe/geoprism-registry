@@ -2169,8 +2169,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return edgeClass != null && edgeClass.length() > 0 &&
         edgeClass.startsWith(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE) &&
         !edgeClass.equals(GeoVertex.EXTERNAL_ID) &&
-        !edgeClass.startsWith(SearchService.PACKAGE) &&
-        !edgeClass.startsWith(Transition.TRANSITION_PACKAGE);
+        !edgeClass.startsWith(SearchService.PACKAGE);
   }
 
   protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn, Date date)

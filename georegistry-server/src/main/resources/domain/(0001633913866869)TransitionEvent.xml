@@ -37,22 +37,18 @@
             name="impact"
             label="Transition Impact (Partial / Full)"
             required="true" />
+          <graphReference
+            name="source"
+            label="Source"
+            required="true"
+            type="net.geoprism.registry.graph.GeoVertex" />            
+          <graphReference
+            name="target"
+            label="Target"
+            required="true"
+            type="net.geoprism.registry.graph.GeoVertex" />                        
         </attributes>
       </mdVertex>
-      <mdEdge
-        name="net.geoprism.registry.graph.transition.TransitionSource"
-        label="Transition Source"
-        parent="net.geoprism.registry.graph.transition.Transition"
-        child="net.geoprism.registry.graph.GeoVertex"
-        generateSource="false">
-      </mdEdge>
-      <mdEdge
-        name="net.geoprism.registry.graph.transition.TransitionTarget"
-        label="Transition Target"
-        parent="net.geoprism.registry.graph.transition.Transition"
-        child="net.geoprism.registry.graph.GeoVertex"
-        generateSource="false">
-      </mdEdge>
       <mdEdge
         name="net.geoprism.registry.graph.transition.TransitionAssignment"
         label="Transition Events"
@@ -327,12 +323,6 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionSource">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionTarget">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
           <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionAssignment">
             <operation name="ALL" />
           </mdRelationshipPermission>
@@ -346,12 +336,6 @@
           <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionSource">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionTarget">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
           <mdRelationshipPermission type="net.geoprism.registry.graph.transition.TransitionAssignment">
             <operation name="ALL" />
           </mdRelationshipPermission>
@@ -363,12 +347,6 @@
     <delete>
       <object
         key="net.geoprism.registry.graph.transition.TransitionAssignment"
-        type="com.runwaysdk.system.metadata.MdEdge" />
-      <object
-        key="net.geoprism.registry.graph.transition.TransitionTarget"
-        type="com.runwaysdk.system.metadata.MdEdge" />
-      <object
-        key="net.geoprism.registry.graph.transition.TransitionSource"
         type="com.runwaysdk.system.metadata.MdEdge" />
       <object
         key="net.geoprism.registry.graph.transition.Transition"
