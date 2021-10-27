@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -37,6 +38,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.JsonSerializable;
@@ -317,44 +319,5 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     query.setParameter("typeCode", codes);
 
     return query.getResults();
-  }
-
-  public static List<HistoricalRow> getHistoricalReport(ServerGeoObjectType type, Date startDate, Date endDate)
-  {
-    MdVertexDAOIF transitionVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
-    MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
-    MdAttributeDAOIF beforeTypeCode = mdVertex.definesAttribute(TransitionEvent.BEFORETYPECODE);
-    MdAttributeDAOIF afterTypeCode = mdVertex.definesAttribute(TransitionEvent.AFTERTYPECODE);
-    MdAttributeDAOIF eventDate = mdVertex.definesAttribute(TransitionEvent.EVENTDATE);
-
-    List<ServerGeoObjectType> types = new LinkedList<ServerGeoObjectType>();
-    types.add(type);
-    types.addAll(type.getSubtypes());
-
-    List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
-
-    StringBuilder statement = new StringBuilder();
-    statement.append("SELECT event.oid AS eventId");
-    statement.append(", event.eventDate AS eventDate");
-    statement.append(", transitionType AS eventType");
-    statement.append(", event.description AS description");
-    statement.append(", event.beforeTypeCode AS beforeType");
-    statement.append(", source.code AS beforeCode");
-    statement.append(", source.displayLabel_cot.value[0] AS beforeLabel");
-    statement.append(", event.afterTypeCode AS afterType");
-    statement.append(", target.code AS afterCode");
-    statement.append(", target.displayLabel_cot.value[0] AS afterLabel");
-    statement.append(" FROM " + transitionVertex.getDBClassName());
-    statement.append(" WHERE ( event." + beforeTypeCode.getColumnName() + " IN :typeCode");
-    statement.append(" OR event." + afterTypeCode.getColumnName() + " IN :typeCode )");
-    statement.append(" AND event." + eventDate.getColumnName() + " BETWEEN :startDate AND :endDate");
-    statement.append(" ORDER BY event." + eventDate.getColumnName());
-
-    GraphQuery<List<?>> query = new GraphQuery<List<?>>(statement.toString());
-    query.setParameter("typeCode", codes);
-    query.setParameter("startDate", startDate);
-    query.setParameter("endDate", endDate);
-
-    return query.getRawResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
   }
 }

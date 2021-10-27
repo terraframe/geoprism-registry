@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
@@ -294,13 +295,77 @@ public class TransitionEventTest
 
       event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      List<HistoricalRow> results = TransitionEvent.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
+      List<HistoricalRow> results = page.getResults();
 
       Assert.assertEquals(1, results.size());
 
       HistoricalRow result = results.get(0);
 
       Assert.assertEquals(event.getOid(), result.getEventId());
+      Assert.assertEquals(TransitionType.REASSIGN.name(), result.getEventType());
+      Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, result.getEventDate());
+      Assert.assertEquals("Test", result.getDescription().getValue());
+      Assert.assertEquals(event.getBeforeTypeCode(), result.getBeforeType());
+      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), result.getBeforeCode());
+      Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), result.getBeforeLabel().getValue());
+      Assert.assertEquals(event.getAfterTypeCode(), result.getAfterType());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), result.getAfterCode());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), result.getAfterLabel().getValue());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testGetHistoricalReportToJson()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
+      JsonElement json = page.toJSON();
+
+      System.out.println(json);
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testGetHistoricalReportWithPage()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, 2, 10);
+
+      Assert.assertEquals(new Long(1L), page.getCount());
+      Assert.assertEquals(0, page.getResults().size());
     }
     finally
     {

@@ -30,6 +30,7 @@
                 <li *ngIf="shouldShowMenuItem('NAVIGATOR')" role="menuitem"><a class="dropdown-item" routerLink="/registry/location-manager"><localize key=navigator.menu></localize> </a></li>
                 <li *ngIf="shouldShowMenuItem('CHANGE-REQUESTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/change-requests" routerLinkActive="active"><localize key="header.changerequest.option"></localize> </a></li>
                 <li *ngIf="shouldShowMenuItem('EVENTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/transition-events" routerLinkActive="active"><localize key="header.transitionEvents"></localize></a></li>
+                <li *ngIf="shouldShowMenuItem('EVENTS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/historical-report" routerLinkActive="active">Historical Report</a></li>
                 <li *ngIf="shouldShowMenuItem('TASKS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/tasks" routerLinkActive="active"><localize key="header.tasks"></localize></a></li>
                 <!-- <li *ngIf="shouldShowMenuItem('CONFIGS')" role="menuitem"><a class="dropdown-item" routerLink="/registry/synchronization-configs" routerLinkActive="active"><localize key="synchronization.config.manager"></localize></a></li> -->
                 

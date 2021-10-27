@@ -20,6 +20,7 @@ import { DatasetLocationManagerComponent } from "./component/location-manager/da
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
+import { HistoricalReportComponent } from "./component/historical-report/historical-report.component";
 
 const routes: Routes = [
     {
@@ -137,7 +138,11 @@ const routes: Routes = [
         component: TransitionEventTableComponent,
         canActivate: [MaintainerGuard]
     },
-
+    {
+        path: "historical-report",
+        component: HistoricalReportComponent,
+        canActivate: [MaintainerGuard]
+    },
 ];
 
 @NgModule({

@@ -658,7 +658,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
    *          The parent types, sorted from the top to the bottom
    * @return
    */
-  private GraphQuery<List<Object>> buildAncestorQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
+  private GraphQuery<Map<String, Object>> buildAncestorQueryFast(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
   {
     LinkedList<ServerHierarchyType> inheritancePath = new LinkedList<ServerHierarchyType>();
     inheritancePath.add(hierarchy);
@@ -695,7 +695,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     // DATE('2021-06-10','yyyy-MM-dd') BETWEEN startDate AND endDate)
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT @class, " + DefaultAttribute.CODE.getName() + ", " + DefaultAttribute.DISPLAY_LABEL.getName() + "_cot FROM (");
+    statement.append("SELECT @class AS cl, " + DefaultAttribute.CODE.getName() + " AS code, " + DefaultAttribute.DISPLAY_LABEL.getName() + "_cot AS label FROM (");
 
     for (ServerHierarchyType hier : inheritancePath)
     {
@@ -725,7 +725,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       statement.append(") WHERE exists_cot CONTAINS (value=true)");
     }
 
-    GraphQuery<List<Object>> query = new GraphQuery<List<Object>>(statement.toString());
+    GraphQuery<Map<String, Object>> query = new GraphQuery<Map<String, Object>>(statement.toString());
     query.setParameter("rid", this.vertex.getRID());
 
     if (this.date != null)
@@ -736,13 +736,14 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return query;
   }
 
+  @SuppressWarnings("unchecked")
   public Map<String, LocationInfo> getAncestorMap(ServerHierarchyType hierarchy, List<ServerGeoObjectType> parents)
   {
     TreeMap<String, LocationInfo> map = new TreeMap<String, LocationInfo>();
 
-    GraphQuery<List<Object>> query = buildAncestorQueryFast(hierarchy, parents);
+    GraphQuery<Map<String, Object>> query = buildAncestorQueryFast(hierarchy, parents);
 
-    List<List<Object>> results = query.getResults();
+    List<Map<String, Object>> results = query.getResults();
 
     if (results.size() <= 1)
     {
@@ -752,12 +753,12 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     results.remove(0); // First result is the child object
 
     results.forEach(result -> {
-      String clazz = (String) result.get(0);
-      String code = (String) result.get(1);
+      String clazz = (String) result.get("cl");
+      String code = (String) result.get("code");
 
-      List<OResult> displayLabelRaw = (List<OResult>) result.get(2);
+      List<Map<String, Object>> displayLabelRaw = (List<Map<String, Object>>) result.get("label");
 
-      LocalizedValue localized = convertToLocalizedValue(displayLabelRaw);
+      LocalizedValue localized = LocalizedValueConverter.convert(displayLabelRaw, this.date);
 
       ServerGeoObjectType type = null;
       for (ServerGeoObjectType parent : parents)
@@ -780,49 +781,6 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     });
 
     return map;
-  }
-
-  private LocalizedValue convertToLocalizedValue(List<OResult> results)
-  {
-    ValueOverTimeCollection votc = new ValueOverTimeCollection();
-
-    for (OResult result : results)
-    {
-      Date startDate = result.getProperty("startDate");
-      Date endDate = result.getProperty("endDate");
-      Object value = result.getProperty("value");
-
-      ValueOverTime vot = new ValueOverTime(startDate, endDate, value);
-      votc.add(vot);
-    }
-
-    OResult rawLV = null;
-
-    if (this.date != null)
-    {
-      rawLV = (OResult) votc.getValueOnDate(this.date);
-    }
-    else if (votc.size() > 0)
-    {
-      rawLV = (OResult) votc.get(votc.size() - 1).getValue();
-    }
-
-    if (rawLV == null)
-    {
-      return null;
-    }
-
-    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
-
-    LocalizedValue lv = new LocalizedValue(rawLV.getProperty(MdAttributeLocalInfo.DEFAULT_LOCALE));
-    lv.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, rawLV.getProperty(MdAttributeLocalInfo.DEFAULT_LOCALE));
-
-    for (Locale locale : locales)
-    {
-      lv.setValue(locale, rawLV.getProperty(locale.toString().toLowerCase()));
-    }
-
-    return lv;
   }
 
   // @Override
@@ -2163,13 +2121,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     return tnRoot;
   }
-  
+
   public static boolean isEdgeAHierarchyType(String edgeClass)
   {
-    return edgeClass != null && edgeClass.length() > 0 &&
-        edgeClass.startsWith(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE) &&
-        !edgeClass.equals(GeoVertex.EXTERNAL_ID) &&
-        !edgeClass.startsWith(SearchService.PACKAGE);
+    return edgeClass != null && edgeClass.length() > 0 && edgeClass.startsWith(RegistryConstants.UNIVERSAL_GRAPH_PACKAGE) && !edgeClass.equals(GeoVertex.EXTERNAL_ID) && !edgeClass.startsWith(SearchService.PACKAGE);
   }
 
   protected static ServerParentTreeNode internalGetParentGeoObjects(VertexServerGeoObject child, String[] parentTypes, boolean recursive, ServerHierarchyType htIn, Date date)
@@ -2445,11 +2400,11 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       throw ex;
     }
   }
-  
+
   private static String findTypeLabelFromGeoObjectCode(String code)
   {
     ServerGeoObjectType type = null;
-    
+
     try
     {
       type = findTypeOfGeoObjectCode(code);
@@ -2458,7 +2413,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     {
       logger.error("Error encountered while finding a geoObject of code [" + code + "].", t);
     }
-    
+
     if (type == null)
     {
       return "?";
@@ -2468,9 +2423,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       return type.getLabel().getValue();
     }
   }
-  
+
   /**
-   * Finds the ServerGeoObjectType associated with the particular Geo-Object code.
+   * Finds the ServerGeoObjectType associated with the particular Geo-Object
+   * code.
    * 
    * @return
    */
@@ -2478,23 +2434,23 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT @class FROM geo_vertex WHERE code=:code");
-    
+
     GraphQuery<String> query = new GraphQuery<String>(statement.toString());
     query.setParameter("code", code);
-    
+
     String className = query.getSingleResult();
-    
+
     MdVertexQuery mvq = new MdVertexQuery(new QueryFactory());
-    
+
     mvq.WHERE(mvq.getDbClassName().EQ(className));
-    
+
     MdVertex mdVertex = mvq.getIterator().getAll().get(0);
-    
+
     ServerGeoObjectType foundType = ServerGeoObjectType.get(MdGeoVertexDAO.get(mdVertex.getOid()));
-    
+
     return foundType;
   }
-  
+
   public static boolean isCodeAttribute(MdAttributeDAOIF attr)
   {
     String attributeName = attr.definesAttribute();

@@ -110,6 +110,7 @@ import { FhirImportSynchronizationConfigComponent } from "./component/synchroniz
 import { TransitionEventService } from "./service/transition-event.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { TransitionEventModalComponent } from "./component/transition-event/transition-event-modal.component";
+import { HistoricalReportComponent } from "./component/historical-report/historical-report.component";
 
 @NgModule({
     imports: [
@@ -214,7 +215,8 @@ import { TransitionEventModalComponent } from "./component/transition-event/tran
         FeaturePanelComponent,
         GeometryPanelComponent,
         TransitionEventTableComponent,
-        TransitionEventModalComponent
+        TransitionEventModalComponent,
+        HistoricalReportComponent
     ],
     providers: [
         MapService,
