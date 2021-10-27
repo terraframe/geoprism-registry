@@ -26,5 +26,18 @@ export class TransitionEvent {
     eventDate: string;
     description: LocalizedValue;
     transitions?: Transition[];
-
 }
+
+export class HistoricalRow {
+    eventId: string;
+    eventDate: string;
+    eventType: string;
+    description: LocalizedValue;
+    beforeType: string;
+    beforeCode: string;
+    beforeLabel: LocalizedValue;
+    afterType: string;
+    afterCode: string;
+    afterLabel: string;
+}
+

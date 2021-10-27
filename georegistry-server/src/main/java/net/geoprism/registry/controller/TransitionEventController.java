@@ -18,6 +18,10 @@
  */
 package net.geoprism.registry.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -27,6 +31,7 @@ import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.TransitionEventService;
 
 @Controller(url = "transition-event")
@@ -56,4 +61,17 @@ public class TransitionEventController
   {
     return new RestBodyResponse(this.service.apply(request.getSessionId(), eventJSON));
   }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "historical-report")
+  public ResponseIF getHistoricalReport(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber) throws ParseException
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+    Date sDate = startDate != null ? format.parse(startDate) : new Date();
+    Date eDate = endDate != null ? format.parse(endDate) : new Date();
+
+    return new RestBodyResponse(service.getHistoricalReport(request.getSessionId(), typeCode, sDate, eDate, pageSize, pageNumber));
+  }
+
 }

@@ -5,7 +5,7 @@ import { finalize } from "rxjs/operators";
 import { EventService } from "@shared/service";
 import { PageResult } from "@shared/model/core";
 
-import { TransitionEvent } from "@registry/model/transition-event";
+import { HistoricalRow, TransitionEvent } from "@registry/model/transition-event";
 
 declare let acp: any;
 
@@ -56,4 +56,22 @@ export class TransitionEventService {
             }))
             .toPromise();
     }
+
+    getHistoricalReport(typeCode: string, startDate: string, endDate: string, pageSize: number, pageNumber: number): Promise<PageResult<HistoricalRow>> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("typeCode", typeCode.toString());
+        params = params.set("startDate", startDate.toString());
+        params = params.set("endDate", endDate.toString());
+        params = params.set("pageSize", pageSize.toString());
+        params = params.set("pageNumber", pageNumber.toString());
+
+        this.eventService.start();
+
+        return this.http.get<PageResult<HistoricalRow>>(acp + "/transition-event/historical-report", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
 }
