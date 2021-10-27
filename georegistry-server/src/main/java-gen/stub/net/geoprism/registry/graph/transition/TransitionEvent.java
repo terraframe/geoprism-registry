@@ -3,23 +3,33 @@ package net.geoprism.registry.graph.transition;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.rbac.RoleDAOIF;
+import com.runwaysdk.business.rbac.SingleActorDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.Condition;
+import com.runwaysdk.session.Session;
 
+import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
@@ -59,7 +69,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
     statement.append(" WHERE " + mdAttribute.getColumnName() + " = :event");
-
+    
     GraphQuery<Transition> query = new GraphQuery<Transition>(statement.toString());
     query.setParameter("event", this.getRID());
 
@@ -129,15 +139,27 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       event.setEventDate(format.parse(json.get(TransitionEvent.EVENTDATE).getAsString()));
       event.setBeforeTypeCode(beforeTypeCode);
       event.setAfterTypeCode(afterTypeCode);
+      event.setBeforeTypeOrgCode(beforeType.getOrganization().getCode());
+      event.setAfterTypeOrgCode(afterType.getOrganization().getCode());
       event.apply();
 
       JsonArray transitions = json.get("transitions").getAsJsonArray();
 
+      List<String> appliedTrans = new ArrayList<String>();
       for (int i = 0; i < transitions.size(); i++)
       {
         JsonObject object = transitions.get(i).getAsJsonObject();
 
-        Transition.apply(event, object);
+        Transition trans = Transition.apply(event, object);
+        appliedTrans.add(trans.getOid());
+      }
+      
+      for (Transition trans : event.getTransitions())
+      {
+        if (!appliedTrans.contains(trans.getOid()))
+        {
+          trans.delete();
+        }
       }
 
       return event.toJSON(false);
@@ -169,12 +191,88 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
+    
+    addPageWhereCriteria(statement);
+    
     statement.append(" ORDER BY " + eventDate.getColumnName() + " DESC");
     statement.append(" SKIP " + ( ( pageNumber - 1 ) * pageSize ) + " LIMIT " + pageSize);
 
     GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
 
     return new Page<TransitionEvent>(count, pageNumber, pageSize, query.getResults());
+  }
+  
+  public static void addPageWhereCriteria(StringBuilder statement)
+  {
+    if (Session.getCurrentSession() != null)
+    {
+      List<String> afterConditions = buildGraphPermissionsFilter(TransitionEvent.AFTERTYPEORGCODE, TransitionEvent.AFTERTYPECODE);
+      List<String> beforeConditions = buildGraphPermissionsFilter(TransitionEvent.BEFORETYPEORGCODE, TransitionEvent.BEFORETYPECODE);
+      
+      if (afterConditions.size() > 0 && beforeConditions.size() > 0)
+      {
+        statement.append(" WHERE (");
+        statement.append(StringUtils.join(afterConditions, " OR "));
+        statement.append(") AND (");
+        statement.append(StringUtils.join(beforeConditions, " OR "));
+        statement.append(") ");
+      }
+    }
+  }
+  
+  public static List<String> buildGraphPermissionsFilter(String orgCodeAttr, String gotCodeAttr)
+  {
+    List<String> criteria = new ArrayList<String>();
+    List<String> raOrgs = new ArrayList<String>();
+    List<String> goRoles = new ArrayList<String>();
+
+    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
+    for (RoleDAOIF role : actor.authorizedRoles())
+    {
+      String roleName = role.getRoleName();
+
+      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
+      {
+        if (RegistryRole.Type.isRA_Role(roleName))
+        {
+          String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+          raOrgs.add(roleOrgCode);
+        }
+        else if (RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName))
+        {
+          goRoles.add(roleName);
+        }
+      }
+    }
+
+    for (String orgCode : raOrgs)
+    {
+      criteria.add("(" + orgCodeAttr + " = '" + orgCode + "')");
+    }
+
+    for (String roleName : goRoles)
+    {
+      String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
+      String gotCode = RegistryRole.Type.parseGotCode(roleName);
+
+      criteria.add("(" + orgCodeAttr + " = '" + roleOrgCode + "' AND " + gotCodeAttr + " = '" + gotCode + "')");
+
+      // If they have permission to an abstract parent type, then they also have
+      // permission to all its children.
+      Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
+
+      if (op.isPresent() && op.get().getIsAbstract())
+      {
+        List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
+
+        for (ServerGeoObjectType subType : subTypes)
+        {
+          criteria.add("(" + orgCodeAttr + " = '" + subType.getOrganization().getCode() + "' AND " + gotCodeAttr + " = '" + subType.getCode() + "')");
+        }
+      }
+    }
+    
+    return criteria;
   }
 
   @Transaction

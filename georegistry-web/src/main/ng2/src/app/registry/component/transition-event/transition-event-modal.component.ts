@@ -414,11 +414,12 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     let child: any = {
                         name: trans.sourceText,
                         code: trans.sourceCode,
+                        children: [],
                         isSource: true
                     };
 
                     if (grandChild != null) {
-                        child.children = [grandChild];
+                        child.children.push(grandChild);
                     }
 
                     children.push(child);
