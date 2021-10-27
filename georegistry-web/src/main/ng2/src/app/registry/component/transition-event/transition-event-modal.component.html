@@ -71,12 +71,12 @@
                     </select>
                 </div>
                 <div *ngIf="readonly" class="holder">
-                    <input [(ngModel)]="event.afterTypeLabel" name="typeCode" type="text" class="form-control"
+                    <input [(ngModel)]="event.afterTypeLabel" name="typeCode" type="text" class="form-control"&&
                         disabled />
                 </div>
             </div>
 
-            <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.afterTypeCode != null && event.eventDate != null && event.eventDate !== ''">
+            <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.beforeTypeCode !== '' && event.afterTypeCode != null && event.afterTypeCode !== '' && event.eventDate != null && event.eventDate !== ''">
                     <table class="table">
                         <thead>
                             <tr style="height: 50px;color: grey;">

@@ -16,8 +16,16 @@
             label="Before Type Code"
             required="true" />
           <text
+            name="beforeTypeOrgCode"
+            label="Before Type Organization Code"
+            required="true" />
+          <text
             name="afterTypeCode"
             label="After Type Code"
+            required="true" />
+          <text
+            name="afterTypeOrgCode"
+            label="After Type Organization Code"
             required="true" />
           <localCharEmbedded
             name="description"
