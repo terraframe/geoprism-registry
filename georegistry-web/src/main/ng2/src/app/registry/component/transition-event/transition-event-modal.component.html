@@ -93,7 +93,7 @@
                                 <td>
                                     <div class="input-group">
                                         <input type="text" class="form-control" autocomplete="off"
-                                            [name]="'transition.source-' + i" [disabled]="readonly"
+                                            [name]="'transition.source-' + i" [disabled]="readonly" required
                                             [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
                                             [typeahead]="getTypeAheadObservable(transition, this.event.beforeTypeCode, 'sourceText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
@@ -121,7 +121,7 @@
                                 <td>
                                     <div  class="input-group">
                                         <input type="text" class="form-control" autocomplete="off"
-                                            [name]="'transition.target-' + i" [disabled]="readonly"
+                                            [name]="'transition.target-' + i" [disabled]="readonly" required
                                             [(ngModel)]="transition.targetText" [typeaheadAsync]="true"
                                             [typeahead]="getTypeAheadObservable(transition, this.event.afterTypeCode, 'targetText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"

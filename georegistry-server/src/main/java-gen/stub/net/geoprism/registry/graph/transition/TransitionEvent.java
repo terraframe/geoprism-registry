@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -142,11 +143,21 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
       JsonArray transitions = json.get("transitions").getAsJsonArray();
 
+      List<String> appliedTrans = new ArrayList<String>();
       for (int i = 0; i < transitions.size(); i++)
       {
         JsonObject object = transitions.get(i).getAsJsonObject();
 
-        Transition.apply(event, object);
+        Transition trans = Transition.apply(event, object);
+        appliedTrans.add(trans.getOid());
+      }
+      
+      for (Transition trans : event.getTransitions())
+      {
+        if (!appliedTrans.contains(trans.getOid()))
+        {
+          trans.delete();
+        }
       }
 
       return event.toJSON(false);
