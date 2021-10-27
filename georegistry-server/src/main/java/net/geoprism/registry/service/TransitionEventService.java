@@ -44,4 +44,10 @@ public class TransitionEventService
   {
     return TransitionEvent.apply(JsonParser.parseString(json).getAsJsonObject());
   }
+
+  @Request(RequestType.SESSION)
+  public void delete(String sessionId, String eventId)
+  {
+    TransitionEvent.get(eventId).delete();
+  }
 }

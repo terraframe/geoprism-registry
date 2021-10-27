@@ -3,12 +3,12 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { trigger, style, animate, transition } from "@angular/animations";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 
-import { ErrorHandler } from "@shared/component";
+import { ConfirmModalComponent, ErrorHandler } from "@shared/component";
 import { PageResult } from "@shared/model/core";
 import { TransitionEventService } from "@registry/service/transition-event.service";
 import { TransitionEvent } from "@registry/model/transition-event";
 import { TransitionEventModalComponent } from "./transition-event-modal.component";
-import { DateService } from "@shared/service";
+import { DateService, LocalizationService } from "@shared/service";
 
 @Component({
 
@@ -56,7 +56,7 @@ export class TransitionEventTableComponent {
     bsModalRef: BsModalRef;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: TransitionEventService, private modalService: BsModalService, private dateService: DateService) { }
+    constructor(private service: TransitionEventService, private modalService: BsModalService, private dateService: DateService, private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
         this.refresh();
@@ -82,6 +82,28 @@ export class TransitionEventTableComponent {
         });
     }
 
+    deleteEvent(jsEvent, transitionEvent: TransitionEvent): void {
+        jsEvent.stopPropagation();
+
+        this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + transitionEvent.description.localizedValue + "]";
+        this.bsModalRef.content.data = transitionEvent;
+        this.bsModalRef.content.type = "DANGER";
+        this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
+
+        (<ConfirmModalComponent> this.bsModalRef.content).onConfirm.subscribe(data => {
+            this.service.delete(transitionEvent).then(response => {
+                this.refresh(this.page.pageNumber);
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        });
+    }
+
     onView(event: TransitionEvent): void {
         this.service.getDetails(event.oid).then(response => {
             this.bsModalRef = this.modalService.show(TransitionEventModalComponent, {
@@ -90,6 +112,9 @@ export class TransitionEventTableComponent {
                 ignoreBackdropClick: true
             });
             this.bsModalRef.content.init(false, response);
+            this.bsModalRef.content.onEventChange.subscribe((event: TransitionEvent) => {
+                this.refresh(this.page.pageNumber);
+            });
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

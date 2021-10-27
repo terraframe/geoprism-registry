@@ -56,4 +56,20 @@ export class TransitionEventService {
             }))
             .toPromise();
     }
+
+    delete(event: TransitionEvent): Promise<TransitionEvent> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<TransitionEvent>(acp + "/transition-event/delete", JSON.stringify({ eventId: event.oid }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
 }
