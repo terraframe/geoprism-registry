@@ -1,11 +1,12 @@
 package net.geoprism.registry.transition;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -15,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
@@ -123,8 +123,6 @@ public class TransitionEventTest
 
       Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), json.get(TransitionEvent.BEFORETYPECODE).getAsString());
       Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), json.get(TransitionEvent.AFTERTYPECODE).getAsString());
-//      Assert.assertEquals(FastTestDataset.COUNTRY.getOrganization().getCode(), json.get(TransitionEvent.BEFORETYPEORGCODE).getAsString());
-//      Assert.assertEquals(FastTestDataset.PROVINCE.getOrganization().getCode(), json.get(TransitionEvent.AFTERTYPEORGCODE).getAsString());
       Assert.assertEquals(format.format(date), json.get(TransitionEvent.EVENTDATE).getAsString());
 
       LocalizedValue actualDescription = LocalizedValue.fromJSON(json.get(TransitionEvent.DESCRIPTION).getAsJsonObject());
@@ -321,6 +319,32 @@ public class TransitionEventTest
 
   @Test
   @Request
+  public void testExportHistoricalReportToExcel() throws IOException
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setBeforeTypeOrgCode(FastTestDataset.COUNTRY.getOrganization().getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+      event.apply();
+
+      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Workbook workbook = HistoricalRow.exportToExcel(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
   public void testGetHistoricalReportToJson()
   {
     TransitionEvent event = new TransitionEvent();
@@ -331,14 +355,26 @@ public class TransitionEventTest
       event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
       event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
       event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setBeforeTypeOrgCode(FastTestDataset.COUNTRY.getOrganization().getCode());
+      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       event.apply();
 
       event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
       Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE, null, null);
-      JsonElement json = page.toJSON();
+      JsonObject json = page.toJSON().getAsJsonObject();
 
-      System.out.println(json);
+      Assert.assertEquals(1, json.get("count").getAsInt());
+      Assert.assertTrue(json.get("pageNumber").isJsonNull());
+      Assert.assertTrue(json.get("pageSize").isJsonNull());
+
+      JsonArray results = json.get("resultSet").getAsJsonArray();
+
+      Assert.assertEquals(1, results.size());
+
+      JsonObject result = results.get(0).getAsJsonObject();
+      Assert.assertEquals(event.getOid(), result.get(HistoricalRow.EVENT_ID).getAsString());
+      Assert.assertEquals(TransitionType.REASSIGN.name(), result.get(HistoricalRow.EVENT_TYPE).getAsString());
     }
     finally
     {
@@ -358,6 +394,8 @@ public class TransitionEventTest
       event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
       event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
       event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setBeforeTypeOrgCode(FastTestDataset.COUNTRY.getOrganization().getCode());
+      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       event.apply();
 
       event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
@@ -366,6 +404,10 @@ public class TransitionEventTest
 
       Assert.assertEquals(new Long(1L), page.getCount());
       Assert.assertEquals(0, page.getResults().size());
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
     }
     finally
     {
@@ -488,12 +530,12 @@ public class TransitionEventTest
       event.delete();
     }
   }
-  
+
   @Test
   public void testPagePermissions()
   {
     TransitionEvent event = testPagePermissionsSetUp();
-    
+
     try
     {
       // Test allowed users on a private GeoObjectType
@@ -510,7 +552,7 @@ public class TransitionEventTest
       testPagePermissionsTearDown(event);
     }
   }
-  
+
   @Request(RequestType.SESSION)
   private void testPagePermissions(String sessionId, TransitionEvent event)
   {
@@ -521,7 +563,7 @@ public class TransitionEventTest
     Assert.assertEquals(new Integer(10), page.getPageSize());
     Assert.assertEquals(event.getOid(), page.getResults().get(0).getOid());
   }
-  
+
   @Request()
   private TransitionEvent testPagePermissionsSetUp()
   {
@@ -537,10 +579,10 @@ public class TransitionEventTest
     event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
     event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
     event.apply();
-    
+
     return event;
   }
-  
+
   @Request()
   private void testPagePermissionsTearDown(TransitionEvent event)
   {

@@ -1,26 +1,48 @@
 package net.geoprism.registry.view;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.WorkbookUtil;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
+import com.runwaysdk.gis.dataaccess.MdAttributePointDAOIF;
+import com.runwaysdk.session.Session;
 
+import net.geoprism.localization.LocalizationFacade;
+import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
+import net.geoprism.registry.excel.HistoricalReportExcelExporter;
+import net.geoprism.registry.excel.MasterListExcelExporter.MasterListExcelExporterSheet;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 
 public class HistoricalRow implements JsonSerializable
 {
@@ -271,6 +293,7 @@ public class HistoricalRow implements JsonSerializable
     statement.append(" ORDER BY " + eventAttribute.getColumnName() + "." + eventDate.getColumnName());
     statement.append(", " + eventAttribute.getColumnName() + ".oid");
     statement.append(", " + sourceAttribute.getColumnName() + ".code");
+    statement.append(", " + targetAttribute.getColumnName() + ".code");
 
     if (pageNumber != null && pageSize != null)
     {
@@ -287,6 +310,13 @@ public class HistoricalRow implements JsonSerializable
     List<HistoricalRow> results = query.getRawResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
 
     return new Page<HistoricalRow>(count, pageNumber, pageSize, results);
+  }
+
+  public static Workbook exportToExcel(ServerGeoObjectType type, Date startDate, Date endDate) throws IOException
+  {
+    HistoricalReportExcelExporter exporter = new HistoricalReportExcelExporter(type, startDate, endDate);
+
+    return exporter.createWorkbook();
   }
 
 }

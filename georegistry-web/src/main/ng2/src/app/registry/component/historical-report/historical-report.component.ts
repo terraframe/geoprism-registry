@@ -62,6 +62,8 @@ export class HistoricalReportComponent {
 
     types: { label: string, code: string }[] = [];
 
+    isValid: boolean = false;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: TransitionEventService, private iService: IOService, private authService: AuthService,
         private dateService: DateService) { }
@@ -90,6 +92,12 @@ export class HistoricalReportComponent {
 
     formatDate(date: string): string {
         return this.dateService.formatDateForDisplay(date);
+    }
+
+    checkDates(): any {
+        setTimeout(() => {
+            this.isValid = (this.data.startDate != null && this.data.endDate != null);
+        }, 0);
     }
 
     public error(err: any): void {

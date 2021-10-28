@@ -31,7 +31,7 @@
         </label>
         <div class="col-md-8">
           <date-field #dateFieldComponents [(value)]="data.startDate" label="" [inputName]="'startDate'"
-            [allowFutureDates]="false"></date-field>
+            [allowFutureDates]="false" [required]="true" (change)="checkDates()"></date-field>
         </div>
 
         <div class="col-md-2"></div>
@@ -42,7 +42,7 @@
         </label>
         <div class="col-md-8">
           <date-field #dateFieldComponents [(value)]="data.endDate" label="" [inputName]="'endDate'"
-            [allowInfinity]="true" [allowFutureDates]="true" [required]="true"></date-field>
+            [allowInfinity]="true" [allowFutureDates]="true" [required]="true" (change)="checkDates()"></date-field>
         </div>
 
         <div class="col-md-2"></div>
@@ -50,7 +50,7 @@
       <div class="form-group row">
         <div class="col-md-2"></div>
         <div class="button-holder col-md-8 text-right">
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="refresh()">
+          <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="refresh()">
             <localize key="io.submit"></localize>
           </button>
         </div>
@@ -58,7 +58,7 @@
       </div>
     </form>
 
-    <div class="row" *ngIf="data.type !== '' && data.startDate != '' && data.endDate != ''">
+    <div class="row">
       <div class="col-md-12">
         <table class="table">
           <thead>
@@ -85,7 +85,7 @@
                   {{row.eventId}}
                 </td>
                 <td>
-                  {{row.eventDate}}
+                  {{formatDate(row.eventDate)}}
                 </td>
                 <td>
                   {{row.eventType}}
