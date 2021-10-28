@@ -6,7 +6,7 @@
   <div id="app-container" class="container-fluid">
     <div class="heading">
       <h2>
-        Historical Report
+        <localize key="historical.row.report"></localize>
       </h2>
     </div>
 
@@ -53,6 +53,9 @@
           <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="refresh()">
             <localize key="io.submit"></localize>
           </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="exportToExcel()">
+            Export to Excel
+          </button>
         </div>
         <div class="col-md-2"></div>
       </div>
@@ -63,16 +66,16 @@
         <table class="table">
           <thead>
             <tr style="height: 50px;color: grey;">
-              <th style="vertical-align: middle;"> Event Id </th>
-              <th style="vertical-align: middle;"> Event Date </th>
-              <th style="vertical-align: middle;"> Event Type </th>
-              <th style="vertical-align: middle;"> Description </th>
-              <th style="vertical-align: middle;"> Before Type </th>
-              <th style="vertical-align: middle;"> Before Code </th>
-              <th style="vertical-align: middle;"> Before Label </th>
-              <th style="vertical-align: middle;"> After Type </th>
-              <th style="vertical-align: middle;"> After Code </th>
-              <th style="vertical-align: middle;"> After Label </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.eventId"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.eventDate"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.eventType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.description"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.beforeType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.beforeCode"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.beforeLabel"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.afterType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.afterCode"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.afterLabel"></localize> </th>
               <th></th>
             </tr>
           </thead>

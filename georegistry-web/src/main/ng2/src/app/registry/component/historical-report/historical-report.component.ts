@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { trigger, style, animate, transition } from "@angular/animations";
 
 import { ErrorHandler } from "@shared/component";
@@ -8,6 +8,8 @@ import { TransitionEventService } from "@registry/service/transition-event.servi
 import { HistoricalRow } from "@registry/model/transition-event";
 import { AuthService, DateService } from "@shared/service";
 import { IOService } from "@registry/service";
+
+declare let acp: string;
 
 @Component({
 
@@ -88,6 +90,15 @@ export class HistoricalReportComponent {
         }).catch((response: HttpErrorResponse) => {
             this.error(response);
         });
+    }
+
+    exportToExcel(): void {
+        let params: HttpParams = new HttpParams();
+        params = params.set("typeCode", this.data.type.toString());
+        params = params.set("startDate", this.data.startDate.toString());
+        params = params.set("endDate", this.data.endDate.toString());
+
+        window.location.href = acp + "/transition-event/export-excel?" + params.toString();
     }
 
     formatDate(date: string): string {

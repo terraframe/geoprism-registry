@@ -1,12 +1,16 @@
 package net.geoprism.registry.transition;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -21,6 +25,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
@@ -99,6 +104,7 @@ public class TransitionEventTest
   public void testEventToJson()
   {
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
     TransitionEvent event = new TransitionEvent();
 
@@ -335,7 +341,39 @@ public class TransitionEventTest
 
       event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
 
-      Workbook workbook = HistoricalRow.exportToExcel(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      InputStream istream = HistoricalRow.exportToExcel(FastTestDataset.PROVINCE.getServerObject(), FastTestDataset.DEFAULT_OVER_TIME_DATE, FastTestDataset.DEFAULT_OVER_TIME_DATE);
+
+      Workbook workbook = WorkbookFactory.create(istream);
+
+      Assert.assertEquals(1, workbook.getNumberOfSheets());
+
+      Sheet sheet = workbook.getSheetAt(0);
+
+      Assert.assertEquals(1, sheet.getLastRowNum());
+
+      Row header = sheet.getRow(0);
+      Assert.assertEquals("Event Id", header.getCell(0).getStringCellValue());
+      Assert.assertEquals("Event Date", header.getCell(1).getStringCellValue());
+      Assert.assertEquals("Event Type", header.getCell(2).getStringCellValue());
+      Assert.assertEquals("Description", header.getCell(3).getStringCellValue());
+      Assert.assertEquals("Before Type", header.getCell(4).getStringCellValue());
+      Assert.assertEquals("Before Code", header.getCell(5).getStringCellValue());
+      Assert.assertEquals("Before Label", header.getCell(6).getStringCellValue());
+      Assert.assertEquals("After Type", header.getCell(7).getStringCellValue());
+      Assert.assertEquals("After Code", header.getCell(8).getStringCellValue());
+      Assert.assertEquals("After Label", header.getCell(9).getStringCellValue());
+
+      Row row = sheet.getRow(1);
+      Assert.assertEquals(event.getOid(), row.getCell(0).getStringCellValue());
+      Assert.assertEquals("2020-04-04", row.getCell(1).getStringCellValue());
+      Assert.assertEquals(TransitionType.REASSIGN.name(), row.getCell(2).getStringCellValue());
+      Assert.assertEquals("Test", row.getCell(3).getStringCellValue());
+      Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), row.getCell(4).getStringCellValue());
+      Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), row.getCell(5).getStringCellValue());
+      Assert.assertEquals(FastTestDataset.CAMBODIA.getDisplayLabel(), row.getCell(6).getStringCellValue());
+      Assert.assertEquals(FastTestDataset.PROVINCE.getCode(), row.getCell(7).getStringCellValue());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), row.getCell(8).getStringCellValue());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getDisplayLabel(), row.getCell(9).getStringCellValue());
     }
     finally
     {

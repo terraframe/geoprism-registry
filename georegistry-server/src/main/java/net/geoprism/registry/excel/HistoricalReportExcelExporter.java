@@ -123,7 +123,7 @@ public class HistoricalReportExcelExporter
 
     this.writeHeader(sheet.createRow(rowNum++));
 
-    Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(type, startDate, endDate, 1, 1000);
+    Page<HistoricalRow> page = HistoricalRow.getHistoricalReport(type, startDate, endDate, 1000, 1);
 
     while (page.getResults().size() > 0)
     {
@@ -134,7 +134,7 @@ public class HistoricalReportExcelExporter
         this.writeRow(sheet.createRow(rowNum++), result);
       }
 
-      page = HistoricalRow.getHistoricalReport(type, startDate, endDate, page.getPageNumber() + 1, page.getPageSize());
+      page = HistoricalRow.getHistoricalReport(type, startDate, endDate, page.getPageSize(), page.getPageNumber() + 1);
     }
   }
 

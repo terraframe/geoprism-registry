@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.controller;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,6 +28,7 @@ import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
 import com.runwaysdk.mvc.Endpoint;
 import com.runwaysdk.mvc.ErrorSerialization;
+import com.runwaysdk.mvc.InputStreamResponse;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
@@ -62,12 +64,12 @@ public class TransitionEventController
   {
     return new RestBodyResponse(this.service.apply(request.getSessionId(), eventJSON));
   }
-  
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "delete")
   public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "eventId") String eventId)
   {
     this.service.delete(request.getSessionId(), eventId);
-    
+
     return new RestResponse();
   }
 
@@ -81,6 +83,18 @@ public class TransitionEventController
     Date eDate = endDate != null ? format.parse(endDate) : new Date();
 
     return new RestBodyResponse(service.getHistoricalReport(request.getSessionId(), typeCode, sDate, eDate, pageSize, pageNumber));
+  }
+
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "export-excel")
+  public ResponseIF exportExcel(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate) throws ParseException, IOException
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+    Date sDate = startDate != null ? format.parse(startDate) : new Date();
+    Date eDate = endDate != null ? format.parse(endDate) : new Date();
+
+    return new InputStreamResponse(service.exportExcel(request.getSessionId(), typeCode, sDate, eDate), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "historical-report.xlsx");
   }
 
 }
