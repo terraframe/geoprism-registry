@@ -18,7 +18,8 @@
               <th style="vertical-align: middle;"> <localize key="external.system.description"></localize> </th>
               <th style="vertical-align: middle;"> <localize key="change.request.createDate"></localize> </th>
               <th style="vertical-align: middle;"> <localize key="transition.event.beforeType"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="transition.event.afterType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="transition.event.afterType"></localize> </th> 
+              <th></th>
               <th></th>
             </tr>
           </thead>
@@ -26,7 +27,7 @@
             <ng-template ngFor let-event
               [ngForOf]="page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
 
-              <tr class="clickable" style="height: 50px;" (click)="onView(event)">
+              <tr style="height: 50px;" class="clickable" (click)="onView(event)">
                 <td class="col-md-2">
                   <h5><strong>{{event.description.localizedValue}}</strong></h5>
                 </td>
@@ -38,6 +39,9 @@
                 </td>
                 <td class="col-md-1">
                   <h5><strong>{{event.afterTypeLabel}}</strong></h5>
+                </td>
+                <td class="col-md-1" style="vertical-align:middle;text-align:right;">
+                  <a (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
                 </td>
                 <td class="col-md-1" style="vertical-align:middle;text-align:right;padding-right:25px;">
                   <i class="arrow arrow-right" aria-hidden="true"></i>

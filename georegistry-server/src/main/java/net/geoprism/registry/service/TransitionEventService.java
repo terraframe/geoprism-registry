@@ -50,6 +50,12 @@ public class TransitionEventService
   }
 
   @Request(RequestType.SESSION)
+  public void delete(String sessionId, String eventId)
+  {
+    TransitionEvent.get(eventId).delete();
+  }
+  
+  @Request(RequestType.SESSION)
   public JsonObject getHistoricalReport(String sessionId, String typeCode, Date startDate, Date endDate, Integer pageSize, Integer pageNumber)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);

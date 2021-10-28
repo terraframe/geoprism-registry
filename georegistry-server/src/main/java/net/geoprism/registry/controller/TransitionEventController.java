@@ -30,6 +30,7 @@ import com.runwaysdk.mvc.ErrorSerialization;
 import com.runwaysdk.mvc.RequestParamter;
 import com.runwaysdk.mvc.ResponseIF;
 import com.runwaysdk.mvc.RestBodyResponse;
+import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.service.TransitionEventService;
@@ -60,6 +61,14 @@ public class TransitionEventController
   public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "event") String eventJSON)
   {
     return new RestBodyResponse(this.service.apply(request.getSessionId(), eventJSON));
+  }
+  
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "delete")
+  public ResponseIF delete(ClientRequestIF request, @RequestParamter(name = "eventId") String eventId)
+  {
+    this.service.delete(request.getSessionId(), eventId);
+    
+    return new RestResponse();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "historical-report")
