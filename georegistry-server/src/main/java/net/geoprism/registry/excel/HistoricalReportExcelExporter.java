@@ -144,7 +144,7 @@ public class HistoricalReportExcelExporter
 
     row.createCell(col++).setCellValue(result.getEventId());
     row.createCell(col++).setCellValue(this.format.format(result.getEventDate()));
-    row.createCell(col++).setCellValue(result.getEventType());
+    row.createCell(col++).setCellValue(result.getLocalizedEventType());
     row.createCell(col++).setCellValue(result.getDescription().getValue());
     row.createCell(col++).setCellValue(result.getBeforeType());
     row.createCell(col++).setCellValue(result.getBeforeCode());

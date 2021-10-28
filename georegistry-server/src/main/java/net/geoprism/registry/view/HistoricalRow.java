@@ -8,16 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.poi.ss.usermodel.Workbook;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 
+import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
 import net.geoprism.registry.excel.HistoricalReportExcelExporter;
@@ -167,6 +168,25 @@ public class HistoricalRow implements JsonSerializable
     this.eventType = eventType;
   }
 
+  public String getLocalizedEventType()
+  {
+    String eventType = this.getEventType();
+
+    String[] split = eventType.split("-");
+
+    if (split.length > 1)
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append(LocalizationFacade.getFromBundles("transition.event.type." + split[1].toLowerCase()));
+      builder.append(" - ");
+      builder.append(LocalizationFacade.getFromBundles("transition.event.type." + split[0].toLowerCase()));
+
+      return builder.toString();
+    }
+
+    return LocalizationFacade.getFromBundles("transition.event.type." + eventType.toLowerCase());
+  }
+
   @Override
   public JsonElement toJSON()
   {
@@ -174,7 +194,10 @@ public class HistoricalRow implements JsonSerializable
     builder.registerTypeAdapter(LocalizedValue.class, new SeverGeoObjectJsonAdapters.LocalizedValueSerializer());
     builder.registerTypeAdapter(Date.class, new SeverGeoObjectJsonAdapters.DateSerializer());
 
-    return builder.create().toJsonTree(this, this.getClass());
+    JsonObject json = builder.create().toJsonTree(this, this.getClass()).getAsJsonObject();
+    json.addProperty(EVENT_TYPE, this.getLocalizedEventType());
+
+    return json;
   }
 
   @SuppressWarnings("unchecked")
