@@ -6,7 +6,7 @@
   <div id="app-container" class="container-fluid">
     <div class="heading">
       <h2>
-        Historical Report
+        <localize key="historical.row.report"></localize>
       </h2>
     </div>
 
@@ -31,7 +31,7 @@
         </label>
         <div class="col-md-8">
           <date-field #dateFieldComponents [(value)]="data.startDate" label="" [inputName]="'startDate'"
-            [allowFutureDates]="false"></date-field>
+            [allowFutureDates]="false" [required]="true" (change)="checkDates()"></date-field>
         </div>
 
         <div class="col-md-2"></div>
@@ -42,7 +42,7 @@
         </label>
         <div class="col-md-8">
           <date-field #dateFieldComponents [(value)]="data.endDate" label="" [inputName]="'endDate'"
-            [allowInfinity]="true" [allowFutureDates]="true" [required]="true"></date-field>
+            [allowInfinity]="true" [allowFutureDates]="true" [required]="true" (change)="checkDates()"></date-field>
         </div>
 
         <div class="col-md-2"></div>
@@ -50,29 +50,32 @@
       <div class="form-group row">
         <div class="col-md-2"></div>
         <div class="button-holder col-md-8 text-right">
-          <button type="submit" class="btn btn-primary" [disabled]="form.invalid" (click)="refresh()">
+          <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="refresh()">
             <localize key="io.submit"></localize>
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="exportToExcel()">
+            <localize key="io.export"></localize>
           </button>
         </div>
         <div class="col-md-2"></div>
       </div>
     </form>
 
-    <div class="row" *ngIf="data.type !== '' && data.startDate != '' && data.endDate != ''">
+    <div class="row">
       <div class="col-md-12">
         <table class="table">
           <thead>
             <tr style="height: 50px;color: grey;">
-              <th style="vertical-align: middle;"> Event Id </th>
-              <th style="vertical-align: middle;"> Event Date </th>
-              <th style="vertical-align: middle;"> Event Type </th>
-              <th style="vertical-align: middle;"> Description </th>
-              <th style="vertical-align: middle;"> Before Type </th>
-              <th style="vertical-align: middle;"> Before Code </th>
-              <th style="vertical-align: middle;"> Before Label </th>
-              <th style="vertical-align: middle;"> After Type </th>
-              <th style="vertical-align: middle;"> After Code </th>
-              <th style="vertical-align: middle;"> After Label </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.eventId"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.eventDate"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.eventType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.description"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.beforeType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.beforeCode"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.beforeLabel"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.afterType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.afterCode"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="historical.row.afterLabel"></localize> </th>
               <th></th>
             </tr>
           </thead>
@@ -85,7 +88,7 @@
                   {{row.eventId}}
                 </td>
                 <td>
-                  {{row.eventDate}}
+                  {{formatDate(row.eventDate)}}
                 </td>
                 <td>
                   {{row.eventType}}

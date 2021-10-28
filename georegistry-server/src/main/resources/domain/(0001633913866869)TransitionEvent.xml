@@ -49,17 +49,17 @@
             name="source"
             label="Source"
             required="true"
-            type="net.geoprism.registry.graph.GeoVertex" />            
+            type="net.geoprism.registry.graph.GeoVertex" />
           <graphReference
             name="target"
             label="Target"
             required="true"
-            type="net.geoprism.registry.graph.GeoVertex" />                        
+            type="net.geoprism.registry.graph.GeoVertex" />
           <graphReference
             name="event"
             label="Event"
             required="true"
-            type="net.geoprism.registry.graph.transition.TransitionEvent" />                        
+            type="net.geoprism.registry.graph.transition.TransitionEvent" />
         </attributes>
       </mdVertex>
     </create>
@@ -364,6 +364,189 @@
             value="Also show Invalid Geo-Objects" />
         </attributeStruct>
       </object>
+
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventId">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventId" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Id" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventDate">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventDate" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Description" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeCode">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeCode" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeLabel">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeLabel" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Label" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterCode">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterCode" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterLabel">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterLabel" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Label" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.report">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.report" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Historical Report" />
+        </attributeStruct>
+      </object>
+
     </createOrUpdate>
     <permissions>
       <role roleName="geoprism.admin.Administrator">

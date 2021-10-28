@@ -1,5 +1,7 @@
 package net.geoprism.registry.view;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,17 +12,19 @@ import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 
+import net.geoprism.localization.LocalizationFacade;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.etl.export.SeverGeoObjectJsonAdapters;
+import net.geoprism.registry.excel.HistoricalReportExcelExporter;
 import net.geoprism.registry.graph.transition.Transition;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 
 public class HistoricalRow implements JsonSerializable
 {
@@ -164,6 +168,25 @@ public class HistoricalRow implements JsonSerializable
     this.eventType = eventType;
   }
 
+  public String getLocalizedEventType()
+  {
+    String eventType = this.getEventType();
+
+    String[] split = eventType.split("-");
+
+    if (split.length > 1)
+    {
+      StringBuilder builder = new StringBuilder();
+      builder.append(LocalizationFacade.getFromBundles("transition.event.type." + split[1].toLowerCase()));
+      builder.append(" - ");
+      builder.append(LocalizationFacade.getFromBundles("transition.event.type." + split[0].toLowerCase()));
+
+      return builder.toString();
+    }
+
+    return LocalizationFacade.getFromBundles("transition.event.type." + eventType.toLowerCase());
+  }
+
   @Override
   public JsonElement toJSON()
   {
@@ -171,7 +194,10 @@ public class HistoricalRow implements JsonSerializable
     builder.registerTypeAdapter(LocalizedValue.class, new SeverGeoObjectJsonAdapters.LocalizedValueSerializer());
     builder.registerTypeAdapter(Date.class, new SeverGeoObjectJsonAdapters.DateSerializer());
 
-    return builder.create().toJsonTree(this, this.getClass());
+    JsonObject json = builder.create().toJsonTree(this, this.getClass()).getAsJsonObject();
+    json.addProperty(EVENT_TYPE, this.getLocalizedEventType());
+
+    return json;
   }
 
   @SuppressWarnings("unchecked")
@@ -271,6 +297,7 @@ public class HistoricalRow implements JsonSerializable
     statement.append(" ORDER BY " + eventAttribute.getColumnName() + "." + eventDate.getColumnName());
     statement.append(", " + eventAttribute.getColumnName() + ".oid");
     statement.append(", " + sourceAttribute.getColumnName() + ".code");
+    statement.append(", " + targetAttribute.getColumnName() + ".code");
 
     if (pageNumber != null && pageSize != null)
     {
@@ -287,6 +314,13 @@ public class HistoricalRow implements JsonSerializable
     List<HistoricalRow> results = query.getRawResults().stream().map(list -> HistoricalRow.parse(list)).collect(Collectors.toList());
 
     return new Page<HistoricalRow>(count, pageNumber, pageSize, results);
+  }
+
+  public static InputStream exportToExcel(ServerGeoObjectType type, Date startDate, Date endDate) throws IOException
+  {
+    HistoricalReportExcelExporter exporter = new HistoricalReportExcelExporter(type, startDate, endDate);
+
+    return exporter.export();
   }
 
 }

@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation } from "@angular/core";
-import { HttpErrorResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpParams } from "@angular/common/http";
 import { trigger, style, animate, transition } from "@angular/animations";
 
 import { ErrorHandler } from "@shared/component";
@@ -8,6 +8,8 @@ import { TransitionEventService } from "@registry/service/transition-event.servi
 import { HistoricalRow } from "@registry/model/transition-event";
 import { AuthService, DateService } from "@shared/service";
 import { IOService } from "@registry/service";
+
+declare let acp: string;
 
 @Component({
 
@@ -62,6 +64,8 @@ export class HistoricalReportComponent {
 
     types: { label: string, code: string }[] = [];
 
+    isValid: boolean = false;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: TransitionEventService, private iService: IOService, private authService: AuthService,
         private dateService: DateService) { }
@@ -88,8 +92,23 @@ export class HistoricalReportComponent {
         });
     }
 
+    exportToExcel(): void {
+        let params: HttpParams = new HttpParams();
+        params = params.set("typeCode", this.data.type.toString());
+        params = params.set("startDate", this.data.startDate.toString());
+        params = params.set("endDate", this.data.endDate.toString());
+
+        window.location.href = acp + "/transition-event/export-excel?" + params.toString();
+    }
+
     formatDate(date: string): string {
         return this.dateService.formatDateForDisplay(date);
+    }
+
+    checkDates(): any {
+        setTimeout(() => {
+            this.isValid = (this.data.startDate != null && this.data.endDate != null);
+        }, 0);
     }
 
     public error(err: any): void {

@@ -18,6 +18,8 @@
  */
 package net.geoprism.registry.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 
 import com.google.gson.JsonObject;
@@ -27,6 +29,7 @@ import com.runwaysdk.session.RequestType;
 
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.view.HistoricalRow;
 
 public class TransitionEventService
@@ -54,13 +57,25 @@ public class TransitionEventService
   {
     TransitionEvent.get(eventId).delete();
   }
-  
+
   @Request(RequestType.SESSION)
   public JsonObject getHistoricalReport(String sessionId, String typeCode, Date startDate, Date endDate, Integer pageSize, Integer pageNumber)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
+    new GeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
+
     return HistoricalRow.getHistoricalReport(type, startDate, endDate, pageSize, pageNumber).toJSON();
+  }
+
+  @Request(RequestType.SESSION)
+  public InputStream exportExcel(String sessionId, String typeCode, Date startDate, Date endDate) throws IOException
+  {
+    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
+
+    new GeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
+
+    return HistoricalRow.exportToExcel(type, startDate, endDate);
   }
 
 }

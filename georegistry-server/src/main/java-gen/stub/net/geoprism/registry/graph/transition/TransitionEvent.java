@@ -64,11 +64,15 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
     MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(Transition.EVENT);
+    MdAttributeDAOIF sourceAttribute = mdVertex.definesAttribute(Transition.SOURCE);
+    MdAttributeDAOIF targetAttribute = mdVertex.definesAttribute(Transition.TARGET);
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
     statement.append(" WHERE " + mdAttribute.getColumnName() + " = :event");
-    
+    statement.append(" ORDER BY " + sourceAttribute.getColumnName() + ".code");
+    statement.append(", " + targetAttribute.getColumnName() + ".code");
+
     GraphQuery<Transition> query = new GraphQuery<Transition>(statement.toString());
     query.setParameter("event", this.getRID());
 
