@@ -5,12 +5,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -18,19 +18,19 @@ import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.business.rbac.RoleDAOIF;
 import com.runwaysdk.business.rbac.SingleActorDAOIF;
+import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.Condition;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
@@ -38,9 +38,7 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -187,28 +185,33 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     return query.getSingleResult();
   }
 
-  public static Page<TransitionEvent> page(Integer pageSize, Integer pageNumber)
+  public static Page<TransitionEvent> page(Integer pageSize, Integer pageNumber, String attrConditions)
   {
     Long count = getCount();
 
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
     MdAttributeDAOIF eventDate = mdVertex.definesAttribute(TransitionEvent.EVENTDATE);
+    
+    Map<String, Object> parameters = new HashMap<String, Object>();
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
     
-    addPageWhereCriteria(statement);
+    addPageWhereCriteria(statement, parameters, attrConditions);
     
     statement.append(" ORDER BY " + eventDate.getColumnName() + " DESC");
     statement.append(" SKIP " + ( ( pageNumber - 1 ) * pageSize ) + " LIMIT " + pageSize);
 
-    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString());
-
+    GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString(), parameters);
+    
     return new Page<TransitionEvent>(count, pageNumber, pageSize, query.getResults());
   }
   
-  public static void addPageWhereCriteria(StringBuilder statement)
+  public static void addPageWhereCriteria(StringBuilder statement, Map<String, Object> parameters, String attrConditions)
   {
+    StringBuilder whereCriteria = new StringBuilder();
+    
+    // Add permissions criteria
     if (Session.getCurrentSession() != null)
     {
       List<String> afterConditions = buildGraphPermissionsFilter(TransitionEvent.AFTERTYPEORGCODE, TransitionEvent.AFTERTYPECODE);
@@ -216,12 +219,79 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       
       if (afterConditions.size() > 0 && beforeConditions.size() > 0)
       {
-        statement.append(" WHERE (");
-        statement.append(StringUtils.join(afterConditions, " OR "));
-        statement.append(") AND (");
-        statement.append(StringUtils.join(beforeConditions, " OR "));
-        statement.append(") ");
+        whereCriteria.append("(");
+        whereCriteria.append(StringUtils.join(afterConditions, " OR "));
+        whereCriteria.append(") OR (");
+        whereCriteria.append(StringUtils.join(beforeConditions, " OR "));
+        whereCriteria.append(") ");
       }
+    }
+    
+    // Filter based on attributes
+    if (attrConditions != null && attrConditions.length() > 0)
+    {
+      List<String> lAttrConditions = new ArrayList<String>();
+      JsonArray jaAttrConditions = JsonParser.parseString(attrConditions).getAsJsonArray();
+      
+      for (int i = 0; i < jaAttrConditions.size(); ++i)
+      {
+        JsonObject attrCondition = jaAttrConditions.get(i).getAsJsonObject();
+        
+        String attr = attrCondition.get("attribute").getAsString();
+        
+        MdVertexDAO eventMd = (MdVertexDAO) MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
+        MdAttributeDAOIF mdAttr = eventMd.definesAttribute(attr);
+        
+        if (attr.equals(TransitionEvent.EVENTDATE))
+        {
+          DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+          format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+          
+          List<String> dateConditions = new ArrayList<String>();
+          
+          try
+          {
+            if (attrCondition.has("startDate") && !attrCondition.get("startDate").isJsonNull() && attrCondition.get("startDate").getAsString().length() > 0)
+            {
+              Date startDate = format.parse(attrCondition.get("startDate").getAsString());
+              dateConditions.add(mdAttr.getColumnName() + ">=:startDate" + i);
+              parameters.put("startDate" + i, startDate);
+            }
+            if (attrCondition.has("endDate") && !attrCondition.get("endDate").isJsonNull() && attrCondition.get("endDate").getAsString().length() > 0)
+            {
+              Date endDate = format.parse(attrCondition.get("endDate").getAsString());
+              dateConditions.add(mdAttr.getColumnName() + "<=:endDate" + i);
+              parameters.put("endDate" + i, endDate);
+            }
+          }
+          catch (ParseException e)
+          {
+            throw new ProgrammingErrorException(e);
+          }
+          
+          if (dateConditions.size() > 0)
+          {
+            lAttrConditions.add("(" + StringUtils.join(dateConditions, " AND ") + ")");
+          }
+        }
+        else if (attrCondition.has("value") && !attrCondition.get("value").isJsonNull() && attrCondition.get("value").getAsString().length() > 0)
+        {
+          String value = attrCondition.get("value").getAsString();
+          
+          lAttrConditions.add(mdAttr.getColumnName() + "=:val" + i);
+          parameters.put("val" + i, value);
+        }
+      }
+      
+      if (lAttrConditions.size() > 0)
+      {
+        whereCriteria.append(StringUtils.join(lAttrConditions, " AND "));
+      }
+    }
+    
+    if (whereCriteria.length() > 0)
+    {
+      statement.append(" WHERE " + whereCriteria.toString());
     }
   }
   

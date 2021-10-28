@@ -15,10 +15,11 @@ export class TransitionEventService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    getPage(pageSize: number, pageNumber: number): Promise<PageResult<TransitionEvent>> {
+    getPage(pageSize: number, pageNumber: number, attrConditions: any): Promise<PageResult<TransitionEvent>> {
         let params: HttpParams = new HttpParams();
         params = params.set("pageSize", pageSize.toString());
         params = params.set("pageNumber", pageNumber.toString());
+        params = params.set("attrConditions", JSON.stringify(attrConditions));
 
         this.eventService.start();
 

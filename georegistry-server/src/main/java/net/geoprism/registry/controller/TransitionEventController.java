@@ -46,9 +46,9 @@ public class TransitionEventController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "page")
-  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber)
+  public ResponseIF page(ClientRequestIF request, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "attrConditions") String attrConditions)
   {
-    return new RestBodyResponse(service.page(request.getSessionId(), pageSize, pageNumber));
+    return new RestBodyResponse(service.page(request.getSessionId(), pageSize, pageNumber, attrConditions));
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-details")
