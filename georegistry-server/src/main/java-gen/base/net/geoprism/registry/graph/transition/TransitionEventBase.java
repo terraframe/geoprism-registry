@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph.transition;
 
-@com.runwaysdk.business.ClassSignature(hash = 1697117431)
+@com.runwaysdk.business.ClassSignature(hash = -435815979)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -17,9 +17,10 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   public static java.lang.String BEFORETYPEORGCODE = "beforeTypeOrgCode";
   public static java.lang.String DESCRIPTION = "description";
   public static java.lang.String EVENTDATE = "eventDate";
+  public static java.lang.String EVENTID = "eventId";
   public static java.lang.String OID = "oid";
   public static java.lang.String SEQ = "seq";
-  private static final long serialVersionUID = 1697117431;
+  private static final long serialVersionUID = -435815979;
   
   public TransitionEventBase()
   {
@@ -120,6 +121,22 @@ public abstract class TransitionEventBase extends com.runwaysdk.business.graph.V
   public void setEventDate(java.util.Date value)
   {
     this.setValue(EVENTDATE, value);
+  }
+  
+  public Long getEventId()
+  {
+    return (Long) this.getObjectValue(EVENTID);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLongDAOIF getEventIdMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.TransitionEvent.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLongDAOIF)mdClassIF.definesAttribute(EVENTID);
+  }
+  
+  public void setEventId(Long value)
+  {
+    this.setValue(EVENTID, value);
   }
   
   public String getOid()

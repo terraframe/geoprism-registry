@@ -4,13 +4,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -26,11 +23,9 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.query.Condition;
 import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.Organization;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.graph.transition.Transition.TransitionImpact;
 import net.geoprism.registry.graph.transition.Transition.TransitionType;
@@ -38,15 +33,15 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.query.graph.AbstractVertexRestriction;
 import net.geoprism.registry.service.ServiceFactory;
-import net.geoprism.registry.view.HistoricalRow;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
 public class TransitionEvent extends TransitionEventBase implements JsonSerializable
 {
-  private static final long serialVersionUID = 112753140;
+  public static final String EVENT_SEQUENCE   = "event_seq";
+
+  private static final long  serialVersionUID = 112753140;
 
   public TransitionEvent()
   {
@@ -102,13 +97,14 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-    
+
     LocalizedValue localizedValue = LocalizedValueConverter.convert(this.getEmbeddedComponent(TransitionEvent.DESCRIPTION));
     ServerGeoObjectType beforeType = ServerGeoObjectType.get(this.getBeforeTypeCode());
     ServerGeoObjectType afterType = ServerGeoObjectType.get(this.getAfterTypeCode());
 
     JsonObject object = new JsonObject();
     object.addProperty(TransitionEvent.OID, this.getOid());
+    object.addProperty(TransitionEvent.EVENTID, this.getEventId());
     object.addProperty(TransitionEvent.BEFORETYPECODE, beforeType.getCode());
     object.addProperty(TransitionEvent.AFTERTYPECODE, afterType.getCode());
     object.addProperty(TransitionEvent.EVENTDATE, format.format(this.getEventDate()));
@@ -126,6 +122,17 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     return object;
   }
 
+  @Override
+  public void apply()
+  {
+    if (this.isNew() && !this.isAppliedToDb())
+    {
+      this.setEventId(TransitionEvent.getNextSequenceNumber());
+    }
+
+    super.apply();
+  }
+
   @Transaction
   public static JsonObject apply(JsonObject json)
   {
@@ -141,7 +148,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-      
+
       LocalizedValue description = LocalizedValue.fromJSON(json.get(TransitionEvent.DESCRIPTION).getAsJsonObject());
       TransitionEvent event = json.has(OID) ? TransitionEvent.get(json.get(OID).getAsString()) : new TransitionEvent();
       LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, description);
@@ -162,7 +169,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
         Transition trans = Transition.apply(event, object);
         appliedTrans.add(trans.getOid());
       }
-      
+
       for (Transition trans : event.getTransitions())
       {
         if (!appliedTrans.contains(trans.getOid()))
@@ -200,9 +207,9 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
-    
+
     addPageWhereCriteria(statement);
-    
+
     statement.append(" ORDER BY " + eventDate.getColumnName() + " DESC");
     statement.append(" SKIP " + ( ( pageNumber - 1 ) * pageSize ) + " LIMIT " + pageSize);
 
@@ -210,14 +217,14 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
     return new Page<TransitionEvent>(count, pageNumber, pageSize, query.getResults());
   }
-  
+
   public static void addPageWhereCriteria(StringBuilder statement)
   {
     if (Session.getCurrentSession() != null)
     {
       List<String> afterConditions = buildGraphPermissionsFilter(TransitionEvent.AFTERTYPEORGCODE, TransitionEvent.AFTERTYPECODE);
       List<String> beforeConditions = buildGraphPermissionsFilter(TransitionEvent.BEFORETYPEORGCODE, TransitionEvent.BEFORETYPECODE);
-      
+
       if (afterConditions.size() > 0 && beforeConditions.size() > 0)
       {
         statement.append(" WHERE (");
@@ -228,7 +235,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       }
     }
   }
-  
+
   public static List<String> buildGraphPermissionsFilter(String orgCodeAttr, String gotCodeAttr)
   {
     List<String> criteria = new ArrayList<String>();
@@ -280,7 +287,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
         }
       }
     }
-    
+
     return criteria;
   }
 
@@ -323,5 +330,16 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     query.setParameter("typeCode", codes);
 
     return query.getResults();
+  }
+
+  public static Long getNextSequenceNumber()
+  {
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT sequence('" + EVENT_SEQUENCE + "').next()");
+
+    GraphQuery<Long> query = new GraphQuery<Long>(statement.toString());
+
+    return query.getSingleResult();
+
   }
 }

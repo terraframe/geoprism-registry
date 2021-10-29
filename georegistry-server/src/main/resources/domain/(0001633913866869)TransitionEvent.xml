@@ -7,6 +7,10 @@
         name="net.geoprism.registry.graph.transition.TransitionEvent"
         label="Transition">
         <attributes>
+          <long
+            name="eventId"
+            label="Event Id"
+            required="true" />        
           <date
             name="eventDate"
             label="Event Date"

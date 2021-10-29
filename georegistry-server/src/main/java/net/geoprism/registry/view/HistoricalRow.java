@@ -48,7 +48,7 @@ public class HistoricalRow implements JsonSerializable
 
   public static final String AFTER_LABEL  = "afterLabel";
 
-  private String             eventId;
+  private Long               eventId;
 
   private Date               eventDate;
 
@@ -68,12 +68,12 @@ public class HistoricalRow implements JsonSerializable
 
   private LocalizedValue     afterLabel;
 
-  public String getEventId()
+  public Long getEventId()
   {
     return eventId;
   }
 
-  public void setEventId(String eventId)
+  public void setEventId(Long eventId)
   {
     this.eventId = eventId;
   }
@@ -172,7 +172,7 @@ public class HistoricalRow implements JsonSerializable
   {
     String eventType = this.getEventType();
 
-    String[] split = eventType.split("-");
+    String[] split = eventType.split("_");
 
     if (split.length > 1)
     {
@@ -206,7 +206,7 @@ public class HistoricalRow implements JsonSerializable
     Date eventDate = (Date) row.get(EVENT_DATE);
 
     HistoricalRow ret = new HistoricalRow();
-    ret.setEventId((String) row.get(EVENT_ID));
+    ret.setEventId((Long) row.get(EVENT_ID));
     ret.setEventDate(eventDate);
     ret.setEventType((String) row.get(EVENT_TYPE));
     ret.setDescription(LocalizedValueConverter.convert((Map<String, Object>) row.get(DESCRIPTION)));
@@ -268,6 +268,7 @@ public class HistoricalRow implements JsonSerializable
     MdAttributeDAOIF transitionAttribute = transitionVertex.definesAttribute(Transition.TRANSITIONTYPE);
 
     MdVertexDAOIF eventVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
+    MdAttributeDAOIF eventId = eventVertex.definesAttribute(TransitionEvent.EVENTID);
     MdAttributeDAOIF beforeTypeCode = eventVertex.definesAttribute(TransitionEvent.BEFORETYPECODE);
     MdAttributeDAOIF afterTypeCode = eventVertex.definesAttribute(TransitionEvent.AFTERTYPECODE);
     MdAttributeDAOIF eventDate = eventVertex.definesAttribute(TransitionEvent.EVENTDATE);
@@ -280,7 +281,7 @@ public class HistoricalRow implements JsonSerializable
     List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
 
     StringBuilder statement = new StringBuilder();
-    statement.append("SELECT " + eventAttribute.getColumnName() + ".oid AS " + HistoricalRow.EVENT_ID);
+    statement.append("SELECT " + eventAttribute.getColumnName() + "." + eventId.getColumnName() + " AS " + HistoricalRow.EVENT_ID);
     statement.append(", " + eventAttribute.getColumnName() + "." + eventDate.getColumnName() + " AS " + HistoricalRow.EVENT_DATE);
     statement.append(", " + transitionAttribute.getColumnName() + " AS " + HistoricalRow.EVENT_TYPE);
     statement.append(", " + eventAttribute.getColumnName() + "." + description.getColumnName() + " AS " + HistoricalRow.DESCRIPTION);
@@ -294,8 +295,8 @@ public class HistoricalRow implements JsonSerializable
     statement.append(" WHERE ( " + eventAttribute.getColumnName() + "." + beforeTypeCode.getColumnName() + " IN :typeCode");
     statement.append(" OR " + eventAttribute.getColumnName() + "." + afterTypeCode.getColumnName() + " IN :typeCode )");
     statement.append(" AND " + eventAttribute.getColumnName() + "." + eventDate.getColumnName() + " BETWEEN :startDate AND :endDate");
-    statement.append(" ORDER BY " + eventAttribute.getColumnName() + "." + eventDate.getColumnName());
-    statement.append(", " + eventAttribute.getColumnName() + ".oid");
+    statement.append(" ORDER BY " + eventAttribute.getColumnName() + "." + eventDate.getColumnName() + " DESC");
+    statement.append(", " + eventAttribute.getColumnName() + "." + eventId.getColumnName());
     statement.append(", " + sourceAttribute.getColumnName() + ".code");
     statement.append(", " + targetAttribute.getColumnName() + ".code");
 

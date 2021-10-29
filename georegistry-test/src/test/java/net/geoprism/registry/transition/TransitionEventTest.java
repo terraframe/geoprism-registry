@@ -306,7 +306,7 @@ public class TransitionEventTest
 
       HistoricalRow result = results.get(0);
 
-      Assert.assertEquals(event.getOid(), result.getEventId());
+      Assert.assertEquals(event.getEventId(), result.getEventId());
       Assert.assertEquals(TransitionType.REASSIGN.name(), result.getEventType());
       Assert.assertEquals(FastTestDataset.DEFAULT_OVER_TIME_DATE, result.getEventDate());
       Assert.assertEquals("Test", result.getDescription().getValue());
@@ -364,9 +364,9 @@ public class TransitionEventTest
       Assert.assertEquals("After Label", header.getCell(9).getStringCellValue());
 
       Row row = sheet.getRow(1);
-      Assert.assertEquals(event.getOid(), row.getCell(0).getStringCellValue());
+      Assert.assertEquals(event.getEventId(), new Long((long) row.getCell(0).getNumericCellValue()));
       Assert.assertEquals("2020-04-04", row.getCell(1).getStringCellValue());
-      Assert.assertEquals(TransitionType.REASSIGN.name(), row.getCell(2).getStringCellValue());
+      Assert.assertEquals("Reassign", row.getCell(2).getStringCellValue());
       Assert.assertEquals("Test", row.getCell(3).getStringCellValue());
       Assert.assertEquals(FastTestDataset.COUNTRY.getCode(), row.getCell(4).getStringCellValue());
       Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), row.getCell(5).getStringCellValue());
@@ -411,8 +411,8 @@ public class TransitionEventTest
       Assert.assertEquals(1, results.size());
 
       JsonObject result = results.get(0).getAsJsonObject();
-      Assert.assertEquals(event.getOid(), result.get(HistoricalRow.EVENT_ID).getAsString());
-      Assert.assertEquals(TransitionType.REASSIGN.name(), result.get(HistoricalRow.EVENT_TYPE).getAsString());
+      Assert.assertEquals(event.getEventId(), new Long(result.get(HistoricalRow.EVENT_ID).getAsLong()));
+      Assert.assertEquals("Reassign", result.get(HistoricalRow.EVENT_TYPE).getAsString());
     }
     finally
     {
