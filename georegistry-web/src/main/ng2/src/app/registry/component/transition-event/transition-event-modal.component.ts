@@ -86,7 +86,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             };
         }
 
-        this.onChange();
+        setTimeout(() => { this.onChange(); }, 0);
     }
 
     onCreate(): void {
@@ -204,6 +204,11 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 let sourceStats = stats[trans.sourceCode];
                 let targetStats = stats[trans.targetCode];
 
+                let updown = "UPGRADE";
+                if (trans.transitionType != null && trans.transitionType.indexOf("DOWNGRADE") !== -1) {
+                    updown = "DOWNGRADE";
+                }
+
                 if (sourceStats.source > 1) {
                     trans.impact = "PARTIAL";
                     trans.transitionType = "SPLIT";
@@ -218,7 +223,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 }
 
                 if (trans.sourceType !== trans.targetType) {
-                    trans.typeUpdown = "UPGRADE";
+                    trans.typeUpdown = updown;
                     trans.typePart = trans.transitionType;
                     trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
                 }
