@@ -13,8 +13,11 @@ import { TransitionEventService } from "@registry/service/transition-event.servi
 
 /* D3 Stuffs */
 import * as d3 from "d3";
-export const TREE_SCALE_FACTOR_X: number = 1.8;
-export const TREE_SCALE_FACTOR_Y: number = 1.8;
+
+export const DRAW_SCALE_MULTIPLIER: number = 1.0;
+
+export const VIEWPORT_SCALE_FACTOR_X: number = 1.0;
+export const VIEWPORT_SCALE_FACTOR_Y: number = 1.0;
 
 @Component({
     selector: "transition-event-modal",
@@ -117,11 +120,11 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         if (property === "targetText") {
             transition.targetCode = selection.item.code;
             transition.targetType = selection.item.typeCode;
-            transition.targetText = selection.item.name;
+            transition.targetText = selection.item.name + " (" + selection.item.code + ")";
         } else {
             transition.sourceCode = selection.item.code;
             transition.sourceType = selection.item.typeCode;
-            transition.sourceText = selection.item.name;
+            transition.sourceText = selection.item.name + " (" + selection.item.code + ")";
         }
 
         this.onChange();
@@ -266,20 +269,20 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             const root = renderingData.d3;
 
             let links = svg.append("g")
-              .attr("fill", "none")
-              .attr("stroke", "#555")
-              .attr("stroke-opacity", 0.4)
-              .attr("stroke-width", 1.5);
+                .attr("fill", "none")
+                .attr("stroke", "#555")
+                .attr("stroke-opacity", 0.4)
+                .attr("stroke-width", 0.4 * DRAW_SCALE_MULTIPLIER);
             links.selectAll("path")
-              .data(root.links())
-              .join("path")
-                .style("display", function(d: any) {
-                    return d.source.depth === 0 ? "none" : null;
-                })
-                .attr("d", (d: any) => `
-                  M${d.target.y},${d.target.x}
-                   ${d.source.y},${d.source.x}
-                `);
+                .data(root.links())
+                .join("path")
+                    .style("display", function(d: any) {
+                        return d.source.depth === 0 ? "none" : null;
+                    })
+                    .attr("d", (d: any) => `
+                      M${d.target.y},${d.target.x}
+                       ${d.source.y},${d.source.x}
+                    `);
 
             svg.append("g")
                 .selectAll("circle")
@@ -291,11 +294,11 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     .attr("cx", (d: any) => d.y)
                     .attr("cy", (d: any) => d.x)
                     .attr("fill", (d: any) => d.children ? "#555" : "#999")
-                    .attr("r", 2.5);
+                    .attr("r", 0.9 * DRAW_SCALE_MULTIPLIER);
 
             svg.append("g")
                 .attr("font-family", "sans-serif")
-                .attr("font-size", 5)
+                .attr("font-size", 2 * DRAW_SCALE_MULTIPLIER)
                 .attr("stroke-linejoin", "round")
                 .attr("stroke-width", 3)
               .selectAll("text")
@@ -334,7 +337,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         let width = 100;
 
         const root: any = d3.hierarchy(appData.d3Data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
-        root.dx = 10;
+        root.dx = 5 * DRAW_SCALE_MULTIPLIER;
         root.dy = width / (root.height + 1);
         let d3RenderingData = d3.tree().nodeSize([root.dx, root.dy])(root);
 
@@ -449,10 +452,10 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
         const xPadding = 0;
         const yPadding = 0;
-        svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding * 2) + " " + (height + yPadding * 2));
+        svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding * 2) * VIEWPORT_SCALE_FACTOR_X + " " + (height + yPadding * 2) * VIEWPORT_SCALE_FACTOR_Y);
 
-        width = (width + xPadding * 2) * TREE_SCALE_FACTOR_X;
-        height = (height + yPadding * 2) * TREE_SCALE_FACTOR_Y;
+        // width = (width + xPadding * 2) * VIEWPORT_SCALE_FACTOR_X;
+        // height = (height + yPadding * 2) * VIEWPORT_SCALE_FACTOR_Y;
 
         // d3.select("#svgHolder").style("width", width + "px");
         // d3.select("#svgHolder").style("height", height + "px");
