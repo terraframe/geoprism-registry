@@ -8,7 +8,8 @@ import { PageResult } from "@shared/model/core";
 import { TransitionEventService } from "@registry/service/transition-event.service";
 import { TransitionEvent } from "@registry/model/transition-event";
 import { TransitionEventModalComponent } from "./transition-event-modal.component";
-import { DateService, LocalizationService } from "@shared/service";
+import { AuthService, DateService, LocalizationService } from "@shared/service";
+import { IOService } from "@registry/service";
 
 @Component({
 
@@ -53,21 +54,61 @@ export class TransitionEventTableComponent {
         resultSet: []
     };
 
+    attrConditions: any = [];
+
+    dateCondition = {
+        attribute: "eventDate",
+        startDate: "",
+        endDate: ""
+    };
+
+    beforeTypeCondition = {
+        attribute: "beforeTypeCode",
+        value: ""
+    };
+
+    /*
+     * List of geo object types from the system
+     */
+    types: { label: string, code: string }[] = [];
+
     bsModalRef: BsModalRef;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: TransitionEventService, private modalService: BsModalService, private dateService: DateService, private localizeService: LocalizationService) { }
+    constructor(private service: TransitionEventService, private modalService: BsModalService, private iService: IOService, private dateService: DateService, private authService: AuthService, private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
         this.refresh();
+
+        this.attrConditions.push(this.dateCondition);
+        this.attrConditions.push(this.beforeTypeCondition);
+
+        this.iService.listGeoObjectTypes(false).then(types => {
+            let myOrgTypes = [];
+            for (let i = 0; i < types.length; ++i) {
+                const orgCode = types[i].orgCode;
+                const typeCode = types[i].superTypeCode != null ? types[i].superTypeCode : types[i].code;
+
+                if (this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
+                    myOrgTypes.push(types[i]);
+                }
+            }
+            this.types = myOrgTypes;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     refresh(pageNumber: number = 1): void {
-        this.service.getPage(this.page.pageSize, pageNumber).then(page => {
+        this.service.getPage(this.page.pageSize, pageNumber, this.attrConditions).then(page => {
             this.page = page;
         }).catch((response: HttpErrorResponse) => {
             this.error(response);
         });
+    }
+
+    filterChange(): void {
+        this.refresh(this.page.pageNumber);
     }
 
     onCreate(): void {

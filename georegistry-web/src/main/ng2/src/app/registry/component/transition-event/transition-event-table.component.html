@@ -1,3 +1,8 @@
+<ng-template #customItemTemplate let-model="item" let-index="index">
+    <h5>{{model.name }} : {{ model.code }}</h5>
+</ng-template>
+
+
 <div class="new-admin-design-main">
   <cgr-header></cgr-header>
   <loading-bar></loading-bar>
@@ -9,42 +14,70 @@
         <localize key="transition.event.events"></localize>
       </h2>
     </div>
+    
+    <div class="row" style="padding-top:10px; padding-bottom: 10px;">
+      <span class="col-md-4">
+        <label for="beforeTypeFilter">
+          <localize key="transition.event.beforeType"></localize>
+        </label>
+        <select id="beforeTypeFilter" name="beforeTypeFilter" class="select-area" [(ngModel)]="beforeTypeCondition.value"
+            (change)="filterChange()">
+            <option></option>
+            <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+        </select>
+      </span>
+      <span class="col-md-4">
+        <label for="startDateFilter">
+          <localize key="changeovertime.manageVersions.tableHeader.label.startDate"></localize>
+        </label>
+        <date-field [(value)]="dateCondition.startDate" [classNames]="['form-control']" label="" (change)="filterChange()"
+	        [inputName]="'startDateFilter'" [allowFutureDates]="false" name="startDateFilter" [required]="false"></date-field>
+      </span>
+      <span class="col-md-4">
+        <label for="endDateFilter">
+          <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
+        </label>
+        <date-field [(value)]="dateCondition.endDate" [classNames]="['form-control']" label="" (change)="filterChange()"
+          [inputName]="'endDateFilter'" [allowFutureDates]="false" name="endDateFilter" [required]="false"></date-field>
+      </span>
+    </div>
 
     <div class="row">
       <div class="col-md-12">
         <table class="table">
           <thead>
             <tr style="height: 50px;color: grey;">
-              <th style="vertical-align: middle;"> <localize key="external.system.description"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="change.request.createDate"></localize> </th>
+              <th style="vertical-align: middle;"><localize key="transition.event.actions"></localize></th>
+              <th style="vertical-align: middle;"> <localize key="transition.event.date"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="transition.event.description"></localize> </th>
               <th style="vertical-align: middle;"> <localize key="transition.event.beforeType"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="transition.event.afterType"></localize> </th> 
-              <th></th>
-              <th></th>
+              <th style="vertical-align: middle;"> <localize key="transition.event.afterType"></localize> </th>
+              <th style="vertical-align: middle;"> <localize key="transition.event.id"></localize> </th>
             </tr>
           </thead>
           <tbody>
             <ng-template ngFor let-event
               [ngForOf]="page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
 
-              <tr style="height: 50px;" class="clickable" (click)="onView(event)">
-                <td class="col-md-2">
+              <tr style="height: 50px;">
+                <td class="col-md-1" style="vertical-align:middle;text-align:left;">
+                  <a (click)="onView(event)" class="fa fa-pencil" aria-hidden="true"></a>
+                  <a (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
+                </td>
+                <td class="col-md-1">
+                  <h5><strong>{{formatDate(event.eventDate)}}</strong></h5>
+                </td>
+                <td class="col-md-4">
                   <h5><strong>{{event.description.localizedValue}}</strong></h5>
                 </td>
                 <td class="col-md-2">
-                  <h5><strong>{{formatDate(event.eventDate)}}</strong></h5>
-                </td>
-                <td class="col-md-1">
                   <h5><strong>{{event.beforeTypeLabel}}</strong></h5>
                 </td>
-                <td class="col-md-1">
+                <td class="col-md-2">
                   <h5><strong>{{event.afterTypeLabel}}</strong></h5>
                 </td>
-                <td class="col-md-1" style="vertical-align:middle;text-align:right;">
-                  <a (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
-                </td>
-                <td class="col-md-1" style="vertical-align:middle;text-align:right;padding-right:25px;">
-                  <i class="arrow arrow-right" aria-hidden="true"></i>
+                <td class="col-md-2">
+                  <h5><strong>{{event.oid}}</strong></h5>
                 </td>
               </tr>
 

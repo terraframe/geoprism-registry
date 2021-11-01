@@ -35,9 +35,9 @@ import net.geoprism.registry.view.HistoricalRow;
 public class TransitionEventService
 {
   @Request(RequestType.SESSION)
-  public JsonObject page(String sessionId, Integer pageSize, Integer pageNumber)
+  public JsonObject page(String sessionId, Integer pageSize, Integer pageNumber, String attrConditions)
   {
-    return TransitionEvent.page(pageSize, pageNumber).toJSON();
+    return TransitionEvent.page(pageSize, pageNumber, attrConditions).toJSON();
   }
 
   @Request(RequestType.SESSION)

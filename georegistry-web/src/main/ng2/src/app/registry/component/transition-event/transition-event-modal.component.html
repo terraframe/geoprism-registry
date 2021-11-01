@@ -5,85 +5,96 @@
 <div class="modal-body row">
     <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
-    <form #form="ngForm" class="modal-form col-md-8" autocomplete="off">
+    <form #form="ngForm" class="modal-form" autocomplete="off">
 
         <fieldset *ngIf="event != null">
-            <div class="row-holder">
-                <div class="label-holder">
-                    <label>
-                        <localize key="transition.event.date"></localize>
-                    </label>
-                </div>
-                <div class="holder">
-                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
-                        {{formatDate(event.eventDate)}}
-                    </span>
-                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
-                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true"
-                        [disable]="readonly || event.transitions.length > 0"></date-field>
-                </div>
-            </div>
-        
-            <div class="row-holder" *ngFor="let localeValue of event.description.localeValues">
-                <div class="label-holder">
-                    <label> <localize key="external.system.description"></localize>
-                        <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
-                            </convert-key-label>)</span>
-                    </label>
-                </div>
-                <div class="holder">
-                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
-                        class="form-control" [disabled]="readonly"
-                        [required]="localeValue.locale === 'defaultLocale'" />
-                </div>
-            </div>
-
-            <div class="row-holder">
-                <div class="label-holder">
-                    <label for="beforeTypeCode">
-                        <localize key="transition.event.beforeType"></localize>
-                    </label>
-                </div>
-                <div *ngIf="!readonly && types != null" class="holder">
-                    <select id="beforeTypeCode" name="beforeTypeCode" class="select-area" [(ngModel)]="event.beforeTypeCode"
-                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
-                        <option></option>
-                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
-                    </select>
-                </div>
-                <div *ngIf="readonly" class="holder">
-                    <input [(ngModel)]="event.beforeTypeLabel" name="typeCode" type="text" class="form-control"
-                        disabled />
-                </div>
+            <div class="col-md-6">
+		            <div class="row-holder">
+		                <div class="label-holder">
+		                    <label>
+		                        <localize key="transition.event.date"></localize>
+		                    </label>
+		                </div>
+		                <div class="holder">
+		                    <span *ngIf="readonly" style="line-height: 40px;" class="date-string-display">
+		                        {{formatDate(event.eventDate)}}
+		                    </span>
+		                    <date-field *ngIf="!readonly" [(value)]="event.eventDate" [classNames]="['form-control']" label=""
+		                        [inputName]="'eventDate'" [allowFutureDates]="false" name="eventDate" [required]="true"
+		                        [disable]="readonly || event.transitions.length > 0"></date-field>
+		                </div>
+		            </div>
+		        
+		            <div class="row-holder" *ngFor="let localeValue of event.description.localeValues">
+		                <div class="label-holder">
+		                    <label> <localize key="transition.event.description"></localize>
+		                        <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+		                            </convert-key-label>)</span>
+		                    </label>
+		                </div>
+		                <div class="holder">
+		                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
+		                        class="form-control" [disabled]="readonly"
+		                        [required]="localeValue.locale === 'defaultLocale'" />
+		                </div>
+		            </div>
+		
+		            <div class="row-holder">
+		                <div class="label-holder">
+		                    <label for="beforeTypeCode">
+		                        <localize key="transition.event.beforeType"></localize>
+		                    </label>
+		                </div>
+		                <div *ngIf="!readonly && types != null" class="holder">
+		                    <select id="beforeTypeCode" name="beforeTypeCode" class="select-area" [(ngModel)]="event.beforeTypeCode"
+		                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
+		                        <option></option>
+		                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+		                    </select>
+		                </div>
+		                <div *ngIf="readonly" class="holder">
+		                    <input [(ngModel)]="event.beforeTypeLabel" name="typeCode" type="text" class="form-control"
+		                        disabled />
+		                </div>
+		            </div>
+		            
+		            <div class="row-holder">
+		                <div class="label-holder">
+		                    <label for="afterTypeCode">
+		                        <localize key="transition.event.afterType"></localize>
+		                    </label>
+		                </div>
+		                <div *ngIf="!readonly && types != null" class="holder">
+		                    <select id="afterTypeCode" name="afterTypeCode" class="select-area" [(ngModel)]="event.afterTypeCode"
+		                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
+		                        <option></option>
+		                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+		                    </select>
+		                </div>
+		                <div *ngIf="readonly" class="holder">
+		                    <input [(ngModel)]="event.afterTypeLabel" name="typeCode" type="text" class="form-control"&&
+		                        disabled />
+		                </div>
+		            </div>
             </div>
             
-            <div class="row-holder">
-                <div class="label-holder">
-                    <label for="afterTypeCode">
-                        <localize key="transition.event.afterType"></localize>
-                    </label>
-                </div>
-                <div *ngIf="!readonly && types != null" class="holder">
-                    <select id="afterTypeCode" name="afterTypeCode" class="select-area" [(ngModel)]="event.afterTypeCode"
-                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
-                        <option></option>
-                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
-                    </select>
-                </div>
-                <div *ngIf="readonly" class="holder">
-                    <input [(ngModel)]="event.afterTypeLabel" name="typeCode" type="text" class="form-control"&&
-                        disabled />
-                </div>
-            </div>
+            <div class="col-md-6">
+				      <div class="row" style="text-align: center;">
+				        <label class="col-md-6"><localize key="transition.event.before"></localize></label>
+				        <label class="col-md-6"><localize key="transition.event.after"></localize></label>
+				      </div>
+				    
+				      <div style="margin-top: 10px;" id="svgHolder"></div>
+				    </div>
 
             <div class="row-holder" *ngIf="event.beforeTypeCode != null && event.beforeTypeCode !== '' && event.afterTypeCode != null && event.afterTypeCode !== '' && event.eventDate != null && event.eventDate !== ''">
                     <table class="table">
                         <thead>
                             <tr style="height: 50px;color: grey;">
-                                <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.before"></localize> </th>
-                                <th style="width: 12%; vertical-align: middle;"> </th>
-                                <th style="width: 35%; vertical-align: middle;"> <localize key="transition.event.after"></localize> </th>
-                                <th style="width: 14%; vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
+                                <th style="width: 40%; vertical-align: middle;"> <localize key="transition.event.before"></localize> </th>
+                                <th style="width: 6%; vertical-align: middle;"> <localize key="transition.event.impact"></localize> </th>
+                                <th style="width: 40%; vertical-align: middle;"> <localize key="transition.event.after"></localize> </th>
+                                <th style="width: 6%; vertical-align: middle;"> <localize key="transition.event.type"></localize> </th>
                                 <th style="width: 4%; vertical-align: middle;"></th>
                                 <th style="width: 4%; vertical-align: middle;" *ngIf="!readonly"></th>
                             </tr>
@@ -115,8 +126,8 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td>
-                                    <input type="text" [name]="'transition.impact-' + i" class="form-control" [ngModel]="localizeTransitionImpact(transition.impact)" disabled required>
+                                <td style="vertical-align:middle;">
+                                    <label>{{localizeTransitionImpact(transition.impact)}}</label>
                                 </td>
                                 <td>
                                     <div  class="input-group">
@@ -143,16 +154,16 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td>
-                                    <input *ngIf="!transition.typeUpdown" type="text" [name]="'transition.transitionType-' + i" class="form-control" [ngModel]="localizeTransitionType(transition.transitionType)" disabled required>
-                                    <select *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + i" class="select-area"
+                                <td style="vertical-align:middle;">
+                                    <label *ngIf="!transition.typeUpdown">{{localizeTransitionType(transition.transitionType)}}</label>
+                                    <label *ngIf="transition.typeUpdown" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
+                                </td>
+                                <td *ngIf="transition.typeUpdown">
+                                    <select style="min-width:80px;" *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + i" class="select-area"
                                         [(ngModel)]="transition.typeUpdown" (change)="onChangeTypeUpdown(transition)" [disabled]="false" required>
                                         <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
                                         <option value="DOWNGRADE"><localize key="transition.event.type.downgrade"></localize></option>
                                     </select>
-                                </td>
-                                <td *ngIf="transition.typeUpdown">
-                                    <input style="min-width:80px;" type="text" [name]="'transition.typePart-' + i" class="form-control" [ngModel]="localizeTransitionType(transition.typePart)" disabled required>
                                 </td>
                                 <td *ngIf="!readonly" style="vertical-align: middle;">
                                     <span class="clickable" (click)="remove(i)">
@@ -187,13 +198,4 @@
 
         </fieldset>
     </form>
-    
-    <div class="col-md-4">
-      <div class="row" style="text-align: center;">
-        <label class="col-md-6"><localize key="transition.event.before"></localize></label>
-        <label class="col-md-6"><localize key="transition.event.after"></localize></label>
-      </div>
-    
-      <div style="margin-top: 50px;" id="svgHolder"></div>
-    </div>
 </div>

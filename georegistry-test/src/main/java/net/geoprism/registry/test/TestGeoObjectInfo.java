@@ -80,6 +80,13 @@ public class TestGeoObjectInfo
   private Date                    date;
 
   private HashMap<String, Object> defaultValues;
+  
+  public TestGeoObjectInfo(String label, String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew)
+  {
+    initialize(code, testUni, exists, isNew);
+    this.displayLabel = label;
+    this.wkt = wkt;
+  }
 
   public TestGeoObjectInfo(String code, TestGeoObjectTypeInfo testUni, String wkt, Boolean exists, Boolean isNew)
   {

@@ -556,7 +556,7 @@ public class TransitionEventTest
       event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       event.apply();
 
-      Page<TransitionEvent> page = TransitionEvent.page(10, 1);
+      Page<TransitionEvent> page = TransitionEvent.page(10, 1, null);
 
       Assert.assertEquals(new Long(1), page.getCount());
       Assert.assertEquals(new Integer(1), page.getPageNumber());
@@ -594,7 +594,7 @@ public class TransitionEventTest
   @Request(RequestType.SESSION)
   private void testPagePermissions(String sessionId, TransitionEvent event)
   {
-    Page<TransitionEvent> page = TransitionEvent.page(10, 1);
+    Page<TransitionEvent> page = TransitionEvent.page(10, 1, null);
 
     Assert.assertEquals(new Long(1), page.getCount());
     Assert.assertEquals(new Integer(1), page.getPageNumber());

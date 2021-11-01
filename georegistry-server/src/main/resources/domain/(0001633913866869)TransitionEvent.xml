@@ -175,6 +175,21 @@
       </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.impact">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.impact" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Impact" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
         key="transition.event.type.downgrade">
         <attribute
           name="storeTag"
@@ -306,6 +321,51 @@
           <attribute
             name="defaultLocale"
             value="Event Date" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Description" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.actions">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.actions" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Actions" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.id">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.id" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Id" />
         </attributeStruct>
       </object>
       <object
