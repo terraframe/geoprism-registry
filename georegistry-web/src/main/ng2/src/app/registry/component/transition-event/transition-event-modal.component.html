@@ -53,7 +53,7 @@
 		                    </select>
 		                </div>
 		                <div *ngIf="readonly" class="holder">
-		                    <input [(ngModel)]="event.beforeTypeLabel" name="typeCode" type="text" class="form-control"
+		                    <input [(ngModel)]="event.beforeTypeLabel" name="beforeType" type="text" class="form-control"
 		                        disabled />
 		                </div>
 		            </div>
@@ -64,15 +64,15 @@
 		                        <localize key="transition.event.afterType"></localize>
 		                    </label>
 		                </div>
-		                <div *ngIf="!readonly && types != null" class="holder">
+		                <div *ngIf="!readonly && allTypes != null" class="holder">
 		                    <select id="afterTypeCode" name="afterTypeCode" class="select-area" [(ngModel)]="event.afterTypeCode"
 		                        (change)="onChange()" [disabled]="event.transitions.length > 0" required>
 		                        <option></option>
-		                        <option *ngFor="let type of types" [value]="type.code">{{type.label}}</option>
+		                        <option *ngFor="let type of allTypes" [value]="type.code">{{type.label}}</option>
 		                    </select>
 		                </div>
 		                <div *ngIf="readonly" class="holder">
-		                    <input [(ngModel)]="event.afterTypeLabel" name="typeCode" type="text" class="form-control"&&
+		                    <input [(ngModel)]="event.afterTypeLabel" name="afterType" type="text" class="form-control"
 		                        disabled />
 		                </div>
 		            </div>
@@ -160,7 +160,7 @@
                                 </td>
                                 <td *ngIf="transition.typeUpdown">
                                     <select style="min-width:80px;" *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + i" class="select-area"
-                                        [(ngModel)]="transition.typeUpdown" (change)="onChangeTypeUpdown(transition)" [disabled]="false" required>
+                                        [(ngModel)]="transition.typeUpdown" (change)="onChangeTypeUpdown(transition)" [disabled]="readonly" required>
                                         <option value="UPGRADE"><localize key="transition.event.type.upgrade"></localize></option>
                                         <option value="DOWNGRADE"><localize key="transition.event.type.downgrade"></localize></option>
                                     </select>
