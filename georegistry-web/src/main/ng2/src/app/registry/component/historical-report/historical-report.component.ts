@@ -73,7 +73,12 @@ export class HistoricalReportComponent {
     ngOnInit(): void {
 
         this.iService.listGeoObjectTypes(true).then(types => {
-            this.types = types;
+            this.types = types.filter(t => {
+                const orgCode = t.orgCode;
+                const typeCode = t.superTypeCode != null ? t.superTypeCode : t.code;
+
+                return this.authService.isGeoObjectTypeRM(orgCode, typeCode);
+            });
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
