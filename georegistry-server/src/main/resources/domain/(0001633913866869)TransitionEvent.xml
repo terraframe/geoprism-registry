@@ -230,7 +230,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Events" />
+            value="Manage Historical Events" />
         </attributeStruct>
       </object>
       <object
@@ -562,10 +562,39 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Historical Report" />
+            value="History" />
         </attributeStruct>
       </object>
-
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.events">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.events" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Historical Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.events.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.events.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Historical Events" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <permissions>
       <role roleName="geoprism.admin.Administrator">

@@ -1,127 +1,136 @@
-<div class="new-admin-design-main">
-  <cgr-header></cgr-header>
-  <loading-bar></loading-bar>
+<div>
 
-
-  <div id="app-container" class="container-fluid">
-    <div class="heading">
-      <h2>
-        <localize key="historical.row.report"></localize>
-      </h2>
+  <form #form="ngForm" autocomplete="off">
+    <div class="form-group row">
+      <label class="col-md-2 text-right" for="code">
+        <localize key="io.geoObjectType"></localize>
+      </label>
+      <div class="col-md-8">
+        <select id="code" name="code" class="select-area" [(ngModel)]="data.type" required>
+          <option></option>
+          <option *ngFor="let type of types" [value]="type.code">
+            {{type.super ? type.super.label + " : " + type.label : type.label}}
+          </option>
+        </select>
+      </div>
+      <div class="col-md-2"></div>
     </div>
-
-    <form #form="ngForm" autocomplete="off">
-      <div class="form-group row">
-        <label class="col-md-2 text-right" for="code">
-          <localize key="io.geoObjectType"></localize>
-        </label>
-        <div class="col-md-8">
-          <select id="code" name="code" class="select-area" [(ngModel)]="data.type" required>
-            <option></option>
-            <option *ngFor="let type of types" [value]="type.code">
-              {{type.super ? type.super.label + " : " + type.label : type.label}}
-            </option>
-          </select>
-        </div>
-        <div class="col-md-2"></div>
+    <div class="form-group row">
+      <label class="col-md-2 text-right" for="startDate">
+        <localize key="io.startDate"></localize>
+      </label>
+      <div class="col-md-2">
+        <date-field #dateFieldComponents [(value)]="data.startDate" label="" [inputName]="'startDate'"
+          [allowFutureDates]="false" [required]="true" (change)="checkDates()"></date-field>
       </div>
-      <div class="form-group row">
-        <label class="col-md-2 text-right" for="startDate">
-          <localize key="io.startDate"></localize>
-        </label>
-        <div class="col-md-2">
-          <date-field #dateFieldComponents [(value)]="data.startDate" label="" [inputName]="'startDate'"
-            [allowFutureDates]="false" [required]="true" (change)="checkDates()"></date-field>
-        </div>
 
-        <label class="col-md-2 text-right" for="endDate">
-          <localize key="io.endDate"></localize>
-        </label>
-        <div class="col-md-4">
-          <date-field #dateFieldComponents [(value)]="data.endDate" label="" [inputName]="'endDate'"
-            [allowInfinity]="true" [allowFutureDates]="true" [required]="true" (change)="checkDates()"></date-field>
-        </div>
-
+      <label class="col-md-2 text-right" for="endDate">
+        <localize key="io.endDate"></localize>
+      </label>
+      <div class="col-md-4">
+        <date-field #dateFieldComponents [(value)]="data.endDate" label="" [inputName]="'endDate'"
+          [allowInfinity]="true" [allowFutureDates]="true" [required]="true" (change)="checkDates()"></date-field>
       </div>
-      <div class="form-group row">
-        <div class="col-md-2"></div>
-        <div class="button-holder col-md-8 text-right">
-          <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="refresh()">
-            <localize key="io.submit"></localize>
-          </button>
-          <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="exportToExcel()">
-            <localize key="io.export"></localize>
-          </button>
-        </div>
-        <div class="col-md-2"></div>
-      </div>
-    </form>
 
-    <div class="row">
-      <div class="col-md-12">
-        <table class="table">
-          <thead>
-            <tr style="height: 50px;color: grey;">
-              <th style="vertical-align: middle;"> <localize key="historical.row.eventId"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.eventDate"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.eventType"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.description"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.beforeType"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.beforeCode"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.beforeLabel"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.afterType"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.afterCode"></localize> </th>
-              <th style="vertical-align: middle;"> <localize key="historical.row.afterLabel"></localize> </th>
-              <th></th>
+    </div>
+    <div class="form-group row">
+      <div class="col-md-2"></div>
+      <div class="button-holder col-md-8 text-right">
+        <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="refresh()">
+          <localize key="io.submit"></localize>
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="!isValid || form.invalid" (click)="exportToExcel()">
+          <localize key="io.export"></localize>
+        </button>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+  </form>
+
+  <div class="row">
+    <div class="col-md-12">
+      <table class="table">
+        <thead>
+          <tr style="height: 50px;color: grey;">
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.eventId"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.eventDate"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.eventType"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.description"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.beforeType"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.beforeCode"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.beforeLabel"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.afterType"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.afterCode"></localize>
+            </th>
+            <th style="vertical-align: middle;">
+              <localize key="historical.row.afterLabel"></localize>
+            </th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-template ngFor let-row
+            [ngForOf]="page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
+
+            <tr style="height: 50px;">
+              <td>
+                {{row.eventId}}
+              </td>
+              <td>
+                {{formatDate(row.eventDate)}}
+              </td>
+              <td>
+                {{row.eventType}}
+              </td>
+              <td>
+                {{row.description.localizedValue}}
+              </td>
+              <td>
+                {{row.beforeType}}
+              </td>
+              <td>
+                {{row.beforeCode}}
+              </td>
+              <td>
+                {{row.beforeLabel.localizedValue}}
+              </td>
+              <td>
+                {{row.afterType}}
+              </td>
+              <td>
+                {{row.afterCode}}
+              </td>
+              <td>
+                {{row.afterLabel.localizedValue}}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            <ng-template ngFor let-row
-              [ngForOf]="page.resultSet | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }">
 
-              <tr style="height: 50px;">
-                <td>
-                  {{row.eventId}}
-                </td>
-                <td>
-                  {{formatDate(row.eventDate)}}
-                </td>
-                <td>
-                  {{row.eventType}}
-                </td>
-                <td>
-                  {{row.description.localizedValue}}
-                </td>
-                <td>
-                  {{row.beforeType}}
-                </td>
-                <td>
-                  {{row.beforeCode}}
-                </td>
-                <td>
-                  {{row.beforeLabel.localizedValue}}
-                </td>
-                <td>
-                  {{row.afterType}}
-                </td>
-                <td>
-                  {{row.afterCode}}
-                </td>
-                <td>
-                  {{row.afterLabel.localizedValue}}
-                </td>
-              </tr>
-
-            </ng-template>
-          </tbody>
-        </table>
-        <div class="solid-table-footer">
-          <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
-            <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
-          </div>
+          </ng-template>
+        </tbody>
+      </table>
+      <div class="solid-table-footer">
+        <div *ngIf="page.resultSet.length > 0" class="solid-table-footer">
+          <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
         </div>
-
       </div>
+
     </div>
   </div>
 </div>
