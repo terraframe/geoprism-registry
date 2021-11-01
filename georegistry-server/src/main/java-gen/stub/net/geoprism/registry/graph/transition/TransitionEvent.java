@@ -245,7 +245,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   
   public static void addPageWhereCriteria(StringBuilder statement, Map<String, Object> parameters, String attrConditions)
   {
-    StringBuilder whereCriteria = new StringBuilder();
+    List<String> whereConditions = new ArrayList<String>();
     
     // Add permissions criteria
     if (Session.getCurrentSession() != null)
@@ -255,11 +255,15 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
       if (afterConditions.size() > 0 && beforeConditions.size() > 0)
       {
-        whereCriteria.append("(");
-        whereCriteria.append(StringUtils.join(afterConditions, " OR "));
-        whereCriteria.append(") OR (");
-        whereCriteria.append(StringUtils.join(beforeConditions, " OR "));
-        whereCriteria.append(") ");
+        StringBuilder builder = new StringBuilder();
+        
+        builder.append("((");
+        builder.append(StringUtils.join(afterConditions, " OR "));
+        builder.append(") OR (");
+        builder.append(StringUtils.join(beforeConditions, " OR "));
+        builder.append("))");
+        
+        whereConditions.add(builder.toString());
       }
     }
     
@@ -321,13 +325,13 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       
       if (lAttrConditions.size() > 0)
       {
-        whereCriteria.append(StringUtils.join(lAttrConditions, " AND "));
+        whereConditions.add(StringUtils.join(lAttrConditions, " AND "));
       }
     }
     
-    if (whereCriteria.length() > 0)
+    if (whereConditions.size() > 0)
     {
-      statement.append(" WHERE " + whereCriteria.toString());
+      statement.append(" WHERE " + StringUtils.join(whereConditions, " AND "));
     }
   }
 
