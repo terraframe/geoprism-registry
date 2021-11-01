@@ -38,9 +38,14 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     onEventChange: Subject<TransitionEvent>;
 
     /*
-     * List of geo object types from the system
+     * All Geo-ObjectTypes in the system
      */
-    types: { label: string, code: string }[] = [];
+    allTypes: { label: string, code: string, orgCode: string, superTypeCode?: string }[] = [];
+
+    /*
+     * Types that we have write permission to
+     */
+    types: { label: string, code: string, orgCode: string, superTypeCode?: string }[] = [];
 
     /*
      * List of geo object types from the system
@@ -65,6 +70,9 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 }
             }
             this.types = myOrgTypes;
+            this.allTypes = types;
+
+            this.readonly = this.readonly || this.event.permissions.indexOf("WRITE") === -1;
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -84,6 +92,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 beforeTypeCode: "",
                 afterTypeCode: "",
                 eventDate: "",
+                permissions: ["WRITE", "READ", "DELETE", "CREATE"],
                 description: this.lService.create(),
                 transitions: []
             };

@@ -13,9 +13,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.dataaccess.GeoObject;
+import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -37,7 +40,9 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.transition.TransitionPermissionService;
 import net.geoprism.registry.view.JsonSerializable;
 import net.geoprism.registry.view.Page;
 
@@ -96,6 +101,16 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     return this.toJSON(false);
   }
+  
+  public boolean readOnly()
+  {
+    RolePermissionService rps = ServiceFactory.getRolePermissionService();
+    ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(this.getBeforeTypeCode()).get();
+    
+    final String orgCode = this.getBeforeTypeOrgCode();
+    
+    return !(rps.isSRA() || rps.isRA(orgCode) || rps.isRM(orgCode, type) || rps.isRC(orgCode, type));
+  }
 
   public JsonObject toJSON(boolean includeTransitions)
   {
@@ -115,6 +130,10 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     object.addProperty("beforeTypeLabel", beforeType.getLabel().getValue());
     object.addProperty("afterTypeLabel", afterType.getLabel().getValue());
     object.add(TransitionEvent.DESCRIPTION, localizedValue.toJSON());
+    
+    GsonBuilder builder = new GsonBuilder();
+    JsonArray ja = builder.create().toJsonTree(new TransitionPermissionService().getPermissions(this)).getAsJsonArray();
+    object.add("permissions", ja);
 
     if (includeTransitions)
     {
@@ -148,7 +167,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       ServerGeoObjectType afterType = ServerGeoObjectType.get(afterTypeCode);
 
       ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(beforeType.getOrganization().getCode(), beforeType);
-      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(afterType.getOrganization().getCode(), afterType);
+//      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(afterType.getOrganization().getCode(), afterType);
 
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -330,7 +349,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
           String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
           raOrgs.add(roleOrgCode);
         }
-        else if (RegistryRole.Type.isRM_Role(roleName) || RegistryRole.Type.isRC_Role(roleName) || RegistryRole.Type.isAC_Role(roleName))
+        else if (RegistryRole.Type.isRM_Role(roleName))
         {
           goRoles.add(roleName);
         }

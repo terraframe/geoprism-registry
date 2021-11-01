@@ -63,8 +63,8 @@
 
             <tr style="height: 50px;">
               <td class="col-md-1" style="vertical-align:middle;text-align:left;">
-                <a (click)="onView(event)" class="fa fa-pencil" aria-hidden="true"></a>
-                <a (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
+                <a *ngIf="event.permissions.includes('READ')" (click)="onView(event)" [ngClass]="{'fa-pencil' : event.permissions.indexOf('WRITE') !== -1, 'fa-eye' : event.permissions.indexOf('WRITE') === -1}" class="fa" aria-hidden="true"></a>
+                <a *ngIf="event.permissions.includes('DELETE')" (click)="deleteEvent($event, event)" class="fa fa-trash" aria-hidden="true"></a>
               </td>
               <td class="col-md-1">
                 <h5><strong>{{formatDate(event.eventDate)}}</strong></h5>
@@ -82,7 +82,6 @@
                 <h5><strong>{{event.eventId}}</strong></h5>
               </td>
             </tr>
-
           </ng-template>
         </tbody>
       </table>
@@ -98,7 +97,6 @@
           <pagination-controls (pageChange)="refresh($event)"></pagination-controls>
         </div>
       </div>
-
     </div>
   </div>
 </div>

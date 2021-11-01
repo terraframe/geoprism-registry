@@ -35,7 +35,7 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.service.TransitionEventService;
+import net.geoprism.registry.transition.TransitionEventService;
 
 @Controller(url = "transition-event")
 public class TransitionEventController

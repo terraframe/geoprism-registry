@@ -24,6 +24,7 @@ export class TransitionEvent {
     beforeTypeLabel?: string;
     afterTypeLabel?: string;
     eventDate: string;
+    permissions: string[];
     description: LocalizedValue;
     transitions?: Transition[];
 }
