@@ -43,10 +43,10 @@ public class Transition extends TransitionBase
     object.addProperty(OID, this.getOid());
     object.addProperty("sourceCode", source.getCode());
     object.addProperty("sourceType", source.getType().getCode());
-    object.addProperty("sourceText", source.getLabel());
+    object.addProperty("sourceText", source.getLabel() + " (" + source.getCode() + ")");
     object.addProperty("targetCode", target.getCode());
     object.addProperty("targetType", target.getType().getCode());
-    object.addProperty("targetText", target.getLabel());
+    object.addProperty("targetText", target.getLabel() + " (" + target.getCode() + ")");
     object.addProperty(Transition.TRANSITIONTYPE, this.getTransitionType());
     object.addProperty(Transition.IMPACT, this.getImpact());
 
