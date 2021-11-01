@@ -1,0 +1,52 @@
+<div class="new-admin-design-main">
+  <cgr-header></cgr-header>
+  <loading-bar></loading-bar>
+
+  <div id="app-container" class="container-fluid" style="height: 100%;">
+
+    <div class="row">
+      <div class="col-md-12">
+        <div>
+          <div class="heading">
+            <h2>
+              <localize *ngIf="tab === 'HISTORICAL-EVENT'" key="transition.event.events"></localize>              
+              <localize *ngIf="tab === 'HISTORICAL-REPORT'" key="historical.row.report"></localize>
+            </h2>
+          </div>
+
+          <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
+
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group button-row">
+
+                  <a [routerLink]="" (click)="handleTab('HISTORICAL-EVENT')"
+                    [ngClass]="tab === 'HISTORICAL-EVENT' ? 'cr-filter-link-active' : ''"
+                    style="border-bottom: 1px solid;">
+                    <localize key="transition.event.events"></localize> 
+                  </a>
+                  <a [routerLink]="" (click)="handleTab('HISTORICAL-REPORT')"
+                    [ngClass]="tab === 'HISTORICAL-REPORT' ? 'cr-filter-link-active' : ''"
+                    style="margin-left: 5px;border-bottom:1px solid;">
+                    <localize key="historical.row.report"></localize>
+                  </a>
+
+                </div>
+                <hr style="border-top:solid 3px #6BA542" />
+
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <transition-event-table *ngIf="tab === 'HISTORICAL-EVENT'"></transition-event-table>
+                <historical-report *ngIf="tab === 'HISTORICAL-REPORT'"></historical-report>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

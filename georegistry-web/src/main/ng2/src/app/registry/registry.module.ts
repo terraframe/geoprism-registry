@@ -111,6 +111,7 @@ import { TransitionEventService } from "./service/transition-event.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { TransitionEventModalComponent } from "./component/transition-event/transition-event-modal.component";
 import { HistoricalReportComponent } from "./component/historical-report/historical-report.component";
+import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 
 @NgModule({
     imports: [
@@ -216,7 +217,8 @@ import { HistoricalReportComponent } from "./component/historical-report/histori
         GeometryPanelComponent,
         TransitionEventTableComponent,
         TransitionEventModalComponent,
-        HistoricalReportComponent
+        HistoricalReportComponent,
+        HistoricalEventModuleComponent
     ],
     providers: [
         MapService,
