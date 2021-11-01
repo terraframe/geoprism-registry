@@ -8,10 +8,10 @@ mkdir target
 cp ../../../../georegistry-web/target/georegistry.war target/georegistry.war
 cp -R ../../../../envcfg/prod target/appcfg
 
-docker build -t terraframe/geoprism-registry:$CGR_RELEASE_VERSION .
+docker build -t terraframe/geoprism-registry:$tag .
 
 if [ "$CGR_RELEASE_VERSION" != "latest" ]; then
-  docker tag terraframe/geoprism-registry:$CGR_RELEASE_VERSION terraframe/geoprism-registry:latest
+  docker tag terraframe/geoprism-registry:$tag terraframe/geoprism-registry:latest
 fi
 
-docker save terraframe/geoprism-registry:$CGR_RELEASE_VERSION | gzip > target/georegistry.dimg.gz
+docker save terraframe/geoprism-registry:$tag | gzip > target/georegistry.dimg.gz
