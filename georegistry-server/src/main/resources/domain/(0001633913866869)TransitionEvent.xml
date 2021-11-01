@@ -95,7 +95,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Geo-object type before" />
+            value="Geo-Object Type Before" />
         </attributeStruct>
       </object>
       <object
@@ -110,7 +110,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Geo-object type after" />
+            value="Geo-Object Type After" />
         </attributeStruct>
       </object>
       <object
@@ -380,7 +380,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Also show Invalid Geo-Objects" />
+            value="Also Show Invalid Geo-Objects" />
         </attributeStruct>
       </object>
 
