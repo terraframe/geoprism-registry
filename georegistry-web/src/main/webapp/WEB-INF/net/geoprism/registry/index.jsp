@@ -54,9 +54,14 @@
   
   <script>
     window.acp = "<%=request.getContextPath()%>"; 
-    window.registry = {locale:'<%=request.getAttribute("locale")%>', locales:<%=request.getAttribute("ilocales")%>}; 
+    window.registry = {
+    		locale:'<%=request.getAttribute("locale")%>', 
+    		locales:<%=request.getAttribute("ilocales")%>,
+    		enableBusinessData:<%=GeoregistryProperties.isBusinessDataEnabled()%>
+    }; 
     window.location.origin = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');   
     window.googleanalyticstoken = "<%=GeoregistryProperties.getGoogleAnalyticsToken()%>";
+    
   </script>
   
    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">

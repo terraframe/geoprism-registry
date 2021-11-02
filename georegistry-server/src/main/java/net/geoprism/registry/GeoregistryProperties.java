@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
@@ -25,12 +25,11 @@ import java.util.List;
 import com.runwaysdk.configuration.ConfigurationManager;
 import com.runwaysdk.configuration.ConfigurationReaderIF;
 
-
 public class GeoregistryProperties
 {
   private ConfigurationReaderIF props;
 
-  private static class Singleton 
+  private static class Singleton
   {
     private static GeoregistryProperties INSTANCE = new GeoregistryProperties();
   }
@@ -44,42 +43,47 @@ public class GeoregistryProperties
   {
     return Singleton.INSTANCE.props.getInteger("import.refreshSessionRecordCount", 10000);
   }
-  
+
   public static String getRemoteServerUrl()
   {
     String url = Singleton.INSTANCE.props.getString("cgr.remote.url", "https://localhost:8443/georegistry/");
-    
+
     if (!url.endsWith("/"))
     {
       url = url + "/";
     }
-    
+
     return url;
   }
-  
+
   public static String getGoogleAnalyticsToken()
   {
     String token = Singleton.INSTANCE.props.getString("cgr.google.analytics.token", "");
-    
+
     return token;
   }
-  
+
+  public static Boolean isBusinessDataEnabled()
+  {
+    return Singleton.INSTANCE.props.getBoolean("enable.business.data", false);
+  }
+
   public static String getCustomFont()
   {
     String font = Singleton.INSTANCE.props.getString("custom.font", "");
-    
+
     return font;
   }
-  
+
   public static List<String> getCorsWhitelist()
   {
     String whitelist = Singleton.INSTANCE.props.getString("cgr.cors.whitelist", "");
-    
+
     if (whitelist == null || whitelist.length() == 0)
     {
       return new ArrayList<String>();
     }
-    
+
     return Arrays.asList(whitelist.split(","));
   }
 }
