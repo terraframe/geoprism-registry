@@ -991,6 +991,29 @@ abstract public class TestDataSet
       edge.delete();
     }
   }
+  
+  @Request
+  public static void deleteAllTransitionData()
+  {
+//    final MdEdgeDAOIF mdEdge = MdEdgeDAO.getMdEdgeDAO(GeoVertex.EXTERNAL_ID);
+//
+//    StringBuilder builder = new StringBuilder();
+//    builder.append("SELECT FROM " + mdEdge.getDBClassName());
+//
+//    final GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(builder.toString());
+//
+//    if (system != null)
+//    {
+//      query.setParameter("system", system.getRID());
+//    }
+//
+//    List<EdgeObject> edges = query.getResults();
+//
+//    for (EdgeObject edge : edges)
+//    {
+//      edge.delete();
+//    }
+  }
 
   @Request
   public static void refreshTerms(AttributeTermType attribute)
@@ -1030,7 +1053,7 @@ abstract public class TestDataSet
   {
     Classifier parentTerm = termAttr.fetchRootAsClassifier();
 
-    Classifier child = TestDataSet.getClassifierIfExist(classifierId);
+    Classifier child = Classifier.findClassifier(parentTerm.getKey(), classifierId);
     if (child == null)
     {
       child = new Classifier();

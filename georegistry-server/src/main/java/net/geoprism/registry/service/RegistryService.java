@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
 import org.apache.oltu.oauth2.client.request.OAuthClientRequest.AuthenticationRequestBuilder;
 import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
@@ -985,46 +986,83 @@ public class RegistryService
     ServerHierarchyType ht = hierarchyCode != null ? ServerHierarchyType.get(hierarchyCode) : null;
 
     final List<ServerGeoObjectIF> results;
-    if (parentTypeCode == null || parentTypeCode.length() == 0)
-    {
-      final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, startDate);
-      query.setRestriction(new ServerLookupRestriction(text, startDate, parentCode, ht));
-      query.setLimit(10);
-
-      results = query.getResults();
-    }
-    else
-    {
+//    if (parentTypeCode == null || parentTypeCode.length() == 0)
+//    {
+//      final VertexGeoObjectQuery query = new VertexGeoObjectQuery(type, startDate);
+//      query.setRestriction(new ServerLookupRestriction(text, startDate, parentCode, ht));
+//      query.setLimit(10);
+//
+//      results = query.getResults();
+//    }
+//    else
+//    {
       final ServerGeoObjectType parentType = ServerGeoObjectType.get(parentTypeCode);
+      
+      List<String> conditions = new ArrayList<String>();
 
       StringBuilder statement = new StringBuilder();
       statement.append("select from " + type.getMdVertex().getDBClassName() + " where ");
 
       // Must be a child of parent type
-      statement.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
-
-      if (startDate != null && endDate != null)
+      if (parentTypeCode != null && parentTypeCode.length() > 0)
       {
-        statement.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
+        StringBuilder parentCondition = new StringBuilder();
+        
+        parentCondition.append("(@rid in ( TRAVERSE outE('" + ht.getMdEdge().getDBClassName() + "')");
+  
+        if (startDate != null && endDate != null)
+        {
+          parentCondition.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
+        }
+  
+        parentCondition.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
+        
+        conditions.add(parentCondition.toString());
       }
-
-      statement.append(".inV() FROM (select from " + parentType.getMdVertex().getDBClassName() + " where code='" + parentCode + "') )) ");
 
       // Must have display label we expect
-      statement.append("AND displayLabel_cot CONTAINS (");
-
-      if (startDate != null && endDate != null)
+      if (text != null && text.length() > 0)
       {
-        statement.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
+        StringBuilder textCondition = new StringBuilder();
+        
+        textCondition.append("(displayLabel_cot CONTAINS (");
+  
+        if (startDate != null && endDate != null)
+        {
+          textCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
+        }
+  
+        textCondition.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
+        textCondition.append(")");
+        
+        textCondition.append(" OR code.toLowerCase() LIKE '%' + :text + '%')");
+        
+        conditions.add(textCondition.toString());
       }
 
-      statement.append(AbstractVertexRestriction.localize("value") + ".toLowerCase() LIKE '%' + :text + '%'");
-      statement.append(") ");
-
       // Must not be invalid
-      statement.append("AND invalid=false ");
+      conditions.add("invalid=false");
+      
+      // Must exist at date
+      {
+        StringBuilder existCondition = new StringBuilder();
+        
+        existCondition.append("(exists_cot CONTAINS (");
+  
+        if (startDate != null && endDate != null)
+        {
+          existCondition.append("  (:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate) AND ");
+        }
+  
+        existCondition.append("value=true");
+        existCondition.append("))");
+        
+        conditions.add(existCondition.toString());
+      }
+      
+      statement.append(StringUtils.join(conditions, " AND "));
 
-      statement.append("ORDER BY location.code ASC LIMIT 10");
+      statement.append(" ORDER BY location.code ASC LIMIT 10");
 
       GraphQuery<VertexObject> query = new GraphQuery<VertexObject>(statement.toString());
 
@@ -1050,7 +1088,7 @@ public class RegistryService
       {
         results.add(new VertexServerGeoObject(type, result, startDate));
       }
-    }
+//    }
 
     JsonArray array = new JsonArray();
 

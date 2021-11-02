@@ -1,5 +1,7 @@
 package com.runwaysdk.build.domain;
 
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
@@ -7,7 +9,6 @@ import com.runwaysdk.query.QueryFactory;
 import net.geoprism.registry.action.ChangeRequest;
 import net.geoprism.registry.action.ChangeRequestQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.model.graph.VertexServerGeoObject;
 
 public class ChangeRequestSortingPatch
 {
@@ -25,11 +26,11 @@ public class ChangeRequestSortingPatch
     
     for (ChangeRequest cr : it)
     {
-      VertexServerGeoObject vsGo = cr.getGeoObject();
-      ServerGeoObjectType type = vsGo.getType();
+      LocalizedValue goLabel = cr.getGeoObjectDisplayLabel();
+      ServerGeoObjectType type = cr.getGeoObjectType();
       
       cr.appLock();
-      cr.getGeoObjectLabel().setLocaleMap(vsGo.getDisplayLabel().getLocaleMap());
+      cr.getGeoObjectLabel().setLocaleMap(goLabel.getLocaleMap());
       cr.getGeoObjectTypeLabel().setLocaleMap(type.getLabel().getLocaleMap());
       cr.apply();
     }

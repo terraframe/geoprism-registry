@@ -72,6 +72,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.runwaysdk.business.graph.GraphQuery;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.session.Request;
 import com.vividsolutions.jts.geom.Geometry;
@@ -171,42 +172,55 @@ public class Sandbox
 
   public static void main(String[] args) throws Exception
   {
-    String url = "http://localhost:8082/gofr/fhir/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e?_getpages=ee514824-fd7c-440e-b9ce-ec0c03a89179&_getpagesoffset=20&_count=20&_pretty=true&_include=Location%3Aorganization&_bundletype=searchset";
-    
-    String[] split = url.split("\\?");
-    
-    System.out.println("https://global/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e" + "?" + split[1]);
+//    String url = "http://localhost:8082/gofr/fhir/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e?_getpages=ee514824-fd7c-440e-b9ce-ec0c03a89179&_getpagesoffset=20&_count=20&_pretty=true&_include=Location%3Aorganization&_bundletype=searchset";
+//    
+//    String[] split = url.split("\\?");
+//    
+//    System.out.println("https://global/Cgre9b41c35-7c85-46df-aeea-a4e8dbf0364e" + "?" + split[1]);
 
     
-//    test();
+    test();
 
   }
 
   @Request
   private static void test() throws Exception
   {
-    // String url = "http://hapi.fhir.org/baseR4";
-    String url = "http://localhost:8080/fhir";
-    // String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
-    // Create a client
-
-    // testImport(url);
-
-    // // Location parent =
-    // // client.read().resource(Location.class).withId("1").execute();
-    //
-    // Calendar cal = Calendar.getInstance();
-    // cal.clear();
-    // cal.set(2021, Calendar.MARCH, 15, 0, 0);
-    //
-    // Date date = cal.getTime();
-    //
-    // // exportType(client, date, ServerGeoObjectType.get("District"));
-    // // exportType(client, date, ServerGeoObjectType.get("Village"));
-    //
-    // exportJson(url, new
-    // File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
-    exportBundle(url, new File("/home/jsmethie/Documents/IntraHealth/Bundle.json"));
+    String statement = "SELECT event.oid AS eventId, event.eventDate  AS eventDate, transitionType  AS eventType, event.description AS description\n" + 
+        "  ,event.beforeTypeCode AS beforeType, source.code AS beforeCode, source.displayLabel_cot.value[0] AS beforeLabel\n" + 
+        "  ,event.afterTypeCode AS afterType, target.code AS afterCode, target.displayLabel_cot.value[0] AS afterLabel\n" + 
+        "FROM transition\n" + 
+        "WHERE event.afterTypeCode = 'FASTProvince'\n" + 
+        "OR event.beforeTypeCode = 'FASTProvince'\n";
+    
+    GraphQuery<Object> query = new GraphQuery<>(statement);
+    List<Object> results = query.getRawResults();
+    
+    System.out.println(results.size());
+    
+    
+//    // String url = "http://hapi.fhir.org/baseR4";
+//    String url = "http://localhost:8080/fhir";
+//    // String url = "https://fhir-gis-widget.terraframe.com:8080/fhir/";
+//    // Create a client
+//
+//    // testImport(url);
+//
+//    // // Location parent =
+//    // // client.read().resource(Location.class).withId("1").execute();
+//    //
+//    // Calendar cal = Calendar.getInstance();
+//    // cal.clear();
+//    // cal.set(2021, Calendar.MARCH, 15, 0, 0);
+//    //
+//    // Date date = cal.getTime();
+//    //
+//    // // exportType(client, date, ServerGeoObjectType.get("District"));
+//    // // exportType(client, date, ServerGeoObjectType.get("Village"));
+//    //
+//    // exportJson(url, new
+//    // File("/home/jsmethie/Documents/IntraHealth/4f0438970323fd5ee6ef42b1df668d46-d37e49daa036afb7284d194e5c9fe9de12d96143/dhis2play.json"));
+//    exportBundle(url, new File("/home/jsmethie/Documents/IntraHealth/Bundle.json"));
   }
 
   public static void testImport(String url) throws Exception

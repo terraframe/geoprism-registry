@@ -170,18 +170,17 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     tasks.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
     applications.add(tasks);
     
-    GeoprismApplication settings = new GeoprismApplication();
-    settings.setId("settings");
-    settings.setLabel(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
-    settings.setSrc("net/geoprism/images/settings.svg");
-    settings.setUrl("cgr/manage#/admin/settings");
-    settings.setDescription(LocalizationFacadeDTO.getFromBundles(request, "settings.menu"));
-    settings.addRole(RoleConstants.ADIM_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
-    settings.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
-    applications.add(settings);
+    GeoprismApplication historicalEvents = new GeoprismApplication();
+    historicalEvents.setId("historicalEvents");
+    historicalEvents.setLabel(LocalizationFacadeDTO.getFromBundles(request, "historical.events"));
+    historicalEvents.setSrc("net/geoprism/images/settings.svg");
+    historicalEvents.setUrl("cgr/manage#/registry/historical-events");
+    historicalEvents.setDescription(LocalizationFacadeDTO.getFromBundles(request, "historical.events.description"));
+    historicalEvents.addRole(RoleConstants.ADIM_ROLE);
+    historicalEvents.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
+    historicalEvents.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
+    historicalEvents.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    applications.add(historicalEvents);
     
 
     return applications;

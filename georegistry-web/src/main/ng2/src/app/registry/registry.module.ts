@@ -98,13 +98,6 @@ import { LocalizationManagerService } from "./service/localization-manager.servi
 import { ChangeRequestService } from "./service/change-request.service";
 import { IOService } from "./service/io.service";
 import { MapService } from "./service/map.service";
-
-import { RegistryRoutingModule } from "./registry-routing.module";
-import { SharedModule } from "../shared/shared.module";
-
-import { AccordionModule } from "ngx-bootstrap/accordion";
-
-import "../rxjs-extensions";
 import { FhirImportSynchronizationConfigComponent } from "./component/synchronization-config/fhir-import-synchronization-config.component";
 import { TransitionEventService } from "./service/transition-event.service";
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
@@ -114,6 +107,15 @@ import { BusinessTypeService } from "./service/business-type.service";
 import { CreateBusinessTypeModalComponent } from "./component/business-type/modals/create-business-type-modal.component";
 import { ManageBusinessTypeModalComponent } from "./component/business-type/modals/manage-business-type-modal.component";
 import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
+import { HistoricalReportComponent } from "./component/historical-report/historical-report.component";
+import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
+
+import { RegistryRoutingModule } from "./registry-routing.module";
+import { SharedModule } from "../shared/shared.module";
+
+import { AccordionModule } from "ngx-bootstrap/accordion";
+
+import "../rxjs-extensions";
 
 @NgModule({
     imports: [
@@ -222,7 +224,9 @@ import { BusinessImporterComponent } from "./component/business-importer/busines
         BusinessTypeManagerComponent,
         CreateBusinessTypeModalComponent,
         ManageBusinessTypeModalComponent,
-        BusinessImporterComponent
+        BusinessImporterComponent,
+        HistoricalReportComponent,
+        HistoricalEventModuleComponent
     ],
     providers: [
         MapService,

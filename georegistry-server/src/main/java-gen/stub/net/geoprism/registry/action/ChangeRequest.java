@@ -145,6 +145,10 @@ public class ChangeRequest extends ChangeRequestBase implements JsonSerializable
     return ServerGeoObjectType.get(this.getGeoObjectTypeCode(), true);
   }
 
+  /**
+   * Be careful with this method. If the change request is a Create, and it has not yet been implemented,
+   * this method will return null.
+   */
   public VertexServerGeoObject getGeoObject()
   {
     ServerGeoObjectType type = this.getGeoObjectType();

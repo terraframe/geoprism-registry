@@ -4,16 +4,32 @@
   <doIt>
     <create>
       <mdVertex
-        name="net.geoprism.registry.graph.TransitionEvent"
+        name="net.geoprism.registry.graph.transition.TransitionEvent"
         label="Transition">
         <attributes>
+          <long
+            name="eventId"
+            label="Event Id"
+            required="true" />        
           <date
             name="eventDate"
             label="Event Date"
             required="true" />
           <text
-            name="typeCode"
-            label="Type Code"
+            name="beforeTypeCode"
+            label="Before Type Code"
+            required="true" />
+          <text
+            name="beforeTypeOrgCode"
+            label="Before Type Organization Code"
+            required="true" />
+          <text
+            name="afterTypeCode"
+            label="After Type Code"
+            required="true" />
+          <text
+            name="afterTypeOrgCode"
+            label="After Type Organization Code"
             required="true" />
           <localCharEmbedded
             name="description"
@@ -22,38 +38,186 @@
         </attributes>
       </mdVertex>
       <mdVertex
-        name="net.geoprism.registry.graph.Transition"
+        name="net.geoprism.registry.graph.transition.Transition"
         label="Transition">
         <attributes>
           <text
             name="transitionType"
             label="Transition Type"
             required="true" />
+          <text
+            name="impact"
+            label="Transition Impact (Partial / Full)"
+            required="true" />
+          <graphReference
+            name="source"
+            label="Source"
+            required="true"
+            type="net.geoprism.registry.graph.GeoVertex" />
+          <graphReference
+            name="target"
+            label="Target"
+            required="true"
+            type="net.geoprism.registry.graph.GeoVertex" />
+          <graphReference
+            name="event"
+            label="Event"
+            required="true"
+            type="net.geoprism.registry.graph.transition.TransitionEvent" />
         </attributes>
       </mdVertex>
-      <mdEdge
-        name="net.geoprism.registry.graph.TransitionSource"
-        label="Transition Source"
-        parent="net.geoprism.registry.graph.Transition"
-        child="net.geoprism.registry.graph.GeoVertex"
-        generateSource="false">
-      </mdEdge>
-      <mdEdge
-        name="net.geoprism.registry.graph.TransitionTarget"
-        label="Transition Target"
-        parent="net.geoprism.registry.graph.Transition"
-        child="net.geoprism.registry.graph.GeoVertex"
-        generateSource="false">
-      </mdEdge>
-      <mdEdge
-        name="net.geoprism.registry.graph.TransitionAssignment"
-        label="Transition Events"
-        parent="net.geoprism.registry.graph.TransitionEvent"
-        child="net.geoprism.registry.graph.Transition"
-        generateSource="false">
-      </mdEdge>
     </create>
     <createOrUpdate>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="header.transitionEvents">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="header.transitionEvents" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Transition Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.beforeType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.beforeType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Geo-Object Type Before" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.afterType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.afterType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Geo-Object Type After" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.merge">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.merge" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Merge" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.split">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.split" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Split" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.upgrade">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.upgrade" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Upgrade" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.impact">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.impact" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Impact" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.downgrade">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.downgrade" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Downgrade" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.type.reassign">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.type.reassign" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Reassign" />
+        </attributeStruct>
+      </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
         key="transition.event.events">
@@ -66,7 +230,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Events" />
+            value="Manage Historical Events" />
         </attributeStruct>
       </object>
       <object
@@ -116,32 +280,92 @@
       </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
-        key="transition.event.to">
+        key="transition.event.after">
         <attribute
           name="storeTag"
           value="UIText" />
         <attribute
           name="storeKey"
-          value="transition.event.to" />
+          value="transition.event.after" />
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="To" />
+            value="After" />
         </attributeStruct>
       </object>
       <object
         type="com.runwaysdk.localization.LocalizedValueStore"
-        key="transition.event.from">
+        key="transition.event.before">
         <attribute
           name="storeTag"
           value="UIText" />
         <attribute
           name="storeKey"
-          value="transition.event.from" />
+          value="transition.event.before" />
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="From" />
+            value="Before" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Description" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.actions">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.actions" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Actions" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.id">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.id" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Id" />
         </attributeStruct>
       </object>
       <object
@@ -156,47 +380,241 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Also show Invalid Geo-Objects" />
+            value="Also Show Invalid Geo-Objects" />
+        </attributeStruct>
+      </object>
+
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="transition.event.date">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="transition.event.date" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventId">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventId" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Id" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventDate">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventDate" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Date" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.eventType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.eventType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Event Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Description" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeCode">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeCode" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.beforeLabel">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.beforeLabel" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Before Label" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterType">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterType" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Type" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterCode">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterCode" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Code" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.afterLabel">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.afterLabel" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="After Label" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.row.report">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.row.report" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="History" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.events">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.events" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Historical Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="historical.events.description">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="historical.events.description" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Historical Events" />
         </attributeStruct>
       </object>
     </createOrUpdate>
     <permissions>
       <role roleName="geoprism.admin.Administrator">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.graph.TransitionEvent">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.TransitionEvent">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.Transition">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionSource">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionTarget">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionAssignment">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
         </grant>
       </role>
       <role roleName="cgr.RegistryMaintainer">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.graph.TransitionEvent">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.TransitionEvent">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.graph.Transition">
+          <mdBusinessPermission type="net.geoprism.registry.graph.transition.Transition">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionSource">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionTarget">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
-          <mdRelationshipPermission type="net.geoprism.registry.graph.TransitionAssignment">
-            <operation name="ALL" />
-          </mdRelationshipPermission>
         </grant>
       </role>
     </permissions>
@@ -204,19 +622,10 @@
   <undoIt>
     <delete>
       <object
-        key="net.geoprism.registry.graph.TransitionAssignment"
-        type="com.runwaysdk.system.metadata.MdEdge" />
-      <object
-        key="net.geoprism.registry.graph.TransitionTarget"
-        type="com.runwaysdk.system.metadata.MdEdge" />
-      <object
-        key="net.geoprism.registry.graph.TransitionSource"
-        type="com.runwaysdk.system.metadata.MdEdge" />
-      <object
-        key="net.geoprism.registry.graph.Transition"
+        key="net.geoprism.registry.graph.transition.Transition"
         type="com.runwaysdk.system.metadata.MdVertex" />
       <object
-        key="net.geoprism.registry.graph.TransitionEvent"
+        key="net.geoprism.registry.graph.transition.TransitionEvent"
         type="com.runwaysdk.system.metadata.MdVertex" />
     </delete>
   </undoIt>

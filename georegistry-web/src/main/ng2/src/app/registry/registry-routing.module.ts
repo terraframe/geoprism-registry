@@ -22,6 +22,7 @@ import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/
 import { TransitionEventTableComponent } from "./component/transition-event/transition-event-table.component";
 import { BusinessTypeManagerComponent } from "./component/business-type/business-type-manager.component";
 import { BusinessImporterComponent } from "./component/business-importer/business-importer.component";
+import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 
 const routes: Routes = [
     {
@@ -135,8 +136,8 @@ const routes: Routes = [
         canActivate: [MaintainerGuard]
     },
     {
-        path: "transition-events",
-        component: TransitionEventTableComponent,
+        path: "historical-events",
+        component: HistoricalEventModuleComponent,
         canActivate: [MaintainerGuard]
     },
     {

@@ -16,32 +16,32 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.service;
+package com.runwaysdk.build.domain;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import org.apache.commons.collections4.map.HashedMap;
+
+import com.runwaysdk.dataaccess.graph.GraphDBService;
+import com.runwaysdk.dataaccess.graph.GraphRequest;
 import com.runwaysdk.session.Request;
-import com.runwaysdk.session.RequestType;
 
-import net.geoprism.registry.graph.TransitionEvent;
+import net.geoprism.registry.graph.transition.TransitionEvent;
 
-public class TransitionEventService
+public class CreateEventSequencePatch
 {
-  @Request(RequestType.SESSION)
-  public JsonObject page(String sessionId, Integer pageSize, Integer pageNumber)
+  public static void main(String[] args)
   {
-    return TransitionEvent.page(pageSize, pageNumber).toJSON();
+    new CreateEventSequencePatch().doIt();
   }
 
-  @Request(RequestType.SESSION)
-  public JsonObject getDetails(String sessionId, String oid)
+  @Request
+  private void doIt()
   {
-    return TransitionEvent.get(oid).toJSON(true);
-  }
+    StringBuilder statement = new StringBuilder();
+    statement.append("CREATE SEQUENCE " + TransitionEvent.EVENT_SEQUENCE + " TYPE ORDERED");
 
-  @Request(RequestType.SESSION)
-  public JsonObject apply(String sessionId, String json)
-  {
-    return TransitionEvent.apply(JsonParser.parseString(json).getAsJsonObject());
+    GraphDBService service = GraphDBService.getInstance();
+    GraphRequest graphRequest = service.getGraphDBRequest();
+
+    service.command(graphRequest, statement.toString(), new HashedMap<>());
   }
 }

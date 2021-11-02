@@ -4,23 +4,27 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.conversion;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.commongeoregistry.adapter.Term;
@@ -53,10 +57,12 @@ public class LocalizedValueConverter
   }
 
   /*
-   * TODO : This method will coalesce the value for all of the locales. So if the value is empty for a particular
-   * locale, that locale will actually have the default locale placed in it. For this reason, usage of this method
-   * should be deprecated for populating DTOS and the like, the coalescing of values should actually happen on the
-   * front-end, since that coalescing is actually use-case dependent.
+   * TODO : This method will coalesce the value for all of the locales. So if
+   * the value is empty for a particular locale, that locale will actually have
+   * the default locale placed in it. For this reason, usage of this method
+   * should be deprecated for populating DTOS and the like, the coalescing of
+   * values should actually happen on the front-end, since that coalescing is
+   * actually use-case dependent.
    */
   public static LocalizedValue convert(LocalStruct localStruct)
   {
@@ -72,29 +78,96 @@ public class LocalizedValueConverter
 
     return label;
   }
-  
+
   public static LocalizedValue convertNoAutoCoalesce(LocalStruct localStruct)
   {
     LocalizedValue label = new LocalizedValue(localStruct.getValue());
-    
+
     label.setLocaleMap(localStruct.getLocaleMap());
-    
+
     return label;
   }
 
-  public static LocalizedValue convert(String value, Map<String, String> map)
+  public static LocalizedValue convert(String value, Map<String, ?> map)
   {
     LocalizedValue localizedValue = new LocalizedValue(value);
-    localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, map.get(MdAttributeLocalInfo.DEFAULT_LOCALE));
+    localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, map.get(MdAttributeLocalInfo.DEFAULT_LOCALE).toString());
 
     Set<Locale> locales = LocalizationFacade.getInstalledLocales();
 
     for (Locale locale : locales)
     {
-      localizedValue.setValue(locale, map.get(locale.toString()));
+      localizedValue.setValue(locale, map.get(locale.toString()).toString());
     }
 
     return localizedValue;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static LocalizedValue convert(List<Map<String, Object>> labels, Date date)
+  {
+    if (date != null)
+    {
+      LocalDate localDate = date.toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+
+      Optional<Map<String, Object>> result = labels.stream().filter(o -> {
+        LocalDate startDate = ( (Date) o.get("startDate") ).toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+        LocalDate endDate = ( (Date) o.get("endDate") ).toInstant().atZone(ZoneId.of("Z")).toLocalDate();
+
+        return ( startDate.equals(localDate) || startDate.isBefore(localDate) ) && ( endDate.equals(localDate) || endDate.isAfter(localDate) );
+      }).findAny();
+
+      return LocalizedValueConverter.convert((Map<String, Object>) result.orElseGet(() -> labels.get(labels.size() - 1)).get("value"));
+    }
+
+    return LocalizedValueConverter.convert((Map<String, Object>) labels.get(labels.size() - 1).get("value"));
+  }
+
+  public static LocalizedValue convert(Map<String, ?> map)
+  {
+    LocalizedValue localizedValue = new LocalizedValue(coalesce(map));
+    localizedValue.setValue(MdAttributeLocalInfo.DEFAULT_LOCALE, map.get(MdAttributeLocalInfo.DEFAULT_LOCALE).toString());
+
+    Set<Locale> locales = LocalizationFacade.getInstalledLocales();
+
+    for (Locale locale : locales)
+    {
+      String key = locale.toString();
+
+      if (map.containsKey(key) && map.get(key) != null)
+      {
+        localizedValue.setValue(locale, map.get(key).toString());
+      }
+    }
+
+    return localizedValue;
+  }
+
+  public static String coalesce(Map<String, ?> map)
+  {
+    Locale locale = Session.getCurrentLocale();
+    String[] localeStringArray = new String[] { locale.toString() };
+
+    for (String localeString : localeStringArray)
+    {
+      for (int i = localeString.length(); i > 0; i = localeString.lastIndexOf('_', i - 1))
+      {
+        String subLocale = localeString.substring(0, i);
+
+        if (map.containsKey(subLocale))
+        {
+          String subLocaleValue = map.get(subLocale).toString();
+
+          if (!subLocaleValue.trim().equals(""))
+          {
+            return subLocaleValue;
+          }
+        }
+      }
+    }
+
+    // No matching locale found. Resort to the default
+    return map.get(MdAttributeLocalInfo.DEFAULT_LOCALE).toString();
   }
 
   public static void populate(MdClassDAO mdClass, String attributeName, LocalizedValue label)
@@ -136,7 +209,7 @@ public class LocalizedValueConverter
       }
     }
   }
-  
+
   public static LocalizedValue convert(GraphObjectDAO graphObject)
   {
     String attributeName = Session.getCurrentLocale().toString();
