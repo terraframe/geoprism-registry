@@ -1,6 +1,6 @@
 package net.geoprism.registry.graph.transition;
 
-@com.runwaysdk.business.ClassSignature(hash = -1683255043)
+@com.runwaysdk.business.ClassSignature(hash = 942019818)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -14,11 +14,12 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   public static java.lang.String EVENT = "event";
   public static java.lang.String IMPACT = "impact";
   public static java.lang.String OID = "oid";
+  public static java.lang.String ORDER = "order";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SOURCE = "source";
   public static java.lang.String TARGET = "target";
   public static java.lang.String TRANSITIONTYPE = "transitionType";
-  private static final long serialVersionUID = -1683255043;
+  private static final long serialVersionUID = 942019818;
   
   public TransitionBase()
   {
@@ -66,6 +67,22 @@ public abstract class TransitionBase extends com.runwaysdk.business.graph.Vertex
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.Transition.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeUUIDDAOIF)mdClassIF.definesAttribute(OID);
+  }
+  
+  public Integer getOrder()
+  {
+    return (Integer) this.getObjectValue(ORDER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getOrderMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.graph.transition.Transition.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(ORDER);
+  }
+  
+  public void setOrder(Integer value)
+  {
+    this.setValue(ORDER, value);
   }
   
   public Long getSeq()

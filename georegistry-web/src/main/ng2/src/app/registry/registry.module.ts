@@ -113,6 +113,8 @@ import { TransitionEventModalComponent } from "./component/transition-event/tran
 import { HistoricalReportComponent } from "./component/historical-report/historical-report.component";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 
+import { DndModule } from "ngx-drag-drop";
+
 @NgModule({
     imports: [
         CommonModule,
@@ -131,6 +133,7 @@ import { HistoricalEventModuleComponent } from "./component/historical-event-mod
         NgxPaginationModule,
         SharedModule,
         RegistryRoutingModule,
+        DndModule,
         AccordionModule.forRoot()
     ],
     declarations: [

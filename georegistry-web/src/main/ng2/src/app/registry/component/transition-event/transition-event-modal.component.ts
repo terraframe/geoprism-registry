@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Observable, Subject } from "rxjs";
 import { HttpErrorResponse } from "@angular/common/http";
@@ -11,6 +11,8 @@ import { LocalizationService, AuthService } from "@shared/service";
 import { Transition, TransitionEvent } from "@registry/model/transition-event";
 import { TransitionEventService } from "@registry/service/transition-event.service";
 
+import { DndDropEvent } from "ngx-drag-drop";
+
 /* D3 Stuffs */
 import * as d3 from "d3";
 
@@ -22,7 +24,7 @@ export const VIEWPORT_SCALE_FACTOR_Y: number = 1.0;
 @Component({
     selector: "transition-event-modal",
     templateUrl: "./transition-event-modal.component.html",
-    styleUrls: []
+    styleUrls: ["./transition-event-modal.component.css"]
 })
 export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
@@ -52,8 +54,19 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
      */
     readonly: boolean = false;
 
+    render: boolean = true;
+
+    draggable = {
+        // note that data is handled with JSON.stringify/JSON.parse
+        // only set simple data or POJO's as methods will be lost
+        data: "myDragData",
+        effectAllowed: "all",
+        disable: false,
+        handle: true
+    };
+
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: TransitionEventService, public rService: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService,
+    constructor(private service: TransitionEventService, private changeDetector: ChangeDetectorRef, public rService: RegistryService, private iService: IOService, private lService: LocalizationService, public bsModalRef: BsModalRef, private authService: AuthService,
         private dateService: DateService) { }
 
     ngOnInit(): void {
@@ -108,7 +121,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             targetCode: "",
             targetType: "",
             transitionType: "",
-            impact: ""
+            impact: "",
+            order: this.event.transitions.length - 1
         });
     }
 
@@ -247,6 +261,66 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         transition.transitionType = transition.typeUpdown + "_" + transition.typePart;
     }
 
+    /* Drag Drop Transitions */
+    onDragStart(event:DragEvent) {
+        // console.log("drag started", JSON.stringify(event, null, 2));
+    }
+
+    onDragEnd(event:DragEvent) {
+        // console.log("drag ended", JSON.stringify(event, null, 2));
+    }
+
+    onDragged(item: any, type: string) {
+        // console.log("onDragged", item, type);
+    }
+
+    onDraggableCopied(event:DragEvent) {
+        // console.log("draggable copied", JSON.stringify(event, null, 2));
+    }
+
+    onDraggableLinked(event:DragEvent) {
+        // console.log("draggable linked", JSON.stringify(event, null, 2));
+    }
+
+    onDraggableMoved(event:DragEvent) {
+        // console.log("draggable moved", JSON.stringify(event, null, 2));
+    }
+
+    onDragCanceled(event:DragEvent) {
+        // console.log("drag cancelled", JSON.stringify(event, null, 2));
+    }
+
+    onDragover(event:DragEvent) {
+        // console.log("dragover", JSON.stringify(event, null, 2));
+    }
+
+    onDrop(event:DndDropEvent) {
+        let transition: Transition = event.data;
+        let index: number = event.index;
+
+        // Remove from array
+        this.event.transitions.splice(transition.order, 1);
+
+        // Calculate new index, which may have shifted due to us removing the transition.
+        let newIndex = (index > transition.order) ? index - 1 : index;
+
+        // Insert us back into the array at ne1wIndex
+        this.event.transitions.splice(newIndex, 0, transition);
+
+        // Update order for all transitions as elements have shifted
+        for (let i = 0; i < this.event.transitions.length; ++i) {
+            this.event.transitions[i].order = i;
+        }
+
+        this.onChange();
+
+        // this.changeDetector.detectChanges(); // Doesn't work
+        // Angular front-end is having some sort of glitch where it doesn't render the table elements properly. This is the only
+        // hack I've found which actually forces it to properly redraw the table.
+        this.render = false;
+        window.setTimeout(() => { this.render = true; }, 0);
+    }
+
     /* D3 Stuff */
     private renderVisual(): void {
         if (this.event.transitions == null || this.event.transitions.length === 0) {
@@ -345,7 +419,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     generateRenderingData(appData: any): any {
         let width = 100;
 
-        const root: any = d3.hierarchy(appData.d3Data).sort((a, b) => d3.descending(a.height, b.height) || d3.ascending(a.data.name, b.data.name));
+        const root: any = d3.hierarchy(appData.d3Data).sort((a, b) => d3.ascending(a.data.order, b.data.order));
         root.dx = 5 * DRAW_SCALE_MULTIPLIER;
         root.dy = width / (root.height + 1);
         let d3RenderingData = d3.tree().nodeSize([root.dx, root.dy])(root);

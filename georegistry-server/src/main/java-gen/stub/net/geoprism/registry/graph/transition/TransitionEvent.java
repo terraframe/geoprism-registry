@@ -70,13 +70,14 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(Transition.CLASS);
     MdAttributeDAOIF mdAttribute = mdVertex.definesAttribute(Transition.EVENT);
-    MdAttributeDAOIF sourceAttribute = mdVertex.definesAttribute(Transition.SOURCE);
+//    MdAttributeDAOIF sourceAttribute = mdVertex.definesAttribute(Transition.SOURCE);
     MdAttributeDAOIF targetAttribute = mdVertex.definesAttribute(Transition.TARGET);
+    MdAttributeDAOIF orderAttribute = mdVertex.definesAttribute(Transition.ORDER);
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
     statement.append(" WHERE " + mdAttribute.getColumnName() + " = :event");
-    statement.append(" ORDER BY " + sourceAttribute.getColumnName() + ".code");
+    statement.append(" ORDER BY " + orderAttribute.getColumnName() + " ASC");
     statement.append(", " + targetAttribute.getColumnName() + ".code");
 
     GraphQuery<Transition> query = new GraphQuery<Transition>(statement.toString());
@@ -93,7 +94,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     transition.setTransitionType(transitionType);
     transition.setImpact(impact);
     transition.setEvent(this);
-    transition.apply(this, (VertexServerGeoObject) source, (VertexServerGeoObject) target);
+    transition.apply(this, this.getTransitions().size(), (VertexServerGeoObject) source, (VertexServerGeoObject) target);
   }
 
   @Override
@@ -189,7 +190,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       {
         JsonObject object = transitions.get(i).getAsJsonObject();
 
-        Transition trans = Transition.apply(event, object);
+        Transition trans = Transition.apply(event, i, object);
         appliedTrans.add(trans.getOid());
       }
 

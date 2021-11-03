@@ -41,6 +41,7 @@ public class Transition extends TransitionBase
 
     JsonObject object = new JsonObject();
     object.addProperty(OID, this.getOid());
+    object.addProperty(Transition.ORDER, this.getOrder());
     object.addProperty("sourceCode", source.getCode());
     object.addProperty("sourceType", source.getType().getCode());
     object.addProperty("sourceText", source.getLabel() + " (" + source.getCode() + ")");
@@ -54,10 +55,11 @@ public class Transition extends TransitionBase
   }
 
   @Transaction
-  public void apply(TransitionEvent event, VertexServerGeoObject source, VertexServerGeoObject target)
+  public void apply(TransitionEvent event, int order, VertexServerGeoObject source, VertexServerGeoObject target)
   {
     this.validate(event, source, target);
 
+    this.setOrder(order);
     this.setValue(Transition.SOURCE, source.getVertex());
     this.setValue(Transition.TARGET, target.getVertex());
 
@@ -125,7 +127,7 @@ public class Transition extends TransitionBase
     }
   }
 
-  public static Transition apply(TransitionEvent event, JsonObject object)
+  public static Transition apply(TransitionEvent event, int order, JsonObject object)
   {
     Transition transition = object.has(OID) ? Transition.get(object.get(OID).getAsString()) : new Transition();
     transition.setTransitionType(object.get(Transition.TRANSITIONTYPE).getAsString());
@@ -145,7 +147,7 @@ public class Transition extends TransitionBase
     VertexServerGeoObject source = new VertexGeoObjectStrategy(ServerGeoObjectType.get(sourceType)).getGeoObjectByCode(sourceCode);
     VertexServerGeoObject target = new VertexGeoObjectStrategy(ServerGeoObjectType.get(targetType)).getGeoObjectByCode(targetCode);
 
-    transition.apply(event, source, target);
+    transition.apply(event, order, source, target);
 
     return transition;
   }
