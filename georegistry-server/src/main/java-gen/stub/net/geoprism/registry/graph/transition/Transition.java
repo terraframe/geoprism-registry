@@ -1,6 +1,12 @@
 package net.geoprism.registry.graph.transition;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -10,10 +16,14 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.task.Task;
+import net.geoprism.registry.task.Task.TaskType;
 
 public class Transition extends TransitionBase
 {
@@ -24,14 +34,35 @@ public class Transition extends TransitionBase
   }
 
   public static enum TransitionType {
-    MERGE, SPLIT, REASSIGN,
-    UPGRADE_MERGE, UPGRADE_SPLIT, UPGRADE_REASSIGN,
-    DOWNGRADE_MERGE, DOWNGRADE_SPLIT, DOWNGRADE_REASSIGN;
+    MERGE, SPLIT, REASSIGN, UPGRADE_MERGE, UPGRADE_SPLIT, UPGRADE_REASSIGN, DOWNGRADE_MERGE, DOWNGRADE_SPLIT, DOWNGRADE_REASSIGN;
+
+    public boolean isReassign()
+    {
+      return this.equals(TransitionType.REASSIGN) || this.equals(TransitionType.UPGRADE_REASSIGN) || this.equals(TransitionType.DOWNGRADE_REASSIGN);
+    }
+
+    public boolean isMerge()
+    {
+      return this.equals(TransitionType.MERGE) || this.equals(TransitionType.UPGRADE_MERGE) || this.equals(TransitionType.DOWNGRADE_MERGE);
+    }
+
+    public boolean isSplit()
+    {
+      return this.equals(TransitionType.SPLIT) || this.equals(TransitionType.UPGRADE_SPLIT) || this.equals(TransitionType.DOWNGRADE_SPLIT);
+    }
   }
 
   public Transition()
   {
     super();
+  }
+
+  @Override
+  public void delete()
+  {
+    super.delete();
+
+    Task.removeTasks(this.getOid());
   }
 
   public JsonObject toJSON()
@@ -63,12 +94,67 @@ public class Transition extends TransitionBase
     this.setValue(Transition.SOURCE, source.getVertex());
     this.setValue(Transition.TARGET, target.getVertex());
 
+    boolean isModified = this.isModified(Transition.TARGET);
+    boolean isNew = this.isNew() && !this.isAppliedToDb();
+
     super.apply();
+
+    if (isNew || isModified)
+    {
+      Task.removeTasks(this.getOid());
+
+      this.createTask(source, target);
+    }
+  }
+
+  public void createTask(VertexServerGeoObject source, VertexServerGeoObject target)
+  {
+    TransitionType transitionType = this.toTransitionType();
+    ServerGeoObjectType sourceType = source.getType();
+
+    ServerGeoObjectType targetType = target.getType();
+
+    List<ServerHierarchyType> hierarchies = targetType.getHierarchies();
+
+    for (ServerHierarchyType hierarchy : hierarchies)
+    {
+      List<ServerGeoObjectType> children = targetType.getChildren(hierarchy);
+
+      for (ServerGeoObjectType child : children)
+      {
+        List<Roles> roles = Arrays.asList(new String[] { child.getMaintainerRoleName(), child.getAdminRoleName() }).stream().distinct().map(name -> Roles.findRoleByName(name)).collect(Collectors.toList());
+
+        HashMap<String, LocalizedValue> values = new HashMap<String, LocalizedValue>();
+        values.put("1", source.getDisplayLabel());
+        values.put("2", sourceType.getLabel());
+        values.put("3", target.getDisplayLabel());
+        values.put("4", targetType.getLabel());
+        values.put("5", child.getLabel());
+
+        TaskType taskType = Task.TaskType.SPLIT_EVENT_TASK;
+
+        if (transitionType.isMerge())
+        {
+          taskType = Task.TaskType.MERGE_EVENT_TASK;
+        }
+        else if (transitionType.isReassign())
+        {
+          taskType = Task.TaskType.REASSIGN_EVENT_TASK;
+        }
+
+        Task.createNewTask(roles, taskType, values, this.getOid());
+      }
+    }
   }
 
   public void setTransitionType(TransitionType value)
   {
     this.setTransitionType(value.name());
+  }
+
+  public TransitionType toTransitionType()
+  {
+    return TransitionType.valueOf(this.getTransitionType());
   }
 
   public void setImpact(TransitionImpact value)

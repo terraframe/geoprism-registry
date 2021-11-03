@@ -1,0 +1,69 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+    <update>
+      <mdBusiness
+        name="net.geoprism.registry.task.Task"
+        cacheAlgorithm="nothing">
+        <create>
+          <attributes>
+            <text name="sourceOid" label="sourceOid" />
+          </attributes>
+        </create>
+      </mdBusiness>    
+      <mdRelationship
+        name="net.geoprism.registry.task.TaskHasRole"
+        cacheAlgorithm="nothing" />
+    </update>
+    <createOrUpdate>      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.split.template">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.event.split.template" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The Geo-Object [{1}] of a Geo-Object Type [{2}] has split into the Geo-Object [{3}] of a Geo-Object Type [{4}].  Please reassign the [{5}] children." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.split.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.event.split.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Split" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.merge.template">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.event.merge.template" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The Geo-Object [{1}] of a Geo-Object Type [{2}] has merged into the Geo-Object [{3}] of a Geo-Object Type [{4}].  Please reassign the [{5}] children." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.merge.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.event.merge.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Merge" />
+        </attributeStruct>
+      </object>
+      
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.reassign.template">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.event.reassign.template" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="The Geo-Object [{1}] of a Geo-Object Type [{2}] has been reassigned to the Geo-Object [{3}] of a Geo-Object Type [{4}].  Please reassign the [{5}] children." />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.reassign.title">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="tasks.event.reassign.title" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Geo-Object Reassignment" />
+        </attributeStruct>
+      </object>
+    </createOrUpdate>
+  </doIt>
+  <undoIt>
+    <delete>
+      <object type="com.runwaysdk.system.metadata.MdAttribute" key="net.geoprism.registry.task.Task.sourceOid" />    
+    </delete>
+  </undoIt>
+</version>

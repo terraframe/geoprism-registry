@@ -33,6 +33,7 @@ import net.geoprism.registry.graph.transition.Transition.TransitionType;
 import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.task.Task;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.HistoricalRow;
@@ -170,18 +171,51 @@ public class TransitionEventTest
       event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       event.apply();
 
-      event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+      Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      List<Task> tasks = Task.getTasks(transition.getOid());
+
+      Assert.assertEquals(3, tasks.size());
 
       List<Transition> transitions = event.getTransitions();
 
       Assert.assertEquals(1, transitions.size());
 
-      Transition transition = transitions.get(0);
+      transition = transitions.get(0);
       VertexServerGeoObject source = transition.getSourceVertex();
       VertexServerGeoObject target = transition.getTargetVertex();
 
       Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), source.getCode());
       Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
+    }
+    finally
+    {
+      event.delete();
+    }
+  }
+
+  @Test
+  @Request
+  public void testUpdateTransition()
+  {
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.COUNTRY.getCode());
+      event.setBeforeTypeOrgCode(FastTestDataset.COUNTRY.getOrganization().getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+      event.apply();
+
+      Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+      transition.apply(event, (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject(), (VertexServerGeoObject) FastTestDataset.PROV_WESTERN.getServerObject());
+
+      List<Task> tasks = Task.getTasks(transition.getOid());
+
+      Assert.assertEquals(3, tasks.size());
     }
     finally
     {

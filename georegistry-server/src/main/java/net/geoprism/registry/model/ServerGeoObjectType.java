@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.model;
 
@@ -360,7 +360,7 @@ public class ServerGeoObjectType implements ServerElement
 
     // Delete the transition and transition events
     TransitionEvent.removeAll(this);
-    
+
     Transition.removeAll(this);
   }
 
@@ -1097,6 +1097,61 @@ public class ServerGeoObjectType implements ServerElement
     return hierarchyType;
   }
 
+  public boolean getIsPrivate()
+  {
+    return this.type.getIsPrivate();
+  }
+
+  public void setIsPrivate(Boolean isPrivate)
+  {
+    this.type.setIsPrivate(isPrivate);
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj instanceof ServerGeoObjectType)
+    {
+      return ( (ServerGeoObjectType) obj ).getCode().equals(this.getCode());
+    }
+    else if (obj instanceof GeoObjectType)
+    {
+      return ( (GeoObjectType) obj ).getCode().equals(this.getCode());
+    }
+
+    return false;
+  }
+
+  @Override
+  public String toString()
+  {
+    return GeoObjectTypeMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
+  }
+
+  public String getMaintainerRoleName()
+  {
+    ServerGeoObjectType superType = this.getSuperType();
+
+    if (superType != null)
+    {
+      return superType.getMaintainerRoleName();
+    }
+
+    return RegistryRole.Type.getRM_RoleName(this.getOrganization().getCode(), this.getCode());
+  }
+
+  public String getAdminRoleName()
+  {
+    ServerGeoObjectType superType = this.getSuperType();
+
+    if (superType != null)
+    {
+      return superType.getOrganization().getRegistryAdminRoleName();
+    }
+
+    return this.getOrganization().getRegistryAdminRoleName();
+  }
+
   /**
    * Returns a {@link Universal} from the code value on the given
    * {@link GeoObjectType}.
@@ -1203,42 +1258,5 @@ public class ServerGeoObjectType implements ServerElement
 
     return ServiceFactory.getMetadataCache().getGeoObjectType(code).get();
   }
-
-  public boolean getIsPrivate()
-  {
-    return this.type.getIsPrivate();
-  }
-
-  public void setIsPrivate(Boolean isPrivate)
-  {
-    this.type.setIsPrivate(isPrivate);
-  }
-
-  @Override
-  public boolean equals(Object obj)
-  {
-    if (obj instanceof ServerGeoObjectType)
-    {
-      return ( (ServerGeoObjectType) obj ).getCode().equals(this.getCode());
-    }
-    else if (obj instanceof GeoObjectType)
-    {
-      return ( (GeoObjectType) obj ).getCode().equals(this.getCode());
-    }
-
-    return false;
-  }
-
-  @Override
-  public String toString()
-  {
-    return GeoObjectTypeMetadata.sGetClassDisplayLabel() + " : " + this.getCode();
-  }
-
-  // public String buildRMRoleName()
-  // {
-  // String ownerActorOid = this.universal.getOwnerOid();
-  // Organization.getRootOrganization(ownerActorOid)
-  // }
 
 }
