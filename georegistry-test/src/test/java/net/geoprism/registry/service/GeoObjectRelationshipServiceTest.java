@@ -458,6 +458,7 @@ public class GeoObjectRelationshipServiceTest
     final List<TestGeoObjectInfo> expectedChildren = new ArrayList<TestGeoObjectInfo>();
     expectedChildren.add(FastTestDataset.PROV_CENTRAL);
     expectedChildren.add(FastTestDataset.PROV_CENTRAL);
+    expectedChildren.add(FastTestDataset.PROV_WESTERN);
 
     // Recursive
     ChildTreeNode tn = testData.adapter.getChildGeoObjects(parentId, parentTypeCode, childrenTypes, true);

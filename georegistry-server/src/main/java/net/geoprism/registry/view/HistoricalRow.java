@@ -242,7 +242,7 @@ public class HistoricalRow implements JsonSerializable
     types.add(type);
     types.addAll(type.getSubtypes());
 
-    List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
+    List<String> codes = types.stream().map(t -> t.getCode()).distinct().collect(Collectors.toList());
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT COUNT(*)");
@@ -278,7 +278,7 @@ public class HistoricalRow implements JsonSerializable
     types.add(type);
     types.addAll(type.getSubtypes());
 
-    List<String> codes = types.stream().map(t -> type.getCode()).collect(Collectors.toList());
+    List<String> codes = types.stream().map(t -> t.getCode()).distinct().collect(Collectors.toList());
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT " + eventAttribute.getColumnName() + "." + eventId.getColumnName() + " AS " + HistoricalRow.EVENT_ID);

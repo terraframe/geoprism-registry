@@ -457,7 +457,7 @@ public class GeoObjectServiceTest
   {
     JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), null);
 
-    Assert.assertEquals(1, results.size());
+    Assert.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 
@@ -473,7 +473,7 @@ public class GeoObjectServiceTest
   {
     JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), FastTestDataset.CAMBODIA.getCode(), FastTestDataset.CAMBODIA.getGeoObjectType().getCode(), FastTestDataset.HIER_ADMIN.getCode(), TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(1, results.size());
+    Assert.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 
@@ -489,7 +489,7 @@ public class GeoObjectServiceTest
   {
     JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, null);
 
-    Assert.assertEquals(1, results.size());
+    Assert.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 
@@ -505,7 +505,7 @@ public class GeoObjectServiceTest
   {
     JsonArray results = testData.adapter.getGeoObjectSuggestions(FastTestDataset.PROV_CENTRAL.getDisplayLabel().substring(0, 3), FastTestDataset.PROVINCE.getCode(), null, null, null, TestDataSet.DEFAULT_OVER_TIME_DATE);
 
-    Assert.assertEquals(1, results.size());
+    Assert.assertEquals(2, results.size());
 
     JsonObject result = results.get(0).getAsJsonObject();
 

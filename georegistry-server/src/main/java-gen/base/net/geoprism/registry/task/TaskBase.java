@@ -1,24 +1,6 @@
-/**
- * Copyright (c) 2019 TerraFrame, Inc. All rights reserved.
- *
- * This file is part of Geoprism Registry(tm).
- *
- * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
- */
 package net.geoprism.registry.task;
 
-@com.runwaysdk.business.ClassSignature(hash = -95759119)
+@com.runwaysdk.business.ClassSignature(hash = 1317728900)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -43,11 +25,12 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
   public static java.lang.String OWNER = "owner";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
+  public static java.lang.String SOURCEOID = "sourceOid";
   public static java.lang.String STATUS = "status";
   public static java.lang.String TEMPLATE = "template";
   public static java.lang.String TITLE = "title";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -95759119;
+  private static final long serialVersionUID = 1317728900;
   
   public TaskBase()
   {
@@ -365,6 +348,34 @@ public abstract class TaskBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.task.Task.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(SITEMASTER);
+  }
+  
+  public String getSourceOid()
+  {
+    return getValue(SOURCEOID);
+  }
+  
+  public void validateSourceOid()
+  {
+    this.validateAttribute(SOURCEOID);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getSourceOidMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.task.Task.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(SOURCEOID);
+  }
+  
+  public void setSourceOid(String value)
+  {
+    if(value == null)
+    {
+      setValue(SOURCEOID, "");
+    }
+    else
+    {
+      setValue(SOURCEOID, value);
+    }
   }
   
   public String getStatus()

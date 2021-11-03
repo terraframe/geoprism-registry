@@ -13,8 +13,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.commongeoregistry.adapter.Optional;
-import org.commongeoregistry.adapter.dataaccess.GeoObject;
-import org.commongeoregistry.adapter.dataaccess.GeoObjectJsonAdapters;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.RegistryRole;
 
@@ -87,13 +85,15 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   }
 
   @Transaction
-  public void addTransition(ServerGeoObjectIF source, ServerGeoObjectIF target, TransitionType transitionType, TransitionImpact impact)
+  public Transition addTransition(ServerGeoObjectIF source, ServerGeoObjectIF target, TransitionType transitionType, TransitionImpact impact)
   {
     Transition transition = new Transition();
     transition.setTransitionType(transitionType);
     transition.setImpact(impact);
     transition.setEvent(this);
     transition.apply(this, (VertexServerGeoObject) source, (VertexServerGeoObject) target);
+
+    return transition;
   }
 
   @Override
@@ -101,15 +101,15 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
   {
     return this.toJSON(false);
   }
-  
+
   public boolean readOnly()
   {
     RolePermissionService rps = ServiceFactory.getRolePermissionService();
     ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(this.getBeforeTypeCode()).get();
-    
+
     final String orgCode = this.getBeforeTypeOrgCode();
-    
-    return !(rps.isSRA() || rps.isRA(orgCode) || rps.isRM(orgCode, type) || rps.isRC(orgCode, type));
+
+    return ! ( rps.isSRA() || rps.isRA(orgCode) || rps.isRM(orgCode, type) || rps.isRC(orgCode, type) );
   }
 
   public JsonObject toJSON(boolean includeTransitions)
@@ -130,7 +130,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     object.addProperty("beforeTypeLabel", beforeType.getLabel().getValue());
     object.addProperty("afterTypeLabel", afterType.getLabel().getValue());
     object.add(TransitionEvent.DESCRIPTION, localizedValue.toJSON());
-    
+
     GsonBuilder builder = new GsonBuilder();
     JsonArray ja = builder.create().toJsonTree(new TransitionPermissionService().getPermissions(this)).getAsJsonArray();
     object.add("permissions", ja);
@@ -167,7 +167,8 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       ServerGeoObjectType afterType = ServerGeoObjectType.get(afterTypeCode);
 
       ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(beforeType.getOrganization().getCode(), beforeType);
-//      ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(afterType.getOrganization().getCode(), afterType);
+      // ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(afterType.getOrganization().getCode(),
+      // afterType);
 
       DateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
       format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -227,26 +228,26 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
 
     MdVertexDAOIF mdVertex = MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
     MdAttributeDAOIF eventDate = mdVertex.definesAttribute(TransitionEvent.EVENTDATE);
-    
+
     Map<String, Object> parameters = new HashMap<String, Object>();
 
     StringBuilder statement = new StringBuilder();
     statement.append("SELECT FROM " + mdVertex.getDBClassName());
-    
+
     addPageWhereCriteria(statement, parameters, attrConditions);
-    
+
     statement.append(" ORDER BY " + eventDate.getColumnName() + " DESC");
     statement.append(" SKIP " + ( ( pageNumber - 1 ) * pageSize ) + " LIMIT " + pageSize);
 
     GraphQuery<TransitionEvent> query = new GraphQuery<TransitionEvent>(statement.toString(), parameters);
-    
+
     return new Page<TransitionEvent>(count, pageNumber, pageSize, query.getResults());
   }
-  
+
   public static void addPageWhereCriteria(StringBuilder statement, Map<String, Object> parameters, String attrConditions)
   {
     List<String> whereConditions = new ArrayList<String>();
-    
+
     // Add permissions criteria
     if (Session.getCurrentSession() != null)
     {
@@ -256,39 +257,39 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       if (afterConditions.size() > 0 && beforeConditions.size() > 0)
       {
         StringBuilder builder = new StringBuilder();
-        
+
         builder.append("((");
         builder.append(StringUtils.join(afterConditions, " OR "));
         builder.append(") OR (");
         builder.append(StringUtils.join(beforeConditions, " OR "));
         builder.append("))");
-        
+
         whereConditions.add(builder.toString());
       }
     }
-    
+
     // Filter based on attributes
     if (attrConditions != null && attrConditions.length() > 0)
     {
       List<String> lAttrConditions = new ArrayList<String>();
       JsonArray jaAttrConditions = JsonParser.parseString(attrConditions).getAsJsonArray();
-      
+
       for (int i = 0; i < jaAttrConditions.size(); ++i)
       {
         JsonObject attrCondition = jaAttrConditions.get(i).getAsJsonObject();
-        
+
         String attr = attrCondition.get("attribute").getAsString();
-        
+
         MdVertexDAO eventMd = (MdVertexDAO) MdVertexDAO.getMdVertexDAO(TransitionEvent.CLASS);
         MdAttributeDAOIF mdAttr = eventMd.definesAttribute(attr);
-        
+
         if (attr.equals(TransitionEvent.EVENTDATE))
         {
           DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
           format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-          
+
           List<String> dateConditions = new ArrayList<String>();
-          
+
           try
           {
             if (attrCondition.has("startDate") && !attrCondition.get("startDate").isJsonNull() && attrCondition.get("startDate").getAsString().length() > 0)
@@ -308,7 +309,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
           {
             throw new ProgrammingErrorException(e);
           }
-          
+
           if (dateConditions.size() > 0)
           {
             lAttrConditions.add("(" + StringUtils.join(dateConditions, " AND ") + ")");
@@ -317,18 +318,18 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
         else if (attrCondition.has("value") && !attrCondition.get("value").isJsonNull() && attrCondition.get("value").getAsString().length() > 0)
         {
           String value = attrCondition.get("value").getAsString();
-          
+
           lAttrConditions.add(mdAttr.getColumnName() + "=:val" + i);
           parameters.put("val" + i, value);
         }
       }
-      
+
       if (lAttrConditions.size() > 0)
       {
         whereConditions.add(StringUtils.join(lAttrConditions, " AND "));
       }
     }
-    
+
     if (whereConditions.size() > 0)
     {
       statement.append(" WHERE " + StringUtils.join(whereConditions, " AND "));
