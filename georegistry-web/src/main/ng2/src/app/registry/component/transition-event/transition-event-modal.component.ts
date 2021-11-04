@@ -371,6 +371,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         for (let i = 0; i < this.event.transitions.length; ++i) {
             this.event.transitions[i].order = i;
         }
+
+        window.setTimeout(() => { this.onChange(); }, 0);
     }
 
     /* D3 Stuff */
