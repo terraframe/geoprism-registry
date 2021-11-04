@@ -61,7 +61,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
      */
     readonly: boolean = false;
 
-    render: boolean = true;
+    valid: boolean = false;
 
     draggable = {
         // note that data is handled with JSON.stringify/JSON.parse
@@ -177,6 +177,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 that.setActiveTransition(null);
             });
         }, 0);
+
+        this.validChange();
     }
 
     getTypeAheadObservable(transition: Transition, typeCode: string, property: string): Observable<any> {
@@ -221,6 +223,16 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
     localizeTransitionType(type: string): string {
         return type == null ? null : this.lService.decode("transition.event.type." + type.toLowerCase());
+    }
+
+    validChange() {
+        setTimeout(() => {
+            this.valid = (this.event.eventDate != null && this.event.eventDate.length > 0) &&
+                this.event.transitions.length > 0 &&
+                this.event.description != null &&
+                this.event.afterTypeCode != null &&
+                this.event.beforeTypeCode != null;
+        }, 0);
     }
 
     remove(index: number): void {
@@ -359,12 +371,6 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         for (let i = 0; i < this.event.transitions.length; ++i) {
             this.event.transitions[i].order = i;
         }
-
-        // this.changeDetector.detectChanges(); // Doesn't work
-        // Angular front-end is having some sort of glitch where it doesn't render the table elements properly. This is the only
-        // hack I've found which actually forces it to properly redraw the table.
-        this.render = false;
-        window.setTimeout(() => { this.render = true; this.onChange(); }, 0);
     }
 
     /* D3 Stuff */
