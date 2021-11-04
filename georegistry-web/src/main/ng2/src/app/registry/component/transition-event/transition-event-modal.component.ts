@@ -137,7 +137,10 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         }
 
         this.activeTransition = transition;
-        highlight(true, transition);
+
+        if (transition != null) {
+            highlight(true, transition);
+        }
     }
 
     onCreate(): void {
@@ -169,6 +172,9 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 let index = that.event.transitions.findIndex(trans => trans.oid === transitionOid);
 
                 that.setActiveTransition(that.event.transitions[index]);
+            });
+            d3.select("#transition-container").on("mouseleave", function(mouseEvent) {
+                that.setActiveTransition(null);
             });
         }, 0);
     }

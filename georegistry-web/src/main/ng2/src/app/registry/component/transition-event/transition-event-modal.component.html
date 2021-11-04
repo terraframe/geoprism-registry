@@ -100,7 +100,7 @@
 	                         <th style="width: 4%; vertical-align: middle;" *ngIf="!readonly"></th>
 	                        </tr>
                         </thead>
-                        <tbody *ngIf="render" class="dndList"
+                        <tbody *ngIf="render" class="dndList" id="transition-container"
                           dndDropzone
                           dndEffectAllowed="copyMove"
                           (dndDrop)="onDrop($event)"
