@@ -13,6 +13,8 @@ export class Transition {
     impact: string;
     typeUpdown?: string;
     typePart?: string;
+    order: number;
+    isNew: boolean;
 
 }
 

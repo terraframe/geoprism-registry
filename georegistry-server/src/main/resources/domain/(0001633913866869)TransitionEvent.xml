@@ -64,6 +64,7 @@
             label="Event"
             required="true"
             type="net.geoprism.registry.graph.transition.TransitionEvent" />
+          <integer name="order"></integer>
         </attributes>
       </mdVertex>
     </create>

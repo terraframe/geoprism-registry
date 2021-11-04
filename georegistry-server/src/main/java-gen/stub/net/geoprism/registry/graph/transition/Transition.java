@@ -1,6 +1,12 @@
 package net.geoprism.registry.graph.transition;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -10,10 +16,14 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.system.Roles;
 
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
+import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.task.Task;
+import net.geoprism.registry.task.Task.TaskType;
 
 public class Transition extends TransitionBase
 {
@@ -24,14 +34,35 @@ public class Transition extends TransitionBase
   }
 
   public static enum TransitionType {
-    MERGE, SPLIT, REASSIGN,
-    UPGRADE_MERGE, UPGRADE_SPLIT, UPGRADE_REASSIGN,
-    DOWNGRADE_MERGE, DOWNGRADE_SPLIT, DOWNGRADE_REASSIGN;
+    MERGE, SPLIT, REASSIGN, UPGRADE_MERGE, UPGRADE_SPLIT, UPGRADE_REASSIGN, DOWNGRADE_MERGE, DOWNGRADE_SPLIT, DOWNGRADE_REASSIGN;
+
+    public boolean isReassign()
+    {
+      return this.equals(TransitionType.REASSIGN) || this.equals(TransitionType.UPGRADE_REASSIGN) || this.equals(TransitionType.DOWNGRADE_REASSIGN);
+    }
+
+    public boolean isMerge()
+    {
+      return this.equals(TransitionType.MERGE) || this.equals(TransitionType.UPGRADE_MERGE) || this.equals(TransitionType.DOWNGRADE_MERGE);
+    }
+
+    public boolean isSplit()
+    {
+      return this.equals(TransitionType.SPLIT) || this.equals(TransitionType.UPGRADE_SPLIT) || this.equals(TransitionType.DOWNGRADE_SPLIT);
+    }
   }
 
   public Transition()
   {
     super();
+  }
+
+  @Override
+  public void delete()
+  {
+    super.delete();
+
+    Task.removeTasks(this.getOid());
   }
 
   public JsonObject toJSON()
@@ -41,6 +72,8 @@ public class Transition extends TransitionBase
 
     JsonObject object = new JsonObject();
     object.addProperty(OID, this.getOid());
+    object.addProperty(Transition.ORDER, this.getOrder());
+    object.addProperty("isNew", this.isNew());
     object.addProperty("sourceCode", source.getCode());
     object.addProperty("sourceType", source.getType().getCode());
     object.addProperty("sourceText", source.getLabel() + " (" + source.getCode() + ")");
@@ -54,19 +87,80 @@ public class Transition extends TransitionBase
   }
 
   @Transaction
-  public void apply(TransitionEvent event, VertexServerGeoObject source, VertexServerGeoObject target)
+  public void apply(TransitionEvent event, int order, VertexServerGeoObject source, VertexServerGeoObject target)
   {
     this.validate(event, source, target);
 
+    this.setOrder(order);
     this.setValue(Transition.SOURCE, source.getVertex());
     this.setValue(Transition.TARGET, target.getVertex());
 
+    boolean isModified = this.isModified(Transition.TARGET);
+    boolean isNew = this.isNew() && !this.isAppliedToDb();
+
     super.apply();
+
+    if (isNew || isModified)
+    {
+      Task.removeTasks(this.getOid());
+
+      this.createTask(source, target);
+    }
+  }
+
+  public void createTask(VertexServerGeoObject source, VertexServerGeoObject target)
+  {
+    TransitionType transitionType = this.toTransitionType();
+    ServerGeoObjectType sourceType = source.getType();
+    ServerGeoObjectType targetType = target.getType();
+
+    List<ServerGeoObjectType> types = Arrays.asList(new ServerGeoObjectType[] { sourceType, targetType }).stream().distinct().collect(Collectors.toList());
+
+    for (ServerGeoObjectType type : types)
+    {
+      List<ServerHierarchyType> hierarchies = type.getHierarchies();
+
+      for (ServerHierarchyType hierarchy : hierarchies)
+      {
+        List<ServerGeoObjectType> children = type.getChildren(hierarchy);
+
+        for (ServerGeoObjectType child : children)
+        {
+          List<Roles> roles = Arrays.asList(new String[] { child.getMaintainerRoleName(), child.getAdminRoleName() }).stream().distinct().map(name -> Roles.findRoleByName(name)).collect(Collectors.toList());
+
+          HashMap<String, LocalizedValue> values = new HashMap<String, LocalizedValue>();
+          values.put("1", source.getDisplayLabel());
+          values.put("2", sourceType.getLabel());
+          values.put("3", target.getDisplayLabel());
+          values.put("4", targetType.getLabel());
+          values.put("5", child.getLabel());
+          values.put("6", hierarchy.getLabel());
+
+          TaskType taskType = Task.TaskType.SPLIT_EVENT_TASK;
+
+          if (transitionType.isMerge())
+          {
+            taskType = Task.TaskType.MERGE_EVENT_TASK;
+          }
+          else if (transitionType.isReassign())
+          {
+            taskType = Task.TaskType.REASSIGN_EVENT_TASK;
+          }
+
+          Task.createNewTask(roles, taskType, values, this.getOid());
+        }
+      }
+    }
   }
 
   public void setTransitionType(TransitionType value)
   {
     this.setTransitionType(value.name());
+  }
+
+  public TransitionType toTransitionType()
+  {
+    return TransitionType.valueOf(this.getTransitionType());
   }
 
   public void setImpact(TransitionImpact value)
@@ -125,9 +219,9 @@ public class Transition extends TransitionBase
     }
   }
 
-  public static Transition apply(TransitionEvent event, JsonObject object)
+  public static Transition apply(TransitionEvent event, int order, JsonObject object)
   {
-    Transition transition = object.has(OID) ? Transition.get(object.get(OID).getAsString()) : new Transition();
+    Transition transition = (object.has("isNew") && object.get("isNew").getAsBoolean()) ? new Transition() : Transition.get(object.get(OID).getAsString());
     transition.setTransitionType(object.get(Transition.TRANSITIONTYPE).getAsString());
     transition.setImpact(object.get(Transition.IMPACT).getAsString());
 
@@ -145,7 +239,7 @@ public class Transition extends TransitionBase
     VertexServerGeoObject source = new VertexGeoObjectStrategy(ServerGeoObjectType.get(sourceType)).getGeoObjectByCode(sourceCode);
     VertexServerGeoObject target = new VertexGeoObjectStrategy(ServerGeoObjectType.get(targetType)).getGeoObjectByCode(targetCode);
 
-    transition.apply(event, source, target);
+    transition.apply(event, order, source, target);
 
     return transition;
   }

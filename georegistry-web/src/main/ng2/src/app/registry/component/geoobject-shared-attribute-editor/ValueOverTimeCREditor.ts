@@ -274,6 +274,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
             } else if (this.attr.type === "date") {
                 value = new Date(value).getTime();
             } else if (this.attr.type === "geometry") {
+                // Limit max precision for point geometries
                 let maxCoordinatePrecision = 6;
 
                 if (value.type === "MultiPoint") {
@@ -283,7 +284,7 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
                         coordinate[0] = Number.parseFloat(coordinate[0].toFixed(maxCoordinatePrecision));
                         coordinate[1] = Number.parseFloat(coordinate[1].toFixed(maxCoordinatePrecision));
                     }
-                } else {
+                } else if (value.type === "Point") {
                     value.coordinates = [Number.parseFloat(value.coordinates[0].toFixed(maxCoordinatePrecision)), Number.parseFloat(value.coordinates[1].toFixed(maxCoordinatePrecision))];
                 }
             }

@@ -132,7 +132,12 @@ public class LocalizedValueConverter
 
     for (Locale locale : locales)
     {
-      localizedValue.setValue(locale, map.get(locale.toString()).toString());
+      String key = locale.toString();
+
+      if (map.containsKey(key) && map.get(key) != null)
+      {
+        localizedValue.setValue(locale, map.get(key).toString());
+      }
     }
 
     return localizedValue;
