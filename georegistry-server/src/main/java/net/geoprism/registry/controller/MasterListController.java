@@ -159,9 +159,9 @@ public class MasterListController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "data")
-  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "sort") String sort)
+  public ResponseIF data(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "includeGeometries") Boolean includeGeometries, @RequestParamter(name = "pageNumber") Integer pageNumber, @RequestParamter(name = "pageSize") Integer pageSize, @RequestParamter(name = "filter") String filter, @RequestParamter(name = "sort") String sort)
   {
-    JsonObject response = this.service.data(request.getSessionId(), oid, pageNumber, pageSize, filter, sort);
+    JsonObject response = this.service.data(request.getSessionId(), oid, includeGeometries, pageNumber, pageSize, filter, sort);
 
     return new RestBodyResponse(response);
   }

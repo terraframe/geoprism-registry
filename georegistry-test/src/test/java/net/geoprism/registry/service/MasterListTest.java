@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.wololo.jts2geojson.GeoJSONReader;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -54,6 +55,7 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.AbstractClassification;
+import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.ChangeFrequency;
 import net.geoprism.registry.DuplicateMasterListException;
@@ -436,6 +438,20 @@ public class MasterListTest
   @Request
   public void testPublishVersionOfAbstract()
   {
+    dataTest(null);
+  }
+  
+  @Test
+  @Request
+  public void testFetchDataWithGeometries()
+  {
+    dataTest(true);
+  }
+  
+  private void dataTest(Boolean includeGeometries)
+  {
+    GeoJSONReader reader = new GeoJSONReader();
+    
     TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
       MasterListBuilder.Hierarchy hierarchy = new MasterListBuilder.Hierarchy();
@@ -464,7 +480,7 @@ public class MasterListTest
 
           version.publish();
 
-          JsonObject data = version.data(1, 100, null, null);
+          JsonObject data = version.data(1, 100, null, null, includeGeometries);
 
           // Entries should be HP_1, HP_2, HS_1, HS_2
           Assert.assertEquals(4, data.get("count").getAsLong());
@@ -489,6 +505,20 @@ public class MasterListTest
             else
             {
               Assert.assertEquals("", reportsTo);
+            }
+            
+            if (includeGeometries != null && includeGeometries.equals(Boolean.TRUE))
+            {
+              Assert.assertEquals(true, result.has("geometry"));
+              
+              JsonObject geometries = result.get("geometry").getAsJsonObject();
+              
+              Geometry jtsGeom = reader.read(geometries.toString());
+              Assert.assertTrue(jtsGeom.isValid());
+            }
+            else
+            {
+              Assert.assertEquals(false, result.has("geometry"));
             }
           }
         }

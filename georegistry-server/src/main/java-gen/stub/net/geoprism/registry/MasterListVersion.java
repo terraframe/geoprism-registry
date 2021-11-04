@@ -58,6 +58,7 @@ import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -122,7 +123,7 @@ import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
 import com.runwaysdk.system.scheduler.ExecutableJob;
-import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
@@ -1653,8 +1654,13 @@ public class MasterListVersion extends MasterListVersionBase
     return conditionMap;
   }
 
-  public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort)
+  public JsonObject data(Integer pageNumber, Integer pageSize, String filterJson, String sort, Boolean includeGeometries)
   {
+    if (includeGeometries == null)
+    {
+      includeGeometries = Boolean.FALSE;
+    }
+    
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
@@ -1699,14 +1705,18 @@ public class MasterListVersion extends MasterListVersionBase
 
         MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 
-        if (mdGeometry instanceof MdAttributePointDAOIF)
+        if (includeGeometries)
         {
-          Point point = (Point) row.getObjectValue(mdGeometry.definesAttribute());
-
-          if (point != null)
+          Geometry geom = (Geometry) row.getObjectValue(mdGeometry.definesAttribute());
+          
+          if (geom != null)
           {
-            object.addProperty("longitude", point.getX());
-            object.addProperty("latitude", point.getY());
+            GeoJSONWriter gw = new GeoJSONWriter();
+            org.wololo.geojson.Geometry gJSON = gw.write(geom);
+
+            JsonObject geojson = JsonParser.parseString(gJSON.toString()).getAsJsonObject();
+            
+            object.add("geometry", geojson);
           }
         }
         object.addProperty(ORIGINAL_OID, row.getValue(ORIGINAL_OID));
