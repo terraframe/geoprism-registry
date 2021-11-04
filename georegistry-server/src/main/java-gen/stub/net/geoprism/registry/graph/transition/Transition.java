@@ -111,38 +111,43 @@ public class Transition extends TransitionBase
   {
     TransitionType transitionType = this.toTransitionType();
     ServerGeoObjectType sourceType = source.getType();
-
     ServerGeoObjectType targetType = target.getType();
 
-    List<ServerHierarchyType> hierarchies = targetType.getHierarchies();
+    List<ServerGeoObjectType> types = Arrays.asList(new ServerGeoObjectType[] { sourceType, targetType }).stream().distinct().collect(Collectors.toList());
 
-    for (ServerHierarchyType hierarchy : hierarchies)
+    for (ServerGeoObjectType type : types)
     {
-      List<ServerGeoObjectType> children = targetType.getChildren(hierarchy);
+      List<ServerHierarchyType> hierarchies = type.getHierarchies();
 
-      for (ServerGeoObjectType child : children)
+      for (ServerHierarchyType hierarchy : hierarchies)
       {
-        List<Roles> roles = Arrays.asList(new String[] { child.getMaintainerRoleName(), child.getAdminRoleName() }).stream().distinct().map(name -> Roles.findRoleByName(name)).collect(Collectors.toList());
+        List<ServerGeoObjectType> children = type.getChildren(hierarchy);
 
-        HashMap<String, LocalizedValue> values = new HashMap<String, LocalizedValue>();
-        values.put("1", source.getDisplayLabel());
-        values.put("2", sourceType.getLabel());
-        values.put("3", target.getDisplayLabel());
-        values.put("4", targetType.getLabel());
-        values.put("5", child.getLabel());
-
-        TaskType taskType = Task.TaskType.SPLIT_EVENT_TASK;
-
-        if (transitionType.isMerge())
+        for (ServerGeoObjectType child : children)
         {
-          taskType = Task.TaskType.MERGE_EVENT_TASK;
-        }
-        else if (transitionType.isReassign())
-        {
-          taskType = Task.TaskType.REASSIGN_EVENT_TASK;
-        }
+          List<Roles> roles = Arrays.asList(new String[] { child.getMaintainerRoleName(), child.getAdminRoleName() }).stream().distinct().map(name -> Roles.findRoleByName(name)).collect(Collectors.toList());
 
-        Task.createNewTask(roles, taskType, values, this.getOid());
+          HashMap<String, LocalizedValue> values = new HashMap<String, LocalizedValue>();
+          values.put("1", source.getDisplayLabel());
+          values.put("2", sourceType.getLabel());
+          values.put("3", target.getDisplayLabel());
+          values.put("4", targetType.getLabel());
+          values.put("5", child.getLabel());
+          values.put("6", hierarchy.getLabel());
+
+          TaskType taskType = Task.TaskType.SPLIT_EVENT_TASK;
+
+          if (transitionType.isMerge())
+          {
+            taskType = Task.TaskType.MERGE_EVENT_TASK;
+          }
+          else if (transitionType.isReassign())
+          {
+            taskType = Task.TaskType.REASSIGN_EVENT_TASK;
+          }
+
+          Task.createNewTask(roles, taskType, values, this.getOid());
+        }
       }
     }
   }
