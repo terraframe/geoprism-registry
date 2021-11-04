@@ -125,7 +125,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
     setActiveTransition(transition: Transition) {
         let highlight = (active: boolean, trans: Transition) => {
-            let fillable = d3.selectAll('#svgHolder circle[data-goCode="' + trans.sourceCode + '"],circle[data-goCode="' + trans.targetCode + '"],text[data-goCode="' + trans.sourceCode + '"],text[data-goCode="' + trans.targetCode + '"]');
+            let fillable = d3.selectAll('#svgHolder circle[data-goCode="' + trans.sourceCode + '"][data-depth="1"],circle[data-goCode="' + trans.targetCode + '"][data-depth="2"],text[data-goCode="' + trans.sourceCode + '"][data-depth="1"],text[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
             fillable.attr("fill", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
 
             let strokeable = d3.selectAll('#svgHolder path[data-transOid="' + trans.oid + '"]');
@@ -364,7 +364,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         // Calculate new index, which may have shifted due to us removing the transition.
         let newIndex = (index > transition.order) ? index - 1 : index;
 
-        // Insert us back into the array at ne1wIndex
+        // Insert us back into the array at newIndex
         this.event.transitions.splice(newIndex, 0, transition);
 
         // Update order for all transitions as elements have shifted
@@ -433,7 +433,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     .attr("cy", (d: any) => d.x)
                     .attr("fill", (d: any) => d.children ? "#555" : "#999")
                     .attr("r", 0.9 * DRAW_SCALE_MULTIPLIER)
-                    .attr("data-goCode", (d: any) => d.data.code);
+                    .attr("data-goCode", (d: any) => d.data.code)
+                    .attr("data-depth", (d: any) => d.depth);
 
             svg.append("g")
                 .attr("font-family", "sans-serif")
@@ -452,6 +453,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 .attr("dx", (d: any) => (d.depth === 1) ? -6 : 6)
                 .text((d: any) => d.data.name)
                 .attr("data-goCode", (d: any) => d.data.code)
+                .attr("data-depth", (d: any) => d.depth)
               .filter((d: any) => d.depth === 1)
                 .attr("text-anchor", "end")
               .clone(true).lower()
