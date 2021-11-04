@@ -224,7 +224,7 @@
 	                                    <localize key="changeovertime.manageVersions.tableHeader.label.endDate"></localize>
 	                                  </h5>
 	                                  <date-field #dateFieldComponents [customStyles]="(viewModel.oldEndDate && !isNew) ? 'color: orange;' : ''" [(value)]="viewModel.endDate" label="" [inputName]="'endDate_' + i" (change)="onDateChange()" [allowInfinity]="viewModel.summaryKey !== 'DELETE' && !readonly" [allowFutureDates]="true" 
-	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate && !readonly ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
+	                                      [required]="true" [placement]="'bottom'" [oldDate]="(viewModel.oldEndDate && !isNew) ? viewModel.oldEndDate : null" [disable]="readonly || viewModel.summaryKey === 'DELETE' || filterDate != null" [title]="(filterDate != null ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : '') | localize" ></date-field>
 	                    
 	                                  <!--
 	                                  <div *ngIf="viewModel.oldEndDate && !isNew">
@@ -246,9 +246,23 @@
 	                          
 	                        </td>
 	                        
-	                        <td *ngIf="!readonly && (!this.isNew || attributeType.code !== 'exists') && (filterDate == null || (viewModel.summaryKey !== 'UNMODIFIED' && viewModel.summaryKey !== 'NEW'))" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize">
-	                          <i class="fa" [class]="{'fa-times' : viewModel.summaryKey === 'UNMODIFIED', 'fa-undo' : viewModel.summaryKey !== 'UNMODIFIED'}" ></i>
-	                        </td>
+                          
+<!--                             <td *ngIf="!readonly && (!this.isNew || attributeType.code !== 'exists') && (filterDate == null || (viewModel.summaryKey !== 'UNMODIFIED' && viewModel.summaryKey !== 'NEW'))" (click)="remove(viewModel)" class="manage-version-button clickable" [title]="(viewModel.summaryKey === 'UNMODIFIED' ? 'changeovertime.manageVersions.remove.version' : 'changeovertime.manageVersions.revert.version') | localize"> -->
+
+              
+                            <!-- Remove button -->
+                            <td *ngIf="!readonly && (!isNew || attributeType.code !== 'exists') && (viewModel.summaryKey === 'UNMODIFIED' && viewModel.summaryKey !== 'NEW')"
+                                [attr.disabled]="attributeType.code === 'exists' || filterDate != null" 
+                                (click)="remove(viewModel)" class="manage-version-button clickable" 
+                                [title]="(filterDate ? 'changeovertime.manageVersions.date.editing.needs.fullview.message' : 'changeovertime.manageVersions.remove.version') | localize">
+                                <i class="fa" class="fa fa-times" ></i> 
+                            </td>
+                            <!-- Revert button -->
+                            <td *ngIf="!readonly && (!isNew || attributeType.code !== 'exists') && viewModel.summaryKey !== 'UNMODIFIED'"
+                                (click)="remove(viewModel)" class="manage-version-button clickable" 
+                                [title]="('changeovertime.manageVersions.revert.version') | localize">
+                                <i class="fa" class="fa fa-undo" ></i> 
+                            </td>
 	                      </tr>
 	                    </ng-container>
                     </tbody>

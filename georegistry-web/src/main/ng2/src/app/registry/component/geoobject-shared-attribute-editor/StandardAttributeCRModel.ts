@@ -15,6 +15,8 @@ export class StandardAttributeCRModel {
 
     editAction: AbstractAction;
 
+    code: string;
+
     private _isValid: boolean = true;
 
     constructor(attr: AttributeType, geoObject: GeoObjectOverTime, cr: ChangeRequest) {

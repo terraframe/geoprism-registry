@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-md-12">
-    <stability-period *ngIf="showStabilityPeriods" [changeRequestEditor]="changeRequestEditor" [sharedAttributeEditor]="this" [filterDate]="filterDate" [latestPeriodIsActive]="filterDate == null && changeRequestEditor.changeRequest.isNew"></stability-period>
+    <stability-period *ngIf="showStabilityPeriods" [showHint]="!readOnly" [changeRequestEditor]="changeRequestEditor" [sharedAttributeEditor]="this" [forDate]="forDate" [context]="datasetId == null ? 'EXPLORER' : 'LIST'" [filterDate]="filterDate" [latestPeriodIsActive]="filterDate == null && changeRequestEditor.changeRequest.isNew"></stability-period>
   </div>
 </div>
 
@@ -142,7 +142,10 @@
         <div *ngIf="showAllInstances || changeRequestEditor.getEditorForAttribute(getAttribute('invalid')).hasChanges()" class="panel panel-default">
           <div class="panel-heading">
             <h4 style="margin:0;">
-              <span>{{getAttribute('invalid').label.localizedValue}}</span> 
+              <!-- <span>{{getAttribute('invalid').label.localizedValue}}</span>  -->
+              
+                <localize key="geoObjectType.attr.valid"></localize>
+              
             </h4>
           </div>
             

@@ -66,8 +66,6 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     tabIndex: number = 0;
 
-    isContributorOnly: boolean = false;
-
     // The current state of the GeoObject in the GeoRegistry
 //    @Input() action: Action = null;
 
@@ -92,6 +90,10 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     @Input() filterDate: string = null;
 
+    // used in context of a list where reference back to the list forDate is needed
+    @Input() forDate: string = null;
+    @Input() datasetId: string = null;
+
     // TODO : This was copy / pasted into manage-versions.component::onDateChange and ChangeRequestEditor::generateAttributeEditors
     geoObjectAttributeExcludes: string[] = ["uid", "sequence", "type", "lastUpdateDate", "createDate", "invalid", "exists"];
 
@@ -105,8 +107,9 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
     showStabilityPeriods = false;
 
+    // eslint-disable-next-line no-useless-constructor
     constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
-        this.isContributorOnly = this.authService.isContributerOnly();
+
     }
 
     ngOnInit(): void {
@@ -149,7 +152,12 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
 
         let got = this.changeRequest.current ? this.changeRequest.current.geoObjectType : this.postGeoObject.geoObjectType;
         let orgCode = got.organizationCode;
-        this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
+
+        // Don't show the stability bar on the Change Requests page.
+        // Change Requests don't have oid when the page is loaded for non-change request use cases.
+        if (!this.changeRequest.oid) {
+            this.showStabilityPeriods = (this.authService.isSRA() || this.authService.isOrganizationRA(orgCode) || this.authService.isGeoObjectTypeOrSuperRM(got) || this.authService.isGeoObjectTypeOrSuperRC(got));
+        }
 
         this.showAllInstances = (this.changeRequestEditor.changeRequest.isNew || this.changeRequestEditor.changeRequest.type === "CreateGeoObject");
     }
