@@ -175,11 +175,9 @@ public class TransitionEventTest
       event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
       event.apply();
 
-      Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+      Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.DOWNGRADE_REASSIGN, TransitionImpact.FULL);
 
-      List<Task> tasks = Task.getTasks(transition.getOid());
-
-      Assert.assertEquals(3, tasks.size());
+      Assert.assertEquals(6, Task.getTasks(transition.getOid()).size());
 
       List<Transition> transitions = event.getTransitions();
 
@@ -190,6 +188,48 @@ public class TransitionEventTest
       VertexServerGeoObject target = transition.getTargetVertex();
 
       Assert.assertEquals(FastTestDataset.CAMBODIA.getCode(), source.getCode());
+      Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
+    }
+    finally
+    {
+      event.delete();
+    }
+
+    // Ensure that the unresolved tasks are deleted on event delete
+    Assert.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
+  }
+
+  @Test
+  @Request
+  public void testAddTransitionSameType()
+  {
+    long beforeCount = new TaskQuery(new QueryFactory()).getCount();
+
+    TransitionEvent event = new TransitionEvent();
+
+    try
+    {
+      LocalizedValueConverter.populate(event, TransitionEvent.DESCRIPTION, new LocalizedValue("Test"));
+      event.setEventDate(FastTestDataset.DEFAULT_OVER_TIME_DATE);
+      event.setBeforeTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setBeforeTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+      event.setAfterTypeCode(FastTestDataset.PROVINCE.getCode());
+      event.setAfterTypeOrgCode(FastTestDataset.PROVINCE.getOrganization().getCode());
+      event.apply();
+
+      Transition transition = event.addTransition(FastTestDataset.PROV_WESTERN.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
+
+      Assert.assertEquals(3, Task.getTasks(transition.getOid()).size());
+
+      List<Transition> transitions = event.getTransitions();
+
+      Assert.assertEquals(1, transitions.size());
+
+      transition = transitions.get(0);
+      VertexServerGeoObject source = transition.getSourceVertex();
+      VertexServerGeoObject target = transition.getTargetVertex();
+
+      Assert.assertEquals(FastTestDataset.PROV_WESTERN.getCode(), source.getCode());
       Assert.assertEquals(FastTestDataset.PROV_CENTRAL.getCode(), target.getCode());
     }
     finally
@@ -222,7 +262,7 @@ public class TransitionEventTest
 
       List<Task> tasks = Task.getTasks(transition.getOid());
 
-      Assert.assertEquals(3, tasks.size());
+      Assert.assertEquals(6, tasks.size());
     }
     finally
     {

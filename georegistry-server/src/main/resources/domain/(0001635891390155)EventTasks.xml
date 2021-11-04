@@ -19,7 +19,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="tasks.event.split.template" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="The Geo-Object [{1}] of a Geo-Object Type [{2}] has split into the Geo-Object [{3}] of a Geo-Object Type [{4}].  Please reassign the [{5}] children." />
+          <attribute name="defaultLocale" value="The Geo-Object [{1}] of type [{2}] has split into the Geo-Object [{3}] of type [{4}].  Please reassign the [{5}] children for the hierarchy [{6}]." />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.split.title">
@@ -34,7 +34,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="tasks.event.merge.template" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="The Geo-Object [{1}] of a Geo-Object Type [{2}] has merged into the Geo-Object [{3}] of a Geo-Object Type [{4}].  Please reassign the [{5}] children." />
+          <attribute name="defaultLocale" value="The Geo-Object [{1}] of type [{2}] has merged into the Geo-Object [{3}] of type [{4}].  Please reassign the [{5}] children for the hierarchy [{6}]." />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.merge.title">
@@ -49,7 +49,7 @@
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="tasks.event.reassign.template" />
         <attributeStruct name="storeValue">
-          <attribute name="defaultLocale" value="The Geo-Object [{1}] of a Geo-Object Type [{2}] has been reassigned to the Geo-Object [{3}] of a Geo-Object Type [{4}].  Please reassign the [{5}] children." />
+          <attribute name="defaultLocale" value="The Geo-Object [{1}] of type [{2}] has been reassigned to the Geo-Object [{3}] of type [{4}].  Please reassign the [{5}] children for the hierarchy [{6}]." />
         </attributeStruct>
       </object>
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="tasks.event.reassign.title">
@@ -60,6 +60,20 @@
         </attributeStruct>
       </object>
     </createOrUpdate>
+    <permissions>
+      <role roleName="cgr.RegistryMaintainer">
+        <grant>
+          <mdBusinessPermission type="net.geoprism.registry.task.Task">
+            <operation name="ALL" />
+          </mdBusinessPermission>
+        </grant>
+        <grant>
+          <mdRelationshipPermission type="net.geoprism.registry.task.TaskHasRole">
+            <operation name="ALL" />
+          </mdRelationshipPermission>
+        </grant>
+      </role>
+    </permissions>    
   </doIt>
   <undoIt>
     <delete>
