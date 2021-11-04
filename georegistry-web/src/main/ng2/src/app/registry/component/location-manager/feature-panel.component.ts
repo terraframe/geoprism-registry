@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from "@angular/core";
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 
@@ -178,6 +178,11 @@ export class FeaturePanelComponent implements OnInit {
 
     onEditAttributes(): void {
         this.setEditMode(!this.isEdit);
+
+        window.document.getElementById("navigator-left-sidebar").scroll({
+            top: 0,
+            behavior: "smooth"
+        });
     }
 
     setEditMode(value: boolean): void {

@@ -86,6 +86,7 @@ export class StandardAttributeEditorComponent implements OnInit {
         summaryKeyLocalized: string;
         oldValue?: any;
         value: any;
+        attributeCode: string;
     };
 
     @Input() changeRequestEditor: ChangeRequestEditor;
@@ -113,7 +114,8 @@ export class StandardAttributeEditorComponent implements OnInit {
             this.view = {
                 value: newVal,
                 summaryKey: SummaryKey.VALUE_CHANGE,
-                summaryKeyLocalized: this.lService.decode("changeovertime.manageVersions.summaryKey." + SummaryKey.VALUE_CHANGE)
+                summaryKeyLocalized: this.lService.decode("changeovertime.manageVersions.summaryKey." + SummaryKey.VALUE_CHANGE),
+                attributeCode: this.changeRequestAttributeEditor.attribute.code
             };
 
             if (diff.oldValue !== null && diff.oldValue !== undefined) {
@@ -123,7 +125,8 @@ export class StandardAttributeEditorComponent implements OnInit {
             this.view = {
                 value: this.changeRequestAttributeEditor.value,
                 summaryKey: SummaryKey.UNMODIFIED,
-                summaryKeyLocalized: this.lService.decode("changeovertime.manageVersions.summaryKey." + SummaryKey.UNMODIFIED)
+                summaryKeyLocalized: this.lService.decode("changeovertime.manageVersions.summaryKey." + SummaryKey.UNMODIFIED),
+                attributeCode: this.changeRequestAttributeEditor.attribute.code
             };
         }
     }

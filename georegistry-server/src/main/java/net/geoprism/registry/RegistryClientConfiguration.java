@@ -173,7 +173,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     GeoprismApplication historicalEvents = new GeoprismApplication();
     historicalEvents.setId("historicalEvents");
     historicalEvents.setLabel(LocalizationFacadeDTO.getFromBundles(request, "historical.events"));
-    historicalEvents.setSrc("net/geoprism/images/settings.svg");
+    historicalEvents.setSrc("net/geoprism/images/historical-events.svg");
     historicalEvents.setUrl("cgr/manage#/registry/historical-events");
     historicalEvents.setDescription(LocalizationFacadeDTO.getFromBundles(request, "historical.events.description"));
     historicalEvents.addRole(RoleConstants.ADIM_ROLE);

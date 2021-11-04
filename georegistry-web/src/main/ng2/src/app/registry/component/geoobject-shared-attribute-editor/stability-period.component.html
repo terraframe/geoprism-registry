@@ -1,10 +1,22 @@
-<div *ngIf="dataTimeSpan">
-    <span>
+<div *ngIf="dataTimeSpan" style="margin-bottom:10px;">
+    <span style="margin-left:20px;">
       <localize key="manage.versions.historyTitle"></localize>
-      <a *ngIf="this.activeEntry" (click)="setActiveTimelineEntry(null)" class="view-all"><localize key="manage.versions.history.viewAll"></localize></a>
-      <span *ngIf="!this.activeEntry" class="viewing-all"><localize key="manage.versions.history.viewingAll"></localize></span>
+      
+      <span>
+        <a *ngIf="activeEntry" (click)="setActiveTimelineEntry(null)" class="view-all">(<localize key="manage.versions.history.viewAll"></localize>)</a>
+        <div [@fadeInOut] *ngIf="_showHint" id="time-hint">
+            <localize key="changeovertime.manageVersions.time.hint.message"></localize>
+        </div>
+        
+        <a *ngIf="!activeEntry && forDate && context === 'LIST'" (click)="setActiveTimelineEntry(forDateEntry)" class="view-all">(<localize key="manage.versions.history.viewListPeriod"></localize>)</a>
+        <a *ngIf="!activeEntry && forDate && context === 'EXPLORER'" (click)="setActiveTimelineEntry(forDateEntry)" class="view-all">(<localize key="manage.versions.history.viewExplorerPeriod"></localize>)</a>
+        <span *ngIf="!activeEntry && !forDate" class="view-all">
+          (<localize key="manage.versions.history.viewingAll"></localize>)
+        </span>
+      </span>
+
     </span>
-    <span style="float: right">
+    <span style="float:right;color:#6ba542;margin-right:20px;">
       <ng-container *ngIf="activeEntry">
 		      {{activeEntry.period.startDate}}
 		      -
@@ -16,13 +28,25 @@
           {{dataTimeSpan.displayEndDate}}
       </ng-container>
     </span>
-	  <div *ngFor="let timeline of timelines" class="timeline">
+	  
+    <div style="padding: 0 20px;">
+        <div *ngFor="let timeline of timelines" class="timeline">
 	      <a *ngFor="let entry of timeline" class="timeline-entry" [ngClass]="{'active-timeline-entry': this.activeEntry == null || (this.activeEntry != null && entry.period.startDate === this.activeEntry.period.startDate), 'not-clickable': periods.length <= 1}" (click)="setActiveTimelineEntry(entry)" [ngStyle]="{'width': entry.width + '%', 'left': entry.x + '%'}">
 	      </a>
-	  </div>
+	    </div>
+        
+        <div class="timeline-nav-btn-wrapper">
+<!--           <div class="timeline-nav-btn"> -->
+              <a (click)="navigateRelative(-1)" style=""><i class="fa fa-chevron-left "></i></a>
+<!--           </div> -->
+<!--           <div class="timeline-nav-btn"> -->
+              <a (click)="navigateRelative(1)" style=""><i class="fa fa-chevron-right "></i></a> 
+<!--           </div> -->
+        </div>
+    </div>
 
-	  <div *ngIf="periods.length > 1" class="navigation-controls" style="padding-top:5px;">
-	    <a (click)="navigateRelative(-1)" style="float:left;"><i class="fa fa-chevron-left"></i></a>
-	    <a (click)="navigateRelative(1)" style="float:right;"><i class="fa fa-chevron-right"></i></a>
-	  </div>
+<!-- 	  <div *ngIf="periods.length > 1" class="navigation-controls" style="padding-top:5px;"> -->
+<!-- 	    <a (click)="navigateRelative(-1)" style="float:left;"><i class="fa fa-chevron-left"></i></a> -->
+<!-- 	    <a (click)="navigateRelative(1)" style="float:right;"><i class="fa fa-chevron-right"></i></a> -->
+<!-- 	  </div> -->
 </div>

@@ -1,4 +1,11 @@
 import { Component, OnInit, Input } from "@angular/core";
+import {
+    trigger,
+    style,
+    animate,
+    transition,
+    state
+} from "@angular/animations";
 
 import { TimeRangeEntry } from "@registry/model/registry";
 import { LocalizationService } from "@shared/service";
@@ -24,7 +31,25 @@ export interface DataTimeSpan {startDay: number, startDate: string, displayStart
 @Component({
     selector: "stability-period",
     templateUrl: "./stability-period.component.html",
-    styleUrls: ["./stability-period.component.css"]
+    styleUrls: ["./stability-period.component.css"],
+    animations: [
+        [
+            trigger("fadeInOut", [
+                transition(":enter", [
+                    style({
+                        opacity: 0
+                    }),
+                    animate("1000ms")
+                ]),
+                transition(":leave",
+                    animate("1000ms",
+                        style({
+                            opacity: 0
+                        })
+                    )
+                )
+            ])
+        ]]
 })
 export class StabilityPeriodComponent implements OnInit {
 
@@ -34,6 +59,10 @@ export class StabilityPeriodComponent implements OnInit {
 
     @Input() filterDate: string;
 
+    @Input() forDate: string;
+
+    @Input() context: string;
+
     @Input() latestPeriodIsActive: boolean = false;
 
     periods: TimeRangeEntry[] = [];
@@ -42,10 +71,23 @@ export class StabilityPeriodComponent implements OnInit {
 
     activeEntry: TimelineEntry = null;
 
+    forDateEntry: TimelineEntry = null;
+
     private infinityDayPadding: number = 15;
 
     dataTimeSpan: DataTimeSpan = null;
 
+    _showHint: boolean = false;
+    // eslint-disable-next-line accessor-pairs
+    @Input() set showHint(val: boolean) {
+        this._showHint = val;
+
+        setTimeout(() => {
+            this.showHint = false;
+        }, 10000);
+    }
+
+    // eslint-disable-next-line no-useless-constructor
     constructor(private lService: LocalizationService, public dateService: DateService) {}
 
     ngOnInit(): void {
@@ -65,6 +107,14 @@ export class StabilityPeriodComponent implements OnInit {
                 }
             } else if (this.latestPeriodIsActive) {
                 this.setActiveTimelineEntry(timeline[timeline.length - 1]);
+            }
+
+            if (this.forDate != null) {
+                let forDateIndex = timeline.findIndex(entry => this.dateService.between(this.forDate, entry.period.startDate, entry.period.endDate));
+
+                if (forDateIndex !== -1) {
+                    this.forDateEntry = timeline[forDateIndex];
+                }
             }
         }
     }
@@ -98,7 +148,7 @@ export class StabilityPeriodComponent implements OnInit {
             entry = null;
         }
 
-        if (this.activeEntry != null && entry != null && entry.period.startDate === this.activeEntry.period.startDate) {
+        if (this.activeEntry && entry && entry.period.startDate === this.activeEntry.period.startDate) {
             entry = null;
         }
 
