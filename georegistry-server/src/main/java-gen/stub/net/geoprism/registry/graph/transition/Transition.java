@@ -73,6 +73,7 @@ public class Transition extends TransitionBase
     JsonObject object = new JsonObject();
     object.addProperty(OID, this.getOid());
     object.addProperty(Transition.ORDER, this.getOrder());
+    object.addProperty("isNew", this.isNew());
     object.addProperty("sourceCode", source.getCode());
     object.addProperty("sourceType", source.getType().getCode());
     object.addProperty("sourceText", source.getLabel() + " (" + source.getCode() + ")");
@@ -220,7 +221,7 @@ public class Transition extends TransitionBase
 
   public static Transition apply(TransitionEvent event, int order, JsonObject object)
   {
-    Transition transition = object.has(OID) ? Transition.get(object.get(OID).getAsString()) : new Transition();
+    Transition transition = (object.has("isNew") && object.get("isNew").getAsBoolean()) ? new Transition() : Transition.get(object.get(OID).getAsString());
     transition.setTransitionType(object.get(Transition.TRANSITIONTYPE).getAsString());
     transition.setImpact(object.get(Transition.IMPACT).getAsString());
 

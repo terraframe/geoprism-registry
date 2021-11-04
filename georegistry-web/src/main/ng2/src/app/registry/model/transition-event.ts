@@ -14,6 +14,7 @@ export class Transition {
     typeUpdown?: string;
     typePart?: string;
     order: number;
+    isNew: boolean;
 
 }
 

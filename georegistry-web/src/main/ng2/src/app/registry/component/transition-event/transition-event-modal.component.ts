@@ -143,6 +143,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     onCreate(): void {
         this.event.transitions.push({
             oid: uuid.v4(),
+            isNew: true,
             sourceCode: "",
             sourceType: "",
             targetCode: "",
