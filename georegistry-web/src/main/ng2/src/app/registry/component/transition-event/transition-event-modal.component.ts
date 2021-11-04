@@ -1,3 +1,5 @@
+/* eslint-disable indent */
+/* eslint-disable quotes */
 import { Component, OnDestroy, OnInit, ViewChild, ChangeDetectorRef } from "@angular/core";
 import { BsModalRef } from "ngx-bootstrap/modal";
 import { Observable, Subject } from "rxjs";
@@ -12,6 +14,7 @@ import { Transition, TransitionEvent } from "@registry/model/transition-event";
 import { TransitionEventService } from "@registry/service/transition-event.service";
 
 import { DndDropEvent } from "ngx-drag-drop";
+import * as uuid from "uuid";
 
 /* D3 Stuffs */
 import * as d3 from "d3";
@@ -20,6 +23,8 @@ export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
 export const VIEWPORT_SCALE_FACTOR_X: number = 1.0;
 export const VIEWPORT_SCALE_FACTOR_Y: number = 1.0;
+
+export const ACTIVE_TRANSITION_HIGHLIGHT_COLOR: string = "purple";
 
 @Component({
     selector: "transition-event-modal",
@@ -33,6 +38,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     message: string = null;
 
     event: TransitionEvent = null;
+
+    activeTransition: Transition = null;
 
     /*
      * Observable subject for MasterList changes.  Called when an update is successful
@@ -111,11 +118,31 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             };
         }
 
-        setTimeout(() => { this.onChange(); }, 0);
+        setTimeout(() => {
+            this.onChange();
+        }, 0);
+    }
+
+    setActiveTransition(transition: Transition) {
+        let highlight = (active: boolean, trans: Transition) => {
+            let fillable = d3.selectAll('#svgHolder circle[data-goCode="' + trans.sourceCode + '"],circle[data-goCode="' + trans.targetCode + '"],text[data-goCode="' + trans.sourceCode + '"],text[data-goCode="' + trans.targetCode + '"]');
+            fillable.attr("fill", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
+
+            let strokeable = d3.selectAll('#svgHolder path[data-transOid="' + trans.oid + '"]');
+            strokeable.attr("stroke", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
+        };
+
+        if (this.activeTransition != null) {
+            highlight(false, this.activeTransition);
+        }
+
+        this.activeTransition = transition;
+        highlight(true, transition);
     }
 
     onCreate(): void {
         this.event.transitions.push({
+            oid: uuid.v4(),
             sourceCode: "",
             sourceType: "",
             targetCode: "",
@@ -129,6 +156,20 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     onChange(): void {
         this.calculateDerivedAttributes();
         this.renderVisual();
+
+        // Register highlight event listeners
+        let that = this;
+
+        setTimeout(() => {
+            d3.selectAll(".transition").on("mouseover", function(mouseEvent) {
+                let d3This: any = this;
+                let transitionOid = d3This.getAttribute("data-transOid");
+
+                let index = that.event.transitions.findIndex(trans => trans.oid === transitionOid);
+
+                that.setActiveTransition(that.event.transitions[index]);
+            });
+        }, 0);
     }
 
     getTypeAheadObservable(transition: Transition, typeCode: string, property: string): Observable<any> {
@@ -312,13 +353,11 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             this.event.transitions[i].order = i;
         }
 
-        this.onChange();
-
         // this.changeDetector.detectChanges(); // Doesn't work
         // Angular front-end is having some sort of glitch where it doesn't render the table elements properly. This is the only
         // hack I've found which actually forces it to properly redraw the table.
         this.render = false;
-        window.setTimeout(() => { this.render = true; }, 0);
+        window.setTimeout(() => { this.render = true; this.onChange(); }, 0);
     }
 
     /* D3 Stuff */
@@ -365,7 +404,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     .attr("d", (d: any) => `
                       M${d.target.y},${d.target.x}
                        ${d.source.y},${d.source.x}
-                    `);
+                    `)
+                    .attr("data-transOid", (d: any) => d.source.data.name === "root" ? null : appData.linkDataMappings[d.source.data.code + ":" + d.target.data.code]);
 
             svg.append("g")
                 .selectAll("circle")
@@ -377,7 +417,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     .attr("cx", (d: any) => d.y)
                     .attr("cy", (d: any) => d.x)
                     .attr("fill", (d: any) => d.children ? "#555" : "#999")
-                    .attr("r", 0.9 * DRAW_SCALE_MULTIPLIER);
+                    .attr("r", 0.9 * DRAW_SCALE_MULTIPLIER)
+                    .attr("data-goCode", (d: any) => d.data.code);
 
             svg.append("g")
                 .attr("font-family", "sans-serif")
@@ -395,6 +436,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 .attr("dy", "0.31em")
                 .attr("dx", (d: any) => (d.depth === 1) ? -6 : 6)
                 .text((d: any) => d.data.name)
+                .attr("data-goCode", (d: any) => d.data.code)
               .filter((d: any) => d.depth === 1)
                 .attr("text-anchor", "end")
               .clone(true).lower()
@@ -405,11 +447,12 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     .attr("d", () => `
                       M${link.parent.y},${link.parent.x}
                        ${link.child.y},${link.child.x}
-                    `);
+                    `)
+                    .attr("data-transOid", () => link.oid);
             });
 
             // return svg.attr("viewBox", autoBox).node();
-        }
+        };
 
         chart();
 
@@ -432,7 +475,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             if (parentNode != null && childNode != null) {
                 multipleParentLinks.push({
                     parent: parentNode,
-                    child: childNode
+                    child: childNode,
+                    oid: link.oid
                 });
             }
         });
@@ -446,6 +490,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     generateAppData(): any {
         let children = [];
         let multipleParentLinks = []; // D3 can't handle multiple parents so we have to draw them ourselves.
+        let linkDataMappings = {}; // D3 doesn't allow us to put data on the link itself. Our link needs an oid. So this is a hack to store data on a link.
 
         let isChildOfOtherNode = (code: string) => {
             for (let i = 0; i < children.length; ++i) {
@@ -468,6 +513,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.event.transitions.forEach(trans => {
             if (trans.sourceCode != null && trans.sourceCode !== "" && trans.targetCode != null && trans.targetCode !== "") {
                 let index = children.findIndex(child => child.code === trans.sourceCode);
+                linkDataMappings[trans.sourceCode + ":" + trans.targetCode] = trans.oid;
 
                 let childExists = isChildOfOtherNode(trans.targetCode);
                 let grandChild = null;
@@ -480,6 +526,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     };
                 } else {
                     multipleParentLinks.push({
+                        oid: trans.oid,
                         child: {
                             code: trans.targetCode,
                             text: trans.targetText,
@@ -523,7 +570,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 name: "root",
                 children: children
             },
-            multipleParentLinks: multipleParentLinks
+            multipleParentLinks: multipleParentLinks,
+            linkDataMappings: linkDataMappings
         };
     }
 
