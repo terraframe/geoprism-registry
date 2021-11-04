@@ -22,6 +22,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
+import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 
@@ -34,6 +35,7 @@ import net.geoprism.registry.graph.transition.TransitionEvent;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.task.Task;
+import net.geoprism.registry.task.TaskQuery;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestUserInfo;
 import net.geoprism.registry.view.HistoricalRow;
@@ -159,6 +161,8 @@ public class TransitionEventTest
   @Request
   public void testAddTransition()
   {
+    long beforeCount = new TaskQuery(new QueryFactory()).getCount();
+
     TransitionEvent event = new TransitionEvent();
 
     try
@@ -192,6 +196,9 @@ public class TransitionEventTest
     {
       event.delete();
     }
+
+    // Ensure that the unresolved tasks are deleted on event delete
+    Assert.assertEquals(beforeCount, new TaskQuery(new QueryFactory()).getCount());
   }
 
   @Test
