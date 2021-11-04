@@ -211,7 +211,7 @@ public class TransitionEventTest
       event.apply();
 
       Transition transition = event.addTransition(FastTestDataset.CAMBODIA.getServerObject(), FastTestDataset.PROV_CENTRAL.getServerObject(), TransitionType.REASSIGN, TransitionImpact.FULL);
-      transition.apply(event, (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject(), (VertexServerGeoObject) FastTestDataset.PROV_WESTERN.getServerObject());
+      transition.apply(event, transition.getOrder(), (VertexServerGeoObject) FastTestDataset.CAMBODIA.getServerObject(), (VertexServerGeoObject) FastTestDataset.PROV_WESTERN.getServerObject());
 
       List<Task> tasks = Task.getTasks(transition.getOid());
 
