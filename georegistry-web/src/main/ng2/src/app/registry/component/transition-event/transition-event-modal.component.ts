@@ -24,7 +24,7 @@ export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 export const VIEWPORT_SCALE_FACTOR_X: number = 1.0;
 export const VIEWPORT_SCALE_FACTOR_Y: number = 1.0;
 
-export const ACTIVE_TRANSITION_HIGHLIGHT_COLOR: string = "purple";
+export const ACTIVE_TRANSITION_HIGHLIGHT_COLOR: string = "#6BA542"; // #3E2A5A or "purple"
 
 @Component({
     selector: "transition-event-modal",
@@ -125,7 +125,10 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
     setActiveTransition(transition: Transition) {
         let highlight = (active: boolean, trans: Transition) => {
-            let fillable = d3.selectAll('#svgHolder circle[data-goCode="' + trans.sourceCode + '"][data-depth="1"],circle[data-goCode="' + trans.targetCode + '"][data-depth="2"],text[data-goCode="' + trans.sourceCode + '"][data-depth="1"],text[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
+            let colorable = d3.selectAll('#svgHolder p[data-goCode="' + trans.sourceCode + '"][data-depth="1"],p[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
+            colorable.style("color", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
+
+            let fillable = d3.selectAll('#svgHolder circle[data-goCode="' + trans.sourceCode + '"][data-depth="1"],circle[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
             fillable.attr("fill", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
 
             let strokeable = d3.selectAll('#svgHolder path[data-transOid="' + trans.oid + '"]');
@@ -441,23 +444,39 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 .attr("font-size", 2 * DRAW_SCALE_MULTIPLIER)
                 .attr("stroke-linejoin", "round")
                 .attr("stroke-width", 3)
-              .selectAll("text")
+              .selectAll("foreignObject")
               .data(root.descendants())
-              .join("text")
+              .join("foreignObject")
                 .style("display", function(d: any) {
                     return d.depth === 0 ? "none" : null;
                 })
-                .attr("x", (d: any) => d.y)
-                .attr("y", (d: any) => d.x)
-                .attr("dy", "0.31em")
-                .attr("dx", (d: any) => (d.depth === 1) ? -6 : 6)
-                .text((d: any) => d.data.name)
+                .attr("x", (d: any) => (d.y + ((d.depth === 1) ? -13 : 1)))
+                .attr("y", (d: any) => (d.x) + ((d.depth === 1) ? -1 : -2))
+                .attr("font-size", "0.7em")
+                .attr("font-family", "sans-serif")
+                .attr("font-weight", "bold")
+                //.attr("stroke-linejoin", "round")
+                //.attr("stroke-width", 3)
+                .attr("width", 12)
+                .attr("height", 5)
+              .append("xhtml:p")
+                .attr("xmlns", "http://www.w3.org/1999/xhtml")
                 .attr("data-goCode", (d: any) => d.data.code)
                 .attr("data-depth", (d: any) => d.depth)
-              .filter((d: any) => d.depth === 1)
-                .attr("text-anchor", "end")
-              .clone(true).lower()
-                .attr("stroke", "white");
+                //.attr("text-anchor", "start")
+                //.attr("text-align", "left")
+                .style("vertical-align", "middle")
+                //.style("display", "table-cell")
+                .style("line-height", 1.5)
+                .style("color", "gray")
+                .style("padding-left", "0.4px")
+                // .style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
+                //.style("height", "10px")
+                .html((d: any) => d.data.name);
+              //.filter((d: any) => d.depth === 1)
+              //  .attr("text-anchor", "end")
+              //.clone(true).lower()
+              //  .attr("stroke", "white");
 
             renderingData.multipleParentLinks.forEach(function(link) {
                 links.append("path")
@@ -474,6 +493,8 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         chart();
 
         this.calculateSvgViewBox();
+
+        this.setActiveTransition(this.event.transitions[0]);
     }
 
     generateRenderingData(appData: any): any {
@@ -482,7 +503,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         const root: any = d3.hierarchy(appData.d3Data).sort((a, b) => d3.ascending(a.data.order, b.data.order));
         root.dx = 5 * DRAW_SCALE_MULTIPLIER;
         root.dy = width / (root.height + 1);
-        let d3RenderingData = d3.tree().nodeSize([root.dx, root.dy])(root);
+        let d3RenderingData = d3.tree().nodeSize([root.dx, root.dy]).separation(() => 1.5)(root);
 
         let multipleParentLinks = [];
         appData.multipleParentLinks.forEach(function(link) {
@@ -599,7 +620,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         let { x, y, width, height } = svgNode.getBBox();
 
         const xPadding = 0;
-        const yPadding = 0;
+        const yPadding = 2;
         svg.attr("viewBox", (x - xPadding) + " " + (y - yPadding) + " " + (width + xPadding * 2) * VIEWPORT_SCALE_FACTOR_X + " " + (height + yPadding * 2) * VIEWPORT_SCALE_FACTOR_Y);
 
         // width = (width + xPadding * 2) * VIEWPORT_SCALE_FACTOR_X;
