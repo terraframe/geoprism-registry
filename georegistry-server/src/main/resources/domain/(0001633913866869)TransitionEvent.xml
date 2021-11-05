@@ -473,7 +473,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Before Type" />
+            value="Before Type Code" />
         </attributeStruct>
       </object>
       <object
@@ -518,7 +518,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="After Type" />
+            value="After Type Code" />
         </attributeStruct>
       </object>
       <object

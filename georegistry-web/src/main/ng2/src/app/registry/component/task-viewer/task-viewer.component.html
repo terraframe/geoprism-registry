@@ -15,7 +15,7 @@
         <div class="content-wrapper">
 	        <div *ngFor="let task of inProgressTasks.results | paginate: { id: 'inProgressTasks', itemsPerPage: inProgressTasks.pageSize, currentPage: inProgressTasks.pageNumber, totalItems: inProgressTasks.count }" class="panel panel-default">
 	          <div class="panel-heading">
-	            <h4>{{upper(task.title)}}</h4>
+	            <h4>{{task.title}}</h4>
 	          </div>
 	          
 	          <div class="panel-body">
@@ -65,7 +65,7 @@
         <div class="content-wrapper" *ngIf="isViewAllOpen && completedTasks.results.length > 0">
           <div *ngFor="let task of completedTasks.results | paginate: { id: 'completedTasks', itemsPerPage: completedTasks.pageSize, currentPage: completedTasks.pageNumber, totalItems: completedTasks.count }" class="panel panel-default">
             <div class="panel-heading">
-              <h4>{{upper(task.title)}}</h4>
+              <h4>{{task.title}}</h4>
             </div>
             
             <div class="panel-body">

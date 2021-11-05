@@ -46,14 +46,6 @@ export class TaskViewerComponent implements OnInit {
         this.onInProgressTasksPageChange(1);
     }
 
-    upper(str: string): string {
-        if (str != null) {
-            return str.toUpperCase();
-        } else {
-            return "";
-        }
-    }
-
     onInProgressTasksPageChange(pageNumber: any): void {
         this.taskService.getMyTasks(pageNumber, this.inProgressTasks.pageSize, "UNRESOLVED").then(page => {
             this.inProgressTasks = page;
