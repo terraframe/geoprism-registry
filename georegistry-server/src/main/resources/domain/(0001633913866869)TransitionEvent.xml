@@ -473,7 +473,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="Before Type" />
+            value="Before Type Code" />
         </attributeStruct>
       </object>
       <object
@@ -518,7 +518,7 @@
         <attributeStruct name="storeValue">
           <attribute
             name="defaultLocale"
-            value="After Type" />
+            value="After Type Code" />
         </attributeStruct>
       </object>
       <object
@@ -594,6 +594,21 @@
           <attribute
             name="defaultLocale"
             value="Historical Events" />
+        </attributeStruct>
+      </object>
+      <object
+        type="com.runwaysdk.localization.LocalizedValueStore"
+        key="tasks.hideCompletedTasksButton">
+        <attribute
+          name="storeTag"
+          value="UIText" />
+        <attribute
+          name="storeKey"
+          value="tasks.hideCompletedTasksButton" />
+        <attributeStruct name="storeValue">
+          <attribute
+            name="defaultLocale"
+            value="Hide Completed Tasks" />
         </attributeStruct>
       </object>
     </createOrUpdate>

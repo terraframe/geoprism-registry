@@ -338,10 +338,10 @@ public class MasterListService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject data(String sessionId, String oid, Integer pageNumber, Integer pageSize, String filter, String sort)
+  public JsonObject data(String sessionId, String oid, Boolean includeGeometries, Integer pageNumber, Integer pageSize, String filter, String sort)
   {
     MasterListVersion version = MasterListVersion.get(oid);
-    return version.data(pageNumber, pageSize, filter, sort);
+    return version.data(pageNumber, pageSize, filter, sort, includeGeometries);
   }
 
   @Request(RequestType.SESSION)

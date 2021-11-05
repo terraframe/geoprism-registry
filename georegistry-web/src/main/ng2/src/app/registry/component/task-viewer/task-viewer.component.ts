@@ -46,14 +46,6 @@ export class TaskViewerComponent implements OnInit {
         this.onInProgressTasksPageChange(1);
     }
 
-    upper(str: string): string {
-        if (str != null) {
-            return str.toUpperCase();
-        } else {
-            return "";
-        }
-    }
-
     onInProgressTasksPageChange(pageNumber: any): void {
         this.taskService.getMyTasks(pageNumber, this.inProgressTasks.pageSize, "UNRESOLVED").then(page => {
             this.inProgressTasks = page;
@@ -76,8 +68,9 @@ export class TaskViewerComponent implements OnInit {
                 this.inProgressTasks.results.splice(index, 1);
             }
 
-            this.completedTasks.results.push(task);
-            // this.onCompletedTasksPageChange(1);
+            if(this.isViewAllOpen) {
+                this.onCompletedTasksPageChange(this.completedTasks.pageNumber);
+            }
         });
     }
 
@@ -96,10 +89,12 @@ export class TaskViewerComponent implements OnInit {
         });
     }
 
-    onViewAllCompletedTasks(): void {
-        this.isViewAllOpen = true;
+    onToggleCompletedTasks(): void {
+        this.isViewAllOpen = !this.isViewAllOpen;
 
-        this.onCompletedTasksPageChange(1);
+        if (this.isViewAllOpen) {
+            this.onCompletedTasksPageChange(1);
+        }
     }
 
     formatDate(date: string): string {

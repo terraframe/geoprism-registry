@@ -18,6 +18,7 @@
  */
 package net.geoprism.registry.conversion;
 
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -45,6 +46,7 @@ import com.runwaysdk.session.Session;
 import com.runwaysdk.system.Roles;
 import com.runwaysdk.system.gis.geo.Universal;
 
+import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -77,6 +79,28 @@ public class LocalizedValueConverter
     }
 
     return label;
+  }
+
+  public static LocalizedValue convert(Date date)
+  {
+    LocalizedValue dateValue = LocalizedValue.createEmptyLocalizedValue();
+
+    // Add the default locale
+    {
+      DateFormat formatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);
+      formatter.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      dateValue.setValue(LocalizedValue.DEFAULT_LOCALE, formatter.format(date));
+    }
+
+    // Add the individual locales
+    LocalizationFacade.getInstalledLocales().forEach(locale -> {
+      DateFormat formatter = DateFormat.getDateInstance(DateFormat.SHORT, locale);
+      formatter.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+      String format = formatter.format(date);
+
+      dateValue.setValue(locale, format);
+    });
+    return dateValue;
   }
 
   public static LocalizedValue convertNoAutoCoalesce(LocalStruct localStruct)

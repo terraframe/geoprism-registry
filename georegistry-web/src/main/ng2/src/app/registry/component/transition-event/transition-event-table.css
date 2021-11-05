@@ -4,6 +4,10 @@
 	transform: translateY(-50%);
 }
 
+.fa.fa-pencil {
+	margin-right:10px;
+}
+
 .status-pending {
 	color: orange;
 }

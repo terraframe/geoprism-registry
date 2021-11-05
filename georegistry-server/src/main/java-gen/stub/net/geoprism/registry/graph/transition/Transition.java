@@ -1,12 +1,15 @@
 package net.geoprism.registry.graph.transition;
 
+import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.RegistryRole;
 
 import com.google.gson.JsonObject;
 import com.runwaysdk.business.graph.GraphQuery;
@@ -16,8 +19,11 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.system.Roles;
 
+import net.geoprism.registry.GeoRegistryUtil;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -104,12 +110,14 @@ public class Transition extends TransitionBase
     {
       Task.removeTasks(this.getOid());
 
-      this.createTask(source, target);
+      this.createTask(source, target, event.getEventDate());
     }
   }
 
-  public void createTask(VertexServerGeoObject source, VertexServerGeoObject target)
+  public void createTask(VertexServerGeoObject source, VertexServerGeoObject target, Date eventDate)
   {
+    LocalizedValue dateValue = LocalizedValueConverter.convert(eventDate);
+
     TransitionType transitionType = this.toTransitionType();
     ServerGeoObjectType sourceType = source.getType();
     ServerGeoObjectType targetType = target.getType();
@@ -135,6 +143,7 @@ public class Transition extends TransitionBase
           values.put("4", targetType.getLabel());
           values.put("5", child.getLabel());
           values.put("6", hierarchy.getLabel());
+          values.put("7", dateValue);
 
           TaskType taskType = Task.TaskType.SPLIT_EVENT_TASK;
 
@@ -221,7 +230,7 @@ public class Transition extends TransitionBase
 
   public static Transition apply(TransitionEvent event, int order, JsonObject object)
   {
-    Transition transition = (object.has("isNew") && object.get("isNew").getAsBoolean()) ? new Transition() : Transition.get(object.get(OID).getAsString());
+    Transition transition = ( object.has("isNew") && object.get("isNew").getAsBoolean() ) ? new Transition() : Transition.get(object.get(OID).getAsString());
     transition.setTransitionType(object.get(Transition.TRANSITIONTYPE).getAsString());
     transition.setImpact(object.get(Transition.IMPACT).getAsString());
 
