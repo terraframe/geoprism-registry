@@ -126,7 +126,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     setActiveTransition(transition: Transition) {
         let highlight = (active: boolean, trans: Transition) => {
             let colorable = d3.selectAll('#svgHolder p[data-goCode="' + trans.sourceCode + '"][data-depth="1"],p[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
-            colorable.style("color", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
+            colorable.style("color", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : "gray");
 
             let fillable = d3.selectAll('#svgHolder circle[data-goCode="' + trans.sourceCode + '"][data-depth="1"],circle[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
             fillable.attr("fill", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
@@ -451,32 +451,25 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     return d.depth === 0 ? "none" : null;
                 })
                 .attr("x", (d: any) => (d.y + ((d.depth === 1) ? -13 : 1)))
-                .attr("y", (d: any) => (d.x) + ((d.depth === 1) ? -1 : -2))
+                .attr("y", (d: any) => (d.x) + ((d.depth === 1) ? -2 : -3))
                 .attr("font-size", "0.7em")
                 .attr("font-family", "sans-serif")
                 .attr("font-weight", "bold")
-                //.attr("stroke-linejoin", "round")
-                //.attr("stroke-width", 3)
                 .attr("width", 12)
-                .attr("height", 5)
+                .attr("height", 8)
               .append("xhtml:p")
                 .attr("xmlns", "http://www.w3.org/1999/xhtml")
                 .attr("data-goCode", (d: any) => d.data.code)
                 .attr("data-depth", (d: any) => d.depth)
-                //.attr("text-anchor", "start")
-                //.attr("text-align", "left")
+                .style("margin", "0.5px")
                 .style("vertical-align", "middle")
-                //.style("display", "table-cell")
                 .style("line-height", 1.5)
                 .style("color", "gray")
                 .style("padding-left", "0.4px")
-                // .style("width", SvgHierarchyType.gotRectW - 32 + 5 + "px")
-                //.style("height", "10px")
-                .html((d: any) => d.data.name);
-              //.filter((d: any) => d.depth === 1)
-              //  .attr("text-anchor", "end")
-              //.clone(true).lower()
-              //  .attr("stroke", "white");
+                .style("padding-top", "0.2px")
+                .html((d: any) => d.data.name)
+              .filter((d: any) => d.depth === 1)
+                .style("text-align", "right");
 
             renderingData.multipleParentLinks.forEach(function(link) {
                 links.append("path")
@@ -493,8 +486,6 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         chart();
 
         this.calculateSvgViewBox();
-
-        this.setActiveTransition(this.event.transitions[0]);
     }
 
     generateRenderingData(appData: any): any {
