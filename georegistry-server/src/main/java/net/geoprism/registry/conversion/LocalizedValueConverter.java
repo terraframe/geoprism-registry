@@ -87,14 +87,14 @@ public class LocalizedValueConverter
 
     // Add the default locale
     {
-      DateFormat formatter = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.US);
+      DateFormat formatter = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);
       formatter.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
       dateValue.setValue(LocalizedValue.DEFAULT_LOCALE, formatter.format(date));
     }
 
     // Add the individual locales
     LocalizationFacade.getInstalledLocales().forEach(locale -> {
-      DateFormat formatter = DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
+      DateFormat formatter = DateFormat.getDateInstance(DateFormat.SHORT, locale);
       formatter.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
       String format = formatter.format(date);
 
