@@ -1,0 +1,106 @@
+<version xsi:noNamespaceSchemaLocation="classpath:com/runwaysdk/resources/xsd/version.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <doIt>
+  
+      <createOrUpdate>
+      
+         <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewAll">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="manage.versions.history.viewAll" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="view all periods" />
+            </attributeStruct>
+          </object>
+      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewingAll">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="manage.versions.history.viewingAll" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="viewing all periods" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewListPeriod">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="manage.versions.history.viewListPeriod" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="view list period" />
+            </attributeStruct>
+          </object>
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="manage.versions.history.viewExplorerPeriod">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="manage.versions.history.viewExplorerPeriod" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="view selected period" />
+            </attributeStruct>
+          </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoobject.editor.tabOne">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="geoobject.editor.tabOne" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="Hierarchies" />
+            </attributeStruct>
+          </object>
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.must.enable.all.time">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="changeovertime.manageVersions.must.enable.all.time" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="All historical changes must be displayed to edit dates." />
+            </attributeStruct>
+          </object>
+          
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="changeovertime.manageVersions.time.hint.message">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="changeovertime.manageVersions.time.hint.message" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="View all periods to add or edit time periods." />
+            </attributeStruct>
+          </object>
+          
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.requests.more.geoobject.updates.message">
+            <attribute name="storeTag" value="UIText" />
+            <attribute name="storeKey" value="change.requests.more.geoobject.updates.message" />
+            <attributeStruct name="storeValue">
+              <attribute name="defaultLocale" value="This change request has been fully implemented. If more changes are needed please use the editor to submit further edits." />
+            </attributeStruct>
+          </object>
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="geoObjectType.attr.valid">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="geoObjectType.attr.valid" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Valid" />
+	        </attributeStruct>
+	      </object>
+	      
+	      
+          
+          
+          <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.boolean.option.true">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.boolean.option.true" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Valid" />
+	        </attributeStruct>
+	      </object>
+	      
+	      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.boolean.option.false">
+	        <attribute name="storeTag" value="UIText" />
+	        <attribute name="storeKey" value="change.request.boolean.option.false" />
+	        <attributeStruct name="storeValue">
+	          <attribute name="defaultLocale" value="Invalid" />
+	        </attributeStruct>
+	      </object>
+      
+    </createOrUpdate>
+    <create></create>
+    <update></update>
+  </doIt>
+  <undoIt>
+    <delete></delete>
+  </undoIt>
+</version>
