@@ -68,8 +68,9 @@ export class TaskViewerComponent implements OnInit {
                 this.inProgressTasks.results.splice(index, 1);
             }
 
-            this.completedTasks.results.push(task);
-            // this.onCompletedTasksPageChange(1);
+            if(this.isViewAllOpen) {
+                this.onCompletedTasksPageChange(this.completedTasks.pageNumber);
+            }
         });
     }
 
@@ -88,10 +89,12 @@ export class TaskViewerComponent implements OnInit {
         });
     }
 
-    onViewAllCompletedTasks(): void {
-        this.isViewAllOpen = true;
+    onToggleCompletedTasks(): void {
+        this.isViewAllOpen = !this.isViewAllOpen;
 
-        this.onCompletedTasksPageChange(1);
+        if (this.isViewAllOpen) {
+            this.onCompletedTasksPageChange(1);
+        }
     }
 
     formatDate(date: string): string {
