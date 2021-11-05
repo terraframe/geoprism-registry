@@ -24,7 +24,10 @@ export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 export const VIEWPORT_SCALE_FACTOR_X: number = 1.0;
 export const VIEWPORT_SCALE_FACTOR_Y: number = 1.0;
 
-export const ACTIVE_TRANSITION_HIGHLIGHT_COLOR: string = "#6BA542"; // #3E2A5A or "purple"
+export const GRAPH_ACTIVE_TRANSITION_HIGHLIGHT_COLOR: string = "#6BA542"; // #3E2A5A or "purple"
+export const GRAPH_GO_LABEL_COLOR: string = "black";
+export const GRAPH_CIRCLE_FILL: string = "#999";
+export const GRAPH_LINE_COLOR: string = "#999";
 
 @Component({
     selector: "transition-event-modal",
@@ -126,13 +129,13 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     setActiveTransition(transition: Transition) {
         let highlight = (active: boolean, trans: Transition) => {
             let colorable = d3.selectAll('#svgHolder p[data-goCode="' + trans.sourceCode + '"][data-depth="1"],p[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
-            colorable.style("color", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : "gray");
+            colorable.style("color", active ? GRAPH_ACTIVE_TRANSITION_HIGHLIGHT_COLOR : GRAPH_GO_LABEL_COLOR);
 
             let fillable = d3.selectAll('#svgHolder circle[data-goCode="' + trans.sourceCode + '"][data-depth="1"],circle[data-goCode="' + trans.targetCode + '"][data-depth="2"]');
-            fillable.attr("fill", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
+            fillable.attr("fill", active ? GRAPH_ACTIVE_TRANSITION_HIGHLIGHT_COLOR : GRAPH_CIRCLE_FILL);
 
             let strokeable = d3.selectAll('#svgHolder path[data-transOid="' + trans.oid + '"]');
-            strokeable.attr("stroke", active ? ACTIVE_TRANSITION_HIGHLIGHT_COLOR : null);
+            strokeable.attr("stroke", active ? GRAPH_ACTIVE_TRANSITION_HIGHLIGHT_COLOR : GRAPH_LINE_COLOR);
         };
 
         if (this.activeTransition != null) {
@@ -410,7 +413,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
 
             let links = svg.append("g")
                 .attr("fill", "none")
-                .attr("stroke", "#555")
+                .attr("stroke", GRAPH_LINE_COLOR)
                 .attr("stroke-opacity", 0.4)
                 .attr("stroke-width", 0.4 * DRAW_SCALE_MULTIPLIER);
             links.selectAll("path")
@@ -434,7 +437,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     })
                     .attr("cx", (d: any) => d.y)
                     .attr("cy", (d: any) => d.x)
-                    .attr("fill", (d: any) => d.children ? "#555" : "#999")
+                    .attr("fill", (d: any) => GRAPH_CIRCLE_FILL)
                     .attr("r", 0.9 * DRAW_SCALE_MULTIPLIER)
                     .attr("data-goCode", (d: any) => d.data.code)
                     .attr("data-depth", (d: any) => d.depth);
@@ -464,7 +467,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 .style("margin", "0.5px")
                 .style("vertical-align", "middle")
                 .style("line-height", 1.5)
-                .style("color", "gray")
+                .style("color", GRAPH_GO_LABEL_COLOR)
                 .style("padding-left", "0.4px")
                 .style("padding-top", "0.2px")
                 .html((d: any) => d.data.name)
