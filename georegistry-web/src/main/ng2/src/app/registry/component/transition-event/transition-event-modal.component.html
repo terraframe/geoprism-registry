@@ -124,7 +124,7 @@
                                   <!--
                                   <a dndHandle style="font-size:25px; color: black; cursor: move;" class="fa fa-bars"></a>
                                   -->
-                                  <a style="font-size:25px; color: black; cursor: move;" class="fa fa-bars"></a>
+                                  <a style="font-size:25px; color: #969696; cursor: move;" class="fa fa-bars"></a>
                                 </td>
                                 <td>
                                     <div class="input-group">
@@ -198,9 +198,11 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div *ngIf="!readonly" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                    <div *ngIf="!readonly" style="margin-left: 6px; margin-top: 30px; margin-bottom: 30px;" class="row">
                         <div class="col-md-6">
-                            <a class="fa fa-plus" style="font-size:30px;" (click)="onCreate()"></a>
+                            <i class="fa fa-plus clickable" (click)="onCreate()"> 
+                                <localize key="changeovertime.manageVersions.newVersion"></localize>
+                            </i>
                         </div>
                     </div>
 
