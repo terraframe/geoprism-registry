@@ -23,6 +23,7 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.runwaysdk.constants.ClientRequestIF;
 import com.runwaysdk.controller.ServletMethod;
 import com.runwaysdk.mvc.Controller;
@@ -43,6 +44,14 @@ public class HierarchyController
   public HierarchyController()
   {
     this.registryService = RegistryService.getInstance();
+  }
+  
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "groupedTypes")
+  public ResponseIF initializeRelationshipVisualizer(ClientRequestIF request)
+  {
+    JsonElement json = ServiceFactory.getHierarchyService().initializeRelationshipVisualizer(request.getSessionId(), null, null, null);
+
+    return new RestBodyResponse(json);
   }
   
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "groupedTypes")

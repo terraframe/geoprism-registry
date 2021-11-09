@@ -12,11 +12,12 @@ import { NgxPaginationModule } from "ngx-pagination";
 import { ProgressbarModule } from "ngx-bootstrap/progressbar";
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { TabsModule } from "ngx-bootstrap/tabs";
-import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
-import { ExportSystemModalComponent } from './component/master-list/export-system-modal.component';
+import { ImportTypesModalComponent } from "./component/hierarchy/modals/import-types-modal.component";
+import { ExportSystemModalComponent } from "./component/master-list/export-system-modal.component";
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
+import { RelationshipVisualizerComponent } from "./component/relationship-visualizer/relationship-visualizer.component";
 import { CreateHierarchyTypeModalComponent } from "./component/hierarchy/modals/create-hierarchy-type-modal.component";
 import { AddChildToHierarchyModalComponent } from "./component/hierarchy/modals/add-child-to-hierarchy-modal.component";
 import { CreateGeoObjTypeModalComponent } from "./component/hierarchy/modals/create-geoobjtype-modal.component";
@@ -71,8 +72,8 @@ import { RowValidationProblemWidgetComponent } from "./component/scheduled-jobs/
 import { StepIndicatorComponent } from "./component/scheduled-jobs/step-indicator.component";
 import { ImportProblemWidgetComponent } from "./component/scheduled-jobs/conflict-widgets/import-problem-widget.component";
 import { TaskViewerComponent } from "./component/task-viewer/task-viewer.component";
-import { FhirExportSynchronizationConfigComponent } from './component/synchronization-config/fhir-export-synchronization-config.component';
-import { Dhis2SynchronizationConfigComponent } from './component/synchronization-config/dhis2-synchronization-config.component';
+import { FhirExportSynchronizationConfigComponent } from "./component/synchronization-config/fhir-export-synchronization-config.component";
+import { Dhis2SynchronizationConfigComponent } from "./component/synchronization-config/dhis2-synchronization-config.component";
 import { SynchronizationConfigManagerComponent } from "./component/synchronization-config/synchronization-config-manager.component";
 import { SynchronizationConfigModalComponent } from "./component/synchronization-config/synchronization-config-modal.component";
 import { SynchronizationConfigComponent } from "./component/synchronization-config/synchronization-config.component";
@@ -138,6 +139,7 @@ import { DndModule } from "ngx-drag-drop";
     ],
     declarations: [
         HierarchyComponent,
+        RelationshipVisualizerComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
         ImportTypesModalComponent,
@@ -184,7 +186,6 @@ import { DndModule } from "ngx-drag-drop";
         CascadingGeoSelector,
         TreeGeoSelector,
         ActionDetailModalComponent,
-        HierarchyComponent,
         DataImporterComponent,
         DataExportComponent,
         // Master List screens

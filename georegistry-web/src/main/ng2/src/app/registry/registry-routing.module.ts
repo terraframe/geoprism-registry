@@ -12,6 +12,7 @@ import { ChangeRequestPageComponent } from "./component/change-request-page/chan
 import { ScheduledJobsComponent } from "./component/scheduled-jobs/scheduled-jobs.component";
 import { JobComponent } from "./component/scheduled-jobs/job.component";
 import { TaskViewerComponent } from "./component/task-viewer/task-viewer.component";
+import { RelationshipVisualizerComponent } from "./component/relationship-visualizer/relationship-visualizer.component";
 import { SynchronizationConfigManagerComponent } from "./component/synchronization-config/synchronization-config-manager.component";
 import { SynchronizationConfigComponent } from "./component/synchronization-config/synchronization-config.component";
 import { SyncDetailsComponent } from "./component/synchronization-config/details.component";
@@ -80,6 +81,11 @@ const routes: Routes = [
     {
         path: "tasks",
         component: TaskViewerComponent,
+        canActivate: [MaintainerGuard]
+    },
+    {
+        path: "relationship-visualizer",
+        component: RelationshipVisualizerComponent,
         canActivate: [MaintainerGuard]
     },
     {

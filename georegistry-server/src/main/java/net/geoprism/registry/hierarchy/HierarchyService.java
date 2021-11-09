@@ -30,6 +30,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyNode;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
@@ -52,7 +53,37 @@ import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class HierarchyService
 {
-
+  @Request(RequestType.SESSION)
+  public JsonElement initializeRelationshipVisualizer(String sessionId, String hierarchyCode, String goCode, String goTypeCode)
+  {
+//    final HierarchyTypePermissionServiceIF hierarchyPermissions = ServiceFactory.getHierarchyPermissionService();
+//    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
+//    final RolePermissionService rps = ServiceFactory.getRolePermissionService();
+//    final boolean isSRA = rps.isSRA();
+//
+    JsonObject view = new JsonObject();
+//    
+//    ServerHierarchyType sht = ServiceFactory.getMetadataCache().getHierachyType(hierarchyCode).get();
+//    
+//    final String htOrgCode = sht.getOrganizationCode();
+//    final HierarchyType ht = sht.getType();
+//
+//    if (hierarchyPermissions.canRead(ht.getOrganizationCode()) && ( isSRA || rps.isRA(htOrgCode) || rps.isRM(htOrgCode) ))
+//    {
+//      view.addProperty("code", ht.getCode());
+//      view.addProperty("label", ht.getLabel().getValue());
+//      view.addProperty("orgCode", ht.getOrganizationCode());
+//      
+//      Iterator<HierarchyNode> it = ht.getAllNodesIterator();
+//      
+//      HierarchyNode root = it.next();
+//      
+//      GeoObjectType rootGot = root.getGeoObjectType();
+//    }
+//    
+    return view;
+  }
+  
   @Request(RequestType.SESSION)
   public JsonArray getHierarchyGroupedTypes(String sessionId)
   {
