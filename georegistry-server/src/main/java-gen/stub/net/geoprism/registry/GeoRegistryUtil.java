@@ -4,22 +4,23 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +41,12 @@ import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 
 import net.geoprism.registry.conversion.ServerHierarchyTypeBuilder;
+import net.geoprism.registry.excel.ListTypeExcelExporter;
 import net.geoprism.registry.excel.MasterListExcelExporter;
+import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.service.ServiceFactory;
+import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.shapefile.MasterListShapefileExporter;
 import net.geoprism.registry.xml.XMLImporter;
 
@@ -63,7 +67,7 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     {
       return "null";
     }
-    
+
     if (!includeTime)
     {
       SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -85,6 +89,54 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     Instant i = Instant.from(ta);
     Date d = Date.from(i);
     return d;
+  }
+
+  public static String formatDate(Date date, boolean includeTime)
+  {
+    if (date != null)
+    {
+
+      if (!includeTime)
+      {
+        SimpleDateFormat formatter = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        formatter.setTimeZone(SYSTEM_TIMEZONE);
+        return formatter.format(date);
+      }
+      else
+      {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        formatter.setTimeZone(SYSTEM_TIMEZONE);
+        return formatter.format(date);
+      }
+    }
+
+    return null;
+  }
+
+  public static Date parseDate(String date)
+  {
+    if (date != null && date.length() > 0)
+    {
+
+      try
+      {
+        SimpleDateFormat format = new SimpleDateFormat(GeoObjectImportConfiguration.DATE_FORMAT);
+        format.setTimeZone(SYSTEM_TIMEZONE);
+
+        return format.parse(date);
+      }
+      catch (ParseException e)
+      {
+        throw new ProgrammingErrorException(e);
+      }
+    }
+
+    return null;
+  }
+
+  public static boolean isBetweenInclusive(Date versionDate, Date startDate, Date endDate)
+  {
+    return ( versionDate.after(startDate) || versionDate.equals(startDate) ) && ( versionDate.before(endDate) || versionDate.equals(endDate) );
   }
 
   @Authenticate
@@ -111,8 +163,9 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
-    
-    if (filterJson.contains("invalid")) {
+
+    if (filterJson.contains("invalid"))
+    {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
 
@@ -136,10 +189,11 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
 
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
 
-    if (filterJson.contains("invalid")) {
+    if (filterJson.contains("invalid"))
+    {
       mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
     }
-    
+
     try
     {
       MasterListExcelExporter exporter = new MasterListExcelExporter(version, mdBusiness, mdAttributes, filterJson, null);
@@ -152,6 +206,56 @@ public class GeoRegistryUtil extends GeoRegistryUtilBase
     }
   }
 
+  @Transaction
+  public static InputStream exportListTypeShapefile(String oid, String filterJson)
+  {
+    ListTypeVersion version = ListTypeVersion.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
+    
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
+    
+    if (filterJson.contains("invalid"))
+    {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
+    }
+    
+    try
+    {
+      ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, filterJson);
+      
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+  
+  @Transaction
+  public static InputStream exportListTypeExcel(String oid, String filterJson)
+  {
+    ListTypeVersion version = ListTypeVersion.get(oid);
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
+    
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
+    
+    if (filterJson.contains("invalid"))
+    {
+      mdAttributes = mdAttributes.stream().filter(mdAttribute -> !mdAttribute.definesAttribute().equals("invalid")).collect(Collectors.toList());
+    }
+    
+    try
+    {
+      ListTypeExcelExporter exporter = new ListTypeExcelExporter(version, mdBusiness, mdAttributes, filterJson, null);
+      
+      return exporter.export();
+    }
+    catch (IOException e)
+    {
+      throw new ProgrammingErrorException(e);
+    }
+  }
+  
   @Authenticate
   public static void importTypes(String orgCode, InputStream istream)
   {

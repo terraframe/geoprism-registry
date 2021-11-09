@@ -42,16 +42,16 @@ import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.MasterList;
 import net.geoprism.registry.MasterListVersion;
 import net.geoprism.registry.etl.PublishMasterListJob;
-import net.geoprism.registry.service.MasterListService;
+import net.geoprism.registry.service.ListTypeService;
 
 @Controller(url = "master-list")
 public class MasterListController
 {
-  private MasterListService service;
+  private ListTypeService service;
 
   public MasterListController()
   {
-    this.service = new MasterListService();
+    this.service = new ListTypeService();
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-all")
