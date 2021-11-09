@@ -40,17 +40,18 @@ import com.runwaysdk.system.scheduler.JobHistoryQuery;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.InvalidMasterListException;
+import net.geoprism.registry.ListTileCache;
 import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeEntry;
+import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
-import net.geoprism.registry.TileCache;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
 import net.geoprism.registry.etl.PublishListTypeJob;
 import net.geoprism.registry.etl.PublishListTypeJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.permission.RolePermissionService;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
 import net.geoprism.registry.ws.GlobalNotificationMessage;
@@ -88,7 +89,7 @@ public class ListTypeService
     {
       ListType listType = ListType.get(oid);
 
-      this.enforceWritePermissions(listType, ListTypeVersion.PUBLISHED);
+      this.enforceWritePermissions(listType);
 
       listType.delete();
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
@@ -109,14 +110,15 @@ public class ListTypeService
       throw new InvalidMasterListException();
     }
 
-    this.enforceWritePermissions(listType, ListTypeVersion.EXPLORATORY);
+    this.enforceWritePermissions(listType);
 
-    ListTypeVersion version = listType.createVersion(forDate, ListTypeVersion.EXPLORATORY);
-    version.publish();
+    ListTypeEntry entry = listType.createEntry(forDate);
+    entry.publish();
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-    return version.toJSON(false);
+    return entry.toJSON();
+    // return entry.toJSON(false);
   }
 
   @Request(RequestType.SESSION)
@@ -124,7 +126,7 @@ public class ListTypeService
   {
     ListType listType = ListType.get(oid);
 
-    this.enforceWritePermissions(listType, ListTypeVersion.PUBLISHED);
+    this.enforceWritePermissions(listType);
 
     listType.publishVersions();
   }
@@ -134,7 +136,7 @@ public class ListTypeService
   {
     ListType listType = ListType.get(oid);
 
-    this.enforceWritePermissions(listType, ListTypeVersion.PUBLISHED);
+    this.enforceWritePermissions(listType);
 
     QueryFactory factory = new QueryFactory();
 
@@ -191,46 +193,45 @@ public class ListTypeService
     return page;
   }
 
-  // @Request(RequestType.SESSION)
-  // public JsonObject publishVersion(String sessionId, String oid)
-  // {
-  // ListTypeVersion version = ListTypeVersion.get(oid);
-  //
-  // this.enforceWritePermissions(version.getListType(),
-  // version.getVersionType());
-  //
-  // QueryFactory factory = new QueryFactory();
-  //
-  // PublishListTypeVersionJobQuery query = new
-  // PublishListTypeVersionJobQuery(factory);
-  // query.WHERE(query.getListTypeVersion().EQ(version));
-  //
-  // JobHistoryQuery q = new JobHistoryQuery(factory);
-  // q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED,
-  // AllJobStatus.RUNNING));
-  // q.AND(q.job(query));
-  //
-  // if (q.getCount() > 0)
-  // {
-  // throw new DuplicateJobException("This master list version has already been
-  // queued for publishing");
-  // }
-  //
-  // PublishListTypeVersionJob job = new PublishListTypeVersionJob();
-  // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
-  // job.setListTypeVersion(version);
-  // job.setListType(version.getListType());
-  // job.apply();
-  //
-  // NotificationFacade.queue(new
-  // GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
-  //
-  // final JobHistory history = job.start();
-  //
-  // JsonObject resp = new JsonObject();
-  // resp.addProperty("jobOid", history.getOid());
-  // return resp;
-  // }
+  @Request(RequestType.SESSION)
+  public JsonObject publishVersion(String sessionId, String oid)
+  {
+    ListTypeEntry version = ListTypeEntry.get(oid);
+
+    this.enforceWritePermissions(version.getListType());
+
+    QueryFactory factory = new QueryFactory();
+
+    // PublishListTypeVersionJobQuery query = new
+    // PublishListTypeVersionJobQuery(factory);
+    // query.WHERE(query.getListTypeVersion().EQ(version));
+    //
+    // JobHistoryQuery q = new JobHistoryQuery(factory);
+    // q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED,
+    // AllJobStatus.RUNNING));
+    // q.AND(q.job(query));
+    //
+    // if (q.getCount() > 0)
+    // {
+    // throw new DuplicateJobException("This master list version has already
+    // been queued for publishing");
+    // }
+    //
+    // PublishListTypeVersionJob job = new PublishListTypeVersionJob();
+    // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    // job.setListTypeVersion(version);
+    // job.setListType(version.getListType());
+    // job.apply();
+    //
+    // NotificationFacade.queue(new
+    // GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+    //
+    // final JobHistory history = job.start();
+
+    JsonObject resp = new JsonObject();
+    // resp.addProperty("jobOid", history.getOid());
+    return resp;
+  }
 
   // @Request(RequestType.SESSION)
   // public String generateShapefile(String sessionId, String oid)
@@ -280,7 +281,7 @@ public class ListTypeService
   {
     ListType listType = ListType.get(oid);
 
-    return listType.toVersionJson();
+    return listType.getEntryJson();
   }
 
   @Request(RequestType.SESSION)
@@ -339,7 +340,7 @@ public class ListTypeService
     {
       ListTypeVersion version = ListTypeVersion.get(oid);
 
-      this.enforceWritePermissions(version.getListType(), ListTypeVersion.PUBLISHED);
+      this.enforceWritePermissions(version.getEntry().getListType());
 
       version.delete();
 
@@ -351,37 +352,39 @@ public class ListTypeService
     }
   }
 
-//  @Request(RequestType.SESSION)
-//  public JsonArray getAllVersions(String sessionId)
-//  {
-//    JsonArray response = new JsonArray();
-//
-//    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-//    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
-//
-//    try (OIterator<? extends ListType> it = query.getIterator())
-//    {
-//      while (it.hasNext())
-//      {
-//        ListType list = it.next();
-//        final boolean isMember = Organization.isMember(list.getOrganization());
-//
-//        if (isMember || list.getVisibility().equals(ListType.PUBLIC))
-//        {
-//          response.add(list.toJSON(ListTypeVersion.PUBLISHED));
-//        }
-//      }
-//    }
-//
-//    return response;
-//  }
+  @Request(RequestType.SESSION)
+  public JsonArray getAllVersions(String sessionId)
+  {
+    JsonArray response = new JsonArray();
+
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+
+    try (OIterator<? extends ListType> it = query.getIterator())
+    {
+
+      while (it.hasNext())
+      {
+        ListType list = it.next();
+        final boolean isMember = Organization.isMember(list.getOrganization());
+        
+        // TODO FIGURE out this behavior: Used for the context layers
+
+        // if (isMember || list.getVisibility().equals(ListType.PUBLIC))
+        // {
+        // response.add(list.toJSON(ListTypeVersion.PUBLISHED));
+        // }
+      }
+    }
+
+    return response;
+  }
 
   @Request(RequestType.SESSION)
   public InputStream getTile(String sessionId, JSONObject object)
   {
     try
     {
-      byte[] bytes = TileCache.getTile(object);
+      byte[] bytes = ListTileCache.getTile(object);
 
       if (bytes != null)
       {
@@ -396,16 +399,12 @@ public class ListTypeService
     }
   }
 
-  private void enforceWritePermissions(ListType listType, String versionType)
+  private void enforceWritePermissions(ListType listType)
   {
     ServerGeoObjectType geoObjectType = listType.getGeoObjectType();
     Organization organization = geoObjectType.getOrganization();
 
-    if (versionType.equals(ListTypeVersion.EXPLORATORY) && new RolePermissionService().isRC(organization.getCode(), geoObjectType))
-    {
-      // Good to go
-    }
-    else if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
+    if (!ServiceFactory.getGeoObjectPermissionService().canWrite(organization.getCode(), geoObjectType))
     {
       CreateListPermissionException ex = new CreateListPermissionException();
       ex.setOrganization(organization.getDisplayLabel().getValue());

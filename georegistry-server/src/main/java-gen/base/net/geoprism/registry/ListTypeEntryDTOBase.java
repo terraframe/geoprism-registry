@@ -1,12 +1,12 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1731585808)
-public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.BusinessDTO
+@com.runwaysdk.business.ClassSignature(hash = -1180979631)
+public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.BusinessDTO
 {
-  public final static String CLASS = "net.geoprism.registry.ListTypeVersion";
-  private static final long serialVersionUID = -1731585808;
+  public final static String CLASS = "net.geoprism.registry.ListTypeEntry";
+  private static final long serialVersionUID = -1180979631;
   
-  protected ListTypeVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected ListTypeEntryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(clientRequest);
   }
@@ -17,7 +17,7 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
   * @param businessDTO The BusinessDTO to duplicate
   * @param clientRequest The clientRequest this DTO should use to communicate with the server.
   */
-  protected ListTypeVersionDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected ListTypeEntryDTOBase(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(businessDTO, clientRequest);
   }
@@ -29,23 +29,19 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
   
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
+  public static java.lang.String CURRENT = "current";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
-  public static java.lang.String ENTRY = "entry";
   public static java.lang.String FORDATE = "forDate";
-  public static java.lang.String ISMASTER = "isMaster";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
   public static java.lang.String LISTTYPE = "listType";
   public static java.lang.String LOCKEDBY = "lockedBy";
-  public static java.lang.String MDBUSINESS = "mdBusiness";
   public static java.lang.String OID = "oid";
   public static java.lang.String OWNER = "owner";
-  public static java.lang.String PUBLISHDATE = "publishDate";
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  public static java.lang.String VISIBILITY = "visibility";
   public java.util.Date getCreateDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(CREATEDATE));
@@ -108,6 +104,55 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CREATEDBY).getAttributeMdDTO();
   }
   
+  public net.geoprism.registry.ListTypeVersionDTO getCurrent()
+  {
+    if(getValue(CURRENT) == null || getValue(CURRENT).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.ListTypeVersionDTO.get(getRequest(), getValue(CURRENT));
+    }
+  }
+  
+  public String getCurrentOid()
+  {
+    return getValue(CURRENT);
+  }
+  
+  public void setCurrent(net.geoprism.registry.ListTypeVersionDTO value)
+  {
+    if(value == null)
+    {
+      setValue(CURRENT, "");
+    }
+    else
+    {
+      setValue(CURRENT, value.getOid());
+    }
+  }
+  
+  public boolean isCurrentWritable()
+  {
+    return isWritable(CURRENT);
+  }
+  
+  public boolean isCurrentReadable()
+  {
+    return isReadable(CURRENT);
+  }
+  
+  public boolean isCurrentModified()
+  {
+    return isModified(CURRENT);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getCurrentMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CURRENT).getAttributeMdDTO();
+  }
+  
   public com.runwaysdk.system.metadata.MdDomainDTO getEntityDomain()
   {
     if(getValue(ENTITYDOMAIN) == null || getValue(ENTITYDOMAIN).trim().equals(""))
@@ -157,55 +202,6 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(ENTITYDOMAIN).getAttributeMdDTO();
   }
   
-  public net.geoprism.registry.ListTypeEntryDTO getEntry()
-  {
-    if(getValue(ENTRY) == null || getValue(ENTRY).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.ListTypeEntryDTO.get(getRequest(), getValue(ENTRY));
-    }
-  }
-  
-  public String getEntryOid()
-  {
-    return getValue(ENTRY);
-  }
-  
-  public void setEntry(net.geoprism.registry.ListTypeEntryDTO value)
-  {
-    if(value == null)
-    {
-      setValue(ENTRY, "");
-    }
-    else
-    {
-      setValue(ENTRY, value.getOid());
-    }
-  }
-  
-  public boolean isEntryWritable()
-  {
-    return isWritable(ENTRY);
-  }
-  
-  public boolean isEntryReadable()
-  {
-    return isReadable(ENTRY);
-  }
-  
-  public boolean isEntryModified()
-  {
-    return isModified(ENTRY);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getEntryMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(ENTRY).getAttributeMdDTO();
-  }
-  
   public java.util.Date getForDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(FORDATE));
@@ -241,43 +237,6 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
   public final com.runwaysdk.transport.metadata.AttributeDateTimeMdDTO getForDateMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeDateTimeMdDTO) getAttributeDTO(FORDATE).getAttributeMdDTO();
-  }
-  
-  public Boolean getIsMaster()
-  {
-    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISMASTER));
-  }
-  
-  public void setIsMaster(Boolean value)
-  {
-    if(value == null)
-    {
-      setValue(ISMASTER, "");
-    }
-    else
-    {
-      setValue(ISMASTER, java.lang.Boolean.toString(value));
-    }
-  }
-  
-  public boolean isIsMasterWritable()
-  {
-    return isWritable(ISMASTER);
-  }
-  
-  public boolean isIsMasterReadable()
-  {
-    return isReadable(ISMASTER);
-  }
-  
-  public boolean isIsMasterModified()
-  {
-    return isModified(ISMASTER);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeBooleanMdDTO getIsMasterMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeBooleanMdDTO) getAttributeDTO(ISMASTER).getAttributeMdDTO();
   }
   
   public String getKeyName()
@@ -431,55 +390,6 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(LOCKEDBY).getAttributeMdDTO();
   }
   
-  public com.runwaysdk.system.metadata.MdBusinessDTO getMdBusiness()
-  {
-    if(getValue(MDBUSINESS) == null || getValue(MDBUSINESS).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return com.runwaysdk.system.metadata.MdBusinessDTO.get(getRequest(), getValue(MDBUSINESS));
-    }
-  }
-  
-  public String getMdBusinessOid()
-  {
-    return getValue(MDBUSINESS);
-  }
-  
-  public void setMdBusiness(com.runwaysdk.system.metadata.MdBusinessDTO value)
-  {
-    if(value == null)
-    {
-      setValue(MDBUSINESS, "");
-    }
-    else
-    {
-      setValue(MDBUSINESS, value.getOid());
-    }
-  }
-  
-  public boolean isMdBusinessWritable()
-  {
-    return isWritable(MDBUSINESS);
-  }
-  
-  public boolean isMdBusinessReadable()
-  {
-    return isReadable(MDBUSINESS);
-  }
-  
-  public boolean isMdBusinessModified()
-  {
-    return isModified(MDBUSINESS);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getMdBusinessMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(MDBUSINESS).getAttributeMdDTO();
-  }
-  
   public com.runwaysdk.system.ActorDTO getOwner()
   {
     if(getValue(OWNER) == null || getValue(OWNER).trim().equals(""))
@@ -527,43 +437,6 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getOwnerMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(OWNER).getAttributeMdDTO();
-  }
-  
-  public java.util.Date getPublishDate()
-  {
-    return com.runwaysdk.constants.MdAttributeDateUtil.getTypeSafeValue(getValue(PUBLISHDATE));
-  }
-  
-  public void setPublishDate(java.util.Date value)
-  {
-    if(value == null)
-    {
-      setValue(PUBLISHDATE, "");
-    }
-    else
-    {
-      setValue(PUBLISHDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATE_FORMAT).format(value));
-    }
-  }
-  
-  public boolean isPublishDateWritable()
-  {
-    return isWritable(PUBLISHDATE);
-  }
-  
-  public boolean isPublishDateReadable()
-  {
-    return isReadable(PUBLISHDATE);
-  }
-  
-  public boolean isPublishDateModified()
-  {
-    return isModified(PUBLISHDATE);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeDateMdDTO getPublishDateMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeDateMdDTO) getAttributeDTO(PUBLISHDATE).getAttributeMdDTO();
   }
   
   public Long getSeq()
@@ -616,48 +489,11 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
   }
   
-  public String getVisibility()
-  {
-    return getValue(VISIBILITY);
-  }
-  
-  public void setVisibility(String value)
-  {
-    if(value == null)
-    {
-      setValue(VISIBILITY, "");
-    }
-    else
-    {
-      setValue(VISIBILITY, value);
-    }
-  }
-  
-  public boolean isVisibilityWritable()
-  {
-    return isWritable(VISIBILITY);
-  }
-  
-  public boolean isVisibilityReadable()
-  {
-    return isReadable(VISIBILITY);
-  }
-  
-  public boolean isVisibilityModified()
-  {
-    return isModified(VISIBILITY);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getVisibilityMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(VISIBILITY).getAttributeMdDTO();
-  }
-  
   public final java.lang.String publish()
   {
     String[] _declaredTypes = new String[]{};
     Object[] _parameters = new Object[]{};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeVersionDTO.CLASS, "publish", _declaredTypes);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeEntryDTO.CLASS, "publish", _declaredTypes);
     return (java.lang.String) getRequest().invokeMethod(_metadata, this, _parameters);
   }
   
@@ -665,15 +501,15 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeVersionDTO.CLASS, "publish", _declaredTypes);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeEntryDTO.CLASS, "publish", _declaredTypes);
     return (java.lang.String) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
-  public static net.geoprism.registry.ListTypeVersionDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
+  public static net.geoprism.registry.ListTypeEntryDTO get(com.runwaysdk.constants.ClientRequestIF clientRequest, String oid)
   {
     com.runwaysdk.business.EntityDTO dto = (com.runwaysdk.business.EntityDTO)clientRequest.get(oid);
     
-    return (net.geoprism.registry.ListTypeVersionDTO) dto;
+    return (net.geoprism.registry.ListTypeEntryDTO) dto;
   }
   
   public void apply()
@@ -692,9 +528,9 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
     getRequest().delete(this.getOid());
   }
   
-  public static net.geoprism.registry.ListTypeVersionQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
+  public static net.geoprism.registry.ListTypeEntryQueryDTO getAllInstances(com.runwaysdk.constants.ClientRequestIF clientRequest, String sortAttribute, Boolean ascending, Integer pageSize, Integer pageNumber)
   {
-    return (net.geoprism.registry.ListTypeVersionQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.ListTypeVersionDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
+    return (net.geoprism.registry.ListTypeEntryQueryDTO) clientRequest.getAllInstances(net.geoprism.registry.ListTypeEntryDTO.CLASS, sortAttribute, ascending, pageSize, pageNumber);
   }
   
   public void lock()
@@ -702,12 +538,12 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
     getRequest().lock(this);
   }
   
-  public static net.geoprism.registry.ListTypeVersionDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.ListTypeEntryDTO lock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeVersionDTO.CLASS, "lock", _declaredTypes);
-    return (net.geoprism.registry.ListTypeVersionDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeEntryDTO.CLASS, "lock", _declaredTypes);
+    return (net.geoprism.registry.ListTypeEntryDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
   public void unlock()
@@ -715,12 +551,12 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
     getRequest().unlock(this);
   }
   
-  public static net.geoprism.registry.ListTypeVersionDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static net.geoprism.registry.ListTypeEntryDTO unlock(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
   {
     String[] _declaredTypes = new String[]{"java.lang.String"};
     Object[] _parameters = new Object[]{oid};
-    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeVersionDTO.CLASS, "unlock", _declaredTypes);
-    return (net.geoprism.registry.ListTypeVersionDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
+    com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeEntryDTO.CLASS, "unlock", _declaredTypes);
+    return (net.geoprism.registry.ListTypeEntryDTO) clientRequest.invokeMethod(_metadata, null, _parameters);
   }
   
 }

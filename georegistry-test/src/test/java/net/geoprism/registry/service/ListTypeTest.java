@@ -62,6 +62,7 @@ import net.geoprism.registry.IntervalListType;
 import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeBuilder;
+import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.Organization;
@@ -518,19 +519,25 @@ public class ListTypeTest
 
       try
       {
-        ListTypeVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE);
+        ListTypeEntry entry = test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         try
         {
+          entry.publish();
+
+          List<ListTypeVersion> versions = entry.getVersions();
+
+          Assert.assertEquals(1, versions.size());
+
+          ListTypeVersion version = versions.get(0);
+
           MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
 
           Assert.assertNotNull(mdTable);
-
-          version.publish();
         }
         finally
         {
-          version.delete();
+          entry.delete();
         }
       }
       catch (Exception e)
@@ -580,15 +587,21 @@ public class ListTypeTest
 
       try
       {
-        ListTypeVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE);
+        ListTypeEntry entry = test.createEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
 
         try
         {
+          entry.publish();
+
+          List<ListTypeVersion> versions = entry.getVersions();
+
+          Assert.assertEquals(1, versions.size());
+
+          ListTypeVersion version = versions.get(0);
+
           MdBusinessDAOIF mdTable = MdBusinessDAO.get(version.getMdBusinessOid());
 
           Assert.assertNotNull(mdTable);
-
-          version.publish();
 
           JsonObject data = version.data(1, 100, null, null, includeGeometries);
 
@@ -634,7 +647,7 @@ public class ListTypeTest
         }
         finally
         {
-          version.delete();
+          entry.delete();
         }
       }
       catch (Throwable t)
@@ -663,7 +676,7 @@ public class ListTypeTest
       test.setValid(false);
       test.apply();
 
-      ListTypeVersion version = test.getOrCreateVersion(TestDataSet.DEFAULT_OVER_TIME_DATE);
+      ListTypeEntry version = test.getOrCreateEntry(TestDataSet.DEFAULT_OVER_TIME_DATE);
       version.delete();
     }
     finally

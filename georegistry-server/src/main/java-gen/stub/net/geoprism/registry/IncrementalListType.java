@@ -27,7 +27,7 @@ public class IncrementalListType extends IncrementalListTypeBase
   }
 
   @Override
-  protected String formatVersionLabel(ListTypeVersion version)
+  protected String formatVersionLabel(LabeledVersion version)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -87,11 +87,11 @@ public class IncrementalListType extends IncrementalListTypeBase
      */
     if (this.isModified(IncrementalListType.FREQUENCY) || this.isModified(IncrementalListType.PUBLISHINGSTARTDATE))
     {
-      final List<ListTypeVersion> versions = this.getAllVersions();
+      final List<ListTypeEntry> entries = this.getEntries();
 
-      for (ListTypeVersion version : versions)
+      for (ListTypeEntry entry : entries)
       {
-        version.delete();
+        entry.delete();
       }
     }
 
@@ -308,11 +308,11 @@ public class IncrementalListType extends IncrementalListTypeBase
 
         for (Date date : dates)
         {
-          ListTypeVersion version = this.getOrCreateVersion(date);
+          ListTypeEntry entry = this.getOrCreateEntry(date);
 
           ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-          version.publish();
+          entry.publish();
         }
       }
       else
@@ -343,7 +343,7 @@ public class IncrementalListType extends IncrementalListTypeBase
   protected void parse(JsonObject object)
   {
     super.parse(object);
-    
+
     if (object.has(IncrementalListType.FREQUENCY) && !object.get(IncrementalListType.FREQUENCY).isJsonNull())
     {
       final String frequency = object.get(IncrementalListType.FREQUENCY).getAsString();

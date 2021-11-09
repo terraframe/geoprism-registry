@@ -65,7 +65,7 @@ public class IntervalListType extends IntervalListTypeBase
   }
 
   @Override
-  protected String formatVersionLabel(ListTypeVersion version)
+  protected String formatVersionLabel(LabeledVersion version)
   {
     Date versionDate = version.getForDate();
     LinkedHashMap<Date, Date> intervals = this.getIntervals();
@@ -103,10 +103,10 @@ public class IntervalListType extends IntervalListTypeBase
       LinkedHashMap<Date, Date> intervals = this.getIntervals();
 
       intervals.forEach((startDate, endDate) -> {
-        ListTypeVersion version = this.getOrCreateVersion(endDate);
+        ListTypeEntry entry = this.getOrCreateEntry(endDate);
         ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-        version.publish();
+        entry.publish();
       });
 
     }
@@ -125,11 +125,11 @@ public class IntervalListType extends IntervalListTypeBase
      */
     if (!this.isNew() && this.isModified(IntervalListType.INTERVALJSON))
     {
-      final List<ListTypeVersion> versions = this.getAllVersions();
+      final List<ListTypeEntry> entries = this.getEntries();
 
-      for (ListTypeVersion version : versions)
+      for (ListTypeEntry entry : entries)
       {
-        version.delete();
+        entry.delete();
       }
     }
 

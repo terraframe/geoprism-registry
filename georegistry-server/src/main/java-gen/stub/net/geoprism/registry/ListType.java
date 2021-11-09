@@ -3,20 +3,16 @@ package net.geoprism.registry;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
-import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
@@ -26,7 +22,6 @@ import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
@@ -85,7 +80,7 @@ public abstract class ListType extends ListTypeBase
     super();
   }
 
-  protected abstract String formatVersionLabel(ListTypeVersion version);
+  protected abstract String formatVersionLabel(LabeledVersion version);
 
   public abstract void publishVersions();
 
@@ -113,11 +108,11 @@ public abstract class ListType extends ListTypeBase
       job.delete();
     }
 
-    List<ListTypeVersion> versions = this.getAllVersions();
+    List<ListTypeEntry> entries = this.getEntries();
 
-    for (ListTypeVersion version : versions)
+    for (ListTypeEntry entry : entries)
     {
-      version.delete();
+      entry.delete();
     }
 
     super.delete();
@@ -145,19 +140,19 @@ public abstract class ListType extends ListTypeBase
     return new File(directory, this.getOid());
   }
 
-  public List<ListTypeVersion> getAllVersions()
+  public List<ListTypeEntry> getEntries()
   {
-    ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
+    ListTypeEntryQuery query = new ListTypeEntryQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(this));
     query.ORDER_BY_DESC(query.getForDate());
 
-    try (OIterator<? extends ListTypeVersion> it = query.getIterator())
+    try (OIterator<? extends ListTypeEntry> it = query.getIterator())
     {
-      return new LinkedList<ListTypeVersion>(it.getAll());
+      return new LinkedList<ListTypeEntry>(it.getAll());
     }
   }
 
-  public List<ListTypeVersion> getCurrentVersions()
+  public List<ListTypeVersion> getVersions()
   {
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(this));
@@ -348,73 +343,62 @@ public abstract class ListType extends ListTypeBase
     return object;
   }
 
-  public JsonArray toVersionJson()
+  public JsonArray getEntryJson()
   {
-    List<ListTypeVersion> versions = this.getAllVersions();
+    List<ListTypeEntry> entries = this.getEntries();
 
     JsonArray jVersions = new JsonArray();
 
-    for (ListTypeVersion version : versions)
+    for (ListTypeEntry entry : entries)
     {
-      jVersions.add(version.toJSON(false));
+      jVersions.add(entry.toJSON());
     }
 
     return jVersions;
   }
 
-  private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales)
-  {
-    List<ListTypeVersion> versions = this.getAllVersions();
-
-    for (ListTypeVersion version : versions)
-    {
-      ListTypeVersion.createMdAttributeFromAttributeType(version, type, attributeType, locales);
-    }
-  }
-
-  private void removeAttributeType(AttributeType attributeType)
-  {
-    List<ListTypeVersion> versions = this.getAllVersions();
-
-    for (ListTypeVersion version : versions)
-    {
-      version.removeAttributeType(attributeType);
-    }
-  }
+  // private void createMdAttributeFromAttributeType(ServerGeoObjectType type,
+  // AttributeType attributeType, Collection<Locale> locales)
+  // {
+  // List<ListTypeVersion> versions = this.getVersions();
+  //
+  // for (ListTypeVersion version : versions)
+  // {
+  // ListTypeVersion.createMdAttributeFromAttributeType(version, type,
+  // attributeType, locales);
+  // }
+  // }
+  //
+  // private void removeAttributeType(AttributeType attributeType)
+  // {
+  // List<ListTypeVersion> versions = this.getVersions();
+  //
+  // for (ListTypeVersion version : versions)
+  // {
+  // version.removeAttributeType(attributeType);
+  // }
+  // }
 
   @Transaction
   @Authenticate
-  public ListTypeVersion createVersion(Date forDate, String versionType)
+  public ListTypeEntry createEntry(Date forDate)
   {
-    // ListTypeVersionQuery query = new ListTypeVersionQuery(new
-    // QueryFactory());
-    // query.WHERE(query.getListType().EQ(this));
-    // query.AND(query.getForDate().EQ(forDate));
-    //
-    // try (OIterator<? extends ListTypeVersion> it = query.getIterator())
-    // {
-    // if (it.hasNext())
-    // {
-    // return it.next();
-    // }
-    // }
-
-    return ListTypeVersion.create(this, forDate);
+    return ListTypeEntry.create(this, forDate);
   }
 
   @Transaction
-  public ListTypeVersion getOrCreateVersion(Date forDate)
+  public ListTypeEntry getOrCreateEntry(Date forDate)
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
+    ListTypeEntryQuery query = new ListTypeEntryQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(this));
     query.AND(query.getForDate().EQ(forDate));
 
-    try (OIterator<? extends ListTypeVersion> it = query.getIterator())
+    try (OIterator<? extends ListTypeEntry> it = query.getIterator())
     {
       if (it.hasNext())
       {
@@ -422,7 +406,7 @@ public abstract class ListType extends ListTypeBase
       }
     }
 
-    return ListTypeVersion.create(this, forDate);
+    return ListTypeEntry.create(this, forDate);
   }
 
   public ServerGeoObjectType getGeoObjectType()
@@ -640,33 +624,35 @@ public abstract class ListType extends ListTypeBase
     }
   }
 
-  public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)
-  {
-    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
-
-    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(type.getUniversal()));
-
-    List<? extends ListType> lists = query.getIterator().getAll();
-
-    for (ListType list : lists)
-    {
-      list.createMdAttributeFromAttributeType(type, attributeType, locales);
-    }
-  }
-
-  public static void deleteMdAttribute(Universal universal, AttributeType attributeType)
-  {
-    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-    query.WHERE(query.getUniversal().EQ(universal));
-
-    List<? extends ListType> lists = query.getIterator().getAll();
-
-    for (ListType list : lists)
-    {
-      list.removeAttributeType(attributeType);
-    }
-  }
+  // public static void createMdAttribute(ServerGeoObjectType type,
+  // AttributeType attributeType)
+  // {
+  // Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
+  //
+  // ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+  // query.WHERE(query.getUniversal().EQ(type.getUniversal()));
+  //
+  // List<? extends ListType> lists = query.getIterator().getAll();
+  //
+  // for (ListType list : lists)
+  // {
+  // list.createMdAttributeFromAttributeType(type, attributeType, locales);
+  // }
+  // }
+  //
+  // public static void deleteMdAttribute(Universal universal, AttributeType
+  // attributeType)
+  // {
+  // ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+  // query.WHERE(query.getUniversal().EQ(universal));
+  //
+  // List<? extends ListType> lists = query.getIterator().getAll();
+  //
+  // for (ListType list : lists)
+  // {
+  // list.removeAttributeType(attributeType);
+  // }
+  // }
 
   public static boolean isValidName(String name)
   {
@@ -734,8 +720,8 @@ public abstract class ListType extends ListTypeBase
         return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
       }).filter(f -> {
         // TODO Make visible if the type has a public version???
-//        return  isMember;
-        
+        // return isMember;
+
         return true;
       }).forEach(list -> {
         JsonObject object = new JsonObject();

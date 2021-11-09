@@ -124,7 +124,7 @@ import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 
-public class ListTypeVersion extends ListTypeVersionBase
+public class ListTypeVersion extends ListTypeVersionBase implements TableEntity, LabeledVersion
 {
   private static final long serialVersionUID = -351397872;
 
@@ -647,7 +647,7 @@ public class ListTypeVersion extends ListTypeVersionBase
     // }
 
     // Delete tile cache
-    // TileCache.deleteTiles(this);
+    ListTileCache.deleteTiles(this);
 
     ListTypeAttributeGroup.deleteAll(this);
 
@@ -773,7 +773,7 @@ public class ListTypeVersion extends ListTypeVersionBase
       }
 
       // Delete tile cache
-      // TileCache.deleteTiles(this);
+      ListTileCache.deleteTiles(this);
 
       MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
       mdBusiness.deleteAllRecords();
@@ -1043,7 +1043,7 @@ public class ListTypeVersion extends ListTypeVersionBase
     object.setDate(this.getForDate());
 
     // Delete tile cache
-    // TileCache.deleteTiles(this);
+    ListTileCache.deleteTiles(this);
 
     ListType masterlist = this.getListType();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
@@ -1081,7 +1081,7 @@ public class ListTypeVersion extends ListTypeVersionBase
     object.setDate(this.getForDate());
 
     // Delete tile cache
-    // TileCache.deleteTiles(this);
+    ListTileCache.deleteTiles(this);
 
     ListType masterlist = this.getListType();
     MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
@@ -1692,34 +1692,16 @@ public class ListTypeVersion extends ListTypeVersionBase
   }
 
   @Transaction
-  public static ListTypeVersion create(ListType list, Date forDate)
+  public static ListTypeVersion create(ListTypeEntry listEntry)
   {
+    ListType listType = listEntry.getListType();
+
     ListTypeVersion version = new ListTypeVersion();
-    version.setListType(list);
-    version.setForDate(forDate);
+    version.setEntry(listEntry);
+    version.setListType(listType);
+    version.setForDate(listEntry.getForDate());
     version.setIsMaster(false);
     version.setVisibility(ListType.PRIVATE);
-
-    if (version.getIsMaster() != null && version.getIsMaster())
-    {
-      ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
-      query.WHERE(query.getForDate().EQ(version.getForDate()));
-      query.AND(query.getListType().EQ(list));
-      query.AND(query.getIsMaster().EQ(true));
-
-      if (!list.isNew())
-      {
-        query.AND(query.getOid().NE(list.getOid()));
-      }
-
-      if (query.getCount() > 0)
-      {
-        DuplicateMasterListException ex = new DuplicateMasterListException();
-        ex.setGeoObjectType(list.getDisplayLabel().getValue());
-
-        throw ex;
-      }
-    }
 
     TableMetadata metadata = null;
 

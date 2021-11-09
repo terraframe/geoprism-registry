@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1277290710)
+@com.runwaysdk.business.ClassSignature(hash = 1599626454)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -65,7 +65,7 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String VALID = "valid";
-  private static final long serialVersionUID = 1277290710;
+  private static final long serialVersionUID = 1599626454;
   
   public ListTypeBase()
   {
@@ -953,16 +953,16 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     return (ListType) com.runwaysdk.business.Business.get(CLASS, key);
   }
   
-  public net.geoprism.registry.ListTypeVersion createVersion(java.util.Date forDate)
+  public net.geoprism.registry.ListTypeEntry createEntry(java.util.Date forDate)
   {
     String msg = "This method should never be invoked.  It should be overwritten in net.geoprism.registry.ListType.java";
     throw new com.runwaysdk.dataaccess.metadata.ForbiddenMethodException(msg);
   }
   
-  public static final net.geoprism.registry.ListTypeVersion createVersion(java.lang.String oid, java.util.Date forDate)
+  public static final net.geoprism.registry.ListTypeEntry createEntry(java.lang.String oid, java.util.Date forDate)
   {
     ListType _instance = ListType.get(oid);
-    return _instance.createVersion(forDate);
+    return _instance.createEntry(forDate);
   }
   
   public static ListType lock(java.lang.String oid)

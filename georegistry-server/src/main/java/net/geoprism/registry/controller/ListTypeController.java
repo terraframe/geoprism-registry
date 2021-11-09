@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.controller;
 
@@ -39,17 +39,17 @@ import com.runwaysdk.mvc.RestBodyResponse;
 import com.runwaysdk.mvc.RestResponse;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListVersion;
-import net.geoprism.registry.etl.PublishMasterListJob;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.etl.PublishListTypeJob;
 import net.geoprism.registry.service.ListTypeService;
 
-@Controller(url = "master-list")
-public class MasterListController
+@Controller(url = "list-type")
+public class ListTypeController
 {
   private ListTypeService service;
 
-  public MasterListController()
+  public ListTypeController()
   {
     this.service = new ListTypeService();
   }
@@ -64,10 +64,10 @@ public class MasterListController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-org")
-  public ResponseIF listOrg(ClientRequestIF request)
+  public ResponseIF listOrg(ClientRequestIF request, @RequestParamter(name = "orgCode") String orgCode)
   {
     JsonObject response = new JsonObject();
-    response.add("orgs", this.service.listByOrg(request.getSessionId()));
+    response.add("orgs", this.service.listByOrg(request.getSessionId(), orgCode));
 
     return new RestBodyResponse(response);
   }
@@ -135,9 +135,9 @@ public class MasterListController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
-  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "versionType") String versionType)
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
-    JsonObject response = this.service.getVersions(request.getSessionId(), oid, versionType);
+    JsonArray response = this.service.getVersions(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
   }
@@ -178,7 +178,7 @@ public class MasterListController
   public ResponseIF exportShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
-    String code = masterList.get(MasterList.TYPE_CODE).getAsString() + "-" + masterList.get(MasterListVersion.FORDATE).getAsString();
+    String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
 
     return new InputStreamResponse(service.exportShapefile(request.getSessionId(), oid, filter), "application/zip", code + ".zip");
   }
@@ -187,38 +187,27 @@ public class MasterListController
   public ResponseIF downloadShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
-    String code = masterList.get(MasterList.TYPE_CODE).getAsString() + "-" + masterList.get(MasterListVersion.FORDATE).getAsString();
+    String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
 
     return new InputStreamResponse(service.downloadShapefile(request.getSessionId(), oid), "application/zip", code + ".zip");
   }
 
-  @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF generateShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
-  {
-    final String jobId = service.generateShapefile(request.getSessionId(), oid);
-
-    final RestResponse response = new RestResponse();
-    response.set("job", jobId);
-
-    return response;
-  }
-
-  @Endpoint(url = "export-to-fhir", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-  public ResponseIF exportToFhir(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "systemId") String systemId, @RequestParamter(name = "implementation") String implementation) throws JSONException
-  {
-    final String jobId = service.exportToFhir(request.getSessionId(), oid, systemId, implementation);
-
-    final RestResponse response = new RestResponse();
-    response.set("job", jobId);
-
-    return response;
-  }
+//  @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
+//  public ResponseIF generateShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
+//  {
+//    final String jobId = service.generateShapefile(request.getSessionId(), oid);
+//
+//    final RestResponse response = new RestResponse();
+//    response.set("job", jobId);
+//
+//    return response;
+//  }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException
   {
     JsonObject masterList = this.service.getVersion(request.getSessionId(), oid);
-    String code = masterList.get(MasterList.TYPE_CODE).getAsString() + "-" + masterList.get(MasterListVersion.FORDATE).getAsString();
+    String code = masterList.get(ListType.TYPE_CODE).getAsString() + "-" + masterList.get(ListTypeVersion.FORDATE).getAsString();
 
     return new InputStreamResponse(service.exportSpreadsheet(request.getSessionId(), oid, filter), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", code + ".xlsx");
   }
@@ -237,7 +226,7 @@ public class MasterListController
   {
     if (sortAttr == null || sortAttr == "")
     {
-      sortAttr = PublishMasterListJob.CREATEDATE;
+      sortAttr = PublishListTypeJob.CREATEDATE;
     }
 
     if (isAscending == null)

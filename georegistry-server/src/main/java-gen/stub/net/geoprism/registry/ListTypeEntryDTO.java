@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-public class ListTypeVersionDTO extends ListTypeVersionDTOBase
+public class ListTypeEntryDTO extends ListTypeEntryDTOBase
 {
-  private static final long serialVersionUID = -1875134451;
+  private static final long serialVersionUID = 2031610045;
   
-  public ListTypeVersionDTO(com.runwaysdk.constants.ClientRequestIF clientRequest)
+  public ListTypeEntryDTO(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(clientRequest);
   }
@@ -15,7 +15,7 @@ public class ListTypeVersionDTO extends ListTypeVersionDTOBase
   * @param businessDTO The BusinessDTO to duplicate
   * @param clientRequest The clientRequest this DTO should use to communicate with the server.
   */
-  protected ListTypeVersionDTO(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
+  protected ListTypeEntryDTO(com.runwaysdk.business.BusinessDTO businessDTO, com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
     super(businessDTO, clientRequest);
   }

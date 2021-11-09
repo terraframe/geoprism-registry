@@ -48,11 +48,11 @@ public class SingleListType extends SingleListTypeBase
     {
       Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 
-      ListTypeVersion version = this.getOrCreateVersion(this.getValidOn());
+      ListTypeEntry entry = this.getOrCreateEntry(this.getValidOn());
 
       ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-      version.publish();
+      entry.publish();
     }
     finally
     {
@@ -61,7 +61,7 @@ public class SingleListType extends SingleListTypeBase
   }
 
   @Override
-  protected String formatVersionLabel(ListTypeVersion version)
+  protected String formatVersionLabel(LabeledVersion version)
   {
     return GeoRegistryUtil.formatDate(this.getValidOn(), false);
   }
