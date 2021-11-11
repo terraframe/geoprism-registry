@@ -114,6 +114,10 @@ import { HistoricalReportComponent } from "./component/historical-report/histori
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 
 import { DndModule } from "ngx-drag-drop";
+import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
+import { ListTypeService } from "./service/list-type.service";
+import { ListTypePublishModalComponent } from "./component/list-type/publish-modal.component";
+import { ListMetadataComponent } from "./component/list-type/list-metadata.component";
 
 @NgModule({
     imports: [
@@ -221,7 +225,11 @@ import { DndModule } from "ngx-drag-drop";
         TransitionEventTableComponent,
         TransitionEventModalComponent,
         HistoricalReportComponent,
-        HistoricalEventModuleComponent
+        HistoricalEventModuleComponent,
+        // List type
+        ListTypeManagerComponent,
+        ListTypePublishModalComponent,
+        ListMetadataComponent
     ],
     providers: [
         MapService,
@@ -236,7 +244,8 @@ import { DndModule } from "ngx-drag-drop";
         ToEpochDateTimePipe,
         StepIndicatorComponent,
         SynchronizationConfigService,
-        TransitionEventService
+        TransitionEventService,
+        ListTypeService
     ],
     entryComponents: [
         AddChildToHierarchyModalComponent,
@@ -267,7 +276,8 @@ import { DndModule } from "ngx-drag-drop";
         SynchronizationConfigModalComponent,
         ContextLayerModalComponent,
         ExportSystemModalComponent,
-        TransitionEventModalComponent
+        TransitionEventModalComponent,
+        ListTypePublishModalComponent
     ]
 })
 export class RegistryModule { }

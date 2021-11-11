@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1731585808)
+@com.runwaysdk.business.ClassSignature(hash = -35549488)
 public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeVersion";
-  private static final long serialVersionUID = -1731585808;
+  private static final long serialVersionUID = -35549488;
   
   protected ListTypeVersionDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -45,6 +45,7 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
+  public static java.lang.String VERSIONNUMBER = "versionNumber";
   public static java.lang.String VISIBILITY = "visibility";
   public java.util.Date getCreateDate()
   {
@@ -614,6 +615,43 @@ public abstract class ListTypeVersionDTOBase extends com.runwaysdk.business.Busi
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
+  }
+  
+  public Integer getVersionNumber()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(VERSIONNUMBER));
+  }
+  
+  public void setVersionNumber(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(VERSIONNUMBER, "");
+    }
+    else
+    {
+      setValue(VERSIONNUMBER, java.lang.Integer.toString(value));
+    }
+  }
+  
+  public boolean isVersionNumberWritable()
+  {
+    return isWritable(VERSIONNUMBER);
+  }
+  
+  public boolean isVersionNumberReadable()
+  {
+    return isReadable(VERSIONNUMBER);
+  }
+  
+  public boolean isVersionNumberModified()
+  {
+    return isModified(VERSIONNUMBER);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeNumberMdDTO getVersionNumberMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeNumberMdDTO) getAttributeDTO(VERSIONNUMBER).getAttributeMdDTO();
   }
   
   public String getVisibility()

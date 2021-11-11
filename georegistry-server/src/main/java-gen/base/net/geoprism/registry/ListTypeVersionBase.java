@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -745108880)
+@com.runwaysdk.business.ClassSignature(hash = 1241571408)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -29,8 +29,9 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
+  public static java.lang.String VERSIONNUMBER = "versionNumber";
   public static java.lang.String VISIBILITY = "visibility";
-  private static final long serialVersionUID = -745108880;
+  private static final long serialVersionUID = 1241571408;
   
   public ListTypeVersionBase()
   {
@@ -587,6 +588,34 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
+  }
+  
+  public Integer getVersionNumber()
+  {
+    return com.runwaysdk.constants.MdAttributeIntegerUtil.getTypeSafeValue(getValue(VERSIONNUMBER));
+  }
+  
+  public void validateVersionNumber()
+  {
+    this.validateAttribute(VERSIONNUMBER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF getVersionNumberMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeIntegerDAOIF)mdClassIF.definesAttribute(VERSIONNUMBER);
+  }
+  
+  public void setVersionNumber(Integer value)
+  {
+    if(value == null)
+    {
+      setValue(VERSIONNUMBER, "");
+    }
+    else
+    {
+      setValue(VERSIONNUMBER, java.lang.Integer.toString(value));
+    }
   }
   
   public String getVisibility()

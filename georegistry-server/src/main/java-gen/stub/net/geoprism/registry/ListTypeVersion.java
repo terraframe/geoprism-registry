@@ -1692,7 +1692,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   }
 
   @Transaction
-  public static ListTypeVersion create(ListTypeEntry listEntry)
+  public static ListTypeVersion create(ListTypeEntry listEntry, int versionNumber)
   {
     ListType listType = listEntry.getListType();
 
@@ -1700,6 +1700,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     version.setEntry(listEntry);
     version.setListType(listType);
     version.setForDate(listEntry.getForDate());
+    version.setVersionNumber(versionNumber);
     version.setIsMaster(false);
     version.setVisibility(ListType.PRIVATE);
 

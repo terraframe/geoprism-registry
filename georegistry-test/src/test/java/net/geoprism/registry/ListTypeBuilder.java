@@ -165,6 +165,6 @@ public class ListTypeBuilder
   {
     JsonObject json = this.buildJSON();
 
-    return ListType.create(json);
+    return ListType.apply(json);
   }
 }

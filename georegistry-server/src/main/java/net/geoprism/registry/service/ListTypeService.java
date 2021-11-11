@@ -67,15 +67,15 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray listByOrg(String sessionId, String orgCode)
+  public JsonObject listForType(String sessionId, String typeCode)
   {
-    return ListType.listByOrg(orgCode);
+    return ListType.listForType(typeCode);
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject create(String sessionId, JsonObject list)
+  public JsonObject apply(String sessionId, JsonObject list)
   {
-    ListType mList = ListType.create(list);
+    ListType mList = ListType.apply(list);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
@@ -366,7 +366,7 @@ public class ListTypeService
       {
         ListType list = it.next();
         final boolean isMember = Organization.isMember(list.getOrganization());
-        
+
         // TODO FIGURE out this behavior: Used for the context layers
 
         // if (isMember || list.getVisibility().equals(ListType.PUBLIC))

@@ -81,11 +81,15 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     return jVersions;
   }
 
-//  @Transaction
-//  @Authenticate
+  // @Transaction
+  // @Authenticate
   private ListTypeVersion createVersion()
   {
-    ListTypeVersion version = ListTypeVersion.create(this);
+    ListTypeVersion current = this.getCurrent();
+
+    int versionNumber = current != null ? current.getVersionNumber() + 1 : 1;
+
+    ListTypeVersion version = ListTypeVersion.create(this, versionNumber);
     this.appLock();
     this.setCurrent(version);
     this.apply();

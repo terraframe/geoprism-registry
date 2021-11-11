@@ -18,8 +18,11 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
+import com.runwaysdk.constants.Constants;
+import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -67,7 +70,9 @@ public abstract class ListType extends ListTypeBase
 
   public static final String PRIVATE          = "PRIVATE";
 
-  public static final String LIST_TYPE        = "list-type";
+  public static final String LIST_TYPE        = "listType";
+
+  public static final String LIST_METADATA    = "listMetadata";
 
   public static final String SINGLE           = "single";
 
@@ -257,7 +262,7 @@ public abstract class ListType extends ListTypeBase
     LocalizedValueConverter.populate(this.getDescription(), LocalizedValue.fromJSON(object.get(ListType.DESCRIPTION).getAsJsonObject()));
     this.setCode(object.get(ListType.CODE).getAsString());
     this.setHierarchies(object.get(ListType.HIERARCHIES).getAsJsonArray().toString());
-    this.setOrganizationId(object.get(ListType.ORGANIZATION).getAsString());
+    this.setOrganization(Organization.getByCode(object.get(ListType.ORGANIZATION).getAsString()));
 
     if (object.has(ListType.SUBTYPEHIERARCHIES) && !object.get(ListType.SUBTYPEHIERARCHIES).isJsonNull())
     {
@@ -265,29 +270,39 @@ public abstract class ListType extends ListTypeBase
     }
 
     // Parse the list metadata
-    {
-      this.setListOriginator(object.get(ListType.LISTORIGINATOR).getAsString());
-      this.getListLabel().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTLABEL).getAsJsonObject()).getLocaleMap());
-      this.getListDescription().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTDESCRIPTION).getAsJsonObject()).getLocaleMap());
-      this.getListProcess().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTPROCESS).getAsJsonObject()).getLocaleMap());
-      this.getListProgress().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTPROGRESS).getAsJsonObject()).getLocaleMap());
-      this.getListAccessConstraints().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTACCESSCONSTRAINTS).getAsJsonObject()).getLocaleMap());
-      this.getListUseConstraints().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTUSECONSTRAINTS).getAsJsonObject()).getLocaleMap());
-      this.getListAcknowledgements().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTACKNOWLEDGEMENTS).getAsJsonObject()).getLocaleMap());
-      this.getListDisclaimer().setLocaleMap(LocalizedValue.fromJSON(object.get(ListType.LISTDISCLAIMER).getAsJsonObject()).getLocaleMap());
-      this.setListContactName(object.get(ListType.LISTCONTACTNAME).getAsString());
-      this.setListOrganization(object.get(ListType.LISTORGANIZATION).getAsString());
-      this.setListTelephoneNumber(object.get(ListType.LISTTELEPHONENUMBER).getAsString());
-      this.setListEmail(object.get(ListType.LISTEMAIL).getAsString());
-
-      if (!object.get(ListType.LISTCOLLECTIONDATE).isJsonNull())
-      {
-        this.setListCollectionDate(GeoRegistryUtil.parseDate(object.get(ListType.LISTCOLLECTIONDATE).getAsString()));
-      }
-    }
+    this.parseMetadata("list", object.get(LIST_METADATA).getAsJsonObject());
 
     // TODO
     // Parse the geospatial metadata
+  }
+
+  public void parseMetadata(String prefix, JsonObject object)
+  {
+    ( (LocalStruct) this.getStruct(prefix + "Label") ).setLocaleMap(LocalizedValue.fromJSON(object.get("label").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Description") ).setLocaleMap(LocalizedValue.fromJSON(object.get("description").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Process") ).setLocaleMap(LocalizedValue.fromJSON(object.get("process").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Progress") ).setLocaleMap(LocalizedValue.fromJSON(object.get("progress").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "AccessConstraints") ).setLocaleMap(LocalizedValue.fromJSON(object.get("accessConstraints").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "UseConstraints") ).setLocaleMap(LocalizedValue.fromJSON(object.get("useConstraints").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Acknowledgements") ).setLocaleMap(LocalizedValue.fromJSON(object.get("acknowledgements").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Disclaimer") ).setLocaleMap(LocalizedValue.fromJSON(object.get("disclaimer").getAsJsonObject()).getLocaleMap());
+    this.setValue(prefix + "ContactName", object.get("contactName").getAsString());
+    this.setValue(prefix + "Organization", object.get("organization").getAsString());
+    this.setValue(prefix + "TelephoneNumber", object.get("telephoneNumber").getAsString());
+    this.setValue(prefix + "Email", object.get("email").getAsString());
+
+    if (!object.get("originator").isJsonNull())
+    {
+      this.setValue(prefix + "Originator", object.get("originator").getAsString());
+    }
+
+    if (!object.get("collectionDate").isJsonNull())
+    {
+      SimpleDateFormat formatter = new SimpleDateFormat(Constants.DATETIME_FORMAT);
+      Date collectionDate = GeoRegistryUtil.parseDate(object.get("collectionDate").getAsString());
+
+      this.setValue(prefix + "CollectionDate", formatter.format(collectionDate));
+    }
   }
 
   public JsonObject toJSON()
@@ -296,19 +311,19 @@ public abstract class ListType extends ListTypeBase
     LocaleSerializer serializer = new LocaleSerializer(locale);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
+    Organization org = type.getOrganization();
 
     JsonObject object = new JsonObject();
 
     if (this.isAppliedToDB())
     {
-      final Organization org = this.getOrganization();
 
       object.addProperty(ListType.OID, this.getOid());
-      object.addProperty(ListType.ORGANIZATION, org.getOid());
+      object.addProperty(ListType.ORGANIZATION, org.getCode());
     }
     else
     {
-      object.addProperty(ListType.ORGANIZATION, this.getOrganizationOid());
+      object.addProperty(ListType.ORGANIZATION, org.getCode());
     }
 
     object.addProperty("write", this.doesActorHaveWritePermission());
@@ -323,22 +338,28 @@ public abstract class ListType extends ListTypeBase
     object.add(ListType.SUBTYPEHIERARCHIES, this.getSubtypeHierarchiesAsJson());
 
     // Include the list metadata
-    {
-      object.add(ListType.LISTLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getListLabel()).toJSON(serializer));
-      object.add(ListType.LISTDESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getListDescription()).toJSON(serializer));
-      object.add(ListType.LISTPROCESS, LocalizedValueConverter.convertNoAutoCoalesce(this.getListProcess()).toJSON(serializer));
-      object.add(ListType.LISTPROGRESS, LocalizedValueConverter.convertNoAutoCoalesce(this.getListProgress()).toJSON(serializer));
-      object.add(ListType.LISTACCESSCONSTRAINTS, LocalizedValueConverter.convertNoAutoCoalesce(this.getListAccessConstraints()).toJSON(serializer));
-      object.add(ListType.LISTUSECONSTRAINTS, LocalizedValueConverter.convertNoAutoCoalesce(this.getListUseConstraints()).toJSON(serializer));
-      object.add(ListType.LISTACKNOWLEDGEMENTS, LocalizedValueConverter.convertNoAutoCoalesce(this.getListAcknowledgements()).toJSON(serializer));
-      object.add(ListType.LISTDISCLAIMER, LocalizedValueConverter.convertNoAutoCoalesce(this.getListDisclaimer()).toJSON(serializer));
-      object.addProperty(ListType.LISTCOLLECTIONDATE, GeoRegistryUtil.formatDate(this.getListCollectionDate(), false));
-      object.addProperty(ListType.LISTORIGINATOR, this.getListOrganization());
-      object.addProperty(ListType.LISTCONTACTNAME, this.getListContactName());
-      object.addProperty(ListType.LISTORGANIZATION, this.getListOrganization());
-      object.addProperty(ListType.LISTTELEPHONENUMBER, this.getListTelephoneNumber());
-      object.addProperty(ListType.LISTEMAIL, this.getListEmail());
-    }
+    object.add(ListType.LIST_METADATA, this.toMetadataJSON("list", serializer));
+
+    return object;
+  }
+
+  private JsonObject toMetadataJSON(String prefix, LocaleSerializer serializer)
+  {
+    JsonObject object = new JsonObject();
+    object.add("label", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Label")).toJSON(serializer));
+    object.add("description", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON(serializer));
+    object.add("process", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Process")).toJSON(serializer));
+    object.add("progress", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Progress")).toJSON(serializer));
+    object.add("accessConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "AccessConstraints")).toJSON(serializer));
+    object.add("useConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "UseConstraints")).toJSON(serializer));
+    object.add("acknowledgements", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Acknowledgements")).toJSON(serializer));
+    object.add("disclaimer", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Disclaimer")).toJSON(serializer));
+    object.addProperty("collectionDate", GeoRegistryUtil.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(getValue(prefix + "CollectionDate")), false));
+    object.addProperty("organization", this.getValue(prefix + "Organization"));
+    object.addProperty("contactName", this.getValue(prefix + "ContactName"));
+    object.addProperty("telephoneNumber", this.getValue(prefix + "TelephoneNumber"));
+    object.addProperty("email", this.getValue(prefix + "Email"));
+    object.addProperty("originator", this.getValue(prefix + "Originator"));
 
     return object;
   }
@@ -596,7 +617,7 @@ public abstract class ListType extends ListTypeBase
   }
 
   @Transaction
-  public static ListType create(JsonObject object)
+  public static ListType apply(JsonObject object)
   {
     ListType list = ListType.fromJSON(object);
 
@@ -699,16 +720,16 @@ public abstract class ListType extends ListTypeBase
     return response;
   }
 
-  public static JsonArray listByOrg(String orgCode)
+  public static JsonObject listForType(String typeCode)
   {
-    JsonArray response = new JsonArray();
+    ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    Organization org = Organization.getByCode(orgCode);
+    Organization org = type.getOrganization();
 
     final boolean isMember = Organization.isMember(org);
 
     ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-    query.WHERE(query.getOrganization().EQ(org));
+    query.WHERE(query.getUniversal().EQ(type.getUniversal()));
 
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -724,28 +745,29 @@ public abstract class ListType extends ListTypeBase
 
         return true;
       }).forEach(list -> {
-        JsonObject object = new JsonObject();
-        object.addProperty("label", list.getDisplayLabel().getValue());
-        object.addProperty("oid", list.getOid());
-        object.addProperty("createDate", format.format(list.getCreateDate()));
-        object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
-        object.addProperty("write", list.doesActorHaveWritePermission());
-        object.addProperty("read", list.doesActorHaveReadPermission());
-
-        lists.add(object);
+        // JsonObject object = new JsonObject();
+        // object.addProperty("label", list.getDisplayLabel().getValue());
+        // object.addProperty("oid", list.getOid());
+        // object.addProperty("createDate",
+        // format.format(list.getCreateDate()));
+        // object.addProperty("lasteUpdateDate",
+        // format.format(list.getLastUpdateDate()));
+        // object.addProperty("write", list.doesActorHaveWritePermission());
+        // object.addProperty("read", list.doesActorHaveReadPermission());
+        //
+        lists.add(list.toJSON());
       });
     }
 
     JsonObject object = new JsonObject();
-    object.addProperty("oid", org.getOid());
-    object.addProperty("code", org.getCode());
-    object.addProperty("label", org.getDisplayLabel().getValue());
+    object.addProperty("orgCode", org.getCode());
+    object.addProperty("orgLabel", org.getDisplayLabel().getValue());
+    object.addProperty("typeCode", type.getCode());
+    object.addProperty("typeLabel", type.getLabel().getValue());
     object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
     object.add("lists", lists);
 
-    response.add(object);
-
-    return response;
+    return object;
   }
 
   @Transaction

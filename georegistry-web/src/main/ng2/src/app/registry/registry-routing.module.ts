@@ -4,7 +4,6 @@ import { Routes, RouterModule } from "@angular/router";
 
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
-import { MasterListManagerComponent } from "./component/master-list/master-list-manager.component";
 import { MasterListComponent } from "./component/master-list/master-list.component";
 import { MasterListViewComponent } from "./component/master-list/master-list-view.component";
 import { DataPageComponent } from "./component/data-page/data-page.component";
@@ -20,6 +19,7 @@ import { DatasetLocationManagerComponent } from "./component/location-manager/da
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
+import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 
 const routes: Routes = [
     {
@@ -49,7 +49,7 @@ const routes: Routes = [
     },
     {
         path: "master-lists",
-        component: MasterListManagerComponent,
+        component: ListTypeManagerComponent,
         canActivate: [AuthGuard]
     },
     {

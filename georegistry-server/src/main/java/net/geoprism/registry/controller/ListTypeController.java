@@ -63,21 +63,20 @@ public class ListTypeController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-org")
-  public ResponseIF listOrg(ClientRequestIF request, @RequestParamter(name = "orgCode") String orgCode)
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-for-type")
+  public ResponseIF listForType(ClientRequestIF request, @RequestParamter(name = "typeCode") String typeCode)
   {
-    JsonObject response = new JsonObject();
-    response.add("orgs", this.service.listByOrg(request.getSessionId(), orgCode));
+    JsonObject response = this.service.listForType(request.getSessionId(), typeCode);
 
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create")
-  public ResponseIF create(ClientRequestIF request, @RequestParamter(name = "list") String listJSON)
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply")
+  public ResponseIF apply(ClientRequestIF request, @RequestParamter(name = "list") String listJSON)
   {
     JsonObject list = JsonParser.parseString(listJSON).getAsJsonObject();
 
-    JsonObject response = this.service.create(request.getSessionId(), list);
+    JsonObject response = this.service.apply(request.getSessionId(), list);
 
     return new RestBodyResponse(response);
   }
@@ -192,16 +191,19 @@ public class ListTypeController
     return new InputStreamResponse(service.downloadShapefile(request.getSessionId(), oid), "application/zip", code + ".zip");
   }
 
-//  @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error = ErrorSerialization.JSON)
-//  public ResponseIF generateShapefile(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws JSONException
-//  {
-//    final String jobId = service.generateShapefile(request.getSessionId(), oid);
-//
-//    final RestResponse response = new RestResponse();
-//    response.set("job", jobId);
-//
-//    return response;
-//  }
+  // @Endpoint(url = "generate-shapefile", method = ServletMethod.POST, error =
+  // ErrorSerialization.JSON)
+  // public ResponseIF generateShapefile(ClientRequestIF request,
+  // @RequestParamter(name = "oid") String oid) throws JSONException
+  // {
+  // final String jobId = service.generateShapefile(request.getSessionId(),
+  // oid);
+  //
+  // final RestResponse response = new RestResponse();
+  // response.set("job", jobId);
+  //
+  // return response;
+  // }
 
   @Endpoint(url = "export-spreadsheet", method = ServletMethod.GET, error = ErrorSerialization.JSON)
   public ResponseIF exportSpreadsheet(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "filter") String filter) throws JSONException

@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1643367015)
+@com.runwaysdk.business.ClassSignature(hash = -1536287559)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -392,6 +392,23 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListTypeVersion.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getVersionNumber()
+  {
+    return getVersionNumber(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getVisibility()
   {
     return getVisibility(null);
@@ -538,6 +555,9 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getVersionNumber();
+    public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias);
+    public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getVisibility();
     public com.runwaysdk.query.SelectableChar getVisibility(String alias);
     public com.runwaysdk.query.SelectableChar getVisibility(String alias, String displayLabel);
@@ -882,6 +902,23 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListTypeVersion.TYPE, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableInteger getVersionNumber()
+  {
+    return getVersionNumber(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getVisibility()
   {
     return getVisibility(null);
@@ -1005,6 +1042,9 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableInteger getVersionNumber();
+    public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias);
+    public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getVisibility();
     public com.runwaysdk.query.SelectableChar getVisibility(String alias);
     public com.runwaysdk.query.SelectableChar getVisibility(String alias, String displayLabel);
@@ -1396,6 +1436,23 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
   public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListTypeVersion.TYPE, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableInteger getVersionNumber()
+  {
+    return getVersionNumber(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getVisibility()

@@ -82,6 +82,7 @@
           <reference name="mdBusiness" type="com.runwaysdk.system.metadata.MdBusiness" required="true" label="MdTable" />          
           <dateTime name="forDate" label="For Date" required="true" immutable="true" />
           <date name="publishDate" label="Publish Date" />
+          <integer name="versionNumber" label="Version Number" required="true" />
           <boolean name="isMaster" label="Is Master" description="Flag denoting if the list is a master list" />
           <char name="visibility" label="Visibility" size="255" required="false" />          
         </attributes> 
@@ -284,28 +285,28 @@
       </role>
       <role roleName="PUBLIC">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
             <operation name="ALL"/>
           </mdBusinessPermission>
         </grant>      
       </role>    
       <role roleName="geoprism.admin.Administrator">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
             <operation name="ALL"/>
           </mdBusinessPermission>
         </grant>
       </role>      
       <role roleName="cgr.RegistryMaintainer">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
             <operation name="ALL"/>
           </mdBusinessPermission>
         </grant>
       </role>
       <role roleName="cgr.APIConsumer">
         <grant>
-          <mdBusinessPermission type="net.geoprism.registry.TileCache">
+          <mdBusinessPermission type="net.geoprism.registry.ListTileCache">
             <operation name="ALL"/>
           </mdBusinessPermission>
         </grant>
@@ -314,7 +315,7 @@
   </doIt>
   <undoIt>
     <delete>
-      <object key="net.geoprism.registry.TileCache" type="com.runwaysdk.system.metadata.MdBusiness" />    
+      <object key="net.geoprism.registry.ListTileCache" type="com.runwaysdk.system.metadata.MdBusiness" />    
       <object key="net.geoprism.registry.etl.PublishListTypeJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
       <object key="net.geoprism.registry.etl.ListTypeJob" type="com.runwaysdk.system.metadata.MdBusiness"/>        
       <object key="net.geoprism.registry.ListTypeAttributeGroup" type="com.runwaysdk.system.metadata.MdBusiness"></object>

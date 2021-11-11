@@ -341,16 +341,16 @@ public class ListTypeTest
   // JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(),
   // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PUBLIC, true);
   //
-  // ListType test1 = ListType.create(json);
+  // ListType test1 = ListType.apply(json);
   //
   // try
   // {
   // json.addProperty(ListType.CODE, "CODE_2");
   //
-  // ListType test2 = ListType.create(json);
+  // ListType test2 = ListType.apply(json);
   // test2.delete();
   //
-  // Assert.fail("Able to create multiple masterlists with the same universal");
+  // Assert.fail("Able to apply multiple masterlists with the same universal");
   // }
   // catch (DuplicateListTypeException e)
   // {
@@ -365,20 +365,20 @@ public class ListTypeTest
   {
     JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
 
-    ListType test1 = ListType.create(json);
+    ListType test1 = ListType.apply(json);
 
     try
     {
       json.addProperty(ListType.CODE, "CODE_2");
 
-      ListType test2 = ListType.create(json);
+      ListType test2 = ListType.apply(json);
       test2.delete();
     }
     catch (DuplicateDataDatabaseException e)
     {
       test1.delete();
 
-      Assert.fail("Not able to create multiple masterlists with the same universal when list is not a master");
+      Assert.fail("Not able to apply multiple masterlists with the same universal when list is not a master");
     }
   }
 
@@ -388,7 +388,7 @@ public class ListTypeTest
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
 
     ListTypeService service = new ListTypeService();
-    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
     String oid = result.get(ComponentInfo.OID).getAsString();
 
@@ -398,28 +398,21 @@ public class ListTypeTest
   }
 
   @Test
-  public void testListByOrg()
+  public void testListForType()
   {
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
 
     ListTypeService service = new ListTypeService();
-    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
     try
     {
-      JsonArray orgs = service.listByOrg(testData.clientRequest.getSessionId(), USATestData.ORG_NPS.getCode());
+      JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
 
-      JsonObject org = null;
-      for (int i = 0; i < orgs.size(); ++i)
-      {
-        if (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
-        {
-          org = orgs.get(i).getAsJsonObject();
-        }
-      }
-
-      Assert.assertNotNull(org.get("oid").getAsString());
-      Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
+      Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
+      Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
+      Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
+      Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
       Assert.assertTrue(org.get("write").getAsBoolean());
       Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
     }
@@ -436,25 +429,18 @@ public class ListTypeTest
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
 
     ListTypeService service = new ListTypeService();
-    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
 
     try
     {
       USATestData.runAsUser(USATestData.USER_PPP_RA, (request, adapter) -> {
 
-        JsonArray orgs = service.listByOrg(request.getSessionId(), USATestData.ORG_NPS.getCode());
+        JsonObject org = service.listForType(testData.clientRequest.getSessionId(), USATestData.STATE.getCode());
 
-        JsonObject org = null;
-        for (int i = 0; i < orgs.size(); ++i)
-        {
-          if (orgs.get(i).getAsJsonObject().get("oid").getAsString().equals(USATestData.ORG_NPS.getServerObject().getOid()))
-          {
-            org = orgs.get(i).getAsJsonObject();
-          }
-        }
-
-        Assert.assertNotNull(org.get("oid").getAsString());
-        Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("label").getAsString());
+        Assert.assertEquals(USATestData.ORG_NPS.getDisplayLabel(), org.get("orgLabel").getAsString());
+        Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
+        Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
+        Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
         Assert.assertFalse(org.get("write").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
       });
@@ -474,7 +460,7 @@ public class ListTypeTest
   // USATestData.HIER_ADMIN, USATestData.STATE, ListType.PRIVATE, false);
   //
   // ListTypeService service = new ListTypeService();
-  // JsonObject result = service.create(testData.clientRequest.getSessionId(),
+  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
   // listJson);
   //
   // try
@@ -515,7 +501,7 @@ public class ListTypeTest
 
       JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
-      ListType test = ListType.create(json);
+      ListType test = ListType.apply(json);
 
       try
       {
@@ -668,7 +654,7 @@ public class ListTypeTest
   {
     JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
-    ListType test = ListType.create(json);
+    ListType test = ListType.apply(json);
 
     try
     {
@@ -691,7 +677,7 @@ public class ListTypeTest
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
     ListTypeService service = new ListTypeService();
-    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
@@ -721,7 +707,7 @@ public class ListTypeTest
       {
         USATestData.runAsUser(user, (request, adapter) -> {
           ListTypeService service = new ListTypeService();
-          service.create(request.getSessionId(), listJson);
+          service.apply(request.getSessionId(), listJson);
         });
       }
       catch (SmartExceptionDTO e)
@@ -737,7 +723,7 @@ public class ListTypeTest
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
     ListTypeService service = new ListTypeService();
-    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
@@ -771,7 +757,7 @@ public class ListTypeTest
     JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
 
     ListTypeService service = new ListTypeService();
-    JsonObject result = service.create(testData.clientRequest.getSessionId(), listJson);
+    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
     String oid = result.get(ComponentInfo.OID).getAsString();
 
     try
@@ -811,13 +797,13 @@ public class ListTypeTest
   // USATestData.COUNTRY);
   //
   // ListTypeService service = new ListTypeService();
-  // JsonObject result = service.create(testData.clientRequest.getSessionId(),
+  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
   // listJson);
   // String oid = result.get(ComponentInfo.OID).getAsString();
   //
   // try
   // {
-  // service.createPublishedVersions(testData.clientRequest.getSessionId(),
+  // service.applyPublishedVersions(testData.clientRequest.getSessionId(),
   // oid);
   //
   // final JsonObject object =
@@ -960,7 +946,7 @@ public class ListTypeTest
   {
     JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
 
-    ListType masterlist = ListType.create(json);
+    ListType masterlist = ListType.apply(json);
 
     try
     {
@@ -980,7 +966,7 @@ public class ListTypeTest
   {
     JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
 
-    ListType masterlist = ListType.create(json);
+    ListType masterlist = ListType.apply(json);
 
     try
     {
@@ -1000,7 +986,7 @@ public class ListTypeTest
   {
     JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
 
-    ListType masterlist = ListType.create(json);
+    ListType masterlist = ListType.apply(json);
 
     try
     {
@@ -1020,7 +1006,7 @@ public class ListTypeTest
   {
     JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.DISTRICT, USATestData.COUNTRY, USATestData.STATE);
 
-    ListType masterlist = ListType.create(json);
+    ListType masterlist = ListType.apply(json);
 
     try
     {
@@ -1040,7 +1026,7 @@ public class ListTypeTest
   {
     JsonObject json = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE);
 
-    ListType masterlist = ListType.create(json);
+    ListType masterlist = ListType.apply(json);
 
     try
     {

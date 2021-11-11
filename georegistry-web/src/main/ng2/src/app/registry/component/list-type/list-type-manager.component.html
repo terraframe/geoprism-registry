@@ -1,0 +1,62 @@
+<div class="new-admin-design-main">
+    <cgr-header></cgr-header>
+    <loading-bar></loading-bar>
+
+
+    <div id="app-container" class="container-fluid">
+
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="row">
+
+            <nav class="col-md-3 hierarchy-sidebar">
+                <div class="sidebar-section-content">
+                    <ul *ngFor="let typeByOrg of typesByOrg;" class="list-group">
+                        <div>
+
+                            <div class="got-org-label-wrapper">
+                                <label>{{typeByOrg.org.label.localizedValue}}</label>
+                            </div>
+
+                            <li class="list-group-item got-li-item clickable" *ngFor="let type of typeByOrg.types"
+                                [id]="type.code" (click)="onTypeClick(type)">
+                                {{type.label.localizedValue}}
+                            </li>
+                        </div>
+                    </ul>
+                </div>
+            </nav>
+            <div class="col-md-9 hierarchy-content">
+                <div id="overflow-div">
+                    <ng-container *ngIf="listByType != null">
+                        <div class="heading">
+                            <h2>
+                                {{listByType.orgLabel}} : {{listByType.typeLabel}}
+                            </h2>
+                        </div>
+                        <div class="subheading">
+                            <h3>
+                                Lists and Spatial Data
+                            </h3>
+                        </div>
+                        <hr />
+                        <div *ngIf="listByType.write" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                            <div class="col-md-6">
+                                <div>
+                                    <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                                        <localize key="hierarchy.management.button.create"></localize>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngFor="let list of listByType.lists; let i = index;" class="row clickable">
+                            {{list.label.localizedValue}}
+                        </div>
+
+                    </ng-container>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
