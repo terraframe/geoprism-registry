@@ -142,6 +142,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     editingControl: any;
 
+    visualizeRelationshipsForGO: GeoObject = null;
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService, private mapService: MapService, private geomService: GeometryService, public service: RegistryService,
         private route: ActivatedRoute, private router: Router, private lService: LocalizationService) { }
@@ -490,6 +492,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
+    stopVisualizingRelationships(): void {
+        if (this.visualizeRelationshipsForGO != null) {
+            this.visualizeRelationshipsForGO = null;
+            window.setTimeout(() => {
+                this.ngOnDestroy();
+                this.ngAfterViewInit();
+            }, 5);
+        }
+    }
+
     zoomToFeature(node: GeoObject, event: MouseEvent): void {
         if (event != null) {
             event.stopPropagation();
@@ -497,6 +509,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         this.preventSingleClick = false;
         const delay = 200;
+
+        this.stopVisualizingRelationships();
 
         this.timer = setTimeout(() => {
             if (!this.preventSingleClick) {
@@ -518,6 +532,22 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }, delay);
     }
 
+    visualizeRelationships(node: GeoObject, event: MouseEvent): void {
+        if (event != null) {
+            event.stopPropagation();
+        }
+
+        if (this.visualizeRelationshipsForGO != null) {
+            this.visualizeRelationshipsForGO = null;
+
+            window.setTimeout(() => {
+                this.visualizeRelationshipsForGO = node;
+            }, 5);
+        } else {
+            this.visualizeRelationshipsForGO = node;
+        }
+    }
+
     select(node: GeoObject, event: MouseEvent): void {
         /*
         if (this.forDate == null) {
@@ -530,6 +560,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (event != null) {
             event.stopPropagation();
         }
+
+        this.stopVisualizingRelationships();
 
         this.service.getGeoObjectTypes([node.properties.type], null).then(types => {
             this.type = types[0];

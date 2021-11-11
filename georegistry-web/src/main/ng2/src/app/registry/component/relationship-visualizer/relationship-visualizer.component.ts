@@ -1,14 +1,15 @@
 /* eslint-disable indent */
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
-import * as d3 from "d3";
-import * as d3Dag from "d3-dag";
+import { HierarchyGroupedTypeView } from "@registry/model/hierarchy";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 
-import { RegistryService, HierarchyService } from "@registry/service";
+import { RegistryService, HierarchyService, IOService } from "@registry/service";
+import { GeoObject } from "@registry/model/registry";
+import { Subject } from "rxjs";
 
 export const DRAW_SCALE_MULTIPLIER: number = 1.0;
 
@@ -29,29 +30,82 @@ export class RelationshipVisualizerComponent implements OnInit {
   */
   private bsModalRef: BsModalRef;
 
+  @Input() geoObject: GeoObject = null;
+
+/*
   private data: any = {
       links: [["1", "2"], ["1", "22"], ["2", "3"]],
       nodes: [{id:"1", level:1}, {id:"2", level:2}, {id:"22", level:2}, {id:"3", level:3}]
   };
+  */
+
+  private data: any = null;
+
+  hierarchies: any[];
+
+  private hierarchyCode: string = null;
+
+  private width: number = 500;
+  private height: number = 500;
+
+  panToNode$: Subject<string> = new Subject();
 
   // eslint-disable-next-line no-useless-constructor
-  constructor(hierarchyService: HierarchyService, private modalService: BsModalService,
+  constructor(private hierarchyService: HierarchyService, private modalService: BsModalService, private ioService: IOService,
       localizeService: LocalizationService, private registryService: RegistryService, private authService: AuthService) {}
 
   ngOnInit(): void {
-      this.draw();
+      this.fetchHierarchies();
   }
 
-  private draw(): void {
+  private fetchHierarchies(): void {
+      if (this.geoObject != null) {
+        this.ioService.getHierarchiesForType(this.geoObject.properties.type, false).then(hierarchies => {
+            this.hierarchies = hierarchies;
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+      } else {
+          this.hierarchyService.getHierarchyGroupedTypes().then(views => {
+              this.hierarchies = views;
+          });
+      }
+  }
+
+  private onSelectHierarchy() {
+      this.fetchData();
+  }
+
+  private fetchData(): void {
+      this.hierarchyService.fetchRelationshipVisualizerData(this.hierarchyCode).then(data => {
+          let graphContainer = document.getElementById("graph-container");
+          this.height = graphContainer.clientHeight;
+          this.width = graphContainer.clientWidth;
+
+          this.data = data;
+          //this.draw();
+
+          if (this.geoObject != null) {
+              window.setTimeout(() => {
+                  this.panToNode$.next("g-" + this.geoObject.properties.uid);
+              }, 10);
+          }
+      });
+  }
+
+  private stringify(data: any): string {
+    return JSON.stringify(data);
+  }
+
+/*
+  private drawD3(): void {
       const connect = d3Dag.dagConnect();
       const dag = connect(this.data.links);
 
-      /*
       // Topological layout
-      let layout = d3Dag.zherebko();
-      layout = layout.size([8,8]);
-      layout(dag);
-      */
+      //let layout = d3Dag.zherebko();
+      //layout = layout.size([8,8]);
+      //layout(dag);
 
       let layout = d3Dag.sugiyama();
       layout = layout.nodeSize(node => node === undefined ? [0, 0] : [200, 200]);
@@ -128,6 +182,7 @@ export class RelationshipVisualizerComponent implements OnInit {
       // d3.select("#svgHolder").style("width", width + "px");
       // d3.select("#svgHolder").style("height", height + "px");
   }
+  */
 
   public error(err: HttpErrorResponse): void {
       this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

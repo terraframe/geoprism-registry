@@ -114,6 +114,7 @@ import { TransitionEventModalComponent } from "./component/transition-event/tran
 import { HistoricalReportComponent } from "./component/historical-report/historical-report.component";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 
+import { NgxGraphModule } from "@swimlane/ngx-graph";
 import { DndModule } from "ngx-drag-drop";
 
 @NgModule({
@@ -135,6 +136,7 @@ import { DndModule } from "ngx-drag-drop";
         SharedModule,
         RegistryRoutingModule,
         DndModule,
+        NgxGraphModule,
         AccordionModule.forRoot()
     ],
     declarations: [

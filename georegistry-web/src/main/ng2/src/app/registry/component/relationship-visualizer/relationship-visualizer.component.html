@@ -1,19 +1,91 @@
 <div class="new-admin-design-main" style="overflow-y:hidden;">
-	<cgr-header></cgr-header>
 
-	<loading-bar></loading-bar>
+	<div id="app-container" style="height:100%; width:100%;" class="container-fluid">
 
-	<div id="app-container" class="container-fluid">
+		<h2> <localize key="relationshipVisualizer.title"></localize> </h2>
+		<div *ngIf="hierarchies" style="height:100%; width:100%;" class="row">
 
-		<h2> Relationship Visualizer? </h2>
-		<div class="row">
+      <div style="padding-top:10px;" class="form-group row">
+          <label style="padding-top:8px;" class="col-md-2 text-right" for="hierarchyCode"> <localize key="io.modal.hierarchy"></localize></label>
+          <div class="col-md-8">
+              <select id="hierarchyCode" name="hierarchyCode" class="select-area" [(ngModel)]="hierarchyCode" (change)="onSelectHierarchy()" required>
+                  <option></option>
+                  <option *ngFor="let hierarchy of hierarchies" value={{hierarchy.code}}>{{hierarchy.label}}</option>
+              </select>
+          </div>
+          <div class="col-md-2"></div>
+      </div>
 
-			<div class="col-md-9 hierarchy-content">
-				<div id="overflow-div">
+			<div class="hierarchy-content" style="height:100%; width:100%;">
+				<div id="graph-container" style="height:100%; width:100%;">
 
+          <ngx-graph *ngIf="data"
+            class="chart-container"
+            [view]="[width, height]"
+            [links]="data.edges"
+            [nodes]="data.verticies"
+            [draggingEnabled]="false"
+            [layoutSettings]="{ orientation: 'TB' }"
+            [panToNode$]="panToNode$"
+          >
+            <ng-template #nodeTemplate let-node>
+					    <svg:g class="node">
+					      <svg:rect
+					        [attr.width]="node.dimension.width"
+					        [attr.height]="node.dimension.height"
+					        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
+					      />
+					      
+					      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
+                  {{node.label}}
+                </svg:text>
+                <!--
+                <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
+                  {{stringify(node.id)}}
+                </svg:text>
+                -->
+					    </svg:g>
+					  </ng-template>
+          </ngx-graph>
+          
+          <!--
+          <ngx-graph
+					  class="chart-container"
+					  [view]="[500, 200]"
+					  [links]="[
+					    {
+					      id: 'a',
+					      source: 'first',
+					    target: 'second',
+					      label: 'is parent of'
+					    }, {
+					      id: 'b',
+					      source: 'first',
+					      target: 'third',
+					      label: 'custom label'
+					    }
+					  ]"
+					  [nodes]="[
+					    {
+					      id: 'first',
+					      label: 'A'
+					    }, {
+					      id: 'second',
+					      label: 'B'
+					    }, {
+					      id: 'third',
+					      label: 'C'
+					    }
+					  ]"
+					  (select)="onNodeSelect($event)"
+					>
+					</ngx-graph>
+					-->
+
+          <!--
 					<div id="svgHolder">
-						<!-- <svg id="graph" style="width:1200px; height:750px"></svg> -->
 					</div>
+					-->
 				</div>
 			</div>
 		</div>

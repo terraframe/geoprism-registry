@@ -19,11 +19,14 @@
 package net.geoprism.registry.hierarchy;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.HierarchyNode;
@@ -32,6 +35,11 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.dataaccess.MdEdgeDAOIF;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
@@ -43,45 +51,140 @@ import net.geoprism.registry.geoobjecttype.AssignPublicChildOfPrivateType;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.GeoObjectRelationshipPermissionServiceIF;
 import net.geoprism.registry.permission.GeoObjectTypePermissionServiceIF;
 import net.geoprism.registry.permission.HierarchyTypePermissionServiceIF;
 import net.geoprism.registry.permission.PermissionContext;
 import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.query.graph.VertexGeoObjectQuery;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.view.ServerParentTreeNodeOverTime;
 
 public class HierarchyService
 {
   @Request(RequestType.SESSION)
-  public JsonElement initializeRelationshipVisualizer(String sessionId, String hierarchyCode, String goCode, String goTypeCode)
+  public JsonElement fetchRelationshipVisualizerData(String sessionId, Date date, String hierarchyCode)
   {
-//    final HierarchyTypePermissionServiceIF hierarchyPermissions = ServiceFactory.getHierarchyPermissionService();
-//    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
-//    final RolePermissionService rps = ServiceFactory.getRolePermissionService();
-//    final boolean isSRA = rps.isSRA();
-//
+    if (date == null)
+    {
+      date = new Date();
+    }
+    
+    final HierarchyTypePermissionServiceIF hierarchyPermissions = ServiceFactory.getHierarchyPermissionService();
+    final GeoObjectTypePermissionServiceIF typePermissions = ServiceFactory.getGeoObjectTypePermissionService();
+    final RolePermissionService rps = ServiceFactory.getRolePermissionService();
+    final boolean isSRA = rps.isSRA();
+
     JsonObject view = new JsonObject();
-//    
-//    ServerHierarchyType sht = ServiceFactory.getMetadataCache().getHierachyType(hierarchyCode).get();
-//    
-//    final String htOrgCode = sht.getOrganizationCode();
-//    final HierarchyType ht = sht.getType();
-//
-//    if (hierarchyPermissions.canRead(ht.getOrganizationCode()) && ( isSRA || rps.isRA(htOrgCode) || rps.isRM(htOrgCode) ))
-//    {
-//      view.addProperty("code", ht.getCode());
-//      view.addProperty("label", ht.getLabel().getValue());
-//      view.addProperty("orgCode", ht.getOrganizationCode());
-//      
-//      Iterator<HierarchyNode> it = ht.getAllNodesIterator();
-//      
-//      HierarchyNode root = it.next();
-//      
-//      GeoObjectType rootGot = root.getGeoObjectType();
-//    }
-//    
+    
+    JsonArray jaEdges = new JsonArray();
+    view.add("edges", jaEdges);
+    
+    JsonArray jaVerticies = new JsonArray();
+    view.add("verticies", jaVerticies);
+    
+    ServerHierarchyType sht = ServiceFactory.getMetadataCache().getHierachyType(hierarchyCode).get();
+    
+    final String htOrgCode = sht.getOrganizationCode();
+    final HierarchyType ht = sht.getType();
+
+    if (hierarchyPermissions.canRead(ht.getOrganizationCode()) && ( isSRA || rps.isRA(htOrgCode) || rps.isRM(htOrgCode) ))
+    {
+      Iterator<HierarchyNode> it = ht.getAllNodesIterator();
+      
+      HierarchyNode root = it.next();
+      
+      GeoObjectType rootGot = root.getGeoObjectType();
+      ServerGeoObjectType serverType = ServerGeoObjectType.get(rootGot);
+      
+      VertexServerGeoObject rootGo = (VertexServerGeoObject) new VertexGeoObjectQuery(serverType, null).getSingleResult();
+      
+      JsonObject joVertex = new JsonObject();
+      joVertex.addProperty("id", "g-" + rootGo.getUid());
+      joVertex.addProperty("code", rootGo.getCode());
+      joVertex.addProperty("label", rootGo.getDisplayLabel().getValue());
+      jaVerticies.add(joVertex);
+      
+      internalFetchRelationshipVisualizerData(rootGo, sht, date, jaEdges, jaVerticies);
+    }
+    
     return view;
+  }
+  
+  private void internalFetchRelationshipVisualizerData(VertexServerGeoObject goParent, ServerHierarchyType sht, Date date, JsonArray jaEdges, JsonArray jaVerticies)
+  {
+    Map<String, Object> parameters = new HashedMap<String, Object>();
+    parameters.put("rid", goParent.getVertex().getRID());
+
+    StringBuilder statement = new StringBuilder();
+    statement.append("SELECT EXPAND(outE(");
+
+    if (sht != null)
+    {
+      statement.append("'" + sht.getMdEdge().getDBClassName() + "'");
+    }
+    statement.append(")");
+
+//    if (childrenTypes != null && childrenTypes.length > 0)
+//    {
+//      statement.append("[");
+//
+//      for (int i = 0; i < childrenTypes.length; i++)
+//      {
+//        ServerGeoObjectType type = ServerGeoObjectType.get(childrenTypes[i]);
+//        final String paramName = "p" + Integer.toString(i);
+//
+//        if (i > 0)
+//        {
+//          statement.append(" OR ");
+//        }
+//
+//        statement.append("in.@class = :" + paramName);
+//
+//        parameters.put(paramName, type.getMdVertex().getDBClassName());
+//      }
+//
+//      statement.append("]");
+//    }
+
+    statement.append(") FROM :rid");
+
+    GraphQuery<EdgeObject> query = new GraphQuery<EdgeObject>(statement.toString(), parameters);
+
+    List<EdgeObject> edges = query.getResults();
+
+    for (EdgeObject edge : edges)
+    {
+      MdEdgeDAOIF mdEdge = (MdEdgeDAOIF) edge.getMdClass();
+
+      if (VertexServerGeoObject.isEdgeAHierarchyType(mdEdge.definesType()))
+      {
+        VertexObject childVertex = edge.getChild();
+
+        MdVertexDAOIF mdVertex = (MdVertexDAOIF) childVertex.getMdClass();
+
+        ServerHierarchyType ht2 = ServerHierarchyType.get(mdEdge);
+        ServerGeoObjectType childType = ServerGeoObjectType.get(mdVertex);
+
+        VertexServerGeoObject child = new VertexServerGeoObject(childType, childVertex, date);
+
+        internalFetchRelationshipVisualizerData(child, ht2, date, jaEdges, jaVerticies);
+        
+        JsonObject joVertex = new JsonObject();
+        joVertex.addProperty("id", "g-" + child.getUid());
+        joVertex.addProperty("code", child.getCode());
+        joVertex.addProperty("label", child.getDisplayLabel().getValue());
+        jaVerticies.add(joVertex);
+        
+        JsonObject joEdge = new JsonObject();
+        joEdge.addProperty("id", "g-" + child.getUid());
+        joEdge.addProperty("source", "g-" + goParent.getUid());
+        joEdge.addProperty("target", "g-" + child.getUid());
+        joEdge.addProperty("label", child.getDisplayLabel().getValue());
+        jaEdges.add(joEdge);
+      }
+    }
   }
   
   @Request(RequestType.SESSION)
