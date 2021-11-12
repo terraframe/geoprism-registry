@@ -46,14 +46,6 @@ public class HierarchyController
     this.registryService = RegistryService.getInstance();
   }
   
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "fetchRelationshipVisualizerData")
-  public ResponseIF fetchRelationshipVisualizerData(ClientRequestIF request, @RequestParamter(name = "hierarchyCode") String hierarchyCode)
-  {
-    JsonElement json = ServiceFactory.getHierarchyService().fetchRelationshipVisualizerData(request.getSessionId(), null, hierarchyCode);
-
-    return new RestBodyResponse(json);
-  }
-  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "groupedTypes")
   public ResponseIF getHierarchyGroupedTypes(ClientRequestIF request)
   {

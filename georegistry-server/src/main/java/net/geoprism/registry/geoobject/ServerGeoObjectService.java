@@ -127,9 +127,9 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     parent.removeChild(child, hierarchyCode);
   }
-
+  
   @Transaction
-  public ServerGeoObjectIF apply(GeoObject object, boolean isNew, boolean isImport)
+  public ServerGeoObjectIF apply(GeoObject object, Date startDate, Date endDate, boolean isNew, boolean isImport)
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(object.getType());
     ServerGeoObjectStrategyIF strategy = this.getStrategy(type);
@@ -150,7 +150,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       geoObject.lock();
     }
 
-    geoObject.populate(object);
+    geoObject.populate(object, startDate, endDate);
 
     try
     {
@@ -165,6 +165,12 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
       throw e;
     }
+  }
+
+  @Transaction
+  public ServerGeoObjectIF apply(GeoObject object, boolean isNew, boolean isImport)
+  {
+    return this.apply(object, null, null, isNew, isImport);
   }
 
   @Transaction

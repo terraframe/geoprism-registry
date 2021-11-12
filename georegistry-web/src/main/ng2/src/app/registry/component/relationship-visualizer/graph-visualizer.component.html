@@ -1,0 +1,42 @@
+<div class="new-admin-design-main" style="overflow-y:hidden;">
+
+	<div id="app-container" style="height:100%; width:100%;" class="container-fluid">
+
+		<h2> <localize key="graphVisualizer.title"></localize> </h2>
+		<div style="height:100%; width:100%;" class="row">
+
+			<div id="graph-container" style="height:100%; width:100%;">
+
+         <ngx-graph *ngIf="data"
+           class="chart-container"
+           [view]="[width, height]"
+           [links]="data.edges"
+           [nodes]="data.verticies"
+           [draggingEnabled]="false"
+           [layoutSettings]="{ orientation: 'TB' }"
+           [panToNode$]="panToNode$"
+         >
+           <ng-template #nodeTemplate let-node>
+				    <svg:g class="node">
+				      <svg:rect
+				        [attr.width]="node.dimension.width"
+				        [attr.height]="node.dimension.height"
+				        [attr.fill]="geoObject == null ? node.data.color : (('g-' + geoObject.properties.uid) === node.id ? '#4287f5' : 'gray')"
+				      />
+				      
+				      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
+                 {{node.label}}
+               </svg:text>
+               <!--
+               <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
+                 {{stringify(node.id)}}
+               </svg:text>
+               -->
+				    </svg:g>
+				  </ng-template>
+         </ngx-graph>
+			</div>
+		</div>
+	</div>
+
+</div>

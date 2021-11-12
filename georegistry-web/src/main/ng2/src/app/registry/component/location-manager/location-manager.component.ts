@@ -10,11 +10,11 @@ import bbox from "@turf/bbox";
 import { Subject } from "rxjs";
 
 import { GeoObject, ContextLayer, GeoObjectType, ValueOverTime } from "@registry/model/registry";
-import { ModalState } from "@registry/model/location-manager";
+import { ModalState, VisualizeState } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
+import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { LocalizationService } from "@shared/service";
 
@@ -40,6 +40,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         VIEW: 1
     }
 
+    VISUALIZE_MODE: VisualizeState = {
+        MAP: 0,
+        HIERARCHY: 1,
+        GRAPH: 2
+    }
+
     urlSubscriber: any;
 
     editSessionEnabled: boolean = false;
@@ -60,6 +66,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      *  MODE
      */
     mode: number = this.MODE.SEARCH;
+
+    visualizeMode: number = this.VISUALIZE_MODE.MAP;
 
     /*
      * Date of data for explorer
@@ -141,8 +149,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
     editingControl: any;
-
-    visualizeRelationshipsForGO: GeoObject = null;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService, private mapService: MapService, private geomService: GeometryService, public service: RegistryService,
@@ -231,6 +237,27 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onModeChange(value: boolean): void {
         this.isEdit = value;
+    }
+
+    changeVisualizeMode(visualizeMode: number): void {
+        if (this.visualizeMode !== this.VISUALIZE_MODE.MAP && visualizeMode === this.VISUALIZE_MODE.MAP) {
+            window.setTimeout(() => {
+                this.ngOnDestroy();
+                this.ngAfterViewInit();
+            }, 5);
+        }
+
+        this.visualizeMode = visualizeMode;
+    }
+
+    visualizeRelationships(node: GeoObject, visualizeMode: number, event: MouseEvent): void {
+        if (event != null) {
+            event.stopPropagation();
+        }
+
+        this.current = node;
+
+        this.changeVisualizeMode(visualizeMode);
     }
 
     handleDateChange(): void {
@@ -492,16 +519,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
-    stopVisualizingRelationships(): void {
-        if (this.visualizeRelationshipsForGO != null) {
-            this.visualizeRelationshipsForGO = null;
-            window.setTimeout(() => {
-                this.ngOnDestroy();
-                this.ngAfterViewInit();
-            }, 5);
-        }
-    }
-
     zoomToFeature(node: GeoObject, event: MouseEvent): void {
         if (event != null) {
             event.stopPropagation();
@@ -510,7 +527,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.preventSingleClick = false;
         const delay = 200;
 
-        this.stopVisualizingRelationships();
+        this.changeVisualizeMode(this.VISUALIZE_MODE.MAP);
 
         this.timer = setTimeout(() => {
             if (!this.preventSingleClick) {
@@ -532,22 +549,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }, delay);
     }
 
-    visualizeRelationships(node: GeoObject, event: MouseEvent): void {
-        if (event != null) {
-            event.stopPropagation();
-        }
-
-        if (this.visualizeRelationshipsForGO != null) {
-            this.visualizeRelationshipsForGO = null;
-
-            window.setTimeout(() => {
-                this.visualizeRelationshipsForGO = node;
-            }, 5);
-        } else {
-            this.visualizeRelationshipsForGO = node;
-        }
-    }
-
     select(node: GeoObject, event: MouseEvent): void {
         /*
         if (this.forDate == null) {
@@ -560,8 +561,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (event != null) {
             event.stopPropagation();
         }
-
-        this.stopVisualizingRelationships();
 
         this.service.getGeoObjectTypes([node.properties.type], null).then(types => {
             this.type = types[0];

@@ -38,8 +38,13 @@
                         </button>
                       </span>
                     </div>
-                    <div *ngIf="mode === MODE.VIEW && current != null" style="padding: 20px 0;">
-                      <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>              
+                    <div *ngIf="mode === MODE.VIEW && current != null" style="padding: 20px 0; margin-bottom:20px;">
+                      <i class="col-md-6 fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>
+                      <div class="col-md-6 card-body">
+					              <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="zoomToFeature(current, $event)" [title]="'explorer.zoom.label' | localize"></i>
+					              <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+					              <i class="fa fa-share-alt clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(current, VISUALIZE_MODE.GRAPH, $event)" [title]="'graphVisualizer.tooltip' | localize"></i>
+					            </div>
                     </div>
                     
                   </div>
@@ -58,7 +63,8 @@
                         <div class="card card-default" (click)="select(node, $event)">
                           <div class="card-body">
                             <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
-                            <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, $event)" [title]="'visualize relationships TODOLOC' | localize"></i>
+                            <i class="fa fa-sitemap clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, VISUALIZE_MODE.HIERARCHY, $event)" [title]="'hierarchyVisualizer.tooltip' | localize"></i>
+                            <i class="fa fa-share-alt clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="visualizeRelationships(node, VISUALIZE_MODE.GRAPH, $event)" [title]="'graphVisualizer.tooltip' | localize"></i>
                             <h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">{{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
                           </div>
                         </div>
@@ -71,9 +77,6 @@
         </div>    
         <div *ngIf="mode === MODE.VIEW && current != null" class="row">
           <div class="col-md-12">
-<!--             <div style="padding: 20px 0;"> -->
-<!--               <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>               -->
-<!--             </div> -->
             <feature-panel
               [type]="type"
               [code]="current.properties.code"              
@@ -88,7 +91,7 @@
         </div>            
       </div>
 
-      <div *ngIf="!visualizeRelationshipsForGO" class="col-md-7" id="site-explorer-map">
+      <div *ngIf="visualizeMode === VISUALIZE_MODE.MAP" class="col-md-7" id="site-explorer-map">
         <div class="row">
           
           <article class="base-layer-panel">
@@ -121,12 +124,20 @@
         </div>
       </div>
       
-      <div *ngIf="visualizeRelationshipsForGO" style="height: calc(100vh - 145px);" class="col-md-7">
-        <relationship-visualizer
-          [geoObject]="visualizeRelationshipsForGO"
+      <div *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY" style="height: calc(100vh - 145px);" class="col-md-7">
+        <hierarchy-visualizer
+          [geoObject]="current"
         >
         
-        </relationship-visualizer>
+        </hierarchy-visualizer>
+      </div>
+      
+      <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH" style="height: calc(100vh - 145px);" class="col-md-7">
+        <graph-visualizer
+          [geoObject]="current"
+        >
+        
+        </graph-visualizer>
       </div>
     </div>
   </div>

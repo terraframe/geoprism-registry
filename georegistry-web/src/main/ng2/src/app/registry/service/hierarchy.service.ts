@@ -43,20 +43,6 @@ export class HierarchyService {
             .toPromise();
     }
 
-    fetchRelationshipVisualizerData(hierarchyCode: string): Promise<any> {
-        let params: HttpParams = new HttpParams();
-        params = params.set("hierarchyCode", hierarchyCode);
-
-        this.eventService.start();
-
-        return this.http
-            .get<any>(acp + "/hierarchy/fetchRelationshipVisualizerData", { params: params })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
     getHierarchyGroupedTypes(): Promise<HierarchyGroupedTypeView[]> {
         let params: HttpParams = new HttpParams();
 

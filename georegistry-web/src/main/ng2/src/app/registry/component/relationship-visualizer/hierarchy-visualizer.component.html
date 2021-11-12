@@ -2,7 +2,7 @@
 
 	<div id="app-container" style="height:100%; width:100%;" class="container-fluid">
 
-		<h2> <localize key="relationshipVisualizer.title"></localize> </h2>
+		<h2> <localize key="hierarchyVisualizer.title"></localize> </h2>
 		<div *ngIf="hierarchies" style="height:100%; width:100%;" class="row">
 
       <div style="padding-top:10px;" class="form-group row">
@@ -27,6 +27,7 @@
             [draggingEnabled]="false"
             [layoutSettings]="{ orientation: 'TB' }"
             [panToNode$]="panToNode$"
+            [update$]="update$"
           >
             <ng-template #nodeTemplate let-node>
 					    <svg:g class="node">
@@ -47,45 +48,6 @@
 					    </svg:g>
 					  </ng-template>
           </ngx-graph>
-          
-          <!--
-          <ngx-graph
-					  class="chart-container"
-					  [view]="[500, 200]"
-					  [links]="[
-					    {
-					      id: 'a',
-					      source: 'first',
-					    target: 'second',
-					      label: 'is parent of'
-					    }, {
-					      id: 'b',
-					      source: 'first',
-					      target: 'third',
-					      label: 'custom label'
-					    }
-					  ]"
-					  [nodes]="[
-					    {
-					      id: 'first',
-					      label: 'A'
-					    }, {
-					      id: 'second',
-					      label: 'B'
-					    }, {
-					      id: 'third',
-					      label: 'C'
-					    }
-					  ]"
-					  (select)="onNodeSelect($event)"
-					>
-					</ngx-graph>
-					-->
-
-          <!--
-					<div id="svgHolder">
-					</div>
-					-->
 				</div>
 			</div>
 		</div>

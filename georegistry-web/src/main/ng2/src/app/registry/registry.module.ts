@@ -17,7 +17,8 @@ import { ExportSystemModalComponent } from "./component/master-list/export-syste
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
-import { RelationshipVisualizerComponent } from "./component/relationship-visualizer/relationship-visualizer.component";
+import { HierarchyVisualizerComponent } from "./component/relationship-visualizer/hierarchy-visualizer.component";
+import { GraphVisualizerComponent } from "./component/relationship-visualizer/graph-visualizer.component";
 import { CreateHierarchyTypeModalComponent } from "./component/hierarchy/modals/create-hierarchy-type-modal.component";
 import { AddChildToHierarchyModalComponent } from "./component/hierarchy/modals/add-child-to-hierarchy-modal.component";
 import { CreateGeoObjTypeModalComponent } from "./component/hierarchy/modals/create-geoobjtype-modal.component";
@@ -94,6 +95,7 @@ import { ToEpochDateTimePipe } from "./pipe/to-epoch-date-time.pipe";
 import { RegistryService } from "./service/registry.service";
 import { TaskService } from "./service/task.service";
 import { HierarchyService } from "./service/hierarchy.service";
+import { RelationshipVisualizationService } from "./service/relationship-visualization.service";
 import { SynchronizationConfigService } from "./service/synchronization-config.service";
 import { LocalizationManagerService } from "./service/localization-manager.service";
 import { ChangeRequestService } from "./service/change-request.service";
@@ -141,7 +143,8 @@ import { DndModule } from "ngx-drag-drop";
     ],
     declarations: [
         HierarchyComponent,
-        RelationshipVisualizerComponent,
+        HierarchyVisualizerComponent,
+        GraphVisualizerComponent,
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
         ImportTypesModalComponent,
@@ -229,6 +232,7 @@ import { DndModule } from "ngx-drag-drop";
     providers: [
         MapService,
         HierarchyService,
+        RelationshipVisualizationService,
         LocalizationManagerService,
         ChangeRequestService,
         IOService,

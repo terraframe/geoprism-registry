@@ -132,6 +132,8 @@ public interface ServerGeoObjectIF
   public void unlock();
 
   public void populate(GeoObject geoObject);
+  
+  public void populate(GeoObject object, Date startDate, Date endDate);
 
   public void populate(GeoObjectOverTime goTime);
 

@@ -18,3 +18,9 @@ export class ModalState {
     SEARCH: number;
     VIEW: number;
 }
+
+export class VisualizeState {
+    MAP: number;
+    HIERARCHY: number;
+    GRAPH: number;
+}
