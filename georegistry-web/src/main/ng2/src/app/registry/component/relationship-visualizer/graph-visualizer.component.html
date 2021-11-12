@@ -13,7 +13,6 @@
            [links]="data.edges"
            [nodes]="data.verticies"
            [draggingEnabled]="false"
-           [layoutSettings]="{ orientation: 'TB' }"
            [panToNode$]="panToNode$"
          >
            <ng-template #nodeTemplate let-node>
@@ -27,11 +26,21 @@
 				      <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
                  {{node.label}}
                </svg:text>
-               <!--
-               <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
-                 {{stringify(node.id)}}
-               </svg:text>
-               -->
+				    </svg:g>
+				  </ng-template>
+				  <ng-template #linkTemplate let-link>
+				    <svg:g class="edge">
+				      <svg:path class="line" stroke-width="2" marker-end="url(#arrow)"></svg:path>
+				      <svg:text class="edge-label" text-anchor="middle">
+				        <textPath
+				          class="text-path"
+				          [attr.href]="'#' + link.id"
+				          [style.dominant-baseline]="link.dominantBaseline"
+				          startOffset="50%"
+				        >
+				          {{link.label}}
+				        </textPath>
+				      </svg:text>
 				    </svg:g>
 				  </ng-template>
          </ngx-graph>

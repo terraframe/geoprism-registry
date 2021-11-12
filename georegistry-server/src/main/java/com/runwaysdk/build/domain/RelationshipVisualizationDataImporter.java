@@ -14,6 +14,8 @@ import org.commongeoregistry.adapter.metadata.GeoObjectType;
 import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wololo.jts2geojson.GeoJSONReader;
+import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -25,6 +27,7 @@ import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
+import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
@@ -56,6 +59,18 @@ public class RelationshipVisualizationDataImporter
   
   public static final String GOT_DOCK = "Dock";
   private ServerGeoObjectType sgotDock;
+  
+  public static final String GOT_CHANNEL = "Channel";
+  private ServerGeoObjectType sgotChannel;
+  
+  public static final String GOT_PROJECT = "Project";
+  private ServerGeoObjectType sgotProject;
+  
+  public static final String GOT_REGULATORY_BOUNDARY = "RegulatoryBoundry";
+  private ServerGeoObjectType sgotRegulatoryBoundary;
+  
+  public static final String GOT_SITE = "Site";
+  private ServerGeoObjectType sgotSite;
   
   public static void main(String[] args) throws Exception
   {
@@ -106,110 +121,213 @@ public class RelationshipVisualizationDataImporter
     this.sgotDock.createAttributeType(AttributeType.factory("purpose", new LocalizedValue("Purpose"), new LocalizedValue("Purpose"), AttributeCharacterType.TYPE, false, false, false));
     this.sgotDock.createAttributeType(AttributeType.factory("owners", new LocalizedValue("Owners"), new LocalizedValue("Owners"), AttributeCharacterType.TYPE, false, false, false));
     this.sgotDock.createAttributeType(AttributeType.factory("streetAddress", new LocalizedValue("Street Address"), new LocalizedValue("Street Address"), AttributeCharacterType.TYPE, false, false, false));
+    
+    this.sgotChannel = new ServerGeoObjectTypeConverter().create(new GeoObjectType(GOT_CHANNEL, GeometryType.MULTIPOLYGON, new LocalizedValue("Channel"), new LocalizedValue("Channel"), true, this.organization.getCode(), ServiceFactory.getAdapter()));
+    this.sgotChannel.createAttributeType(AttributeType.factory("sourceData", new LocalizedValue("Source Data"), new LocalizedValue("Source Data"), AttributeCharacterType.TYPE, false, false, false));
+    
+    this.sgotProject = new ServerGeoObjectTypeConverter().create(new GeoObjectType(GOT_PROJECT, GeometryType.MULTIPOLYGON, new LocalizedValue("Project"), new LocalizedValue("Project"), true, this.organization.getCode(), ServiceFactory.getAdapter()));
+    
+    this.sgotRegulatoryBoundary = new ServerGeoObjectTypeConverter().create(new GeoObjectType(GOT_REGULATORY_BOUNDARY, GeometryType.MULTIPOLYGON, new LocalizedValue("Regulatory Boundary"), new LocalizedValue("Regulatory Boundary"), true, this.organization.getCode(), ServiceFactory.getAdapter()));
+    
+    this.sgotSite = new ServerGeoObjectTypeConverter().create(new GeoObjectType(GOT_SITE, GeometryType.MULTIPOLYGON, new LocalizedValue("Site"), new LocalizedValue("Site"), true, this.organization.getCode(), ServiceFactory.getAdapter()));
+    
+    ServiceFactory.getRegistryService().refreshMetadataCache();
   }
   
   private void importInstanceData() throws Exception
   {
     this.importDocks();
+    this.importChannels();
+    this.importProjects();
+    this.importRegulatoryBoundaries();
+    this.importSites();
+  }
+  
+  public static class GeoJsonImporter
+  {
+    private ApplicationResource resource;
+    
+    private ServerGeoObjectType type;
+    
+    private String codeAttr;
+    
+    private String displayLabelAttr;
+    
+    public GeoJsonImporter(ApplicationResource resource, ServerGeoObjectType type, String codeAttr, String displayLabelAttr)
+    {
+      this.resource = resource;
+      this.type = type;
+      this.codeAttr = codeAttr;
+      this.displayLabelAttr = displayLabelAttr;
+    }
+    
+    public void importData() throws Exception
+    {
+      final ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
+      
+      try (InputStream stream = this.resource.openNewStream())
+      {
+        JsonObject featureCollection = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
+        
+        JsonArray features = featureCollection.get("features").getAsJsonArray();
+        
+        logger.info("About to import [" + features.size() + "] features into GeoObjectType [" + this.type.getCode() + "].");
+        
+        for (int i = 0; i < features.size(); ++i)
+        {
+          JsonObject feature = features.get(i).getAsJsonObject();
+          JsonObject sourceProps = feature.get("properties").getAsJsonObject();
+          
+          JsonObject targetProps = new JsonObject();
+          targetProps.addProperty("type", this.type.getCode());
+          
+          JsonObject geoObject = new JsonObject();
+          geoObject.addProperty("type", "Feature");
+          targetProps.addProperty("code", this.readFromSource(this.codeAttr, sourceProps));
+          targetProps.addProperty("invalid", false);
+          geoObject.add("properties", targetProps);
+          
+          GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), geoObject.toString());
+          
+          this.importGeometry(feature, go);
+          this.importDisplayLabel(feature, go);
+          this.importCustomAttributes(sourceProps, go);
+          
+          service.apply(go, START_DATE, END_DATE, true, true);
+        }
+      }
+    }
+    
+    protected void importDisplayLabel(JsonObject sourceFeature, GeoObject target)
+    {
+      target.setDisplayLabel(new LocalizedValue(readFromSource(this.displayLabelAttr, sourceFeature.get("properties").getAsJsonObject())));
+    }
+    
+    protected void importGeometry(JsonObject sourceFeature, GeoObject target)
+    {
+      target.setGeometry(geoJsonToGeometry(sourceFeature.get("geometry").getAsJsonObject()));
+    }
+    
+    protected void importCustomAttributes(JsonObject sourceProps, GeoObject target)
+    {
+    }
+    
+    protected Geometry geoJsonToGeometry(JsonElement geoJson)
+    {
+      if (geoJson != null)
+      {
+        GeoJSONReader reader = new GeoJSONReader();
+        Geometry jtsGeom = reader.read(geoJson.toString());
+
+        return jtsGeom;
+      }
+      
+      return null;
+    }
+    
+    protected String readFromSource(String name, JsonObject sourceProps)
+    {
+      if (!sourceProps.has(name))
+      {
+        return null;
+      }
+      
+      JsonElement value = sourceProps.get(name);
+      
+      if (value.isJsonNull())
+      {
+        return null;
+      }
+      
+      return value.getAsString();
+    }
+    
+    protected JsonElement convertPointToMultiPoint(JsonObject geometry)
+    {
+      JsonObject newGeom = new JsonObject();
+      
+      newGeom.addProperty("type", "MultiPoint");
+      
+      JsonArray multiPoint = new JsonArray();
+      multiPoint.add(geometry.get("coordinates").getAsJsonArray());
+      newGeom.add("coordinates", multiPoint);
+      
+      return newGeom;
+    }
   }
   
   private void importDocks() throws Exception
   {
-    ApplicationResource resource = new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/docks.geojson"), "docks.geojson");
-    
-    final ServerGeoObjectService service = new ServerGeoObjectService(new AllowAllGeoObjectPermissionService());
-    
-    try (InputStream stream = resource.openNewStream())
+    GeoJsonImporter dockImporter = new GeoJsonImporter(
+        new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/docks.geojson"), "docks.geojson"),
+        this.sgotDock, "ID", "DOCK"
+    ) 
     {
-      JsonObject featureCollection = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
-      
-      JsonArray features = featureCollection.get("features").getAsJsonArray();
-      
-      logger.info("About to import [" + features.size() + "] features into GeoObjectType [" + this.sgotDock.getCode() + "].");
-      
-      for (int i = 0; i < features.size(); ++i)
-      {
-        JsonObject feature = features.get(i).getAsJsonObject();
-        JsonObject sourceProps = feature.get("properties").getAsJsonObject();
-        
-        JsonObject geoObject = new JsonObject();
-        geoObject.addProperty("type", "Feature");
-        geoObject.add("geometry", convertPointToMultiPoint(feature.get("geometry").getAsJsonObject()));
-        
-        JsonObject targetProps = new JsonObject();
-        populateTargetFromSource("ID", "code", sourceProps, targetProps, AttributeCharacterType.TYPE);
-        targetProps.addProperty("type", this.sgotDock.getCode());
-        targetProps.addProperty("invalid", false);
-        populateTargetFromSource("LOCATION_D", "locationDescription", sourceProps, targetProps, AttributeCharacterType.TYPE);
-        populateTargetFromSource("REMARKS", "remarks", sourceProps, targetProps, AttributeCharacterType.TYPE);
-        populateTargetFromSource("COMMODITIE", "commoditie", sourceProps, targetProps, AttributeCharacterType.TYPE);
-        populateTargetFromSource("PURPOSE", "purpose", sourceProps, targetProps, AttributeCharacterType.TYPE);
-        populateTargetFromSource("OWNERS", "owners", sourceProps, targetProps, AttributeCharacterType.TYPE);
-        populateTargetFromSource("STREET_ADD", "streetAddress", sourceProps, targetProps, AttributeCharacterType.TYPE);
-        geoObject.add("properties", targetProps);
-        
-        GeoObject go = GeoObject.fromJSON(ServiceFactory.getAdapter(), geoObject.toString());
-        
-        go.setDisplayLabel(new LocalizedValue(readFromSource("DOCK", sourceProps)));
-        
-        service.apply(go, START_DATE, END_DATE, true, true);
-      }
-    }
+       @Override
+       public void importGeometry(JsonObject sourceFeature, GeoObject target) 
+       {
+         target.setGeometry(geoJsonToGeometry(convertPointToMultiPoint(sourceFeature.get("geometry").getAsJsonObject())));
+       }
+       
+       @Override
+       protected void importCustomAttributes(JsonObject sourceProps, GeoObject target)
+       {
+         target.setValue("locationDescription", this.readFromSource("LOCATION_D", sourceProps));
+         target.setValue("remarks", this.readFromSource("REMARKS", sourceProps));
+         target.setValue("commoditie", this.readFromSource("COMMODITIE", sourceProps));
+         target.setValue("purpose", this.readFromSource("PURPOSE", sourceProps));
+         target.setValue("owners", this.readFromSource("OWNERS", sourceProps));
+         target.setValue("streetAddress", this.readFromSource("STREET_ADD", sourceProps));
+       }
+    };
+    
+    dockImporter.importData();
   }
   
-  private String readFromSource(String name, JsonObject sourceProps)
+  private void importChannels() throws Exception
   {
-    if (!sourceProps.has(name))
+    GeoJsonImporter importer = new GeoJsonImporter(
+        new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/channels.geojson"), "channels.geojson"),
+        this.sgotChannel, "channelare", "sdsfeatu_1"
+    ) 
     {
-      return null;
-    }
+       @Override
+       protected void importCustomAttributes(JsonObject sourceProps, GeoObject target)
+       {
+         target.setValue("sourceData", this.readFromSource("sourcedata", sourceProps));
+       }
+    };
     
-    JsonElement value = sourceProps.get(name);
-    
-    if (value.isJsonNull())
-    {
-      return null;
-    }
-    
-    return value.getAsString();
+    importer.importData();
   }
   
-  private void populateTargetFromSource(String sourceName, String targetName, JsonObject sourceProps, JsonObject targetProps, String type)
+  private void importProjects() throws Exception
   {
-    if (!sourceProps.has(sourceName))
-    {
-      targetProps.add(targetName, JsonNull.INSTANCE);
-      return;
-    }
+    GeoJsonImporter importer = new GeoJsonImporter(
+        new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/projects.geojson"), "projects.geojson"),
+        this.sgotProject, "OBJECTID", "NAME"
+    );
     
-    JsonElement value = sourceProps.get(sourceName);
-    
-    if (value.isJsonNull())
-    {
-      targetProps.add(targetName, JsonNull.INSTANCE);
-      return;
-    }
-    
-    if (type == AttributeCharacterType.TYPE)
-    {
-      targetProps.addProperty(targetName, value.getAsString());
-    }
-    else
-    {
-      targetProps.addProperty(targetName, value.getAsString());
-    }
+    importer.importData();
   }
   
-  private JsonElement convertPointToMultiPoint(JsonObject geometry)
+  private void importRegulatoryBoundaries() throws Exception
   {
-    JsonObject newGeom = new JsonObject();
+    GeoJsonImporter importer = new GeoJsonImporter(
+        new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/regulatory-boundary.geojson"), "regulatory-boundary.geojson"),
+        this.sgotRegulatoryBoundary, "DISTRICT_N", "DISTRICT"
+    );
     
-    newGeom.addProperty("type", "MultiPoint");
+    importer.importData();
+  }
+  
+  private void importSites() throws Exception
+  {
+    GeoJsonImporter importer = new GeoJsonImporter(
+        new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/sites.geojson"), "sites.geojson"),
+        this.sgotSite, "SITEIDPK", "FEATURENAM"
+    );
     
-    JsonArray multiPoint = new JsonArray();
-    multiPoint.add(geometry.get("coordinates").getAsJsonArray());
-    newGeom.add("coordinates", multiPoint);
-    
-    return newGeom;
+    importer.importData();
   }
 }
