@@ -90,12 +90,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-version")
-  public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "forDate") String forDate) throws ParseException
+  public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
   {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
-    JsonObject response = this.service.createExploratoryVersion(request.getSessionId(), oid, format.parse(forDate));
+    JsonObject response = this.service.createVersion(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
   }
@@ -133,10 +130,10 @@ public class ListTypeController
     return new RestBodyResponse(response);
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
-  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "entries")
+  public ResponseIF entries(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
-    JsonArray response = this.service.getVersions(request.getSessionId(), oid);
+    JsonObject response = this.service.getEntries(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
   }

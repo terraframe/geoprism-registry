@@ -1,0 +1,73 @@
+<ng-container>
+
+    <div class="heading">
+        <h2>
+            {{list.displayLabel.localizedValue}}
+        </h2>
+    </div>
+
+    <div class="row" *ngIf="list.listType === 'single'">
+        <div class="col-md-12">
+            Valid On: {{list.validOn}}
+        </div>
+    </div>
+
+    <div *ngFor="let entry of list.entries; let i = index;" class="row" style="margin-bottom: 5px;">
+        <div class="col-md-12" style="background-color: #CFCAD6; padding: 3px;">
+            <div class="row">
+                <div class="col-md-9">
+                    {{entry.period}}
+                </div>
+                <div class="col-md-3" style="text-align: right;" *ngIf="entry.current != null">
+                    <button type="submit" (click)="onEdit(entry.current)" class="btn btn-default" role="button">
+                        <localize key="masterlist.button.metadata"></localize>
+                    </button>
+                    <button *ngIf="list.write" type="submit" (click)="onDelete(entry.current)" class="btn btn-danger"
+                        role="button">
+                        <localize key="modal.button.delete"></localize>
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="list.write" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                <div class="col-md-6">
+                    <div>
+                        <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" role="button">
+                            New Version
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <ng-container *ngIf="entry.current != null">
+                <div class="row" style="margin-bottom: 5px;">
+                    <div class="col-md-3" style="vertical-align: middle;">
+                        <a [routerLink]="'/registry/master-lists/' + list.oid" routerLinkActive="active">
+                            Version {{entry.current.versionNumber}}
+                        </a>
+                    </div>
+                    <div class="col-md-3" style="vertical-align: middle;">
+                        Valid On: {{entry.current.forDate}}
+                    </div>
+                    <div class="col-md-3" style="vertical-align: middle;">
+                        Last Update:  {{entry.current.createDate}}
+                    </div>
+                </div>
+                <div class="row" style="margin-bottom: 5px;">
+                    <div class="col-md-9" style="vertical-align: middle;">
+                    </div>
+                    <div class="col-md-3" style="vertical-align: middle;">
+                        <button type="submit" (click)="onVersions()" class="btn btn-primary" role="button">
+                            See previous versions
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+            <div class="row" *ngIf="entry.current == null">
+                <div class="col-md-12">
+                    No Versions
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ng-container>

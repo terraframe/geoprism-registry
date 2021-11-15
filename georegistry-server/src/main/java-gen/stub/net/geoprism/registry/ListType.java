@@ -87,7 +87,7 @@ public abstract class ListType extends ListTypeBase
 
   protected abstract String formatVersionLabel(LabeledVersion version);
 
-  public abstract void publishVersions();
+  public abstract void createEntries();
 
   @Override
   @Transaction
@@ -98,7 +98,14 @@ public abstract class ListType extends ListTypeBase
       throw new InvalidMasterListCodeException("The master list code has an invalid character");
     }
 
+    boolean isNew = this.isNew() && !this.isAppliedToDB();
+
     super.apply();
+
+    if (this.isNew())
+    {
+      this.createEntries();
+    }
   }
 
   @Override
@@ -305,7 +312,12 @@ public abstract class ListType extends ListTypeBase
     }
   }
 
-  public JsonObject toJSON()
+  public final JsonObject toJSON()
+  {
+    return this.toJSON(false);
+  }
+
+  public JsonObject toJSON(boolean includeEntries)
   {
     Locale locale = Session.getCurrentLocale();
     LocaleSerializer serializer = new LocaleSerializer(locale);
@@ -329,7 +341,7 @@ public abstract class ListType extends ListTypeBase
     object.addProperty("write", this.doesActorHaveWritePermission());
     object.addProperty("read", this.doesActorHaveReadPermission());
     object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
-    object.add("typeLabel", type.getLabel().toJSON(serializer));
+    object.addProperty("typeLabel", type.getLabel().getValue());
     object.addProperty(ListType.TYPE_CODE, type.getCode());
     object.add(ListType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
     object.add(ListType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON(serializer));
@@ -339,6 +351,20 @@ public abstract class ListType extends ListTypeBase
 
     // Include the list metadata
     object.add(ListType.LIST_METADATA, this.toMetadataJSON("list", serializer));
+
+    if (includeEntries)
+    {
+      List<ListTypeEntry> entries = this.getEntries();
+
+      JsonArray jEntries = new JsonArray();
+
+      for (ListTypeEntry entry : entries)
+      {
+        jEntries.add(entry.toJSON());
+      }
+
+      object.add("entries", jEntries);
+    }
 
     return object;
   }
@@ -362,20 +388,6 @@ public abstract class ListType extends ListTypeBase
     object.addProperty("originator", this.getValue(prefix + "Originator"));
 
     return object;
-  }
-
-  public JsonArray getEntryJson()
-  {
-    List<ListTypeEntry> entries = this.getEntries();
-
-    JsonArray jVersions = new JsonArray();
-
-    for (ListTypeEntry entry : entries)
-    {
-      jVersions.add(entry.toJSON());
-    }
-
-    return jVersions;
   }
 
   // private void createMdAttributeFromAttributeType(ServerGeoObjectType type,

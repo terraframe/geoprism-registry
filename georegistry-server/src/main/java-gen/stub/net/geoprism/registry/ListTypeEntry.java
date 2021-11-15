@@ -23,6 +23,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   }
 
   @Override
+  @Transaction
   public void delete()
   {
     // Delete all versions
@@ -51,6 +52,13 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     object.addProperty(ListTypeVersion.FORDATE, GeoRegistryUtil.formatDate(this.getForDate(), false));
     object.addProperty(ListTypeVersion.CREATEDATE, GeoRegistryUtil.formatDate(this.getCreateDate(), false));
     object.addProperty(ListTypeVersion.PERIOD, listType.formatVersionLabel(this));
+
+    ListTypeVersion current = this.getCurrent();
+
+    if (current != null)
+    {
+      object.add(ListTypeEntry.CURRENT, current.toJSON(false));
+    }
 
     return object;
   }

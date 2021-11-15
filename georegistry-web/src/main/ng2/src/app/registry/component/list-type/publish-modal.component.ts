@@ -22,7 +22,7 @@ export class ListTypePublishModalComponent implements OnInit {
     message: string = null;
     onListTypeChange: Subject<ListType> = null;
 
-    list: ListType;
+    list: ListType = null;
 
     tab: string = 'LIST';
 
@@ -48,9 +48,15 @@ export class ListTypePublishModalComponent implements OnInit {
         private dateService: DateService) { }
 
     ngOnInit(): void {
-        if (!this.list || !this.readonly) {
+    }
 
+    init(listByType: ListTypeByType, onListTypeChange: Subject<ListType>, list?: ListType): void {
 
+        this.onListTypeChange = onListTypeChange;
+        this.readonly = !listByType.write;
+
+        if (list == null) {
+            this.isNew = true;
             this.list = {
                 oid: null,
                 listType: 'single',
@@ -77,31 +83,29 @@ export class ListTypePublishModalComponent implements OnInit {
                     organization: '',
                     telephoneNumber: '',
                     email: '',
-
                 }
             };
+
+            this.list.typeCode = listByType.typeCode;
+            this.list.typeLabel = listByType.typeLabel;
+            this.list.organization = listByType.orgCode;
+
+            this.iService.getHierarchiesForType(this.list.typeCode, true).then(hierarchies => {
+                this.list.hierarchies = hierarchies;
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+
+            this.iService.getHierarchiesForSubtypes(this.list.typeCode, false).then(hierarchies => {
+                this.list.subtypeHierarchies = hierarchies;
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
         }
-    }
-
-    init(listByType: ListTypeByType, onListTypeChange: Subject<ListType>, isNew: boolean): void {
-
-        this.onListTypeChange = onListTypeChange;
-        this.isNew = isNew;
-        this.list.typeCode = listByType.typeCode;
-        this.list.typeLabel = listByType.typeLabel;
-        this.list.organization = listByType.orgCode;
-
-        this.iService.getHierarchiesForType(this.list.typeCode, true).then(hierarchies => {
-            this.list.hierarchies = hierarchies;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-
-        this.iService.getHierarchiesForSubtypes(this.list.typeCode, false).then(hierarchies => {
-            this.list.subtypeHierarchies = hierarchies;
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+        else {
+            this.list = list;
+            this.isNew = false;
+        }
     }
 
     getIsDisabled(event): boolean {

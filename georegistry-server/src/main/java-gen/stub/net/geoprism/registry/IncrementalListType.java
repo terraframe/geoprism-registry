@@ -9,13 +9,9 @@ import java.util.List;
 import com.google.gson.JsonObject;
 import com.runwaysdk.Pair;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
-import net.geoprism.registry.ws.GlobalNotificationMessage;
-import net.geoprism.registry.ws.MessageType;
-import net.geoprism.registry.ws.NotificationFacade;
 
 public class IncrementalListType extends IncrementalListTypeBase
 {
@@ -279,59 +275,45 @@ public class IncrementalListType extends IncrementalListTypeBase
 
   @Override
   @Transaction
-  public void publishVersions()
+  public void createEntries()
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+    final ServerGeoObjectType objectType = this.getGeoObjectType();
+    Pair<Date, Date> range = this.getDateRange(objectType);
 
-    try
+    if (range != null)
     {
-      Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+      Date endDate = range.getSecond();
 
-      final ServerGeoObjectType objectType = this.getGeoObjectType();
-      Pair<Date, Date> range = this.getDateRange(objectType);
-
-      if (range != null)
+      if (endDate.after(new Date()))
       {
-        Date endDate = range.getSecond();
-
-        if (endDate.after(new Date()))
-        {
-          endDate = new Date();
-        }
-
-        List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
-
-        for (Date date : dates)
-        {
-          ListTypeEntry entry = this.getOrCreateEntry(date);
-
-          ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-          entry.publish();
-        }
+        endDate = new Date();
       }
-      else
+
+      List<Date> dates = this.getFrequencyDates(range.getFirst(), range.getSecond());
+
+      for (Date date : dates)
       {
-        throw new EmptyListException();
+        this.getOrCreateEntry(date);
       }
     }
-    finally
+    else
     {
-      Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+      throw new EmptyListException();
     }
   }
 
-  public JsonObject toJSON()
+  @Override
+  public JsonObject toJSON(boolean includeEntries)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
-    JsonObject object = super.toJSON();
+    JsonObject object = super.toJSON(includeEntries);
     object.addProperty(IncrementalListType.FREQUENCY, this.toFrequency().name());
     object.addProperty(IncrementalListType.PUBLISHINGSTARTDATE, format.format(this.getPublishingStartDate()));
     object.addProperty(LIST_TYPE, INCREMENTAL);

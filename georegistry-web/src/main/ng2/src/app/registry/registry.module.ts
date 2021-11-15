@@ -12,6 +12,8 @@ import { NgxPaginationModule } from "ngx-pagination";
 import { ProgressbarModule } from "ngx-bootstrap/progressbar";
 import { CollapseModule } from "ngx-bootstrap/collapse";
 import { TabsModule } from "ngx-bootstrap/tabs";
+import { DndModule } from "ngx-drag-drop";
+
 import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
 import { ExportSystemModalComponent } from './component/master-list/export-system-modal.component';
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
@@ -113,11 +115,12 @@ import { TransitionEventModalComponent } from "./component/transition-event/tran
 import { HistoricalReportComponent } from "./component/historical-report/historical-report.component";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 
-import { DndModule } from "ngx-drag-drop";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
-import { ListTypeService } from "./service/list-type.service";
 import { ListTypePublishModalComponent } from "./component/list-type/publish-modal.component";
 import { ListMetadataComponent } from "./component/list-type/list-metadata.component";
+import { ListTypeService } from "./service/list-type.service";
+import { ListsForTypeComponent } from "./component/list-type/lists-for-type.component";
+import { ListTypeComponent } from "./component/list-type/list-type.component";
 
 @NgModule({
     imports: [
@@ -229,7 +232,9 @@ import { ListMetadataComponent } from "./component/list-type/list-metadata.compo
         // List type
         ListTypeManagerComponent,
         ListTypePublishModalComponent,
-        ListMetadataComponent
+        ListMetadataComponent,
+        ListsForTypeComponent,
+        ListTypeComponent
     ],
     providers: [
         MapService,

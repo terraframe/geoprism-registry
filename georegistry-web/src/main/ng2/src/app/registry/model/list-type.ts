@@ -47,6 +47,10 @@ export class ListType {
 
     // Attributes for the subtypes
     validOn?: string;
+    publishingStartDate?: string;
+    frequency?: string;
+
+    entries?: ListTypeEntry[];
 }
 
 export class ListTypeEntry {
@@ -56,6 +60,7 @@ export class ListTypeEntry {
     orgCode: string;
     listType: string;
     forDate: string;
+    current?: ListTypeVersion
 }
 
 
@@ -76,5 +81,6 @@ export class ListTypeVersion {
     isAbstract?: boolean;
     superTypeCode?: string;
     refreshProgress?: any;
+    versionNumber: number;
     subtypes?: { label: string, code: string }[];
 }

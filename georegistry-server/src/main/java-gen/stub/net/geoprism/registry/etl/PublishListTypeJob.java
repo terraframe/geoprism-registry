@@ -54,7 +54,7 @@ public class PublishListTypeJob extends PublishListTypeJobBase
   {
     NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
 
-    this.getListType().publishVersions();
+    this.getListType().createEntries();
   }
   
   @Override

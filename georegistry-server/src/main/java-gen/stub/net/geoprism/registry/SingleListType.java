@@ -1,11 +1,6 @@
 package net.geoprism.registry;
 
 import com.google.gson.JsonObject;
-import com.runwaysdk.session.Session;
-
-import net.geoprism.registry.ws.GlobalNotificationMessage;
-import net.geoprism.registry.ws.MessageType;
-import net.geoprism.registry.ws.NotificationFacade;
 
 public class SingleListType extends SingleListTypeBase
 {
@@ -15,11 +10,11 @@ public class SingleListType extends SingleListTypeBase
   {
     super();
   }
-
+  
   @Override
-  public JsonObject toJSON()
+  public JsonObject toJSON(boolean includeEntries)
   {
-    JsonObject object = super.toJSON();
+    JsonObject object = super.toJSON(includeEntries);
     object.addProperty(LIST_TYPE, SINGLE);
     object.addProperty(VALIDON, GeoRegistryUtil.formatDate(this.getValidOn(), false));
 
@@ -35,29 +30,14 @@ public class SingleListType extends SingleListTypeBase
   }
 
   @Override
-  public void publishVersions()
+  public void createEntries()
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
-
-    try
-    {
-      Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-
-      ListTypeEntry entry = this.getOrCreateEntry(this.getValidOn());
-
-      ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-      entry.publish();
-    }
-    finally
-    {
-      Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
-    }
+    this.getOrCreateEntry(this.getValidOn());
   }
 
   @Override

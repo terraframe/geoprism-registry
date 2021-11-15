@@ -10,11 +10,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.session.Session;
-
-import net.geoprism.registry.ws.GlobalNotificationMessage;
-import net.geoprism.registry.ws.MessageType;
-import net.geoprism.registry.ws.NotificationFacade;
 
 public class IntervalListType extends IntervalListTypeBase
 {
@@ -30,9 +25,9 @@ public class IntervalListType extends IntervalListTypeBase
   }
 
   @Override
-  public JsonObject toJSON()
+  public JsonObject toJSON(boolean includeEntries)
   {
-    JsonObject object = super.toJSON();
+    JsonObject object = super.toJSON(includeEntries);
     object.addProperty(LIST_TYPE, INTERVAL);
     object.add(INTERVALJSON, JsonParser.parseString(this.getIntervalJson()));
 
@@ -87,33 +82,16 @@ public class IntervalListType extends IntervalListTypeBase
 
   @Override
   @Transaction
-  public void publishVersions()
+  public void createEntries()
   {
     if (!this.isValid())
     {
       throw new InvalidMasterListException();
     }
 
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
-
-    try
-    {
-      Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-
-      LinkedHashMap<Date, Date> intervals = this.getIntervals();
-
-      intervals.forEach((startDate, endDate) -> {
-        ListTypeEntry entry = this.getOrCreateEntry(endDate);
-        ( (Session) Session.getCurrentSession() ).reloadPermissions();
-
-        entry.publish();
-      });
-
-    }
-    finally
-    {
-      Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
-    }
+    this.getIntervals().forEach((startDate, endDate) -> {
+      this.getOrCreateEntry(endDate);
+    });
   }
 
   @Override

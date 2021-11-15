@@ -53,6 +53,11 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
+        path: "master-lists/:oid",
+        component: ListTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
         path: "scheduled-jobs",
         component: ScheduledJobsComponent,
         canActivate: [MaintainerGuard]

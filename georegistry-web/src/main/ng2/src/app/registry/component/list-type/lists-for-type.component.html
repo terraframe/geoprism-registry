@@ -1,0 +1,55 @@
+<ng-container>
+    <div class="heading">
+        <h2>
+            {{listByType.orgLabel}} : {{listByType.typeLabel}}
+        </h2>
+    </div>
+    <div class="subheading">
+        <h3>
+            Lists and Spatial Data
+        </h3>
+    </div>
+    <hr />
+    <div *ngIf="listByType.write" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+        <div class="col-md-6">
+            <div>
+                <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
+                    <localize key="hierarchy.management.button.create"></localize>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div *ngFor="let list of listByType.lists; let i = index;" class="row" style="margin-bottom: 5px;">
+        <div class="col-md-10" style="background-color: #CFCAD6; padding: 3px;">
+
+            <div class="row">
+                <div class="col-md-9" style="vertical-align: middle;">
+                    <a [routerLink]="'/registry/master-lists/' + list.oid" routerLinkActive="active">
+                        {{list.displayLabel.localizedValue}}
+                    </a>
+                </div>
+                <div class="col-md-3" style="text-align: right;">
+                    <button type="submit" (click)="onEdit(list)" class="btn btn-default" role="button">
+                        <localize key="masterlist.button.metadata"></localize>
+                    </button>
+                    <button *ngIf="list.write" type="submit" (click)="onDelete(list)" class="btn btn-danger"
+                        role="button">
+                        <localize key="modal.button.delete"></localize>
+                    </button>
+                </div>
+            </div>
+            <div class="row" *ngIf="list.listType === 'single'">
+                <div class="col-md-12">
+                    Valid On: {{list.validOn}}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <figcaption>{{list.description.localizedValue}}</figcaption>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</ng-container>

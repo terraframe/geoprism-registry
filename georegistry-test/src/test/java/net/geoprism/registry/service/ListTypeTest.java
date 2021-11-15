@@ -684,7 +684,7 @@ public class ListTypeTest
     {
       service.createPublishedVersions(testData.clientRequest.getSessionId(), oid);
 
-      final JsonArray json = service.getVersions(testData.clientRequest.getSessionId(), oid);
+      final JsonObject json = service.getEntries(testData.clientRequest.getSessionId(), oid);
 
       Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
     }

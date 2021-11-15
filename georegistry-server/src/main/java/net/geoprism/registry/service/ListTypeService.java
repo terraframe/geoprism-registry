@@ -20,13 +20,13 @@ package net.geoprism.registry.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.query.OIterator;
@@ -101,9 +101,10 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject createExploratoryVersion(String sessionId, String oid, Date forDate)
+  public JsonObject createVersion(String sessionId, String oid)
   {
-    ListType listType = ListType.get(oid);
+    ListTypeEntry entry = ListTypeEntry.get(oid);
+    ListType listType = entry.getListType();
 
     if (!listType.isValid())
     {
@@ -112,12 +113,11 @@ public class ListTypeService
 
     this.enforceWritePermissions(listType);
 
-    ListTypeEntry entry = listType.createEntry(forDate);
-    entry.publish();
+    String version = entry.publish();
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
-    return entry.toJSON();
+    return JsonParser.parseString(version).getAsJsonObject();
     // return entry.toJSON(false);
   }
 
@@ -128,7 +128,9 @@ public class ListTypeService
 
     this.enforceWritePermissions(listType);
 
-    listType.publishVersions();
+    listType.getEntries().forEach(entry -> {
+      entry.publish();
+    });
   }
 
   @Request(RequestType.SESSION)
@@ -277,11 +279,17 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getVersions(String sessionId, String oid)
+  public JsonObject getEntries(String sessionId, String oid)
   {
     ListType listType = ListType.get(oid);
 
-    return listType.getEntryJson();
+    return listType.toJSON(true);
+  }
+
+  @Request(RequestType.SESSION)
+  public JsonObject getEntry(String sessionId, String oid)
+  {
+    return ListTypeVersion.get(oid).toJSON(true);
   }
 
   @Request(RequestType.SESSION)
