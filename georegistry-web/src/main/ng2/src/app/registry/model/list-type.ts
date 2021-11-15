@@ -61,6 +61,7 @@ export class ListTypeEntry {
     listType: string;
     forDate: string;
     current?: ListTypeVersion
+    versions?: ListTypeVersion[]
 }
 
 

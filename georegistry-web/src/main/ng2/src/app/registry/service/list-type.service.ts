@@ -39,6 +39,19 @@ export class ListTypeService {
             .toPromise();
     }
 
+    versions(oid: string): Promise<ListTypeVersion[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", oid);
+
+        this.eventService.start();
+
+        return this.http.get<ListTypeVersion[]>(acp + "/list-type/versions", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
 
     apply(list: ListType): Promise<ListType> {
         let headers = new HttpHeaders({

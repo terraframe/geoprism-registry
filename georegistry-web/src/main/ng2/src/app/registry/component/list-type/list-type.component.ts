@@ -17,7 +17,6 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     @Input() list: ListType;
     @Output() error = new EventEmitter<HttpErrorResponse>();
 
-
     /*
      * Reference to the modal current showing
     */
@@ -35,6 +34,20 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
     }
 
+    toggleVersions(entry) {
+
+        if (entry.versions != null) {
+            entry.versions = null;
+        }
+        else {
+            this.service.versions(entry.oid).then(versions => {
+                entry.versions = versions;
+            }).catch((err: HttpErrorResponse) => {
+                this.error.emit(err);
+            });
+        }
+    }
+
     onCreate(entry: ListTypeEntry): void {
         // this.bsModalRef = this.modalService.show(ListTypePublishModalComponent, {
         //     animated: true,
@@ -45,6 +58,8 @@ export class ListTypeComponent implements OnInit, OnDestroy {
 
         this.service.createVersion(entry).then(version => {
             entry.current = version;
+        }).catch((err: HttpErrorResponse) => {
+            this.error.emit(err);
         });
     }
 

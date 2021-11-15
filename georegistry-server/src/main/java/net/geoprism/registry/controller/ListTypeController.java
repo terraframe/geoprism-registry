@@ -138,6 +138,14 @@ public class ListTypeController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "versions")
+  public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    JsonArray response = this.service.getVersions(request.getSessionId(), oid);
+    
+    return new RestBodyResponse(response);
+  }
+  
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "version")
   public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
