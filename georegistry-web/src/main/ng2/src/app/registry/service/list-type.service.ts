@@ -52,6 +52,19 @@ export class ListTypeService {
             .toPromise();
     }
 
+    getVersion(oid: string): Promise<ListTypeVersion> {
+        let params: HttpParams = new HttpParams();
+        params = params.set("oid", oid);
+
+        this.eventService.start();
+
+        return this.http.get<ListTypeVersion>(acp + "/list-type/version", { params: params })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
 
     apply(list: ListType): Promise<ListType> {
         let headers = new HttpHeaders({
@@ -110,6 +123,57 @@ export class ListTypeService {
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
+            .toPromise();
+    }
+
+    data(oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string }): Promise<any> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        let params = {
+            oid: oid,
+            sort: sort
+        } as any;
+
+        if (pageNumber != null) {
+            params.pageNumber = pageNumber;
+        }
+
+        if (pageSize != null) {
+            params.pageSize = pageSize;
+        }
+
+        if (filter.length > 0) {
+            params.filter = filter;
+        }
+
+        return this.http
+            .post<any>(acp + "/list-type/data", JSON.stringify(params), { headers: headers })
+            .toPromise();
+    }
+
+    values(oid: string, value: string, attributeName: string, valueAttribute: string, filter: { attribute: string, value: string }[]): Promise<{ label: string, value: string }[]> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        let params = {
+            oid: oid,
+            attributeName: attributeName,
+            valueAttribute: valueAttribute
+        } as any;
+
+        if (filter.length > 0) {
+            params.filter = filter;
+        }
+
+        if (value != null && value.length > 0) {
+            params.value = value;
+        }
+
+        return this.http
+            .post<{ label: string, value: string }[]>(acp + "/list-type/values", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 

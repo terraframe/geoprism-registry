@@ -121,6 +121,7 @@ import { ListMetadataComponent } from "./component/list-type/list-metadata.compo
 import { ListTypeService } from "./service/list-type.service";
 import { ListsForTypeComponent } from "./component/list-type/lists-for-type.component";
 import { ListTypeComponent } from "./component/list-type/list-type.component";
+import { ListComponent } from "./component/list-type/list.component";
 
 @NgModule({
     imports: [
@@ -234,7 +235,8 @@ import { ListTypeComponent } from "./component/list-type/list-type.component";
         ListTypePublishModalComponent,
         ListMetadataComponent,
         ListsForTypeComponent,
-        ListTypeComponent
+        ListTypeComponent,
+        ListComponent
     ],
     providers: [
         MapService,

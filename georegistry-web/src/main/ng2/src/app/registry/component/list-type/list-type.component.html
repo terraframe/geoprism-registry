@@ -37,7 +37,7 @@
                             <span class="clickable" (click)="entry.collapsed = !entry.collapsed"
                                 [attr.aria-expanded]="!entry.collapsed"><i class="fa fa-minus"></i>
                             </span>
-                            <a [routerLink]="'/registry/master-lists/' + list.oid" routerLinkActive="active">
+                            <a [routerLink]="'/registry/master-list/' + entry.current.oid" routerLinkActive="active">
                                 Version {{entry.current.versionNumber}}
                             </a>
                         </div>
@@ -68,7 +68,7 @@
                                 <span class="clickable" (click)="version.collapsed = !version.collapsed"
                                     [attr.aria-expanded]="!version.collapsed"><i class="fa fa-minus"></i>
                                 </span>
-                                <a [routerLink]="'/registry/master-lists/' + list.oid" routerLinkActive="active">
+                                <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
                                     Version {{version.versionNumber}}
                                 </a>
                             </div>

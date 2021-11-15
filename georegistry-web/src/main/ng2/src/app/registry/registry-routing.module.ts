@@ -20,6 +20,7 @@ import { DatasetLocationManagerComponent } from "./component/location-manager/da
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
+import { ListComponent } from "./component/list-type/list.component";
 
 const routes: Routes = [
     {
@@ -58,6 +59,11 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
+        path: "master-list/:oid",
+        component: ListComponent,
+        canActivate: [AuthGuard]
+    },
+    {
         path: "scheduled-jobs",
         component: ScheduledJobsComponent,
         canActivate: [MaintainerGuard]
@@ -66,16 +72,6 @@ const routes: Routes = [
         path: "job/:oid",
         component: JobComponent,
         canActivate: [MaintainerGuard]
-    },
-    {
-        path: "master-list/:oid/:published",
-        component: MasterListComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "master-list-view/:oid",
-        component: MasterListViewComponent,
-        canActivate: [AuthGuard]
     },
     {
         path: "change-request",
