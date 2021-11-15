@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -91,13 +92,13 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 
   // @Transaction
   // @Authenticate
-  private ListTypeVersion createVersion()
+  private ListTypeVersion createVersion(JsonObject metadata)
   {
     ListTypeVersion current = this.getCurrent();
 
     int versionNumber = current != null ? current.getVersionNumber() + 1 : 1;
 
-    ListTypeVersion version = ListTypeVersion.create(this, versionNumber);
+    ListTypeVersion version = ListTypeVersion.create(this, versionNumber, metadata);
     this.appLock();
     this.setCurrent(version);
     this.apply();
@@ -108,11 +109,10 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   @Override
   @Transaction
   @Authenticate
-  public String publish()
+  public String publish(String metadata)
   {
     // Create a new version and publish it
-
-    ListTypeVersion version = this.createVersion();
+    ListTypeVersion version = this.createVersion(JsonParser.parseString(metadata).getAsJsonObject());
 
     return version.publish();
   }

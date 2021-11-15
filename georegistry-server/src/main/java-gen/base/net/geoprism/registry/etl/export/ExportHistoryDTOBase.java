@@ -84,7 +84,7 @@ public abstract class ExportHistoryDTOBase extends com.runwaysdk.system.schedule
     return (com.runwaysdk.transport.metadata.AttributeNumberMdDTO) getAttributeDTO(EXPORTEDRECORDS).getAttributeMdDTO();
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.etl.export.ExportStageDTO> getStage()
   {
     return (java.util.List<net.geoprism.registry.etl.export.ExportStageDTO>) com.runwaysdk.transport.conversion.ConversionFacade.convertEnumDTOsFromEnumNames(getRequest(), net.geoprism.registry.etl.export.ExportStageDTO.CLASS, getEnumNames(STAGE));

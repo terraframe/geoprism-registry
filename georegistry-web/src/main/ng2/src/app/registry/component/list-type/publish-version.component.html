@@ -1,0 +1,68 @@
+<div class="modal-body">
+    <ng-container *ngIf="metadata != null">
+        <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
+
+        <div class="heading text-center">
+            <h1>
+                Version Metadata
+            </h1>
+        </div>
+        <!-- <div class="col-md-12 order-md-1"> -->
+        <form #form="ngForm" class="modal-form" autocomplete="off">
+
+            <fieldset>
+
+                <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group button-row">
+
+                                <a [routerLink]="" (click)="handleTab('LIST')"
+                                    [ngClass]="tab === 'LIST' ? 'cr-filter-link-active' : ''"
+                                    style="border-bottom: 1px solid;">
+                                    List
+                                </a>
+                                <a [routerLink]="" (click)="handleTab('GEOSPATIAL')"
+                                    [ngClass]="tab === 'GEOSPATIAL' ? 'cr-filter-link-active' : ''"
+                                    style="margin-left: 5px;border-bottom:1px solid;">
+                                    Geospatial
+                                </a>
+
+                            </div>
+                            <hr style="border-top:solid 3px #6BA542" />
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <version-metadata *ngIf="tab === 'LIST'" [metadata]="metadata.listMetadata"
+                                [readonly]="readonly">
+                            </version-metadata>
+                            <version-metadata *ngIf="tab === 'GEOSPATIAL'" [metadata]="metadata.geospatialMetadata"
+                                [readonly]="readonly">
+                            </version-metadata>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-holder">
+                    <div class="label-holder"></div>
+                    <div class="holder">
+                        <div class="button-holder">
+                            <button type="button" (click)="onCancel()" class="btn btn-default" role="button">
+                                <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
+                            </button>
+                            <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
+                                role="button" [disabled]="form.invalid">
+                                <localize key="io.submit"></localize>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </ng-container>
+</div>

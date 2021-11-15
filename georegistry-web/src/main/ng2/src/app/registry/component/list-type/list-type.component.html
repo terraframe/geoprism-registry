@@ -42,10 +42,10 @@
                             </a>
                         </div>
                         <div class="col-md-3" style="text-align: right;">
-                            <button type="submit" (click)="onEdit(entry.current)" class="btn btn-default" role="button">
+                            <button type="submit" (click)="onEdit(entry, entry.current)" class="btn btn-default" role="button">
                                 <localize key="masterlist.button.metadata"></localize>
                             </button>
-                            <button *ngIf="list.write" type="submit" (click)="onDelete(entry.current)"
+                            <button *ngIf="list.write" type="submit" (click)="onDelete(entry, entry.current)"
                                 class="btn btn-danger" role="button">
                                 <localize key="modal.button.delete"></localize>
                             </button>
@@ -73,10 +73,10 @@
                                 </a>
                             </div>
                             <div class="col-md-3" style="text-align: right;">
-                                <button type="submit" (click)="onEdit(version)" class="btn btn-default" role="button">
+                                <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
                                     <localize key="masterlist.button.metadata"></localize>
                                 </button>
-                                <button *ngIf="list.write" type="submit" (click)="onDelete(version)"
+                                <button *ngIf="list.write" type="submit" (click)="onDelete(entry, version)"
                                     class="btn btn-danger" role="button">
                                     <localize key="modal.button.delete"></localize>
                                 </button>

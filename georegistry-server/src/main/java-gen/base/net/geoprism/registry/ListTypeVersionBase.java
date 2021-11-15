@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1241571408)
+@com.runwaysdk.business.ClassSignature(hash = -1226333665)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -16,11 +16,20 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String ENTRY = "entry";
   public static java.lang.String FORDATE = "forDate";
-  public static java.lang.String ISMASTER = "isMaster";
+  public static java.lang.String GEOSPATIALDESCRIPTION = "geospatialDescription";
+  private com.runwaysdk.business.Struct geospatialDescription = null;
+  
+  public static java.lang.String GEOSPATIALMASTER = "geospatialMaster";
+  public static java.lang.String GEOSPATIALVISIBILITY = "geospatialVisibility";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
+  public static java.lang.String LISTDESCRIPTION = "listDescription";
+  private com.runwaysdk.business.Struct listDescription = null;
+  
+  public static java.lang.String LISTMASTER = "listMaster";
   public static java.lang.String LISTTYPE = "listType";
+  public static java.lang.String LISTVISIBILITY = "listVisibility";
   public static java.lang.String LOCKEDBY = "lockedBy";
   public static java.lang.String MDBUSINESS = "mdBusiness";
   public static java.lang.String OID = "oid";
@@ -30,12 +39,13 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
   public static java.lang.String VERSIONNUMBER = "versionNumber";
-  public static java.lang.String VISIBILITY = "visibility";
-  private static final long serialVersionUID = 1241571408;
+  private static final long serialVersionUID = -1226333665;
   
   public ListTypeVersionBase()
   {
     super();
+    geospatialDescription = super.getStruct("geospatialDescription");
+    listDescription = super.getStruct("listDescription");
   }
   
   public java.util.Date getCreateDate()
@@ -214,31 +224,75 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
     }
   }
   
-  public Boolean getIsMaster()
+  public net.geoprism.registry.ListTypeVersionGeospatialDescription getGeospatialDescription()
   {
-    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(ISMASTER));
+    return (net.geoprism.registry.ListTypeVersionGeospatialDescription) geospatialDescription;
   }
   
-  public void validateIsMaster()
+  public void validateGeospatialDescription()
   {
-    this.validateAttribute(ISMASTER);
+    this.validateAttribute(GEOSPATIALDESCRIPTION);
   }
   
-  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getIsMasterMd()
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialDescriptionMd()
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(ISMASTER);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALDESCRIPTION);
   }
   
-  public void setIsMaster(Boolean value)
+  public Boolean getGeospatialMaster()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(GEOSPATIALMASTER));
+  }
+  
+  public void validateGeospatialMaster()
+  {
+    this.validateAttribute(GEOSPATIALMASTER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getGeospatialMasterMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(GEOSPATIALMASTER);
+  }
+  
+  public void setGeospatialMaster(Boolean value)
   {
     if(value == null)
     {
-      setValue(ISMASTER, "");
+      setValue(GEOSPATIALMASTER, "");
     }
     else
     {
-      setValue(ISMASTER, java.lang.Boolean.toString(value));
+      setValue(GEOSPATIALMASTER, java.lang.Boolean.toString(value));
+    }
+  }
+  
+  public String getGeospatialVisibility()
+  {
+    return getValue(GEOSPATIALVISIBILITY);
+  }
+  
+  public void validateGeospatialVisibility()
+  {
+    this.validateAttribute(GEOSPATIALVISIBILITY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getGeospatialVisibilityMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(GEOSPATIALVISIBILITY);
+  }
+  
+  public void setGeospatialVisibility(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALVISIBILITY, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALVISIBILITY, value);
     }
   }
   
@@ -314,6 +368,50 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(LASTUPDATEDBY);
   }
   
+  public net.geoprism.registry.ListTypeVersionListDescription getListDescription()
+  {
+    return (net.geoprism.registry.ListTypeVersionListDescription) listDescription;
+  }
+  
+  public void validateListDescription()
+  {
+    this.validateAttribute(LISTDESCRIPTION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getListDescriptionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(LISTDESCRIPTION);
+  }
+  
+  public Boolean getListMaster()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(LISTMASTER));
+  }
+  
+  public void validateListMaster()
+  {
+    this.validateAttribute(LISTMASTER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getListMasterMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(LISTMASTER);
+  }
+  
+  public void setListMaster(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(LISTMASTER, "");
+    }
+    else
+    {
+      setValue(LISTMASTER, java.lang.Boolean.toString(value));
+    }
+  }
+  
   public net.geoprism.registry.ListType getListType()
   {
     if (getValue(LISTTYPE).trim().equals(""))
@@ -363,6 +461,34 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
     else
     {
       setValue(LISTTYPE, oid);
+    }
+  }
+  
+  public String getListVisibility()
+  {
+    return getValue(LISTVISIBILITY);
+  }
+  
+  public void validateListVisibility()
+  {
+    this.validateAttribute(LISTVISIBILITY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getListVisibilityMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(LISTVISIBILITY);
+  }
+  
+  public void setListVisibility(String value)
+  {
+    if(value == null)
+    {
+      setValue(LISTVISIBILITY, "");
+    }
+    else
+    {
+      setValue(LISTVISIBILITY, value);
     }
   }
   
@@ -615,34 +741,6 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
     else
     {
       setValue(VERSIONNUMBER, java.lang.Integer.toString(value));
-    }
-  }
-  
-  public String getVisibility()
-  {
-    return getValue(VISIBILITY);
-  }
-  
-  public void validateVisibility()
-  {
-    this.validateAttribute(VISIBILITY);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF getVisibilityMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(VISIBILITY);
-  }
-  
-  public void setVisibility(String value)
-  {
-    if(value == null)
-    {
-      setValue(VISIBILITY, "");
-    }
-    else
-    {
-      setValue(VISIBILITY, value);
     }
   }
   

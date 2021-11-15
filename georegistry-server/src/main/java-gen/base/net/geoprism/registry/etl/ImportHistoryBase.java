@@ -288,7 +288,7 @@ public abstract class ImportHistoryBase extends com.runwaysdk.system.scheduler.J
     }
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.etl.ImportStage> getStage()
   {
     return (java.util.List<net.geoprism.registry.etl.ImportStage>) getEnumValues(STAGE);

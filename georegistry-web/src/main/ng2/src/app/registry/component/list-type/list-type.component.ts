@@ -6,6 +6,7 @@ import { ConfirmModalComponent } from "@shared/component";
 import { LocalizationService } from "@shared/service";
 import { ListType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
+import { PublishVersionComponent } from "./publish-version.component";
 
 @Component({
     selector: "list-type",
@@ -34,7 +35,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
     }
 
-    toggleVersions(entry) {
+    toggleVersions(entry: ListTypeEntry) {
 
         if (entry.versions != null) {
             entry.versions = null;
@@ -49,42 +50,36 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     }
 
     onCreate(entry: ListTypeEntry): void {
-        // this.bsModalRef = this.modalService.show(ListTypePublishModalComponent, {
-        //     animated: true,
-        //     backdrop: true,
-        //     ignoreBackdropClick: true
-        // });
-        // this.bsModalRef.content.init(this.listByType, this.onListTypeChange);
-
-        this.service.createVersion(entry).then(version => {
-            entry.current = version;
-        }).catch((err: HttpErrorResponse) => {
-            this.error.emit(err);
+        this.bsModalRef = this.modalService.show(PublishVersionComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
         });
+        this.bsModalRef.content.init(entry, !this.list.write);
     }
 
-    onEdit(list: ListTypeVersion): void {
-        // this.bsModalRef = this.modalService.show(ListTypePublishModalComponent, {
-        //     animated: true,
-        //     backdrop: true,
-        //     ignoreBackdropClick: true
-        // });
-        // this.bsModalRef.content.init(this.listByType, this.onListTypeChange, list);
+    onEdit(entry: ListTypeEntry, version: ListTypeVersion): void {
+        this.bsModalRef = this.modalService.show(PublishVersionComponent, {
+            animated: true,
+            backdrop: true,
+            ignoreBackdropClick: true
+        });
+        this.bsModalRef.content.init(entry, !this.list.write, version);
     }
 
-    onDelete(list: ListTypeVersion): void {
+    onDelete(entry: ListTypeEntry, version: ListTypeVersion): void {
         this.bsModalRef = this.modalService.show(ConfirmModalComponent, {
             animated: true,
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + list.versionNumber + "]";
+        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " Version [" + version.versionNumber + "]";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");
         this.bsModalRef.content.type = "danger";
 
         this.bsModalRef.content.onConfirm.subscribe(data => {
 
-            this.service.removeVersion(list).then(response => {
+            this.service.removeVersion(version).then(response => {
             }).catch((err: HttpErrorResponse) => {
                 this.error.emit(err);
             });

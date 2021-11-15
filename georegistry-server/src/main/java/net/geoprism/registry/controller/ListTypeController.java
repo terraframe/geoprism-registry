@@ -90,9 +90,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "create-version")
-  public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
+  public ResponseIF createVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "metadata") String metadata) throws ParseException
   {
-    JsonObject response = this.service.createVersion(request.getSessionId(), oid);
+    JsonObject response = this.service.createVersion(request.getSessionId(), oid, metadata);
 
     return new RestBodyResponse(response);
   }
@@ -142,10 +142,10 @@ public class ListTypeController
   public ResponseIF versions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
     JsonArray response = this.service.getVersions(request.getSessionId(), oid);
-    
+
     return new RestBodyResponse(response);
   }
-  
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "version")
   public ResponseIF version(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {

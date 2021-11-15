@@ -66,7 +66,7 @@ public abstract class ExportHistoryBase extends com.runwaysdk.system.scheduler.J
     }
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.etl.export.ExportStage> getStage()
   {
     return (java.util.List<net.geoprism.registry.etl.export.ExportStage>) getEnumValues(STAGE);

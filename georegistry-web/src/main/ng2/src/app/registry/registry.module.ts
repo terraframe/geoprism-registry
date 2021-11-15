@@ -122,6 +122,8 @@ import { ListTypeService } from "./service/list-type.service";
 import { ListsForTypeComponent } from "./component/list-type/lists-for-type.component";
 import { ListTypeComponent } from "./component/list-type/list-type.component";
 import { ListComponent } from "./component/list-type/list.component";
+import { PublishVersionComponent } from "./component/list-type/publish-version.component";
+import { VersionMetadataComponent } from "./component/list-type/version-metadata.component";
 
 @NgModule({
     imports: [
@@ -236,7 +238,9 @@ import { ListComponent } from "./component/list-type/list.component";
         ListMetadataComponent,
         ListsForTypeComponent,
         ListTypeComponent,
-        ListComponent
+        ListComponent,
+        PublishVersionComponent,
+        VersionMetadataComponent
     ],
     providers: [
         MapService,
@@ -284,7 +288,8 @@ import { ListComponent } from "./component/list-type/list.component";
         ContextLayerModalComponent,
         ExportSystemModalComponent,
         TransitionEventModalComponent,
-        ListTypePublishModalComponent
+        ListTypePublishModalComponent,
+        PublishVersionComponent
     ]
 })
 export class RegistryModule { }

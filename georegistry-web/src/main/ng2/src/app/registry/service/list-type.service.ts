@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { ListType, ListTypeByType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-type";
+import { ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 
 declare let acp: any;
 
@@ -96,7 +96,7 @@ export class ListTypeService {
             .toPromise();
     }
 
-    createVersion(entry: ListTypeEntry): Promise<ListTypeVersion> {
+    createVersion(entry: ListTypeEntry, metadata: ListVersionMetadata): Promise<ListTypeVersion> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -104,7 +104,7 @@ export class ListTypeService {
         this.eventService.start();
 
         return this.http
-            .post<ListTypeVersion>(acp + "/list-type/create-version", JSON.stringify({ oid: entry.oid }), { headers: headers })
+            .post<ListTypeVersion>(acp + "/list-type/create-version", JSON.stringify({ oid: entry.oid, metadata: metadata }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

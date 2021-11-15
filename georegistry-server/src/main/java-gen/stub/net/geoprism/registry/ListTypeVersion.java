@@ -48,6 +48,7 @@ import com.runwaysdk.ComponentIF;
 import com.runwaysdk.business.Business;
 import com.runwaysdk.business.BusinessFacade;
 import com.runwaysdk.business.BusinessQuery;
+import com.runwaysdk.business.LocalStruct;
 import com.runwaysdk.business.graph.VertexObject;
 import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
@@ -1098,6 +1099,19 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     this.publish(object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
   }
 
+  protected void parse(JsonObject object)
+  {
+    this.parseMetadata("list", object.get("listMetadata").getAsJsonObject());
+    this.parseMetadata("geospatial", object.get("geospatialMetadata").getAsJsonObject());
+  }
+
+  private void parseMetadata(String prefix, JsonObject object)
+  {
+    ( (LocalStruct) this.getStruct(prefix + "Description") ).setLocaleMap(LocalizedValue.fromJSON(object.get("description").getAsJsonObject()).getLocaleMap());
+    this.setValue(prefix + "Visibility", object.get("visibility").getAsString());
+    this.setValue(prefix + "Master", object.get("master").getAsBoolean());
+  }
+
   public JsonObject toJSON(boolean includeAttribute)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -1128,6 +1142,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
+    object.add("listMetadata", this.toMetadataJSON("list"));
+    object.add("geospatialMetadata", this.toMetadataJSON("geospatial"));
 
     Progress progress = ProgressService.get(this.getOid());
     if (progress != null)
@@ -1164,6 +1180,16 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       object.add(ListTypeVersion.ATTRIBUTES, this.getAttributesAsJson());
     }
+
+    return object;
+  }
+
+  private JsonObject toMetadataJSON(String prefix)
+  {
+    JsonObject object = new JsonObject();
+    object.add("description", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON());
+    object.addProperty("visibility", this.getValue(prefix + "Visibility"));
+    object.addProperty("master", Boolean.parseBoolean(this.getValue(prefix + "Master")));
 
     return object;
   }
@@ -1693,7 +1719,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   }
 
   @Transaction
-  public static ListTypeVersion create(ListTypeEntry listEntry, int versionNumber)
+  public static ListTypeVersion create(ListTypeEntry listEntry, int versionNumber, JsonObject metadata)
   {
     ListType listType = listEntry.getListType();
 
@@ -1702,23 +1728,19 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     version.setListType(listType);
     version.setForDate(listEntry.getForDate());
     version.setVersionNumber(versionNumber);
-    version.setIsMaster(false);
-    version.setVisibility(ListType.PRIVATE);
+    version.parse(metadata);
 
-    TableMetadata metadata = null;
+    TableMetadata tableMetadata = null;
 
-    // if (version.isNew())
-    // {
-    metadata = version.createTable();
+    tableMetadata = version.createTable();
 
-    version.setMdBusiness(metadata.getMdBusiness());
-    // }
+    version.setMdBusiness(tableMetadata.getMdBusiness());
 
     version.apply();
 
-    if (metadata != null)
+    if (tableMetadata != null)
     {
-      Map<MdAttribute, MdAttribute> pairs = metadata.getPairs();
+      Map<MdAttribute, MdAttribute> pairs = tableMetadata.getPairs();
 
       Set<Entry<MdAttribute, MdAttribute>> entries = pairs.entrySet();
 
@@ -1728,10 +1750,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       }
     }
 
-    // if (version.isNew())
-    // {
     ListTypeVersion.assignDefaultRolePermissions(version.getMdBusiness());
-    // }
 
     return version;
   }

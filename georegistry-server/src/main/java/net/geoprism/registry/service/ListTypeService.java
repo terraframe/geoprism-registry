@@ -101,7 +101,7 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject createVersion(String sessionId, String oid)
+  public JsonObject createVersion(String sessionId, String oid, String metadata)
   {
     ListTypeEntry entry = ListTypeEntry.get(oid);
     ListType listType = entry.getListType();
@@ -113,7 +113,7 @@ public class ListTypeService
 
     this.enforceWritePermissions(listType);
 
-    String version = entry.publish();
+    String version = entry.publish(metadata);
 
     ( (Session) Session.getCurrentSession() ).reloadPermissions();
 
@@ -121,17 +121,17 @@ public class ListTypeService
     // return entry.toJSON(false);
   }
 
-  @Request(RequestType.SESSION)
-  public void createPublishedVersions(String sessionId, String oid)
-  {
-    ListType listType = ListType.get(oid);
-
-    this.enforceWritePermissions(listType);
-
-    listType.getEntries().forEach(entry -> {
-      entry.publish();
-    });
-  }
+  // @Request(RequestType.SESSION)
+  // public void createPublishedVersions(String sessionId, String oid, )
+  // {
+  // ListType listType = ListType.get(oid);
+  //
+  // this.enforceWritePermissions(listType);
+  //
+  // listType.getEntries().forEach(entry -> {
+  // entry.publish(config);
+  // });
+  // }
 
   @Request(RequestType.SESSION)
   public String createPublishedVersionsJob(String sessionId, String oid)

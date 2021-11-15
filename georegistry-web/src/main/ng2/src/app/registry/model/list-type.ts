@@ -64,8 +64,19 @@ export class ListTypeEntry {
     versions?: ListTypeVersion[]
 }
 
+export class VersionMetadata {
+    description: LocalizedValue;
+    master: boolean;
+    visibility: string;
+}
 
-export class ListTypeVersion {
+
+export class ListVersionMetadata {
+    listMetadata?: VersionMetadata;
+    geospatialMetadata?: VersionMetadata;
+}
+
+export class ListTypeVersion extends ListVersionMetadata {
     displayLabel: string;
     oid: string;
     typeCode: string;

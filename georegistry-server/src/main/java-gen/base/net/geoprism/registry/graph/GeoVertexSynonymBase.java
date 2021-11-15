@@ -97,7 +97,7 @@ public abstract class GeoVertexSynonymBase extends com.runwaysdk.business.graph.
     super.removeParent(geoVertex, "net.geoprism.registry.graph.GeoVertexHasSynonym");
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.graph.GeoVertex> getGeoVertexHasSynonymParentGeoVertexs()
   {
     return super.getParents("net.geoprism.registry.graph.GeoVertexHasSynonym", net.geoprism.registry.graph.GeoVertex.class);

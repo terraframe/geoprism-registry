@@ -20,7 +20,7 @@ public abstract class IncrementalListTypeBase extends net.geoprism.registry.List
     super();
   }
   
-  @SuppressWarnings("unchecked")
+  
   public java.util.List<net.geoprism.registry.ChangeFrequency> getFrequency()
   {
     return (java.util.List<net.geoprism.registry.ChangeFrequency>) getEnumValues(FREQUENCY);
