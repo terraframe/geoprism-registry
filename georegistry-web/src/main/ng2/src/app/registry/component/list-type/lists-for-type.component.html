@@ -24,7 +24,7 @@
 
             <div class="row">
                 <div class="col-md-9" style="vertical-align: middle;">
-                    <a [routerLink]="'/registry/master-lists/' + list.oid" routerLinkActive="active">
+                    <a [routerLink]="'/registry/master-lists/' + listByType.typeCode + '/' + list.oid" routerLinkActive="active">
                         {{list.displayLabel.localizedValue}}
                     </a>
                 </div>

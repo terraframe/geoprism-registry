@@ -34,18 +34,28 @@ export class ListTypeManagerComponent implements OnInit {
     ngOnInit(): void {
 
         this.route.paramMap.subscribe(params => {
-            const oid = params.get("oid");
+            const typeCode = params.get("typeCode");
+            const listId = params.get("listId");
 
-            if (oid != null && oid.length > 0) {
+            if (listId != null && listId.length > 0) {
 
-                this.service.entries(oid).then(current => {
+                this.service.entries(listId).then(current => {
                     this.current = current;
                     this.listByType = null;
-
                 }).catch((err: HttpErrorResponse) => {
                     this.error(err);
                 });
             }
+            else if (typeCode != null && typeCode.length > 0) {
+
+                this.service.listForType(typeCode).then(listByType => {
+                    this.listByType = listByType;
+                    this.current = null;
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
+            }
+
             // this.refresh();
         });
 
@@ -55,16 +65,6 @@ export class ListTypeManagerComponent implements OnInit {
             response.organizations.forEach(org => {
                 this.typesByOrg.push({ org: org, types: response.types.filter(t => t.organizationCode === org.code) });
             })
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
-    }
-
-    onTypeClick(type: GeoObjectType): void {
-        this.service.listForType(type.code).then(listByType => {
-            this.listByType = listByType;
-            this.current = null;
-            this.location.replaceState('/registry/master-lists/');
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });

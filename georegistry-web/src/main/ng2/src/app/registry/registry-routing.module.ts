@@ -54,7 +54,12 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-        path: "master-lists/:oid",
+        path: "master-lists/:typeCode",
+        component: ListTypeManagerComponent,
+        canActivate: [AuthGuard]
+    },
+    {
+        path: "master-lists/:typeCode/:listId",
         component: ListTypeManagerComponent,
         canActivate: [AuthGuard]
     },

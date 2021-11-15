@@ -17,9 +17,11 @@
                                 <label>{{typeByOrg.org.label.localizedValue}}</label>
                             </div>
 
-                            <li class="list-group-item got-li-item clickable" *ngFor="let type of typeByOrg.types"
-                                [id]="type.code" (click)="onTypeClick(type)">
-                                {{type.label.localizedValue}}
+                            <li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
+                                [id]="type.code">
+                                <a [routerLink]="'/registry/master-lists/' + type.code" routerLinkActive="active">
+                                    {{type.label.localizedValue}}
+                                </a>                                
                             </li>
                         </div>
                     </ul>
