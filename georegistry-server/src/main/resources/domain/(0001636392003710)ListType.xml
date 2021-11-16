@@ -46,6 +46,21 @@
           <text name="listOrganization" label="Organization" />
           <text name="listTelephoneNumber" label="Telephone Number" />
           <text name="listEmail" label="Email Address" />          
+
+          <dateTime name="geospatialCollectionDate"/>                    
+          <text name="geospatialOriginator" label="Originator" />
+          <localText name="geospatialLabel"/>
+          <localText name="geospatialDescription"/>
+          <localText name="geospatialProcess"/>
+          <localText name="geospatialProgress"/>
+          <localText name="geospatialAccessConstraints"/>
+          <localText name="geospatialUseConstraints"/>
+          <localText name="geospatialAcknowledgements"/>
+          <localText name="geospatialDisclaimer"/>
+          <text name="geospatialContactName" label="Contact name" />
+          <text name="geospatialOrganization" label="Organization" />
+          <text name="geospatialTelephoneNumber" label="Telephone Number" />
+          <text name="geospatialEmail" label="Email Address" />                    
         </attributes>
           <mdMethod name="createEntry" label="createEntry" static="false" returnType="net.geoprism.registry.ListTypeEntry">
             <mdParameter name="forDate" label="forDate" order="0" type="java.util.Date" />
@@ -71,9 +86,11 @@
         <attributes>
           <reference name="listType" type="net.geoprism.registry.ListType" required="true" label="List Type" />
           <dateTime name="forDate" label="For Date" required="true" immutable="true" />
-            <reference name="current" type="net.geoprism.registry.ListTypeVersion" required="false" label="Current" />          
+          <reference name="current" type="net.geoprism.registry.ListTypeVersion" required="false" label="Current" />          
         </attributes> 
-        <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String" />        
+        <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String">
+            <mdParameter name="config" label="config" order="0" type="java.lang.String" />        
+        </mdMethod>        
       </mdBusiness>
       <mdBusiness name="net.geoprism.registry.ListTypeVersion" label="Entry Version" generateController="false">
         <attributes>
@@ -83,8 +100,12 @@
           <dateTime name="forDate" label="For Date" required="true" immutable="true" />
           <date name="publishDate" label="Publish Date" />
           <integer name="versionNumber" label="Version Number" required="true" />
-          <boolean name="isMaster" label="Is Master" description="Flag denoting if the list is a master list" />
-          <char name="visibility" label="Visibility" size="255" required="false" />          
+          <boolean name="listMaster" label="Is Master" description="Flag denoting if the list is a master list" />
+          <char name="listVisibility" label="Visibility" size="255" required="false" />
+          <localText name="listDescription"/>          
+          <boolean name="geospatialMaster" label="Is Master" description="Flag denoting if the geospatial is a master geospatial" />
+          <char name="geospatialVisibility" label="Visibility" size="255" required="false" />
+          <localText name="geospatialDescription"/>                    
         </attributes> 
         <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String" />        
       </mdBusiness>
