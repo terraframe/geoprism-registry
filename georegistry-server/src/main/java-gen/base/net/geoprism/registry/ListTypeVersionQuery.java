@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1025694920)
+@com.runwaysdk.business.ClassSignature(hash = -1074231230)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -506,6 +506,23 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     return (com.runwaysdk.query.SelectableInteger)this.getComponentQuery().get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableBoolean getWorking()
+  {
+    return getWorking(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getWorking(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.ListTypeVersion.WORKING, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getWorking(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.ListTypeVersion.WORKING, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -672,6 +689,9 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     public com.runwaysdk.query.SelectableInteger getVersionNumber();
     public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias);
     public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getWorking();
+    public com.runwaysdk.query.SelectableBoolean getWorking(String alias);
+    public com.runwaysdk.query.SelectableBoolean getWorking(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.ListTypeVersion listTypeVersion);
 
@@ -1115,6 +1135,23 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableBoolean getWorking()
+  {
+    return getWorking(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getWorking(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListTypeVersion.WORKING, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getWorking(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListTypeVersion.WORKING, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1258,6 +1295,9 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
     public com.runwaysdk.query.SelectableInteger getVersionNumber();
     public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias);
     public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getWorking();
+    public com.runwaysdk.query.SelectableBoolean getWorking(String alias);
+    public com.runwaysdk.query.SelectableBoolean getWorking(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.ListTypeVersion ... listTypeVersion);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.ListTypeVersion ... listTypeVersion);
@@ -1748,6 +1788,23 @@ public  class ListTypeVersionQuery extends com.runwaysdk.query.GeneratedBusiness
   public com.runwaysdk.query.SelectableInteger getVersionNumber(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableInteger)this.get(net.geoprism.registry.ListTypeVersion.VERSIONNUMBER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableBoolean getWorking()
+  {
+    return getWorking(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getWorking(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListTypeVersion.WORKING, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getWorking(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListTypeVersion.WORKING, alias, displayLabel);
 
   }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)

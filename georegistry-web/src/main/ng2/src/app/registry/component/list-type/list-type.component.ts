@@ -36,17 +36,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     }
 
     toggleVersions(entry: ListTypeEntry) {
-
-        if (entry.versions != null) {
-            entry.versions = null;
-        }
-        else {
-            this.service.versions(entry.oid).then(versions => {
-                entry.versions = versions;
-            }).catch((err: HttpErrorResponse) => {
-                this.error.emit(err);
-            });
-        }
+        entry.showAll = !entry.showAll;
     }
 
     onCreate(entry: ListTypeEntry): void {

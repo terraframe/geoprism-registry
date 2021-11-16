@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -404365896)
+@com.runwaysdk.business.ClassSignature(hash = 366484928)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -10,7 +10,7 @@ package net.geoprism.registry;
  */
 public class ListTypeEntryQueryDTO extends com.runwaysdk.business.BusinessQueryDTO
 {
-private static final long serialVersionUID = -404365896;
+private static final long serialVersionUID = 366484928;
 
   protected ListTypeEntryQueryDTO(String type)
   {

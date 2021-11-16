@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1892963530)
+@com.runwaysdk.business.ClassSignature(hash = -1631152942)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -76,29 +76,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListTypeEntry.CREATEDBY);
 
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeEntry.CREATEDBY, mdAttributeIF, this, alias, displayLabel);
-
-  }
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent()
-  {
-    return getCurrent(null);
-
-  }
- 
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListTypeEntry.CURRENT);
-
-    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeEntry.CURRENT, mdAttributeIF, this, alias, null);
-
-  }
- 
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias, String displayLabel)
-  {
-
-    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListTypeEntry.CURRENT);
-
-    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeEntry.CURRENT, mdAttributeIF, this, alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
@@ -335,6 +312,29 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListTypeEntry.TYPE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking()
+  {
+    return getWorking(null);
+
+  }
+ 
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListTypeEntry.WORKING);
+
+    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeEntry.WORKING, mdAttributeIF, this, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel)
+  {
+
+    com.runwaysdk.dataaccess.MdAttributeDAOIF mdAttributeIF = this.getComponentQuery().getMdAttributeROfromMap(net.geoprism.registry.ListTypeEntry.WORKING);
+
+    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListTypeEntry.WORKING, mdAttributeIF, this, alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -342,10 +342,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     if (name.equals(net.geoprism.registry.ListTypeEntry.CREATEDBY)) 
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.ListTypeEntry.CURRENT)) 
-    {
-       return new net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.ListTypeEntry.ENTITYDOMAIN)) 
     {
@@ -366,6 +362,10 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     else if (name.equals(net.geoprism.registry.ListTypeEntry.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.ListTypeEntry.WORKING)) 
+    {
+       return new net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -412,9 +412,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
-    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent();
-    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias);
-    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
@@ -451,6 +448,9 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking();
+    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias);
+    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel);
 
     public com.runwaysdk.query.BasicCondition EQ(net.geoprism.registry.ListTypeEntry listTypeEntry);
 
@@ -518,23 +518,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
   public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel)
   {
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.CREATEDBY,  alias, displayLabel);
-
-  }
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent()
-  {
-    return getCurrent(null);
-
-  }
- 
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias)
-  {
-    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.CURRENT, alias, null);
-
-  }
- 
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias, String displayLabel)
-  {
-    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.CURRENT,  alias, displayLabel);
 
   }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
@@ -741,6 +724,23 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListTypeEntry.TYPE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking()
+  {
+    return getWorking(null);
+
+  }
+ 
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias)
+  {
+    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.WORKING, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.WORKING,  alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -748,10 +748,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     if (name.equals(net.geoprism.registry.ListTypeEntry.CREATEDBY)) 
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.ListTypeEntry.CURRENT)) 
-    {
-       return new net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.ListTypeEntry.ENTITYDOMAIN)) 
     {
@@ -772,6 +768,10 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     else if (name.equals(net.geoprism.registry.ListTypeEntry.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.ListTypeEntry.WORKING)) 
+    {
+       return new net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {
@@ -795,9 +795,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy();
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias);
     public com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF getCreatedBy(String alias, String displayLabel);
-    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent();
-    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias);
-    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias, String displayLabel);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain();
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias);
     public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain(String alias, String displayLabel);
@@ -834,6 +831,9 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     public com.runwaysdk.query.SelectableChar getType();
     public com.runwaysdk.query.SelectableChar getType(String alias);
     public com.runwaysdk.query.SelectableChar getType(String alias, String displayLabel);
+    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking();
+    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias);
+    public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel);
 
     public com.runwaysdk.query.Condition containsAny(net.geoprism.registry.ListTypeEntry ... listTypeEntry);
     public com.runwaysdk.query.Condition notContainsAny(net.geoprism.registry.ListTypeEntry ... listTypeEntry);
@@ -952,23 +952,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     return (com.runwaysdk.system.SingleActorQuery.SingleActorQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.CREATEDBY,  alias, displayLabel);
 
   }
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent()
-  {
-    return getCurrent(null);
-
-  }
- 
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias)
-  {
-    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.CURRENT, alias, null);
-
-  }
- 
-  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getCurrent(String alias, String displayLabel)
-  {
-    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.CURRENT,  alias, displayLabel);
-
-  }
   public com.runwaysdk.system.metadata.MdDomainQuery.MdDomainQueryReferenceIF getEntityDomain()
   {
     return getEntityDomain(null);
@@ -1173,6 +1156,23 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListTypeEntry.TYPE, alias, displayLabel);
 
   }
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking()
+  {
+    return getWorking(null);
+
+  }
+ 
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias)
+  {
+    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.WORKING, alias, null);
+
+  }
+ 
+  public net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF getWorking(String alias, String displayLabel)
+  {
+    return (net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReferenceIF)this.get(net.geoprism.registry.ListTypeEntry.WORKING,  alias, displayLabel);
+
+  }
   protected com.runwaysdk.query.AttributeReference referenceFactory( com.runwaysdk.dataaccess.MdAttributeRefDAOIF mdAttributeIF, String attributeNamespace, String definingTableName, String definingTableAlias,  com.runwaysdk.dataaccess.MdBusinessDAOIF referenceMdBusinessIF, String referenceTableAlias, com.runwaysdk.query.ComponentQuery rootQuery, java.util.Set<com.runwaysdk.query.Join> tableJoinSet, String userDefinedAlias, String userDefinedDisplayLabel)
   {
     String name = mdAttributeIF.definesAttribute();
@@ -1180,10 +1180,6 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     if (name.equals(net.geoprism.registry.ListTypeEntry.CREATEDBY)) 
     {
        return new com.runwaysdk.system.SingleActorQuery.SingleActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
-    }
-    else if (name.equals(net.geoprism.registry.ListTypeEntry.CURRENT)) 
-    {
-       return new net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else if (name.equals(net.geoprism.registry.ListTypeEntry.ENTITYDOMAIN)) 
     {
@@ -1204,6 +1200,10 @@ public  class ListTypeEntryQuery extends com.runwaysdk.query.GeneratedBusinessQu
     else if (name.equals(net.geoprism.registry.ListTypeEntry.OWNER)) 
     {
        return new com.runwaysdk.system.ActorQuery.ActorQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
+    }
+    else if (name.equals(net.geoprism.registry.ListTypeEntry.WORKING)) 
+    {
+       return new net.geoprism.registry.ListTypeVersionQuery.ListTypeVersionQueryReference((com.runwaysdk.dataaccess.MdAttributeRefDAOIF)mdAttributeIF, attributeNamespace, definingTableName, definingTableAlias, referenceMdBusinessIF, referenceTableAlias, rootQuery, tableJoinSet, userDefinedAlias, userDefinedDisplayLabel);
     }
     else 
     {

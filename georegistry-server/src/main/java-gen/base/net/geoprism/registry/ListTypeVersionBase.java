@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1226333665)
+@com.runwaysdk.business.ClassSignature(hash = 1006893465)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -39,7 +39,8 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
   public static java.lang.String VERSIONNUMBER = "versionNumber";
-  private static final long serialVersionUID = -1226333665;
+  public static java.lang.String WORKING = "working";
+  private static final long serialVersionUID = 1006893465;
   
   public ListTypeVersionBase()
   {
@@ -741,6 +742,34 @@ public abstract class ListTypeVersionBase extends com.runwaysdk.business.Busines
     else
     {
       setValue(VERSIONNUMBER, java.lang.Integer.toString(value));
+    }
+  }
+  
+  public Boolean getWorking()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(WORKING));
+  }
+  
+  public void validateWorking()
+  {
+    this.validateAttribute(WORKING);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getWorkingMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeVersion.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(WORKING);
+  }
+  
+  public void setWorking(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(WORKING, "");
+    }
+    else
+    {
+      setValue(WORKING, java.lang.Boolean.toString(value));
     }
   }
   

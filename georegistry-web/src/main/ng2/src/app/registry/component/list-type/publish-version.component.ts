@@ -64,9 +64,6 @@ export class PublishVersionComponent implements OnInit {
 
                     this.entry.versions[index] = version;
                 }
-                else if (this.entry.current.oid === version.oid) {
-                    this.entry.current = version;
-                }
                 this.bsModalRef.hide();
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
@@ -74,7 +71,7 @@ export class PublishVersionComponent implements OnInit {
         }
         else {
             this.service.createVersion(this.entry, this.metadata).then(version => {
-                this.entry.current = version;
+                this.entry.versions.unshift(version);
                 this.bsModalRef.hide();
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);

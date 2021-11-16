@@ -29,7 +29,7 @@
             </li>
             <li>
                 Authoritativeness: List ({{version.listMetadata.master ? 'Master' : 'Non-master'}})
-                Geospatial ({{version.geospatialMetadata.master  ? 'Master' : 'Non-master'}})
+                Geospatial ({{version.geospatialMetadata.master ? 'Master' : 'Non-master'}})
             </li>
         </ul>
     </div>
@@ -58,24 +58,28 @@
                 </div>
             </div>
 
-            <div *ngIf="list.write" style="margin-top: 30px; margin-bottom: 30px;" class="row">
-                <div class="col-md-6">
-                    <div>
-                        <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" role="button">
-                            New Version
-                        </button>
+            <ng-container *ngIf="list.write">
+                <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                    <div class="col-md-6">
+                        <div>
+                            <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" role="button">
+                                New Version
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <ng-container *ngIf="entry.current != null">
-                <ng-container *ngIf="entry.versions == null" [ngTemplateOutlet]="versionDetail"
-                    [ngTemplateOutletContext]="{entry:entry, version:entry.current}">
-                </ng-container>
-                <ng-container *ngIf="entry.versions != null">
-                    <ng-container *ngFor="let version of entry.versions">
-                        <ng-container [ngTemplateOutlet]="versionDetail"
-                            [ngTemplateOutletContext]="{entry:entry, version:version}">
-                        </ng-container>
+                <div class="row" style="margin-bottom: 5px;">
+                    <div class="col-md-9" style="vertical-align: middle;">
+                        <a [routerLink]="'/registry/master-list/' + entry.working" routerLinkActive="active">
+                            Working Version
+                        </a>
+                    </div>
+                </div>                
+            </ng-container>
+            <ng-container *ngIf="entry.versions.length > 0">
+                <ng-container *ngFor="let version of entry.versions; let j = index;">
+                    <ng-container *ngIf="j === 0 || entry.showAll" [ngTemplateOutlet]="versionDetail"
+                        [ngTemplateOutletContext]="{entry:entry, version:version}">
                     </ng-container>
                 </ng-container>
                 <div class="row" style="margin-bottom: 5px;">
@@ -87,9 +91,8 @@
                         </button>
                     </div>
                 </div>
-
             </ng-container>
-            <div class="row" *ngIf="entry.current == null">
+            <div class="row" *ngIf="entry.versions.length === 0">
                 <div class="col-md-12">
                     No Versions
                 </div>

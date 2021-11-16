@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1750744225)
+@com.runwaysdk.business.ClassSignature(hash = -1773372247)
 public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeEntry";
-  private static final long serialVersionUID = 1750744225;
+  private static final long serialVersionUID = -1773372247;
   
   protected ListTypeEntryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -29,7 +29,6 @@ public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.Busine
   
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String CURRENT = "current";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String FORDATE = "forDate";
   public static java.lang.String KEYNAME = "keyName";
@@ -42,6 +41,7 @@ public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.Busine
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
+  public static java.lang.String WORKING = "working";
   public java.util.Date getCreateDate()
   {
     return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(CREATEDATE));
@@ -102,55 +102,6 @@ public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.Busine
   public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getCreatedByMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CREATEDBY).getAttributeMdDTO();
-  }
-  
-  public net.geoprism.registry.ListTypeVersionDTO getCurrent()
-  {
-    if(getValue(CURRENT) == null || getValue(CURRENT).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.ListTypeVersionDTO.get(getRequest(), getValue(CURRENT));
-    }
-  }
-  
-  public String getCurrentOid()
-  {
-    return getValue(CURRENT);
-  }
-  
-  public void setCurrent(net.geoprism.registry.ListTypeVersionDTO value)
-  {
-    if(value == null)
-    {
-      setValue(CURRENT, "");
-    }
-    else
-    {
-      setValue(CURRENT, value.getOid());
-    }
-  }
-  
-  public boolean isCurrentWritable()
-  {
-    return isWritable(CURRENT);
-  }
-  
-  public boolean isCurrentReadable()
-  {
-    return isReadable(CURRENT);
-  }
-  
-  public boolean isCurrentModified()
-  {
-    return isModified(CURRENT);
-  }
-  
-  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getCurrentMd()
-  {
-    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(CURRENT).getAttributeMdDTO();
   }
   
   public com.runwaysdk.system.metadata.MdDomainDTO getEntityDomain()
@@ -487,6 +438,55 @@ public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.Busine
   public final com.runwaysdk.transport.metadata.AttributeCharacterMdDTO getSiteMasterMd()
   {
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
+  }
+  
+  public net.geoprism.registry.ListTypeVersionDTO getWorking()
+  {
+    if(getValue(WORKING) == null || getValue(WORKING).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.ListTypeVersionDTO.get(getRequest(), getValue(WORKING));
+    }
+  }
+  
+  public String getWorkingOid()
+  {
+    return getValue(WORKING);
+  }
+  
+  public void setWorking(net.geoprism.registry.ListTypeVersionDTO value)
+  {
+    if(value == null)
+    {
+      setValue(WORKING, "");
+    }
+    else
+    {
+      setValue(WORKING, value.getOid());
+    }
+  }
+  
+  public boolean isWorkingWritable()
+  {
+    return isWritable(WORKING);
+  }
+  
+  public boolean isWorkingReadable()
+  {
+    return isReadable(WORKING);
+  }
+  
+  public boolean isWorkingModified()
+  {
+    return isModified(WORKING);
+  }
+  
+  public final com.runwaysdk.transport.metadata.AttributeReferenceMdDTO getWorkingMd()
+  {
+    return (com.runwaysdk.transport.metadata.AttributeReferenceMdDTO) getAttributeDTO(WORKING).getAttributeMdDTO();
   }
   
   public final java.lang.String publish(java.lang.String config)

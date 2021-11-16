@@ -61,8 +61,9 @@ export class ListTypeEntry {
     orgCode: string;
     listType: string;
     forDate: string;
-    current?: ListTypeVersion
-    versions?: ListTypeVersion[]
+    wokring: ListTypeVersion;
+    versions?: ListTypeVersion[];
+    showAll?: boolean;
 }
 
 export class VersionMetadata {
@@ -93,6 +94,7 @@ export class ListTypeVersion extends ListVersionMetadata {
     isAbstract?: boolean;
     superTypeCode?: string;
     refreshProgress?: any;
+    working: boolean;
     versionNumber: number;
     subtypes?: { label: string, code: string }[];
 }

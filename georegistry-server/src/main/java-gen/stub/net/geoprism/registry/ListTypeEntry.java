@@ -18,6 +18,8 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 {
   private static final long serialVersionUID = 1112663869;
 
+  public static String      VERSIONS         = "versions";
+
   public ListTypeEntry()
   {
     super();
@@ -53,13 +55,18 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     object.addProperty(ListTypeVersion.FORDATE, GeoRegistryUtil.formatDate(this.getForDate(), false));
     object.addProperty(ListTypeVersion.CREATEDATE, GeoRegistryUtil.formatDate(this.getCreateDate(), false));
     object.addProperty(ListTypeVersion.PERIOD, listType.formatVersionLabel(this));
+    object.addProperty(ListTypeVersion.WORKING, this.getWorkingOid());
 
-    ListTypeVersion current = this.getCurrent();
+    List<ListTypeVersion> versions = this.getVersions();
 
-    if (current != null)
+    JsonArray jVersions = new JsonArray();
+
+    for (ListTypeVersion entry : versions)
     {
-      object.add(ListTypeEntry.CURRENT, current.toJSON(false));
+      jVersions.add(entry.toJSON(false));
     }
+
+    object.add(ListTypeEntry.VERSIONS, jVersions);
 
     return object;
   }
@@ -68,6 +75,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   {
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getEntry().EQ(this));
+    query.AND(query.getWorking().EQ(false));
     query.ORDER_BY_DESC(query.getVersionNumber());
 
     try (OIterator<? extends ListTypeVersion> it = query.getIterator())
@@ -94,16 +102,11 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   // @Authenticate
   private ListTypeVersion createVersion(JsonObject metadata)
   {
-    ListTypeVersion current = this.getCurrent();
+    List<ListTypeVersion> versions = this.getVersions();
 
-    int versionNumber = current != null ? current.getVersionNumber() + 1 : 1;
+    int versionNumber = versions.size() > 0 ? versions.get(0).getVersionNumber() + 1 : 1;
 
-    ListTypeVersion version = ListTypeVersion.create(this, versionNumber, metadata);
-    this.appLock();
-    this.setCurrent(version);
-    this.apply();
-
-    return version;
+    return ListTypeVersion.create(this, false, versionNumber, metadata);
   }
 
   @Override
@@ -123,6 +126,9 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     ListTypeEntry entry = new ListTypeEntry();
     entry.setListType(list);
     entry.setForDate(forDate);
+    entry.apply();
+
+    entry.setWorking(ListTypeVersion.create(entry, true, 0, null));
     entry.apply();
 
     return entry;

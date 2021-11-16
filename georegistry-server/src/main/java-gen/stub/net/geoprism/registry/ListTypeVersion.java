@@ -1139,6 +1139,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.addProperty(ListTypeVersion.CREATEDATE, format.format(this.getCreateDate()));
     object.addProperty(ListTypeVersion.PERIOD, masterlist.formatVersionLabel(this));
     object.addProperty(ListTypeVersion.VERSIONNUMBER, this.getVersionNumber());
+    object.addProperty(ListTypeVersion.WORKING, this.getWorking());
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
@@ -1719,7 +1720,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   }
 
   @Transaction
-  public static ListTypeVersion create(ListTypeEntry listEntry, int versionNumber, JsonObject metadata)
+  public static ListTypeVersion create(ListTypeEntry listEntry, boolean working, int versionNumber, JsonObject metadata)
   {
     ListType listType = listEntry.getListType();
 
@@ -1728,7 +1729,12 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     version.setListType(listType);
     version.setForDate(listEntry.getForDate());
     version.setVersionNumber(versionNumber);
-    version.parse(metadata);
+    version.setWorking(working);
+
+    if (metadata != null)
+    {
+      version.parse(metadata);
+    }
 
     TableMetadata tableMetadata = null;
 

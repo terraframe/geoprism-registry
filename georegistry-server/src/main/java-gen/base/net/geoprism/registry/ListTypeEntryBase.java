@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -660214239)
+@com.runwaysdk.business.ClassSignature(hash = 110636585)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -13,7 +13,6 @@ public abstract class ListTypeEntryBase extends com.runwaysdk.business.Business
   public final static String CLASS = "net.geoprism.registry.ListTypeEntry";
   public static java.lang.String CREATEDATE = "createDate";
   public static java.lang.String CREATEDBY = "createdBy";
-  public static java.lang.String CURRENT = "current";
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
   public static java.lang.String FORDATE = "forDate";
   public static java.lang.String KEYNAME = "keyName";
@@ -26,7 +25,8 @@ public abstract class ListTypeEntryBase extends com.runwaysdk.business.Business
   public static java.lang.String SEQ = "seq";
   public static java.lang.String SITEMASTER = "siteMaster";
   public static java.lang.String TYPE = "type";
-  private static final long serialVersionUID = -660214239;
+  public static java.lang.String WORKING = "working";
+  private static final long serialVersionUID = 110636585;
   
   public ListTypeEntryBase()
   {
@@ -75,58 +75,6 @@ public abstract class ListTypeEntryBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeEntry.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CREATEDBY);
-  }
-  
-  public net.geoprism.registry.ListTypeVersion getCurrent()
-  {
-    if (getValue(CURRENT).trim().equals(""))
-    {
-      return null;
-    }
-    else
-    {
-      return net.geoprism.registry.ListTypeVersion.get(getValue(CURRENT));
-    }
-  }
-  
-  public String getCurrentOid()
-  {
-    return getValue(CURRENT);
-  }
-  
-  public void validateCurrent()
-  {
-    this.validateAttribute(CURRENT);
-  }
-  
-  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getCurrentMd()
-  {
-    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeEntry.CLASS);
-    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(CURRENT);
-  }
-  
-  public void setCurrent(net.geoprism.registry.ListTypeVersion value)
-  {
-    if(value == null)
-    {
-      setValue(CURRENT, "");
-    }
-    else
-    {
-      setValue(CURRENT, value.getOid());
-    }
-  }
-  
-  public void setCurrentId(java.lang.String oid)
-  {
-    if(oid == null)
-    {
-      setValue(CURRENT, "");
-    }
-    else
-    {
-      setValue(CURRENT, oid);
-    }
   }
   
   public com.runwaysdk.system.metadata.MdDomain getEntityDomain()
@@ -475,6 +423,58 @@ public abstract class ListTypeEntryBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeEntry.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeCharacterDAOIF)mdClassIF.definesAttribute(TYPE);
+  }
+  
+  public net.geoprism.registry.ListTypeVersion getWorking()
+  {
+    if (getValue(WORKING).trim().equals(""))
+    {
+      return null;
+    }
+    else
+    {
+      return net.geoprism.registry.ListTypeVersion.get(getValue(WORKING));
+    }
+  }
+  
+  public String getWorkingOid()
+  {
+    return getValue(WORKING);
+  }
+  
+  public void validateWorking()
+  {
+    this.validateAttribute(WORKING);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF getWorkingMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListTypeEntry.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeReferenceDAOIF)mdClassIF.definesAttribute(WORKING);
+  }
+  
+  public void setWorking(net.geoprism.registry.ListTypeVersion value)
+  {
+    if(value == null)
+    {
+      setValue(WORKING, "");
+    }
+    else
+    {
+      setValue(WORKING, value.getOid());
+    }
+  }
+  
+  public void setWorkingId(java.lang.String oid)
+  {
+    if(oid == null)
+    {
+      setValue(WORKING, "");
+    }
+    else
+    {
+      setValue(WORKING, oid);
+    }
   }
   
   protected String getDeclaredType()
