@@ -1099,7 +1099,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     this.publish(object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
   }
 
-  protected void parse(JsonObject object)
+  public void parse(JsonObject object)
   {
     this.parseMetadata("list", object.get("listMetadata").getAsJsonObject());
     this.parseMetadata("geospatial", object.get("geospatialMetadata").getAsJsonObject());

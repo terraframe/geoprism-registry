@@ -97,6 +97,14 @@ public class ListTypeController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "apply-version")
+  public ResponseIF applyVersion(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "metadata") String metadata) throws ParseException
+  {
+    JsonObject response = this.service.applyVersion(request.getSessionId(), oid, metadata);
+
+    return new RestBodyResponse(response);
+  }
+
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
   public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
   {

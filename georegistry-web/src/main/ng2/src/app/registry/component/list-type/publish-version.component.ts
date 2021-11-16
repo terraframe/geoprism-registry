@@ -57,12 +57,29 @@ export class PublishVersionComponent implements OnInit {
     }
 
     onSubmit(): void {
-        this.service.createVersion(this.entry, this.metadata).then(version => {
-            this.entry.current = version;
-            this.bsModalRef.hide();
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+        if (this.metadata.oid != null) {
+            this.service.applyVersion(this.metadata).then(version => {
+                if (this.entry.versions != null) {
+                    const index = this.entry.versions.findIndex(v => v.oid === version.oid);
+
+                    this.entry.versions[index] = version;
+                }
+                else if (this.entry.current.oid === version.oid) {
+                    this.entry.current = version;
+                }
+                this.bsModalRef.hide();
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        }
+        else {
+            this.service.createVersion(this.entry, this.metadata).then(version => {
+                this.entry.current = version;
+                this.bsModalRef.hide();
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        }
     }
 
     onCancel(): void {

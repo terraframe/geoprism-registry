@@ -111,6 +111,22 @@ export class ListTypeService {
             .toPromise();
     }
 
+    applyVersion(metadata: ListVersionMetadata): Promise<ListTypeVersion> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        this.eventService.start();
+
+        return this.http
+            .post<ListTypeVersion>(acp + "/list-type/apply-version", JSON.stringify({ oid: metadata.oid, metadata: metadata }), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
+            .toPromise();
+    }
+
+
     removeVersion(list: ListTypeVersion): Promise<ListType> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"

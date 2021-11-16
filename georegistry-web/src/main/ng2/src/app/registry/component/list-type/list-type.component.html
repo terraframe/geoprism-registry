@@ -1,3 +1,41 @@
+<ng-template #versionDetail let-version='version' let-entry="entry">
+    <div class="row" style="margin-bottom: 5px;">
+        <div class="col-md-9" style="vertical-align: middle;">
+
+            <span class="clickable" (click)="version.collapsed = !version.collapsed"
+                [attr.aria-expanded]="!version.collapsed"><i class="fa fa-minus"></i>
+            </span>
+            <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
+                Version {{version.versionNumber}}
+            </a>
+        </div>
+        <div class="col-md-3" style="text-align: right;">
+            <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
+                <localize key="masterlist.button.metadata"></localize>
+            </button>
+            <button *ngIf="list.write" type="submit" (click)="onDelete(entry, version)" class="btn btn-danger"
+                role="button">
+                <localize key="modal.button.delete"></localize>
+            </button>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 5px;" [collapse]="!version.collapsed">
+        <ul>
+            <li>Date Generated: {{version.createDate}}</li>
+            <li>Last update: {{version.publishDate}}</li>
+            <li>
+                Visibility: List ({{version.listMetadata.visibility}})
+                Geospatial ({{version.geospatialMetadata.visibility}})
+            </li>
+            <li>
+                Authoritativeness: List ({{version.listMetadata.master ? 'Master' : 'Non-master'}})
+                Geospatial ({{version.geospatialMetadata.master  ? 'Master' : 'Non-master'}})
+            </li>
+        </ul>
+    </div>
+</ng-template>
+
+
 <ng-container>
 
     <div class="heading">
@@ -30,67 +68,14 @@
                 </div>
             </div>
             <ng-container *ngIf="entry.current != null">
-                <ng-container *ngIf="entry.versions == null">
-                    <div class="row" style="margin-bottom: 5px;">
-                        <div class="col-md-9" style="vertical-align: middle;">
-
-                            <span class="clickable" (click)="entry.collapsed = !entry.collapsed"
-                                [attr.aria-expanded]="!entry.collapsed"><i class="fa fa-minus"></i>
-                            </span>
-                            <a [routerLink]="'/registry/master-list/' + entry.current.oid" routerLinkActive="active">
-                                Version {{entry.current.versionNumber}}
-                            </a>
-                        </div>
-                        <div class="col-md-3" style="text-align: right;">
-                            <button type="submit" (click)="onEdit(entry, entry.current)" class="btn btn-default" role="button">
-                                <localize key="masterlist.button.metadata"></localize>
-                            </button>
-                            <button *ngIf="list.write" type="submit" (click)="onDelete(entry, entry.current)"
-                                class="btn btn-danger" role="button">
-                                <localize key="modal.button.delete"></localize>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="row" style="margin-bottom: 5px;" [collapse]="!entry.collapsed">
-                        <ul>
-                            <li>Date Generated: {{entry.current.createDate}}</li>
-                            <li>Last update: {{entry.current.publishDate}}</li>
-                            <li>Visibility: </li>
-                            <li>Authoratativeness: </li>
-                        </ul>
-                    </div>
+                <ng-container *ngIf="entry.versions == null" [ngTemplateOutlet]="versionDetail"
+                    [ngTemplateOutletContext]="{entry:entry, version:entry.current}">
                 </ng-container>
                 <ng-container *ngIf="entry.versions != null">
                     <ng-container *ngFor="let version of entry.versions">
-
-                        <div class="row">
-                            <div class="col-md-9">
-                                <span class="clickable" (click)="version.collapsed = !version.collapsed"
-                                    [attr.aria-expanded]="!version.collapsed"><i class="fa fa-minus"></i>
-                                </span>
-                                <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
-                                    Version {{version.versionNumber}}
-                                </a>
-                            </div>
-                            <div class="col-md-3" style="text-align: right;">
-                                <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
-                                    <localize key="masterlist.button.metadata"></localize>
-                                </button>
-                                <button *ngIf="list.write" type="submit" (click)="onDelete(entry, version)"
-                                    class="btn btn-danger" role="button">
-                                    <localize key="modal.button.delete"></localize>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-bottom: 5px;" [collapse]="!version.collapsed">
-                            <ul>
-                                <li>Date Generated: {{entry.current.createDate}}</li>
-                                <li>Last update: {{entry.current.publishDate}}</li>
-                                <li>Visibility: </li>
-                                <li>Authoratativeness: </li>
-                            </ul>
-                        </div>
-
+                        <ng-container [ngTemplateOutlet]="versionDetail"
+                            [ngTemplateOutletContext]="{entry:entry, version:version}">
+                        </ng-container>
                     </ng-container>
                 </ng-container>
                 <div class="row" style="margin-bottom: 5px;">

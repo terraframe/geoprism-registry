@@ -121,6 +121,33 @@ public class ListTypeService
     // return entry.toJSON(false);
   }
 
+  @Request(RequestType.SESSION)
+  public JsonObject applyVersion(String sessionId, String oid, String metadata)
+  {
+    ListTypeVersion version = ListTypeVersion.get(oid);
+    ListType listType = version.getListType();
+
+    if (!listType.isValid())
+    {
+      throw new InvalidMasterListException();
+    }
+
+    this.enforceWritePermissions(listType);
+
+    version.appLock();
+
+    try
+    {
+      version.parse(JsonParser.parseString(metadata).getAsJsonObject());
+    }
+    finally
+    {
+      version.apply();
+    }
+
+    return version.toJSON(false);
+  }
+
   // @Request(RequestType.SESSION)
   // public void createPublishedVersions(String sessionId, String oid, )
   // {

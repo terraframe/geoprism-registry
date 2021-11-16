@@ -68,7 +68,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   {
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getEntry().EQ(this));
-    query.ORDER_BY_DESC(query.getForDate());
+    query.ORDER_BY_DESC(query.getVersionNumber());
 
     try (OIterator<? extends ListTypeVersion> it = query.getIterator())
     {
@@ -78,11 +78,11 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 
   public JsonArray getVersionJson()
   {
-    List<ListTypeVersion> entries = this.getVersions();
+    List<ListTypeVersion> versions = this.getVersions();
 
     JsonArray jVersions = new JsonArray();
 
-    for (ListTypeVersion entry : entries)
+    for (ListTypeVersion entry : versions)
     {
       jVersions.add(entry.toJSON(false));
     }

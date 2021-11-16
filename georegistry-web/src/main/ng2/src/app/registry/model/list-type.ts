@@ -70,15 +70,14 @@ export class VersionMetadata {
     visibility: string;
 }
 
-
 export class ListVersionMetadata {
+    oid?: string;
     listMetadata?: VersionMetadata;
     geospatialMetadata?: VersionMetadata;
 }
 
 export class ListTypeVersion extends ListVersionMetadata {
     displayLabel: string;
-    oid: string;
     typeCode: string;
     orgCode: string;
     listEntry: string;
