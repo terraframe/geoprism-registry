@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1599626454)
+@com.runwaysdk.business.ClassSignature(hash = -972131293)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -21,6 +21,36 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   private com.runwaysdk.business.Struct displayLabel = null;
   
   public static java.lang.String ENTITYDOMAIN = "entityDomain";
+  public static java.lang.String GEOSPATIALACCESSCONSTRAINTS = "geospatialAccessConstraints";
+  private com.runwaysdk.business.Struct geospatialAccessConstraints = null;
+  
+  public static java.lang.String GEOSPATIALACKNOWLEDGEMENTS = "geospatialAcknowledgements";
+  private com.runwaysdk.business.Struct geospatialAcknowledgements = null;
+  
+  public static java.lang.String GEOSPATIALCOLLECTIONDATE = "geospatialCollectionDate";
+  public static java.lang.String GEOSPATIALCONTACTNAME = "geospatialContactName";
+  public static java.lang.String GEOSPATIALDESCRIPTION = "geospatialDescription";
+  private com.runwaysdk.business.Struct geospatialDescription = null;
+  
+  public static java.lang.String GEOSPATIALDISCLAIMER = "geospatialDisclaimer";
+  private com.runwaysdk.business.Struct geospatialDisclaimer = null;
+  
+  public static java.lang.String GEOSPATIALEMAIL = "geospatialEmail";
+  public static java.lang.String GEOSPATIALLABEL = "geospatialLabel";
+  private com.runwaysdk.business.Struct geospatialLabel = null;
+  
+  public static java.lang.String GEOSPATIALORGANIZATION = "geospatialOrganization";
+  public static java.lang.String GEOSPATIALORIGINATOR = "geospatialOriginator";
+  public static java.lang.String GEOSPATIALPROCESS = "geospatialProcess";
+  private com.runwaysdk.business.Struct geospatialProcess = null;
+  
+  public static java.lang.String GEOSPATIALPROGRESS = "geospatialProgress";
+  private com.runwaysdk.business.Struct geospatialProgress = null;
+  
+  public static java.lang.String GEOSPATIALTELEPHONENUMBER = "geospatialTelephoneNumber";
+  public static java.lang.String GEOSPATIALUSECONSTRAINTS = "geospatialUseConstraints";
+  private com.runwaysdk.business.Struct geospatialUseConstraints = null;
+  
   public static java.lang.String HIERARCHIES = "hierarchies";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
@@ -65,13 +95,21 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String VALID = "valid";
-  private static final long serialVersionUID = 1599626454;
+  private static final long serialVersionUID = -972131293;
   
   public ListTypeBase()
   {
     super();
     description = super.getStruct("description");
     displayLabel = super.getStruct("displayLabel");
+    geospatialAccessConstraints = super.getStruct("geospatialAccessConstraints");
+    geospatialAcknowledgements = super.getStruct("geospatialAcknowledgements");
+    geospatialDescription = super.getStruct("geospatialDescription");
+    geospatialDisclaimer = super.getStruct("geospatialDisclaimer");
+    geospatialLabel = super.getStruct("geospatialLabel");
+    geospatialProcess = super.getStruct("geospatialProcess");
+    geospatialProgress = super.getStruct("geospatialProgress");
+    geospatialUseConstraints = super.getStruct("geospatialUseConstraints");
     listAccessConstraints = super.getStruct("listAccessConstraints");
     listAcknowledgements = super.getStruct("listAcknowledgements");
     listDescription = super.getStruct("listDescription");
@@ -236,6 +274,302 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     {
       setValue(ENTITYDOMAIN, oid);
     }
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialAccessConstraints getGeospatialAccessConstraints()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialAccessConstraints) geospatialAccessConstraints;
+  }
+  
+  public void validateGeospatialAccessConstraints()
+  {
+    this.validateAttribute(GEOSPATIALACCESSCONSTRAINTS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialAccessConstraintsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALACCESSCONSTRAINTS);
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialAcknowledgements getGeospatialAcknowledgements()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialAcknowledgements) geospatialAcknowledgements;
+  }
+  
+  public void validateGeospatialAcknowledgements()
+  {
+    this.validateAttribute(GEOSPATIALACKNOWLEDGEMENTS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialAcknowledgementsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALACKNOWLEDGEMENTS);
+  }
+  
+  public java.util.Date getGeospatialCollectionDate()
+  {
+    return com.runwaysdk.constants.MdAttributeDateTimeUtil.getTypeSafeValue(getValue(GEOSPATIALCOLLECTIONDATE));
+  }
+  
+  public void validateGeospatialCollectionDate()
+  {
+    this.validateAttribute(GEOSPATIALCOLLECTIONDATE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF getGeospatialCollectionDateMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeDateTimeDAOIF)mdClassIF.definesAttribute(GEOSPATIALCOLLECTIONDATE);
+  }
+  
+  public void setGeospatialCollectionDate(java.util.Date value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALCOLLECTIONDATE, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALCOLLECTIONDATE, new java.text.SimpleDateFormat(com.runwaysdk.constants.Constants.DATETIME_FORMAT).format(value));
+    }
+  }
+  
+  public String getGeospatialContactName()
+  {
+    return getValue(GEOSPATIALCONTACTNAME);
+  }
+  
+  public void validateGeospatialContactName()
+  {
+    this.validateAttribute(GEOSPATIALCONTACTNAME);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialContactNameMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALCONTACTNAME);
+  }
+  
+  public void setGeospatialContactName(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALCONTACTNAME, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALCONTACTNAME, value);
+    }
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialDescription getGeospatialDescription()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialDescription) geospatialDescription;
+  }
+  
+  public void validateGeospatialDescription()
+  {
+    this.validateAttribute(GEOSPATIALDESCRIPTION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialDescriptionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALDESCRIPTION);
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialDisclaimer getGeospatialDisclaimer()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialDisclaimer) geospatialDisclaimer;
+  }
+  
+  public void validateGeospatialDisclaimer()
+  {
+    this.validateAttribute(GEOSPATIALDISCLAIMER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialDisclaimerMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALDISCLAIMER);
+  }
+  
+  public String getGeospatialEmail()
+  {
+    return getValue(GEOSPATIALEMAIL);
+  }
+  
+  public void validateGeospatialEmail()
+  {
+    this.validateAttribute(GEOSPATIALEMAIL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialEmailMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALEMAIL);
+  }
+  
+  public void setGeospatialEmail(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALEMAIL, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALEMAIL, value);
+    }
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialLabel getGeospatialLabel()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialLabel) geospatialLabel;
+  }
+  
+  public void validateGeospatialLabel()
+  {
+    this.validateAttribute(GEOSPATIALLABEL);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialLabelMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALLABEL);
+  }
+  
+  public String getGeospatialOrganization()
+  {
+    return getValue(GEOSPATIALORGANIZATION);
+  }
+  
+  public void validateGeospatialOrganization()
+  {
+    this.validateAttribute(GEOSPATIALORGANIZATION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialOrganizationMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALORGANIZATION);
+  }
+  
+  public void setGeospatialOrganization(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALORGANIZATION, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALORGANIZATION, value);
+    }
+  }
+  
+  public String getGeospatialOriginator()
+  {
+    return getValue(GEOSPATIALORIGINATOR);
+  }
+  
+  public void validateGeospatialOriginator()
+  {
+    this.validateAttribute(GEOSPATIALORIGINATOR);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialOriginatorMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALORIGINATOR);
+  }
+  
+  public void setGeospatialOriginator(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALORIGINATOR, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALORIGINATOR, value);
+    }
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialProcess getGeospatialProcess()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialProcess) geospatialProcess;
+  }
+  
+  public void validateGeospatialProcess()
+  {
+    this.validateAttribute(GEOSPATIALPROCESS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialProcessMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALPROCESS);
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialProgress getGeospatialProgress()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialProgress) geospatialProgress;
+  }
+  
+  public void validateGeospatialProgress()
+  {
+    this.validateAttribute(GEOSPATIALPROGRESS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialProgressMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALPROGRESS);
+  }
+  
+  public String getGeospatialTelephoneNumber()
+  {
+    return getValue(GEOSPATIALTELEPHONENUMBER);
+  }
+  
+  public void validateGeospatialTelephoneNumber()
+  {
+    this.validateAttribute(GEOSPATIALTELEPHONENUMBER);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialTelephoneNumberMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALTELEPHONENUMBER);
+  }
+  
+  public void setGeospatialTelephoneNumber(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALTELEPHONENUMBER, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALTELEPHONENUMBER, value);
+    }
+  }
+  
+  public net.geoprism.registry.ListTypeGeospatialUseConstraints getGeospatialUseConstraints()
+  {
+    return (net.geoprism.registry.ListTypeGeospatialUseConstraints) geospatialUseConstraints;
+  }
+  
+  public void validateGeospatialUseConstraints()
+  {
+    this.validateAttribute(GEOSPATIALUSECONSTRAINTS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF getGeospatialUseConstraintsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALUSECONSTRAINTS);
   }
   
   public String getHierarchies()

@@ -1101,8 +1101,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   public void parse(JsonObject object)
   {
-    this.parseMetadata("list", object.get("listMetadata").getAsJsonObject());
-    this.parseMetadata("geospatial", object.get("geospatialMetadata").getAsJsonObject());
+    this.parseMetadata("list", object.get(ListType.LIST_METADATA).getAsJsonObject());
+    this.parseMetadata("geospatial", object.get(ListType.GEOSPATIAL_METADATA).getAsJsonObject());
   }
 
   private void parseMetadata(String prefix, JsonObject object)
@@ -1142,8 +1142,8 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
-    object.add("listMetadata", this.toMetadataJSON("list"));
-    object.add("geospatialMetadata", this.toMetadataJSON("geospatial"));
+    object.add(ListType.LIST_METADATA, this.toMetadataJSON("list"));
+    object.add(ListType.GEOSPATIAL_METADATA, this.toMetadataJSON("geospatial"));
 
     Progress progress = ProgressService.get(this.getOid());
     if (progress != null)

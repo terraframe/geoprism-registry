@@ -1,3 +1,47 @@
+<ng-template #metadataDetail let-metadata='metadata'>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.ismaster"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <boolean-field [disable]="readonly" [(value)]="metadata.master" label=""></boolean-field>
+        </div>
+    </div>
+    <div class="row-holder">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.visibility"></localize>
+            </label>
+        </div>
+        <div class="holder">
+            <select class="select-area" name="visibility" [(ngModel)]="metadata.visibility" [disabled]="readonly"
+                required>
+                <option value="PUBLIC">
+                    <localize key="masterlist.public"></localize>
+                </option>
+                <option value="PRIVATE">
+                    <localize key="masterlist.private"></localize>
+                </option>
+            </select>
+        </div>
+    </div>
+    <div class="row-holder" *ngFor="let localeValue of metadata.description.localeValues">
+        <div class="label-holder">
+            <label>
+                <localize key="masterlist.listAbstract"></localize>
+                <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
+                    </convert-key-label>)</span>
+            </label>
+        </div>
+        <div class="holder">
+            <textarea [(ngModel)]="localeValue.value" name="'description-' + localeValue.locale" class="form-control"
+                [disabled]="readonly" [required]="false"></textarea>
+        </div>
+    </div>
+</ng-template>
+
 <div class="modal-body">
     <ng-container *ngIf="metadata != null">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
@@ -36,12 +80,12 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                            <version-metadata *ngIf="tab === 'LIST'" [metadata]="metadata.listMetadata"
-                                [readonly]="readonly">
-                            </version-metadata>
-                            <version-metadata *ngIf="tab === 'GEOSPATIAL'" [metadata]="metadata.geospatialMetadata"
-                                [readonly]="readonly">
-                            </version-metadata>
+                            <ng-container *ngIf="tab === 'LIST'" [ngTemplateOutlet]="metadataDetail"
+                                [ngTemplateOutletContext]="{metadata:metadata.listMetadata}">
+                            </ng-container>
+                            <ng-container *ngIf="tab === 'GEOSPATIAL'" [ngTemplateOutlet]="metadataDetail"
+                                [ngTemplateOutletContext]="{metadata:metadata.geospatialMetadata}">
+                            </ng-container>
 
                         </div>
                     </div>

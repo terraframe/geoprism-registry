@@ -44,41 +44,43 @@ import net.geoprism.registry.service.ServiceFactory;
 
 public abstract class ListType extends ListTypeBase
 {
-  private static final long  serialVersionUID = 190790165;
+  private static final long  serialVersionUID    = 190790165;
 
-  public static final String TYPE_CODE        = "typeCode";
+  public static final String TYPE_CODE           = "typeCode";
 
-  public static final String ATTRIBUTES       = "attributes";
+  public static final String ATTRIBUTES          = "attributes";
 
-  public static final String NAME             = "name";
+  public static final String NAME                = "name";
 
-  public static final String LABEL            = "label";
+  public static final String LABEL               = "label";
 
-  public static final String VALUE            = "value";
+  public static final String VALUE               = "value";
 
-  public static final String TYPE             = "type";
+  public static final String TYPE                = "type";
 
-  public static final String BASE             = "base";
+  public static final String BASE                = "base";
 
-  public static final String DEPENDENCY       = "dependency";
+  public static final String DEPENDENCY          = "dependency";
 
-  public static final String DEFAULT_LOCALE   = "DefaultLocale";
+  public static final String DEFAULT_LOCALE      = "DefaultLocale";
 
-  public static final String VERSIONS         = "versions";
+  public static final String VERSIONS            = "versions";
 
-  public static final String PUBLIC           = "PUBLIC";
+  public static final String PUBLIC              = "PUBLIC";
 
-  public static final String PRIVATE          = "PRIVATE";
+  public static final String PRIVATE             = "PRIVATE";
 
-  public static final String LIST_TYPE        = "listType";
+  public static final String LIST_TYPE           = "listType";
 
-  public static final String LIST_METADATA    = "listMetadata";
+  public static final String LIST_METADATA       = "listMetadata";
 
-  public static final String SINGLE           = "single";
+  public static final String GEOSPATIAL_METADATA = "geospatialMetadata";
 
-  public static final String INTERVAL         = "interval";
+  public static final String SINGLE              = "single";
 
-  public static final String INCREMENTAL      = "incremental";
+  public static final String INTERVAL            = "interval";
+
+  public static final String INCREMENTAL         = "incremental";
 
   public ListType()
   {
@@ -278,9 +280,7 @@ public abstract class ListType extends ListTypeBase
 
     // Parse the list metadata
     this.parseMetadata("list", object.get(LIST_METADATA).getAsJsonObject());
-
-    // TODO
-    // Parse the geospatial metadata
+    this.parseMetadata("geospatial", object.get(GEOSPATIAL_METADATA).getAsJsonObject());
   }
 
   public void parseMetadata(String prefix, JsonObject object)
@@ -351,6 +351,7 @@ public abstract class ListType extends ListTypeBase
 
     // Include the list metadata
     object.add(ListType.LIST_METADATA, this.toMetadataJSON("list", serializer));
+    object.add(ListType.GEOSPATIAL_METADATA, this.toMetadataJSON("geospatial", serializer));
 
     if (includeEntries)
     {

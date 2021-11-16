@@ -42,8 +42,8 @@ export class ListType {
     subtypeHierarchies?: any[];
     hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
 
-    // List metadata fields
     listMetadata: ListMetadata;
+    geospatialMetadata: ListMetadata;
 
     // Attributes for the subtypes
     validOn?: string;

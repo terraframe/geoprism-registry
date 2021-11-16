@@ -117,13 +117,11 @@ import { HistoricalEventModuleComponent } from "./component/historical-event-mod
 
 import { ListTypeManagerComponent } from "./component/list-type/list-type-manager.component";
 import { ListTypePublishModalComponent } from "./component/list-type/publish-modal.component";
-import { ListMetadataComponent } from "./component/list-type/list-metadata.component";
 import { ListTypeService } from "./service/list-type.service";
 import { ListsForTypeComponent } from "./component/list-type/lists-for-type.component";
 import { ListTypeComponent } from "./component/list-type/list-type.component";
 import { ListComponent } from "./component/list-type/list.component";
 import { PublishVersionComponent } from "./component/list-type/publish-version.component";
-import { VersionMetadataComponent } from "./component/list-type/version-metadata.component";
 
 @NgModule({
     imports: [
@@ -235,12 +233,10 @@ import { VersionMetadataComponent } from "./component/list-type/version-metadata
         // List type
         ListTypeManagerComponent,
         ListTypePublishModalComponent,
-        ListMetadataComponent,
         ListsForTypeComponent,
         ListTypeComponent,
         ListComponent,
-        PublishVersionComponent,
-        VersionMetadataComponent
+        PublishVersionComponent
     ],
     providers: [
         MapService,

@@ -1,10 +1,10 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1180979631)
+@com.runwaysdk.business.ClassSignature(hash = 1750744225)
 public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.BusinessDTO
 {
   public final static String CLASS = "net.geoprism.registry.ListTypeEntry";
-  private static final long serialVersionUID = -1180979631;
+  private static final long serialVersionUID = 1750744225;
   
   protected ListTypeEntryDTOBase(com.runwaysdk.constants.ClientRequestIF clientRequest)
   {
@@ -489,18 +489,18 @@ public abstract class ListTypeEntryDTOBase extends com.runwaysdk.business.Busine
     return (com.runwaysdk.transport.metadata.AttributeCharacterMdDTO) getAttributeDTO(SITEMASTER).getAttributeMdDTO();
   }
   
-  public final java.lang.String publish()
+  public final java.lang.String publish(java.lang.String config)
   {
-    String[] _declaredTypes = new String[]{};
-    Object[] _parameters = new Object[]{};
+    String[] _declaredTypes = new String[]{"java.lang.String"};
+    Object[] _parameters = new Object[]{config};
     com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeEntryDTO.CLASS, "publish", _declaredTypes);
     return (java.lang.String) getRequest().invokeMethod(_metadata, this, _parameters);
   }
   
-  public static final java.lang.String publish(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid)
+  public static final java.lang.String publish(com.runwaysdk.constants.ClientRequestIF clientRequest, java.lang.String oid, java.lang.String config)
   {
-    String[] _declaredTypes = new String[]{"java.lang.String"};
-    Object[] _parameters = new Object[]{oid};
+    String[] _declaredTypes = new String[]{"java.lang.String", "java.lang.String"};
+    Object[] _parameters = new Object[]{oid, config};
     com.runwaysdk.business.MethodMetaData _metadata = new com.runwaysdk.business.MethodMetaData(net.geoprism.registry.ListTypeEntryDTO.CLASS, "publish", _declaredTypes);
     return (java.lang.String) clientRequest.invokeMethod(_metadata, null, _parameters);
   }

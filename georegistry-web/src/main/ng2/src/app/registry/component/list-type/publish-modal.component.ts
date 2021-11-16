@@ -83,7 +83,24 @@ export class ListTypePublishModalComponent implements OnInit {
                     organization: '',
                     telephoneNumber: '',
                     email: '',
+                },
+                geospatialMetadata: {
+                    label: this.lService.create(),
+                    description: this.lService.create(),
+                    originator: '',
+                    collectionDate: '',
+                    process: this.lService.create(),
+                    progress: this.lService.create(),
+                    accessConstraints: this.lService.create(),
+                    useConstraints: this.lService.create(),
+                    acknowledgements: this.lService.create(),
+                    disclaimer: this.lService.create(),
+                    contactName: '',
+                    organization: '',
+                    telephoneNumber: '',
+                    email: '',
                 }
+
             };
 
             this.list.typeCode = listByType.typeCode;
