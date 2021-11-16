@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { Component, OnInit, Input, SimpleChanges } from "@angular/core";
+import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -30,13 +30,19 @@ export class HierarchyVisualizerComponent implements OnInit {
   */
   private bsModalRef: BsModalRef;
 
-  @Input() geoObject: GeoObject = null;
+  @Input() params: {geoObject: GeoObject, hierarchyCode: string} = null;
+
+  geoObject: GeoObject = null;
+
+  hierarchyCode: string = null;
+
+  @Output() changeGeoObject = new EventEmitter<{id:string, code: string, typeCode: string}>();
+
+  @Output() changeHierarchy = new EventEmitter<{code:string}>();
 
   private data: any = null;
 
   hierarchies: any[];
-
-  private hierarchyCode: string = null;
 
   private width: number = 500;
   private height: number = 500;
@@ -50,13 +56,21 @@ export class HierarchyVisualizerComponent implements OnInit {
       localizeService: LocalizationService, private vizService: RelationshipVisualizationService, private authService: AuthService) {}
 
   ngOnInit(): void {
-      this.fetchHierarchies();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-      if (changes.geoObject && changes.geoObject.previousValue !== changes.geoObject.currentValue) {
+      if (changes.params && changes.params.previousValue !== changes.params.currentValue) {
           this.data = null;
-          this.hierarchyCode = null;
+          this.hierarchyCode = this.params.hierarchyCode;
+          this.geoObject = this.params.geoObject;
+
+          if (this.hierarchies == null) {
+              this.fetchHierarchies();
+          }
+
+          if (this.hierarchyCode != null) {
+              this.onSelectHierarchy();
+          }
       }
   }
 
@@ -76,6 +90,7 @@ export class HierarchyVisualizerComponent implements OnInit {
 
   private onSelectHierarchy() {
       this.fetchData();
+      this.changeHierarchy.emit({ code: this.hierarchyCode });
   }
 
   private fetchData(): void {
@@ -92,6 +107,10 @@ export class HierarchyVisualizerComponent implements OnInit {
               }, 10);
           }
       });
+  }
+
+  public onClickNode(node: any): void {
+      this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
   }
 
   private stringify(data: any): string {

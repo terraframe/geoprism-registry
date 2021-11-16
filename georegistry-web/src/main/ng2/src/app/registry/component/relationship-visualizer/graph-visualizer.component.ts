@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import { Component, OnInit, Input, SimpleChanges } from "@angular/core";
+import { Component, OnInit, Input, Output, SimpleChanges, EventEmitter } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -32,6 +32,8 @@ export class GraphVisualizerComponent implements OnInit {
 
   @Input() geoObject: GeoObject = null;
 
+  @Output() changeGeoObject = new EventEmitter<{id:string, code: string, typeCode: string}>();
+
   data: any = null;
 
   private width: number = 500;
@@ -51,7 +53,8 @@ export class GraphVisualizerComponent implements OnInit {
 
   ngOnChanges(changes: SimpleChanges) {
       if (changes.geoObject && changes.geoObject.previousValue !== changes.geoObject.currentValue) {
-          this.update$.next(true);
+          // this.update$.next(true);
+          this.fetchData();
       }
   }
 
@@ -69,6 +72,10 @@ export class GraphVisualizerComponent implements OnInit {
               }, 10);
           }
       });
+  }
+
+  public onClickNode(node: any): void {
+      this.changeGeoObject.emit({ id: node.id.substring(2), code: node.code, typeCode: node.typeCode });
   }
 
   private stringify(data: any): string {

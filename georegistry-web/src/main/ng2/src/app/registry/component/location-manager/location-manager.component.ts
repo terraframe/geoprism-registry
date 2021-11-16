@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { Location } from "@angular/common";
 import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
@@ -68,6 +69,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     mode: number = this.MODE.SEARCH;
 
     visualizeMode: number = this.VISUALIZE_MODE.MAP;
+
+    visualizingHierarchy: string = null;
 
     /*
      * Date of data for explorer
@@ -152,7 +155,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private modalService: BsModalService, private mapService: MapService, private geomService: GeometryService, public service: RegistryService,
-        private route: ActivatedRoute, private router: Router, private lService: LocalizationService) { }
+        private route: ActivatedRoute, private router: Router, private lService: LocalizationService, private location: Location) { }
 
     ngOnInit(): void {
         this.urlSubscriber = this.route.params.subscribe(params => {
@@ -164,7 +167,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.dateStr = params["datestr"];
             this.handleDateChange();
 
-            if (geoObjectUid && geoObjectTypeCode && this.dateStr) {
+            if (params["visualizeMode"]) {
+                this.visualizeMode = parseInt(params["visualizeMode"]);
+            }
+
+            if (geoObjectUid && geoObjectTypeCode) {
                 this.service.getGeoObject(geoObjectUid, geoObjectTypeCode).then(geoObj => {
                     this.setData([geoObj]);
                     this.select(geoObj, null);
@@ -181,6 +188,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     ngAfterViewInit() {
+        if (this.visualizeMode === this.VISUALIZE_MODE.MAP) {
+            this.initializeMap();
+        }
+    }
+
+    initializeMap() {
         const layer = this.baseLayers[0];
 
         this.map = new Map({
@@ -223,6 +236,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    onChangeGeoObject(event: {id: string, code: string, typeCode: string}): void {
+        this.service.getGeoObject(event.id, event.typeCode).then(geoObj => {
+            this.setData([geoObj]);
+            this.select(geoObj, null);
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
+    }
+
     changeMode(mode: number): void {
         this.mode = mode;
 
@@ -248,6 +270,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         this.visualizeMode = visualizeMode;
+
+        //if (this.visualizeMode === this.VISUALIZE_MODE.MAP && this.map == null) {
+        //    window.setTimeoutthis.initializeMap();
+        //}
+
+        this.location.replaceState("/registry/location-manager/" + this.current.properties.uid + "/" + this.current.properties.type + "/" + this.visualizeMode);
     }
 
     visualizeRelationships(node: GeoObject, visualizeMode: number, event: MouseEvent): void {
@@ -511,7 +539,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     search(): void {
         this.geomService.destroy(false);
         this.mapService.search(this.text, this.dateStr).then(data => {
-            (<any> this.map.getSource("children")).setData(data);
+            if (this.visualizeMode === this.VISUALIZE_MODE.MAP) {
+                (<any> this.map.getSource("children")).setData(data);
+            }
 
             this.setData(data.features);
         }).catch((err: HttpErrorResponse) => {
@@ -567,8 +597,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.current = node;
             this.mode = this.MODE.VIEW;
 
-            this.geomService.initialize(this.map, this.type.geometryType, !this.isEdit);
-            this.geomService.zoomToLayersExtent();
+            if (this.visualizeMode === this.VISUALIZE_MODE.MAP) {
+                this.geomService.initialize(this.map, this.type.geometryType, !this.isEdit);
+                this.geomService.zoomToLayersExtent();
+            }
+
+            this.location.replaceState("/registry/location-manager/" + this.current.properties.uid + "/" + this.current.properties.type + "/" + this.visualizeMode);
 
             //      const code = this.current.properties.code;
             //

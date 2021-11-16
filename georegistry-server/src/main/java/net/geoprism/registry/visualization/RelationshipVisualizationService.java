@@ -25,6 +25,7 @@ import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.RequestType;
 import com.runwaysdk.session.Session;
+import com.runwaysdk.system.metadata.MdEdge;
 
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
@@ -57,11 +58,7 @@ public class RelationshipVisualizationService
     ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
     VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(geoObjectCode, type);
     
-    JsonObject joVertex = new JsonObject();
-    joVertex.addProperty("id", "g-" + rootGo.getUid());
-    joVertex.addProperty("code", rootGo.getCode());
-    joVertex.addProperty("label", rootGo.getDisplayLabel().getValue());
-    jaVerticies.add(joVertex);
+    jaVerticies.add(serializeVertex(rootGo));
     
     Set<String> setEdges = new HashSet<String>();
     Set<String> setVerticies = new HashSet<String>();
@@ -112,11 +109,7 @@ public class RelationshipVisualizationService
       ServerGeoObjectType type = ServiceFactory.getMetadataCache().getGeoObjectType(geoObjectTypeCode).get();
       VertexServerGeoObject rootGo = (VertexServerGeoObject) ServiceFactory.getGeoObjectService().getGeoObjectByCode(geoObjectCode, type);
       
-      JsonObject joVertex = new JsonObject();
-      joVertex.addProperty("id", "g-" + rootGo.getUid());
-      joVertex.addProperty("code", rootGo.getCode());
-      joVertex.addProperty("label", rootGo.getDisplayLabel().getValue());
-      jaVerticies.add(joVertex);
+      jaVerticies.add(serializeVertex(rootGo));
       
       Set<String> setEdges = new HashSet<String>();
       Set<String> setVerticies = new HashSet<String>();
@@ -180,35 +173,43 @@ public class RelationshipVisualizationService
         
         if (!setVerticies.contains(relatedGO.getCode()))
         {
-          JsonObject joVertex = new JsonObject();
-          joVertex.addProperty("id", "g-" + relatedGO.getUid());
-          joVertex.addProperty("code", relatedGO.getCode());
-          joVertex.addProperty("label", relatedGO.getDisplayLabel().getValue());
-          jaVerticies.add(joVertex);
+          jaVerticies.add(serializeVertex(relatedGO));
           
           setVerticies.add(relatedGO.getCode());
         }
         
         if (!setVerticies.contains(edge.getOid()))
         {
-          JsonObject joEdge = new JsonObject();
-          joEdge.addProperty("id", "g-" + edge.getOid());
-          
           if (inOrOut == OUT)
           {
-            joEdge.addProperty("source", "g-" + vertexGo.getUid());
-            joEdge.addProperty("target", "g-" + relatedGO.getUid());
+            jaEdges.add(serializeEdge(vertexGo, relatedGO, mdEdge, edge));
           }
           else
           {
-            joEdge.addProperty("target", "g-" + vertexGo.getUid());
-            joEdge.addProperty("source", "g-" + relatedGO.getUid());
+            jaEdges.add(serializeEdge(relatedGO, vertexGo, mdEdge, edge));
           }
-          
-          joEdge.addProperty("label", mdEdge.getDisplayLabel(Session.getCurrentLocale()));
-          jaEdges.add(joEdge);
         }
       }
     }
+  }
+  
+  private JsonObject serializeEdge(VertexServerGeoObject source, VertexServerGeoObject target, MdEdgeDAOIF mdEdge, EdgeObject edge)
+  {
+    JsonObject joEdge = new JsonObject();
+    joEdge.addProperty("id", "g-" + edge.getOid());
+    joEdge.addProperty("source", "g-" + source.getUid());
+    joEdge.addProperty("target", "g-" + target.getUid());
+    joEdge.addProperty("label", mdEdge.getDisplayLabel(Session.getCurrentLocale()));
+    return joEdge;
+  }
+  
+  private JsonObject serializeVertex(VertexServerGeoObject vertex)
+  {
+    JsonObject joVertex = new JsonObject();
+    joVertex.addProperty("id", "g-" + vertex.getUid());
+    joVertex.addProperty("code", vertex.getCode());
+    joVertex.addProperty("typeCode", vertex.getType().getCode());
+    joVertex.addProperty("label", vertex.getDisplayLabel().getValue());
+    return joVertex;
   }
 }

@@ -16,7 +16,7 @@
            [panToNode$]="panToNode$"
          >
            <ng-template #nodeTemplate let-node>
-				    <svg:g class="node">
+				    <svg:g (click)="onClickNode(node)" style="cursor:pointer;" class="node">
 				      <svg:rect
 				        [attr.width]="node.dimension.width"
 				        [attr.height]="node.dimension.height"

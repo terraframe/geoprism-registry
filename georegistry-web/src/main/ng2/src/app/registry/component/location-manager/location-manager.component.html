@@ -124,17 +124,20 @@
         </div>
       </div>
       
-      <div *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY" style="height: calc(100vh - 145px);" class="col-md-7">
+      <div *ngIf="visualizeMode === VISUALIZE_MODE.HIERARCHY && current" style="height: calc(100vh - 145px);" class="col-md-7">
         <hierarchy-visualizer
-          [geoObject]="current"
+          [params]="{geoObject: current, hierarchyCode: visualizingHierarchy}"
+          (changeGeoObject)="onChangeGeoObject($event)"
+          (changeHierarchy)="visualizingHierarchy = $event.code"
         >
         
         </hierarchy-visualizer>
       </div>
       
-      <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH" style="height: calc(100vh - 145px);" class="col-md-7">
+      <div *ngIf="visualizeMode === VISUALIZE_MODE.GRAPH && current" style="height: calc(100vh - 145px);" class="col-md-7">
         <graph-visualizer
           [geoObject]="current"
+          (changeGeoObject)="onChangeGeoObject($event)"
         >
         
         </graph-visualizer>
