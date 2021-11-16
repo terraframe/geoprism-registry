@@ -32,9 +32,11 @@ export class RelationshipVisualizationService {
     // eslint-disable-next-line no-useless-constructor
     constructor(private http: HttpClient, private eventService: EventService) { }
 
-    fetchHierarchyData(hierarchyCode: string): Promise<any> {
+    fetchHierarchyData(hierarchyCode: string, geoObjectCode: string, geoObjectTypeCode: string): Promise<any> {
         let params: HttpParams = new HttpParams();
         params = params.set("hierarchyCode", hierarchyCode);
+        params = params.set("geoObjectCode", geoObjectCode);
+        params = params.set("geoObjectTypeCode", geoObjectTypeCode);
 
         this.eventService.start();
 
@@ -46,8 +48,10 @@ export class RelationshipVisualizationService {
             .toPromise();
     }
 
-    fetchGraphData(): Promise<any> {
+    fetchGraphData(geoObjectCode: string, geoObjectTypeCode: string): Promise<any> {
         let params: HttpParams = new HttpParams();
+        params = params.set("geoObjectCode", geoObjectCode);
+        params = params.set("geoObjectTypeCode", geoObjectTypeCode);
 
         this.eventService.start();
 

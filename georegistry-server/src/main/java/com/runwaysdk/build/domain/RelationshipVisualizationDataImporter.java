@@ -15,25 +15,38 @@ import org.commongeoregistry.adapter.metadata.OrganizationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wololo.jts2geojson.GeoJSONReader;
-import org.wololo.jts2geojson.GeoJSONWriter;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.runwaysdk.business.graph.EdgeObject;
+import com.runwaysdk.business.graph.GraphQuery;
+import com.runwaysdk.business.graph.VertexObject;
+import com.runwaysdk.constants.MdAttributeBooleanInfo;
+import com.runwaysdk.constants.MdAttributeDateTimeInfo;
+import com.runwaysdk.constants.MdAttributeLocalInfo;
+import com.runwaysdk.constants.graph.MdEdgeInfo;
+import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
+import com.runwaysdk.dataaccess.metadata.MdAttributeDateTimeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdEdgeDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.resource.ApplicationResource;
 import com.runwaysdk.resource.StreamResource;
 import com.runwaysdk.session.Request;
+import com.runwaysdk.system.metadata.MdVertex;
 import com.vividsolutions.jts.geom.Geometry;
 
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.Organization;
+import net.geoprism.registry.RegistryConstants;
+import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.OrganizationConverter;
 import net.geoprism.registry.conversion.ServerGeoObjectTypeConverter;
 import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.graph.GeoVertex;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
@@ -72,6 +85,14 @@ public class RelationshipVisualizationDataImporter
   public static final String GOT_SITE = "Site";
   private ServerGeoObjectType sgotSite;
   
+  private MdEdgeDAO mdeAdjacentTo;
+  
+  private MdEdgeDAO mdeConnectedTo;
+  
+  public static final String MDEDGE_PACKAGE = "gov.usace";
+  public static final String MDEDGE_ADJACENT_TO = "AdjacentTo";
+  public static final String MDEDGE_CONNECTED_TO = "ConnectedTo";
+  
   public static void main(String[] args) throws Exception
   {
     new RelationshipVisualizationDataImporter().doItInReq();
@@ -86,7 +107,16 @@ public class RelationshipVisualizationDataImporter
   @Transaction
   public void doIt() throws Exception
   {
-    this.defineMetadata();
+    try
+    {
+      this.defineMetadata();
+      this.importInstanceData();
+    }
+    catch (Throwable t)
+    {
+      logger.error("Encountered error while importing data.", t);
+      throw t;
+    }
   }
   
   private void defineMetadata() throws Exception
@@ -95,7 +125,7 @@ public class RelationshipVisualizationDataImporter
 
     this.createTypes();
     
-    this.importInstanceData();
+    this.createMdEdges();
   }
   
   private void createOrganization()
@@ -134,6 +164,54 @@ public class RelationshipVisualizationDataImporter
     ServiceFactory.getRegistryService().refreshMetadataCache();
   }
   
+  private void createMdEdges()
+  {
+//    Docs Located In Site
+//    Docs Located In Project
+//    Docs Located In Canal
+//    Docs MIGHT (?) be Adjacent to Project
+//    Projects Overlap with Sites (not cleanly within)
+//    Canal Adjacent to Site
+//    Canal Adjacent to Project
+//    Project adjacent to other Project (kinda obvious but seems important for the graph)
+//    Site adjacent to other Site (kinda obvious but seems important for the graph)
+//    All are Located In Regulatory Boundary (not shown in map)
+    
+    this.mdeAdjacentTo = this.createMdEdge(MDEDGE_ADJACENT_TO, "Adjacent To");
+    this.mdeConnectedTo = this.createMdEdge(MDEDGE_CONNECTED_TO, "Connected To");
+  }
+  
+  private MdEdgeDAO createMdEdge(String name, String defaultLabel)
+  {
+    MdVertexDAOIF mdBusGeoEntity = MdVertexDAO.getMdVertexDAO(GeoVertex.CLASS);
+
+    MdEdgeDAO mdEdgeDAO = MdEdgeDAO.newInstance();
+    mdEdgeDAO.setValue(MdEdgeInfo.PACKAGE, MDEDGE_PACKAGE);
+    mdEdgeDAO.setValue(MdEdgeInfo.NAME, name);
+    mdEdgeDAO.setValue(MdEdgeInfo.PARENT_MD_VERTEX, mdBusGeoEntity.getOid());
+    mdEdgeDAO.setValue(MdEdgeInfo.CHILD_MD_VERTEX, mdBusGeoEntity.getOid());
+    mdEdgeDAO.setStructValue(MdEdgeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, name);
+    mdEdgeDAO.setStructValue(MdEdgeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, name);
+    mdEdgeDAO.setValue(MdEdgeInfo.ENABLE_CHANGE_OVER_TIME, MdAttributeBooleanInfo.FALSE);
+    mdEdgeDAO.apply();
+
+    MdAttributeDateTimeDAO startDate = MdAttributeDateTimeDAO.newInstance();
+    startDate.setValue(MdAttributeDateTimeInfo.NAME, GeoVertex.START_DATE);
+    startDate.setStructValue(MdAttributeDateTimeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Start Date");
+    startDate.setStructValue(MdAttributeDateTimeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Start Date");
+    startDate.setValue(MdAttributeDateTimeInfo.DEFINING_MD_CLASS, mdEdgeDAO.getOid());
+    startDate.apply();
+
+    MdAttributeDateTimeDAO endDate = MdAttributeDateTimeDAO.newInstance();
+    endDate.setValue(MdAttributeDateTimeInfo.NAME, GeoVertex.END_DATE);
+    endDate.setStructValue(MdAttributeDateTimeInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "End Date");
+    endDate.setStructValue(MdAttributeDateTimeInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "End Date");
+    endDate.setValue(MdAttributeDateTimeInfo.DEFINING_MD_CLASS, mdEdgeDAO.getOid());
+    endDate.apply();
+    
+    return mdEdgeDAO;
+  }
+  
   private void importInstanceData() throws Exception
   {
     this.importDocks();
@@ -141,6 +219,8 @@ public class RelationshipVisualizationDataImporter
     this.importProjects();
     this.importRegulatoryBoundaries();
     this.importSites();
+    this.importConnectedToEdgeData();
+    this.importAdjacentToEdgeData();
   }
   
   public static class GeoJsonImporter
@@ -326,6 +406,75 @@ public class RelationshipVisualizationDataImporter
     GeoJsonImporter importer = new GeoJsonImporter(
         new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/sites.geojson"), "sites.geojson"),
         this.sgotSite, "SITEIDPK", "FEATURENAM"
+    );
+    
+    importer.importData();
+  }
+  
+  public static class EdgeGeojsonImporter
+  {
+    private ApplicationResource resource;
+    
+    private MdEdgeDAO mdEdge;
+    
+    public EdgeGeojsonImporter(ApplicationResource resource, MdEdgeDAO mdEdge)
+    {
+      this.resource = resource;
+      this.mdEdge = mdEdge;
+    }
+    
+    public void importData() throws Exception
+    {
+      try (InputStream stream = this.resource.openNewStream())
+      {
+        JsonObject data = JsonParser.parseString(IOUtils.toString(stream, "UTF-8")).getAsJsonObject();
+        
+        JsonArray edges = data.get("edges").getAsJsonArray();
+        
+        logger.info("About to import [" + edges.size() + "] edges as MdEdge [" + this.mdEdge.getKey() + "].");
+        
+        for (int i = 0; i < edges.size(); ++i)
+        {
+          JsonObject joEdge = edges.get(i).getAsJsonObject();
+          
+          VertexObject source = this.getVertexByCode(joEdge.get("source").getAsString());
+          VertexObject target = this.getVertexByCode(joEdge.get("target").getAsString());
+          
+          EdgeObject edge = source.addChild(target, this.mdEdge);
+          edge.setValue(GeoVertex.START_DATE, START_DATE);
+          edge.setValue(GeoVertex.END_DATE, END_DATE);
+          edge.apply();
+        }
+      }
+    }
+    
+    public VertexObject getVertexByCode(String code)
+    {
+      String statement = "SELECT FROM geo_vertex";
+      statement += " WHERE code = :code";
+
+      GraphQuery<GeoVertex> query = new GraphQuery<GeoVertex>(statement);
+      query.setParameter("code", code);
+
+      return query.getSingleResult();
+    }
+  }
+  
+  private void importConnectedToEdgeData() throws Exception
+  {
+    EdgeGeojsonImporter importer = new EdgeGeojsonImporter(
+        new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/edges/connected-to.json"), "connected-to.json"),
+        this.mdeConnectedTo
+    );
+    
+    importer.importData();
+  }
+  
+  private void importAdjacentToEdgeData() throws Exception
+  {
+    EdgeGeojsonImporter importer = new EdgeGeojsonImporter(
+        new StreamResource(RelationshipVisualizationDataImporter.class.getResourceAsStream("/relationship-visualization/edges/adjacent-to.json"), "adjacent-to.json"),
+        this.mdeAdjacentTo
     );
     
     importer.importData();

@@ -79,7 +79,7 @@ export class HierarchyVisualizerComponent implements OnInit {
   }
 
   private fetchData(): void {
-      this.vizService.fetchHierarchyData(this.hierarchyCode).then(data => {
+      this.vizService.fetchHierarchyData(this.hierarchyCode, this.geoObject.properties.code, this.geoObject.properties.type).then(data => {
           let graphContainer = document.getElementById("graph-container");
           this.height = graphContainer.clientHeight;
           this.width = graphContainer.clientWidth;
