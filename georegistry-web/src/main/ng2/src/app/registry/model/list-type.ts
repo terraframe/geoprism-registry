@@ -49,6 +49,7 @@ export class ListType {
     validOn?: string;
     publishingStartDate?: string;
     frequency?: string;
+    intervalJson?: { startDate: string, endDate: string }[]
 
     entries?: ListTypeEntry[];
 }

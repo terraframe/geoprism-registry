@@ -137,6 +137,17 @@ export class ListTypePublishModalComponent implements OnInit {
         return false;
     }
 
+    onNewInterval(): void {
+        if (this.list.intervalJson == null) {
+            this.list.intervalJson = [];
+        }
+
+        this.list.intervalJson.push({
+            startDate: '',
+            endDate: ''
+        });
+    }
+
     onSubmit(): void {
         this.service.apply(this.list).then(response => {
             this.onListTypeChange.next(response);

@@ -308,7 +308,10 @@ public abstract class ListType extends ListTypeBase
       SimpleDateFormat formatter = new SimpleDateFormat(Constants.DATETIME_FORMAT);
       Date collectionDate = GeoRegistryUtil.parseDate(object.get("collectionDate").getAsString());
 
-      this.setValue(prefix + "CollectionDate", formatter.format(collectionDate));
+      if (collectionDate != null)
+      {
+        this.setValue(prefix + "CollectionDate", formatter.format(collectionDate));
+      }
     }
   }
 

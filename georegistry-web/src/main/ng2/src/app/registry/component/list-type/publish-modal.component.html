@@ -346,7 +346,7 @@
                     <div class="holder">
                         <date-field [(value)]="list.validOn" [classNames]="['form-control']" label=""
                             [inputName]="'validOn'" [allowFutureDates]="false" name="listValidOn" [required]="true"
-                            [disable]="readonly"></date-field>
+                            [disable]="readonly || !isNew"></date-field>
                     </div>
                 </div>
 
@@ -359,7 +359,7 @@
                         </div>
                         <div class="holder">
                             <select class="select-area" name="frequency" [(ngModel)]="list.frequency"
-                                [disabled]="readonly" required #frequency="ngModel">
+                                [disabled]="readonly || !isNew" required #frequency="ngModel">
                                 <option></option>
                                 <option value="ANNUAL">
                                     <localize key="georegistry.frequency.annual"></localize>
@@ -392,15 +392,63 @@
                             <date-field *ngIf="!readonly" [(value)]="list.publishingStartDate"
                                 [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'"
                                 [allowFutureDates]="false" name="listPublishingStartDate" [required]="false"
-                                [disable]="readonly"></date-field>
+                                [disable]="readonly || !isNew"></date-field>
 
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container *ngIf="list.listType === 'interval'">
+                    <div class="row-holder">
+                        <div class="label-holder">
+                            <label>
+                                Intervals
+                            </label>
+                        </div>
+                        <div class="holder">
+                            <div *ngFor="let interval of list.intervalJson; let i = index;">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label>
+                                            Start Date
+                                        </label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label>
+                                            End Date
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <date-field *ngIf="!readonly" [(value)]="interval.startDate"
+                                            [classNames]="['form-control']" label="" [inputName]="'startDate-' + i"
+                                            [allowFutureDates]="false" [required]="false"
+                                            [disable]="readonly || !isNew"></date-field>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <date-field *ngIf="!readonly" [(value)]="interval.endDate"
+                                            [classNames]="['form-control']" label="" [inputName]="'endDate-'+i"
+                                            [allowFutureDates]="false" [required]="false"
+                                            [disable]="readonly || !isNew"></date-field>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" *ngIf="!readonly && isNew">
+                                <div class="col-md-12">
+                                    <button type="button" (click)="onNewInterval()" class="btn btn-primary" role="button">
+                                        New
+                                    </button>        
+                                </div>
+                            </div>                        
                         </div>
                     </div>
                 </ng-container>
 
 
                 <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
-
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group button-row">
@@ -418,7 +466,6 @@
 
                             </div>
                             <hr style="border-top:solid 3px #6BA542" />
-
                         </div>
                     </div>
                     <div class="row">
@@ -431,13 +478,7 @@
                             </ng-container>
                         </div>
                     </div>
-
                 </div>
-
-
-
-
-
                 <div class="row-holder">
                     <div class="label-holder"></div>
                     <div class="holder">
