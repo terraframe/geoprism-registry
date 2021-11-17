@@ -3,6 +3,7 @@ package net.geoprism.registry;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,6 +14,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
+import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
 
 import com.google.gson.JsonArray;
@@ -25,6 +27,7 @@ import com.runwaysdk.constants.Constants;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
@@ -604,6 +607,32 @@ public abstract class ListType extends ListTypeBase
     return ( this.getValid() == null || this.getValid() );
   }
 
+  private void createMdAttributeFromAttributeType(ServerGeoObjectType type, AttributeType attributeType, Collection<Locale> locales)
+  {
+    List<ListTypeVersion> versions = this.getVersions();
+
+    for (ListTypeVersion version : versions)
+    {
+      if (version.getWorking())
+      {
+        ListTypeVersion.createMdAttributeFromAttributeType(version, type, attributeType, locales);
+      }
+    }
+  }
+
+  private void removeAttributeType(AttributeType attributeType)
+  {
+    List<ListTypeVersion> versions = this.getVersions();
+
+    for (ListTypeVersion version : versions)
+    {
+      if (version.getWorking())
+      {
+        version.removeAttributeType(attributeType);
+      }
+    }
+  }
+
   public static ListType fromJSON(JsonObject object)
   {
     ListType list = null;
@@ -815,6 +844,34 @@ public abstract class ListType extends ListTypeBase
           masterlist.markAsInvalid(type);
         }
       }
+    }
+  }
+
+  public static void createMdAttribute(ServerGeoObjectType type, AttributeType attributeType)
+  {
+    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
+
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(type.getUniversal()));
+
+    List<? extends ListType> lists = query.getIterator().getAll();
+
+    for (ListType list : lists)
+    {
+      list.createMdAttributeFromAttributeType(type, attributeType, locales);
+    }
+  }
+
+  public static void deleteMdAttribute(Universal universal, AttributeType attributeType)
+  {
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+    query.WHERE(query.getUniversal().EQ(universal));
+
+    List<? extends ListType> lists = query.getIterator().getAll();
+
+    for (ListType list : lists)
+    {
+      list.removeAttributeType(attributeType);
     }
   }
 

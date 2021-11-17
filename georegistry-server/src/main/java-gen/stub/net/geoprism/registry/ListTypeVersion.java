@@ -1041,37 +1041,41 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   @Transaction
   public void updateRecord(ServerGeoObjectIF object)
   {
-    object.setDate(this.getForDate());
-
-    // Delete tile cache
-    ListTileCache.deleteTiles(this);
-
-    ListType masterlist = this.getListType();
-    MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
-
-    // Add the type ancestor fields
-    ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
-    Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
-    Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
-    Collection<AttributeType> attributes = type.getAttributeMap().values();
-
-    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
-    query.WHERE(query.aCharacter(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
-
-    List<Business> records = query.getIterator().getAll();
-
-    for (Business record : records)
+    // Only working lists can be updated from changes to the graph objects
+    if (this.getWorking())
     {
-      try
-      {
-        record.appLock();
+      object.setDate(this.getForDate());
 
-        this.publish(object, record, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
-      }
-      finally
+      // Delete tile cache
+      ListTileCache.deleteTiles(this);
+
+      ListType masterlist = this.getListType();
+      MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+      Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
+
+      // Add the type ancestor fields
+      ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
+      Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
+      Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
+      Collection<AttributeType> attributes = type.getAttributeMap().values();
+
+      BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+      query.WHERE(query.aCharacter(DefaultAttribute.CODE.getName()).EQ(object.getCode()));
+
+      List<Business> records = query.getIterator().getAll();
+
+      for (Business record : records)
       {
-        record.unlock();
+        try
+        {
+          record.appLock();
+
+          this.publish(object, record, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+        }
+        finally
+        {
+          record.unlock();
+        }
       }
     }
   }
@@ -1079,24 +1083,28 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   @Transaction
   public void publishRecord(ServerGeoObjectIF object)
   {
-    object.setDate(this.getForDate());
+    // Only working lists can be updated from changes to the graph objects
+    if (this.getWorking())
+    {
+      object.setDate(this.getForDate());
 
-    // Delete tile cache
-    ListTileCache.deleteTiles(this);
+      // Delete tile cache
+      ListTileCache.deleteTiles(this);
 
-    ListType masterlist = this.getListType();
-    MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
-    Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
+      ListType masterlist = this.getListType();
+      MdBusinessDAO mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid()).getBusinessDAO();
+      Collection<Locale> locales = LocalizationFacade.getInstalledLocales();
 
-    // Add the type ancestor fields
-    ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
-    Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
-    Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
-    Collection<AttributeType> attributes = type.getAttributeMap().values();
+      // Add the type ancestor fields
+      ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
+      Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap = masterlist.getAncestorMap(type);
+      Set<ServerHierarchyType> hierarchiesOfSubTypes = type.getHierarchiesOfSubTypes();
+      Collection<AttributeType> attributes = type.getAttributeMap().values();
 
-    Business business = new Business(mdBusiness.definesType());
+      Business business = new Business(mdBusiness.definesType());
 
-    this.publish(object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+      this.publish(object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+    }
   }
 
   public void parse(JsonObject object)
