@@ -718,14 +718,17 @@ public abstract class ListType extends ListTypeBase
       {
         ListType list = it.next();
 
-        JsonObject object = new JsonObject();
-        object.addProperty("label", list.getDisplayLabel().getValue());
-        object.addProperty("oid", list.getOid());
+        if (list.doesActorHaveReadPermission())
+        {
+          JsonObject object = new JsonObject();
+          object.addProperty("label", list.getDisplayLabel().getValue());
+          object.addProperty("oid", list.getOid());
 
-        object.addProperty("createDate", format.format(list.getCreateDate()));
-        object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+          object.addProperty("createDate", format.format(list.getCreateDate()));
+          object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
 
-        response.add(object);
+          response.add(object);
+        }
       }
     }
     finally

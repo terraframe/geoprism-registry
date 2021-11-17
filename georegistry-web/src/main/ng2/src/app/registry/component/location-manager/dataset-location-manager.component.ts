@@ -116,7 +116,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
                 let published = this.backReference.substring(3, 3) === "T";
                 let oid = this.backReference.substring(3);
 
-                this.router.navigate(["/registry/master-list", oid, published]);
+                this.router.navigate(["/registry/master-list", oid]);
             }
         }
 
@@ -351,7 +351,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
             this.map.addSource(source, {
                 type: "vector",
-                tiles: [protocol + "//" + host + acp + "/master-list/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))]
+                tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))]
             });
 
             // Point layer

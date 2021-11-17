@@ -1,9 +1,11 @@
 import { Component, OnInit, Input, OnDestroy, EventEmitter, Output } from '@angular/core';
-import { Observable, Subject, Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
-import { SynchronizationConfig, MasterList, MasterListView } from '@registry/model/registry';
-import { RegistryService, SynchronizationConfigService } from '@registry/service';
+import { SynchronizationConfig } from '@registry/model/registry';
+import { SynchronizationConfigService } from '@registry/service';
+import { ListTypeService } from '@registry/service/list-type.service';
+import { ListTypeVersion } from '@registry/model/list-type';
 
 interface FhirSyncLevel {
   masterListId: string;
@@ -24,11 +26,11 @@ export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestr
   @Output() onError = new EventEmitter<HttpErrorResponse>();
 
   subscription: Subscription = null;
-  versions: { [key: string]: MasterList } = {};
+  versions: { [key: string]: ListTypeVersion[] } = {};
   implementations: { className: string, label: string }[] = [];
-  lists: MasterListView[] = [];
+  lists: {label:string, oid:string}[] = [];
 
-  constructor(private service: SynchronizationConfigService, private rService: RegistryService) { }
+  constructor(private service: SynchronizationConfigService, private rService: ListTypeService) { }
 
   ngOnInit(): void {
 
@@ -74,17 +76,9 @@ export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestr
     }
 
     // Get 
-    this.rService.getMasterListsByOrg().then(response => {
+    this.rService.getAllLists().then(response => {
 
-      this.lists = [];
-
-      response.orgs.forEach(org => {
-        org.lists.forEach(view => {
-          if (view.read) {
-            this.lists.push(view);
-          }
-        });
-      })
+      this.lists = response;
     });
   }
 
@@ -92,7 +86,7 @@ export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestr
 
     if (level.masterListId != null) {
 
-      this.rService.getMasterListHistory(level.masterListId, 'PUBLISHED').then(list => {
+      this.rService.getPublicVersions(level.masterListId).then(list => {
         this.versions[level.masterListId] = list;
       });
     }

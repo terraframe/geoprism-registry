@@ -4,8 +4,6 @@ import { Routes, RouterModule } from "@angular/router";
 
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
 import { SubmitChangeRequestComponent } from "./component/submit-change-request/submit-change-request.component";
-import { MasterListComponent } from "./component/master-list/master-list.component";
-import { MasterListViewComponent } from "./component/master-list/master-list-view.component";
 import { DataPageComponent } from "./component/data-page/data-page.component";
 import { ChangeRequestPageComponent } from "./component/change-request-page/change-request-page.component";
 import { ScheduledJobsComponent } from "./component/scheduled-jobs/scheduled-jobs.component";

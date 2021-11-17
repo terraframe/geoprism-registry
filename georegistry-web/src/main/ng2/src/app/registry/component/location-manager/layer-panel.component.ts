@@ -1,9 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from "@angular/core";
 import { BsModalService } from "ngx-bootstrap/modal";
 
-import { ContextLayer, ContextLayerGroup, MasterList } from "@registry/model/registry";
+import { ContextLayer, ContextLayerGroup } from "@registry/model/registry";
 import { ContextLayerModalComponent } from "./context-layer-modal.component";
 import { RegistryService } from "@registry/service";
+import { ListType, ListTypeVersion } from "@registry/model/list-type";
+import { ListTypeService } from "@registry/service/list-type.service";
 
 @Component({
     selector: "layer-panel",
@@ -18,7 +20,7 @@ export class LayerPanelComponent implements OnInit, OnChanges {
 
     baselayerIconHover = false;
 
-    lists: MasterList[] = [];
+    lists: ListTypeVersion[] = [];
 
     /*
      * List of base layers
@@ -44,14 +46,14 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     contextLayerGroups: ContextLayerGroup[] = [];
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private modalService: BsModalService, public service: RegistryService) { }
+    constructor(private modalService: BsModalService, public service: ListTypeService) { }
 
     ngOnInit(): void {
-        this.service.getAllMasterListVersions().then(lists => {
-            this.lists = lists;
+        // this.service.getAllPublicVersions().then(lists => {
+        //     this.lists = lists;
 
-            this.updateContextGroups();
-        });
+        //     this.updateContextGroups();
+        // });
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -61,23 +63,23 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     }
 
     updateContextGroups(): void {
-        this.lists.forEach(list => {
-            let contextGroup = { oid: list.oid, displayLabel: list.displayLabel.localizedValue, contextLayers: [] };
+        // this.lists.forEach(list => {
+        //     let contextGroup = { oid: list.oid, displayLabel: list.displayLabel, contextLayers: [] };
 
-            list.versions.forEach(version => {
-                const index = this.filter.indexOf(version.oid);
+        //     list.versions.forEach(version => {
+        //         const index = this.filter.indexOf(version.oid);
 
-                if (index === -1) {
-                    let thisContextLayer = { oid: version.oid, displayLabel: version.forDate, active: false, enabled: false };
+        //         if (index === -1) {
+        //             let thisContextLayer = { oid: version.oid, displayLabel: version.forDate, active: false, enabled: false };
 
-                    contextGroup.contextLayers.push(thisContextLayer);
-                }
-            });
+        //             contextGroup.contextLayers.push(thisContextLayer);
+        //         }
+        //     });
 
-            if (contextGroup.contextLayers.length > 0) {
-                this.contextLayerGroups.push(contextGroup);
-            }
-        });
+        //     if (contextGroup.contextLayers.length > 0) {
+        //         this.contextLayerGroups.push(contextGroup);
+        //     }
+        // });
     }
 
     groupHasEnabledContextLayers(group: string): boolean {

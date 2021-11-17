@@ -202,4 +202,29 @@ export class ListTypeService {
         return this.http.post<string>(acp + "/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
     }
 
+    getAllLists(): Promise<{ label: string, oid: string }[]> {
+        let params: HttpParams = new HttpParams();
+
+        return this.http
+            .get<{ label: string, oid: string }[]>(acp + "/list-type/list-all", { params: params })
+            .toPromise();
+    }
+
+    getPublicVersions(oid: string): Promise<ListTypeVersion[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("oid", oid);
+
+        return this.http
+            .get<ListTypeVersion[]>(acp + "/list-type/get-public-versions", { params: params })
+            .toPromise();
+    }
+
+    getAllPublicVersions(): Promise<ListTypeVersion[]> {
+        let params: HttpParams = new HttpParams();
+
+        return this.http
+            .get<ListTypeVersion[]>(acp + "/list-type/get-all-public-versions", { params: params })
+            .toPromise();
+    }
+
 }

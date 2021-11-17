@@ -45,6 +45,7 @@ import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeEntry;
 import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
@@ -403,6 +404,36 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
+  public JsonArray getPublicVersions(String sessionId, String listOid)
+  {
+    JsonArray response = new JsonArray();
+
+    ListType listType = ListType.get(listOid);
+    final boolean isMember = Organization.isMember(listType.getOrganization());
+
+    ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
+    query.WHERE(query.getListType().EQ(listType));
+    query.ORDER_BY_DESC(query.getForDate());
+    query.ORDER_BY_DESC(query.getVersionNumber());
+
+    try (OIterator<? extends ListTypeVersion> it = query.getIterator())
+    {
+
+      while (it.hasNext())
+      {
+        ListTypeVersion list = it.next();
+
+        if (isMember || list.getListVisibility().equals(ListType.PUBLIC))
+        {
+          response.add(list.toJSON(false));
+        }
+      }
+    }
+
+    return response;
+  }
+
+  @Request(RequestType.SESSION)
   public JsonArray getAllVersions(String sessionId)
   {
     JsonArray response = new JsonArray();
@@ -418,7 +449,7 @@ public class ListTypeService
         final boolean isMember = Organization.isMember(list.getOrganization());
 
         // TODO FIGURE out this behavior: Used for the context layers
-
+        //
         // if (isMember || list.getVisibility().equals(ListType.PUBLIC))
         // {
         // response.add(list.toJSON(ListTypeVersion.PUBLISHED));

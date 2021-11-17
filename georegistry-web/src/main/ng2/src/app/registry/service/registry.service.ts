@@ -24,9 +24,8 @@ import { Observable } from "rxjs";
 import { finalize } from "rxjs/operators";
 
 import {
-    GeoObject, GeoObjectType, AttributeType, Term, MasterList, MasterListVersion, ParentTreeNode,
+    GeoObject, GeoObjectType, AttributeType, Term, ParentTreeNode,
     ChildTreeNode, ValueOverTime, GeoObjectOverTime, HierarchyOverTime, ScheduledJob, PaginationPage,
-    MasterListByOrg
 } from "@registry/model/registry";
 
 import { HierarchyType } from "@registry/model/hierarchy";
@@ -419,7 +418,7 @@ export class RegistryService {
         this.eventService.start();
 
         return this.http
-            .post<MasterList>(acp + "/etl/validation-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .post<any>(acp + "/etl/validation-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -434,45 +433,10 @@ export class RegistryService {
         this.eventService.start();
 
         return this.http
-            .post<MasterList>(acp + "/etl/error-resolve", JSON.stringify({ config: config }), { headers: headers })
+            .post<any>(acp + "/etl/error-resolve", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
-            .toPromise();
-    }
-
-    getMasterLists(): Promise<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }> {
-        let params: HttpParams = new HttpParams();
-
-        return this.http
-            .get<{ locales: string[], lists: { label: string, oid: string, createDate: string, lastUpdateDate: string }[] }>(acp + "/master-list/list-all", { params: params })
-            .toPromise();
-    }
-
-    getMasterListHistory(oid: string, versionType: string): Promise<MasterList> {
-        let params: HttpParams = new HttpParams();
-        params = params.set("oid", oid);
-        params = params.set("versionType", versionType);
-
-        return this.http
-            .get<MasterList>(acp + "/master-list/versions", { params: params })
-            .toPromise();
-    }
-
-    getAllMasterListVersions(): Promise<MasterList[]> {
-        let params: HttpParams = new HttpParams();
-
-        return this.http
-            .get<MasterList[]>(acp + "/master-list/list-all-versions", { params: params })
-            .toPromise();
-    }
-
-    getMasterListVersion(oid: string): Promise<MasterListVersion> {
-        let params: HttpParams = new HttpParams();
-        params = params.set("oid", oid);
-
-        return this.http
-            .get<MasterListVersion>(acp + "/master-list/version", { params: params })
             .toPromise();
     }
 
@@ -529,98 +493,6 @@ export class RegistryService {
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
-            .toPromise();
-    }
-
-    createMasterList(list: MasterList): Promise<MasterList> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<MasterList>(acp + "/master-list/create", JSON.stringify({ list: list }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
-    createMasterListVersion(oid: string, forDate: string): Promise<MasterListVersion> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<MasterListVersion>(acp + "/master-list/create-version", JSON.stringify({ oid: oid, forDate: forDate }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
-    publishMasterListVersions(oid: string): Promise<{ job: string }> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<{ job: string }>(acp + "/master-list/publish-versions", JSON.stringify({ oid: oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
-    deleteMasterList(oid: string): Promise<void> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<void>(acp + "/master-list/remove", JSON.stringify({ oid: oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
-    deleteMasterListVersion(oid: string): Promise<void> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        this.eventService.start();
-
-        return this.http
-            .post<void>(acp + "/master-list/remove-version", JSON.stringify({ oid: oid }), { headers: headers })
-            .pipe(finalize(() => {
-                this.eventService.complete();
-            }))
-            .toPromise();
-    }
-
-    publishMasterList(oid: string): Observable<string> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        return this.http.post<string>(acp + "/master-list/publish", JSON.stringify({ oid: oid }), { headers: headers });
-    }
-
-    getMasterList(oid: string): Promise<MasterList> {
-        let params: HttpParams = new HttpParams();
-        params = params.set("oid", oid);
-
-        return this.http
-            .get<MasterList>(acp + "/master-list/get", { params: params })
             .toPromise();
     }
 
@@ -701,70 +573,6 @@ export class RegistryService {
             .toPromise();
     }
 
-    data(oid: string, pageNumber: number, pageSize: number, filter: { attribute: string, value: string }[], sort: { attribute: string, order: string }): Promise<any> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            oid: oid,
-            sort: sort
-        } as any;
-
-        if (pageNumber != null) {
-            params.pageNumber = pageNumber;
-        }
-
-        if (pageSize != null) {
-            params.pageSize = pageSize;
-        }
-
-        if (filter.length > 0) {
-            params.filter = filter;
-        }
-
-        return this.http
-            .post<any>(acp + "/master-list/data", JSON.stringify(params), { headers: headers })
-            .toPromise();
-    }
-
-    values(oid: string, value: string, attributeName: string, valueAttribute: string, filter: { attribute: string, value: string }[]): Promise<{ label: string, value: string }[]> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            oid: oid,
-            attributeName: attributeName,
-            valueAttribute: valueAttribute
-        } as any;
-
-        if (filter.length > 0) {
-            params.filter = filter;
-        }
-
-        if (value != null && value.length > 0) {
-            params.value = value;
-        }
-
-        return this.http
-            .post<{ label: string, value: string }[]>(acp + "/master-list/values", JSON.stringify(params), { headers: headers })
-            .toPromise();
-    }
-
-    publishShapefile(oid: string): Promise<MasterListVersion> {
-        let headers = new HttpHeaders({
-            "Content-Type": "application/json"
-        });
-
-        let params = {
-            oid: oid
-        } as any;
-
-        return this.http
-            .post<MasterListVersion>(acp + "/master-list/generate-shapefile", JSON.stringify(params), { headers: headers })
-            .toPromise();
-    }
 
     progress(oid: string): Promise<Progress> {
         let params: HttpParams = new HttpParams();
@@ -775,26 +583,6 @@ export class RegistryService {
             .toPromise();
     }
 
-    getMasterListsByOrg(): Promise<{ orgs: MasterListByOrg[] }> {
-        let params: HttpParams = new HttpParams();
-
-        return this.http
-            .get<{ locales: string[], orgs: MasterListByOrg[] }>(acp + "/master-list/list-org", { params: params })
-            .toPromise();
-    }
-
-    getPublishMasterListJobs(oid: string, pageSize: number, pageNumber: number, sortAttr: string, isAscending: boolean): Promise<PaginationPage> {
-        let params: HttpParams = new HttpParams();
-        params = params.set("oid", oid);
-        params = params.set("pageSize", pageSize.toString());
-        params = params.set("pageNumber", pageNumber.toString());
-        params = params.set("sortAttr", sortAttr);
-        params = params.set("isAscending", isAscending.toString());
-
-        return this.http
-            .get<PaginationPage>(acp + "/master-list/get-publish-jobs", { params: params })
-            .toPromise();
-    }
 
     getDatasetBounds(oid: string): Promise<number[]> {
         let params: HttpParams = new HttpParams();
@@ -816,20 +604,4 @@ export class RegistryService {
 			}))
 			.toPromise();
 	}
-
-  exportToFhir(oid: string, systemId: string): Promise<MasterListVersion> {
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    let params = {
-      oid: oid,
-      systemId: systemId
-    } as any;
-
-    return this.http
-      .post<MasterListVersion>(acp + '/master-list/export-to-fhir', JSON.stringify(params), { headers: headers })
-      .toPromise();
-  }
-
 }

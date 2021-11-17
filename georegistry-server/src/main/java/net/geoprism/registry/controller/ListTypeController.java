@@ -262,6 +262,12 @@ public class ListTypeController
     return new InputStreamResponse(this.service.getTile(request.getSessionId(), object), "application/x-protobuf", null);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-public-versions")
+  public ResponseIF getPublicVersions(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
+  {
+    return new RestBodyResponse(this.service.getPublicVersions(request.getSessionId(), oid));
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-all-versions")
   public ResponseIF listAllVersions(ClientRequestIF request)
   {

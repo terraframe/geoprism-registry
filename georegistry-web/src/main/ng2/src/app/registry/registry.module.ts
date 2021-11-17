@@ -40,8 +40,6 @@ import { EditTermOptionInputComponent } from "./component/hierarchy/geoobjecttyp
 import { ManageTermOptionsComponent } from "./component/hierarchy/geoobjecttype-management/manage-term-options.component";
 import { GeoObjectTypeInputComponent } from "./component/hierarchy/geoobjecttype-management/geoobjecttype-input.component";
 import { ManageGeoObjectTypeModalComponent } from "./component/hierarchy/modals/manage-geoobjecttype-modal.component";
-import { MasterListManagerComponent } from "./component/master-list/master-list-manager.component";
-import { PublishModalComponent } from "./component/master-list/publish-modal.component";
 import { ExportFormatModalComponent } from "./component/master-list/export-format-modal.component";
 import { RequestTableComponent } from "./component/crtable/request-table.component";
 import { CreateUpdateGeoObjectDetailComponent } from "./component/crtable/action-detail/create-update-geo-object/detail.component";
@@ -59,10 +57,6 @@ import { TreeGeoSelector } from "./component/tree-geo-selector/tree-geo-selector
 import { ActionDetailModalComponent } from "./component/crtable/action-detail/action-detail-modal.component";
 import { DataImporterComponent } from "./component/importer/dataimporter.component";
 import { DataExportComponent } from "./component/data-export/data-export.component";
-import { MasterListComponent } from "./component/master-list/master-list.component";
-import { PublishedMasterListHistoryComponent } from "./component/master-list/published-master-list-history.component";
-import { MasterListHistoryComponent } from "./component/master-list/master-list-history.component";
-import { MasterListViewComponent } from "./component/master-list/master-list-view.component";
 import { ScheduledJobsComponent } from "./component/scheduled-jobs/scheduled-jobs.component";
 import { JobComponent } from "./component/scheduled-jobs/job.component";
 import { JobConflictModalComponent } from "./component/scheduled-jobs/conflict-widgets/job-conflict-modal.component";
@@ -195,13 +189,6 @@ import { PublishVersionComponent } from "./component/list-type/publish-version.c
         HierarchyComponent,
         DataImporterComponent,
         DataExportComponent,
-        // Master List screens
-        MasterListManagerComponent,
-        MasterListComponent,
-        MasterListHistoryComponent,
-        PublishedMasterListHistoryComponent,
-        PublishModalComponent,
-        MasterListViewComponent,
         // Scheduled jobs
         ExportFormatModalComponent,
         ScheduledJobsComponent,
@@ -272,7 +259,6 @@ import { PublishVersionComponent } from "./component/list-type/publish-version.c
         GeoObjectSharedAttributeEditorComponent,
         SubmitChangeRequestComponent,
         GeoObjectEditorComponent,
-        PublishModalComponent,
         ExportFormatModalComponent,
         DataPageComponent,
         ChangeRequestPageComponent,
