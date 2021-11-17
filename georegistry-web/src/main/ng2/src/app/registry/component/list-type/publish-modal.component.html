@@ -186,7 +186,7 @@
         <form #form="ngForm" class="modal-form" autocomplete="off">
 
             <fieldset>
-                <div class="row-holder">
+                <div class="row-holder" style="text-align: center;">
                     <label class="radio radio-inline" style="padding-left:0;">
                         <input class="inline-radio-input" type="radio" [checked]="list.listType === 'single'"
                             [value]="'single'" [(ngModel)]="list.listType" name="single"
@@ -236,7 +236,7 @@
                     </div>
                     <div class="holder">
                         <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
-                            class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaulte'" />
+                            class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
                     </div>
                 </div>
                 <div class="row-holder" *ngFor="let localeValue of list.description.localeValues">
@@ -248,8 +248,8 @@
                         </label>
                     </div>
                     <div class="holder">
-                        <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
-                            class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaulte'" />
+                        <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="text"
+                            class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
                     </div>
                 </div>
                 <div class="row-holder">
@@ -346,7 +346,7 @@
                     <div class="holder">
                         <date-field [(value)]="list.validOn" [classNames]="['form-control']" label=""
                             [inputName]="'validOn'" [allowFutureDates]="false" name="listValidOn" [required]="true"
-                            [disable]="readonly || !isNew"></date-field>
+                            [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
                     </div>
                 </div>
 
@@ -391,8 +391,8 @@
                             </span>
                             <date-field *ngIf="!readonly" [(value)]="list.publishingStartDate"
                                 [classNames]="['form-control']" label="" [inputName]="'publishingStartDate'"
-                                [allowFutureDates]="false" name="listPublishingStartDate" [required]="false"
-                                [disable]="readonly || !isNew"></date-field>
+                                [allowFutureDates]="false" name="listPublishingStartDate" [required]="true"
+                                [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
 
                         </div>
                     </div>
@@ -421,17 +421,17 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <date-field *ngIf="!readonly" [(value)]="interval.startDate"
+                                        <date-field [(value)]="interval.startDate"
                                             [classNames]="['form-control']" label="" [inputName]="'startDate-' + i"
-                                            [allowFutureDates]="false" [required]="false"
-                                            [disable]="readonly || !isNew"></date-field>
+                                            [allowFutureDates]="false" [required]="true"
+                                            [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
                                     <div class="col-md-6">
-                                        <date-field *ngIf="!readonly" [(value)]="interval.endDate"
+                                        <date-field [(value)]="interval.endDate"
                                             [classNames]="['form-control']" label="" [inputName]="'endDate-'+i"
-                                            [allowFutureDates]="false" [required]="false"
-                                            [disable]="readonly || !isNew"></date-field>
+                                            [allowFutureDates]="false" [required]="true"
+                                            [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
                                 </div>
@@ -451,7 +451,7 @@
                 <div class="inner-col-content-wrapper" style="padding-top: 30px; margin-top: 10px;">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="form-group button-row">
+                            <div class="form-group button-row" style="text-align: center;">
 
                                 <a [routerLink]="" (click)="handleTab('LIST')"
                                     [ngClass]="tab === 'LIST' ? 'cr-filter-link-active' : ''"
@@ -487,7 +487,7 @@
                                 <localize [key]="readonly ? 'io.back' : 'io.cancel'"></localize>
                             </button>
                             <button *ngIf="!readonly" type="submit" (click)="onSubmit()" class="btn btn-primary"
-                                role="button" [disabled]="form.invalid">
+                                role="button" [disabled]="form.invalid || !valid">
                                 <localize key="io.submit"></localize>
                             </button>
                         </div>

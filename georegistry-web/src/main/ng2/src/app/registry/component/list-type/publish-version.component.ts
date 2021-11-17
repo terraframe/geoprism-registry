@@ -10,7 +10,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
 @Component({
     selector: "publish-version",
     templateUrl: "./publish-version.component.html",
-    styleUrls: []
+    styleUrls: ["./list-type-manager.css"]
 })
 export class PublishVersionComponent implements OnInit {
     message: string = null;

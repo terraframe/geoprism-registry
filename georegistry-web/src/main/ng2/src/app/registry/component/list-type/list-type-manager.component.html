@@ -14,8 +14,9 @@
                         <div>
 
                             <div class="got-org-label-wrapper">
-                                <label>{{typeByOrg.org.label.localizedValue}}</label>
+                                <h3>{{typeByOrg.org.label.localizedValue}}</h3>
                             </div>
+                            <hr>
 
                             <li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
                                 [id]="type.code">

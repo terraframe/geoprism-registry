@@ -14,7 +14,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
 @Component({
     selector: "list-type-publish-modal",
     templateUrl: "./publish-modal.component.html",
-    styleUrls: []
+    styleUrls: ["./list-type-manager.css"]
 })
 export class ListTypePublishModalComponent implements OnInit {
 
@@ -38,6 +38,8 @@ export class ListTypePublishModalComponent implements OnInit {
     edit: boolean = false;
 
     isNew: boolean = false;
+
+    valid: boolean = true;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -155,6 +157,26 @@ export class ListTypePublishModalComponent implements OnInit {
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
+
+    handleDateChange(): void {
+        if (this.list.listType === 'single') {
+            this.valid = (this.list.validOn != null && this.list.validOn.length > 0);
+        }
+        else if (this.list.listType === 'incremental') {
+            this.valid = (this.list.publishingStartDate != null && this.list.publishingStartDate.length > 0);
+        }
+        else if (this.list.listType === 'interval') {
+            this.valid = this.list.intervalJson.map(interval => {
+                return (interval.startDate != null && interval.startDate.length > 0) && (interval.endDate != null && interval.endDate.length > 0);
+            }).reduce((a, b) => a && b);
+
+            console.log(this.list.intervalJson);
+            console.log(this.valid);
+        }
+        else {
+            this.valid = true;
+        }
     }
 
     stringify(obj: any): string {
