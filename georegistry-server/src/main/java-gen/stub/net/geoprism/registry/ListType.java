@@ -97,14 +97,14 @@ public abstract class ListType extends ListTypeBase
   {
     if (!isValidName(this.getCode()))
     {
-      throw new InvalidMasterListCodeException("The master list code has an invalid character");
+      throw new InvalidMasterListCodeException("The list code has an invalid character");
     }
 
     boolean isNew = this.isNew() && !this.isAppliedToDB();
 
     super.apply();
 
-    if (this.isNew())
+    if (isNew)
     {
       this.createEntries();
     }

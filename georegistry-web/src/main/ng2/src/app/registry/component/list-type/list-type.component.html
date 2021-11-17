@@ -87,7 +87,7 @@
                     </div>
                     <div class="col-md-3" style="text-align: right;">
                         <button type="submit" (click)="toggleVersions(entry)" class="btn btn-primary" role="button">
-                            See/hide previous versions
+                            {{!entry.showAll ? 'See' : 'Hide' }} previous versions
                         </button>
                     </div>
                 </div>

@@ -41,7 +41,7 @@ import com.runwaysdk.mvc.RestResponse;
 import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
-import net.geoprism.registry.etl.PublishListTypeJob;
+import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.service.ListTypeService;
 
 @Controller(url = "list-type")
@@ -108,9 +108,6 @@ public class ListTypeController
   @Endpoint(method = ServletMethod.POST, error = ErrorSerialization.JSON, url = "publish")
   public ResponseIF publish(ClientRequestIF request, @RequestParamter(name = "oid") String oid) throws ParseException
   {
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
-
     JsonObject response = this.service.publishVersion(request.getSessionId(), oid);
 
     return new RestBodyResponse(response);
@@ -241,7 +238,7 @@ public class ListTypeController
   {
     if (sortAttr == null || sortAttr == "")
     {
-      sortAttr = PublishListTypeJob.CREATEDATE;
+      sortAttr = ListTypeJob.CREATEDATE;
     }
 
     if (isAscending == null)

@@ -6,7 +6,6 @@ import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { Observable } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
-import { RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
 
@@ -54,8 +53,14 @@ export class ListComponent implements OnInit, OnDestroy {
 
     notifier: WebSocketSubject<{ type: string, content: any }>;
 
-    constructor(public service: ListTypeService,  private route: ActivatedRoute, private dateService: DateService,
-        private modalService: BsModalService, private localizeService: LocalizationService, private authService: AuthService) {
+    constructor(
+        private service: ListTypeService,
+        private pService: ProgressService,
+        private route: ActivatedRoute,
+        private dateService: DateService,
+        private modalService: BsModalService,
+        private localizeService: LocalizationService,
+        private authService: AuthService) {
         this.searchPlaceholder = localizeService.decode("masterlist.search");
     }
 
@@ -192,7 +197,7 @@ export class ListComponent implements OnInit, OnDestroy {
     handleProgressChange(progress: any): void {
         this.isRefreshing = (progress.current < progress.total);
 
-        // this.pService.progress(progress);
+        this.pService.progress(progress);
 
         if (!this.isRefreshing) {
             // Refresh the resultSet
@@ -291,12 +296,12 @@ export class ListComponent implements OnInit, OnDestroy {
     onPublish(): void {
         this.message = null;
 
-        // this.service.publishList(this.list.oid).toPromise()
-        //     .then((historyOid: string) => {
-        //         this.isRefreshing = true;
-        //     }).catch((err: HttpErrorResponse) => {
-        //         this.error(err);
-        //     });
+        this.service.publishList(this.list.oid).toPromise()
+            .then((historyOid: string) => {
+                this.isRefreshing = true;
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
 
     }
 

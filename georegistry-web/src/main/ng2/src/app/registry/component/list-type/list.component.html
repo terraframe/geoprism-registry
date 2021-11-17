@@ -64,19 +64,19 @@
                         <localize key="masterlist.clearFilters"></localize>
                     </span>
 
-                    <!-- <span *ngIf="!isPublished" class="clickable" (click)="onPublish()" style="padding: 10px;">
+                    <span *ngIf="list.working" class="clickable" (click)="onPublish()" style="padding: 10px;">
                         <i [ngClass]="{'fa fa-refresh clickable':true}"
                             style="font-size: 24px;vertical-align: middle;padding-right: 5px;" aria-hidden="true"></i>
                         <localize key="masterlist.publish"></localize>
-                    </span> -->
+                    </span>
 
-
-                    <button *ngIf="isWritable && !list.isAbstract" type="submit"
+                    <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
                         [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
                         routerLinkActive="active" class="btn btn-primary" role="button">
                         <localize key="masterlist.newGeoObject"></localize>
                     </button>
-                    <span class="dropdown" *ngIf="isWritable && list.isAbstract">
+
+                    <span class="dropdown" *ngIf="list.working && isWritable && list.isAbstract">
                         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenu1"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             <localize key="masterlist.newGeoObject"></localize>

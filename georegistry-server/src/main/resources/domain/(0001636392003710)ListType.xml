@@ -86,7 +86,7 @@
         <attributes>
           <reference name="listType" type="net.geoprism.registry.ListType" required="true" label="List Type" />
           <dateTime name="forDate" label="For Date" required="true" immutable="true" />
-          <reference name="current" type="net.geoprism.registry.ListTypeVersion" required="false" label="Current" />          
+          <reference name="working" type="net.geoprism.registry.ListTypeVersion" required="false" label="Working" />          
         </attributes> 
         <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String">
             <mdParameter name="config" label="config" order="0" type="java.lang.String" />        
@@ -94,6 +94,7 @@
       </mdBusiness>
       <mdBusiness name="net.geoprism.registry.ListTypeVersion" label="Entry Version" generateController="false">
         <attributes>
+          <boolean name="working" label="Is working" required="true" description="Flag denoting if the version is a working version" />        
           <reference name="listType" type="net.geoprism.registry.ListType" required="true" label="List Type" />        
           <reference name="entry" type="net.geoprism.registry.ListTypeEntry" required="true" label="Master List" />
           <reference name="mdBusiness" type="com.runwaysdk.system.metadata.MdBusiness" required="true" label="MdTable" />          
@@ -122,8 +123,13 @@
           <reference name="listType" type="net.geoprism.registry.ListType" label="List Type" required="true"/>
         </attributes>      
       </mdBusiness>    
-      <mdBusiness name="net.geoprism.registry.etl.PublishListTypeJob" extends="net.geoprism.registry.etl.ListTypeJob" exported="false">
-      </mdBusiness>   
+      
+      <mdBusiness name="net.geoprism.registry.etl.PublishListTypeVersionJob" extends="net.geoprism.registry.etl.ListTypeJob" exported="false">
+        <attributes>
+          <reference name="version" type="net.geoprism.registry.ListTypeVersion" label="List Version" required="true"/>
+        </attributes>
+      </mdBusiness>
+      
       
       <mdBusiness name="net.geoprism.registry.ListTileCache">
         <attributes>
@@ -174,7 +180,7 @@
           <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.etl.PublishListTypeJob">
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishListTypeVersionJob">
             <operation name="ALL" />
           </mdBusinessPermission>        
           <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
@@ -196,7 +202,7 @@
           <mdBusinessPermission type="net.geoprism.registry.ListTypeEntry">
             <operation name="ALL" />
           </mdBusinessPermission>
-          <mdBusinessPermission type="net.geoprism.registry.etl.PublishListTypeJob">
+          <mdBusinessPermission type="net.geoprism.registry.etl.PublishListTypeVersionJob">
             <operation name="ALL" />
           </mdBusinessPermission>        
           <mdBusinessPermission type="net.geoprism.registry.ListTypeVersion">
@@ -337,7 +343,7 @@
   <undoIt>
     <delete>
       <object key="net.geoprism.registry.ListTileCache" type="com.runwaysdk.system.metadata.MdBusiness" />    
-      <object key="net.geoprism.registry.etl.PublishListTypeJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
+      <object key="net.geoprism.registry.etl.PublishListTypeVersionJob" type="com.runwaysdk.system.metadata.MdBusiness"/>    
       <object key="net.geoprism.registry.etl.ListTypeJob" type="com.runwaysdk.system.metadata.MdBusiness"/>        
       <object key="net.geoprism.registry.ListTypeAttributeGroup" type="com.runwaysdk.system.metadata.MdBusiness"></object>
       <object key="net.geoprism.registry.ListTypeVersion" type="com.runwaysdk.system.metadata.MdBusiness"></object>

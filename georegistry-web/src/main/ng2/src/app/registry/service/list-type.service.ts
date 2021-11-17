@@ -4,6 +4,7 @@ import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
 import { ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
+import { Observable } from "rxjs";
 
 declare let acp: any;
 
@@ -191,6 +192,14 @@ export class ListTypeService {
         return this.http
             .post<{ label: string, value: string }[]>(acp + "/list-type/values", JSON.stringify(params), { headers: headers })
             .toPromise();
+    }
+
+    publishList(oid: string): Observable<string> {
+        let headers = new HttpHeaders({
+            "Content-Type": "application/json"
+        });
+
+        return this.http.post<string>(acp + "/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
     }
 
 }

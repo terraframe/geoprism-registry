@@ -49,8 +49,8 @@ import net.geoprism.registry.Organization;
 import net.geoprism.registry.etl.DuplicateJobException;
 import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
-import net.geoprism.registry.etl.PublishListTypeJob;
-import net.geoprism.registry.etl.PublishListTypeJobQuery;
+import net.geoprism.registry.etl.PublishListTypeVersionJob;
+import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
@@ -169,27 +169,32 @@ public class ListTypeService
 
     QueryFactory factory = new QueryFactory();
 
-    PublishListTypeJobQuery query = new PublishListTypeJobQuery(factory);
-    query.WHERE(query.getListType().EQ(listType));
+    // PublishListTypeJobQuery query = new PublishListTypeJobQuery(factory);
+    // query.WHERE(query.getListType().EQ(listType));
+    //
+    // JobHistoryQuery q = new JobHistoryQuery(factory);
+    // q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED,
+    // AllJobStatus.RUNNING));
+    // q.AND(q.job(query));
+    //
+    // if (q.getCount() > 0)
+    // {
+    // throw new DuplicateJobException("This master list has already been queued
+    // for publication");
+    // }
+    //
+    // PublishListTypeJob job = new PublishListTypeJob();
+    // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    // job.setListType(listType);
+    // job.apply();
+    //
+    // NotificationFacade.queue(new
+    // GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+    //
+    // final JobHistory history = job.start();
+    // return history.getOid();
 
-    JobHistoryQuery q = new JobHistoryQuery(factory);
-    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
-    q.AND(q.job(query));
-
-    if (q.getCount() > 0)
-    {
-      throw new DuplicateJobException("This master list has already been queued for publication");
-    }
-
-    PublishListTypeJob job = new PublishListTypeJob();
-    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
-    job.setListType(listType);
-    job.apply();
-
-    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
-
-    final JobHistory history = job.start();
-    return history.getOid();
+    return null;
   }
 
   @Request(RequestType.SESSION)
@@ -225,40 +230,42 @@ public class ListTypeService
   @Request(RequestType.SESSION)
   public JsonObject publishVersion(String sessionId, String oid)
   {
-    ListTypeEntry version = ListTypeEntry.get(oid);
+    ListTypeVersion version = ListTypeVersion.get(oid);
 
     this.enforceWritePermissions(version.getListType());
 
+    // Only a working version can be republished.
+    if (!version.getWorking())
+    {
+      throw new UnsupportedOperationException();
+    }
+
     QueryFactory factory = new QueryFactory();
 
-    // PublishListTypeVersionJobQuery query = new
-    // PublishListTypeVersionJobQuery(factory);
-    // query.WHERE(query.getListTypeVersion().EQ(version));
-    //
-    // JobHistoryQuery q = new JobHistoryQuery(factory);
-    // q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED,
-    // AllJobStatus.RUNNING));
-    // q.AND(q.job(query));
-    //
-    // if (q.getCount() > 0)
-    // {
-    // throw new DuplicateJobException("This master list version has already
-    // been queued for publishing");
-    // }
-    //
-    // PublishListTypeVersionJob job = new PublishListTypeVersionJob();
-    // job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
-    // job.setListTypeVersion(version);
-    // job.setListType(version.getListType());
-    // job.apply();
-    //
-    // NotificationFacade.queue(new
-    // GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
-    //
-    // final JobHistory history = job.start();
+    PublishListTypeVersionJobQuery query = new PublishListTypeVersionJobQuery(factory);
+    query.WHERE(query.getVersion().EQ(version));
+
+    JobHistoryQuery q = new JobHistoryQuery(factory);
+    q.WHERE(q.getStatus().containsAny(AllJobStatus.NEW, AllJobStatus.QUEUED, AllJobStatus.RUNNING));
+    q.AND(q.job(query));
+
+    if (q.getCount() > 0)
+    {
+      throw new DuplicateJobException("This version has already been queued for publishing");
+    }
+
+    PublishListTypeVersionJob job = new PublishListTypeVersionJob();
+    job.setRunAsUserId(Session.getCurrentSession().getUser().getOid());
+    job.setVersion(version);
+    job.setListType(version.getListType());
+    job.apply();
+
+    NotificationFacade.queue(new GlobalNotificationMessage(MessageType.PUBLISH_JOB_CHANGE, null));
+
+    final JobHistory history = job.start();
 
     JsonObject resp = new JsonObject();
-    // resp.addProperty("jobOid", history.getOid());
+    resp.addProperty("jobOid", history.getOid());
     return resp;
   }
 
