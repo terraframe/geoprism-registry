@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
+import { ContextList, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
 declare let acp: any;
@@ -219,11 +219,11 @@ export class ListTypeService {
             .toPromise();
     }
 
-    getAllPublicVersions(): Promise<ListTypeVersion[]> {
+    getGeospatialVersions(): Promise<ContextList[]> {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<ListTypeVersion[]>(acp + "/list-type/get-all-public-versions", { params: params })
+            .get<ContextList[]>(acp + "/list-type/get-geospatial-versions", { params: params })
             .toPromise();
     }
 

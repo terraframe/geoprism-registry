@@ -20,6 +20,8 @@ package net.geoprism.registry.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,7 +45,6 @@ import net.geoprism.registry.InvalidMasterListException;
 import net.geoprism.registry.ListTileCache;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeEntry;
-import net.geoprism.registry.ListTypeQuery;
 import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.Organization;
@@ -413,6 +414,7 @@ public class ListTypeService
 
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(listType));
+    query.AND(query.getWorking().EQ(false));
     query.ORDER_BY_DESC(query.getForDate());
     query.ORDER_BY_DESC(query.getVersionNumber());
 
@@ -434,28 +436,56 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getAllVersions(String sessionId)
+  public JsonArray getGeospatialVersions(String sessionId)
   {
-    JsonArray response = new JsonArray();
+    ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
+    query.WHERE(query.getWorking().EQ(false));
+    query.ORDER_BY_DESC(query.getListType());
+    query.ORDER_BY_DESC(query.getForDate());
+    query.ORDER_BY_DESC(query.getVersionNumber());
 
-    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
+    Map<String, JsonObject> map = new LinkedHashMap<String, JsonObject>();
 
-    try (OIterator<? extends ListType> it = query.getIterator())
+    try (OIterator<? extends ListTypeVersion> it = query.getIterator())
     {
 
       while (it.hasNext())
       {
-        ListType list = it.next();
-        final boolean isMember = Organization.isMember(list.getOrganization());
+        ListTypeVersion version = it.next();
+        ListType listType = version.getListType();
+        final boolean isMember = Organization.isMember(listType.getOrganization());
 
-        // TODO FIGURE out this behavior: Used for the context layers
-        //
-        // if (isMember || list.getVisibility().equals(ListType.PUBLIC))
-        // {
-        // response.add(list.toJSON(ListTypeVersion.PUBLISHED));
-        // }
+        if (isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC))
+        {
+          if (!map.containsKey(listType.getOid()))
+          {
+            JsonObject object = new JsonObject();
+            object.addProperty("label", listType.getDisplayLabel().getValue());
+            object.addProperty("oid", listType.getOid());
+            object.add("versions", new JsonArray());
+
+            map.put(listType.getOid(), object);
+          }
+
+          JsonObject object = new JsonObject();
+          object.addProperty("oid", version.getOid());
+          object.addProperty("forDate", GeoRegistryUtil.formatDate(version.getForDate(), false));
+          object.addProperty("versionNumber", version.getVersionNumber());
+
+          map.get(listType.getOid()).get("versions").getAsJsonArray().add(object);
+        }
       }
     }
+
+    JsonArray response = new JsonArray();
+
+    map.forEach((key, object) -> {
+
+      if (object.get("versions").getAsJsonArray().size() > 0)
+      {
+        response.add(object);
+      }
+    });
 
     return response;
   }

@@ -98,3 +98,13 @@ export class ListTypeVersion extends ListVersionMetadata {
     versionNumber: number;
     subtypes?: { label: string, code: string }[];
 }
+
+export class ContextList {
+    oid: string;
+    label: string;
+    versions: {
+        oid: string,
+        forDate: string
+        versionNumber: string
+    }[]
+}

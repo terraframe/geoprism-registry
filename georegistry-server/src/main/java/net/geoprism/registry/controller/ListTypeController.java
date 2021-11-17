@@ -265,10 +265,10 @@ public class ListTypeController
     return new RestBodyResponse(this.service.getPublicVersions(request.getSessionId(), oid));
   }
 
-  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-all-versions")
-  public ResponseIF listAllVersions(ClientRequestIF request)
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-geospatial-versions")
+  public ResponseIF getGeospatialVersions(ClientRequestIF request)
   {
-    return new RestBodyResponse(this.service.getAllVersions(request.getSessionId()));
+    return new RestBodyResponse(this.service.getGeospatialVersions(request.getSessionId()));
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "bounds")
