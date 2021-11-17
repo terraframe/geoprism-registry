@@ -77,14 +77,13 @@ export class FhirExportSynchronizationConfigComponent implements OnInit, OnDestr
 
     // Get 
     this.rService.getAllLists().then(response => {
-
       this.lists = response;
     });
   }
 
   onSelectMasterList(level: FhirSyncLevel): void {
 
-    if (level.masterListId != null) {
+    if (level.masterListId != null && level.masterListId.length > 0) {
 
       this.rService.getPublicVersions(level.masterListId).then(list => {
         this.versions[level.masterListId] = list;

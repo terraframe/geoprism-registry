@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
@@ -735,34 +736,23 @@ public abstract class ListType extends ListTypeBase
     JsonArray response = new JsonArray();
 
     ListTypeQuery query = new ListTypeQuery(new QueryFactory());
-    query.ORDER_BY_DESC(query.getDisplayLabel().localize());
 
-    OIterator<? extends ListType> it = query.getIterator();
-
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-    try
+    try (OIterator<? extends ListType> it = query.getIterator())
     {
-      while (it.hasNext())
-      {
-        ListType list = it.next();
+      SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-        if (list.doesActorHaveReadPermission())
-        {
-          JsonObject object = new JsonObject();
-          object.addProperty("label", list.getDisplayLabel().getValue());
-          object.addProperty("oid", list.getOid());
+      it.getAll().stream().filter(list -> list.doesActorHaveReadPermission()).sorted((a, b) -> {
+        return a.getDisplayLabel().getValue().compareTo(b.getDisplayLabel().getValue());
+      }).forEach(list -> {
+        JsonObject object = new JsonObject();
+        object.addProperty("label", list.getDisplayLabel().getValue());
+        object.addProperty("oid", list.getOid());
 
-          object.addProperty("createDate", format.format(list.getCreateDate()));
-          object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
+        object.addProperty("createDate", format.format(list.getCreateDate()));
+        object.addProperty("lasteUpdateDate", format.format(list.getLastUpdateDate()));
 
-          response.add(object);
-        }
-      }
-    }
-    finally
-    {
-      it.close();
+        response.add(object);
+      });
     }
 
     return response;

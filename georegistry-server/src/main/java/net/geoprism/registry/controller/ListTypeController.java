@@ -57,10 +57,7 @@ public class ListTypeController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-all")
   public ResponseIF listAll(ClientRequestIF request)
   {
-    JsonObject response = new JsonObject();
-    response.add("lists", this.service.listAll(request.getSessionId()));
-
-    return new RestBodyResponse(response);
+    return new RestBodyResponse(this.service.listAll(request.getSessionId()));
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "list-for-type")
