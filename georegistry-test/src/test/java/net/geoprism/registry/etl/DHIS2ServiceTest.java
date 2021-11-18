@@ -194,9 +194,14 @@ public class DHIS2ServiceTest
 
     return system;
   }
+  
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel)
+  {
+    return createSyncConfig(system, additionalLevel, true);
+  }
 
   @Request
-  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel)
+  public static SynchronizationConfig createSyncConfig(ExternalSystem system, DHIS2SyncLevel additionalLevel, boolean apply)
   {
     // Define reusable objects
     final ServerHierarchyType ht = AllAttributesDataset.HIER.getServerObject();
@@ -238,7 +243,11 @@ public class DHIS2ServiceTest
     config.setHierarchy(ht.getUniversalRelationship());
     config.setSystem(system.getOid());
     config.getLabel().setValue("DHIS2 Export Test");
-    config.apply();
+    
+    if (apply)
+    {
+      config.apply();
+    }
 
     return config;
   }
@@ -732,6 +741,24 @@ public class DHIS2ServiceTest
         Assert.assertEquals(18, orgUnitGroups.size());
       });
     }
+  }
+  
+  @Request
+  @Test
+  public void testApplySyncConfig() throws Exception
+  {
+    SynchronizationConfig config = createSyncConfig(this.system, null, false);
+    
+    SynchronizationConfigService service = new SynchronizationConfigService();
+    
+    JsonObject json = config.toJSON();
+    json.remove("oid");
+    
+    JsonObject configToJson = service.apply(testData.clientSession.getSessionId(), json.toString());
+    
+    String oid = configToJson.get(SynchronizationConfig.OID).getAsString();
+    
+    SynchronizationConfig.get(oid);
   }
   
   @Request
