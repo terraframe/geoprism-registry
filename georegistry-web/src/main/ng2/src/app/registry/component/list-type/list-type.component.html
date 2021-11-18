@@ -51,50 +51,56 @@
     </div>
 
     <div *ngFor="let entry of list.entries" class="row" style="margin-bottom: 5px;">
-        <div class="col-md-10" style="background-color: #CFCAD6; padding: 3px;">
-            <div class="row">
-                <div class="col-md-9">
-                    {{entry.period}}
-                </div>
-            </div>
-
-            <ng-container *ngIf="list.write">
-                <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
-                    <div class="col-md-6">
-                        <div>
-                            <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" role="button">
-                                New Version
-                            </button>
+        <div class="col-md-10">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-9">
+                            {{list.listType !== 'single' ? entry.period : ''}}
                         </div>
                     </div>
-                </div>
-                <div class="row" style="margin-bottom: 5px;">
-                    <div class="col-md-9" style="vertical-align: middle;">
-                        <a [routerLink]="'/registry/master-list/' + entry.working" routerLinkActive="active">
-                            Working Version
-                        </a>
-                    </div>
-                </div>                
-            </ng-container>
-            <ng-container *ngIf="entry.versions.length > 0">
-                <ng-container *ngFor="let version of entry.versions; let j = index;">
-                    <ng-container *ngIf="j === 0 || entry.showAll" [ngTemplateOutlet]="versionDetail"
-                        [ngTemplateOutletContext]="{entry:entry, version:version}">
+
+                    <ng-container *ngIf="list.write">
+                        <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                            <div class="col-md-6">
+                                <div>
+                                    <button type="submit" (click)="onCreate(entry)" class="btn btn-primary"
+                                        role="button">
+                                        New Version
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 5px;">
+                            <div class="col-md-9" style="vertical-align: middle;">
+                                <a [routerLink]="'/registry/master-list/' + entry.working" routerLinkActive="active">
+                                    Working Version
+                                </a>
+                            </div>
+                        </div>
                     </ng-container>
-                </ng-container>
-                <div class="row" style="margin-bottom: 5px;">
-                    <div class="col-md-9" style="vertical-align: middle;">
+                    <ng-container *ngIf="entry.versions.length > 0">
+                        <ng-container *ngFor="let version of entry.versions; let j = index;">
+                            <ng-container *ngIf="j === 0 || entry.showAll" [ngTemplateOutlet]="versionDetail"
+                                [ngTemplateOutletContext]="{entry:entry, version:version}">
+                            </ng-container>
+                        </ng-container>
+                        <div class="row" style="margin-bottom: 5px;">
+                            <div class="col-md-9" style="vertical-align: middle;">
+                            </div>
+                            <div class="col-md-3" style="text-align: right;">
+                                <button *ngIf="entry.versions.length > 1" type="submit" (click)="toggleVersions(entry)" class="btn btn-primary"
+                                    role="button">
+                                    {{!entry.showAll ? 'See' : 'Hide' }} previous versions
+                                </button>
+                            </div>
+                        </div>
+                    </ng-container>
+                    <div class="row" *ngIf="entry.versions.length === 0">
+                        <div class="col-md-12">
+                            No Versions
+                        </div>
                     </div>
-                    <div class="col-md-3" style="text-align: right;">
-                        <button type="submit" (click)="toggleVersions(entry)" class="btn btn-primary" role="button">
-                            {{!entry.showAll ? 'See' : 'Hide' }} previous versions
-                        </button>
-                    </div>
-                </div>
-            </ng-container>
-            <div class="row" *ngIf="entry.versions.length === 0">
-                <div class="col-md-12">
-                    No Versions
                 </div>
             </div>
         </div>
