@@ -402,6 +402,7 @@ export class ContextLayer {
     displayLabel: string;
     active: boolean;
     enabled: boolean;
+    versionNumber?: number;
 }
 
 export class ContextLayerGroup {

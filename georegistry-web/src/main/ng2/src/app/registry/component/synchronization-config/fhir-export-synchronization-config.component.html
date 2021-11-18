@@ -43,7 +43,7 @@
                                 [name]="'version' + level.level" required>
                                 <option></option>
                                 <option *ngFor="let version of versions[level.masterListId]"
-                                    [value]="version.oid">{{version.forDate}} - {{version.versionNumber}}</option>
+                                    [value]="version.oid">{{version.forDate}} (Version {{version.versionNumber}})</option>
                             </select>
                         </td>
                         <td style="width: 20%">

@@ -34,13 +34,13 @@ export class LayerPanelComponent implements OnInit, OnChanges {
             url: "mapbox://mapbox.satellite",
             selected: true
         }
-//         {
-//             name: 'Streets',
-//             label: 'baselayer.streets',
-//             id: 'streets-v11',
-//             sprite: 'mapbox://sprites/mapbox/streets-v11',
-//             url: 'mapbox://styles/mapbox/streets-v11'
-//         }
+        //         {
+        //             name: 'Streets',
+        //             label: 'baselayer.streets',
+        //             id: 'streets-v11',
+        //             sprite: 'mapbox://sprites/mapbox/streets-v11',
+        //             url: 'mapbox://styles/mapbox/streets-v11'
+        //         }
     ];
 
     contextLayerGroups: ContextLayerGroup[] = [];
@@ -70,7 +70,13 @@ export class LayerPanelComponent implements OnInit, OnChanges {
                 const index = this.filter.indexOf(version.oid);
 
                 if (index === -1) {
-                    let thisContextLayer = { oid: version.oid, displayLabel: version.forDate + " - " + version.versionNumber, active: false, enabled: false };
+                    let thisContextLayer = {
+                        oid: version.oid,
+                        displayLabel: version.forDate,
+                        versionNumber: version.versionNumber,
+                        active: false,
+                        enabled: false
+                    };
 
                     contextGroup.contextLayers.push(thisContextLayer);
                 }

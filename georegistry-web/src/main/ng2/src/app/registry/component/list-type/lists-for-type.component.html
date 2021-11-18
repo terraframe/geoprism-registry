@@ -29,7 +29,7 @@
                             <span *ngIf="list.listType !== 'single'" class="fa-stack fa-lg">
                                 <i class="fa fa-table fa-stack-2x"></i>
                                 <i class="fa fa-table fa-stack-1x" style="margin-left: 5px;margin-top: -4px;"></i>
-                              </span>
+                            </span>
 
                             <a [routerLink]="'/registry/master-lists/' + listByType.typeCode + '/' + list.oid"
                                 routerLinkActive="active">
@@ -48,7 +48,33 @@
                     </div>
                     <div class="row" *ngIf="list.listType === 'single'">
                         <div class="col-md-12">
-                            Valid On: {{list.validOn}}
+                            <ul>
+                                <li>
+                                    Valid On: {{list.validOn}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="list.listType === 'incremental'">
+                        <div class="col-md-12">
+                            <ul>
+                                <li>
+                                    Valid starting: {{list.publishingStartDate}}
+                                </li>
+                                <li>
+                                    Frequency: {{list.frequency}}
+                                </li>                                
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row" *ngIf="list.listType === 'interval'">
+                        <div class="col-md-12">
+                            Valid On:
+                            <ul>
+                                <li *ngFor="let interval of list.intervalJson">
+                                    {{interval.startDate}} - {{interval.endDate}}
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <div class="row">

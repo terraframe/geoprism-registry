@@ -1131,6 +1131,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     final File file = new File(directory, filename);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(masterlist.getUniversal());
+    boolean isMember = Organization.isMember(masterlist.getOrganization());
 
     JsonObject object = new JsonObject();
 
@@ -1151,6 +1152,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     object.addProperty("isGeometryEditable", type.isGeometryEditable());
     object.addProperty("isAbstract", type.getIsAbstract());
     object.addProperty("shapefile", file.exists());
+    object.addProperty("isMember", isMember);
     object.add(ListType.LIST_METADATA, this.toMetadataJSON("list"));
     object.add(ListType.GEOSPATIAL_METADATA, this.toMetadataJSON("geospatial"));
 

@@ -13,7 +13,7 @@ import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, ProgressService } from "@shared/service";
 import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
-import { ExportFormatModalComponent } from "../master-list/export-format-modal.component";
+import { ExportFormatModalComponent } from "./export-format-modal.component";
 
 declare let acp: string;
 

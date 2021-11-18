@@ -15,7 +15,6 @@ import { TabsModule } from "ngx-bootstrap/tabs";
 import { DndModule } from "ngx-drag-drop";
 
 import { ImportTypesModalComponent } from './component/hierarchy/modals/import-types-modal.component';
-import { ExportSystemModalComponent } from './component/master-list/export-system-modal.component';
 import { LocalizedInputComponent } from "./component/form-fields/localized-input/localized-input.component";
 import { LocalizedTextComponent } from "./component/form-fields/localized-text/localized-text.component";
 import { HierarchyComponent } from "./component/hierarchy/hierarchy.component";
@@ -40,7 +39,6 @@ import { EditTermOptionInputComponent } from "./component/hierarchy/geoobjecttyp
 import { ManageTermOptionsComponent } from "./component/hierarchy/geoobjecttype-management/manage-term-options.component";
 import { GeoObjectTypeInputComponent } from "./component/hierarchy/geoobjecttype-management/geoobjecttype-input.component";
 import { ManageGeoObjectTypeModalComponent } from "./component/hierarchy/modals/manage-geoobjecttype-modal.component";
-import { ExportFormatModalComponent } from "./component/master-list/export-format-modal.component";
 import { RequestTableComponent } from "./component/crtable/request-table.component";
 import { CreateUpdateGeoObjectDetailComponent } from "./component/crtable/action-detail/create-update-geo-object/detail.component";
 import { GeoObjectSharedAttributeEditorComponent } from "./component/geoobject-shared-attribute-editor/geoobject-shared-attribute-editor.component";
@@ -116,6 +114,7 @@ import { ListsForTypeComponent } from "./component/list-type/lists-for-type.comp
 import { ListTypeComponent } from "./component/list-type/list-type.component";
 import { ListComponent } from "./component/list-type/list.component";
 import { PublishVersionComponent } from "./component/list-type/publish-version.component";
+import { ExportFormatModalComponent } from "./component/list-type/export-format-modal.component";
 
 @NgModule({
     imports: [
@@ -143,7 +142,6 @@ import { PublishVersionComponent } from "./component/list-type/publish-version.c
         RequestTableComponent,
         CreateUpdateGeoObjectDetailComponent,
         ImportTypesModalComponent,
-        ExportSystemModalComponent,
         FhirExportSynchronizationConfigComponent,
         FhirImportSynchronizationConfigComponent,
         Dhis2SynchronizationConfigComponent,
@@ -268,7 +266,6 @@ import { PublishVersionComponent } from "./component/list-type/publish-version.c
         StepIndicatorComponent,
         SynchronizationConfigModalComponent,
         ContextLayerModalComponent,
-        ExportSystemModalComponent,
         TransitionEventModalComponent,
         ListTypePublishModalComponent,
         PublishVersionComponent

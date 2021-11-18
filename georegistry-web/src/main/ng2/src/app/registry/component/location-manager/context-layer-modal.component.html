@@ -15,7 +15,8 @@
                                 <h4>{{ cLayerGroup.displayLabel }}</h4>
                                 <div class="list-group">
                                     <div *ngFor="let cLayer of cLayerGroup.contextLayers">
-                                        <input type="checkbox" [checked]="cLayer.enabled" (change)="cLayer.enabled = !cLayer.enabled" style="margin-left: 10px;"> {{ cLayer.displayLabel }}
+                                        <input type="checkbox" [checked]="cLayer.enabled" (change)="cLayer.enabled = !cLayer.enabled" style="margin-left: 10px;">
+                                         {{ cLayer.displayLabel }} (Version {{cLayer.versionNumber}})
                                         
                                         <!-- <boolean-field [(value)]="cLayer.enabled" [label]="cLayer.displayLabel"></boolean-field> -->
                                         

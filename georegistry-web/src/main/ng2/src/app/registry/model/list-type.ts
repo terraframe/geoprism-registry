@@ -95,6 +95,7 @@ export class ListTypeVersion extends ListVersionMetadata {
     superTypeCode?: string;
     refreshProgress?: any;
     working: boolean;
+    isMember?: boolean;
     versionNumber: number;
     subtypes?: { label: string, code: string }[];
 }
