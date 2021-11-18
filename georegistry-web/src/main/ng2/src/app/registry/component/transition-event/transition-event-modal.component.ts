@@ -159,7 +159,7 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
             targetType: "",
             transitionType: "",
             impact: "",
-            order: this.event.transitions.length - 1
+            order: this.event.transitions.length
         });
     }
 
