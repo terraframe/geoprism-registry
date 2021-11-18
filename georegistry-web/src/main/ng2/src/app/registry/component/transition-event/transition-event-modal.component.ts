@@ -301,17 +301,20 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                     updown = "DOWNGRADE";
                 }
 
-                if (sourceStats.source > 1) {
+                if (sourceStats.source === 1 && targetStats.target === 1) {
+                    trans.transitionType = "REASSIGN";
+                    trans.impact = "FULL";
+                } else if (sourceStats.source > 1) {
                     trans.impact = "PARTIAL";
-                    trans.transitionType = "SPLIT";
-                } else {
+
                     if (targetStats.target > 1) {
                         trans.transitionType = "MERGE";
                     } else {
-                        trans.transitionType = "REASSIGN";
+                        trans.transitionType = "SPLIT";
                     }
-
+                } else if (targetStats.target > 1) {
                     trans.impact = "FULL";
+                    trans.transitionType = "MERGE";
                 }
 
                 if (trans.sourceType !== trans.targetType) {
