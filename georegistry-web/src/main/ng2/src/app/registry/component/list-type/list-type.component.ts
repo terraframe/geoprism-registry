@@ -3,7 +3,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { HttpErrorResponse } from "@angular/common/http";
 
 import { ConfirmModalComponent } from "@shared/component";
-import { LocalizationService } from "@shared/service";
+import { AuthService, LocalizationService } from "@shared/service";
 import { ListType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
@@ -17,6 +17,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
 
     @Input() list: ListType;
     @Output() error = new EventEmitter<HttpErrorResponse>();
+    isRC: boolean = false;
 
     /*
      * Reference to the modal current showing
@@ -27,9 +28,22 @@ export class ListTypeComponent implements OnInit, OnDestroy {
     constructor(
         private service: ListTypeService,
         private modalService: BsModalService,
-        private localizeService: LocalizationService) { }
+        private localizeService: LocalizationService,
+        private authService: AuthService) { }
 
     ngOnInit(): void {
+        this.isRC = this.authService.isGeoObjectTypeOrSuperRC({
+            organizationCode: this.list.organization,
+            code: this.list.typeCode,
+            superTypeCode: this.list.superTypeCode,
+        });
+
+        // Expand the most recent version by default
+        this.list.entries.filter(entry => {
+            return (entry.versions != null && entry.versions.length > 0);
+        }).forEach(entry => {
+            entry.versions[0].collapsed = true;
+        })
     }
 
     ngOnDestroy() {

@@ -329,21 +329,17 @@ public abstract class ListType extends ListTypeBase
     LocaleSerializer serializer = new LocaleSerializer(locale);
 
     ServerGeoObjectType type = ServerGeoObjectType.get(this.getUniversal());
+    ServerGeoObjectType superType = type.getSuperType();
     Organization org = type.getOrganization();
 
     JsonObject object = new JsonObject();
 
     if (this.isAppliedToDB())
     {
-
       object.addProperty(ListType.OID, this.getOid());
-      object.addProperty(ListType.ORGANIZATION, org.getCode());
-    }
-    else
-    {
-      object.addProperty(ListType.ORGANIZATION, org.getCode());
     }
 
+    object.addProperty(ListType.ORGANIZATION, org.getCode());
     object.addProperty("write", this.doesActorHaveWritePermission());
     object.addProperty("read", this.doesActorHaveReadPermission());
     object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
@@ -354,6 +350,11 @@ public abstract class ListType extends ListTypeBase
     object.addProperty(ListType.CODE, this.getCode());
     object.add(ListType.HIERARCHIES, this.getHierarchiesAsJson());
     object.add(ListType.SUBTYPEHIERARCHIES, this.getSubtypeHierarchiesAsJson());
+
+    if (superType != null)
+    {
+      object.addProperty("superTypeCode", superType.getCode());
+    }
 
     // Include the list metadata
     object.add(ListType.LIST_METADATA, this.toMetadataJSON("list", serializer));

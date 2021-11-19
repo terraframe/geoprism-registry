@@ -112,22 +112,12 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date",
+        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:editOnly",
         component: DatasetLocationManagerComponent,
         canActivate: [AuthGuard]
     },
     {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code",
-        component: DatasetLocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code/:editOnly",
-        component: DatasetLocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:code/:editOnly/:backReference",
+        path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:editOnly/:code/:backReference",
         component: DatasetLocationManagerComponent,
         canActivate: [AuthGuard]
     },

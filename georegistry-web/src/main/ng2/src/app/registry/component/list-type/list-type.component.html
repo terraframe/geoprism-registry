@@ -5,9 +5,7 @@
             <span class="clickable" (click)="version.collapsed = !version.collapsed"
                 [attr.aria-expanded]="!version.collapsed"><i class="fa fa-minus"></i>
             </span>
-            <a [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
-                Version {{version.versionNumber}}
-            </a>
+            <p><span class="h3">Version {{version.versionNumber}}</span> Date Generated: {{version.createDate}}</p>
         </div>
         <div class="col-md-3" style="text-align: right;">
             <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
@@ -21,15 +19,24 @@
     </div>
     <div class="row" style="margin-bottom: 5px;" [collapse]="!version.collapsed">
         <ul>
-            <li>Date Generated: {{version.createDate}}</li>
-            <li>Last update: {{version.publishDate}}</li>
             <li>
-                Visibility: List ({{version.listMetadata.visibility}})
-                Geospatial ({{version.geospatialMetadata.visibility}})
+                <a *ngIf="(version.isMember || version.listMetadata.visibility === 'PUBLIC')"
+                    [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
+                    List
+                </a>
+                <span *ngIf="!(version.isMember || version.listMetadata.visibility === 'PUBLIC')">List</span>
+                ({{version.listMetadata.visibility}})
+                ({{version.listMetadata.master ? 'Master' : 'Non-master'}})
             </li>
             <li>
-                Authoritativeness: List ({{version.listMetadata.master ? 'Master' : 'Non-master'}})
-                Geospatial ({{version.geospatialMetadata.master ? 'Master' : 'Non-master'}})
+                <a *ngIf="(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')"
+                    [routerLink]="['/registry/dataset-location-manager', version.oid, list.typeCode, !isRC, version.forDate, (!RC || version.isAbstract)]"
+                    routerLinkActive="active">
+                    Geospatial
+                </a>
+                <span *ngIf="!(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')">Geospatial</span>
+                ({{version.geospatialMetadata.visibility}})
+                ({{version.geospatialMetadata.master ? 'Master' : 'Non-master'}})
             </li>
         </ul>
     </div>
@@ -54,25 +61,22 @@
                         </div>
                     </div>
 
-                    <ng-container *ngIf="list.write">
-                        <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
-                            <div class="col-md-6">
-                                <div>
-                                    <button type="submit" (click)="onCreate(entry)" class="btn btn-primary"
-                                        role="button">
-                                        New Version
-                                    </button>
-                                </div>
+                    <div *ngIf="list.write" style="margin-top: 30px; margin-bottom: 30px;" class="row">
+                        <div class="col-md-6">
+                            <div>
+                                <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" role="button">
+                                    New Version
+                                </button>
                             </div>
                         </div>
-                        <div class="row" style="margin-bottom: 5px;">
-                            <div class="col-md-9" style="vertical-align: middle;">
-                                <a [routerLink]="'/registry/master-list/' + entry.working" routerLinkActive="active">
-                                    Working Version
-                                </a>
-                            </div>
+                    </div>
+                    <div *ngIf="list.write || isRC" class="row" style="margin-bottom: 5px;">
+                        <div class="col-md-9" style="vertical-align: middle;">
+                            <a [routerLink]="'/registry/master-list/' + entry.working" routerLinkActive="active">
+                                Working Version
+                            </a>
                         </div>
-                    </ng-container>
+                    </div>
                     <ng-container *ngIf="entry.versions.length > 0">
                         <ng-container *ngFor="let version of entry.versions; let j = index;">
                             <ng-container *ngIf="j === 0 || entry.showAll" [ngTemplateOutlet]="versionDetail"

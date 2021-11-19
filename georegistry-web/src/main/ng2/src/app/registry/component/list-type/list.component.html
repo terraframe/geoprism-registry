@@ -71,7 +71,7 @@
                     </span>
 
                     <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
-                        [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
+                        [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, (!isWritable || list.isAbstract), '__NEW__', 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
                         routerLinkActive="active" class="btn btn-primary" role="button">
                         <localize key="masterlist.newGeoObject"></localize>
                     </button>
@@ -89,7 +89,7 @@
                             </li>
                             <li role="separator" class="divider"></li>
                             <li *ngFor="let subtype of list.subtypes"><a
-                                    [routerLink]="['/registry/dataset-location-manager', list.oid, subtype.code, !isWritable, list.forDate, '__NEW__', (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
+                                    [routerLink]="['/registry/dataset-location-manager', list.oid, subtype.code, !isWritable, list.forDate, (!isWritable || list.isAbstract), '__NEW__', 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
                                     routerLinkActive="active">{{subtype.label}}</a></li>
                         </ul>
                     </span>
@@ -174,7 +174,7 @@
                             class="fade-ngRepeat-item">
                             <td *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" style="width: 3%; text-align: center;" class="label-column">
                                 <a class="fa" style="padding:3px;" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'"
-                                    [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, result.code, (!isWritable || list.isAbstract), 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
+                                    [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, (!isWritable || list.isAbstract), result.code, 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
                                     routerLinkActive="active"></a>
                             </td>
                             <td *ngFor="let attribute of listAttrs" class="label-column">{{ result[attribute.name] }}

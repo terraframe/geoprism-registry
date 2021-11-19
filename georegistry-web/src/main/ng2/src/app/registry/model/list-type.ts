@@ -35,6 +35,7 @@ export class ListType {
     read?: boolean;
     exploratory?: boolean;
     typeCode: string;
+    superTypeCode?: string;
     typeLabel?: string;
     displayLabel: LocalizedValue;
     description: LocalizedValue;
@@ -98,6 +99,7 @@ export class ListTypeVersion extends ListVersionMetadata {
     isMember?: boolean;
     versionNumber: number;
     subtypes?: { label: string, code: string }[];
+    collapsed?: boolean;
 }
 
 export class ContextList {
