@@ -129,7 +129,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 {
   private static final long serialVersionUID = -351397872;
 
-  public static String      PREFIX           = "ml_";
+  public static String      PREFIX           = "lt_";
 
   public static String      ORIGINAL_OID     = "originalOid";
 

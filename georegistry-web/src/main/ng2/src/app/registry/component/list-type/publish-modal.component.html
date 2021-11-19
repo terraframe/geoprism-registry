@@ -15,7 +15,7 @@
     <div class="row-holder">
         <div class="label-holder">
             <label>
-                Originator
+                <localize key="list.type.originator"></localize>
             </label>
         </div>
         <div class="holder">
@@ -26,7 +26,7 @@
     <div class="row-holder">
         <div class="label-holder">
             <label>
-                Collection Date
+                <localize key="list.type.collection.date"></localize>
             </label>
         </div>
         <div class="holder">
@@ -192,7 +192,7 @@
                             [value]="'single'" [(ngModel)]="list.listType" name="single"
                             [disabled]="readonly || !isNew">
                         <span>
-                            Single date
+                            <localize key="list.type.single.date"></localize>
                         </span>
                     </label>
 
@@ -201,7 +201,7 @@
                             [value]="'incremental'" [(ngModel)]="list.listType" name="incremental"
                             [disabled]="readonly || !isNew">
                         <span>
-                            Incremental series
+                            <localize key="list.type.interval.series"></localize>
                         </span>
                     </label>
 
@@ -210,7 +210,7 @@
                             [value]="'interval'" [(ngModel)]="list.listType" name="interval"
                             [disabled]="readonly || !isNew">
                         <span>
-                            Interval series
+                            <localize key="list.type.interval.series"></localize>
                         </span>
                     </label>
 
@@ -236,20 +236,23 @@
                     </div>
                     <div class="holder">
                         <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
-                            class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
                     </div>
                 </div>
                 <div class="row-holder" *ngFor="let localeValue of list.description.localeValues">
                     <div class="label-holder">
                         <label>
-                            Description
-                            <span style="color: #BABABA">&nbsp;(<convert-key-label [key]="localeValue.locale">
-                                </convert-key-label>)</span>
+                            <localize key="masterlist.listAbstract"></localize>
+                            <span style="color: #BABABA">
+                                &nbsp;(<convert-key-label [key]="localeValue.locale"></convert-key-label>)
+                            </span>
                         </label>
                     </div>
                     <div class="holder">
                         <input [(ngModel)]="localeValue.value" [name]="'description-' + localeValue.locale" type="text"
-                            class="form-control" [disabled]="readonly" [required]="localeValue.locale === 'defaultLocale'" />
+                            class="form-control" [disabled]="readonly"
+                            [required]="localeValue.locale === 'defaultLocale'" />
                     </div>
                 </div>
                 <div class="row-holder">
@@ -266,7 +269,7 @@
                 <div class="row-holder">
                     <div class="label-holder">
                         <label for="typeCode">
-                            Geo-Object Type Code
+                            <localize key="hierarchy.nodeTooltip.geoObjectTypeCode"></localize>
                         </label>
                     </div>
                     <div class="holder">
@@ -340,7 +343,7 @@
                 <div class="row-holder" *ngIf="list.listType === 'single'">
                     <div class="label-holder">
                         <label for="validOn">
-                            Valid On
+                            <localize key="list.type.valid.on"></localize>                            
                         </label>
                     </div>
                     <div class="holder">
@@ -402,7 +405,7 @@
                     <div class="row-holder">
                         <div class="label-holder">
                             <label>
-                                Intervals
+                                <localize key="list.type.intervals"></localize>
                             </label>
                         </div>
                         <div class="holder">
@@ -410,39 +413,40 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label>
-                                            Start Date
+                                            <localize key="io.startDate"></localize>
                                         </label>
                                     </div>
                                     <div class="col-md-6">
                                         <label>
-                                            End Date
+                                            <localize key="io.endDate"></localize>
                                         </label>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <date-field [(value)]="interval.startDate"
-                                            [classNames]="['form-control']" label="" [inputName]="'startDate-' + i"
-                                            [allowFutureDates]="false" [required]="true"
-                                            [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
+                                        <date-field [(value)]="interval.startDate" [classNames]="['form-control']"
+                                            label="" [inputName]="'startDate-' + i" [allowFutureDates]="false"
+                                            [required]="true" [disable]="readonly || !isNew"
+                                            (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
                                     <div class="col-md-6">
-                                        <date-field [(value)]="interval.endDate"
-                                            [classNames]="['form-control']" label="" [inputName]="'endDate-'+i"
-                                            [allowFutureDates]="false" [required]="true"
-                                            [disable]="readonly || !isNew" (valueChange)="handleDateChange()"></date-field>
+                                        <date-field [(value)]="interval.endDate" [classNames]="['form-control']"
+                                            label="" [inputName]="'endDate-'+i" [allowFutureDates]="false"
+                                            [required]="true" [disable]="readonly || !isNew"
+                                            (valueChange)="handleDateChange()"></date-field>
 
                                     </div>
                                 </div>
                             </div>
                             <div class="row" *ngIf="!readonly && isNew">
                                 <div class="col-md-12">
-                                    <button type="button" (click)="onNewInterval()" class="btn btn-primary" role="button">
-                                        New
-                                    </button>        
+                                    <button type="button" (click)="onNewInterval()" class="btn btn-primary"
+                                        role="button">
+                                        <localize key="changeovertime.manageVersions.summaryKey.NEW"></localize>
+                                    </button>
                                 </div>
-                            </div>                        
+                            </div>
                         </div>
                     </div>
                 </ng-container>
@@ -456,12 +460,12 @@
                                 <a [routerLink]="" (click)="handleTab('LIST')"
                                     [ngClass]="tab === 'LIST' ? 'cr-filter-link-active' : ''"
                                     style="border-bottom: 1px solid;">
-                                    List
+                                    <localize key="list.type.list"></localize>
                                 </a>
                                 <a [routerLink]="" (click)="handleTab('GEOSPATIAL')"
                                     [ngClass]="tab === 'GEOSPATIAL' ? 'cr-filter-link-active' : ''"
                                     style="margin-left: 5px;border-bottom:1px solid;">
-                                    Geospatial
+                                    <localize key="list.type.geospatial"></localize>
                                 </a>
 
                             </div>

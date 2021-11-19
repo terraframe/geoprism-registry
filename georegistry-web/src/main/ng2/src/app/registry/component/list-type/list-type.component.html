@@ -5,7 +5,12 @@
             <span class="clickable" (click)="version.collapsed = !version.collapsed"
                 [attr.aria-expanded]="!version.collapsed"><i class="fa fa-minus"></i>
             </span>
-            <p><span class="h3">Version {{version.versionNumber}}</span> Date Generated: {{version.createDate}}</p>
+            <p>
+                <span class="h3">
+                    <localize key="list.type.version"></localize> {{version.versionNumber}}
+                </span>
+                <localize key="list.type.date.generated"></localize>: {{version.createDate}}
+            </p>
         </div>
         <div class="col-md-3" style="text-align: right;">
             <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
@@ -22,21 +27,35 @@
             <li>
                 <a *ngIf="(version.isMember || version.listMetadata.visibility === 'PUBLIC')"
                     [routerLink]="'/registry/master-list/' + version.oid" routerLinkActive="active">
-                    List
+                    <localize key="list.type.list"></localize>
                 </a>
-                <span *ngIf="!(version.isMember || version.listMetadata.visibility === 'PUBLIC')">List</span>
-                ({{version.listMetadata.visibility}})
-                ({{version.listMetadata.master ? 'Master' : 'Non-master'}})
+                <span *ngIf="!(version.isMember || version.listMetadata.visibility === 'PUBLIC')">
+                    <localize key="list.type.list"></localize>
+                </span>
+                <localize *ngIf="version.listMetadata.visibility === 'PUBLIC'" key="masterlist.public"></localize>
+                <localize *ngIf="version.listMetadata.visibility !== 'PUBLIC'" key="masterlist.private"></localize>
+                <localize *ngIf="version.listMetadata.master" key="list.type.master"></localize>
+                <localize *ngIf="!version.listMetadata.master" key="list.type.non.master"></localize>
             </li>
             <li>
                 <a *ngIf="(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')"
                     [routerLink]="['/registry/dataset-location-manager', version.oid, list.typeCode, !isRC, version.forDate, (!RC || version.isAbstract)]"
                     routerLinkActive="active">
-                    Geospatial
+                    <localize key="list.type.geospatial"></localize>
                 </a>
-                <span *ngIf="!(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')">Geospatial</span>
-                ({{version.geospatialMetadata.visibility}})
-                ({{version.geospatialMetadata.master ? 'Master' : 'Non-master'}})
+                <span *ngIf="!(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')">
+                    <localize key="list.type.geospatial"></localize>
+                </span>
+                <span>
+                    (
+                    <localize *ngIf="version.geospatialMetadata.visibility === 'PUBLIC'" key="masterlist.public">
+                    </localize>
+                    <localize *ngIf="version.geospatialMetadata.visibility !== 'PUBLIC'" key="masterlist.private">
+                    </localize>
+                    )
+                </span>
+                <localize *ngIf="version.geospatialMetadata.master" key="list.type.master"></localize>
+                <localize *ngIf="!version.geospatialMetadata.master" key="list.type.non.master"></localize>
             </li>
         </ul>
     </div>
@@ -65,7 +84,7 @@
                         <div class="col-md-6">
                             <div>
                                 <button type="submit" (click)="onCreate(entry)" class="btn btn-primary" role="button">
-                                    New Version
+                                    <localize key="list.type.new.version"></localize>
                                 </button>
                             </div>
                         </div>
@@ -73,7 +92,7 @@
                     <div *ngIf="list.write || isRC" class="row" style="margin-bottom: 5px;">
                         <div class="col-md-9" style="vertical-align: middle;">
                             <a [routerLink]="'/registry/master-list/' + entry.working" routerLinkActive="active">
-                                Working Version
+                                <localize key="list.type.working.version"></localize>
                             </a>
                         </div>
                     </div>
@@ -89,14 +108,15 @@
                             <div class="col-md-3" style="text-align: right;">
                                 <button *ngIf="entry.versions.length > 1" type="submit" (click)="toggleVersions(entry)"
                                     class="btn btn-primary" role="button">
-                                    {{!entry.showAll ? 'See' : 'Hide' }} previous versions
+                                    <localize *ngIf="entry.showAll" key="list.type.see.versions"></localize>
+                                    <localize *ngIf="!entry.showAll" key="list.type.hide.versions"></localize>
                                 </button>
                             </div>
                         </div>
                     </ng-container>
                     <div class="row" *ngIf="entry.versions.length === 0">
                         <div class="col-md-12">
-                            No Versions
+                            <localize key="list.type.no.versions"></localize>
                         </div>
                     </div>
                 </div>

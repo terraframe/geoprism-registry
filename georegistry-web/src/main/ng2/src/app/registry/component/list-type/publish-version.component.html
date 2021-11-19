@@ -48,7 +48,7 @@
 
         <div class="heading text-center">
             <h1>
-                Version Metadata
+                <localize key="list.type.versionMetadata"></localize>
             </h1>
         </div>
         <!-- <div class="col-md-12 order-md-1"> -->
@@ -65,12 +65,12 @@
                                 <a [routerLink]="" (click)="handleTab('LIST')"
                                     [ngClass]="tab === 'LIST' ? 'cr-filter-link-active' : ''"
                                     style="border-bottom: 1px solid;">
-                                    List
+                                    <localize key="list.type.list"></localize>
                                 </a>
                                 <a [routerLink]="" (click)="handleTab('GEOSPATIAL')"
                                     [ngClass]="tab === 'GEOSPATIAL' ? 'cr-filter-link-active' : ''"
                                     style="margin-left: 5px;border-bottom:1px solid;">
-                                    Geospatial
+                                    <localize key="list.type.geospatial"></localize>
                                 </a>
 
                             </div>

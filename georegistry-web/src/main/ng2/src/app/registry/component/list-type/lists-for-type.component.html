@@ -6,7 +6,7 @@
     </div>
     <div class="subheading">
         <h3>
-            Lists and Spatial Data
+            <localize key="list.type.heading"></localize>
         </h3>
     </div>
     <hr />
@@ -50,7 +50,7 @@
                         <div class="col-md-12">
                             <ul>
                                 <li>
-                                    Valid On: {{list.validOn}}
+                                    <localize key="list.type.valid.on"></localize>: {{list.validOn}}
                                 </li>
                             </ul>
                         </div>
@@ -59,17 +59,17 @@
                         <div class="col-md-12">
                             <ul>
                                 <li>
-                                    Valid starting: {{list.publishingStartDate}}
+                                    <localize key="data.property.label.publishingStartDate"></localize>: {{list.publishingStartDate}}
                                 </li>
                                 <li>
-                                    Frequency: {{list.frequency}}
+                                    <localize key="data.property.label.frequency"></localize>: {{list.frequency}}
                                 </li>                                
                             </ul>
                         </div>
                     </div>
                     <div class="row" *ngIf="list.listType === 'interval'">
                         <div class="col-md-12">
-                            Valid On:
+                            <localize key="list.type.valid.on"></localize>:
                             <ul>
                                 <li *ngFor="let interval of list.intervalJson">
                                     {{interval.startDate}} - {{interval.endDate}}
