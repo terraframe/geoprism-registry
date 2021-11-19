@@ -305,7 +305,7 @@ export class RegistryService {
             .toPromise();
     }
 
-    getGeoObjectSuggestions(text: string, type: string, parent: string, parentTypeCode: string, hierarchy: string, startDate: string, endDate: string): Promise<GeoObject> {
+    getGeoObjectSuggestions(text: string, type: string, parent: string, parentTypeCode: string, hierarchy: string, startDate: string, endDate: string): Promise<{id: string, code: string, name: string, typeCode: string, uid: string}[]> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -330,7 +330,7 @@ export class RegistryService {
         }
 
         return this.http
-            .post<GeoObject>(acp + "/cgr/geoobject/suggestions", JSON.stringify(params), { headers: headers })
+            .post<{id: string, code: string, name: string, typeCode: string, uid: string}[]>(acp + "/cgr/geoobject/suggestions", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 

@@ -187,10 +187,27 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.validChange();
     }
 
-    getTypeAheadObservable(transition: Transition, typeCode: string, property: string): Observable<any> {
+    getTypeAheadObservable(isSource: boolean, transition: Transition, typeCode: string, property: string): Observable<any> {
         return new Observable((observer: any) => {
             this.rService.getGeoObjectSuggestions(transition[property], typeCode, null, null, null, this.event.eventDate, this.event.eventDate).then(results => {
-                observer.next(results);
+                let filtered = results.filter(result => {
+                  let pair = {
+                    sourceCode: isSource ? result.code : transition.sourceCode,
+                    targetCode: isSource ? transition.targetCode : result.code
+                  };
+
+                  for (let i = 0; i < this.event.transitions.length; ++i) {
+                      let transition = this.event.transitions[i];
+
+                      if (transition.sourceCode === pair.sourceCode && transition.targetCode === pair.targetCode) {
+                          return false;
+                      }
+                  }
+
+                  return true;
+                });
+
+                observer.next(filtered);
             });
         });
     }
