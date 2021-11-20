@@ -252,7 +252,6 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         setTimeout(() => {
             this.valid = (this.event.eventDate != null && this.event.eventDate.length > 0) &&
                 this.event.transitions.length > 0 &&
-                this.event.description != null &&
                 this.event.afterTypeCode != null &&
                 this.event.beforeTypeCode != null;
         }, 0);
@@ -335,16 +334,25 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 }
 
                 if (trans.sourceType !== trans.targetType) {
-                    trans.typeUpdown = updown;
-                    trans.typePart = trans.transitionType;
-                    trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
+                    if (trans.transitionType === "REASSIGN") {
+                        trans.typeUpdown = updown;
+                        trans.transitionType = trans.typeUpdown;
+                    } else {
+                        trans.typeUpdown = updown;
+                        trans.typePart = trans.transitionType;
+                        trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
+                    }
                 }
             }
         });
     }
 
     onChangeTypeUpdown(transition: any): void {
-        transition.transitionType = transition.typeUpdown + "_" + transition.typePart;
+        if (transition.typePart) {
+            transition.transitionType = transition.typeUpdown + "_" + transition.typePart;
+        } else {
+            transition.transitionType = transition.typeUpdown;
+        }
     }
 
     /* Drag Drop Transitions */

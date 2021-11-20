@@ -179,9 +179,9 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td style="vertical-align:middle;">
+                                <td *ngIf="transition.typePart || !transition.typeUpdown" style="vertical-align:middle;">
                                     <label *ngIf="!transition.typeUpdown">{{localizeTransitionType(transition.transitionType)}}</label>
-                                    <label *ngIf="transition.typeUpdown" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
+                                    <label *ngIf="transition.typePart" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
                                 </td>
                                 <td *ngIf="transition.typeUpdown">
                                     <select style="min-width:80px;" *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + transition.oid + '-' + i" class="select-area"
