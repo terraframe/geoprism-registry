@@ -23,11 +23,11 @@ import java.util.List;
 
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 
-public class MasterListAttributeComparator implements Comparator<MdAttributeConcreteDAOIF>
+public class ListTypeAttributeComparator implements Comparator<MdAttributeConcreteDAOIF>
 {
   private List<String> order;
 
-  public MasterListAttributeComparator(List<String> order, List<? extends MdAttributeConcreteDAOIF> attributes)
+  public ListTypeAttributeComparator(List<String> order, List<? extends MdAttributeConcreteDAOIF> attributes)
   {
     this.order = order;
 

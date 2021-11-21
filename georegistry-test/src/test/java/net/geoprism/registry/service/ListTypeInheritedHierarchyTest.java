@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.service;
 
@@ -35,14 +35,15 @@ import com.runwaysdk.query.OIterator;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListQuery;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeEntry;
+import net.geoprism.registry.ListTypeQuery;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-public class MasterListInheritedHierarchyTest
+public class ListTypeInheritedHierarchyTest
 {
   private static USATestData testData;
 
@@ -95,9 +96,9 @@ public class MasterListInheritedHierarchyTest
   @Request
   public void cleanUpExtra()
   {
-    MasterListQuery query = new MasterListQuery(new QueryFactory());
+    ListTypeQuery query = new ListTypeQuery(new QueryFactory());
 
-    OIterator<? extends MasterList> it = query.getIterator();
+    OIterator<? extends ListType> it = query.getIterator();
 
     try
     {
@@ -118,13 +119,14 @@ public class MasterListInheritedHierarchyTest
   {
     TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
-      JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, false, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
+      JsonObject json = ListTypeTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, USATestData.COUNTRY, USATestData.STATE, USATestData.DISTRICT);
 
-      MasterList test = MasterList.create(json);
+      ListType test = ListType.apply(json);
 
       try
       {
-        MasterListVersion version = test.getOrCreateVersion(new Date(), MasterListVersion.EXPLORATORY);
+        ListTypeEntry entry = test.getOrCreateEntry(new Date());
+        ListTypeVersion version = entry.getWorking();
 
         try
         {
@@ -136,7 +138,7 @@ public class MasterListInheritedHierarchyTest
         }
         finally
         {
-          version.delete();
+          entry.delete();
         }
       }
       finally
@@ -150,9 +152,9 @@ public class MasterListInheritedHierarchyTest
   @Request
   public void testMarkAsInvalidByInheritedParent()
   {
-    JsonObject json = MasterListTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, MasterList.PUBLIC, false, USATestData.DISTRICT, USATestData.STATE);
+    JsonObject json = ListTypeTest.getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_SCHOOL, USATestData.SCHOOL_ZONE, USATestData.DISTRICT, USATestData.STATE);
 
-    MasterList masterlist = MasterList.create(json);
+    ListType masterlist = ListType.apply(json);
 
     try
     {

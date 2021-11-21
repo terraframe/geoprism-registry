@@ -16,23 +16,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
-package net.geoprism.registry.etl.fhir;
+package com.runwaysdk.build.domain;
 
-import org.hl7.fhir.r4.model.Bundle;
+import com.runwaysdk.dataaccess.transaction.Transaction;
+import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.QueryFactory;
 
-import com.runwaysdk.business.Business;
+import net.geoprism.registry.MasterList;
+import net.geoprism.registry.MasterListQuery;
 
-import net.geoprism.registry.ListTypeVersion;
-
-public interface FhirDataPopulator
+public class PatchMasterList
 {
-  public String getLabel();
+  public static void main(String[] args)
+  {
+    new PatchMasterList().doIt();
+  }
 
-  public void configure(FhirConnection context, ListTypeVersion version, boolean resolveIds);
+  @Transaction
+  private void doIt()
+  {
+    MasterListQuery query = new MasterListQuery(new QueryFactory());
 
-  public void populate(Business row, Facility facility);
+    try (OIterator<? extends MasterList> it = query.getIterator())
+    {
+      while (it.hasNext())
+      {
+        it.next().delete();
+      }
+    }
+  }
 
-  public void createExtraResources(Business row, Bundle bundle, Facility facility);
-
-  public void finish(Bundle bundle);
 }

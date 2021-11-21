@@ -42,7 +42,7 @@ import com.runwaysdk.session.Session;
 
 import net.geoprism.registry.CGRPermissionException;
 import net.geoprism.registry.InvalidRegistryIdException;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.action.AbstractAction;
 import net.geoprism.registry.action.AllGovernanceStatus;
 import net.geoprism.registry.action.ChangeRequest;
@@ -371,11 +371,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       {
         // if (!isNew)
         // {
-        // MasterListVersion.get(masterListId).updateRecord(serverGO);
+        // ListTypeVersion.get(masterListId).updateRecord(serverGO);
         // }
         // else
         // {
-        MasterListVersion.get(masterListId).publishRecord(serverGO);
+        ListTypeVersion.get(masterListId).publishRecord(serverGO);
         // }
       }
 

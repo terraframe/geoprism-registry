@@ -139,10 +139,10 @@ import net.geoprism.registry.etl.fhir.FhirConnection;
 import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
 import net.geoprism.registry.etl.fhir.FhirDataPopulator;
 import net.geoprism.registry.etl.fhir.FhirFactory;
-import net.geoprism.registry.etl.fhir.MasterListFhirExporter;
+import net.geoprism.registry.etl.fhir.ListTypeFhirExporter;
 import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.masterlist.MasterListAttributeComparator;
+import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -202,10 +202,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
   {
     super.apply();
 
-    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
-    {
-      new GeoserverCreateWMSCommand(this).doIt();
-    }
+//    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+//    {
+//      new GeoserverCreateWMSCommand(this).doIt();
+//    }
   }
 
   private String getTableName()
@@ -695,10 +695,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       mdTable.delete();
     }
 
-    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
-    {
-      new GeoserverRemoveWMSCommand(this).doIt();
-    }
+//    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+//    {
+//      new GeoserverRemoveWMSCommand(this).doIt();
+//    }
   }
 
   public List<ExecutableJob> getJobs()
@@ -757,15 +757,6 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
     }
 
     return file;
-  }
-
-  public void exportToFhir(FhirExternalSystem system, String implementation)
-  {
-    FhirDataPopulator populator = FhirFactory.getPopulator(implementation);
-    FhirConnection connection = FhirConnectionFactory.get(system);
-
-    MasterListFhirExporter exporter = new MasterListFhirExporter(this, connection, populator, true);
-    exporter.export();
   }
 
   public InputStream downloadShapefile()
@@ -1347,7 +1338,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
 
-      Collections.sort(mdAttributes, new MasterListAttributeComparator(attributesOrder, mdAttributes));
+      Collections.sort(mdAttributes, new ListTypeAttributeComparator(attributesOrder, mdAttributes));
 
       MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 

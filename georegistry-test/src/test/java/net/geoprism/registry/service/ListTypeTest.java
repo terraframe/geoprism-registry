@@ -441,7 +441,7 @@ public class ListTypeTest
         Assert.assertEquals(USATestData.ORG_NPS.getCode(), org.get("orgCode").getAsString());
         Assert.assertEquals(USATestData.STATE.getDisplayLabel().getValue(), org.get("typeLabel").getAsString());
         Assert.assertEquals(USATestData.STATE.getCode(), org.get("typeCode").getAsString());
-        Assert.assertFalse(org.get("write").getAsBoolean());
+        Assert.assertTrue(org.get("write").getAsBoolean());
         Assert.assertTrue(org.get("lists").getAsJsonArray().size() > 0);
       });
     }
@@ -509,7 +509,7 @@ public class ListTypeTest
 
         try
         {
-          entry.publish(new JsonObject().toString());
+          entry.publish(this.createVersionMetadata().toString());
 
           List<ListTypeVersion> versions = entry.getVersions();
 
@@ -577,7 +577,7 @@ public class ListTypeTest
 
         try
         {
-          entry.publish(new JsonObject().toString());
+          entry.publish(createVersionMetadata().toString());
 
           List<ListTypeVersion> versions = entry.getVersions();
 
@@ -671,28 +671,32 @@ public class ListTypeTest
     }
   }
 
-//  @Test
-//  public void testCreatePublishedVersions()
-//  {
-//    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-//
-//    ListTypeService service = new ListTypeService();
-//    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-//    String oid = result.get(ComponentInfo.OID).getAsString();
-//
-//    try
-//    {
-//      service.createPublishedVersions(testData.clientRequest.getSessionId(), oid);
-//
-//      final JsonObject json = service.getEntries(testData.clientRequest.getSessionId(), oid);
-//
-//      Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
-//    }
-//    finally
-//    {
-//      service.remove(testData.clientRequest.getSessionId(), oid);
-//    }
-//  }
+  // @Test
+  // public void testCreatePublishedVersions()
+  // {
+  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
+  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+  //
+  // ListTypeService service = new ListTypeService();
+  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
+  // listJson);
+  // String oid = result.get(ComponentInfo.OID).getAsString();
+  //
+  // try
+  // {
+  // service.createPublishedVersions(testData.clientRequest.getSessionId(),
+  // oid);
+  //
+  // final JsonObject json =
+  // service.getEntries(testData.clientRequest.getSessionId(), oid);
+  //
+  // Assert.assertEquals(USATestData.DEFAULT_TIME_YEAR_DIFF, json.size());
+  // }
+  // finally
+  // {
+  // service.remove(testData.clientRequest.getSessionId(), oid);
+  // }
+  // }
 
   @Test
   public void testCreateFromBadRole()
@@ -751,42 +755,44 @@ public class ListTypeTest
     }
   }
 
-//  @Test
-//  public void testCreatePublishedVersionsFromOtherOrg()
-//  {
-//    JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(), USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
-//
-//    ListTypeService service = new ListTypeService();
-//    JsonObject result = service.apply(testData.clientRequest.getSessionId(), listJson);
-//    String oid = result.get(ComponentInfo.OID).getAsString();
-//
-//    try
-//    {
-//      TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
-//
-//      for (TestUserInfo user : users)
-//      {
-//        try
-//        {
-//          USATestData.runAsUser(user, (request, adapter) -> {
-//
-//            service.createPublishedVersions(request.getSessionId(), oid);
-//
-//            Assert.fail("Able to publish a master list as a user with bad roles");
-//          });
-//        }
-//        catch (SmartExceptionDTO e)
-//        {
-//          // This is expected
-//        }
-//      }
-//    }
-//    finally
-//    {
-//      service.remove(testData.clientRequest.getSessionId(), oid);
-//    }
-//
-//  }
+  // @Test
+  // public void testCreatePublishedVersionsFromOtherOrg()
+  // {
+  // JsonObject listJson = getJson(USATestData.ORG_NPS.getServerObject(),
+  // USATestData.HIER_ADMIN, USATestData.STATE, USATestData.COUNTRY);
+  //
+  // ListTypeService service = new ListTypeService();
+  // JsonObject result = service.apply(testData.clientRequest.getSessionId(),
+  // listJson);
+  // String oid = result.get(ComponentInfo.OID).getAsString();
+  //
+  // try
+  // {
+  // TestUserInfo[] users = new TestUserInfo[] { USATestData.USER_PPP_RA };
+  //
+  // for (TestUserInfo user : users)
+  // {
+  // try
+  // {
+  // USATestData.runAsUser(user, (request, adapter) -> {
+  //
+  // service.createPublishedVersions(request.getSessionId(), oid);
+  //
+  // Assert.fail("Able to publish a master list as a user with bad roles");
+  // });
+  // }
+  // catch (SmartExceptionDTO e)
+  // {
+  // // This is expected
+  // }
+  // }
+  // }
+  // finally
+  // {
+  // service.remove(testData.clientRequest.getSessionId(), oid);
+  // }
+  //
+  // }
 
   //
   // @Test
@@ -1055,6 +1061,19 @@ public class ListTypeTest
     builder.setHts(hierarchy);
 
     return builder.buildJSON();
+  }
+
+  private JsonObject createVersionMetadata()
+  {
+    JsonObject metadata = new JsonObject();
+    metadata.add("description", new LocalizedValue("Test").toJSON());
+    metadata.addProperty("visibility", "PRIVATE");
+    metadata.addProperty("master", false);
+
+    JsonObject versionMetadata = new JsonObject();
+    versionMetadata.add(ListType.LIST_METADATA, metadata);
+    versionMetadata.add(ListType.GEOSPATIAL_METADATA, metadata);
+    return versionMetadata;
   }
 
 }

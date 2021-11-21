@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl.fhir;
 
@@ -27,16 +27,16 @@ import org.commongeoregistry.adapter.constants.DefaultAttribute;
 import org.hl7.fhir.r4.model.Attachment;
 import org.hl7.fhir.r4.model.Base64BinaryType;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.CodeableConcept;
-import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryRequestComponent;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
-import org.hl7.fhir.r4.model.Identifier.IdentifierUse;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.DecimalType;
 import org.hl7.fhir.r4.model.Extension;
 import org.hl7.fhir.r4.model.IdType;
 import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.Identifier.IdentifierUse;
 import org.hl7.fhir.r4.model.Location;
 import org.hl7.fhir.r4.model.Location.LocationPositionComponent;
 import org.hl7.fhir.r4.model.Organization;
@@ -55,37 +55,37 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.DataFormatException;
 import ca.uhn.fhir.parser.IParser;
 import ca.uhn.fhir.rest.server.exceptions.BaseServerResponseException;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.RegistryConstants;
 import net.geoprism.registry.etl.FhirResponseException;
 
-public class MasterListFhirExporter
+public class ListTypeFhirExporter
 {
-  private MasterList        list;
+  private ListType          list;
 
-  private MasterListVersion version;
+  private ListTypeVersion   version;
 
   private FhirDataPopulator populator;
 
   private FhirConnection    connection;
 
-  public MasterListFhirExporter(MasterListVersion version, FhirConnection connection, FhirDataPopulator populator, boolean resolveIds)
+  public ListTypeFhirExporter(ListTypeVersion version, FhirConnection connection, FhirDataPopulator populator, boolean resolveIds)
   {
     this.version = version;
     this.connection = connection;
     this.populator = populator;
-    this.list = version.getMasterlist();
+    this.list = version.getListType();
 
     this.populator.configure(connection, version, resolveIds);
   }
 
-  public MasterList getList()
+  public ListType getList()
   {
     return list;
   }
 
-  public void setList(MasterList list)
+  public void setList(ListType list)
   {
     this.list = list;
   }
@@ -177,12 +177,12 @@ public class MasterListFhirExporter
 
     Organization org = new Organization();
     org.setId(new IdType(org.getResourceType().name(), code));
-    org.setName(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE));
+    org.setName(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + ListTypeVersion.DEFAULT_LOCALE));
     org.addIdentifier(identifier);
 
     Location location = new Location();
     location.setId(new IdType(location.getResourceType().name(), code));
-    location.setName(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + MasterListVersion.DEFAULT_LOCALE));
+    location.setName(row.getValue(DefaultAttribute.DISPLAY_LABEL.getName() + ListTypeVersion.DEFAULT_LOCALE));
     location.setManagingOrganization(new Reference(org.getIdElement()));
     location.addIdentifier(identifier);
 

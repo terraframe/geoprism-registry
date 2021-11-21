@@ -118,19 +118,13 @@ public abstract class ListType extends ListTypeBase
   public void delete()
   {
     // Delete all jobs
-    List<ListTypeJob> jobs = this.getJobs();
-
-    for (ListTypeJob job : jobs)
-    {
+    this.getJobs().forEach(job -> {
       job.delete();
-    }
+    });
 
-    List<ListTypeEntry> entries = this.getEntries();
-
-    for (ListTypeEntry entry : entries)
-    {
+    this.getEntries().forEach(entry -> {
       entry.delete();
-    }
+    });
 
     super.delete();
 

@@ -109,9 +109,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.ontology.Classifier;
+import net.geoprism.registry.command.GeoserverCreateWMSCommand;
+import net.geoprism.registry.command.GeoserverRemoveWMSCommand;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
-import net.geoprism.registry.masterlist.MasterListAttributeComparator;
+import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
 import net.geoprism.registry.model.LocationInfo;
 import net.geoprism.registry.model.ServerGeoObjectIF;
@@ -171,10 +173,10 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   {
     super.apply();
 
-    // if (this.getVersionType().equals(ListTypeVersion.PUBLISHED))
-    // {
-    // new GeoserverCreateWMSCommand(this).doIt();
-    // }
+    if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
+    {
+      new GeoserverCreateWMSCommand(this).doIt();
+    }
   }
 
   private String getTableName()
@@ -185,9 +187,9 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     String name = PREFIX + count + mdBusiness.getTableName();
 
-    if (name.length() > 29)
+    if (name.length() > 25)
     {
-      name = name.substring(0, 29);
+      name = name.substring(0, 25);
     }
 
     while (Database.tableExists(name))
@@ -195,6 +197,11 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       count++;
 
       name = PREFIX + count + mdBusiness.getTableName();
+
+      if (name.length() > 25)
+      {
+        name = name.substring(0, 25);
+      }
     }
 
     return name;
@@ -664,10 +671,10 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       mdTable.delete();
     }
 
-    // if (this.getVersionType().equals(ListTypeVersion.PUBLISHED))
-    // {
-    // new GeoserverRemoveWMSCommand(this).doIt();
-    // }
+    if (this.getGeospatialVisibility().equals(ListType.PUBLIC))
+    {
+      new GeoserverRemoveWMSCommand(this).doIt();
+    }
   }
 
   // public List<ExecutableJob> getJobs()
@@ -1299,7 +1306,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
       MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(mdBusinessId);
       List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributesOrdered();
 
-      Collections.sort(mdAttributes, new MasterListAttributeComparator(attributesOrder, mdAttributes));
+      Collections.sort(mdAttributes, new ListTypeAttributeComparator(attributesOrder, mdAttributes));
 
       MdAttributeConcreteDAOIF mdGeometry = mdBusiness.definesAttribute(RegistryConstants.GEOMETRY_ATTRIBUTE_NAME);
 

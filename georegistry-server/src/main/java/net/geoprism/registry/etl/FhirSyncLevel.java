@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.etl;
 
@@ -28,8 +28,8 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import net.geoprism.registry.GeoRegistryUtil;
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
 
 public class FhirSyncLevel implements Comparable<FhirSyncLevel>
 {
@@ -63,8 +63,8 @@ public class FhirSyncLevel implements Comparable<FhirSyncLevel>
       {
         try
         {
-          MasterListVersion version = MasterListVersion.get(src.getVersionId());
-          MasterList list = version.getMasterlist();
+          ListTypeVersion version = ListTypeVersion.get(src.getVersionId());
+          ListType list = version.getListType();
 
           jo.addProperty("forDate", formatDate(version.getForDate()));
           jo.addProperty("typeLabel", list.getDisplayLabel().getValue());

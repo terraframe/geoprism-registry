@@ -30,7 +30,14 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
   public void delete()
   {
     // Delete all versions
+    ListTypeVersion working = this.getWorking();
+
+    this.appLock();
+    this.setWorking(null);
+    this.apply();
+
     this.getVersions().forEach(version -> version.delete());
+    working.delete();
 
     super.delete();
   }
@@ -100,7 +107,7 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
 
   // @Transaction
   // @Authenticate
-  private ListTypeVersion createVersion(JsonObject metadata)
+  public ListTypeVersion createVersion(JsonObject metadata)
   {
     List<ListTypeVersion> versions = this.getVersions();
 

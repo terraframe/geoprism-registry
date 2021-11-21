@@ -4,17 +4,17 @@
  * This file is part of Geoprism Registry(tm).
  *
  * Geoprism Registry(tm) is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
  *
  * Geoprism Registry(tm) is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
  *
- * You should have received a copy of the GNU Lesser General Public
- * License along with Geoprism Registry(tm).  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Geoprism Registry(tm). If not, see <http://www.gnu.org/licenses/>.
  */
 package net.geoprism.registry.io;
 
@@ -54,23 +54,23 @@ import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.session.Session;
 
-import net.geoprism.registry.MasterList;
-import net.geoprism.registry.MasterListVersion;
+import net.geoprism.registry.ListType;
+import net.geoprism.registry.ListTypeVersion;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
-import net.geoprism.registry.service.MasterListTest;
-import net.geoprism.registry.shapefile.MasterListShapefileExporter;
+import net.geoprism.registry.service.ListTypeTest;
+import net.geoprism.registry.shapefile.ListTypeShapefileExporter;
 import net.geoprism.registry.test.FastTestDataset;
 import net.geoprism.registry.test.TestDataSet;
 import net.geoprism.registry.test.USATestData;
 
-public class MasterListGeoObjectShapefileExporterTest
+public class ListTypeGeoObjectShapefileExporterTest
 {
   private static FastTestDataset                          testData;
 
-  private static MasterList                               masterlist;
+  private static ListType                                 masterlist;
 
-  private static MasterListVersion                        version;
+  private static ListTypeVersion                          version;
 
   private static MdBusinessDAOIF                          mdBusiness;
 
@@ -88,12 +88,12 @@ public class MasterListGeoObjectShapefileExporterTest
   @Request
   private static void classSetupInRequest()
   {
-    JsonObject json = MasterListTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, MasterList.PUBLIC, false, FastTestDataset.COUNTRY);
+    JsonObject json = ListTypeTest.getJson(FastTestDataset.ORG_CGOV.getServerObject(), FastTestDataset.HIER_ADMIN, FastTestDataset.PROVINCE, FastTestDataset.COUNTRY);
 
     TestDataSet.runAsUser(USATestData.USER_ADMIN, (request, adapter) -> {
 
-      masterlist = MasterList.create(json);
-      version = masterlist.createVersion(FastTestDataset.DEFAULT_OVER_TIME_DATE, MasterListVersion.EXPLORATORY);
+      masterlist = ListType.apply(json);
+      version = masterlist.createEntry(FastTestDataset.DEFAULT_OVER_TIME_DATE).getWorking();
       mdBusiness = MdBusinessDAO.get(version.getMdBusinessOid());
       mdAttributes = mdBusiness.definesAttributesOrdered().stream().filter(mdAttribute -> version.isValid(mdAttribute)).collect(Collectors.toList());
     });
@@ -153,7 +153,7 @@ public class MasterListGeoObjectShapefileExporterTest
   @Request
   public void testGenerateName()
   {
-    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
 
     Assert.assertEquals("testestest", exporter.generateColumnName("testestestest1"));
     Assert.assertEquals("testestes1", exporter.generateColumnName("testestestest2"));
@@ -172,12 +172,12 @@ public class MasterListGeoObjectShapefileExporterTest
   @Request
   public void testCreateFeatureType()
   {
-    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     Assert.assertNotNull(featureType);
 
-    Assert.assertEquals(MasterListShapefileExporter.GEOM, featureType.getGeometryDescriptor().getLocalName());
+    Assert.assertEquals(ListTypeShapefileExporter.GEOM, featureType.getGeometryDescriptor().getLocalName());
 
     List<AttributeDescriptor> attributes = featureType.getAttributeDescriptors();
 
@@ -191,7 +191,7 @@ public class MasterListGeoObjectShapefileExporterTest
     ServerGeoObjectIF object = FastTestDataset.PROV_CENTRAL.getServerObject();
     ServerGeoObjectType type = object.getType();
 
-    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
     SimpleFeatureType featureType = exporter.createFeatureType();
 
     FeatureCollection<SimpleFeatureType, SimpleFeature> features = exporter.features(featureType);
@@ -212,7 +212,7 @@ public class MasterListGeoObjectShapefileExporterTest
     }
 
     Assert.assertNotNull(feature);
-    
+
     Assert.assertEquals("Attributes not equal [code]", object.getCode(), feature.getAttribute(GeoObject.CODE));
 
     Object geometry = feature.getDefaultGeometry();
@@ -251,7 +251,7 @@ public class MasterListGeoObjectShapefileExporterTest
   public void testWriteToFile() throws IOException
   {
 
-    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
     File directory = exporter.writeToFile();
 
     Assert.assertTrue(directory.exists());
@@ -265,7 +265,7 @@ public class MasterListGeoObjectShapefileExporterTest
   @Request
   public void testExport() throws IOException
   {
-    MasterListShapefileExporter exporter = new MasterListShapefileExporter(version, mdBusiness, mdAttributes, null);
+    ListTypeShapefileExporter exporter = new ListTypeShapefileExporter(version, mdBusiness, mdAttributes, null);
     InputStream export = exporter.export();
 
     Assert.assertNotNull(export);
