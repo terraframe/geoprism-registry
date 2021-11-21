@@ -23,16 +23,16 @@ import org.slf4j.LoggerFactory;
 
 import com.runwaysdk.dataaccess.Command;
 
-import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.TableEntity;
 import net.geoprism.registry.service.WMSService;
 
 public class GeoserverCreateWMSCommand implements Command
 {
-  private Logger          log = LoggerFactory.getLogger(GeoserverCreateWMSCommand.class);
+  private Logger      log = LoggerFactory.getLogger(GeoserverCreateWMSCommand.class);
 
-  private ListTypeVersion version;
+  private TableEntity version;
 
-  public GeoserverCreateWMSCommand(ListTypeVersion version)
+  public GeoserverCreateWMSCommand(TableEntity version)
   {
     this.version = version;
   }
@@ -42,7 +42,7 @@ public class GeoserverCreateWMSCommand implements Command
    */
   public void doIt()
   {
-    log.info("Creating WMS for ListTypeVersion [" + this.version.getOid() + "]");
+    log.info("Creating WMS for TableEntity [" + this.version.getOid() + "]");
 
     new WMSService().createGeoServerLayer(version, false);
   }

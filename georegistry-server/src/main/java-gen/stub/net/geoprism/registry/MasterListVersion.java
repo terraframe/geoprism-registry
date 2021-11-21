@@ -135,12 +135,6 @@ import net.geoprism.registry.etl.PublishMasterListVersionJob;
 import net.geoprism.registry.etl.PublishMasterListVersionJobQuery;
 import net.geoprism.registry.etl.PublishShapefileJob;
 import net.geoprism.registry.etl.PublishShapefileJobQuery;
-import net.geoprism.registry.etl.fhir.FhirConnection;
-import net.geoprism.registry.etl.fhir.FhirConnectionFactory;
-import net.geoprism.registry.etl.fhir.FhirDataPopulator;
-import net.geoprism.registry.etl.fhir.FhirFactory;
-import net.geoprism.registry.etl.fhir.ListTypeFhirExporter;
-import net.geoprism.registry.graph.FhirExternalSystem;
 import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.masterlist.ListTypeAttributeComparator;
 import net.geoprism.registry.masterlist.TableMetadata;
@@ -202,10 +196,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
   {
     super.apply();
 
-//    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
-//    {
-//      new GeoserverCreateWMSCommand(this).doIt();
-//    }
+    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+    {
+      new GeoserverCreateWMSCommand(this).doIt();
+    }
   }
 
   private String getTableName()
@@ -695,10 +689,10 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
       mdTable.delete();
     }
 
-//    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
-//    {
-//      new GeoserverRemoveWMSCommand(this).doIt();
-//    }
+    if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
+    {
+      new GeoserverRemoveWMSCommand(this).doIt();
+    }
   }
 
   public List<ExecutableJob> getJobs()

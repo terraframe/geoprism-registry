@@ -27,6 +27,7 @@ import net.geoprism.gis.geoserver.GeoserverFacade;
 import net.geoprism.gis.geoserver.GeoserverService;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeVersion;
+import net.geoprism.registry.TableEntity;
 
 public class WMSService
 {
@@ -64,12 +65,12 @@ public class WMSService
   }
 
   @Request(RequestType.SESSION)
-  public void createWMSLayer(String sessionId, ListTypeVersion version, boolean forceGeneration)
+  public void createWMSLayer(String sessionId, TableEntity version, boolean forceGeneration)
   {
     this.createGeoServerLayer(version, forceGeneration);
   }
 
-  public void createGeoServerLayer(ListTypeVersion version, boolean forceGeneration)
+  public void createGeoServerLayer(TableEntity version, boolean forceGeneration)
   {
     String tableName = version.getMdBusiness().getTableName();
 
@@ -86,7 +87,7 @@ public class WMSService
     }
   }
 
-  public void deleteWMSLayer(ListTypeVersion version)
+  public void deleteWMSLayer(TableEntity version)
   {
     String tableName = version.getMdBusiness().getTableName();
 
