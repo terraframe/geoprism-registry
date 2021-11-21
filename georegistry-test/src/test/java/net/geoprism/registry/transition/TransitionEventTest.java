@@ -455,10 +455,10 @@ public class TransitionEventTest
       Assert.assertEquals("Event Date", header.getCell(1).getStringCellValue());
       Assert.assertEquals("Event Type", header.getCell(2).getStringCellValue());
       Assert.assertEquals("Description", header.getCell(3).getStringCellValue());
-      Assert.assertEquals("Before Type", header.getCell(4).getStringCellValue());
+      Assert.assertEquals("Before Type Code", header.getCell(4).getStringCellValue());
       Assert.assertEquals("Before Code", header.getCell(5).getStringCellValue());
       Assert.assertEquals("Before Label", header.getCell(6).getStringCellValue());
-      Assert.assertEquals("After Type", header.getCell(7).getStringCellValue());
+      Assert.assertEquals("After Type Code", header.getCell(7).getStringCellValue());
       Assert.assertEquals("After Code", header.getCell(8).getStringCellValue());
       Assert.assertEquals("After Label", header.getCell(9).getStringCellValue());
 

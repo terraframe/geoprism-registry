@@ -37,7 +37,11 @@ public class ListTypeEntry extends ListTypeEntryBase implements LabeledVersion
     this.apply();
 
     this.getVersions().forEach(version -> version.delete());
-    working.delete();
+
+    if (working != null)
+    {
+      working.delete();
+    }
 
     super.delete();
   }
