@@ -198,7 +198,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
     {
-      new GeoserverCreateWMSCommand(this).doIt();
+//      new GeoserverCreateWMSCommand(this).doIt();
     }
   }
 
@@ -691,7 +691,7 @@ public class MasterListVersion extends MasterListVersionBase implements TableEnt
 
     if (this.getVersionType().equals(MasterListVersion.PUBLISHED))
     {
-      new GeoserverRemoveWMSCommand(this).doIt();
+//      new GeoserverRemoveWMSCommand(this).doIt();
     }
   }
 

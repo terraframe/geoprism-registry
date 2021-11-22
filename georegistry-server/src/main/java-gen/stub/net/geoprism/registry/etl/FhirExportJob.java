@@ -55,7 +55,7 @@ public class FhirExportJob extends FhirExportJobBase
 
     FhirExternalSystem system = this.getExternalSystem();
 
-    this.getVersion().exportToFhir(system, this.getImplementation());
+//    this.getVersion().exportToFhir(system, this.getImplementation());
   }
 
   @Override

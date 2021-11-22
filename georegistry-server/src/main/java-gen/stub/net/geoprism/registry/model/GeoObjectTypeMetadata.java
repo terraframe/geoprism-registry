@@ -36,6 +36,7 @@ import com.runwaysdk.system.gis.geo.Universal;
 import net.geoprism.ontology.GeoEntityUtil;
 import net.geoprism.registry.ListType;
 import net.geoprism.registry.ListTypeQuery;
+import net.geoprism.registry.ListTypeVersionQuery;
 import net.geoprism.registry.geoobjecttype.PrivateTypeHasPublicChildren;
 import net.geoprism.registry.geoobjecttype.PrivateTypeIsReferencedInPublicMasterLists;
 import net.geoprism.registry.geoobjecttype.TypeHasPrivateParents;
@@ -112,8 +113,12 @@ public class GeoObjectTypeMetadata extends GeoObjectTypeMetadataBase
 
     QueryFactory qf = new QueryFactory();
 
+    ListTypeVersionQuery versionQuery = new ListTypeVersionQuery(qf);
+    versionQuery.WHERE(versionQuery.getListVisibility().EQ(ListType.PUBLIC));
+    versionQuery.OR(versionQuery.getGeospatialVisibility().EQ(ListType.PUBLIC));
+
     ListTypeQuery mlq = new ListTypeQuery(qf);
-    mlq.WHERE(mlq.getVisibility().EQ(ListType.PUBLIC));
+    mlq.WHERE(mlq.EQ(versionQuery.getListType()));
 
     OIterator<? extends ListType> it = mlq.getIterator();
 
