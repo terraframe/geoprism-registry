@@ -188,8 +188,9 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
     }
 
     getTypeAheadObservable(isSource: boolean, transition: Transition, typeCode: string, property: string): Observable<any> {
+        let date = isSource ? this.dateService.addDay(-1, this.event.eventDate) : this.event.eventDate;
         return new Observable((observer: any) => {
-            this.rService.getGeoObjectSuggestions(transition[property], typeCode, null, null, null, this.event.eventDate, this.event.eventDate).then(results => {
+            this.rService.getGeoObjectSuggestions(transition[property], typeCode, null, null, null, date, date).then(results => {
                 let filtered = results.filter(result => {
                   let pair = {
                     sourceCode: isSource ? result.code : transition.sourceCode,
