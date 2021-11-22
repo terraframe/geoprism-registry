@@ -29,6 +29,7 @@ import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.query.OIterator;
+import com.runwaysdk.query.OR;
 import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Session;
 import com.runwaysdk.system.gis.geo.Universal;
@@ -117,6 +118,18 @@ public abstract class ListType extends ListTypeBase
   @Transaction
   public void delete()
   {
+    // Validate there are no public versions
+    ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
+    query.WHERE(query.getListType().EQ(this));
+    query.AND(OR.get(query.getListVisibility().EQ(ListType.PUBLIC), query.getGeospatialVisibility().EQ(ListType.PUBLIC)));
+
+    long count = query.getCount();
+
+    if (count > 0)
+    {
+      throw new CannotDeletePublicListTypeException();
+    }
+
     // Delete all jobs
     this.getJobs().forEach(job -> {
       job.delete();

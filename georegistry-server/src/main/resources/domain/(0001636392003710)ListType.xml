@@ -146,7 +146,13 @@
         <attribute name="x" indexOrder="1"/>
         <attribute name="y" indexOrder="2"/>
         <attribute name="z" indexOrder="3"/>
-      </mdIndex>       
+      </mdIndex>   
+      
+      <mdException name="net.geoprism.registry.CannotDeletePublicListTypeException" 
+                   label="No Cannot Delete Public ListType Exception" 
+                   message="Unable to delete. The list type has a public version.">
+      </mdException>
+          
     </create>
 <!-- 
     <update>
