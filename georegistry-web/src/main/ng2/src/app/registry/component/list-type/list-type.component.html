@@ -3,14 +3,12 @@
         <div class="col-md-9" style="vertical-align: middle;">
 
             <span class="clickable" (click)="version.collapsed = !version.collapsed"
-                [attr.aria-expanded]="!version.collapsed"><i class="fa fa-minus"></i>
+                [attr.aria-expanded]="!version.collapsed">
+                    <span class="h4">
+                        <localize key="list.type.version"></localize> {{version.versionNumber}}
+                    </span>
+                    <localize key="list.type.date.generated"></localize>: {{version.createDate}}
             </span>
-            <p>
-                <span class="h3">
-                    <localize key="list.type.version"></localize> {{version.versionNumber}}
-                </span>
-                <localize key="list.type.date.generated"></localize>: {{version.createDate}}
-            </p>
         </div>
         <div class="col-md-3" style="text-align: right;">
             <button type="submit" (click)="onEdit(entry, version)" class="btn btn-default" role="button">
