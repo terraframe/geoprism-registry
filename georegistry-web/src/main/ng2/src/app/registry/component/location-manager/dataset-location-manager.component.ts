@@ -12,6 +12,7 @@ import { ErrorHandler, GenericModalComponent } from "@shared/component";
 
 import { LocalizationService, AuthService } from "@shared/service";
 import { ContextLayer } from "@registry/model/list-type";
+import { ListTypeService } from "@registry/service/list-type.service";
 
 declare let acp: string;
 
@@ -82,8 +83,18 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
     vot: ValueOverTime;
 
-    constructor(private mapService: MapService, public geomService: GeometryService, public service: RegistryService, private modalService: BsModalService, private route: ActivatedRoute,
-        authService: AuthService, private lService: LocalizationService, private dateService: DateService, private router: Router) {
+    constructor(
+        private mapService: MapService,
+        public listService: ListTypeService,
+        public geomService: GeometryService,
+        public service: RegistryService,
+        private modalService: BsModalService,
+        private route: ActivatedRoute,
+        private lService: LocalizationService,
+        private dateService: DateService,
+        private router: Router,
+        authService: AuthService
+    ) {
         this.isMaintainer = authService.isAdmin() || authService.isMaintainer();
     }
 
@@ -229,22 +240,42 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
     initMap(): void {
         if (this.code !== "__NEW__") {
-            this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
-                if (bounds) {
-                    let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+            if (this.code == null && this.datasetId !== null) {
+                this.listService.getBounds(this.datasetId).then(bounds => {
+                    if (bounds) {
+                        let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-                    let padding = 50;
-                    let maxZoom = 20;
+                        let padding = 50;
+                        let maxZoom = 20;
 
-                    // Zoom level was requested to be reduced when displaying point types as per #420
-                    if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
-                        padding = 100;
-                        maxZoom = 12;
+                        // Zoom level was requested to be reduced when displaying point types as per #420
+                        if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
+                            padding = 100;
+                            maxZoom = 12;
+                        }
+
+                        this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
                     }
+                });
+            }
+            else if(this.code != null && this.typeCode != null && this.date != null) {
+                this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
+                    if (bounds) {
+                        let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
-                    this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
-                }
-            });
+                        let padding = 50;
+                        let maxZoom = 20;
+
+                        // Zoom level was requested to be reduced when displaying point types as per #420
+                        if (this.type.geometryType === "POINT" || this.type.geometryType === "MULTIPOINT") {
+                            padding = 100;
+                            maxZoom = 12;
+                        }
+
+                        this.map.fitBounds(llb, { padding: padding, animate: false, maxZoom: maxZoom });
+                    }
+                });
+            }
         }
 
         this.map.on("style.load", () => {

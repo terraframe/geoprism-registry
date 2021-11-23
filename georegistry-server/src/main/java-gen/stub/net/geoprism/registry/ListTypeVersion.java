@@ -37,7 +37,6 @@ import org.commongeoregistry.adapter.metadata.AttributeLocalType;
 import org.commongeoregistry.adapter.metadata.AttributeTermType;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.HierarchyType;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
@@ -1445,7 +1444,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return query;
   }
 
-  public String bbox()
+  public JsonArray bbox()
   {
     MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
 
@@ -1455,13 +1454,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     {
       try
       {
-        JSONArray bboxArr = new JSONArray();
-        bboxArr.put(geometry[0]);
-        bboxArr.put(geometry[1]);
-        bboxArr.put(geometry[2]);
-        bboxArr.put(geometry[3]);
+        JsonArray bboxArr = new JsonArray();
+        bboxArr.add(geometry[0]);
+        bboxArr.add(geometry[1]);
+        bboxArr.add(geometry[2]);
+        bboxArr.add(geometry[3]);
 
-        return bboxArr.toString();
+        return bboxArr;
       }
       catch (JSONException ex)
       {

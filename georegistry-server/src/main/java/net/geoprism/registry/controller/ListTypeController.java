@@ -274,8 +274,13 @@ public class ListTypeController
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "bounds")
   public ResponseIF getGeoObjectBounds(ClientRequestIF request, @RequestParamter(name = "oid") String oid)
   {
-    String bounds = this.service.getBounds(request.getSessionId(), oid);
+    JsonArray bounds = this.service.getBounds(request.getSessionId(), oid);
 
-    return new RestBodyResponse(bounds);
+    if (bounds != null)
+    {
+      return new RestBodyResponse(bounds);
+    }
+
+    return new RestResponse();
   }
 }

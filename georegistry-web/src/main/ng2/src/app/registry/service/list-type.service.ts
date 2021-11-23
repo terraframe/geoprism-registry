@@ -235,4 +235,13 @@ export class ListTypeService {
             .toPromise();
     }
 
+    getBounds(oid: string): Promise<number[]> {
+        let params: HttpParams = new HttpParams();
+        params = params.append("oid", oid);
+
+        return this.http
+            .get<number[]>(acp + "/list-type/bounds", { params: params })
+            .toPromise();
+    }
+
 }
