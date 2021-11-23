@@ -1,11 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from "@angular/core";
-import { BsModalService } from "ngx-bootstrap/modal";
 
-import { ContextLayer, ContextLayerGroup } from "@registry/model/registry";
-import { ContextLayerModalComponent } from "./context-layer-modal.component";
-import { RegistryService } from "@registry/service";
-import { ContextList, ListType, ListTypeVersion } from "@registry/model/list-type";
+import { ContextLayer, ContextList } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
+import * as ColorGen from "color-generator";
 
 @Component({
     selector: "layer-panel",
@@ -21,6 +18,11 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     baselayerIconHover = false;
 
     lists: ContextList[] = [];
+
+    form: { startDate: string, endDate: string } = {
+        startDate: '',
+        endDate: ''
+    };
 
     /*
      * List of base layers
@@ -43,114 +45,40 @@ export class LayerPanelComponent implements OnInit, OnChanges {
         //         }
     ];
 
-    contextLayerGroups: ContextLayerGroup[] = [];
-
     // eslint-disable-next-line no-useless-constructor
-    constructor(private modalService: BsModalService, public service: ListTypeService) { }
+    constructor(public service: ListTypeService) { }
 
     ngOnInit(): void {
-        this.service.getGeospatialVersions().then(lists => {
-            this.lists = lists;
-
-            this.updateContextGroups();
-        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.filter.currentValue !== changes.filter.previousValue) {
-            this.updateContextGroups();
-        }
     }
 
-    updateContextGroups(): void {
+    confirm(): void {
+        // Remove all current lists
         this.lists.forEach(list => {
-            let contextGroup = { oid: list.oid, displayLabel: list.label, contextLayers: [] };
-
-            list.versions.forEach(version => {
-                const index = this.filter.indexOf(version.oid);
-
-                if (index === -1) {
-                    let thisContextLayer = {
-                        oid: version.oid,
-                        displayLabel: version.forDate,
-                        versionNumber: version.versionNumber,
-                        active: false,
-                        enabled: false
-                    };
-
-                    contextGroup.contextLayers.push(thisContextLayer);
-                }
-            });
-
-            if (contextGroup.contextLayers.length > 0) {
-                this.contextLayerGroups.push(contextGroup);
-            }
-        });
-    }
-
-    groupHasEnabledContextLayers(group: string): boolean {
-        let hasEnabled = false;
-        this.contextLayerGroups.forEach(cLayerGroup => {
-            if (cLayerGroup.oid === group) {
-                cLayerGroup.contextLayers.forEach(cLayer => {
-                    if (cLayer.enabled) {
-                        hasEnabled = true;
-                    }
-                });
-            }
-        });
-
-        return hasEnabled;
-    }
-
-    hasEnabledContextLayers(): boolean {
-        let hasEnabled = false;
-        this.contextLayerGroups.forEach(cLayerGroup => {
-            cLayerGroup.contextLayers.forEach(cLayer => {
-                if (cLayer.enabled) {
-                    hasEnabled = true;
-                }
+            list.versions.filter(v => v.active).forEach(v => {
+                this.toggleContextLayer(v);
             });
         });
 
-        return hasEnabled;
+
+        this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
+            this.lists = lists;
+        });
     }
+
 
     toggleContextLayer(layer: ContextLayer): void {
         layer.active = !layer.active;
 
-        this.layerChange.emit(layer);
-    }
-
-    removeContextLayer(layer: ContextLayer): void {
-        layer.active = false;
-        layer.enabled = false;
+        if (layer.active && layer.color == null) {
+            layer.color = ColorGen().hexString();
+        }
 
         this.layerChange.emit(layer);
     }
 
-    addContextLayerModal(): void {
-        let bsModalRef = this.modalService.show(ContextLayerModalComponent, {
-            animated: true,
-            backdrop: true,
-            ignoreBackdropClick: true,
-            // eslint-disable-next-line quote-props
-            "class": "context-layer-modal"
-        });
-        bsModalRef.content.contextLayerGroups = this.contextLayerGroups;
-
-        //        bsModalRef.content.onSubmit.subscribe(() => {
-        //
-        //            this.contextLayerGroups.forEach(cLayerGroup => {
-        //                cLayerGroup.contextLayers.forEach(cLayer => {
-        //
-        //                    console.log("Emitting event", cLayer);
-        //                    this.layerChange.emit(cLayer);
-        //                });
-        //            })
-        //
-        //        });
-    }
 
     toggleBaseLayer(layer: any): void {
         this.baseLayers.forEach(bl => {

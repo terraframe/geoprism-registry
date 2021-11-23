@@ -6,7 +6,9 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-      <div id="navigator-left-sidebar" class="col-md-5 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
+  
+      <!--
+      <div id="navigator-left-sidebar"  class="col-md-5 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
         <div>
           <div class="row">
             <div class="col-md-12">
@@ -15,7 +17,6 @@
                 <div class="col-md-12">
                   <div class="location-management-widget-section">
                     <span style="margin-right:10px;"><localize key="changeOverTime.forDate" ng-reflect-key="changeOverTime.forDate"></localize></span>
-<!--                     <input style="width: 100%;" type="date" [(ngModel)]="dateStr" (change)="handleDateChange()" name="dateStr" [disabled]="mode !== MODE.SEARCH"/> -->
                     <date-field [(value)]="dateStr" label="" [inputName]="'dateStr'" (change)="handleDateChange()" [disable]="mode !== MODE.SEARCH && !hideSearchOptions" 
                         [allowInfinity]="false" [allowFutureDates]="false" [required]="false" [classNames]="displayDateRequiredError ? 'date-required-message' : ''" [placement]="'right'" style="display:inline-grid;"></date-field>
                     <div *ngIf="displayDateRequiredError" class="error-message">
@@ -25,7 +26,6 @@
                 </div>
               </div>
   
-              <!-- Search bar -->
               <div *ngIf="!hideSearchOptions" class="row">
                 <div class="col-md-12">
                   <div class="location-management-widget-section">
@@ -34,7 +34,6 @@
                       <span class="input-group-btn">
                         <button class="btn btn-primary" type="button" (click)="search()" [disabled]="mode !== MODE.SEARCH">
                           <span class="glyphicon glyphicon-search" aria-hidden="true"></span> 
-<!--                           <localize key="explorer.search.button.message"></localize> -->
                         </button>
                       </span>
                     </div>
@@ -54,7 +53,6 @@
                     <div class="list-group">
   
                       <div *ngFor="let node of data; let i = index" class="list-group-item">
-                        <!-- Single column card -->
                         <div class="card card-default" (click)="select(node, $event)">
                           <div class="card-body">
                             <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true" (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
@@ -70,9 +68,6 @@
         </div>    
         <div *ngIf="mode === MODE.VIEW && current != null" class="row">
           <div class="col-md-12">
-<!--             <div style="padding: 20px 0;"> -->
-<!--               <i class="fa fa-arrow-left clickable" aria-hidden="true" (click)="changeMode(this.MODE.SEARCH)"><localize key="explorer.back.to.results"></localize></i>               -->
-<!--             </div> -->
             <feature-panel
               [type]="type"
               [code]="current.properties.code"              
@@ -85,9 +80,11 @@
             ></feature-panel>
           </div>
         </div>            
+        
       </div>
+    -->      
 
-      <div class="col-md-7" id="site-explorer-map">
+      <div [ngClass]="{'col-md-7':code != null, 'col-md-12':code == null}" id="site-explorer-map">
         <div class="row">
           
           <article class="base-layer-panel">

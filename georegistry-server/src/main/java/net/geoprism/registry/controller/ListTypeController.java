@@ -266,9 +266,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "get-geospatial-versions")
-  public ResponseIF getGeospatialVersions(ClientRequestIF request)
+  public ResponseIF getGeospatialVersions(ClientRequestIF request, @RequestParamter(name = "startDate") String startDate, @RequestParamter(name = "endDate") String endDate)
   {
-    return new RestBodyResponse(this.service.getGeospatialVersions(request.getSessionId()));
+    return new RestBodyResponse(this.service.getGeospatialVersions(request.getSessionId(), startDate, endDate));
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "bounds")

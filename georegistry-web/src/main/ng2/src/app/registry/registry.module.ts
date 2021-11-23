@@ -74,7 +74,6 @@ import { SyncDetailsComponent } from "./component/synchronization-config/details
 
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
 import { DatasetLocationManagerComponent } from "./component/location-manager/dataset-location-manager.component";
-import { ContextLayerModalComponent } from "./component/location-manager/context-layer-modal.component";
 import { LayerPanelComponent } from "./component/location-manager/layer-panel.component";
 import { FeaturePanelComponent } from "./component/location-manager/feature-panel.component";
 import { GeometryPanelComponent } from "./component/location-manager/geometry-panel.component";
@@ -207,7 +206,6 @@ import { ExportFormatModalComponent } from "./component/list-type/export-format-
         // Location manager
         LocationManagerComponent,
         DatasetLocationManagerComponent,
-        ContextLayerModalComponent,
         LayerPanelComponent,
         FeaturePanelComponent,
         GeometryPanelComponent,
@@ -265,7 +263,6 @@ import { ExportFormatModalComponent } from "./component/list-type/export-format-
         ReuploadModalComponent,
         StepIndicatorComponent,
         SynchronizationConfigModalComponent,
-        ContextLayerModalComponent,
         TransitionEventModalComponent,
         ListTypePublishModalComponent,
         PublishVersionComponent

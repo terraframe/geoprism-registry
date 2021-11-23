@@ -219,8 +219,16 @@ export class ListTypeService {
             .toPromise();
     }
 
-    getGeospatialVersions(): Promise<ContextList[]> {
+    getGeospatialVersions(startDate: string, endDate: string): Promise<ContextList[]> {
         let params: HttpParams = new HttpParams();
+
+        if (startDate != null && startDate.length > 0) {
+            params = params.append("startDate", startDate);
+        }
+
+        if (endDate != null && endDate.length > 0) {
+            params = params.append("endDate", endDate);
+        }
 
         return this.http
             .get<ContextList[]>(acp + "/list-type/get-geospatial-versions", { params: params })

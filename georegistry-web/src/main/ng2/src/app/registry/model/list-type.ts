@@ -102,12 +102,18 @@ export class ListTypeVersion extends ListVersionMetadata {
     collapsed?: boolean;
 }
 
+export class ContextLayer {
+    oid: string;
+    forDate: string;
+    versionNumber: string;
+    active: boolean;
+    enabled: boolean;
+    color: string;
+}
+
 export class ContextList {
     oid: string;
     label: string;
-    versions: {
-        oid: string,
-        forDate: string
-        versionNumber: string
-    }[]
+    versions: ContextLayer[];
+    open?: boolean;
 }

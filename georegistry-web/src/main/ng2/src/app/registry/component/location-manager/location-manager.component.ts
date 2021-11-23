@@ -9,14 +9,15 @@ import bbox from "@turf/bbox";
 
 import { Subject } from "rxjs";
 
-import { GeoObject, ContextLayer, GeoObjectType, ValueOverTime } from "@registry/model/registry";
+import { GeoObject, GeoObjectType, ValueOverTime } from "@registry/model/registry";
 import { ModalState } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ErrorHandler, ErrorModalComponent, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
+import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { LocalizationService } from "@shared/service";
+import { ContextLayer } from "@registry/model/list-type";
 
 declare let acp: string;
 
@@ -45,6 +46,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     editSessionEnabled: boolean = false;
 
     bsModalRef: BsModalRef;
+
+    code: string = null;
 
     /*
      * Root nodes of the tree
@@ -270,7 +273,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     showOriginalGeometry() {
         if (this.current) {
-            this.addVectorLayer(this.current.properties.uid);
+            this.addVectorLayer(this.current.properties.uid, DEFAULT_COLOR);
         }
     }
 
@@ -440,7 +443,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
 
         this.vectorLayers.forEach(cLayer => {
-            this.addVectorLayer(cLayer);
+            this.addVectorLayer(cLayer, DEFAULT_COLOR);
         });
     }
 
@@ -562,11 +565,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onContextLayerChange(layer: ContextLayer): void {
         if (layer.active) {
-            this.addVectorLayer(layer.oid);
+            this.addVectorLayer(layer.oid, layer.color);
         } else {
             this.removeVectorLayer(layer.oid);
         }
-    }
+    }    
 
     removeVectorLayer(source: string): void {
         const index = this.vectorLayers.indexOf(source);
@@ -581,7 +584,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    addVectorLayer(source: string): void {
+    addVectorLayer(source: string, color: string): void {
         const index = this.vectorLayers.indexOf(source);
 
         if (index === -1) {
@@ -592,7 +595,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.map.addSource(source, {
                 type: "vector",
-                tiles: [protocol + "//" + host + acp + "/master-list/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))]
+                tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))]
             });
 
             // Point layer
@@ -603,7 +606,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 "source-layer": "context",
                 paint: {
                     "circle-radius": 10,
-                    "circle-color": SELECTED_COLOR,
+                    "circle-color": color,
                     "circle-stroke-width": 2,
                     "circle-stroke-color": "#FFFFFF"
                 },
@@ -620,7 +623,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 "source-layer": "context",
                 layout: {},
                 paint: {
-                    "fill-color": SELECTED_COLOR,
+                    "fill-color": color,
                     "fill-opacity": 0.8,
                     "fill-outline-color": "black"
                 },

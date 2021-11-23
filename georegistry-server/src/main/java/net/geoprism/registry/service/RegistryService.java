@@ -63,6 +63,8 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.MdAttributeConcreteDAOIF;
 import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdClassDAO;
+import com.runwaysdk.dataaccess.metadata.MdGraphDAO;
+import com.runwaysdk.dataaccess.metadata.graph.MdGraphClassDAO;
 import com.runwaysdk.json.RunwayJsonAdapters;
 import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.localization.SupportedLocaleIF;

@@ -4,13 +4,14 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
 import { Map, NavigationControl, AttributionControl, LngLatBounds } from "mapbox-gl";
 
-import { ContextLayer, GeoObjectType, ValueOverTime } from "@registry/model/registry";
+import { GeoObjectType, ValueOverTime } from "@registry/model/registry";
 // MapService IS REQUIRED to set the mapbox access token for the map
 import { MapService, RegistryService, GeometryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { ErrorHandler, GenericModalComponent } from "@shared/component";
 
 import { LocalizationService, AuthService } from "@shared/service";
+import { ContextLayer } from "@registry/model/list-type";
 
 declare let acp: string;
 
@@ -268,7 +269,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
     }
 
     showOriginalGeometry() {
-        this.addVectorLayer(this.datasetId);
+        this.addVectorLayer(this.datasetId, DEFAULT_COLOR);
     }
 
     hideOriginalGeometry() {
@@ -283,7 +284,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
         });
 
         this.vectorLayers.forEach(vLayer => {
-            this.addVectorLayer(vLayer);
+            this.addVectorLayer(vLayer, DEFAULT_COLOR);
         });
     }
 
@@ -319,7 +320,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
 
     onContextLayerChange(layer: ContextLayer): void {
         if (layer.active) {
-            this.addVectorLayer(layer.oid);
+            this.addVectorLayer(layer.oid, layer.color);
         } else {
             this.removeVectorLayer(layer.oid);
         }
@@ -340,7 +341,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
         }
     }
 
-    addVectorLayer(source: string): void {
+    addVectorLayer(source: string, color: string): void {
         const index = this.vectorLayers.indexOf(source);
 
         if (index === -1) {
@@ -362,7 +363,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
                 "source-layer": "context",
                 paint: {
                     "circle-radius": 10,
-                    "circle-color": DEFAULT_COLOR,
+                    "circle-color": color,
                     "circle-stroke-width": 2,
                     "circle-stroke-color": "#FFFFFF"
                 },
@@ -379,7 +380,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
                 "source-layer": "context",
                 layout: {},
                 paint: {
-                    "fill-color": DEFAULT_COLOR,
+                    "fill-color": color,
                     "fill-opacity": 0.8,
                     "fill-outline-color": "black"
                 },

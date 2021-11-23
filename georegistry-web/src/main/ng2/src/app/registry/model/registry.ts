@@ -396,17 +396,3 @@ export class OrgSyncInfo {
 export class ExportScheduledJob extends AbstractScheduledJob {
     stepConfig?: StepConfig;
 }
-
-export class ContextLayer {
-    oid: string;
-    displayLabel: string;
-    active: boolean;
-    enabled: boolean;
-    versionNumber?: number;
-}
-
-export class ContextLayerGroup {
-    oid: string;
-    displayLabel: string;
-    contextLayers: ContextLayer[];
-}

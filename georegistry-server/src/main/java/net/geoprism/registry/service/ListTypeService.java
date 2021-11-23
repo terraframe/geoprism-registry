@@ -436,10 +436,21 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonArray getGeospatialVersions(String sessionId)
+  public JsonArray getGeospatialVersions(String sessionId, String startDate, String endDate)
   {
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getWorking().EQ(false));
+
+    if (startDate != null && startDate.length() > 0)
+    {
+      query.AND(query.getForDate().GE(GeoRegistryUtil.parseDate(startDate)));
+    }
+
+    if (endDate != null && endDate.length() > 0)
+    {
+      query.AND(query.getForDate().LE(GeoRegistryUtil.parseDate(endDate)));
+    }
+
     query.ORDER_BY_DESC(query.getListType());
     query.ORDER_BY_DESC(query.getForDate());
     query.ORDER_BY_DESC(query.getVersionNumber());
