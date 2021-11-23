@@ -35,7 +35,7 @@
 		                <div class="holder">
 		                    <input [(ngModel)]="localeValue.value" [name]="'label-' + localeValue.locale" type="text"
 		                        class="form-control" [disabled]="readonly"
-		                        [required]="localeValue.locale === 'defaultLocale'" />
+		                        [required]="false" />
 		                </div>
 		            </div>
 		
@@ -131,7 +131,7 @@
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.source-' + transition.oid + '-' + i" [disabled]="readonly" required
                                             [(ngModel)]="transition.sourceText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(transition, this.event.beforeTypeCode, 'sourceText')"
+                                            [typeahead]="getTypeAheadObservable(true, transition, this.event.beforeTypeCode, 'sourceText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'sourceText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
                                             [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="'#typeaheadParentS-' + i">
@@ -159,7 +159,7 @@
                                         <input type="text" class="form-control" autocomplete="off"
                                             [name]="'transition.target-' + transition.oid + '-' + i" [disabled]="readonly" required
                                             [(ngModel)]="transition.targetText" [typeaheadAsync]="true"
-                                            [typeahead]="getTypeAheadObservable(transition, this.event.afterTypeCode, 'targetText')"
+                                            [typeahead]="getTypeAheadObservable(false, transition, this.event.afterTypeCode, 'targetText')"
                                             (typeaheadOnSelect)="typeaheadOnSelect($event, transition, 'targetText')"
                                             [typeaheadOptionsLimit]="7" [typeaheadItemTemplate]="customItemTemplate"
                                             [typeaheadMinLength]="0" [typeaheadWaitMs]="300" [container]="'#typeaheadParentT-' + i">
@@ -179,9 +179,9 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td style="vertical-align:middle;">
+                                <td *ngIf="transition.typePart || !transition.typeUpdown" style="vertical-align:middle;">
                                     <label *ngIf="!transition.typeUpdown">{{localizeTransitionType(transition.transitionType)}}</label>
-                                    <label *ngIf="transition.typeUpdown" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
+                                    <label *ngIf="transition.typePart" style="min-width:80px;">{{localizeTransitionType(transition.typePart)}}</label>
                                 </td>
                                 <td *ngIf="transition.typeUpdown">
                                     <select style="min-width:80px;" *ngIf="transition.typeUpdown" [name]="'transition.transitionType-updown-' + transition.oid + '-' + i" class="select-area"

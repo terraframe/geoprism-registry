@@ -18,13 +18,10 @@
  */
 package net.geoprism.registry.graph.transition;
 
-import java.text.DateFormat;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
@@ -37,10 +34,8 @@ import com.runwaysdk.dataaccess.MdVertexDAOIF;
 import com.runwaysdk.dataaccess.ProgrammingErrorException;
 import com.runwaysdk.dataaccess.metadata.graph.MdVertexDAO;
 import com.runwaysdk.dataaccess.transaction.Transaction;
-import com.runwaysdk.localization.LocalizationFacade;
 import com.runwaysdk.system.Roles;
 
-import net.geoprism.registry.GeoRegistryUtil;
 import net.geoprism.registry.conversion.LocalizedValueConverter;
 import net.geoprism.registry.conversion.VertexGeoObjectStrategy;
 import net.geoprism.registry.model.ServerGeoObjectType;
@@ -58,11 +53,11 @@ public class Transition extends TransitionBase
   }
 
   public static enum TransitionType {
-    MERGE, SPLIT, REASSIGN, UPGRADE_MERGE, UPGRADE_SPLIT, UPGRADE_REASSIGN, DOWNGRADE_MERGE, DOWNGRADE_SPLIT, DOWNGRADE_REASSIGN;
+    MERGE, SPLIT, REASSIGN, UPGRADE_MERGE, UPGRADE_SPLIT, UPGRADE, DOWNGRADE_MERGE, DOWNGRADE_SPLIT, DOWNGRADE;
 
     public boolean isReassign()
     {
-      return this.equals(TransitionType.REASSIGN) || this.equals(TransitionType.UPGRADE_REASSIGN) || this.equals(TransitionType.DOWNGRADE_REASSIGN);
+      return this.equals(TransitionType.REASSIGN) || this.equals(TransitionType.UPGRADE) || this.equals(TransitionType.DOWNGRADE);
     }
 
     public boolean isMerge()

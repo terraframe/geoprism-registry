@@ -131,7 +131,7 @@ export class TransitionEventTableComponent {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + transitionEvent.description.localizedValue + "]";
+        this.bsModalRef.content.message = this.localizeService.decode("confirm.modal.verify.delete") + " [" + transitionEvent.eventId + "]";
         this.bsModalRef.content.data = transitionEvent;
         this.bsModalRef.content.type = "DANGER";
         this.bsModalRef.content.submitText = this.localizeService.decode("modal.button.delete");

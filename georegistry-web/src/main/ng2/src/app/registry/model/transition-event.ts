@@ -21,6 +21,7 @@ export class Transition {
 export class TransitionEvent {
 
     oid?: string;
+    eventId?: string;
     beforeTypeCode: string;
     afterTypeCode: string;
     beforeTypeLabel?: string;
