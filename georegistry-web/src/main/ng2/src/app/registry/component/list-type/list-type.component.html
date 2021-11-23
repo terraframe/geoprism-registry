@@ -32,10 +32,22 @@
                 <span *ngIf="!(version.isMember || version.listMetadata.visibility === 'PUBLIC')">
                     <localize key="list.type.list"></localize>
                 </span>
-                <localize *ngIf="version.listMetadata.visibility === 'PUBLIC'" key="masterlist.public"></localize>
-                <localize *ngIf="version.listMetadata.visibility !== 'PUBLIC'" key="masterlist.private"></localize>
-                <localize *ngIf="version.listMetadata.master" key="list.type.master"></localize>
-                <localize *ngIf="!version.listMetadata.master" key="list.type.non.master"></localize>
+                <span>
+                    (
+                    <localize *ngIf="version.listMetadata.visibility === 'PUBLIC'" key="masterlist.public">
+                    </localize>
+                    <localize *ngIf="version.listMetadata.visibility !== 'PUBLIC'" key="masterlist.private">
+                    </localize>
+                    )
+                </span>
+                <span>
+                    (
+                    <localize *ngIf="version.listMetadata.visibility === 'PUBLIC'" key="masterlist.public">
+                    </localize>
+                    <localize *ngIf="version.listMetadata.visibility !== 'PUBLIC'" key="masterlist.private">
+                    </localize>
+                    )
+                </span>
             </li>
             <li>
                 <a *ngIf="(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')"
@@ -54,6 +66,15 @@
                     </localize>
                     )
                 </span>
+                <span>
+                    (
+                    <localize *ngIf="version.geospatialMetadata.visibility === 'PUBLIC'" key="masterlist.public">
+                    </localize>
+                    <localize *ngIf="version.geospatialMetadata.visibility !== 'PUBLIC'" key="masterlist.private">
+                    </localize>
+                    )
+                </span>
+
                 <localize *ngIf="version.geospatialMetadata.master" key="list.type.master"></localize>
                 <localize *ngIf="!version.geospatialMetadata.master" key="list.type.non.master"></localize>
             </li>
