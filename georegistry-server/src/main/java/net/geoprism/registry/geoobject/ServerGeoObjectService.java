@@ -369,14 +369,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       // Update the master list record
       if (masterListId != null)
       {
-        // if (!isNew)
-        // {
-        // MasterListVersion.get(masterListId).updateRecord(serverGO);
-        // }
-        // else
-        // {
         MasterListVersion.get(masterListId).publishRecord(serverGO);
-        // }
       }
 
       JsonObject resp = new JsonObject();
@@ -442,6 +435,11 @@ public class ServerGeoObjectService extends LocalizedValueConverter
     if (perms.isSRA() || perms.isRA(orgCode) || perms.isRM(orgCode, type))
     {
       this.executeActions(type, go, jaActions);
+      
+      if (masterListId != null)
+      {
+        MasterListVersion.get(masterListId).updateRecord(go);
+      }
 
       JsonObject resp = new JsonObject();
 
