@@ -8,6 +8,20 @@
           <attribute name="defaultLocale" value="Edit Hierarchy" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.boolean.option.true">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.boolean.option.true" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Yes" />
+        </attributeStruct>
+      </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="change.request.boolean.option.false">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="change.request.boolean.option.false" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="No" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update></update>
