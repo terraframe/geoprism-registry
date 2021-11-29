@@ -75,7 +75,7 @@ export class TransitionEventTableComponent {
     bsModalRef: BsModalRef;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private service: TransitionEventService, private modalService: BsModalService, private iService: IOService, private dateService: DateService, private authService: AuthService, private localizeService: LocalizationService) { }
+    constructor(private service: TransitionEventService, private modalService: BsModalService, private iService: IOService, public dateService: DateService, private authService: AuthService, private localizeService: LocalizationService) { }
 
     ngOnInit(): void {
         this.refresh();

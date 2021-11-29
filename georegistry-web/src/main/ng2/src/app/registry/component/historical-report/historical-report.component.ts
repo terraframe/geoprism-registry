@@ -68,7 +68,7 @@ export class HistoricalReportComponent {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(private service: TransitionEventService, private iService: IOService, private authService: AuthService,
-        private dateService: DateService) { }
+        public dateService: DateService) { }
 
     ngOnInit(): void {
 
@@ -107,7 +107,7 @@ export class HistoricalReportComponent {
 
     checkDates(): any {
         setTimeout(() => {
-            this.isValid = (this.data.startDate != null && this.data.endDate != null);
+            this.isValid = (this.data.startDate != null && this.data.endDate != null && !this.dateService.after(this.data.startDate, this.data.endDate));
         }, 0);
     }
 

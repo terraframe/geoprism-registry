@@ -7,7 +7,8 @@
 
         <div class="heading text-center">
           <h1>
-            <localize key="hierarchy.management.create.hierarchy.title"></localize> 
+            <localize *ngIf="!edit" key="hierarchy.management.create.hierarchy.title"></localize>
+            <localize *ngIf="edit" key="hierarchy.management.update.hierarchy.title"></localize> 
           </h1>
         </div> 
         

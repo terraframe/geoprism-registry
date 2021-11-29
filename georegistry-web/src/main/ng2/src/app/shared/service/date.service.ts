@@ -208,6 +208,17 @@ export class DateService {
         return dTest >= dStart && dTest <= dEnd;
     }
 
+    public after(in1: string | Date, in2: string | Date) {
+        if (in1 == null || in2 == null) {
+            return false;
+        }
+
+        let date1: Date = in1 instanceof Date ? in1 : this.getDateFromDateString(in1);
+        let date2: Date = in2 instanceof Date ? in2 : this.getDateFromDateString(in2);
+
+        return date1 > date2;
+    }
+
     public addDay(amount: number, date: string): string {
         var plus1: Date = this.getDateFromDateString(date);
         plus1.setDate(plus1.getDate() + amount);
