@@ -438,7 +438,7 @@ public class ServerGeoObjectService extends LocalizedValueConverter
       
       if (masterListId != null)
       {
-        MasterListVersion.get(masterListId).updateRecord(go);
+        ListTypeVersion.get(masterListId).updateRecord(go);
       }
 
       JsonObject resp = new JsonObject();
