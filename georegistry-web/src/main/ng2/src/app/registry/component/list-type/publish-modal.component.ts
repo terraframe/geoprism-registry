@@ -101,6 +101,16 @@ export class ListTypePublishModalComponent implements OnInit {
                     organization: '',
                     telephoneNumber: '',
                     email: '',
+                    topicCategories: '',
+                    placeKeywords: '',
+                    updateFrequency: '',
+                    lineage: '',
+                    languages: '',
+                    scaleResolution: '',
+                    spatialRepresentation: '',
+                    referenceSystem: '',
+                    reportSpecification: '',
+                    distributionFormat: '',                       
                 }
 
             };

@@ -1156,17 +1156,17 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     if (prefix.equals("geospatial"))
     {
-      this.setGeospatialTopicCategories(object.get("topicCategories").getAsString());
-      this.setGeospatialPlaceKeywords(object.get("placeKeywords").getAsString());
-      this.setGeospatialUpdateFrequency(object.get("updateFrequency").getAsString());
-      this.setGeospatialLineage(object.get("lineage").getAsString());
-      this.setGeospatialLanguages(object.get("languages").getAsString());
-      this.setGeospatialScaleResolution(object.get("scaleResolution").getAsString());
-      this.setGeospatialSpatialRepresentation(object.get("spatialRepresentation").getAsString());
-      this.setGeospatialReferenceSystem(object.get("referenceSystem").getAsString());
-      this.setGeospatialReportSpecification(object.get("reportSpecification").getAsString());
-      this.setGeospatialDistributionFormat(object.get("distributionFormat").getAsString());
-    }    
+      this.setGeospatialTopicCategories(!object.get("topicCategories").isJsonNull() ? object.get("topicCategories").getAsString() : null);
+      this.setGeospatialPlaceKeywords(!object.get("placeKeywords").isJsonNull() ? object.get("placeKeywords").getAsString() : null);
+      this.setGeospatialUpdateFrequency(!object.get("updateFrequency").isJsonNull() ? object.get("updateFrequency").getAsString() : null);
+      this.setGeospatialLineage(!object.get("lineage").isJsonNull() ? object.get("lineage").getAsString() : null);
+      this.setGeospatialLanguages(!object.get("languages").isJsonNull() ? object.get("languages").getAsString() : null);
+      this.setGeospatialScaleResolution(!object.get("scaleResolution").isJsonNull() ? object.get("scaleResolution").getAsString() : null);
+      this.setGeospatialSpatialRepresentation(!object.get("spatialRepresentation").isJsonNull() ? object.get("spatialRepresentation").getAsString() : null);
+      this.setGeospatialReferenceSystem(!object.get("referenceSystem").isJsonNull() ? object.get("referenceSystem").getAsString() : null);
+      this.setGeospatialReportSpecification(!object.get("reportSpecification").isJsonNull() ? object.get("reportSpecification").getAsString() : null);
+      this.setGeospatialDistributionFormat(!object.get("distributionFormat").isJsonNull() ? object.get("distributionFormat").getAsString() : null);
+    }
   }
 
   public JsonObject toJSON(boolean includeAttribute)
