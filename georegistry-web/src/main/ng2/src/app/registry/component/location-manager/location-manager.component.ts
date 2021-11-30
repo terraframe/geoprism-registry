@@ -18,6 +18,7 @@ import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@sha
 
 import { LocalizationService } from "@shared/service";
 import { ContextLayer } from "@registry/model/list-type";
+import { LayerEvent } from "./layer-panel.component";
 
 declare let acp: string;
 
@@ -263,7 +264,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         // Set map data on page load with URL params (single Geo-Object)
         if (this.data) {
             let fc = { type: "FeatureCollection", features: this.data };
-            (<any> this.map.getSource("children")).setData(fc);
+            (<any>this.map.getSource("children")).setData(fc);
 
             this.zoomToFeature(this.data[0], null);
         }
@@ -485,7 +486,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     search(): void {
         this.geomService.destroy(false);
         this.mapService.search(this.text, this.dateStr).then(data => {
-            (<any> this.map.getSource("children")).setData(data);
+            (<any>this.map.getSource("children")).setData(data);
 
             this.setData(data.features);
         }).catch((err: HttpErrorResponse) => {
@@ -563,20 +564,33 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.data = data;
     }
 
-    onContextLayerChange(layer: ContextLayer): void {
+    onContextLayerChange(event: LayerEvent): void {
+        const layer = event.layer;
+
         if (layer.active) {
-            this.addVectorLayer(layer.oid, layer.color);
+            this.addVectorLayer(layer.oid, layer.color, event.prevLayer);
         } else {
             this.removeVectorLayer(layer.oid);
         }
-    }    
+    }
+
+    onReorderLayers(layers: ContextLayer[]): void {
+        for (let i = layers.length - 1; i > -1; i--) {
+            const layer = layers[i];
+
+            this.map.moveLayer(layer.oid + "-polygon", "children-polygon");
+            this.map.moveLayer(layer.oid + "-points", "children-polygon");
+            this.map.moveLayer(layer.oid + "-label", "children-polygon");
+        };
+    }
+
 
     removeVectorLayer(source: string): void {
         const index = this.vectorLayers.indexOf(source);
 
         if (index !== -1) {
-            this.map.removeLayer(source + "-points");
             this.map.removeLayer(source + "-polygon");
+            this.map.removeLayer(source + "-points");
             this.map.removeLayer(source + "-label");
             this.map.removeSource(source);
 
@@ -584,11 +598,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    addVectorLayer(source: string, color: string): void {
+    addVectorLayer(source: string, color: string, otherLayer?: ContextLayer): void {
         const index = this.vectorLayers.indexOf(source);
 
         if (index === -1) {
-            const prevLayer = "children-polygon";
+            const prevLayer = otherLayer != null ? otherLayer.oid + '-polygon' : "children-polygon";
 
             let protocol = window.location.protocol;
             let host = window.location.host;
@@ -597,23 +611,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 type: "vector",
                 tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))]
             });
-
-            // Point layer
-            this.map.addLayer({
-                id: source + "-points",
-                type: "circle",
-                source: source,
-                "source-layer": "context",
-                paint: {
-                    "circle-radius": 10,
-                    "circle-color": color,
-                    "circle-stroke-width": 2,
-                    "circle-stroke-color": "#FFFFFF"
-                },
-                filter: ["all",
-                    ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-                ]
-            }, prevLayer);
 
             // Polygon layer
             this.map.addLayer({
@@ -629,6 +626,23 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 },
                 filter: ["all",
                     ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+                ]
+            }, prevLayer);
+
+            // Point layer
+            this.map.addLayer({
+                id: source + "-points",
+                type: "circle",
+                source: source,
+                "source-layer": "context",
+                paint: {
+                    "circle-radius": 10,
+                    "circle-color": color,
+                    "circle-stroke-width": 2,
+                    "circle-stroke-color": "#FFFFFF"
+                },
+                filter: ["all",
+                    ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
                 ]
             }, prevLayer);
 
@@ -660,43 +674,43 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-// TODO : Not sure what the point of this code was
-/*
-    refreshInputsFromDraw(): void {
-        let geom = this.getDrawGeometry();
-        let point = geom.coordinates[0];
-
-        this.coordinate.latitude = point[1];
-        this.coordinate.longitude = point[0];
-    }
-
-    refreshDrawFromInput(): void {
-
-        if( this.coordinate.longitude != null && this.coordinate.latitude != null ) {
-
-            const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
-            const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
-
-            if( !isLatitude(this.coordinate.latitude) || !isLongitude(this.coordinate.longitude)){
-                // outside EPSG bounds
-            }
-
-            this.editingControl.set({
-              type: 'FeatureCollection',
-              features: [{
-                id: this.current.properties.uid,
-                type: 'Feature',
-                properties: {},
-                geometry: { type: 'Point', coordinates: [ this.coordinate.longitude, this.coordinate.latitude ] }
-              }]
-            });
-
-            this.editingControl.changeMode( 'simple_select', { featureIds: this.current.properties.uid } );
-
-            this.editSessionEnabled = true;
+    // TODO : Not sure what the point of this code was
+    /*
+        refreshInputsFromDraw(): void {
+            let geom = this.getDrawGeometry();
+            let point = geom.coordinates[0];
+    
+            this.coordinate.latitude = point[1];
+            this.coordinate.longitude = point[0];
         }
-    }
-    */
+    
+        refreshDrawFromInput(): void {
+    
+            if( this.coordinate.longitude != null && this.coordinate.latitude != null ) {
+    
+                const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
+                const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
+    
+                if( !isLatitude(this.coordinate.latitude) || !isLongitude(this.coordinate.longitude)){
+                    // outside EPSG bounds
+                }
+    
+                this.editingControl.set({
+                  type: 'FeatureCollection',
+                  features: [{
+                    id: this.current.properties.uid,
+                    type: 'Feature',
+                    properties: {},
+                    geometry: { type: 'Point', coordinates: [ this.coordinate.longitude, this.coordinate.latitude ] }
+                  }]
+                });
+    
+                this.editingControl.changeMode( 'simple_select', { featureIds: this.current.properties.uid } );
+    
+                this.editSessionEnabled = true;
+            }
+        }
+        */
 
     error(err: HttpErrorResponse): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

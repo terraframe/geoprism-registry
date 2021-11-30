@@ -4,6 +4,11 @@ import { ContextLayer, ContextList } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import * as ColorGen from "color-generator";
 
+export class LayerEvent {
+    layer: ContextLayer;
+    prevLayer?: ContextLayer;
+}
+
 @Component({
     selector: "layer-panel",
     templateUrl: "./layer-panel.component.html",
@@ -12,12 +17,15 @@ import * as ColorGen from "color-generator";
 export class LayerPanelComponent implements OnInit, OnChanges {
 
     @Input() filter: string[] = [];
-    @Output() layerChange = new EventEmitter<ContextLayer>();
+    @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<any>();
+    @Output() reorder = new EventEmitter<ContextLayer[]>();
 
     baselayerIconHover = false;
 
     lists: ContextList[] = [];
+    layers: ContextLayer[] = [];
+
 
     form: { startDate: string, endDate: string } = {
         startDate: '',
@@ -62,21 +70,57 @@ export class LayerPanelComponent implements OnInit, OnChanges {
             });
         });
 
-
         this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
             this.lists = lists;
+
+            this.lists.forEach(list => {
+                list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
+            });
         });
     }
 
 
     toggleContextLayer(layer: ContextLayer): void {
-        layer.active = !layer.active;
+        layer.enabled = !layer.enabled;
+        layer.active = layer.enabled;
 
         if (layer.active && layer.color == null) {
             layer.color = ColorGen().hexString();
         }
 
-        this.layerChange.emit(layer);
+        if (layer.enabled) {
+            this.layers.unshift(layer);
+        }
+        else {
+            const index = this.layers.findIndex(l => l.oid === layer.oid);
+
+            if (index !== -1) {
+                this.layers.splice(index, 1);
+            }
+        }
+
+        this.layerChange.emit({ layer: layer });
+    }
+
+    toggleActive(layer: ContextLayer): void {
+        layer.active = !layer.active;
+
+        const event: LayerEvent = {
+            layer: layer
+        };
+
+        if (layer.active) {
+            const index = this.layers.findIndex(l => l.oid === layer.oid);
+
+            // Find the first active layer
+            for (let i = (index - 1); i >= 0; i--) {
+                if (event.prevLayer == null && this.layers[i].active) {
+                    event.prevLayer = this.layers[i];
+                }
+            }
+        }
+
+        this.layerChange.emit(event);
     }
 
 
@@ -88,6 +132,19 @@ export class LayerPanelComponent implements OnInit, OnChanges {
         layer.active = true;
 
         this.baseLayerChange.emit(layer);
+    }
+
+    moveLayer(layer: ContextLayer, offset: number): void {
+        const index = this.layers.findIndex(l => l.oid === layer.oid);
+        const target = (index + offset);
+
+        if (index !== -1 && target > -1 && target <= this.layers.length - 1) {
+            const a = this.layers[index];
+            this.layers[index] = this.layers[index + offset];
+            this.layers[index + offset] = a;
+
+            this.reorder.emit(this.layers);
+        }
     }
 
 }

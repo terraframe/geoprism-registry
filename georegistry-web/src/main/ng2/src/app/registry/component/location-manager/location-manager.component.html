@@ -88,7 +88,7 @@
         <div class="row">
           
           <article class="base-layer-panel">
-            <layer-panel (layerChange)="onContextLayerChange($event)"></layer-panel>
+            <layer-panel (layerChange)="onContextLayerChange($event)" (reorder)="onReorderLayers($event)"></layer-panel>
           </article>
 
           <div id="map" class="map-view-port"></div>

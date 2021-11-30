@@ -13,6 +13,7 @@ import { ErrorHandler, GenericModalComponent } from "@shared/component";
 import { LocalizationService, AuthService } from "@shared/service";
 import { ContextLayer } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
+import { LayerEvent } from "./layer-panel.component";
 
 declare let acp: string;
 
@@ -258,7 +259,7 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
                     }
                 });
             }
-            else if(this.code != null && this.typeCode != null && this.date != null) {
+            else if (this.code != null && this.typeCode != null && this.date != null) {
                 this.service.getGeoObjectBoundsAtDate(this.code, this.typeCode, this.date).then(bounds => {
                     if (bounds) {
                         let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
@@ -349,22 +350,38 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
         }
     }
 
-    onContextLayerChange(layer: ContextLayer): void {
+    onContextLayerChange(event: LayerEvent): void {
+        const layer = event.layer;
+
         if (layer.active) {
-            this.addVectorLayer(layer.oid, layer.color);
+            this.addVectorLayer(layer.oid, layer.color, event.prevLayer);
         } else {
             this.removeVectorLayer(layer.oid);
         }
+    }
+
+    onReorderLayers(layers: ContextLayer[]): void {
+        for (let i = layers.length - 1; i > -1; i--) {
+            const layer = layers[i];
+
+            this.map.moveLayer(layer.oid + "-polygon", this.datasetId + "-polygon");
+            this.map.moveLayer(layer.oid + "-points", this.datasetId + "-polygon");
+            this.map.moveLayer(layer.oid + "-label", this.datasetId + "-polygon");
+        };
     }
 
     removeVectorLayer(source: string): void {
         const index = this.vectorLayers.indexOf(source);
 
         if (index !== -1) {
-            this.map.removeLayer(source + "-points");
             this.map.removeLayer(source + "-polygon");
-            this.map.removeLayer(source + "-points-selected");
-            this.map.removeLayer(source + "-polygon-selected");
+            this.map.removeLayer(source + "-points");
+
+            if (source === this.datasetId) {
+                this.map.removeLayer(source + "-polygon-selected");
+                this.map.removeLayer(source + "-points-selected");
+            }
+
             this.map.removeLayer(source + "-label");
             this.map.removeSource(source);
 
@@ -372,11 +389,11 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
         }
     }
 
-    addVectorLayer(source: string, color: string): void {
+    addVectorLayer(source: string, color: string, otherLayer?: ContextLayer): void {
         const index = this.vectorLayers.indexOf(source);
 
         if (index === -1) {
-            const prevLayer = (source !== this.datasetId) ? this.datasetId + "-points" : null;
+            const prevLayer = otherLayer != null ? otherLayer.oid + '-polygon' : (source !== this.datasetId) ? this.datasetId + "-polygon" : null;
 
             let protocol = window.location.protocol;
             let host = window.location.host;
@@ -385,23 +402,6 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
                 type: "vector",
                 tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))]
             });
-
-            // Point layer
-            this.map.addLayer({
-                id: source + "-points",
-                type: "circle",
-                source: source,
-                "source-layer": "context",
-                paint: {
-                    "circle-radius": 10,
-                    "circle-color": color,
-                    "circle-stroke-width": 2,
-                    "circle-stroke-color": "#FFFFFF"
-                },
-                filter: ["all",
-                    ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-                ]
-            }, prevLayer);
 
             // Polygon layer
             this.map.addLayer({
@@ -417,6 +417,23 @@ export class DatasetLocationManagerComponent implements OnInit, AfterViewInit, O
                 },
                 filter: ["all",
                     ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+                ]
+            }, prevLayer);
+
+            // Point layer
+            this.map.addLayer({
+                id: source + "-points",
+                type: "circle",
+                source: source,
+                "source-layer": "context",
+                paint: {
+                    "circle-radius": 10,
+                    "circle-color": color,
+                    "circle-stroke-width": 2,
+                    "circle-stroke-color": "#FFFFFF"
+                },
+                filter: ["all",
+                    ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
                 ]
             }, prevLayer);
 
