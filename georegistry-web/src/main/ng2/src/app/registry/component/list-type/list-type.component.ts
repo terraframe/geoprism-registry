@@ -59,7 +59,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.init(entry, !this.list.write);
+        this.bsModalRef.content.init(this.list, entry);
     }
 
     onEdit(entry: ListTypeEntry, version: ListTypeVersion): void {
@@ -68,7 +68,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
             backdrop: true,
             ignoreBackdropClick: true
         });
-        this.bsModalRef.content.init(entry, !this.list.write, version);
+        this.bsModalRef.content.init(this.list, entry, version);
     }
 
     onDelete(entry: ListTypeEntry, version: ListTypeVersion): void {

@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -972131293)
+@com.runwaysdk.business.ClassSignature(hash = -1585140191)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -35,19 +35,29 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   public static java.lang.String GEOSPATIALDISCLAIMER = "geospatialDisclaimer";
   private com.runwaysdk.business.Struct geospatialDisclaimer = null;
   
+  public static java.lang.String GEOSPATIALDISTRIBUTIONFORMAT = "geospatialDistributionFormat";
   public static java.lang.String GEOSPATIALEMAIL = "geospatialEmail";
   public static java.lang.String GEOSPATIALLABEL = "geospatialLabel";
   private com.runwaysdk.business.Struct geospatialLabel = null;
   
+  public static java.lang.String GEOSPATIALLANGUAGES = "geospatialLanguages";
+  public static java.lang.String GEOSPATIALLINEAGE = "geospatialLineage";
   public static java.lang.String GEOSPATIALORGANIZATION = "geospatialOrganization";
   public static java.lang.String GEOSPATIALORIGINATOR = "geospatialOriginator";
+  public static java.lang.String GEOSPATIALPLACEKEYWORDS = "geospatialPlaceKeywords";
   public static java.lang.String GEOSPATIALPROCESS = "geospatialProcess";
   private com.runwaysdk.business.Struct geospatialProcess = null;
   
   public static java.lang.String GEOSPATIALPROGRESS = "geospatialProgress";
   private com.runwaysdk.business.Struct geospatialProgress = null;
   
+  public static java.lang.String GEOSPATIALREFERENCESYSTEM = "geospatialReferenceSystem";
+  public static java.lang.String GEOSPATIALREPORTSPECIFICATION = "geospatialReportSpecification";
+  public static java.lang.String GEOSPATIALSCALERESOLUTION = "geospatialScaleResolution";
+  public static java.lang.String GEOSPATIALSPATIALREPRESENTATION = "geospatialSpatialRepresentation";
   public static java.lang.String GEOSPATIALTELEPHONENUMBER = "geospatialTelephoneNumber";
+  public static java.lang.String GEOSPATIALTOPICCATEGORIES = "geospatialTopicCategories";
+  public static java.lang.String GEOSPATIALUPDATEFREQUENCY = "geospatialUpdateFrequency";
   public static java.lang.String GEOSPATIALUSECONSTRAINTS = "geospatialUseConstraints";
   private com.runwaysdk.business.Struct geospatialUseConstraints = null;
   
@@ -95,7 +105,7 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String VALID = "valid";
-  private static final long serialVersionUID = -972131293;
+  private static final long serialVersionUID = -1585140191;
   
   public ListTypeBase()
   {
@@ -396,6 +406,34 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALDISCLAIMER);
   }
   
+  public String getGeospatialDistributionFormat()
+  {
+    return getValue(GEOSPATIALDISTRIBUTIONFORMAT);
+  }
+  
+  public void validateGeospatialDistributionFormat()
+  {
+    this.validateAttribute(GEOSPATIALDISTRIBUTIONFORMAT);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialDistributionFormatMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALDISTRIBUTIONFORMAT);
+  }
+  
+  public void setGeospatialDistributionFormat(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALDISTRIBUTIONFORMAT, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALDISTRIBUTIONFORMAT, value);
+    }
+  }
+  
   public String getGeospatialEmail()
   {
     return getValue(GEOSPATIALEMAIL);
@@ -438,6 +476,62 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   {
     com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
     return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALLABEL);
+  }
+  
+  public String getGeospatialLanguages()
+  {
+    return getValue(GEOSPATIALLANGUAGES);
+  }
+  
+  public void validateGeospatialLanguages()
+  {
+    this.validateAttribute(GEOSPATIALLANGUAGES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialLanguagesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALLANGUAGES);
+  }
+  
+  public void setGeospatialLanguages(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALLANGUAGES, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALLANGUAGES, value);
+    }
+  }
+  
+  public String getGeospatialLineage()
+  {
+    return getValue(GEOSPATIALLINEAGE);
+  }
+  
+  public void validateGeospatialLineage()
+  {
+    this.validateAttribute(GEOSPATIALLINEAGE);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialLineageMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALLINEAGE);
+  }
+  
+  public void setGeospatialLineage(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALLINEAGE, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALLINEAGE, value);
+    }
   }
   
   public String getGeospatialOrganization()
@@ -496,6 +590,34 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     }
   }
   
+  public String getGeospatialPlaceKeywords()
+  {
+    return getValue(GEOSPATIALPLACEKEYWORDS);
+  }
+  
+  public void validateGeospatialPlaceKeywords()
+  {
+    this.validateAttribute(GEOSPATIALPLACEKEYWORDS);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialPlaceKeywordsMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALPLACEKEYWORDS);
+  }
+  
+  public void setGeospatialPlaceKeywords(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALPLACEKEYWORDS, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALPLACEKEYWORDS, value);
+    }
+  }
+  
   public net.geoprism.registry.ListTypeGeospatialProcess getGeospatialProcess()
   {
     return (net.geoprism.registry.ListTypeGeospatialProcess) geospatialProcess;
@@ -528,6 +650,118 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     return (com.runwaysdk.dataaccess.MdAttributeLocalTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALPROGRESS);
   }
   
+  public String getGeospatialReferenceSystem()
+  {
+    return getValue(GEOSPATIALREFERENCESYSTEM);
+  }
+  
+  public void validateGeospatialReferenceSystem()
+  {
+    this.validateAttribute(GEOSPATIALREFERENCESYSTEM);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialReferenceSystemMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALREFERENCESYSTEM);
+  }
+  
+  public void setGeospatialReferenceSystem(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALREFERENCESYSTEM, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALREFERENCESYSTEM, value);
+    }
+  }
+  
+  public String getGeospatialReportSpecification()
+  {
+    return getValue(GEOSPATIALREPORTSPECIFICATION);
+  }
+  
+  public void validateGeospatialReportSpecification()
+  {
+    this.validateAttribute(GEOSPATIALREPORTSPECIFICATION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialReportSpecificationMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALREPORTSPECIFICATION);
+  }
+  
+  public void setGeospatialReportSpecification(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALREPORTSPECIFICATION, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALREPORTSPECIFICATION, value);
+    }
+  }
+  
+  public String getGeospatialScaleResolution()
+  {
+    return getValue(GEOSPATIALSCALERESOLUTION);
+  }
+  
+  public void validateGeospatialScaleResolution()
+  {
+    this.validateAttribute(GEOSPATIALSCALERESOLUTION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialScaleResolutionMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALSCALERESOLUTION);
+  }
+  
+  public void setGeospatialScaleResolution(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALSCALERESOLUTION, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALSCALERESOLUTION, value);
+    }
+  }
+  
+  public String getGeospatialSpatialRepresentation()
+  {
+    return getValue(GEOSPATIALSPATIALREPRESENTATION);
+  }
+  
+  public void validateGeospatialSpatialRepresentation()
+  {
+    this.validateAttribute(GEOSPATIALSPATIALREPRESENTATION);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialSpatialRepresentationMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALSPATIALREPRESENTATION);
+  }
+  
+  public void setGeospatialSpatialRepresentation(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALSPATIALREPRESENTATION, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALSPATIALREPRESENTATION, value);
+    }
+  }
+  
   public String getGeospatialTelephoneNumber()
   {
     return getValue(GEOSPATIALTELEPHONENUMBER);
@@ -553,6 +787,62 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     else
     {
       setValue(GEOSPATIALTELEPHONENUMBER, value);
+    }
+  }
+  
+  public String getGeospatialTopicCategories()
+  {
+    return getValue(GEOSPATIALTOPICCATEGORIES);
+  }
+  
+  public void validateGeospatialTopicCategories()
+  {
+    this.validateAttribute(GEOSPATIALTOPICCATEGORIES);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialTopicCategoriesMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALTOPICCATEGORIES);
+  }
+  
+  public void setGeospatialTopicCategories(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALTOPICCATEGORIES, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALTOPICCATEGORIES, value);
+    }
+  }
+  
+  public String getGeospatialUpdateFrequency()
+  {
+    return getValue(GEOSPATIALUPDATEFREQUENCY);
+  }
+  
+  public void validateGeospatialUpdateFrequency()
+  {
+    this.validateAttribute(GEOSPATIALUPDATEFREQUENCY);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeTextDAOIF getGeospatialUpdateFrequencyMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeTextDAOIF)mdClassIF.definesAttribute(GEOSPATIALUPDATEFREQUENCY);
+  }
+  
+  public void setGeospatialUpdateFrequency(String value)
+  {
+    if(value == null)
+    {
+      setValue(GEOSPATIALUPDATEFREQUENCY, "");
+    }
+    else
+    {
+      setValue(GEOSPATIALUPDATEFREQUENCY, value);
     }
   }
   

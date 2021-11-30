@@ -293,7 +293,7 @@ public abstract class ListType extends ListTypeBase
     this.parseMetadata("geospatial", object.get(GEOSPATIAL_METADATA).getAsJsonObject());
   }
 
-  public void parseMetadata(String prefix, JsonObject object)
+  private void parseMetadata(String prefix, JsonObject object)
   {
     ( (LocalStruct) this.getStruct(prefix + "Label") ).setLocaleMap(LocalizedValue.fromJSON(object.get("label").getAsJsonObject()).getLocaleMap());
     ( (LocalStruct) this.getStruct(prefix + "Description") ).setLocaleMap(LocalizedValue.fromJSON(object.get("description").getAsJsonObject()).getLocaleMap());
@@ -323,6 +323,21 @@ public abstract class ListType extends ListTypeBase
         this.setValue(prefix + "CollectionDate", formatter.format(collectionDate));
       }
     }
+
+    if (prefix.equals("geospatial"))
+    {
+      this.setGeospatialTopicCategories(object.get("topicCategories").getAsString());
+      this.setGeospatialPlaceKeywords(object.get("placeKeywords").getAsString());
+      this.setGeospatialUpdateFrequency(object.get("updateFrequency").getAsString());
+      this.setGeospatialLineage(object.get("lineage").getAsString());
+      this.setGeospatialLanguages(object.get("languages").getAsString());
+      this.setGeospatialScaleResolution(object.get("scaleResolution").getAsString());
+      this.setGeospatialSpatialRepresentation(object.get("spatialRepresentation").getAsString());
+      this.setGeospatialReferenceSystem(object.get("referenceSystem").getAsString());
+      this.setGeospatialReportSpecification(object.get("reportSpecification").getAsString());
+      this.setGeospatialDistributionFormat(object.get("distributionFormat").getAsString());
+    }
+
   }
 
   public final JsonObject toJSON()
@@ -401,6 +416,20 @@ public abstract class ListType extends ListTypeBase
     object.addProperty("telephoneNumber", this.getValue(prefix + "TelephoneNumber"));
     object.addProperty("email", this.getValue(prefix + "Email"));
     object.addProperty("originator", this.getValue(prefix + "Originator"));
+
+    if (prefix.equals("geospatial"))
+    {
+      object.addProperty("topicCategories", this.getGeospatialTopicCategories());
+      object.addProperty("placeKeywords", this.getGeospatialPlaceKeywords());
+      object.addProperty("updateFrequency", this.getGeospatialUpdateFrequency());
+      object.addProperty("lineage", this.getGeospatialLineage());
+      object.addProperty("languages", this.getGeospatialLanguages());
+      object.addProperty("scaleResolution", this.getGeospatialScaleResolution());
+      object.addProperty("spatialRepresentation", this.getGeospatialSpatialRepresentation());
+      object.addProperty("referenceSystem", this.getGeospatialReferenceSystem());
+      object.addProperty("reportSpecification", this.getGeospatialReportSpecification());
+      object.addProperty("distributionFormat", this.getGeospatialDistributionFormat());
+    }
 
     return object;
   }

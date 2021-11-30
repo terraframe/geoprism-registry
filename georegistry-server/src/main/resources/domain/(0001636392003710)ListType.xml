@@ -61,6 +61,16 @@
           <text name="geospatialOrganization" label="Organization" />
           <text name="geospatialTelephoneNumber" label="Telephone Number" />
           <text name="geospatialEmail" label="Email Address" />                    
+          <text name="geospatialTopicCategories" label="Topic Categories" />
+          <text name="geospatialPlaceKeywords" label="Place Keywords" />
+          <text name="geospatialUpdateFrequency" label="Update Frequency" />
+          <text name="geospatialLineage" label="Lineage" />
+          <text name="geospatialLanguages" label="Languages" />
+          <text name="geospatialScaleResolution" label="Scale resolution" />
+          <text name="geospatialSpatialRepresentation" label="Spatial Representation" />
+          <text name="geospatialReferenceSystem" label="Reference System" />
+          <text name="geospatialReportSpecification" label="Report Specification" />
+          <text name="geospatialDistributionFormat" label="Distribution Format" />
         </attributes>
           <mdMethod name="createEntry" label="createEntry" static="false" returnType="net.geoprism.registry.ListTypeEntry">
             <mdParameter name="forDate" label="forDate" order="0" type="java.util.Date" />
@@ -104,9 +114,48 @@
           <boolean name="listMaster" label="Is Master" description="Flag denoting if the list is a master list" />
           <char name="listVisibility" label="Visibility" size="255" required="false" />
           <localText name="listDescription"/>          
+          
+          <dateTime name="listCollectionDate"/>                    
+          <text name="listOriginator" label="Originator" />
+          <localText name="listLabel"/>
+          <localText name="listProcess"/>
+          <localText name="listProgress"/>
+          <localText name="listAccessConstraints"/>
+          <localText name="listUseConstraints"/>
+          <localText name="listAcknowledgements"/>
+          <localText name="listDisclaimer"/>
+          <text name="listContactName" label="Contact name" />
+          <text name="listOrganization" label="Organization" />
+          <text name="listTelephoneNumber" label="Telephone Number" />
+          <text name="listEmail" label="Email Address" />          
+          
           <boolean name="geospatialMaster" label="Is Master" description="Flag denoting if the geospatial is a master geospatial" />
           <char name="geospatialVisibility" label="Visibility" size="255" required="false" />
-          <localText name="geospatialDescription"/>                    
+          <localText name="geospatialDescription"/>           
+          <dateTime name="geospatialCollectionDate"/>                    
+          <text name="geospatialOriginator" label="Originator" />
+          <localText name="geospatialLabel"/>
+          <localText name="geospatialProcess"/>
+          <localText name="geospatialProgress"/>
+          <localText name="geospatialAccessConstraints"/>
+          <localText name="geospatialUseConstraints"/>
+          <localText name="geospatialAcknowledgements"/>
+          <localText name="geospatialDisclaimer"/>
+          <text name="geospatialContactName" label="Contact name" />
+          <text name="geospatialOrganization" label="Organization" />
+          <text name="geospatialTelephoneNumber" label="Telephone Number" />
+          <text name="geospatialEmail" label="Email Address" />                    
+          <text name="geospatialTopicCategories" label="Topic Categories" />
+          <text name="geospatialPlaceKeywords" label="Place Keywords" />
+          <text name="geospatialUpdateFrequency" label="Update Frequency" />
+          <text name="geospatialLineage" label="Lineage" />
+          <text name="geospatialLanguages" label="Languages" />
+          <text name="geospatialScaleResolution" label="Scale resolution" />
+          <text name="geospatialSpatialRepresentation" label="Spatial Representation" />
+          <text name="geospatialReferenceSystem" label="Reference System" />
+          <text name="geospatialReportSpecification" label="Report Specification" />
+          <text name="geospatialDistributionFormat" label="Distribution Format" />
+                   
         </attributes> 
         <mdMethod name="publish" label="publish" static="false" returnType="java.lang.String" />        
       </mdBusiness>
@@ -154,17 +203,6 @@
       </mdException>
           
     </create>
-<!-- 
-    <update>
-      <mdBusiness name="net.geoprism.registry.ListTypeEntry">
-        <create>
-          <attributes>
-            <reference name="current" type="net.geoprism.registry.ListTypeVersion" required="false" label="Current" />
-          </attributes> 
-        </create>
-      </mdBusiness>    
-    </update>    
- -->    
     <permissions>
       <method methodName="createEntry" type="net.geoprism.registry.ListType">
         <assignedRole roleName="Administrator" />

@@ -24,6 +24,17 @@ export class ListMetadata {
     organization: string;
     telephoneNumber: string;
     email: string;
+
+    topicCategories?: string;
+    placeKeywords?: string;
+    updateFrequency?: string;
+    lineage?: string;
+    languages?: string;
+    scaleResolution?: string;
+    spatialRepresentation?: string;
+    referenceSystem?: string;
+    reportSpecification?: string;
+    distributionFormat?: string;
 }
 
 export class ListType {
@@ -68,9 +79,33 @@ export class ListTypeEntry {
 }
 
 export class VersionMetadata {
-    description: LocalizedValue;
     master: boolean;
     visibility: string;
+    label: LocalizedValue;
+    description: LocalizedValue;
+    process: LocalizedValue;
+    progress: LocalizedValue;
+    accessConstraints: LocalizedValue;
+    useConstraints: LocalizedValue;
+    acknowledgements: LocalizedValue;
+    disclaimer: LocalizedValue;
+    collectionDate: string;
+    originator: string;
+    contactName: string;
+    organization: string;
+    telephoneNumber: string;
+    email: string;
+
+    topicCategories?: string;
+    placeKeywords?: string;
+    updateFrequency?: string;
+    lineage?: string;
+    languages?: string;
+    scaleResolution?: string;
+    spatialRepresentation?: string;
+    referenceSystem?: string;
+    reportSpecification?: string;
+    distributionFormat?: string;    
 }
 
 export class ListVersionMetadata {

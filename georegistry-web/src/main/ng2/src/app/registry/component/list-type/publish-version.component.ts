@@ -4,7 +4,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService } from "@shared/service";
-import { ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
+import { ListType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 
 @Component({
@@ -32,27 +32,29 @@ export class PublishVersionComponent implements OnInit {
     ngOnInit(): void {
     }
 
-    init(entry: ListTypeEntry, readonly: boolean, version?: ListTypeVersion): void {
+    init(list: ListType, entry: ListTypeEntry, version?: ListTypeVersion): void {
 
         this.entry = entry;
-        this.readonly = readonly;
+        this.readonly = !list.write;
 
         if (version == null) {
             this.metadata = {
                 listMetadata: {
-                    description: this.lService.create(),
                     visibility: 'PRIVATE',
                     master: false,
+                    ...JSON.parse(JSON.stringify(list.listMetadata)),
                 },
                 geospatialMetadata: {
-                    description: this.lService.create(),
                     visibility: 'PRIVATE',
                     master: false,
+                    ...JSON.parse(JSON.stringify(list.geospatialMetadata)),
                 }
             };
         }
         else {
             this.metadata = version;
+
+            console.log(this.metadata);
         }
     }
 

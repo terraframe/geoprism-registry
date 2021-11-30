@@ -53,10 +53,12 @@ import com.runwaysdk.business.rbac.Authenticate;
 import com.runwaysdk.business.rbac.Operation;
 import com.runwaysdk.business.rbac.RoleDAO;
 import com.runwaysdk.constants.BusinessInfo;
+import com.runwaysdk.constants.Constants;
 import com.runwaysdk.constants.IndexTypes;
 import com.runwaysdk.constants.MdAttributeBooleanInfo;
 import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
+import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdTableInfo;
@@ -1121,9 +1123,50 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
   private void parseMetadata(String prefix, JsonObject object)
   {
-    ( (LocalStruct) this.getStruct(prefix + "Description") ).setLocaleMap(LocalizedValue.fromJSON(object.get("description").getAsJsonObject()).getLocaleMap());
     this.setValue(prefix + "Visibility", object.get("visibility").getAsString());
     this.setValue(prefix + "Master", object.get("master").getAsBoolean());
+    ( (LocalStruct) this.getStruct(prefix + "Label") ).setLocaleMap(LocalizedValue.fromJSON(object.get("label").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Description") ).setLocaleMap(LocalizedValue.fromJSON(object.get("description").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Process") ).setLocaleMap(LocalizedValue.fromJSON(object.get("process").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Progress") ).setLocaleMap(LocalizedValue.fromJSON(object.get("progress").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "AccessConstraints") ).setLocaleMap(LocalizedValue.fromJSON(object.get("accessConstraints").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "UseConstraints") ).setLocaleMap(LocalizedValue.fromJSON(object.get("useConstraints").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Acknowledgements") ).setLocaleMap(LocalizedValue.fromJSON(object.get("acknowledgements").getAsJsonObject()).getLocaleMap());
+    ( (LocalStruct) this.getStruct(prefix + "Disclaimer") ).setLocaleMap(LocalizedValue.fromJSON(object.get("disclaimer").getAsJsonObject()).getLocaleMap());
+    this.setValue(prefix + "ContactName", object.get("contactName").getAsString());
+    this.setValue(prefix + "Organization", object.get("organization").getAsString());
+    this.setValue(prefix + "TelephoneNumber", object.get("telephoneNumber").getAsString());
+    this.setValue(prefix + "Email", object.get("email").getAsString());
+
+    if (!object.get("originator").isJsonNull())
+    {
+      this.setValue(prefix + "Originator", object.get("originator").getAsString());
+    }
+
+    if (!object.get("collectionDate").isJsonNull())
+    {
+      SimpleDateFormat formatter = new SimpleDateFormat(Constants.DATETIME_FORMAT);
+      Date collectionDate = GeoRegistryUtil.parseDate(object.get("collectionDate").getAsString());
+
+      if (collectionDate != null)
+      {
+        this.setValue(prefix + "CollectionDate", formatter.format(collectionDate));
+      }
+    }
+
+    if (prefix.equals("geospatial"))
+    {
+      this.setGeospatialTopicCategories(object.get("topicCategories").getAsString());
+      this.setGeospatialPlaceKeywords(object.get("placeKeywords").getAsString());
+      this.setGeospatialUpdateFrequency(object.get("updateFrequency").getAsString());
+      this.setGeospatialLineage(object.get("lineage").getAsString());
+      this.setGeospatialLanguages(object.get("languages").getAsString());
+      this.setGeospatialScaleResolution(object.get("scaleResolution").getAsString());
+      this.setGeospatialSpatialRepresentation(object.get("spatialRepresentation").getAsString());
+      this.setGeospatialReferenceSystem(object.get("referenceSystem").getAsString());
+      this.setGeospatialReportSpecification(object.get("reportSpecification").getAsString());
+      this.setGeospatialDistributionFormat(object.get("distributionFormat").getAsString());
+    }    
   }
 
   public JsonObject toJSON(boolean includeAttribute)
@@ -1204,9 +1247,36 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   private JsonObject toMetadataJSON(String prefix)
   {
     JsonObject object = new JsonObject();
-    object.add("description", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON());
     object.addProperty("visibility", this.getValue(prefix + "Visibility"));
     object.addProperty("master", Boolean.parseBoolean(this.getValue(prefix + "Master")));
+    object.add("label", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Label")).toJSON());
+    object.add("description", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Description")).toJSON());
+    object.add("process", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Process")).toJSON());
+    object.add("progress", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Progress")).toJSON());
+    object.add("accessConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "AccessConstraints")).toJSON());
+    object.add("useConstraints", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "UseConstraints")).toJSON());
+    object.add("acknowledgements", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Acknowledgements")).toJSON());
+    object.add("disclaimer", LocalizedValueConverter.convertNoAutoCoalesce((LocalStruct) this.getStruct(prefix + "Disclaimer")).toJSON());
+    object.addProperty("collectionDate", GeoRegistryUtil.formatDate(MdAttributeDateTimeUtil.getTypeSafeValue(getValue(prefix + "CollectionDate")), false));
+    object.addProperty("organization", this.getValue(prefix + "Organization"));
+    object.addProperty("contactName", this.getValue(prefix + "ContactName"));
+    object.addProperty("telephoneNumber", this.getValue(prefix + "TelephoneNumber"));
+    object.addProperty("email", this.getValue(prefix + "Email"));
+    object.addProperty("originator", this.getValue(prefix + "Originator"));
+
+    if (prefix.equals("geospatial"))
+    {
+      object.addProperty("topicCategories", this.getGeospatialTopicCategories());
+      object.addProperty("placeKeywords", this.getGeospatialPlaceKeywords());
+      object.addProperty("updateFrequency", this.getGeospatialUpdateFrequency());
+      object.addProperty("lineage", this.getGeospatialLineage());
+      object.addProperty("languages", this.getGeospatialLanguages());
+      object.addProperty("scaleResolution", this.getGeospatialScaleResolution());
+      object.addProperty("spatialRepresentation", this.getGeospatialSpatialRepresentation());
+      object.addProperty("referenceSystem", this.getGeospatialReferenceSystem());
+      object.addProperty("reportSpecification", this.getGeospatialReportSpecification());
+      object.addProperty("distributionFormat", this.getGeospatialDistributionFormat());
+    }
 
     return object;
   }

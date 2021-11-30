@@ -1,4 +1,4 @@
-<ng-template #metadataDetail let-metadata='metadata'>
+<ng-template #metadataDetail let-metadata='metadata' let-type="type">
     <div class="row-holder" *ngFor="let localeValue of metadata.label.localeValues">
         <div class="label-holder">
             <label>
@@ -126,6 +126,134 @@
                 [disabled]="readonly" [required]="false"></textarea>
         </div>
     </div>
+    <ng-container *ngIf="type === 'geospatial'">
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.topicCategories"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.topicCategories" name="topicCategories" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.placeKeywords"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.placeKeywords" name="placeKeywords" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.updateFrequency"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.updateFrequency" name="updateFrequency" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.lineage"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.lineage" name="lineage" class="form-control" [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.languages"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.languages" name="languages" class="form-control" [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.scaleResolution"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.scaleResolution" name="scaleResolution" class="form-control"
+                    [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.spatialRepresentation"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <select class="select-area" name="spatialRepresentation" [(ngModel)]="metadata.spatialRepresentation"
+                    [disabled]="readonly">
+                    <option></option>
+                    <option value="vector">
+                        <localize key="list.type.vector"></localize>
+                    </option>
+                </select>
+
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.referenceSystem"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <select class="select-area" name="referenceSystem" [(ngModel)]="metadata.referenceSystem"
+                    [disabled]="readonly">
+                    <option></option>
+                    <option value="EPSG4326">
+                        <localize key="list.type.epsg4326"></localize>
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.reportSpecification"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <input [(ngModel)]="metadata.reportSpecification" name="reportSpecification" type="reportSpecification"
+                    class="form-control" [disabled]="readonly" />
+            </div>
+        </div>
+        <div class="row-holder">
+            <div class="label-holder">
+                <label>
+                    <localize key="list.type.distributionFormat"></localize>
+                </label>
+            </div>
+            <div class="holder">
+                <select class="select-area" name="distributionFormat" [(ngModel)]="metadata.distributionFormat"
+                    [disabled]="readonly">
+                    <option></option>
+                    <option value="SHAPEFILE">
+                        <localize key="io.shapefile"></localize>
+                    </option>
+                </select>
+            </div>
+        </div>
+
+    </ng-container>
+
 
     <div class="row-holder">
         <div class="label-holder"></div>
@@ -343,7 +471,7 @@
                 <div class="row-holder" *ngIf="list.listType === 'single'">
                     <div class="label-holder">
                         <label for="validOn">
-                            <localize key="list.type.valid.on"></localize>                            
+                            <localize key="list.type.valid.on"></localize>
                         </label>
                     </div>
                     <div class="holder">
@@ -475,10 +603,10 @@
                     <div class="row">
                         <div class="col-md-12">
                             <ng-container *ngIf="tab === 'LIST'" [ngTemplateOutlet]="metadataDetail"
-                                [ngTemplateOutletContext]="{metadata:list.listMetadata}">
+                                [ngTemplateOutletContext]="{metadata:list.listMetadata, type:'list'}">
                             </ng-container>
                             <ng-container *ngIf="tab === 'GEOSPATIAL'" [ngTemplateOutlet]="metadataDetail"
-                                [ngTemplateOutletContext]="{metadata:list.geospatialMetadata}">
+                                [ngTemplateOutletContext]="{metadata:list.geospatialMetadata, type:'geospatial'}">
                             </ng-container>
                         </div>
                     </div>

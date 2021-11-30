@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1302221772)
+@com.runwaysdk.business.ClassSignature(hash = 1842101208)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -290,6 +290,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListType.GEOSPATIALDISCLAIMER, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat()
+  {
+    return getGeospatialDistributionFormat(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALDISTRIBUTIONFORMAT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALDISTRIBUTIONFORMAT, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeospatialEmail()
   {
     return getGeospatialEmail(null);
@@ -330,6 +347,40 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListType.GEOSPATIALLABEL, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages()
+  {
+    return getGeospatialLanguages(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALLANGUAGES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALLANGUAGES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage()
+  {
+    return getGeospatialLineage(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALLINEAGE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALLINEAGE, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeospatialOrganization()
   {
     return getGeospatialOrganization(null);
@@ -362,6 +413,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getGeospatialOriginator(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALORIGINATOR, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords()
+  {
+    return getGeospatialPlaceKeywords(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALPLACEKEYWORDS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALPLACEKEYWORDS, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess()
@@ -410,6 +478,74 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF)this.getComponentQuery().internalAttributeFactory(net.geoprism.registry.ListType.GEOSPATIALPROGRESS, mdAttributeIF, this, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem()
+  {
+    return getGeospatialReferenceSystem(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALREFERENCESYSTEM, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALREFERENCESYSTEM, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification()
+  {
+    return getGeospatialReportSpecification(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALREPORTSPECIFICATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALREPORTSPECIFICATION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution()
+  {
+    return getGeospatialScaleResolution(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALSCALERESOLUTION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALSCALERESOLUTION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation()
+  {
+    return getGeospatialSpatialRepresentation(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALSPATIALREPRESENTATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALSPATIALREPRESENTATION, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber()
   {
     return getGeospatialTelephoneNumber(null);
@@ -425,6 +561,40 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALTELEPHONENUMBER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories()
+  {
+    return getGeospatialTopicCategories(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALTOPICCATEGORIES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALTOPICCATEGORIES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency()
+  {
+    return getGeospatialUpdateFrequency(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALUPDATEFREQUENCY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.GEOSPATIALUPDATEFREQUENCY, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints()
@@ -1194,27 +1364,57 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF getGeospatialDisclaimer();
     public net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF getGeospatialDisclaimer(String alias);
     public net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF getGeospatialDisclaimer(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat();
+    public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialEmail();
     public com.runwaysdk.query.SelectableChar getGeospatialEmail(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialEmail(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel();
     public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel(String alias);
     public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialLanguages();
+    public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialLineage();
+    public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialOrganization();
     public com.runwaysdk.query.SelectableChar getGeospatialOrganization(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialOrganization(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialOriginator();
     public com.runwaysdk.query.SelectableChar getGeospatialOriginator(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialOriginator(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords();
+    public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess();
     public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess(String alias);
     public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF getGeospatialProgress();
     public net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF getGeospatialProgress(String alias);
     public net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF getGeospatialProgress(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem();
+    public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification();
+    public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution();
+    public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation();
+    public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber();
     public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories();
+    public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency();
+    public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints();
     public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints(String alias);
     public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints(String alias, String displayLabel);
@@ -1541,6 +1741,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF)this.attributeFactory(net.geoprism.registry.ListType.GEOSPATIALDISCLAIMER, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat()
+  {
+    return getGeospatialDistributionFormat(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALDISTRIBUTIONFORMAT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALDISTRIBUTIONFORMAT, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeospatialEmail()
   {
     return getGeospatialEmail(null);
@@ -1573,6 +1790,40 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel(String alias, String displayLabel)
   {
     return (net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.ListType.GEOSPATIALLABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages()
+  {
+    return getGeospatialLanguages(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLANGUAGES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLANGUAGES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage()
+  {
+    return getGeospatialLineage(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLINEAGE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLINEAGE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getGeospatialOrganization()
@@ -1609,6 +1860,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALORIGINATOR, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords()
+  {
+    return getGeospatialPlaceKeywords(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALPLACEKEYWORDS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALPLACEKEYWORDS, alias, displayLabel);
+
+  }
   public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess()
   {
     return getGeospatialProcess(null);
@@ -1643,6 +1911,74 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF)this.attributeFactory(net.geoprism.registry.ListType.GEOSPATIALPROGRESS, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem()
+  {
+    return getGeospatialReferenceSystem(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREFERENCESYSTEM, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREFERENCESYSTEM, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification()
+  {
+    return getGeospatialReportSpecification(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREPORTSPECIFICATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREPORTSPECIFICATION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution()
+  {
+    return getGeospatialScaleResolution(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSCALERESOLUTION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSCALERESOLUTION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation()
+  {
+    return getGeospatialSpatialRepresentation(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSPATIALREPRESENTATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSPATIALREPRESENTATION, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber()
   {
     return getGeospatialTelephoneNumber(null);
@@ -1658,6 +1994,40 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALTELEPHONENUMBER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories()
+  {
+    return getGeospatialTopicCategories(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALTOPICCATEGORIES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALTOPICCATEGORIES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency()
+  {
+    return getGeospatialUpdateFrequency(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALUPDATEFREQUENCY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALUPDATEFREQUENCY, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints()
@@ -2320,27 +2690,57 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF getGeospatialDisclaimer();
     public net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF getGeospatialDisclaimer(String alias);
     public net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF getGeospatialDisclaimer(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat();
+    public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialEmail();
     public com.runwaysdk.query.SelectableChar getGeospatialEmail(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialEmail(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel();
     public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel(String alias);
     public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialLanguages();
+    public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialLineage();
+    public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialOrganization();
     public com.runwaysdk.query.SelectableChar getGeospatialOrganization(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialOrganization(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialOriginator();
     public com.runwaysdk.query.SelectableChar getGeospatialOriginator(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialOriginator(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords();
+    public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess();
     public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess(String alias);
     public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF getGeospatialProgress();
     public net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF getGeospatialProgress(String alias);
     public net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF getGeospatialProgress(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem();
+    public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification();
+    public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution();
+    public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation();
+    public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber();
     public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber(String alias);
     public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories();
+    public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency();
+    public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias);
+    public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias, String displayLabel);
     public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints();
     public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints(String alias);
     public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints(String alias, String displayLabel);
@@ -2716,6 +3116,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (net.geoprism.registry.ListTypeGeospatialDisclaimerQuery.ListTypeGeospatialDisclaimerQueryStructIF)this.attributeFactory(net.geoprism.registry.ListType.GEOSPATIALDISCLAIMER, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat()
+  {
+    return getGeospatialDistributionFormat(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALDISTRIBUTIONFORMAT, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialDistributionFormat(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALDISTRIBUTIONFORMAT, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeospatialEmail()
   {
     return getGeospatialEmail(null);
@@ -2748,6 +3165,40 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF getGeospatialLabel(String alias, String displayLabel)
   {
     return (net.geoprism.registry.ListTypeGeospatialLabelQuery.ListTypeGeospatialLabelQueryStructIF)this.attributeFactory(net.geoprism.registry.ListType.GEOSPATIALLABEL, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages()
+  {
+    return getGeospatialLanguages(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLANGUAGES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLanguages(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLANGUAGES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage()
+  {
+    return getGeospatialLineage(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLINEAGE, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialLineage(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALLINEAGE, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getGeospatialOrganization()
@@ -2784,6 +3235,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALORIGINATOR, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords()
+  {
+    return getGeospatialPlaceKeywords(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALPLACEKEYWORDS, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialPlaceKeywords(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALPLACEKEYWORDS, alias, displayLabel);
+
+  }
   public net.geoprism.registry.ListTypeGeospatialProcessQuery.ListTypeGeospatialProcessQueryStructIF getGeospatialProcess()
   {
     return getGeospatialProcess(null);
@@ -2818,6 +3286,74 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     return (net.geoprism.registry.ListTypeGeospatialProgressQuery.ListTypeGeospatialProgressQueryStructIF)this.attributeFactory(net.geoprism.registry.ListType.GEOSPATIALPROGRESS, com.runwaysdk.system.metadata.MdAttributeLocalText.CLASS, alias, displayLabel);
 
   }
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem()
+  {
+    return getGeospatialReferenceSystem(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREFERENCESYSTEM, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReferenceSystem(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREFERENCESYSTEM, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification()
+  {
+    return getGeospatialReportSpecification(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREPORTSPECIFICATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialReportSpecification(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALREPORTSPECIFICATION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution()
+  {
+    return getGeospatialScaleResolution(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSCALERESOLUTION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialScaleResolution(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSCALERESOLUTION, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation()
+  {
+    return getGeospatialSpatialRepresentation(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSPATIALREPRESENTATION, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialSpatialRepresentation(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALSPATIALREPRESENTATION, alias, displayLabel);
+
+  }
   public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber()
   {
     return getGeospatialTelephoneNumber(null);
@@ -2833,6 +3369,40 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getGeospatialTelephoneNumber(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALTELEPHONENUMBER, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories()
+  {
+    return getGeospatialTopicCategories(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALTOPICCATEGORIES, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialTopicCategories(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALTOPICCATEGORIES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency()
+  {
+    return getGeospatialUpdateFrequency(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALUPDATEFREQUENCY, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableChar getGeospatialUpdateFrequency(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.GEOSPATIALUPDATEFREQUENCY, alias, displayLabel);
 
   }
   public net.geoprism.registry.ListTypeGeospatialUseConstraintsQuery.ListTypeGeospatialUseConstraintsQueryStructIF getGeospatialUseConstraints()
