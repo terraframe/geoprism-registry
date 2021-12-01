@@ -34,7 +34,7 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 {
   public static final String            ATTRIBUTES      = "attributes";
 
-  public static final String            HIERARCHY       = "hierarchyCode";
+  public static final String            HIERARCHY       = "hierarchy";
 
   public static final String            LEVELS          = "levels";
 
