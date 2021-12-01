@@ -18,7 +18,9 @@
  */
 package com.runwaysdk.build.domain;
 
-import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonObject;
 import com.runwaysdk.dataaccess.transaction.Transaction;
 import com.runwaysdk.query.OIterator;
@@ -29,13 +31,14 @@ import com.runwaysdk.system.metadata.MdTermRelationship;
 import net.geoprism.registry.SynchronizationConfig;
 import net.geoprism.registry.SynchronizationConfigQuery;
 import net.geoprism.registry.etl.DHIS2SyncConfig;
-import net.geoprism.registry.etl.ExternalSystemSyncConfig;
 import net.geoprism.registry.graph.DHIS2ExternalSystem;
 import net.geoprism.registry.graph.ExternalSystem;
 import net.geoprism.registry.model.ServerHierarchyType;
 
 public class SynchronizationConfigPatch
 {
+  private static final Logger logger = LoggerFactory.getLogger(SynchronizationConfigPatch.class);
+  
   public static void main(String[] args)
   {
     new SynchronizationConfigPatch().doIt();
@@ -52,6 +55,10 @@ public class SynchronizationConfigPatch
   {
     SynchronizationConfigQuery query = new SynchronizationConfigQuery(new QueryFactory());
 
+    logger.info("Attempting to patch " + query.getCount() + " synchronization configs.");
+    
+    long count = 0;
+    
     try (OIterator<? extends SynchronizationConfig> iterator = query.getIterator())
     {
       while (iterator.hasNext())
@@ -61,26 +68,44 @@ public class SynchronizationConfigPatch
 
         if (system instanceof DHIS2ExternalSystem)
         {
+          JsonObject json = config.getConfigurationJson();
+          ServerHierarchyType hierarchy = null;
+          
           MdTermRelationship universalRelationship = config.getHierarchy();
 
           if (universalRelationship != null)
           {
-            ServerHierarchyType hierarchy = ServerHierarchyType.get(universalRelationship);
+            hierarchy = ServerHierarchyType.get(universalRelationship);
+          }
+          else if (json.has("hierarchy"))
+          {
+            hierarchy = ServerHierarchyType.get(json.get("hierarchy").getAsString());
+          }
+          else if (json.has("hierarchyCode"))
+          {
+            hierarchy = ServerHierarchyType.get(json.get("hierarchy").getAsString());
+          }
+          
+          if (hierarchy != null)
+          {
+            json.remove("hierarchy");
+            json.addProperty(DHIS2SyncConfig.HIERARCHY, hierarchy.getCode());
 
-            if (hierarchy != null)
-            {
-              JsonObject json = config.getConfigurationJson();
-
-              json.addProperty(DHIS2SyncConfig.HIERARCHY, hierarchy.getCode());
-
-              config.appLock();
-              config.setConfiguration(json.toString());
-              config.apply();
-            }
+            config.appLock();
+            config.setConfiguration(json.toString());
+            config.apply();
+            
+            count++;
+          }
+          else
+          {
+            logger.error("Skipping " + config.getKey() + " because we couldn't resolve a hierarchy.");
           }
         }
       }
     }
+    
+    logger.info("Successfully patched " + count + " synchronization configs.");
   }
 
 }

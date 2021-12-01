@@ -91,7 +91,7 @@ public class DHIS2SyncConfig extends ExternalSystemSyncConfig
 
     JsonObject json = config.getConfigurationJson();
 
-    String hierarchyCode = json.get(DHIS2SyncConfig.HIERARCHY).getAsString();
+    String hierarchyCode = json.get(HIERARCHY).getAsString();
 
     this.setHierarchyCode(hierarchyCode);
     this.setHierarchy(ServerHierarchyType.get(hierarchyCode));
