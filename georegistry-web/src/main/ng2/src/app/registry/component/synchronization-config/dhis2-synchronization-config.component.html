@@ -5,7 +5,7 @@
           </div>
           <div class="holder">
             <span class="select">
-              <select type="text" [(ngModel)]="config.configuration.hierarchyCode" name="hierarchy" (change)='onChangeHierarchy()' [disabled]="config.oid != null" required>
+              <select type="text" [(ngModel)]="config.configuration.hierarchy" name="hierarchy" (change)='onChangeHierarchy()' [disabled]="config.oid != null" required>
                 <option></option>
                 <option *ngFor="let hierarchy of cOrg.hierarchies" [value]="hierarchy.code">{{hierarchy.label}}</option>
               </select>
@@ -13,7 +13,7 @@
           </div>
         </div>
         
-        <div *ngIf="config.configuration.hierarchyCode != null" class="row-holder" >
+        <div *ngIf="config.configuration.hierarchy != null" class="row-holder" >
       
           <div class="label-holder">
             <label><localize key="synchronization.config.units"></localize></label>
