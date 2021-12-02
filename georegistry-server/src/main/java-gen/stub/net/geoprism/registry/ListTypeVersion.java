@@ -1805,6 +1805,76 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return page;
   }
 
+  public JsonObject record(String code)
+  {
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+    NumberFormat numberFormat = NumberFormat.getInstance(Session.getCurrentLocale());
+
+    MdBusinessDAOIF mdBusiness = MdBusinessDAO.get(this.getMdBusinessOid());
+    List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
+
+    BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
+    query.WHERE(query.get(DefaultAttribute.CODE.getName()).EQ(code));
+
+    JsonObject record = new JsonObject();
+    record.add("attributes", this.getAttributesAsJson());
+
+    try (OIterator<Business> iterator = query.getIterator())
+    {
+      if (iterator.hasNext())
+      {
+        Business row = iterator.next();
+        JsonObject object = new JsonObject();
+
+        object.addProperty(ORIGINAL_OID, row.getValue(ORIGINAL_OID));
+
+        for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
+        {
+          if (this.isValid(mdAttribute))
+          {
+            String attributeName = mdAttribute.definesAttribute();
+            Object value = row.getObjectValue(attributeName);
+
+            if (value != null)
+            {
+
+              if (value instanceof Double)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), numberFormat.format((Double) value));
+              }
+              else if (value instanceof Number)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (Number) value);
+              }
+              else if (value instanceof Boolean)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (Boolean) value);
+              }
+              else if (value instanceof String)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (String) value);
+              }
+              else if (value instanceof Character)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), (Character) value);
+              }
+              else if (value instanceof Date)
+              {
+                object.addProperty(mdAttribute.definesAttribute(), format.format((Date) value));
+              }
+            }
+          }
+        }
+
+        record.add("data", object);
+      }
+    }
+
+    return record;
+  }
+
   @Transaction
   public static ListTypeVersion create(ListTypeEntry listEntry, boolean working, int versionNumber, JsonObject metadata)
   {

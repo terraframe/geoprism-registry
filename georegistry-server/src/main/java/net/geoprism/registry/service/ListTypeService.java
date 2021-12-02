@@ -356,6 +356,13 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
+  public JsonObject record(String sessionId, String oid, String code)
+  {
+    ListTypeVersion version = ListTypeVersion.get(oid);
+    return version.record(code);
+  }
+
+  @Request(RequestType.SESSION)
   public JsonArray values(String sessionId, String oid, String value, String attributeName, String valueAttribute, String filterJson)
   {
     return ListTypeVersion.get(oid).values(value, attributeName, valueAttribute, filterJson);

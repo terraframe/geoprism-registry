@@ -6,9 +6,10 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
-  
-      <!--
-      <div id="navigator-left-sidebar"  class="col-md-5 lw-inner-col" style="height: calc(100vh - 145px);overflow-y: auto;">
+
+      <div *ngIf="mode !== MODE.NONE" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
+        style="height: calc(100vh - 145px);overflow-y: auto;">
+        <!--
         <div>
           <div class="row">
             <div class="col-md-12">
@@ -80,41 +81,53 @@
             ></feature-panel>
           </div>
         </div>            
-        
-      </div>
-    -->      
+      -->
+        <div *ngIf="mode === MODE.RECORD && record != null" class="row">
+          <div class="col-md-12">
+            <record-panel [record]="record" (close)="mode = MODE.NONE"></record-panel>
+          </div>
+        </div>
 
-      <div [ngClass]="{'col-md-7':code != null, 'col-md-12':code == null}" id="site-explorer-map">
+      </div>
+
+      <div [ngClass]="{'col-md-7':mode !== MODE.NONE, 'col-md-12':mode === MODE.NONE}" id="site-explorer-map">
         <div class="row">
-          
+
           <article class="base-layer-panel">
             <layer-panel (layerChange)="onContextLayerChange($event)" (reorder)="onReorderLayers($event)"></layer-panel>
           </article>
 
           <div id="map" class="map-view-port"></div>
-<!--           <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control> -->
-          
-          <div *ngIf="editingControl && (type.geometryType === 'POINT' || type.geometryType === 'MULTIPOINT')" style="position:absolute;top:185px;right:10px;color:white;">
-            
-            <div >
-                <div><label><localize key="geoobject.editor.geometry.latitude.label"></localize></label></div>
-                <div>
+          <!--           <simple-edit-control [visible]="editingControl != null" [editSessionEnabled]="editSessionEnabled" [save]="true" (editEmitter)="onMapSave()" #simpleEditControl></simple-edit-control> -->
+
+          <div *ngIf="editingControl && (type.geometryType === 'POINT' || type.geometryType === 'MULTIPOINT')"
+            style="position:absolute;top:185px;right:10px;color:white;">
+
+            <div>
+              <div><label>
+                  <localize key="geoobject.editor.geometry.latitude.label"></localize>
+                </label></div>
+              <div>
                 <div class="text-left">
-                  <input name="latitude" type="number" class="form-control" [(ngModel)]="coordinate.latitude" (change)="refreshDrawFromInput()" required />
+                  <input name="latitude" type="number" class="form-control" [(ngModel)]="coordinate.latitude"
+                    (change)="refreshDrawFromInput()" required />
                 </div>
               </div>
             </div>
-            <div >
-                <div><label><localize key="geoobject.editor.geometry.longitude.label"></localize></label></div>
-                <div>
+            <div>
+              <div><label>
+                  <localize key="geoobject.editor.geometry.longitude.label"></localize>
+                </label></div>
+              <div>
                 <div class="text-left">
-                  <input name="longitude" type="number" class="form-control" [(ngModel)]="coordinate.longitude" (change)="refreshDrawFromInput()" required />
+                  <input name="longitude" type="number" class="form-control" [(ngModel)]="coordinate.longitude"
+                    (change)="refreshDrawFromInput()" required />
                 </div>
               </div>
             </div>
-            
+
           </div>
-          
+
         </div>
       </div>
     </div>

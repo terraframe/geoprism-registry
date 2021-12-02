@@ -172,6 +172,14 @@ public class ListTypeController
     return new RestBodyResponse(response);
   }
 
+  @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "record")
+  public ResponseIF record(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "code") String code)
+  {
+    JsonObject response = this.service.record(request.getSessionId(), oid, code);
+
+    return new RestBodyResponse(response);
+  }
+
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "values")
   public ResponseIF values(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "value") String value, @RequestParamter(name = "attributeName") String attributeName, @RequestParamter(name = "valueAttribute") String valueAttribute, @RequestParamter(name = "filter") String filter)
   {

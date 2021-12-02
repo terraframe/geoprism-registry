@@ -17,8 +17,9 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { LocalizationService } from "@shared/service";
-import { ContextLayer } from "@registry/model/list-type";
+import { ContextLayer, Record } from "@registry/model/list-type";
 import { LayerEvent } from "./layer-panel.component";
+import { ListTypeService } from "@registry/service/list-type.service";
 
 declare let acp: string;
 
@@ -39,7 +40,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     MODE: ModalState = {
         SEARCH: 0,
-        VIEW: 1
+        VIEW: 1,
+        RECORD: 2,
+        NONE: 3
     }
 
     urlSubscriber: any;
@@ -63,7 +66,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     /*
      *  MODE
      */
-    mode: number = this.MODE.SEARCH;
+    mode: number = this.MODE.NONE;
 
     /*
      * Date of data for explorer
@@ -76,6 +79,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * Currently selected geo object
      */
     current: GeoObject;
+
+    /*
+     * Currently selected record
+     */
+    record: Record;
 
     /*
      * Currently selected geo object type
@@ -147,8 +155,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     editingControl: any;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private modalService: BsModalService, private mapService: MapService, private geomService: GeometryService, public service: RegistryService,
-        private route: ActivatedRoute, private router: Router, private lService: LocalizationService) { }
+    constructor(
+        private service: RegistryService,
+        private listService: ListTypeService,
+        private mapService: MapService,
+        private geomService: GeometryService,
+        private modalService: BsModalService,
+        private route: ActivatedRoute,
+        private router: Router,
+        private lService: LocalizationService) { }
 
     ngOnInit(): void {
         this.urlSubscriber = this.route.params.subscribe(params => {
@@ -290,6 +305,21 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             if (feature.properties.code != null && (this.current == null || this.current.properties.code !== feature.properties.code)) {
                 this.select(feature, null);
+            }
+        }
+    }
+
+    handleContextClickEvent(event: any): void {
+        console.log(event.features);
+
+        if (!this.isEdit && event.features != null && event.features.length > 0) {
+            const feature = event.features[0];
+
+            if (feature.properties.code != null && (this.current == null || this.current.properties.code !== feature.properties.code)) {
+                this.listService.record(feature.source, feature.properties.code).then(record => {
+                    this.mode = this.MODE.RECORD;
+                    this.record = record;
+                })
             }
         }
     }
@@ -670,47 +700,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             }, prevLayer);
 
+            this.map.on("click", source + "-points", (event: any) => {
+                this.handleContextClickEvent(event);
+            });
+
+            this.map.on("click", source + "-polygon", (event: any) => {
+                this.handleContextClickEvent(event);
+            });
+
             this.vectorLayers.push(source);
         }
     }
 
-    // TODO : Not sure what the point of this code was
-    /*
-        refreshInputsFromDraw(): void {
-            let geom = this.getDrawGeometry();
-            let point = geom.coordinates[0];
-    
-            this.coordinate.latitude = point[1];
-            this.coordinate.longitude = point[0];
-        }
-    
-        refreshDrawFromInput(): void {
-    
-            if( this.coordinate.longitude != null && this.coordinate.latitude != null ) {
-    
-                const isLatitude = num => isFinite(num) && Math.abs(num) <= 90;
-                const isLongitude = num => isFinite(num) && Math.abs(num) <= 180;
-    
-                if( !isLatitude(this.coordinate.latitude) || !isLongitude(this.coordinate.longitude)){
-                    // outside EPSG bounds
-                }
-    
-                this.editingControl.set({
-                  type: 'FeatureCollection',
-                  features: [{
-                    id: this.current.properties.uid,
-                    type: 'Feature',
-                    properties: {},
-                    geometry: { type: 'Point', coordinates: [ this.coordinate.longitude, this.coordinate.latitude ] }
-                  }]
-                });
-    
-                this.editingControl.changeMode( 'simple_select', { featureIds: this.current.properties.uid } );
-    
-                this.editSessionEnabled = true;
-            }
-        }
-        */
 
     error(err: HttpErrorResponse): void {
         this.bsModalRef = ErrorHandler.showErrorAsDialog(err, this.modalService);

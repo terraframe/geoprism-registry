@@ -105,7 +105,7 @@ export class VersionMetadata {
     spatialRepresentation?: string;
     referenceSystem?: string;
     reportSpecification?: string;
-    distributionFormat?: string;    
+    distributionFormat?: string;
 }
 
 export class ListVersionMetadata {
@@ -151,4 +151,9 @@ export class ContextList {
     label: string;
     versions: ContextLayer[];
     open?: boolean;
+}
+
+export class Record {
+    attributes: any[];
+    data: Object;
 }

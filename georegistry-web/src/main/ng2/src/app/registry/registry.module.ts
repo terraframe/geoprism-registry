@@ -114,6 +114,7 @@ import { ListTypeComponent } from "./component/list-type/list-type.component";
 import { ListComponent } from "./component/list-type/list.component";
 import { PublishVersionComponent } from "./component/list-type/publish-version.component";
 import { ExportFormatModalComponent } from "./component/list-type/export-format-modal.component";
+import { RecordPanelComponent } from "./component/location-manager/record-panel.component";
 
 @NgModule({
     imports: [
@@ -213,6 +214,7 @@ import { ExportFormatModalComponent } from "./component/list-type/export-format-
         TransitionEventModalComponent,
         HistoricalReportComponent,
         HistoricalEventModuleComponent,
+        RecordPanelComponent,
         // List type
         ListTypeManagerComponent,
         ListTypePublishModalComponent,
