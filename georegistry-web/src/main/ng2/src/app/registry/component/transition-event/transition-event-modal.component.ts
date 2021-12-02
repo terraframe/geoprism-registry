@@ -337,12 +337,15 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
                 if (trans.sourceType !== trans.targetType) {
                     if (trans.transitionType === "REASSIGN") {
                         trans.typeUpdown = updown;
+                        delete trans.typePart;
                         trans.transitionType = trans.typeUpdown;
                     } else {
                         trans.typeUpdown = updown;
                         trans.typePart = trans.transitionType;
                         trans.transitionType = trans.typeUpdown + "_" + trans.typePart;
                     }
+                } else {
+                    delete trans.typePart;
                 }
             }
         });
