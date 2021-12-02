@@ -83,7 +83,7 @@ public class SynchronizationConfigPatch
           }
           else if (json.has("hierarchyCode"))
           {
-            hierarchy = ServerHierarchyType.get(json.get("hierarchy").getAsString());
+            hierarchy = ServerHierarchyType.get(json.get("hierarchyCode").getAsString());
           }
           
           if (hierarchy != null)
