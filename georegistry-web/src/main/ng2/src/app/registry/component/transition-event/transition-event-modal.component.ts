@@ -83,17 +83,26 @@ export class TransitionEventModalComponent implements OnInit, OnDestroy {
         this.onEventChange = new Subject();
 
         this.iService.listGeoObjectTypes(false).then(types => {
+            let myOrgs: string[] = this.authService.getMyOrganizations();
             let myOrgTypes = [];
+            let afterTypes = [];
+            let isSRA = this.authService.isSRA();
             for (let i = 0; i < types.length; ++i) {
                 const orgCode = types[i].orgCode;
                 const typeCode = types[i].superTypeCode != null ? types[i].superTypeCode : types[i].code;
 
-                if (this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
-                    myOrgTypes.push(types[i]);
+                let myOrgIndex = myOrgs.indexOf(orgCode);
+
+                if (myOrgIndex !== -1 || isSRA) {
+                    afterTypes.push(types[i]);
+
+                    if (this.authService.isGeoObjectTypeRM(orgCode, typeCode)) {
+                        myOrgTypes.push(types[i]);
+                    }
                 }
             }
             this.types = myOrgTypes;
-            this.allTypes = types;
+            this.allTypes = afterTypes;
 
             this.readonly = this.readonly || this.event.permissions.indexOf("WRITE") === -1;
         }).catch((err: HttpErrorResponse) => {
