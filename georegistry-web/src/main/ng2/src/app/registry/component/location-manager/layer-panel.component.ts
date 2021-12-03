@@ -20,6 +20,7 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<any>();
     @Output() reorder = new EventEmitter<ContextLayer[]>();
+    @Output() zoomTo = new EventEmitter<ContextLayer>();
 
     baselayerIconHover = false;
 
@@ -65,8 +66,8 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     confirm(): void {
         // Remove all current lists
         this.lists.forEach(list => {
-            list.versions.filter(v => v.active).forEach(v => {
-                this.toggleContextLayer(v);
+            list.versions.filter(v => v.enabled).forEach(v => {
+                this.toggleContextLayer(v, list);
             });
         });
 
@@ -80,12 +81,13 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     }
 
 
-    toggleContextLayer(layer: ContextLayer): void {
+    toggleContextLayer(layer: ContextLayer, list: ContextList): void {
         layer.enabled = !layer.enabled;
         layer.active = layer.enabled;
 
         if (layer.active && layer.color == null) {
             layer.color = ColorGen().hexString();
+            layer.label = list.label;
         }
 
         if (layer.enabled) {
@@ -121,6 +123,10 @@ export class LayerPanelComponent implements OnInit, OnChanges {
         }
 
         this.layerChange.emit(event);
+    }
+
+    onGotoBounds(layer: ContextLayer): void { 
+        this.zoomTo.emit(layer);
     }
 
 

@@ -142,9 +142,10 @@ export class ContextLayer {
     oid: string;
     forDate: string;
     versionNumber: string;
-    active: boolean;
-    enabled: boolean;
-    color: string;
+    active?: boolean;
+    enabled?: boolean;
+    color?: string;
+    label?: string;
 }
 
 export class ContextList {
@@ -155,7 +156,7 @@ export class ContextList {
 }
 
 export class LayerRecord {
-    recordType:string;
+    recordType: string;
     type?: GeoObjectType;
     code?: string;
     forDate?: string;

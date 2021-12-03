@@ -71,14 +71,14 @@
         <ng-container *ngIf="mode === MODE.VIEW && record != null">
           <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
             <div class="col-md-12">
-              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate"
-                [readOnly]="false" (modeChange)="onModeChange($event)"
-                (panelCancel)="mode = MODE.NONE" (panelSubmit)="onPanelSubmit($event)"></feature-panel>
+              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false"
+                (modeChange)="onModeChange($event)" (panelCancel)="changeMode(MODE.NONE)"
+                (panelSubmit)="onPanelSubmit($event)"></feature-panel>
             </div>
           </div>
           <div *ngIf="mode === MODE.VIEW && record != null" class="row">
             <div class="col-md-12">
-              <record-panel [record]="record" (close)="mode = MODE.NONE"></record-panel>
+              <record-panel [record]="record" (close)="changeMode(MODE.NONE)"></record-panel>
             </div>
           </div>
         </ng-container>
@@ -89,7 +89,8 @@
         <div class="row">
 
           <article class="base-layer-panel">
-            <layer-panel (layerChange)="onContextLayerChange($event)" (reorder)="onReorderLayers($event)"></layer-panel>
+            <layer-panel (layerChange)="onContextLayerChange($event)" (reorder)="onReorderLayers($event)"
+              (zoomTo)="onZoomTo($event)"></layer-panel>
           </article>
 
           <div id="map" class="map-view-port"></div>

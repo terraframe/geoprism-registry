@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl } from "mapbox-gl";
+import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -83,6 +83,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      * Currently selected record
      */
     record: LayerRecord;
+
+    feature: any;
 
     /*
      * Currently selected geo object type
@@ -236,7 +238,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     changeMode(mode: number): void {
         this.mode = mode;
 
-        if (this.mode === this.MODE.SEARCH) {
+        if (this.mode === this.MODE.NONE) {
             this.isEdit = false;
         }
 
@@ -297,6 +299,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.showOriginalGeometry();
     }
 
+
     showOriginalGeometry() {
         if (this.current) {
             this.addVectorLayer(this.current.properties.uid, DEFAULT_COLOR);
@@ -307,6 +310,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (this.current) {
             this.removeVectorLayer(this.current.properties.uid);
         }
+    }
+
+    onZoomTo(layer: ContextLayer): void {
+        this.listService.getBounds(layer.oid).then(bounds => {
+            if (bounds) {
+                let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
+
+                this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
+            }
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     handleMapClickEvent(event: any): void {
@@ -320,16 +335,47 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleContextClickEvent(e: any): void {
+
+        if (this.feature != null) {
+            this.map.removeFeatureState({
+                source: this.feature.source,
+                sourceLayer: this.feature.sourceLayer,
+                id: this.feature.id
+            });
+        }
+
         const features = this.map.queryRenderedFeatures(e.point);
 
         if (features != null && features.length > 0) {
             const feature = features[0];
 
             if (feature.properties.code != null && (this.current == null || this.current.properties.code !== feature.properties.code)) {
+
+                // Highlight the feature on the map
+                this.feature = feature;
+
+                this.map.setFeatureState({
+                    source: feature.source,
+                    sourceLayer: feature.sourceLayer,
+                    id: feature.id
+                }, {
+                    hover: true
+                });
+
+                // Get the feature data from the server and populate the left-hand panel
                 this.listService.record(feature.source, feature.properties.code).then(record => {
                     this.mode = this.MODE.VIEW;
                     this.record = record;
-                })
+
+                    if (this.record.recordType === 'GEO_OBJECT') {
+                        this.geomService.destroy(false);
+
+                        this.geomService.initialize(this.map, record.type.geometryType, false);
+                    }
+
+                }).catch((err: HttpErrorResponse) => {
+                    this.error(err);
+                });
             }
         }
     }
@@ -342,7 +388,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.router.navigate(["/registry/change-requests"]);
             }
         } else {
-            this.changeMode(this.MODE.SEARCH);
+            this.changeMode(this.MODE.NONE);
         }
 
         this.showOriginalGeometry();
@@ -373,7 +419,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     this.router.navigate(["/registry/change-requests", applyInfo.changeRequestId]);
                 });
                 this.bsModalRef.content.onCancel.subscribe(() => {
-                    this.changeMode(this.MODE.SEARCH);
+                    this.changeMode(this.MODE.NONE);
                 });
             }
         } else {
@@ -649,7 +695,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.map.addSource(source, {
                 type: "vector",
-                tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))]
+                tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))],
+                promoteId: 'code'
             });
 
             // Polygon layer
@@ -660,7 +707,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 "source-layer": "context",
                 layout: {},
                 paint: {
-                    "fill-color": color,
+                    "fill-color": [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        SELECTED_COLOR,
+                        color
+                    ],
                     "fill-opacity": 0.8,
                     "fill-outline-color": "black"
                 },
@@ -677,7 +729,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 "source-layer": "context",
                 paint: {
                     "circle-radius": 10,
-                    "circle-color": color,
+                    "circle-color": [
+                        'case',
+                        ['boolean', ['feature-state', 'hover'], false],
+                        SELECTED_COLOR,
+                        color
+                    ],
                     "circle-stroke-width": 2,
                     "circle-stroke-color": "#FFFFFF"
                 },
@@ -709,14 +766,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     "text-size": 12
                 }
             }, prevLayer);
-
-            // this.map.on("click", source + "-points", (event: any) => {
-            //     this.handleContextClickEvent(event);
-            // });
-
-            // this.map.on("click", source + "-polygon", (event: any) => {
-            //     this.handleContextClickEvent(event);
-            // });
 
             this.vectorLayers.push(source);
         }

@@ -180,8 +180,14 @@ export class ListTypeService {
             code: code
         };
 
+        this.eventService.start();
+
+
         return this.http
             .post<LayerRecord>(acp + "/list-type/record", JSON.stringify(params), { headers: headers })
+            .pipe(finalize(() => {
+                this.eventService.complete();
+            }))
             .toPromise();
     }
 
