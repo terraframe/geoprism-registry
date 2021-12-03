@@ -10,7 +10,13 @@
 
           <input type="checkbox" [checked]="layer.active" (change)="toggleActive(layer)" style="margin-left: 10px;">
           {{ layer.forDate }}
-          (<localize key="list.type.version"></localize> {{layer.versionNumber}})
+          (
+          <span *ngIf="layer.versionNumber !== 0">
+            <localize key="list.type.version"></localize>
+            {{layer.versionNumber}}
+          </span>
+          <localize *ngIf="layer.versionNumber === 0" key="list.type.working.version"></localize>
+          )
           <div class="fa fa-square-o" [ngStyle]="{'background-color': layer.color}"> </div>
           <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i>
           <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i>
@@ -79,8 +85,14 @@
 
                       <input type="checkbox" [checked]="version.enabled" (change)="toggleContextLayer(version)"
                         style="margin-left: 10px;">
-                      {{ version.forDate }} (<localize key="list.type.version"></localize>
-                      {{version.versionNumber}})
+                      {{ version.forDate }}
+                      (
+                      <span *ngIf="version.versionNumber !== 0">
+                        <localize key="list.type.version"></localize>
+                        {{version.versionNumber}}
+                      </span>
+                      <localize *ngIf="version.versionNumber === 0" key="list.type.working.version"></localize>
+                      )
                       <div *ngIf="version.color != null" class="fa fa-square-o"
                         [ngStyle]="{'background-color': version.color}"> </div>
                     </div>

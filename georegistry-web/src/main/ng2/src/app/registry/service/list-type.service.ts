@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { finalize } from "rxjs/operators";
 
 import { EventService } from "@shared/service";
-import { ContextList, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata, Record } from "@registry/model/list-type";
+import { ContextList, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
 declare let acp: any;
@@ -170,7 +170,7 @@ export class ListTypeService {
             .toPromise();
     }
 
-    record(oid: string, code: string): Promise<Record> {
+    record(oid: string, code: string): Promise<LayerRecord> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
@@ -181,7 +181,7 @@ export class ListTypeService {
         };
 
         return this.http
-            .post<Record>(acp + "/list-type/record", JSON.stringify(params), { headers: headers })
+            .post<LayerRecord>(acp + "/list-type/record", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 

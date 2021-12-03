@@ -1,4 +1,5 @@
 import { LocalizedValue } from "@shared/model/core";
+import { GeoObjectType } from "./registry";
 
 export class ListTypeByType {
     orgCode: string;
@@ -153,7 +154,11 @@ export class ContextList {
     open?: boolean;
 }
 
-export class Record {
-    attributes: any[];
-    data: Object;
+export class LayerRecord {
+    recordType:string;
+    type?: GeoObjectType;
+    code?: string;
+    forDate?: string;
+    attributes?: any[];
+    data?: Object;
 }

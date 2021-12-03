@@ -67,26 +67,21 @@
             </div>
           </div>
         </div>    
-        <div *ngIf="mode === MODE.VIEW && current != null" class="row">
-          <div class="col-md-12">
-            <feature-panel
-              [type]="type"
-              [code]="current.properties.code"              
-              [forDate]="forDate"
-              [readOnly]="!current.properties.writable"
-              (featureChange)="search()"
-              (modeChange)="onModeChange($event)"
-              (panelCancel)="onPanelCancel()"
-              (panelSubmit)="onPanelSubmit($event)"
-            ></feature-panel>
-          </div>
-        </div>            
       -->
-        <div *ngIf="mode === MODE.RECORD && record != null" class="row">
-          <div class="col-md-12">
-            <record-panel [record]="record" (close)="mode = MODE.NONE"></record-panel>
+        <ng-container *ngIf="mode === MODE.VIEW && record != null">
+          <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
+            <div class="col-md-12">
+              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate"
+                [readOnly]="false" (modeChange)="onModeChange($event)"
+                (panelCancel)="mode = MODE.NONE" (panelSubmit)="onPanelSubmit($event)"></feature-panel>
+            </div>
           </div>
-        </div>
+          <div *ngIf="mode === MODE.VIEW && record != null" class="row">
+            <div class="col-md-12">
+              <record-panel [record]="record" (close)="mode = MODE.NONE"></record-panel>
+            </div>
+          </div>
+        </ng-container>
 
       </div>
 

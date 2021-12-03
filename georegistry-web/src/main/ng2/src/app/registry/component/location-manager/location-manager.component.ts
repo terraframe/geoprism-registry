@@ -17,7 +17,7 @@ import { HttpErrorResponse } from "@angular/common/http";
 import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@shared/component";
 
 import { LocalizationService } from "@shared/service";
-import { ContextLayer, Record } from "@registry/model/list-type";
+import { ContextLayer, LayerRecord } from "@registry/model/list-type";
 import { LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 
@@ -41,8 +41,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     MODE: ModalState = {
         SEARCH: 0,
         VIEW: 1,
-        RECORD: 2,
-        NONE: 3
+        NONE: 2
     }
 
     urlSubscriber: any;
@@ -83,7 +82,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     /*
      * Currently selected record
      */
-    record: Record;
+    record: LayerRecord;
 
     /*
      * Currently selected geo object type
@@ -268,6 +267,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.map.addControl(new NavigationControl({ visualizePitch: true }));
         this.map.addControl(new AttributionControl({ compact: true }), "bottom-right");
 
+        this.map.on("click", (event: any) => {
+            this.handleContextClickEvent(event);
+        });
+
+        this.map.on("click", (event: any) => {
+            this.handleContextClickEvent(event);
+        });
+
+
         this.map.on("click", "children-points", (event: any) => {
             this.handleMapClickEvent(event);
         });
@@ -275,6 +283,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.map.on("click", "children-polygon", (event: any) => {
             this.handleMapClickEvent(event);
         });
+
+
 
         // Set map data on page load with URL params (single Geo-Object)
         if (this.data) {
@@ -309,15 +319,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    handleContextClickEvent(event: any): void {
-        console.log(event.features);
+    handleContextClickEvent(e: any): void {
+        const features = this.map.queryRenderedFeatures(e.point);
 
-        if (!this.isEdit && event.features != null && event.features.length > 0) {
-            const feature = event.features[0];
+        if (features != null && features.length > 0) {
+            const feature = features[0];
 
             if (feature.properties.code != null && (this.current == null || this.current.properties.code !== feature.properties.code)) {
                 this.listService.record(feature.source, feature.properties.code).then(record => {
-                    this.mode = this.MODE.RECORD;
+                    this.mode = this.MODE.VIEW;
                     this.record = record;
                 })
             }
@@ -700,13 +710,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             }, prevLayer);
 
-            this.map.on("click", source + "-points", (event: any) => {
-                this.handleContextClickEvent(event);
-            });
+            // this.map.on("click", source + "-points", (event: any) => {
+            //     this.handleContextClickEvent(event);
+            // });
 
-            this.map.on("click", source + "-polygon", (event: any) => {
-                this.handleContextClickEvent(event);
-            });
+            // this.map.on("click", source + "-polygon", (event: any) => {
+            //     this.handleContextClickEvent(event);
+            // });
 
             this.vectorLayers.push(source);
         }

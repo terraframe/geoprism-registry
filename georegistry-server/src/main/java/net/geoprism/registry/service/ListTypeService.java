@@ -20,9 +20,11 @@ package net.geoprism.registry.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.commongeoregistry.adapter.metadata.DefaultSerializer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -359,6 +361,26 @@ public class ListTypeService
   public JsonObject record(String sessionId, String oid, String code)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
+
+    if (version.getWorking())
+    {
+      ListType type = version.getListType();
+
+      if (type.doesActorHaveWritePermission())
+      {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
+
+        JsonObject object = new JsonObject();
+        object.addProperty("recordType", "GEO_OBJECT");
+        object.add("type", type.getGeoObjectType().toJSON(new DefaultSerializer()));
+        object.addProperty("code", code);
+        object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
+
+        return object;
+      }
+    }
+
     return version.record(code);
   }
 
@@ -422,6 +444,7 @@ public class ListTypeService
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
     query.WHERE(query.getListType().EQ(listType));
     query.AND(query.getWorking().EQ(false));
+    query.ORDER_BY_DESC(query.getListType());
     query.ORDER_BY_DESC(query.getForDate());
     query.ORDER_BY_DESC(query.getVersionNumber());
 
@@ -446,7 +469,7 @@ public class ListTypeService
   public JsonArray getGeospatialVersions(String sessionId, String startDate, String endDate)
   {
     ListTypeVersionQuery query = new ListTypeVersionQuery(new QueryFactory());
-    query.WHERE(query.getWorking().EQ(false));
+    // query.WHERE(query.getWorking().EQ(false));
 
     if (startDate != null && startDate.length() > 0)
     {

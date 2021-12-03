@@ -17,6 +17,5 @@ export class LocationInformation {
 export class ModalState {
     SEARCH: number;
     VIEW: number;
-    RECORD: number;
     NONE: number;
 }
