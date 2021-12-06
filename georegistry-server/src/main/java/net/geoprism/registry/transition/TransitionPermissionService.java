@@ -62,7 +62,7 @@ public class TransitionPermissionService extends UserPermissionService
     {
       actions.addAll(Arrays.asList(CGRPermissionAction.values()));
     }
-    else if (perms.isRA(afterOrgCode) || perms.isRM(afterOrgCode, afterType))
+    else if ( (!beforeType.getIsPrivate() && !afterType.getIsPrivate()) || perms.isRA(afterOrgCode) || perms.isRM(afterOrgCode, afterType) )
     {
       actions.add(CGRPermissionAction.READ);
     }
