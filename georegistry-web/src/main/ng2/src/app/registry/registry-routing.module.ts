@@ -102,16 +102,6 @@ const routes: Routes = [
         canActivate: [AuthGuard]
     },
     {
-        path: "location-manager/:geoobjectuid/:geoobjecttypecode/:datestr/:hideSearchOptions",
-        component: LocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
-        path: "location-manager/:geoobjectuid/:geoobjecttypecode/:datestr/:hideSearchOptions/:backReference",
-        component: LocationManagerComponent,
-        canActivate: [AuthGuard]
-    },
-    {
         path: "dataset-location-manager/:datasetId/:typeCode/:readOnly/:date/:editOnly",
         component: DatasetLocationManagerComponent,
         canActivate: [AuthGuard]

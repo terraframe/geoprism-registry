@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 
 import { ContextLayer, ContextList } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import * as ColorGen from "color-generator";
+import { Subscription } from "rxjs";
 
 export class LayerEvent {
     layer: ContextLayer;
@@ -17,6 +19,7 @@ export class LayerEvent {
 export class LayerPanelComponent implements OnInit, OnChanges {
 
     @Input() filter: string[] = [];
+    @Input() params: any = {};
     @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<any>();
     @Output() reorder = new EventEmitter<ContextLayer[]>();
@@ -54,16 +57,36 @@ export class LayerPanelComponent implements OnInit, OnChanges {
         //         }
     ];
 
+    subscription: Subscription;
+
+
     // eslint-disable-next-line no-useless-constructor
-    constructor(public service: ListTypeService) { }
+    constructor(
+        private route: ActivatedRoute,
+        public service: ListTypeService) { }
 
     ngOnInit(): void {
+
+        this.subscription = this.route.params.subscribe((params: any) => {
+
+            console.log(params);
+
+            if (params.version != null) {
+                this.confirm().then(lists => {
+                    lists.forEach(list => {
+                        list.versions.filter(v => v.oid === params.version).forEach(v => {
+                            this.toggleContextLayer(v, list);
+                        });
+                    })
+                });
+            }
+        });
     }
 
     ngOnChanges(changes: SimpleChanges) {
     }
 
-    confirm(): void {
+    confirm(): Promise<ContextList[]> {
         // Remove all current lists
         this.lists.forEach(list => {
             list.versions.filter(v => v.enabled).forEach(v => {
@@ -71,12 +94,14 @@ export class LayerPanelComponent implements OnInit, OnChanges {
             });
         });
 
-        this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
+        return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
             this.lists = lists;
 
             this.lists.forEach(list => {
                 list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
             });
+
+            return lists;
         });
     }
 
@@ -125,7 +150,7 @@ export class LayerPanelComponent implements OnInit, OnChanges {
         this.layerChange.emit(event);
     }
 
-    onGotoBounds(layer: ContextLayer): void { 
+    onGotoBounds(layer: ContextLayer): void {
         this.zoomTo.emit(layer);
     }
 
