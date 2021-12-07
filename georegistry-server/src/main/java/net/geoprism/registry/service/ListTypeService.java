@@ -496,8 +496,9 @@ public class ListTypeService
         ListType listType = version.getListType();
         final boolean isMember = Organization.isMember(listType.getOrganization());
 
-        if (isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC))
+        if ( ( version.getWorking() && listType.doesActorHaveWritePermission() ) || ( !version.getWorking() && ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ) ))
         {
+
           if (!map.containsKey(listType.getOid()))
           {
             JsonObject object = new JsonObject();

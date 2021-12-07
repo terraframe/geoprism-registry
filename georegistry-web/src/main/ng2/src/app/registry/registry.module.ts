@@ -115,6 +115,7 @@ import { ListComponent } from "./component/list-type/list.component";
 import { PublishVersionComponent } from "./component/list-type/publish-version.component";
 import { ExportFormatModalComponent } from "./component/list-type/export-format-modal.component";
 import { RecordPanelComponent } from "./component/location-manager/record-panel.component";
+import { SelectTypeModalComponent } from "./component/location-manager/select-type-modal.component";
 
 @NgModule({
     imports: [
@@ -215,6 +216,7 @@ import { RecordPanelComponent } from "./component/location-manager/record-panel.
         HistoricalReportComponent,
         HistoricalEventModuleComponent,
         RecordPanelComponent,
+        SelectTypeModalComponent,
         // List type
         ListTypeManagerComponent,
         ListTypePublishModalComponent,
@@ -267,7 +269,8 @@ import { RecordPanelComponent } from "./component/location-manager/record-panel.
         SynchronizationConfigModalComponent,
         TransitionEventModalComponent,
         ListTypePublishModalComponent,
-        PublishVersionComponent
+        PublishVersionComponent,
+        SelectTypeModalComponent
     ]
 })
 export class RegistryModule { }

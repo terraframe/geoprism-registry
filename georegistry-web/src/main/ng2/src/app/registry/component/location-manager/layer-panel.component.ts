@@ -19,11 +19,12 @@ export class LayerEvent {
 export class LayerPanelComponent implements OnInit, OnChanges {
 
     @Input() filter: string[] = [];
-    @Input() params: any = {};
+
     @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<any>();
     @Output() reorder = new EventEmitter<ContextLayer[]>();
     @Output() zoomTo = new EventEmitter<ContextLayer>();
+    @Output() create = new EventEmitter<ContextLayer>();
 
     baselayerIconHover = false;
 
@@ -68,9 +69,6 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     ngOnInit(): void {
 
         this.subscription = this.route.params.subscribe((params: any) => {
-
-            console.log(params);
-
             if (params.version != null) {
                 this.confirm().then(lists => {
                     lists.forEach(list => {
@@ -154,6 +152,9 @@ export class LayerPanelComponent implements OnInit, OnChanges {
         this.zoomTo.emit(layer);
     }
 
+    onCreate(layer: ContextLayer): void {
+        this.create.emit(layer);
+    }
 
     toggleBaseLayer(layer: any): void {
         this.baseLayers.forEach(bl => {

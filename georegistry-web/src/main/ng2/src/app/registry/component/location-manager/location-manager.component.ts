@@ -20,6 +20,7 @@ import { LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Subscription } from "rxjs";
+import { SelectTypeModalComponent } from "./select-type-modal.component";
 
 declare let acp: string;
 
@@ -224,11 +225,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     changeMode(mode: number): void {
         this.mode = mode;
 
-        if (this.mode === this.MODE.NONE) {
-            this.isEdit = false;
+        if (this.isEdit) {
+            this.geomService.destroy(false);
         }
 
-        this.geomService.destroy(false);
+        if (this.mode === this.MODE.NONE || this.mode === this.MODE.SEARCH) {
+            this.isEdit = false;
+        }
 
         timeout(() => {
             this.map.resize();
@@ -254,7 +257,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.addLayers();
 
         // Add zoom and rotation controls to the map.
-        this.map.addControl(new NavigationControl({ visualizePitch: true }));
+        this.map.addControl(new NavigationControl({ visualizePitch: true }), "bottom-right");
         this.map.addControl(new AttributionControl({ compact: true }), "bottom-right");
 
         this.map.on("click", (event: any) => {
@@ -280,7 +283,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }, {
                 hover: true
             });
+        }
 
+        if (this.params.version != null) {
             this.onZoomTo(this.params.version);
         }
 
@@ -302,7 +307,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     onZoomTo(oid: string): void {
         this.listService.getBounds(oid).then(bounds => {
-            if (bounds) {
+            if (bounds && Array.isArray(bounds)) {
+
                 let llb = new LngLatBounds([bounds[0], bounds[1]], [bounds[2], bounds[3]]);
 
                 this.map.fitBounds(llb, { padding: 50, animate: true, maxZoom: 20 });
@@ -312,6 +318,36 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         });
     }
 
+    onCreate(layer: ContextLayer): void {
+        if (!this.isEdit) {
+
+            this.listService.getVersion(layer.oid).then(version => {
+                if (!version.isAbstract) {
+                    this.select({
+                        properties: {
+                            type: version.typeCode,
+                            code: '__NEW__'
+                        }
+                    }, null);
+                }
+                else {
+                    this.bsModalRef = this.modalService.show(SelectTypeModalComponent, {
+                        animated: true,
+                        backdrop: true,
+                        ignoreBackdropClick: true
+                    });
+                    this.bsModalRef.content.init(version, typeCode => {
+                        this.select({
+                            properties: {
+                                type: typeCode,
+                                code: '__NEW__'
+                            }
+                        }, null);
+                    });
+                }
+            });
+        }
+    }
 
     handleMapClickEvent(e: any): void {
         if (!this.isEdit) {
@@ -593,42 +629,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
-
-        /*
-        if (this.forDate == null) {
-            this.displayDateRequiredError = true;
-
-            return;
-        }
-        */
-
-        // if (event != null) {
-        //     event.stopPropagation();
-        // }
-
-        // this.service.getGeoObjectTypes([node.properties.type], null).then(types => {
-        //     this.type = types[0];
-        //     this.current = node;
-        //     this.mode = this.MODE.VIEW;
-
-        //     this.geomService.initialize(this.map, this.type.geometryType, !this.isEdit);
-        //     this.geomService.zoomToLayersExtent();
-
-        //     //      const code = this.current.properties.code;
-        //     //
-        //     //      // Update the filter properties
-        //     //      this.map.setFilter('children-points-selected', ['all',
-        //     //        ["==", ['get', 'code'], code != null ? code : ''],
-        //     //        ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-        //     //      ]);
-        //     //
-        //     //      this.map.setFilter('children-polygon-selected', ['all',
-        //     //        ["==", ['get', 'code'], code != null ? code : ''],
-        //     //        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
-        //     //      ]);
-        // }).catch((err: HttpErrorResponse) => {
-        //     this.error(err);
-        // });
     }
 
     setData(data: GeoObject[]): void {
@@ -654,7 +654,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.map.moveLayer(layer.oid + "-label", "children-polygon");
         };
     }
-
 
     removeVectorLayer(layer: ContextLayer): void {
         const index = this.vectorLayers.findIndex(l => l.oid === layer.oid);

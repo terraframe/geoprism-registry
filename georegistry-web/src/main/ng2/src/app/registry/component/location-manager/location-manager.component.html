@@ -7,6 +7,7 @@
 
     <div class="row">
 
+
       <div *ngIf="mode !== MODE.NONE" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
         style="height: calc(100vh - 145px);overflow-y: auto;">
         <ng-container *ngIf="mode === MODE.SEARCH">
@@ -82,13 +83,13 @@
           <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
             <div class="col-md-12">
               <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false"
-                (modeChange)="onModeChange($event)" (panelCancel)="changeMode(MODE.NONE)"
+                (modeChange)="onModeChange($event)" (panelCancel)="changeMode(MODE.SEARCH)"
                 (panelSubmit)="onPanelSubmit($event)"></feature-panel>
             </div>
           </div>
           <div *ngIf="record.recordType === 'LIST'" class="row">
             <div class="col-md-12">
-              <record-panel [record]="record" (close)="changeMode(MODE.NONE)"></record-panel>
+              <record-panel [record]="record" (close)="changeMode(MODE.SEARCH)"></record-panel>
             </div>
           </div>
         </ng-container>
@@ -98,9 +99,19 @@
       <div [ngClass]="{'col-md-7':mode !== MODE.NONE, 'col-md-12':mode === MODE.NONE}" id="site-explorer-map">
         <div class="row">
 
+          <article class="panel-toggle">
+            <div class="layer-toggle">
+              <i class="fa" [ngClass]="{'fa-arrow-left':mode !== MODE.NONE, 'fa-arrow-right':mode === MODE.NONE}"
+                (click)="!isEdit && changeMode(mode === MODE.NONE ? MODE.SEARCH : MODE.NONE)"
+                style="vertical-align: middle; font-size: 18px; color: black;"></i>
+            </div>
+          </article>
+
+
           <article class="base-layer-panel">
             <layer-panel (layerChange)="onContextLayerChange($event)" (reorder)="onReorderLayers($event)"
-              (zoomTo)="onZoomTo($event.oid)" [params]="params"></layer-panel>
+              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)">
+            </layer-panel>
           </article>
 
           <div id="map" class="map-view-port"></div>

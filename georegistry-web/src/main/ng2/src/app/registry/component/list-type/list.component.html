@@ -70,6 +70,13 @@
                         <localize key="masterlist.publish"></localize>
                     </span>
 
+                    <button *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" type="submit" [routerLink]="['/registry/location-manager', { version:list.oid}]"
+                        routerLinkActive="active" class="btn btn-primary" role="button">
+                        View on map
+                    </button>
+
+<!--
+
                     <button *ngIf="list.working && isWritable && !list.isAbstract" type="submit"
                         [routerLink]="['/registry/dataset-location-manager', list.oid, list.typeCode, !isWritable, list.forDate, (!isWritable || list.isAbstract), '__NEW__', 'ML' + (isPublished ? 'T' : 'F') + list.oid]"
                         routerLinkActive="active" class="btn btn-primary" role="button">
@@ -93,6 +100,8 @@
                                     routerLinkActive="active">{{subtype.label}}</a></li>
                         </ul>
                     </span>
+-->
+
                     <button type="submit" (click)="onExport()" class="btn btn-primary" role="button">
                         <localize *ngIf="filter.length === 0" key="io.export.allrows"></localize>
                         <localize *ngIf="filter.length > 0" key="io.export.filteredrows"></localize>
@@ -106,7 +115,8 @@
                 <table class="list-table table table-bordered table-striped">
                     <thead style="position: sticky;top: 0;background: #ececec;">
                         <tr>
-                            <th *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" style="width: 3%;position: sticky;top: 0;" class="label-column">
+                            <th *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'"
+                                style="width: 3%;position: sticky;top: 0;" class="label-column">
                                 <localize key="masterlist.view.column"></localize>
                             </th>
                             <th style="position: sticky;top: 0" *ngFor="let attribute of listAttrs"
@@ -172,7 +182,8 @@
                     <tbody>
                         <tr *ngFor="let result of page.results | paginate: { itemsPerPage: page.pageSize, currentPage: page.pageNumber, totalItems: page.count }"
                             class="fade-ngRepeat-item">
-                            <td *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" style="width: 3%; text-align: center;" class="label-column">
+                            <td *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'"
+                                style="width: 3%; text-align: center;" class="label-column">
                                 <a class="fa" style="padding:3px;" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'"
                                     [routerLink]="['/registry/location-manager', { version:list.oid , code:result.code}]"
                                     routerLinkActive="active"></a>
