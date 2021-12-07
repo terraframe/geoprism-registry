@@ -10,11 +10,11 @@
           <div>
 	          <label class="radio radio-inline" style="padding-left:0;"> 
 	            <input class="inline-radio-input" type="radio" (change)="onValueChange()" [checked]="view.attributeCode === 'invalid' ? view.value === false : (view.value === true)" [value]="view.attributeCode === 'invalid' ? false : true" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-true" name="mod-{{geoObjectType.code}}-true" [disabled]="readonly"> 
-	            <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize key="change.request.boolean.option.true"></localize></span>
+	            <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.valid' : 'change.request.boolean.option.true'"></localize></span>
 	          </label> 
 	          <label class="radio radio-inline"> 
 	            <input class="inline-radio-input" type="radio" (change)="onValueChange()" [checked]="view.attributeCode === 'invalid' ? changeRequestAttributeEditor.value === true : changeRequestAttributeEditor.value === false" [value]="view.attributeCode === 'invalid' ? true : false" [(ngModel)]="changeRequestAttributeEditor.value" id="mod-{{geoObjectType.code}}-false" name="mod-{{geoObjectType.code}}-false" [disabled]="readonly"> 
-	            <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize key="change.request.boolean.option.false"></localize></span>
+	            <span [ngClass]="{'has-changed': (view.oldValue && !isNew)}"><localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.invalid' : 'change.request.boolean.option.false'"></localize></span>
 	          </label>
 	        </div>
         </div>
@@ -25,10 +25,10 @@
             
             <span *ngIf="attributeType.type === 'boolean'">
 	            <span *ngIf="view.attributeCode === 'invalid' ? (view.oldValue === false) : (view.oldValue === true)">
-                <localize key="change.request.boolean.option.true"></localize>
+                <localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.valid' : 'change.request.boolean.option.true'"></localize>
 	            </span>
 	            <span *ngIf="view.attributeCode === 'invalid' ? (view.oldValue === true) : (view.oldValue === false)">
-                <localize key="change.request.boolean.option.false"></localize>
+                <localize [key]="view.attributeCode === 'invalid' ? 'change.request.boolean.option.invalid' : 'change.request.boolean.option.false'"></localize>
 	            </span>
             </span>
             

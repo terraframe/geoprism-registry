@@ -62,7 +62,7 @@
                     </span> 
                     <span *ngIf="attr.code === 'displayLabel'"> 
                       <localize key="geoobject.displayLabel.alternate.label"></localize>
-                    </span> 
+                    </span>
                     <span *ngIf="attr.code !== 'code' && attr.code !== 'displayLabel'"> {{attr.label.localizedValue}} </span> 
                   </h4>
                 </div>
@@ -143,8 +143,7 @@
           <div class="panel-heading">
             <h4 style="margin:0;">
               <!-- <span>{{getAttribute('invalid').label.localizedValue}}</span>  -->
-              
-                <localize key="geoObjectType.attr.valid"></localize>
+                <localize key="geoobject.invalid.alternate.label"></localize>
               
             </h4>
           </div>
