@@ -109,8 +109,8 @@
 
 
           <article class="base-layer-panel">
-            <layer-panel (layerChange)="onContextLayerChange($event)" (reorder)="onReorderLayers($event)"
-              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)">
+            <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"
+              (zoomTo)="onZoomTo($event.oid)" (create)="onCreate($event)" [includeGraphLayer]="data != null && data.length > 0">
             </layer-panel>
           </article>
 

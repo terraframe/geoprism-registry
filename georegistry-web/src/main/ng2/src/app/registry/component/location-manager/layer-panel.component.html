@@ -1,3 +1,13 @@
+<ng-template #versionDetail let-layer='layer'>
+  (
+  <span *ngIf="layer.versionNumber !== 0">
+    <localize key="list.type.version"></localize>
+    {{layer.versionNumber}}
+  </span>
+  <localize *ngIf="layer.versionNumber === 0" key="list.type.working.version"></localize>
+  )
+</ng-template>
+
 <div class="layer-toggle">
 
   <i class="fa fa-bars" (click)="baselayerIconHover = !baselayerIconHover"
@@ -7,24 +17,21 @@
     <div style="margin-bottom: 10px;">
       <h4>
         Layers
-      </h4>      
+      </h4>
       <div class="list-group">
         <div *ngFor="let layer of layers" class="list-group-item">
 
           <input type="checkbox" [checked]="layer.active" (change)="toggleActive(layer)" style="margin-left: 10px;">
-          {{layer.label}} - {{ layer.forDate }}
-          (
-          <span *ngIf="layer.versionNumber !== 0">
-            <localize key="list.type.version"></localize>
-            {{layer.versionNumber}}
-          </span>
-          <localize *ngIf="layer.versionNumber === 0" key="list.type.working.version"></localize>
-          )
+          {{layer.label}} <span *ngIf="layer.oid !== 'graph'">- {{ layer.forDate }}</span>
+          <ng-container *ngIf="layer.oid !== 'graph'" [ngTemplateOutlet]="versionDetail"
+            [ngTemplateOutletContext]="{layer:layer}">
+          </ng-container>
           <div class="fa fa-square-o" [ngStyle]="{'background-color': layer.color}"> </div>
           <i class="fa fa-arrow-up" aria-hidden="true" (click)="moveLayer(layer, -1)"></i>
           <i class="fa fa-arrow-down" aria-hidden="true" (click)="moveLayer(layer, 1)"></i>
-          <i class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
-          <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true" (click)="onCreate(layer)"></i>
+          <i *ngIf="layer.oid !== 'graph'" class="fa fa-eye" aria-hidden="true" (click)="onGotoBounds(layer)"></i>
+          <i *ngIf="layer.versionNumber === 0 && !layer.isAbstract" class="fa fa-plus" aria-hidden="true"
+            (click)="onCreate(layer)"></i>
         </div>
       </div>
     </div>
@@ -87,16 +94,12 @@
                   <div *ngIf="list.open" class="list-group">
                     <div *ngFor="let version of list.versions">
 
-                      <input type="checkbox" [checked]="version.enabled" (change)="toggleContextLayer(version, list)"
+                      <input type="checkbox" [checked]="version.enabled" (change)="toggleLayer(version, list)"
                         style="margin-left: 10px;">
                       {{ version.forDate }}
-                      (
-                      <span *ngIf="version.versionNumber !== 0">
-                        <localize key="list.type.version"></localize>
-                        {{version.versionNumber}}
-                      </span>
-                      <localize *ngIf="version.versionNumber === 0" key="list.type.working.version"></localize>
-                      )
+                      <ng-container *ngIf="version.oid !== 'graph'" [ngTemplateOutlet]="versionDetail"
+                        [ngTemplateOutletContext]="{layer:version}">
+                      </ng-container>
                       <div *ngIf="version.color != null" class="fa fa-square-o"
                         [ngStyle]="{'background-color': version.color}"> </div>
                     </div>

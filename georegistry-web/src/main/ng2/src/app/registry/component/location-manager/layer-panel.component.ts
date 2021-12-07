@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, OnDestroy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 
 import { ContextLayer, ContextList } from "@registry/model/list-type";
@@ -16,9 +16,10 @@ export class LayerEvent {
     templateUrl: "./layer-panel.component.html",
     styleUrls: ["./location-manager.css"]
 })
-export class LayerPanelComponent implements OnInit, OnChanges {
+export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     @Input() filter: string[] = [];
+    @Input() includeGraphLayer: boolean = false;
 
     @Output() layerChange = new EventEmitter<LayerEvent>();
     @Output() baseLayerChange = new EventEmitter<any>();
@@ -30,7 +31,6 @@ export class LayerPanelComponent implements OnInit, OnChanges {
 
     lists: ContextList[] = [];
     layers: ContextLayer[] = [];
-
 
     form: { startDate: string, endDate: string } = {
         startDate: '',
@@ -73,7 +73,7 @@ export class LayerPanelComponent implements OnInit, OnChanges {
                 this.confirm().then(lists => {
                     lists.forEach(list => {
                         list.versions.filter(v => v.oid === params.version).forEach(v => {
-                            this.toggleContextLayer(v, list);
+                            this.toggleLayer(v, list);
                         });
                     })
                 });
@@ -81,14 +81,49 @@ export class LayerPanelComponent implements OnInit, OnChanges {
         });
     }
 
+    ngOnDestroy(): void {
+        this.subscription.unsubscribe();
+    }
+
     ngOnChanges(changes: SimpleChanges) {
+
+        if (changes.includeGraphLayer != null) {
+            if (changes.includeGraphLayer.currentValue) {
+                const layer = {
+                    oid: 'graph',
+                    forDate: '',
+                    versionNumber: -1,
+                };
+
+                const list = {
+                    oid: 'graph',
+                    label: 'Results',
+                    versions: [layer],
+                    open: false,
+                }
+
+                this.lists.push(list);
+
+                this.toggleLayer(layer, list);
+            }
+            else {       
+                const index = this.lists.findIndex(v => v.oid === 'graph');
+
+                if(index !== -1) {
+                    const list = this.lists[index];
+                    this.toggleLayer(list.versions[0], list);
+
+                    this.lists.splice(index, 1);
+                }
+            }
+        }
     }
 
     confirm(): Promise<ContextList[]> {
         // Remove all current lists
         this.lists.forEach(list => {
-            list.versions.filter(v => v.enabled).forEach(v => {
-                this.toggleContextLayer(v, list);
+            list.versions.filter(v => v.enabled && v.oid !== 'graph').forEach(v => {
+                this.toggleLayer(v, list);
             });
         });
 
@@ -104,7 +139,7 @@ export class LayerPanelComponent implements OnInit, OnChanges {
     }
 
 
-    toggleContextLayer(layer: ContextLayer, list: ContextList): void {
+    toggleLayer(layer: ContextLayer, list: ContextList): void {
         layer.enabled = !layer.enabled;
         layer.active = layer.enabled;
 

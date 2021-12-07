@@ -7,7 +7,7 @@ import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { AllGeoJSON } from "@turf/helpers";
 import bbox from "@turf/bbox";
 
-import { GeoObject, ValueOverTime } from "@registry/model/registry";
+import { GeoObject } from "@registry/model/registry";
 import { ModalState } from "@registry/model/location-manager";
 
 import { MapService, RegistryService, GeometryService } from "@registry/service";
@@ -100,7 +100,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     public displayDateRequiredError: boolean = false;
 
-    vectorLayers: ContextLayer[] = [];
+    layers: ContextLayer[] = [];
 
     backReference: string;
 
@@ -150,31 +150,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.subscription = this.route.params.subscribe((params: any) => {
             this.params = params;
         });
-
-        // this.urlSubscriber = this.route.params.subscribe(params => {
-        //     let geoObjectUid = params["geoobjectuid"];
-        //     let geoObjectTypeCode = params["geoobjecttypecode"];
-        //     this.hideSearchOptions = params["hideSearchOptions"];
-        //     this.backReference = this.route.snapshot ? this.route.snapshot.params["backReference"] : null;
-
-        //     this.dateStr = params["datestr"];
-        //     this.handleDateChange();
-
-        //     if (geoObjectUid && geoObjectTypeCode && this.dateStr) {
-        //         this.service.getGeoObject(geoObjectUid, geoObjectTypeCode).then(geoObj => {
-        //             this.setData([geoObj]);
-        //             this.select(geoObj, null);
-        //         }).catch((err: HttpErrorResponse) => {
-        //             this.error(err);
-        //         });
-        //     }
-        // });
     }
 
     ngOnDestroy(): void {
         this.geomService.destroy();
         this.subscription.unsubscribe();
-        // this.urlSubscriber.unsubscribe();
     }
 
     ngAfterViewInit() {
@@ -266,10 +246,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         // Set map data on page load with URL params (single Geo-Object)
         if (this.data) {
-            let fc = { type: "FeatureCollection", features: this.data };
-            (<any>this.map.getSource("children")).setData(fc);
+            // let fc = { type: "FeatureCollection", features: this.data };
+            // (<any>this.map.getSource("children")).setData(fc);
 
-            this.zoomToFeature(this.data[0], null);
+            // this.zoomToFeature(this.data[0], null);
         }
 
         // Highlight the feature
@@ -301,7 +281,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     // hideOriginalGeometry() {
     //     if (this.current) {
-    //         this.removeVectorLayer(this.current.properties.uid);
+    //         this.removeLayer(this.current.properties.uid);
     //     }
     // }
 
@@ -370,7 +350,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         hover: true
                     });
 
-                    if (feature.source === 'children') {
+                    if (feature.source === 'graph') {
                         this.select(feature, null);
                     }
                     else {
@@ -436,80 +416,80 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     addLayers(): void {
-        const source = "children";
+        // const source = "children";
 
-        this.map.addSource(source, {
-            type: "geojson",
-            data: {
-                type: "FeatureCollection",
-                features: [],
-            },
-            promoteId: 'code'
-        });
+        // this.map.addSource(source, {
+        //     type: "geojson",
+        //     data: {
+        //         type: "FeatureCollection",
+        //         features: [],
+        //     },
+        //     promoteId: 'code'
+        // });
 
-        // Polygon layer
-        this.map.addLayer({
-            id: source + "-polygon",
-            type: "fill",
-            source: source,
-            layout: {},
-            paint: {
-                "fill-color": [
-                    'case',
-                    ['boolean', ['feature-state', 'hover'], false],
-                    SELECTED_COLOR,
-                    DEFAULT_COLOR
-                ],
-                "fill-opacity": 0.8,
-                "fill-outline-color": "black"
-            },
-            filter: ["all",
-                ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
-            ]
-        });
+        // // Polygon layer
+        // this.map.addLayer({
+        //     id: source + "-polygon",
+        //     type: "fill",
+        //     source: source,
+        //     layout: {},
+        //     paint: {
+        //         "fill-color": [
+        //             'case',
+        //             ['boolean', ['feature-state', 'hover'], false],
+        //             SELECTED_COLOR,
+        //             DEFAULT_COLOR
+        //         ],
+        //         "fill-opacity": 0.8,
+        //         "fill-outline-color": "black"
+        //     },
+        //     filter: ["all",
+        //         ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+        //     ]
+        // });
 
-        // Point layer
-        this.map.addLayer({
-            id: source + "-points",
-            type: "circle",
-            source: source,
-            paint: {
-                "circle-radius": 10,
-                "circle-color": [
-                    'case',
-                    ['boolean', ['feature-state', 'hover'], false],
-                    SELECTED_COLOR,
-                    DEFAULT_COLOR
-                ],
-                "circle-stroke-width": 2,
-                "circle-stroke-color": "#FFFFFF"
-            },
-            filter: ["all",
-                ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-            ]
-        });
+        // // Point layer
+        // this.map.addLayer({
+        //     id: source + "-points",
+        //     type: "circle",
+        //     source: source,
+        //     paint: {
+        //         "circle-radius": 10,
+        //         "circle-color": [
+        //             'case',
+        //             ['boolean', ['feature-state', 'hover'], false],
+        //             SELECTED_COLOR,
+        //             DEFAULT_COLOR
+        //         ],
+        //         "circle-stroke-width": 2,
+        //         "circle-stroke-color": "#FFFFFF"
+        //     },
+        //     filter: ["all",
+        //         ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+        //     ]
+        // });
 
-        // Label layer
-        this.map.addLayer({
-            id: source + "-label",
-            source: source,
-            type: "symbol",
-            paint: {
-                "text-color": "black",
-                "text-halo-color": "#fff",
-                "text-halo-width": 2
-            },
-            layout: {
-                "text-field": ["get", "localizedValue", ["get", "displayLabel"]],
-                "text-font": ["NotoSansRegular"],
-                "text-offset": [0, 0.6],
-                "text-anchor": "top",
-                "text-size": 12
-            }
-        });
+        // // Label layer
+        // this.map.addLayer({
+        //     id: source + "-label",
+        //     source: source,
+        //     type: "symbol",
+        //     paint: {
+        //         "text-color": "black",
+        //         "text-halo-color": "#fff",
+        //         "text-halo-width": 2
+        //     },
+        //     layout: {
+        //         "text-field": ["get", "localizedValue", ["get", "displayLabel"]],
+        //         "text-font": ["NotoSansRegular"],
+        //         "text-offset": [0, 0.6],
+        //         "text-anchor": "top",
+        //         "text-size": 12
+        //     }
+        // });
 
-        this.vectorLayers.forEach(cLayer => {
-            this.addVectorLayer(cLayer);
+        this.layers.forEach(cLayer => {
+            this.addLayer(cLayer);
         });
     }
 
@@ -551,7 +531,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     search(): void {
         this.geomService.destroy(false);
         this.mapService.search(this.text, this.dateStr).then(data => {
-            (<any>this.map.getSource("children")).setData(data);
+
+            if (this.data.length > 0) {
+                (<any>this.map.getSource("graph")).setData(data);
+            }
 
             this.setData(data.features);
         }).catch((err: HttpErrorResponse) => {
@@ -635,13 +618,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.data = data;
     }
 
-    onContextLayerChange(event: LayerEvent): void {
+    onLayerChange(event: LayerEvent): void {
         const layer = event.layer;
 
         if (layer.active) {
-            this.addVectorLayer(layer, event.prevLayer);
+            this.addLayer(layer, event.prevLayer);
         } else {
-            this.removeVectorLayer(layer);
+            this.removeLayer(layer);
         }
     }
 
@@ -649,14 +632,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         for (let i = layers.length - 1; i > -1; i--) {
             const layer = layers[i];
 
-            this.map.moveLayer(layer.oid + "-polygon", "children-polygon");
-            this.map.moveLayer(layer.oid + "-points", "children-polygon");
-            this.map.moveLayer(layer.oid + "-label", "children-polygon");
+            this.map.moveLayer(layer.oid + "-polygon");
+            this.map.moveLayer(layer.oid + "-points");
+            this.map.moveLayer(layer.oid + "-label");
         };
     }
 
-    removeVectorLayer(layer: ContextLayer): void {
-        const index = this.vectorLayers.findIndex(l => l.oid === layer.oid);
+    removeLayer(layer: ContextLayer): void {
+        const index = this.layers.findIndex(l => l.oid === layer.oid);
 
         if (index !== -1) {
             const source = layer.oid;
@@ -666,7 +649,93 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.map.removeLayer(source + "-label");
             this.map.removeSource(source);
 
-            this.vectorLayers.splice(index, 1);
+            this.layers.splice(index, 1);
+        }
+    }
+
+    addLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
+        if (layer.oid === 'graph') {
+
+            if (this.ready) {
+                const source = layer.oid;
+                const prevLayer = otherLayer != null ? otherLayer.oid + '-polygon' : null;
+
+                this.map.addSource(source, {
+                    type: "geojson",
+                    data: {
+                        type: "FeatureCollection",
+                        features: this.data as any,
+                    },
+                    promoteId: 'code'
+                });
+
+                // Polygon layer
+                this.map.addLayer({
+                    id: source + "-polygon",
+                    type: "fill",
+                    source: source,
+                    layout: {},
+                    paint: {
+                        "fill-color": [
+                            'case',
+                            ['boolean', ['feature-state', 'hover'], false],
+                            SELECTED_COLOR,
+                            layer.color
+                        ],
+                        "fill-opacity": 0.8,
+                        "fill-outline-color": "black"
+                    },
+                    filter: ["all",
+                        ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
+                    ]
+                }, prevLayer);
+
+                // Point layer
+                this.map.addLayer({
+                    id: source + "-points",
+                    type: "circle",
+                    source: source,
+                    paint: {
+                        "circle-radius": 10,
+                        "circle-color": [
+                            'case',
+                            ['boolean', ['feature-state', 'hover'], false],
+                            SELECTED_COLOR,
+                            layer.color
+                        ],
+                        "circle-stroke-width": 2,
+                        "circle-stroke-color": "#FFFFFF"
+                    },
+                    filter: ["all",
+                        ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
+                    ]
+                }, prevLayer);
+
+                // Label layer
+                this.map.addLayer({
+                    id: source + "-label",
+                    source: source,
+                    type: "symbol",
+                    paint: {
+                        "text-color": "black",
+                        "text-halo-color": "#fff",
+                        "text-halo-width": 2
+                    },
+                    layout: {
+                        "text-field": ["get", "localizedValue", ["get", "displayLabel"]],
+                        "text-font": ["NotoSansRegular"],
+                        "text-offset": [0, 0.6],
+                        "text-anchor": "top",
+                        "text-size": 12
+                    }
+                }, prevLayer);
+
+            }
+
+            this.layers.push(layer);
+        }
+        else {
+            this.addVectorLayer(layer, otherLayer);
         }
     }
 
@@ -675,7 +744,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         if (this.ready) {
 
             const source = layer.oid;
-            const prevLayer = otherLayer != null ? otherLayer.oid + '-polygon' : "children-polygon";
+            const prevLayer = otherLayer != null ? otherLayer.oid + '-polygon' : null;
 
             let protocol = window.location.protocol;
             let host = window.location.host;
@@ -755,7 +824,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             }, prevLayer);
         }
 
-        this.vectorLayers.push(layer);
+        this.layers.push(layer);
     }
 
 
