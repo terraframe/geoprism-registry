@@ -253,21 +253,27 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
 
         // Highlight the feature
-        if (this.params.version != null && this.params.code != null) {
-            this.getRecord(this.params.version, this.params.code);
-
-            this.map.setFeatureState(this.feature = {
-                source: this.params.version,
-                sourceLayer: 'context',
-                id: this.params.code
-            }, {
-                hover: true
-            });
-        }
-
         if (this.params.version != null) {
+            if (this.params.code != null) {
+                this.getRecord(this.params.version, this.params.code);
+
+                this.map.setFeatureState(this.feature = {
+                    source: this.params.version,
+                    sourceLayer: 'context',
+                    id: this.params.code
+                }, {
+                    hover: true
+                });
+            }
+
             this.onZoomTo(this.params.version);
         }
+        else if (this.params.search != null) {
+            this.text = this.params.search;
+
+            this.search();
+        }
+
 
         // this.showOriginalGeometry();
     }

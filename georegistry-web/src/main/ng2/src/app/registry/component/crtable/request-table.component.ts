@@ -300,13 +300,17 @@ export class RequestTableComponent {
                     const object = this.getFirstGeoObjectInActions(request);
 
                     if (object != null) {
-                        this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
+                        this.router.navigate(["/registry/location-manager", { search: object.attributes.code }]);
+
+                        // this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
                     } else {
                         let object = request.current.geoObject;
                         let type = request.current.geoObjectType;
 
                         if (object != null && type != null) {
-                            this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
+                            this.router.navigate(["/registry/location-manager", { search: object.attributes.code }]);
+
+                            // this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
                         }
                     }
                 });
@@ -497,7 +501,7 @@ export class RequestTableComponent {
         this.isEditing = !this.isEditing;
     }
 
-    canEdit(request: ChangeRequest) : boolean {
+    canEdit(request: ChangeRequest): boolean {
         return (request.permissions.includes("WRITE_DETAILS") && this.isEditing);
     }
 

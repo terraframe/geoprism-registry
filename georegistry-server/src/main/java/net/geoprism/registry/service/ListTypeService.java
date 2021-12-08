@@ -366,7 +366,7 @@ public class ListTypeService
     {
       ListType type = version.getListType();
 
-      if (type.doesActorHaveWritePermission())
+      if (type.doesActorHaveExploratoryPermission())
       {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -496,7 +496,7 @@ public class ListTypeService
         ListType listType = version.getListType();
         final boolean isMember = Organization.isMember(listType.getOrganization());
 
-        if ( ( version.getWorking() && listType.doesActorHaveWritePermission() ) || ( !version.getWorking() && ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ) ))
+        if ( ( version.getWorking() && listType.doesActorHaveExploratoryPermission() ) || ( !version.getWorking() && ( isMember || version.getGeospatialVisibility().equals(ListType.PUBLIC) ) ))
         {
 
           if (!map.containsKey(listType.getOid()))

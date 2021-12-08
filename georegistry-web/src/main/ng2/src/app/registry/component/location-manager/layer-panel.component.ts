@@ -91,18 +91,18 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             if (changes.includeGraphLayer.currentValue) {
                 const layer = {
                     oid: 'graph',
-                    forDate: '',
+                    forDate: this.form.endDate,
                     versionNumber: -1,
                 };
 
                 const list = {
                     oid: 'graph',
-                    label: 'Results',
+                    label: 'Search Results',
                     versions: [layer],
                     open: false,
                 }
 
-                this.lists.push(list);
+                this.lists.unshift(list);
 
                 this.toggleLayer(layer, list);
             }
@@ -128,7 +128,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
-            this.lists = lists;
+        
+            this.lists = this.lists.filter(v => v.oid === 'graph').concat(lists);
 
             this.lists.forEach(list => {
                 list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
