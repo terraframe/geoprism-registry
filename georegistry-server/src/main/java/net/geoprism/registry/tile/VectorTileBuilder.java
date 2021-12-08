@@ -90,6 +90,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
 
     StringBuilder sql = new StringBuilder();
     sql.append("SELECT ge.oid");
+    sql.append(", ge.uid");    
     sql.append(", ge.code");
     sql.append(", ge." + labelColumn + " AS default_locale");
 
@@ -229,6 +230,7 @@ public class VectorTileBuilder implements VectorLayerPublisherIF
         Map<String, String> data = new TreeMap<String, String>();
         data.put(GeoEntity.OID, resultSet.getString("oid"));
         data.put(DefaultAttribute.CODE.getName(), resultSet.getString("code"));
+        data.put(DefaultAttribute.UID.getName(), resultSet.getString("uid"));
         data.put(GeoEntity.DISPLAYLABEL, label);
 
         for (Locale locale : locales)

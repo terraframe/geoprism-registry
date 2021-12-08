@@ -170,14 +170,14 @@ export class ListTypeService {
             .toPromise();
     }
 
-    record(oid: string, code: string): Promise<LayerRecord> {
+    record(oid: string, uid: string): Promise<LayerRecord> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"
         });
 
         let params = {
             oid: oid,
-            code: code
+            uid: uid
         };
 
         this.eventService.start();

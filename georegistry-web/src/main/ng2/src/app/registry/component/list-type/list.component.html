@@ -10,7 +10,7 @@
     </div>
     -->
 
-    <div id="app-container" class="container-fluid">
+    <div *ngIf="list != null" id="app-container" class="container-fluid">
         <div *ngIf="message != null" class="alert alert-danger" role="alert">{{message}}</div>
 
         <div class="row">
@@ -185,7 +185,7 @@
                             <td *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'"
                                 style="width: 3%; text-align: center;" class="label-column">
                                 <a class="fa" style="padding:3px;" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'"
-                                    [routerLink]="['/registry/location-manager', { version:list.oid , code:result.code}]"
+                                    [routerLink]="['/registry/location-manager', { version:list.oid , uid:result.uid}]"
                                     routerLinkActive="active"></a>
                             </td>
                             <td *ngFor="let attribute of listAttrs" class="label-column">{{ result[attribute.name] }}

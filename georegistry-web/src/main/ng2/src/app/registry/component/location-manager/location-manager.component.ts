@@ -16,7 +16,7 @@ import { ErrorHandler, ConfirmModalComponent, SuccessModalComponent } from "@sha
 
 import { LocalizationService } from "@shared/service";
 import { ContextLayer, LayerRecord } from "@registry/model/list-type";
-import { LayerEvent } from "./layer-panel.component";
+import { GRAPH_LAYER, LayerEvent } from "./layer-panel.component";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Subscription } from "rxjs";
@@ -48,8 +48,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     editSessionEnabled: boolean = false;
 
     bsModalRef: BsModalRef;
-
-    code: string = null;
 
     /*
      * Root nodes of the tree
@@ -254,13 +252,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         // Highlight the feature
         if (this.params.version != null) {
-            if (this.params.code != null) {
-                this.getRecord(this.params.version, this.params.code);
+            if (this.params.uid != null) {
+                this.getRecord(this.params.version, this.params.uid);
 
                 this.map.setFeatureState(this.feature = {
                     source: this.params.version,
                     sourceLayer: 'context',
-                    id: this.params.code
+                    id: this.params.uid
                 }, {
                     hover: true
                 });
@@ -342,7 +340,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             if (features != null && features.length > 0) {
                 const feature = features[0];
 
-                if (feature.properties.code != null) {
+                if (feature.properties.uid != null) {
                     if (this.feature != null) {
                         this.map.removeFeatureState(this.feature);
                     }
@@ -356,11 +354,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         hover: true
                     });
 
-                    if (feature.source === 'graph') {
+                    if (feature.source === GRAPH_LAYER) {
                         this.select(feature, null);
                     }
                     else {
-                        this.getRecord(feature.source, feature.properties.code);
+                        this.getRecord(feature.source, feature.properties.uid);
                     }
                 }
             }
@@ -422,77 +420,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     addLayers(): void {
-        // const source = "children";
-
-        // this.map.addSource(source, {
-        //     type: "geojson",
-        //     data: {
-        //         type: "FeatureCollection",
-        //         features: [],
-        //     },
-        //     promoteId: 'code'
-        // });
-
-        // // Polygon layer
-        // this.map.addLayer({
-        //     id: source + "-polygon",
-        //     type: "fill",
-        //     source: source,
-        //     layout: {},
-        //     paint: {
-        //         "fill-color": [
-        //             'case',
-        //             ['boolean', ['feature-state', 'hover'], false],
-        //             SELECTED_COLOR,
-        //             DEFAULT_COLOR
-        //         ],
-        //         "fill-opacity": 0.8,
-        //         "fill-outline-color": "black"
-        //     },
-        //     filter: ["all",
-        //         ["match", ["geometry-type"], ["Polygon", "MultiPolygon"], true, false]
-        //     ]
-        // });
-
-        // // Point layer
-        // this.map.addLayer({
-        //     id: source + "-points",
-        //     type: "circle",
-        //     source: source,
-        //     paint: {
-        //         "circle-radius": 10,
-        //         "circle-color": [
-        //             'case',
-        //             ['boolean', ['feature-state', 'hover'], false],
-        //             SELECTED_COLOR,
-        //             DEFAULT_COLOR
-        //         ],
-        //         "circle-stroke-width": 2,
-        //         "circle-stroke-color": "#FFFFFF"
-        //     },
-        //     filter: ["all",
-        //         ["match", ["geometry-type"], ["Point", "MultiPont"], true, false]
-        //     ]
-        // });
-
-        // // Label layer
-        // this.map.addLayer({
-        //     id: source + "-label",
-        //     source: source,
-        //     type: "symbol",
-        //     paint: {
-        //         "text-color": "black",
-        //         "text-halo-color": "#fff",
-        //         "text-halo-width": 2
-        //     },
-        //     layout: {
-        //         "text-field": ["get", "localizedValue", ["get", "displayLabel"]],
-        //         "text-font": ["NotoSansRegular"],
-        //         "text-offset": [0, 0.6],
-        //         "text-anchor": "top",
-        //         "text-size": 12
-        //     }
-        // });
 
         this.layers.forEach(cLayer => {
             this.addLayer(cLayer);
@@ -576,9 +503,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }, delay);
     }
 
-    getRecord(list: string, code: string): void {
+    getRecord(list: string, uid: string): void {
         // Get the feature data from the server and populate the left-hand panel
-        this.listService.record(list, code).then(record => {
+        this.listService.record(list, uid).then(record => {
             this.mode = this.MODE.VIEW;
             this.record = record;
 
@@ -660,7 +587,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     addLayer(layer: ContextLayer, otherLayer?: ContextLayer): void {
-        if (layer.oid === 'graph') {
+        if (layer.oid === GRAPH_LAYER) {
 
             if (this.ready) {
                 const source = layer.oid;
@@ -672,7 +599,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         type: "FeatureCollection",
                         features: this.data as any,
                     },
-                    promoteId: 'code'
+                    promoteId: 'uid'
                 });
 
                 // Polygon layer
@@ -758,7 +685,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.map.addSource(source, {
                 type: "vector",
                 tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))],
-                promoteId: 'code'
+                promoteId: 'uid'
             });
 
             // Polygon layer

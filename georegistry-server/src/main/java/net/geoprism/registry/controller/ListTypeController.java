@@ -173,9 +173,9 @@ public class ListTypeController
   }
 
   @Endpoint(method = ServletMethod.GET, error = ErrorSerialization.JSON, url = "record")
-  public ResponseIF record(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "code") String code)
+  public ResponseIF record(ClientRequestIF request, @RequestParamter(name = "oid") String oid, @RequestParamter(name = "uid") String uid)
   {
-    JsonObject response = this.service.record(request.getSessionId(), oid, code);
+    JsonObject response = this.service.record(request.getSessionId(), oid, uid);
 
     return new RestBodyResponse(response);
   }

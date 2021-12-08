@@ -212,7 +212,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
   {
     if (attributeType.getName().equals(DefaultAttribute.UID.getName()))
     {
-      return false;
+      return true;
     }
 
     if (attributeType.getName().equals(DefaultAttribute.SEQUENCE.getName()))
@@ -1748,6 +1748,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           }
         }
         object.addProperty(ORIGINAL_OID, row.getValue(ORIGINAL_OID));
+        object.addProperty(DefaultAttribute.UID.getName(), row.getValue(DefaultAttribute.UID.getName()));
 
         for (MdAttributeConcreteDAOIF mdAttribute : mdAttributes)
         {
@@ -1805,7 +1806,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     return page;
   }
 
-  public JsonObject record(String code)
+  public JsonObject record(String uid)
   {
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
@@ -1816,7 +1817,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     List<? extends MdAttributeConcreteDAOIF> mdAttributes = mdBusiness.definesAttributes();
 
     BusinessQuery query = new QueryFactory().businessQuery(mdBusiness.definesType());
-    query.WHERE(query.get(DefaultAttribute.CODE.getName()).EQ(code));
+    query.WHERE(query.get(DefaultAttribute.UID.getName()).EQ(uid));
 
     JsonObject record = new JsonObject();
     record.addProperty("recordType", "LIST");

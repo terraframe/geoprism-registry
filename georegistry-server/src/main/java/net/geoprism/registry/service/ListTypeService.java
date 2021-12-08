@@ -55,6 +55,8 @@ import net.geoprism.registry.etl.ListTypeJob;
 import net.geoprism.registry.etl.ListTypeJobQuery;
 import net.geoprism.registry.etl.PublishListTypeVersionJob;
 import net.geoprism.registry.etl.PublishListTypeVersionJobQuery;
+import net.geoprism.registry.geoobject.ServerGeoObjectService;
+import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.progress.ProgressService;
 import net.geoprism.registry.roles.CreateListPermissionException;
@@ -358,7 +360,7 @@ public class ListTypeService
   }
 
   @Request(RequestType.SESSION)
-  public JsonObject record(String sessionId, String oid, String code)
+  public JsonObject record(String sessionId, String oid, String uid)
   {
     ListTypeVersion version = ListTypeVersion.get(oid);
 
@@ -371,17 +373,20 @@ public class ListTypeService
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         format.setTimeZone(GeoRegistryUtil.SYSTEM_TIMEZONE);
 
+        ServerGeoObjectType geoObjectType = type.getGeoObjectType();
+        ServerGeoObjectIF geoObject = new ServerGeoObjectService().getGeoObject(uid, geoObjectType.getCode());
+
         JsonObject object = new JsonObject();
         object.addProperty("recordType", "GEO_OBJECT");
-        object.add("type", type.getGeoObjectType().toJSON(new DefaultSerializer()));
-        object.addProperty("code", code);
+        object.add("type", geoObject.getType().toJSON(new DefaultSerializer()));
+        object.addProperty("code", geoObject.getCode());
         object.addProperty(ListTypeVersion.FORDATE, format.format(version.getForDate()));
 
         return object;
       }
     }
 
-    return version.record(code);
+    return version.record(uid);
   }
 
   @Request(RequestType.SESSION)

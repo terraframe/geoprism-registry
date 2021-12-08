@@ -6,6 +6,8 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import * as ColorGen from "color-generator";
 import { Subscription } from "rxjs";
 
+export const GRAPH_LAYER = 'graph';
+
 export class LayerEvent {
     layer: ContextLayer;
     prevLayer?: ContextLayer;
@@ -17,6 +19,10 @@ export class LayerEvent {
     styleUrls: ["./location-manager.css"]
 })
 export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
+    // Hack to allow the constant to be used in the html
+    CONSTANT = {
+        GRAPH_LAYER: GRAPH_LAYER
+    }
 
     @Input() filter: string[] = [];
     @Input() includeGraphLayer: boolean = false;
@@ -26,6 +32,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     @Output() reorder = new EventEmitter<ContextLayer[]>();
     @Output() zoomTo = new EventEmitter<ContextLayer>();
     @Output() create = new EventEmitter<ContextLayer>();
+
 
     baselayerIconHover = false;
 
@@ -90,13 +97,13 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         if (changes.includeGraphLayer != null) {
             if (changes.includeGraphLayer.currentValue) {
                 const layer = {
-                    oid: 'graph',
+                    oid: GRAPH_LAYER,
                     forDate: this.form.endDate,
                     versionNumber: -1,
                 };
 
                 const list = {
-                    oid: 'graph',
+                    oid: GRAPH_LAYER,
                     label: 'Search Results',
                     versions: [layer],
                     open: false,
@@ -106,10 +113,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
                 this.toggleLayer(layer, list);
             }
-            else {       
-                const index = this.lists.findIndex(v => v.oid === 'graph');
+            else {
+                const index = this.lists.findIndex(v => v.oid === GRAPH_LAYER);
 
-                if(index !== -1) {
+                if (index !== -1) {
                     const list = this.lists[index];
                     this.toggleLayer(list.versions[0], list);
 
@@ -122,14 +129,14 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     confirm(): Promise<ContextList[]> {
         // Remove all current lists
         this.lists.forEach(list => {
-            list.versions.filter(v => v.enabled && v.oid !== 'graph').forEach(v => {
+            list.versions.filter(v => v.enabled && v.oid !== GRAPH_LAYER).forEach(v => {
                 this.toggleLayer(v, list);
             });
         });
 
         return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
-        
-            this.lists = this.lists.filter(v => v.oid === 'graph').concat(lists);
+
+            this.lists = this.lists.filter(v => v.oid === GRAPH_LAYER).concat(lists);
 
             this.lists.forEach(list => {
                 list.versions = list.versions.filter(v => this.filter.indexOf(v.oid) === -1);
