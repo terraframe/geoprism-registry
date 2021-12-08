@@ -47,8 +47,7 @@
             </li>
             <li>
                 <a *ngIf="(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')"
-                    [routerLink]="['/registry/dataset-location-manager', version.oid, list.typeCode, !isRC, version.forDate, (!RC || version.isAbstract)]"
-                    routerLinkActive="active">
+                    [routerLink]="['/registry/location-manager', {version:version.oid }]" routerLinkActive="active">
                     <localize key="list.type.geospatial"></localize>
                 </a>
                 <span *ngIf="!(version.isMember || version.geospatialMetadata.visibility === 'PUBLIC')">

@@ -21,6 +21,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
+import { TabsetComponent } from "ngx-bootstrap/tabs";
 
 declare let acp: string;
 
@@ -125,13 +126,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
        */
     timer: any;
 
-    @ViewChild("simpleEditControl") simpleEditControl: IControl;
-
     params: any = null;
 
     subscription: Subscription;
 
+    // Flag denoting if the map in loaded and initialized     
     private ready: boolean = false;
+
+    @ViewChild("simpleEditControl") simpleEditControl: IControl;
+
+    @ViewChild('staticTabs', { static: false }) staticTabs?: TabsetComponent;
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -209,6 +213,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
         if (this.mode === this.MODE.NONE || this.mode === this.MODE.SEARCH) {
             this.isEdit = false;
+        }
+
+        if (this.staticTabs?.tabs[mode]) {
+            this.staticTabs.tabs[mode].active = true;
         }
 
         timeout(() => {
@@ -515,6 +523,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.geomService.initialize(this.map, record.type.geometryType, false);
             }
 
+            if (this.staticTabs?.tabs[this.MODE.VIEW]) {
+                this.staticTabs.tabs[this.MODE.VIEW].active = true;
+            }        
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -522,29 +533,34 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     select(node: any, event: MouseEvent): void {
+        if (!this.isEdit) {
 
-        // Highlight the feature on the map
-        this.service.getGeoObjectTypes([node.properties.type], null).then(types => {
-            this.mode = this.MODE.VIEW;
+            // Highlight the feature on the map
+            this.service.getGeoObjectTypes([node.properties.type], null).then(types => {
+                this.mode = this.MODE.VIEW;
 
-            const type = types[0];
-            this.record = {
-                recordType: 'GEO_OBJECT',
-                type: type,
-                code: node.properties.code,
-                forDate: this.dateStr
-            };
+                const type = types[0];
+                this.record = {
+                    recordType: 'GEO_OBJECT',
+                    type: type,
+                    code: node.properties.code,
+                    forDate: this.dateStr
+                };
 
-            if (this.record.recordType === 'GEO_OBJECT') {
-                this.geomService.destroy(false);
+                if (this.record.recordType === 'GEO_OBJECT') {
+                    this.geomService.destroy(false);
 
-                this.geomService.initialize(this.map, this.record.type.geometryType, false);
-            }
+                    this.geomService.initialize(this.map, this.record.type.geometryType, false);
+                }
 
+                if (this.staticTabs?.tabs[this.MODE.VIEW]) {
+                    this.staticTabs.tabs[this.MODE.VIEW].active = true;
+                }        
 
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        }
     }
 
     setData(data: GeoObject[]): void {
