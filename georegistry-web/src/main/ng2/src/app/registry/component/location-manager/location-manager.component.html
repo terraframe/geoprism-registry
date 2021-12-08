@@ -8,7 +8,7 @@
     <div class="row">
 
 
-      <div *ngIf="mode !== MODE.NONE" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
+      <div *ngIf="showPanel" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
         style="height: calc(100vh - 145px);overflow-y: auto;">
         <tabset #staticTabs>
           <tab heading="Graph Search" [id]="MODE.SEARCH">
@@ -45,13 +45,6 @@
                             </button>
                           </span>
                         </div>
-                        <div *ngIf="mode === MODE.VIEW && current != null" style="padding: 20px 0;">
-                          <i class="fa fa-arrow-left clickable" aria-hidden="true"
-                            (click)="changeMode(this.MODE.SEARCH)">
-                            <localize key="explorer.back.to.results"></localize>
-                          </i>
-                        </div>
-
                       </div>
                     </div>
                   </div>
@@ -104,13 +97,13 @@
 
       </div>
 
-      <div [ngClass]="{'col-md-7':mode !== MODE.NONE, 'col-md-12':mode === MODE.NONE}" id="site-explorer-map">
+      <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" id="site-explorer-map">
         <div class="row">
 
           <article class="panel-toggle">
             <div class="layer-toggle">
-              <i class="fa" [ngClass]="{'fa-arrow-left':mode !== MODE.NONE, 'fa-arrow-right':mode === MODE.NONE}"
-                (click)="!isEdit && changeMode(mode === MODE.NONE ? MODE.SEARCH : MODE.NONE)"
+              <i class="fa" [ngClass]="{'fa-arrow-left':showPanel, 'fa-arrow-right':!showPanel}"
+                (click)="!isEdit && togglePanel()"
                 style="vertical-align: middle; font-size: 18px; color: black;"></i>
             </div>
           </article>

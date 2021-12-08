@@ -59,15 +59,17 @@ export class ListTypeManagerComponent implements OnInit {
             // this.refresh();
         });
 
-        this.registryService.init().then(response => {
-            this.typesByOrg = [];
+        if (this.typesByOrg.length === 0) {
+            this.registryService.init().then(response => {
+                this.typesByOrg = [];
 
-            response.organizations.forEach(org => {
-                this.typesByOrg.push({ org: org, types: response.types.filter(t => t.organizationCode === org.code) });
-            })
-        }).catch((err: HttpErrorResponse) => {
-            this.error(err);
-        });
+                response.organizations.forEach(org => {
+                    this.typesByOrg.push({ org: org, types: response.types.filter(t => t.organizationCode === org.code) });
+                })
+            }).catch((err: HttpErrorResponse) => {
+                this.error(err);
+            });
+        }
     }
 
     error(err: HttpErrorResponse): void {

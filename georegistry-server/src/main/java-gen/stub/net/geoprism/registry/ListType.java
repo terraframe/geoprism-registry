@@ -366,6 +366,7 @@ public abstract class ListType extends ListTypeBase
     object.addProperty("read", this.doesActorHaveReadPermission());
     object.addProperty("exploratory", this.doesActorHaveExploratoryPermission());
     object.addProperty("typeLabel", type.getLabel().getValue());
+    object.addProperty("typePrivate", type.getIsPrivate());
     object.addProperty(ListType.TYPE_CODE, type.getCode());
     object.add(ListType.DISPLAYLABEL, LocalizedValueConverter.convertNoAutoCoalesce(this.getDisplayLabel()).toJSON(serializer));
     object.add(ListType.DESCRIPTION, LocalizedValueConverter.convertNoAutoCoalesce(this.getDescription()).toJSON(serializer));

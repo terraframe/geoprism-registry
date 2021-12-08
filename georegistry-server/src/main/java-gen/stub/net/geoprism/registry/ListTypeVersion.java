@@ -40,6 +40,7 @@ import org.commongeoregistry.adapter.metadata.HierarchyType;
 import org.json.JSONException;
 import org.wololo.jts2geojson.GeoJSONWriter;
 
+import com.amazonaws.services.kms.model.UnsupportedOperationException;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -1892,6 +1893,13 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     if (metadata != null)
     {
       version.parse(metadata);
+    }
+
+    ServerGeoObjectType type = listType.getGeoObjectType();
+
+    if (type.getIsPrivate() && ( version.getListVisibility().equals(ListType.PUBLIC) || version.getGeospatialVisibility().equals(ListType.PUBLIC) ))
+    {
+      throw new UnsupportedOperationException("A list version cannot be public if the Geo-Object Type is private");
     }
 
     TableMetadata tableMetadata = null;

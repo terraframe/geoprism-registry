@@ -7,6 +7,7 @@ export class ListTypeByType {
     typeCode: string;
     typeLabel: string;
     write: boolean;
+    private: boolean;
     lists: ListType[];
 }
 
@@ -49,6 +50,7 @@ export class ListType {
     typeCode: string;
     superTypeCode?: string;
     typeLabel?: string;
+    typePrivate?: boolean;
     displayLabel: LocalizedValue;
     description: LocalizedValue;
     subtypes?: { label: string, code: string }[];

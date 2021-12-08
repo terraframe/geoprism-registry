@@ -42,8 +42,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     MODE: ModalState = {
         SEARCH: 0,
-        VIEW: 1,
-        NONE: 2
+        VIEW: 1
     }
 
     editSessionEnabled: boolean = false;
@@ -59,11 +58,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      *  Search Text
      */
     text: string = "";
-
-    /*
-     *  MODE
-     */
-    mode: number = this.MODE.SEARCH;
 
     /*
      * Date of data for explorer
@@ -93,9 +87,11 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     map: Map;
 
     /*
-     * Flag denoting the draw control is active
+     *  MODE
      */
-    active: boolean = false;
+    mode: number = this.MODE.SEARCH;
+
+    showPanel: boolean = true;
 
     public displayDateRequiredError: boolean = false;
 
@@ -136,6 +132,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
     @ViewChild('staticTabs', { static: false }) staticTabs?: TabsetComponent;
+
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
@@ -204,6 +201,20 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    togglePanel(): void {
+        this.showPanel = !this.showPanel;
+
+        timeout(() => {
+            this.map.resize();
+        }, 1);
+    }
+
+    setTab(mode: number): void {
+        if (this.staticTabs?.tabs[mode]) {
+            this.staticTabs.tabs[mode].active = true;
+        }
+    }
+
     changeMode(mode: number): void {
         this.mode = mode;
 
@@ -211,17 +222,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.geomService.destroy(false);
         }
 
-        if (this.mode === this.MODE.NONE || this.mode === this.MODE.SEARCH) {
+        if (this.mode === this.MODE.SEARCH) {
             this.isEdit = false;
+
+            if (this.feature != null) {
+                this.map.removeFeatureState(this.feature);
+            }
+
+            this.record = null;
+            this.feature = null;
         }
 
-        if (this.staticTabs?.tabs[mode]) {
-            this.staticTabs.tabs[mode].active = true;
-        }
-
-        timeout(() => {
-            this.map.resize();
-        }, 1);
+        this.setTab(mode);
     }
 
     onModeChange(value: boolean): void {
@@ -381,7 +393,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             //     this.router.navigate(["/registry/change-requests"]);
             // }
         } else {
-            this.changeMode(this.MODE.NONE);
+            // this.changeMode(this.MODE.NONE);
         }
 
         // this.showOriginalGeometry();
@@ -412,7 +424,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     // this.router.navigate(["/registry/change-requests", applyInfo.changeRequestId]);
                 });
                 this.bsModalRef.content.onCancel.subscribe(() => {
-                    this.changeMode(this.MODE.NONE);
+                    // this.changeMode(this.MODE.NONE);
                 });
             }
         } else {
@@ -525,7 +537,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             if (this.staticTabs?.tabs[this.MODE.VIEW]) {
                 this.staticTabs.tabs[this.MODE.VIEW].active = true;
-            }        
+            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -555,7 +567,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 if (this.staticTabs?.tabs[this.MODE.VIEW]) {
                     this.staticTabs.tabs[this.MODE.VIEW].active = true;
-                }        
+                }
 
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);

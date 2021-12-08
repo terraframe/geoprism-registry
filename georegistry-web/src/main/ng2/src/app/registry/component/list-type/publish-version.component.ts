@@ -15,6 +15,7 @@ import { ListTypeService } from "@registry/service/list-type.service";
 export class PublishVersionComponent implements OnInit {
     message: string = null;
 
+    list: ListType = null;
     entry: ListTypeEntry = null;
 
     metadata: ListVersionMetadata = null;
@@ -26,7 +27,6 @@ export class PublishVersionComponent implements OnInit {
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private service: ListTypeService,
-        private lService: LocalizationService,
         private bsModalRef: BsModalRef) { }
 
     ngOnInit(): void {
@@ -34,6 +34,7 @@ export class PublishVersionComponent implements OnInit {
 
     init(list: ListType, entry: ListTypeEntry, version?: ListTypeVersion): void {
 
+        this.list = list;
         this.entry = entry;
         this.readonly = !list.write;
 

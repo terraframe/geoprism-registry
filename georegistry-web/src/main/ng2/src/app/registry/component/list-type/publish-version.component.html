@@ -1,4 +1,4 @@
-<ng-template #metadataDetail let-metadata='metadata' let-type="type">
+<ng-template #metadataDetail let-metadata='metadata' let-list="list" let-type="type">
     <div class="row-holder">
         <div class="label-holder">
             <label>
@@ -18,11 +18,11 @@
         <div class="holder">
             <select class="select-area" name="visibility" [(ngModel)]="metadata.visibility" [disabled]="readonly"
                 required>
-                <option value="PUBLIC">
-                    <localize key="masterlist.public"></localize>
-                </option>
                 <option value="PRIVATE">
                     <localize key="masterlist.private"></localize>
+                </option>
+                <option *ngIf="!list.typePrivate" value="PUBLIC">
+                    <localize key="masterlist.public"></localize>
                 </option>
             </select>
         </div>
@@ -364,10 +364,10 @@
                     <div class="row">
                         <div class="col-md-12">
                             <ng-container *ngIf="tab === 'LIST'" [ngTemplateOutlet]="metadataDetail"
-                                [ngTemplateOutletContext]="{metadata:metadata.listMetadata, type:'list'}">
+                                [ngTemplateOutletContext]="{metadata:metadata.listMetadata, list:list, type:'list'}">
                             </ng-container>
                             <ng-container *ngIf="tab === 'GEOSPATIAL'" [ngTemplateOutlet]="metadataDetail"
-                                [ngTemplateOutletContext]="{metadata:metadata.geospatialMetadata, type:'geospatial'}">
+                                [ngTemplateOutletContext]="{metadata:metadata.geospatialMetadata, list:list, type:'geospatial'}">
                             </ng-container>
 
                         </div>
