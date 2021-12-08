@@ -45,6 +45,7 @@ export class GeoObject {
         createDate: string,
         lastUpdateDate: string,
         invalid: boolean,
+        exists: boolean,
         writable?: boolean
     };
 }

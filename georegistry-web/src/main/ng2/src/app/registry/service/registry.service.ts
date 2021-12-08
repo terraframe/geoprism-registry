@@ -95,6 +95,19 @@ export class RegistryService {
             .toPromise();
     }
 
+    doesGeoObjectExistAtRange(startDate: string, endDate: string, typeCode: string, code: string): Promise<{exists: boolean, invalid: boolean}> {
+        let params: HttpParams = new HttpParams();
+
+        params = params.set("startDate", startDate);
+        params = params.set("endDate", endDate);
+        params = params.set("typeCode", typeCode);
+        params = params.set("code", code);
+
+        return this.http
+            .get<{exists: boolean, invalid: boolean}>(acp + "/geoobject/exists-at-range", { params: params })
+            .toPromise();
+    }
+
     newGeoObjectInstance(typeCode: string): Promise<any> {
         let headers = new HttpHeaders({
             "Content-Type": "application/json"

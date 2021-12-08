@@ -309,11 +309,9 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
   {
     LocalizedValueConverter.populate(this.vertex, DefaultAttribute.DISPLAY_LABEL.getName(), value, startDate, endDate);
   }
-
-  public void enforceAttributeSetWithinRange(String geoObjectLabel, String attributeLabel, Date startDate, Date endDate)
+  
+  public boolean existsAtRange(Date startDate, Date endDate)
   {
-    final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
-
     if (endDate == null)
     {
       endDate = ValueOverTime.INFINITY_END_DATE;
@@ -321,26 +319,10 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
 
     if (startDate == null)
     {
-      ValueOutOfRangeException ex = new ValueOutOfRangeException();
-      ex.setGeoObject(geoObjectLabel);
-      ex.setAttribute(attributeLabel);
-      ex.setStartDate("null");
-
-      if (ValueOverTime.INFINITY_END_DATE.equals(endDate))
-      {
-        ex.setEndDate(LocalizationFacade.localize("changeovertime.present"));
-      }
-      else
-      {
-        ex.setEndDate(format.format(endDate));
-      }
-
-      throw ex;
+      return false;
     }
-
+    
     ValueOverTimeCollection votc = this.getValuesOverTime(DefaultAttribute.EXISTS.getName());
-
-    boolean exists = false;
 
     for (ValueOverTime vot : votc)
     {
@@ -348,17 +330,32 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       {
         if ( ( vot.getStartDate() != null && vot.between(startDate) ) && ( vot.getEndDate() != null && vot.between(endDate) ))
         {
-          exists = true;
+          return true;
         }
       }
     }
+    
+    return false;
+  }
 
-    if (!exists)
+  public void enforceAttributeSetWithinRange(String geoObjectLabel, String attributeLabel, Date startDate, Date endDate)
+  {
+    if (!this.existsAtRange(startDate, endDate))
     {
+      final SimpleDateFormat format = ValueOverTimeDTO.getTimeFormatter();
+      
       ValueOutOfRangeException ex = new ValueOutOfRangeException();
       ex.setGeoObject(geoObjectLabel);
       ex.setAttribute(attributeLabel);
-      ex.setStartDate(format.format(startDate));
+      
+      if (startDate != null)
+      {
+        ex.setStartDate(format.format(startDate));
+      }
+      else
+      {
+        ex.setStartDate("null");
+      }
 
       if (ValueOverTime.INFINITY_END_DATE.equals(endDate))
       {
@@ -1495,31 +1492,23 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     return Date.from(instant);
   }
 
-  private boolean isAfterOrEqual(LocalDate date1, LocalDate date2)
-  {
-    return date1.isAfter(date2) || date2.isEqual(date1);
-  }
-
-  private boolean isBeforeOrEqual(LocalDate date1, LocalDate date2)
-  {
-    return date1.isBefore(date2) || date2.isEqual(date1);
-  }
-
   @Override
   public void removeParent(ServerGeoObjectIF parent, ServerHierarchyType hierarchyType)
   {
     this.getVertex().removeParent( ( (VertexComponent) parent ).getVertex(), hierarchyType.getMdEdge());
   }
-
+  
   @Override
   public GeoObject toGeoObject()
+  {
+    return this.toGeoObject(this.date, this.date);
+  }
+
+  public GeoObject toGeoObject(Date startDate, Date endDate)
   {
     Map<String, Attribute> attributeMap = GeoObject.buildAttributeMap(type.getType());
 
     GeoObject geoObj = new GeoObject(type.getType(), type.getGeometryType(), attributeMap);
-
-    geoObj.setExists(false);
-    geoObj.setInvalid(false);
 
     Map<String, AttributeType> attributes = type.getAttributeMap();
     attributes.forEach((attributeName, attribute) -> {
@@ -1529,7 +1518,7 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
       }
       else if (vertex.hasAttribute(attributeName))
       {
-        Object value = vertex.getObjectValue(attributeName, this.date);
+        Object value = vertex.getObjectValue(attributeName, startDate);
 
         if (value != null)
         {
@@ -1583,6 +1572,8 @@ public class VertexServerGeoObject extends AbstractServerGeoObject implements Se
     geoObj.setCode(vertex.getObjectValue(DefaultAttribute.CODE.getName()));
     geoObj.setGeometry(this.getGeometry());
     geoObj.setDisplayLabel(this.getDisplayLabel());
+    geoObj.setExists(this.existsAtRange(startDate, endDate));
+    geoObj.setInvalid(this.getInvalid());
 
     if (vertex.isNew())// && !vertex.isAppliedToDB())
     {
