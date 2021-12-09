@@ -83,7 +83,6 @@ public class PatchExistsAndInvalidInstanceData
         
         if (defaultExists != null)
         {
-          // TODO : You can't run this again on demo/staging. It will corrupt the database.
           go.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
           go.setValue(DefaultAttribute.INVALID.getName(), false);
           

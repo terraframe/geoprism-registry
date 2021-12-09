@@ -10,7 +10,6 @@ import { MasterListVersion } from "@registry/model/registry";
 import { RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
-import { GeoObjectEditorComponent } from "../geoobject-editor/geoobject-editor.component";
 
 import { ErrorHandler } from "@shared/component";
 import { LocalizationService, AuthService, ProgressService } from "@shared/service";
@@ -279,16 +278,6 @@ export class MasterListComponent implements OnInit, OnDestroy {
         return attribute.type !== "none" && attribute.name !== "invalid" && (attribute.dependency.length === 0 || this.selected.indexOf(attribute.base) !== -1 || this.selected.filter(value => attribute.dependency.includes(value)).length > 0);
     }
 
-    onEdit(data): void {
-        let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
-        editModal.content.configureAsExisting(data.code, this.list.typeCode, this.list.forDate, this.list.isGeometryEditable);
-        editModal.content.setMasterListId(this.list.oid);
-        editModal.content.setOnSuccessCallback(() => {
-            // Refresh the page
-            this.onPageChange(this.page.pageNumber);
-        });
-    }
-
     onPublish(): void {
         this.message = null;
 
@@ -306,17 +295,6 @@ export class MasterListComponent implements OnInit, OnDestroy {
 
         // Refresh the resultSet
         // this.onPageChange(1);
-    }
-
-    onNewGeoObject(): void {
-        let editModal = this.modalService.show(GeoObjectEditorComponent, { backdrop: true, ignoreBackdropClick: true });
-        // editModal.content.fetchGeoObject( data.code, this.list.typeCode );
-        editModal.content.configureAsNew(this.list.typeCode, this.list.forDate, this.list.isGeometryEditable);
-        editModal.content.setMasterListId(this.list.oid);
-        editModal.content.setOnSuccessCallback(() => {
-            // Refresh the page
-            this.onPageChange(this.page.pageNumber);
-        });
     }
 
     onExport(): void {
