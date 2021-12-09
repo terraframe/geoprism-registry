@@ -61,8 +61,8 @@
 
 .panel-toggle {
 	position: absolute;
-	top: 10px;
-	left: 10px;
-	z-index: 2;
+	top: 150px;
+	left: 20px;
+	z-index: 1000;
 	padding: 5px;
 }

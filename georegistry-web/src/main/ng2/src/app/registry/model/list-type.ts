@@ -159,9 +159,14 @@ export class ContextList {
 
 export class LayerRecord {
     recordType: string;
+
+    // Attributes required for the geo object properties panel
     type?: GeoObjectType;
     code?: string;
     forDate?: string;
+
+    // Attributes required for the list row properties panel
+    version?: string;
     attributes?: any[];
     data?: Object;
 }

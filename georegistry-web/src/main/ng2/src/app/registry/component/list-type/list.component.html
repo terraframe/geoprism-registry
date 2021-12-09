@@ -70,7 +70,7 @@
                         <localize key="masterlist.publish"></localize>
                     </span>
 
-                    <button *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" type="submit" [routerLink]="['/registry/location-manager', { version:list.oid}]"
+                    <button *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'" type="submit" [routerLink]="['/registry/location-manager']" [queryParams]="{ defaultVersion:list.oid}"
                         routerLinkActive="active" class="btn btn-primary" role="button">
                         View on map
                     </button>
@@ -185,7 +185,8 @@
                             <td *ngIf="list.isMember || list.geospatialMetadata.visibility === 'PUBLIC'"
                                 style="width: 3%; text-align: center;" class="label-column">
                                 <a class="fa" style="padding:3px;" [ngClass]="isWritable ? 'fa fa-pencil' : 'fa fa-eye'"
-                                    [routerLink]="['/registry/location-manager', { version:list.oid , uid:result.uid}]"
+                                    [routerLink]="['/registry/location-manager']"
+                                    [queryParams]="{   defaultVersion:list.oid, version:list.oid, uid:result.uid}"
                                     routerLinkActive="active"></a>
                             </td>
                             <td *ngFor="let attribute of listAttrs" class="label-column">{{ result[attribute.name] }}

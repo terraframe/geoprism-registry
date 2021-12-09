@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
@@ -64,8 +64,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     dateStr: string = null;
 
-    forDate: Date = null;
-
     /*
      * Currently selected record
      */
@@ -91,9 +89,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     mode: number = this.MODE.SEARCH;
 
-    showPanel: boolean = true;
-
-    public displayDateRequiredError: boolean = false;
+    showPanel: boolean = false;
 
     layers: ContextLayer[] = [];
 
@@ -131,12 +127,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
-    @ViewChild('staticTabs', { static: false }) staticTabs?: TabsetComponent;
-
-
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         private modalService: BsModalService,
         private service: RegistryService,
         private listService: ListTypeService,
@@ -146,8 +140,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     ngOnInit(): void {
 
-        this.subscription = this.route.params.subscribe((params: any) => {
-            this.params = params;
+        this.subscription = this.route.queryParams.subscribe(params => {
+            this.handleParameterChange(params);
         });
     }
 
@@ -201,18 +195,68 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
-    togglePanel(): void {
-        this.showPanel = !this.showPanel;
+    handleParameterChange(params: Params): void {
+        this.params = params;
 
-        timeout(() => {
-            this.map.resize();
-        }, 1);
+        if (this.ready) {
+
+            let mode = this.MODE.SEARCH;
+            let showPanel = false;
+
+            if (this.params != null) {
+
+                // Handle parameters for searching for a geo object
+                if (this.params.text != null) {
+                    this.text = this.params.text;
+                    this.dateStr = this.params.date;
+
+                    showPanel = true;
+
+                    this.handleSearch(this.params.text, this.params.date);
+                }
+
+                // Handle parameters for selecting a geo object
+                if (this.params.type != null && this.params.code != null) {
+
+                    if (this.record == null || this.record.type == null || this.record.type.code != this.params.type || this.record.code != this.params.code) {
+                        this.handleSelect(this.params.type, this.params.code, this.params.uid);
+
+                        showPanel = true;
+                        mode = this.MODE.VIEW;
+                    }
+                }
+
+                // Handle parameters for select a record from a context layer
+                if (this.params.version != null && this.params.uid != null) {
+
+                    if (this.record == null || this.feature == null || this.feature.source != this.params.version || this.feature.id != this.params.uid) {
+                        this.handleRecord(this.params.version, this.params.uid);
+
+                        showPanel = true;
+                        mode = this.MODE.VIEW;
+                    }
+                }
+
+            }
+
+            this.changeMode(mode);
+            this.setPanel(showPanel);
+        }
     }
 
-    setTab(mode: number): void {
-        if (this.staticTabs?.tabs[mode]) {
-            this.staticTabs.tabs[mode].active = true;
+    setPanel(showPanel: boolean): void {
+        if (this.showPanel !== showPanel) {
+            this.showPanel = showPanel;
+
+            timeout(() => {
+                this.map.resize();
+            }, 1);
+
         }
+    }
+
+    togglePanel(): void {
+        this.setPanel(!this.showPanel);
     }
 
     changeMode(mode: number): void {
@@ -232,19 +276,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.record = null;
             this.feature = null;
         }
-
-        this.setTab(mode);
     }
 
     onModeChange(value: boolean): void {
         this.isEdit = value;
-    }
-
-    handleDateChange(): void {
-        if (this.dateStr != null) {
-            this.forDate = new Date(Date.parse(this.dateStr));
-            this.displayDateRequiredError = false;
-        }
     }
 
     initMap(): void {
@@ -262,52 +297,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
             this.handleMapClickEvent(event);
         });
 
-        // Set map data on page load with URL params (single Geo-Object)
-        if (this.data) {
-            // let fc = { type: "FeatureCollection", features: this.data };
-            // (<any>this.map.getSource("children")).setData(fc);
-
-            // this.zoomToFeature(this.data[0], null);
-        }
-
-        // Highlight the feature
-        if (this.params.version != null) {
-            if (this.params.uid != null) {
-                this.getRecord(this.params.version, this.params.uid);
-
-                this.map.setFeatureState(this.feature = {
-                    source: this.params.version,
-                    sourceLayer: 'context',
-                    id: this.params.uid
-                }, {
-                    hover: true
-                });
-            }
-
-            this.onZoomTo(this.params.version);
-        }
-        else if (this.params.search != null) {
-            this.text = this.params.search;
-
-            this.search();
-        }
-
-
-        // this.showOriginalGeometry();
+        this.handleParameterChange(this.params);
     }
-
-
-    // showOriginalGeometry() {
-    //     if (this.current) {
-    //         this.addVectorLayer(this.current.properties.uid, DEFAULT_COLOR);
-    //     }
-    // }
-
-    // hideOriginalGeometry() {
-    //     if (this.current) {
-    //         this.removeLayer(this.current.properties.uid);
-    //     }
-    // }
 
     onZoomTo(oid: string): void {
         this.listService.getBounds(oid).then(bounds => {
@@ -361,24 +352,15 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 const feature = features[0];
 
                 if (feature.properties.uid != null) {
-                    if (this.feature != null) {
-                        this.map.removeFeatureState(this.feature);
-                    }
-
-                    // Highlight the feature on the map
-                    this.map.setFeatureState(this.feature = {
-                        source: feature.source,
-                        sourceLayer: feature.sourceLayer,
-                        id: feature.id
-                    }, {
-                        hover: true
-                    });
-
                     if (feature.source === GRAPH_LAYER) {
                         this.select(feature, null);
                     }
                     else {
-                        this.getRecord(feature.source, feature.properties.uid);
+                        this.router.navigate([], {
+                            relativeTo: this.route,
+                            queryParams: { type: null, code: null, version: feature.source, uid: feature.properties.uid },
+                            queryParamsHandling: 'merge', // remove to replace all query params by provided
+                        });
                     }
                 }
             }
@@ -411,7 +393,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.bsModalRef.content.submitText = this.lService.decode("geoobject-editor.changerequest.view");
 
                 this.bsModalRef.content.onConfirm.subscribe(() => {
-                    // this.router.navigate(["/registry/change-requests", applyInfo.changeRequestId]);
+                    this.router.navigate(["/registry/change-requests", applyInfo.changeRequestId]);
                 });
             } else {
                 this.bsModalRef = this.modalService.show(ConfirmModalComponent, { backdrop: true, class: "error-white-space-pre" });
@@ -421,10 +403,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.bsModalRef.content.cancelText = this.lService.decode("geoobject-editor.cancel.returnExplorer");
 
                 this.bsModalRef.content.onConfirm.subscribe(() => {
-                    // this.router.navigate(["/registry/change-requests", applyInfo.changeRequestId]);
+                    this.router.navigate(["/registry/change-requests", applyInfo.changeRequestId]);
                 });
                 this.bsModalRef.content.onCancel.subscribe(() => {
-                    // this.changeMode(this.MODE.NONE);
+                    this.clearRecord();
                 });
             }
         } else {
@@ -482,14 +464,26 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     search(): void {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { text: this.text, date: this.dateStr, type: null, code: null, version: null, uid: null },
+            queryParamsHandling: 'merge', // remove to replace all query params by provided
+        });
+    }
+
+    handleSearch(text: string, date: string): void {
         this.geomService.destroy(false);
         this.mapService.search(this.text, this.dateStr).then(data => {
 
+            this.showPanel = true;
+
             if (this.data.length > 0) {
-                (<any>this.map.getSource("graph")).setData(data);
+                (<any>this.map.getSource(GRAPH_LAYER)).setData(data);
             }
 
             this.setData(data.features);
+
+
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
@@ -523,9 +517,24 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }, delay);
     }
 
-    getRecord(list: string, uid: string): void {
+    handleRecord(list: string, uid: string): void {
+
         // Get the feature data from the server and populate the left-hand panel
         this.listService.record(list, uid).then(record => {
+
+            if (this.feature != null) {
+                this.map.removeFeatureState(this.feature);
+            }
+
+            // Highlight the feature on the map
+            this.map.setFeatureState(this.feature = {
+                source: list,
+                sourceLayer: 'context',
+                id: uid
+            }, {
+                hover: true
+            });
+
             this.mode = this.MODE.VIEW;
             this.record = record;
 
@@ -535,44 +544,76 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 this.geomService.initialize(this.map, record.type.geometryType, false);
             }
 
-            if (this.staticTabs?.tabs[this.MODE.VIEW]) {
-                this.staticTabs.tabs[this.MODE.VIEW].active = true;
-            }
         }).catch((err: HttpErrorResponse) => {
             this.error(err);
         });
+    }
 
+    clearRecord() {
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { type: null, code: null, version: null, uid: null },
+            queryParamsHandling: 'merge', // remove to replace all query params by provided
+        });
     }
 
     select(node: any, event: MouseEvent): void {
         if (!this.isEdit) {
-
-            // Highlight the feature on the map
-            this.service.getGeoObjectTypes([node.properties.type], null).then(types => {
-                this.mode = this.MODE.VIEW;
-
-                const type = types[0];
-                this.record = {
-                    recordType: 'GEO_OBJECT',
-                    type: type,
-                    code: node.properties.code,
-                    forDate: this.dateStr
-                };
-
-                if (this.record.recordType === 'GEO_OBJECT') {
-                    this.geomService.destroy(false);
-
-                    this.geomService.initialize(this.map, this.record.type.geometryType, false);
-                }
-
-                if (this.staticTabs?.tabs[this.MODE.VIEW]) {
-                    this.staticTabs.tabs[this.MODE.VIEW].active = true;
-                }
-
-            }).catch((err: HttpErrorResponse) => {
-                this.error(err);
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { type: node.properties.type, code: node.properties.code, uid: node.properties.uid, version: null },
+                queryParamsHandling: 'merge', // remove to replace all query params by provided
             });
         }
+    }
+
+    handleSelect(type: string, code: string, uid: string) {
+
+        if (this.feature != null) {
+            this.map.removeFeatureState(this.feature);
+        }
+
+        // Highlight the feature on the map
+        this.map.setFeatureState(this.feature = {
+            source: GRAPH_LAYER,
+            id: uid
+        }, {
+            hover: true
+        });
+
+        // Highlight the feature on the map
+        this.service.getGeoObjectTypes([type], null).then(types => {
+            if (this.feature != null) {
+                this.map.removeFeatureState(this.feature);
+            }
+
+            // Highlight the feature on the map
+            this.map.setFeatureState(this.feature = {
+                source: GRAPH_LAYER,
+                id: uid
+            }, {
+                hover: true
+            });
+
+            this.mode = this.MODE.VIEW;
+
+            const type = types[0];
+            this.record = {
+                recordType: 'GEO_OBJECT',
+                type: type,
+                code: code,
+                forDate: this.dateStr
+            };
+
+            if (this.record.recordType === 'GEO_OBJECT') {
+                this.geomService.destroy(false);
+
+                this.geomService.initialize(this.map, this.record.type.geometryType, false);
+            }
+
+        }).catch((err: HttpErrorResponse) => {
+            this.error(err);
+        });
     }
 
     setData(data: GeoObject[]): void {

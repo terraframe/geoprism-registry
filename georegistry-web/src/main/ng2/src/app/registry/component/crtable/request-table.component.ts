@@ -300,15 +300,18 @@ export class RequestTableComponent {
                     const object = this.getFirstGeoObjectInActions(request);
 
                     if (object != null) {
-                        this.router.navigate(["/registry/location-manager", { search: object.attributes.code }]);
-
+                        this.router.navigate(["/registry/location-manager"], {
+                            queryParams: { text: object.attributes.code, date: this.todayString, type: object.geoObjectType.code, code: object.attributes.code, uid: object.attributes.uid }
+                        });
                         // this.router.navigate(["/registry/location-manager", object.attributes.uid, object.geoObjectType.code, this.todayString, true]);
                     } else {
                         let object = request.current.geoObject;
                         let type = request.current.geoObjectType;
 
                         if (object != null && type != null) {
-                            this.router.navigate(["/registry/location-manager", { search: object.attributes.code }]);
+                            this.router.navigate(["/registry/location-manager"], {
+                                queryParams: { text: object.attributes.code, date: this.todayString, type: type.code, code: object.attributes.code, uid: object.attributes.uid }
+                            });
 
                             // this.router.navigate(["/registry/location-manager", object.attributes.uid, type.code, this.todayString, true]);
                         }
@@ -326,11 +329,11 @@ export class RequestTableComponent {
             // TODO : cr.statusLabel needs to be updated...
             /*
             cr.approvalStatus = "REJECTED";
-
+     
             let len = this.actions.length;
             for (let i = 0; i < len; ++i) {
                 let action: AbstractAction = this.actions[i];
-
+     
                 action.approvalStatus = "REJECTED";
             }
             */

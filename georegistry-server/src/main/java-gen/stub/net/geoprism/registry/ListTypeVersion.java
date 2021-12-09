@@ -1822,6 +1822,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
     JsonObject record = new JsonObject();
     record.addProperty("recordType", "LIST");
+    record.addProperty("version", this.getOid());
     record.add("attributes", this.getAttributesAsJson());
 
     try (OIterator<Business> iterator = query.getIterator())

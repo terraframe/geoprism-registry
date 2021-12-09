@@ -6,108 +6,81 @@
   <div id="app-container" class="container-fluid">
 
     <div class="row">
+      <article class="panel-toggle" style="width: 40%; background-color: white;">
+        <div class="row">
+          <div class="col-md-4">
+            <date-field [(value)]="dateStr" label="" [inputName]="'dateStr'" [allowInfinity]="false"
+              [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
+            </date-field>
+          </div>
+          <div class="col-md-7">
+            <div class="input-group">
+              <input type="text" class="form-control" (keyup.enter)="search()" [(ngModel)]="text" name="text">
+              <span class="input-group-btn">
+                <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
+                  <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <div class="col-md-1">
+            <div class="layer-toggle">
+              <i class="fa" [ngClass]="{'fa-arrow-left':showPanel, 'fa-arrow-right':!showPanel}"
+                (click)="!isEdit && togglePanel()" style="vertical-align: middle; font-size: 18px; color: black;"></i>
+            </div>
+          </div>
+        </div>
+      </article>
 
 
       <div *ngIf="showPanel" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
-        style="height: calc(100vh - 145px);overflow-y: auto;">
-        <tabset #staticTabs>
-          <tab heading="Graph Search" [id]="MODE.SEARCH">
-            <ng-container>
-              <div class="row">
-                <div class="col-md-12">
+        style="height: calc(100vh - 215px);overflow-y: auto; margin-top: 70px;">
+        <hr>
 
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div class="location-management-widget-section">
-                        <span style="margin-right:10px;">
-                          <localize key="changeOverTime.forDate" ng-reflect-key="changeOverTime.forDate"></localize>
-                        </span>
-                        <date-field [(value)]="dateStr" label="" [inputName]="'dateStr'" (change)="handleDateChange()"
-                          [disable]="!hideSearchOptions" [allowInfinity]="false" [allowFutureDates]="false"
-                          [required]="false" [classNames]="displayDateRequiredError ? 'date-required-message' : ''"
-                          [placement]="'right'" style="display:inline-grid;"></date-field>
-                        <div *ngIf="displayDateRequiredError" class="error-message">
-                          <localize key="geoobject.editor.forDate.requiredErrorMessage"></localize>
-                        </div>
+        <ng-container *ngIf="mode === MODE.SEARCH">
+
+          <div class="row">
+            <div class="col-md-12">
+              <div id="hierarchy-tree-container"
+                class="location-management-widget-section location-management-list-container">
+                <div class="list-group">
+
+                  <div *ngFor="let node of data; let i = index" class="list-group-item">
+                    <div class="card card-default" (click)="select(node, $event)">
+                      <div class="card-body">
+                        <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true"
+                          (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
+                        <h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">
+                          {{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
                       </div>
                     </div>
                   </div>
 
-                  <div *ngIf="!hideSearchOptions" class="row">
-                    <div class="col-md-12">
-                      <div class="location-management-widget-section">
-                        <div class="input-group">
-                          <input type="text" class="form-control" (keyup.enter)="search()" [(ngModel)]="text"
-                            name="text">
-                          <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" (click)="search()">
-                              <span class="glyphicon glyphicon-search" aria-hidden="true"></span>
-                            </button>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </ng-container>
 
-              <div class="row">
-                <div class="col-md-12">
-                  <div id="hierarchy-tree-container"
-                    class="location-management-widget-section location-management-list-container">
-                    <div class="list-group">
-
-                      <div *ngFor="let node of data; let i = index" class="list-group-item">
-                        <div class="card card-default" (click)="select(node, $event)">
-                          <div class="card-body">
-                            <i class="fa fa-map-marker clickable" style="float:right;font-size:25px;" aria-hidden="true"
-                              (click)="zoomToFeature(node, $event)" [title]="'explorer.zoom.label' | localize"></i>
-                            <h4 class="clickable" style="word-break: break-all;" title="View Geo-Object details">
-                              {{node.properties.code}} - {{node.properties.displayLabel.localizedValue}}</h4>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </ng-container>
-
-          </tab>
-          <tab heading="Properties" [id]="MODE.VIEW">
-            <ng-container *ngIf="record != null">
-              <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
-                <div class="col-md-12">
-                  <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false"
-                    (modeChange)="onModeChange($event)" (panelCancel)="changeMode(MODE.SEARCH)"
-                    (panelSubmit)="onPanelSubmit($event)"></feature-panel>
-                </div>
-              </div>
-              <div *ngIf="record.recordType === 'LIST'" class="row">
-                <div class="col-md-12">
-                  <record-panel [record]="record" (close)="changeMode(MODE.SEARCH)"></record-panel>
-                </div>
-              </div>
-            </ng-container>
-          </tab>
-        </tabset>
-
-
-
+        <ng-container *ngIf="mode === MODE.VIEW && record != null">
+          <div *ngIf="record.recordType === 'GEO_OBJECT'" class="row">
+            <div class="col-md-12">
+              <feature-panel [type]="record.type" [code]="record.code" [forDate]="record.forDate" [readOnly]="false"
+                (modeChange)="onModeChange($event)" (panelCancel)="clearRecord()"
+                (panelSubmit)="onPanelSubmit($event)"></feature-panel>
+            </div>
+          </div>
+          <div *ngIf="record.recordType === 'LIST'" class="row">
+            <div class="col-md-12">
+              <record-panel [record]="record" (close)="clearRecord()"></record-panel>
+            </div>
+          </div>
+        </ng-container>
       </div>
 
       <div [ngClass]="{'col-md-7':showPanel, 'col-md-12':!showPanel}" id="site-explorer-map">
         <div class="row">
-
-          <article class="panel-toggle">
-            <div class="layer-toggle">
-              <i class="fa" [ngClass]="{'fa-arrow-left':showPanel, 'fa-arrow-right':!showPanel}"
-                (click)="!isEdit && togglePanel()"
-                style="vertical-align: middle; font-size: 18px; color: black;"></i>
-            </div>
-          </article>
-
 
           <article class="base-layer-panel">
             <layer-panel (layerChange)="onLayerChange($event)" (reorder)="onReorderLayers($event)"

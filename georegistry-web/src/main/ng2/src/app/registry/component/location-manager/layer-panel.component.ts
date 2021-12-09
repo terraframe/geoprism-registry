@@ -33,7 +33,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     @Output() zoomTo = new EventEmitter<ContextLayer>();
     @Output() create = new EventEmitter<ContextLayer>();
 
-
     baselayerIconHover = false;
 
     lists: ContextList[] = [];
@@ -75,8 +74,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     ngOnInit(): void {
 
-        this.subscription = this.route.params.subscribe((params: any) => {
-            if (params.version != null) {
+        this.subscription = this.route.queryParams.subscribe((params: any) => {
+
+            if (params.version != null && this.layers.findIndex(l => l.oid === params.version) === -1) {
+
                 this.confirm().then(lists => {
                     lists.forEach(list => {
                         list.versions.filter(v => v.oid === params.version).forEach(v => {
