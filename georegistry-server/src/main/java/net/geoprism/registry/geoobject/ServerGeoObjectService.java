@@ -586,4 +586,17 @@ public class ServerGeoObjectService extends LocalizedValueConverter
 
     go.apply(false);
   }
+
+  @Request(RequestType.SESSION)
+  public JsonObject doesGeoObjectExistAtRange(String sessionId, Date startDate, Date endDate, String typeCode, String code)
+  {
+    VertexServerGeoObject vsgo = (VertexServerGeoObject) new ServerGeoObjectService().getGeoObjectByCode(code, typeCode);
+    
+    JsonObject jo = new JsonObject();
+    
+    jo.addProperty("exists", vsgo.existsAtRange(startDate, endDate));
+    jo.addProperty("invalid", vsgo.getInvalid());
+    
+    return jo;
+  }
 }

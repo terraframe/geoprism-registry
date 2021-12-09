@@ -45,6 +45,18 @@ export class DateService {
         type: ConflictType.TIME_RANGE
     };
 
+    public parentDoesNotExist: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("changeovertime.manageVersions.parentDoesNotExist"),
+        type: ConflictType.MISSING_REFERENCE
+    }
+
+    public invalidParent: ConflictMessage = {
+        severity: "ERROR",
+        message: this.localizationService.decode("changeovertime.manageVersions.invalidParent"),
+        type: ConflictType.MISSING_REFERENCE
+    }
+
     // eslint-disable-next-line no-useless-constructor
     constructor(private localizationService: LocalizationService) { }
 

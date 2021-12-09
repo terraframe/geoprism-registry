@@ -109,7 +109,7 @@ const routes: Routes = [
     {
         path: "historical-events",
         component: HistoricalEventModuleComponent,
-        canActivate: [MaintainerGuard]
+        canActivate: [ContributerGuard]
     }
 ];
 

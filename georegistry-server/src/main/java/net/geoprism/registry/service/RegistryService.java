@@ -999,8 +999,13 @@ public class RegistryService
 
     StringBuilder statement = new StringBuilder();
     statement.append("select $filteredLabel,@class as clazz,* from " + type.getMdVertex().getDBClassName() + " ");
-
-    statement.append("let $dateLabel = first(displayLabel_cot[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]), ");
+    
+    statement.append("let $dateLabel = first(displayLabel_cot");
+    if (startDate != null && endDate != null)
+    {
+      statement.append("[(:startDate BETWEEN startDate AND endDate) AND (:endDate BETWEEN startDate AND endDate)]");
+    }
+    statement.append("), ");
     statement.append("$filteredLabel = " + AbstractVertexRestriction.localize("$dateLabel.value") + " ");
 
     statement.append("where ");

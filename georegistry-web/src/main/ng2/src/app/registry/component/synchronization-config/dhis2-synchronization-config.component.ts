@@ -58,7 +58,7 @@ export class Dhis2SynchronizationConfigComponent implements OnInit, OnDestroy {
       if (this.config.configuration == null) {
           this.config.configuration = {
               levels: [],
-              hierarchy: null
+              hierarchyCode: null
           }
       }
 

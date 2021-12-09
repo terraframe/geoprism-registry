@@ -10,7 +10,7 @@ import {
 
 import { LocalizedValue } from "@shared/model/core";
 import { LocalizationService, AuthService } from "@shared/service";
-import { GeometryService } from "@registry/service";
+import { GeometryService, RegistryService } from "@registry/service";
 import { DateService } from "@shared/service/date.service";
 
 import { GeoObjectType, GeoObjectOverTime, AttributeType, Term, HierarchyOverTime } from "@registry/model/registry";
@@ -108,7 +108,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
     showStabilityPeriods = false;
 
     // eslint-disable-next-line no-useless-constructor
-    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService) {
+    constructor(private lService: LocalizationService, private geomService: GeometryService, private authService: AuthService, private dateService: DateService, private registryService: RegistryService) {
 
     }
 
@@ -140,7 +140,7 @@ export class GeoObjectSharedAttributeEditorComponent implements OnInit {
             }
         }
 
-        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService);
+        this.changeRequestEditor = new ChangeRequestEditor(this.changeRequest, this.postGeoObject, this.geoObjectType, this.hierarchies, this.geometryAttributeType, this.parentAttributeType, this.lService, this.dateService, this.registryService);
 
         if (this.shouldForceSetExist()) {
             this.changePage(3);
