@@ -368,17 +368,18 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onPanelCancel(): void {
-        if (this.backReference != null && this.backReference.length >= 2) {
-            // let ref = this.backReference.substring(0, 2);
+        // if (this.backReference != null && this.backReference.length >= 2) {
+        //     // let ref = this.backReference.substring(0, 2);
 
-            // if (ref === "CR") {
-            //     this.router.navigate(["/registry/change-requests"]);
-            // }
-        } else {
-            // this.changeMode(this.MODE.NONE);
-        }
+        //     // if (ref === "CR") {
+        //     //     this.router.navigate(["/registry/change-requests"]);
+        //     // }
+        // } else {
+        //     // this.changeMode(this.MODE.NONE);
+        // }
 
         // this.showOriginalGeometry();
+        this.clearRecord();
     }
 
     onPanelSubmit(applyInfo: { isChangeRequest: boolean, geoObject?: any, changeRequestId?: string }): void {
