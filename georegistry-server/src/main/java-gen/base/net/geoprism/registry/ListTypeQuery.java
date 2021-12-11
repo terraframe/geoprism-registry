@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = 1842101208)
+@com.runwaysdk.business.ClassSignature(hash = 2117025910)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -635,6 +635,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.getComponentQuery().get(net.geoprism.registry.ListType.HIERARCHIES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong()
+  {
+    return getIncludeLatLong(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.ListType.INCLUDELATLONG, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.getComponentQuery().get(net.geoprism.registry.ListType.INCLUDELATLONG, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -1421,6 +1438,9 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getHierarchies();
     public com.runwaysdk.query.SelectableChar getHierarchies(String alias);
     public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getIncludeLatLong();
+    public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias);
+    public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -2062,6 +2082,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.HIERARCHIES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong()
+  {
+    return getIncludeLatLong(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListType.INCLUDELATLONG, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListType.INCLUDELATLONG, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()
@@ -2747,6 +2784,9 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
     public com.runwaysdk.query.SelectableChar getHierarchies();
     public com.runwaysdk.query.SelectableChar getHierarchies(String alias);
     public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel);
+    public com.runwaysdk.query.SelectableBoolean getIncludeLatLong();
+    public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias);
+    public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias, String displayLabel);
     public com.runwaysdk.query.SelectableChar getKeyName();
     public com.runwaysdk.query.SelectableChar getKeyName(String alias);
     public com.runwaysdk.query.SelectableChar getKeyName(String alias, String displayLabel);
@@ -3437,6 +3477,23 @@ public  class ListTypeQuery extends com.runwaysdk.query.GeneratedBusinessQuery
   public com.runwaysdk.query.SelectableChar getHierarchies(String alias, String displayLabel)
   {
     return (com.runwaysdk.query.SelectableChar)this.get(net.geoprism.registry.ListType.HIERARCHIES, alias, displayLabel);
+
+  }
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong()
+  {
+    return getIncludeLatLong(null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListType.INCLUDELATLONG, alias, null);
+
+  }
+ 
+  public com.runwaysdk.query.SelectableBoolean getIncludeLatLong(String alias, String displayLabel)
+  {
+    return (com.runwaysdk.query.SelectableBoolean)this.get(net.geoprism.registry.ListType.INCLUDELATLONG, alias, displayLabel);
 
   }
   public com.runwaysdk.query.SelectableChar getKeyName()

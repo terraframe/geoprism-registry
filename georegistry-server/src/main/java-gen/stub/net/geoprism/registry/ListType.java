@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.commongeoregistry.adapter.Optional;
+import org.commongeoregistry.adapter.constants.GeometryType;
 import org.commongeoregistry.adapter.dataaccess.LocalizedValue;
 import org.commongeoregistry.adapter.metadata.AttributeType;
 import org.commongeoregistry.adapter.metadata.GeoObjectType;
@@ -282,6 +283,11 @@ public abstract class ListType extends ListTypeBase
     this.setCode(object.get(ListType.CODE).getAsString());
     this.setHierarchies(object.get(ListType.HIERARCHIES).getAsJsonArray().toString());
     this.setOrganization(Organization.getByCode(object.get(ListType.ORGANIZATION).getAsString()));
+    
+    if (object.has(ListType.INCLUDELATLONG))
+    {
+      this.setIncludeLatLong(object.get(ListType.INCLUDELATLONG).getAsBoolean());
+    }
 
     if (object.has(ListType.SUBTYPEHIERARCHIES) && !object.get(ListType.SUBTYPEHIERARCHIES).isJsonNull())
     {
@@ -373,6 +379,11 @@ public abstract class ListType extends ListTypeBase
     object.addProperty(ListType.CODE, this.getCode());
     object.add(ListType.HIERARCHIES, this.getHierarchiesAsJson());
     object.add(ListType.SUBTYPEHIERARCHIES, this.getSubtypeHierarchiesAsJson());
+    
+    if (type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT))
+    {
+      object.addProperty(ListType.INCLUDELATLONG, this.getIncludeLatLong());
+    }
 
     if (superType != null)
     {
@@ -839,6 +850,7 @@ public abstract class ListType extends ListTypeBase
     object.addProperty("orgLabel", org.getDisplayLabel().getValue());
     object.addProperty("typeCode", type.getCode());
     object.addProperty("typeLabel", type.getLabel().getValue());
+    object.addProperty("geometryType", type.getGeometryType().name());
     object.addProperty("write", Organization.isRegistryAdmin(org) || Organization.isRegistryMaintainer(org));
     object.add("lists", lists);
 

@@ -61,6 +61,7 @@ import com.runwaysdk.constants.MdAttributeCharacterInfo;
 import com.runwaysdk.constants.MdAttributeConcreteInfo;
 import com.runwaysdk.constants.MdAttributeDateTimeUtil;
 import com.runwaysdk.constants.MdAttributeDoubleInfo;
+import com.runwaysdk.constants.MdAttributeFloatInfo;
 import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.constants.MdTableInfo;
 import com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF;
@@ -75,6 +76,7 @@ import com.runwaysdk.dataaccess.cache.DataNotFoundException;
 import com.runwaysdk.dataaccess.database.Database;
 import com.runwaysdk.dataaccess.metadata.MdAttributeCharacterDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
+import com.runwaysdk.dataaccess.metadata.MdAttributeFloatDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeUUIDDAO;
 import com.runwaysdk.dataaccess.metadata.MdBusinessDAO;
 import com.runwaysdk.dataaccess.metadata.graph.MdClassificationDAO;
@@ -106,7 +108,10 @@ import com.runwaysdk.system.metadata.MdAttributeDouble;
 import com.runwaysdk.system.metadata.MdAttributeIndices;
 import com.runwaysdk.system.metadata.MdAttributeLong;
 import com.runwaysdk.system.metadata.MdBusiness;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.Point;
 
 import net.geoprism.DefaultConfiguration;
 import net.geoprism.gis.geoserver.GeoserverFacade;
@@ -526,6 +531,39 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         createMdAttributeFromAttributeType(metadata, attributeType, type, locales);
       }
     }
+    
+    if ( (type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT)) 
+         && masterlist.getIncludeLatLong()
+        )
+    {
+      MdAttributeFloatDAO mdAttributeLatitude = MdAttributeFloatDAO.newInstance();
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.NAME, "latitude");
+      mdAttributeLatitude.setStructValue(MdAttributeFloatInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Latitude");
+      mdAttributeLatitude.setStructValue(MdAttributeFloatInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Latitude");
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.REQUIRED, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.IMMUTABLE, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.REJECT_ZERO, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.REJECT_NEGATIVE, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.REJECT_POSITIVE, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.LENGTH, "12");
+      mdAttributeLatitude.setValue(MdAttributeFloatInfo.DECIMAL, "8");
+      mdAttributeLatitude.apply();
+      
+      MdAttributeFloatDAO mdAttributeLongitude = MdAttributeFloatDAO.newInstance();
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.NAME, "longitude");
+      mdAttributeLongitude.setStructValue(MdAttributeFloatInfo.DISPLAY_LABEL, MdAttributeLocalInfo.DEFAULT_LOCALE, "Longitude");
+      mdAttributeLongitude.setStructValue(MdAttributeFloatInfo.DESCRIPTION, MdAttributeLocalInfo.DEFAULT_LOCALE, "Longitude");
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.DEFINING_MD_CLASS, mdTableDAO.getOid());
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.REQUIRED, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.IMMUTABLE, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.REJECT_ZERO, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.REJECT_NEGATIVE, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.REJECT_POSITIVE, MdAttributeBooleanInfo.FALSE);
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.LENGTH, "12");
+      mdAttributeLongitude.setValue(MdAttributeFloatInfo.DECIMAL, "8");
+      mdAttributeLongitude.apply();
+    }
 
     JsonArray hierarchies = masterlist.getHierarchiesAsJson();
 
@@ -852,7 +890,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           {
             Business business = new Business(mdBusiness.definesType());
 
-            publish(result, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+            publish(masterlist, type, result, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
 
             Thread.yield();
 
@@ -878,7 +916,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
     }
   }
 
-  private void publish(ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, Collection<Locale> locales)
+  private void publish(ListType listType, ServerGeoObjectType type, ServerGeoObjectIF go, Business business, Collection<AttributeType> attributes, Map<ServerHierarchyType, List<ServerGeoObjectType>> ancestorMap, Set<ServerHierarchyType> hierarchiesOfSubTypes, Collection<Locale> locales)
   {
     VertexServerGeoObject vertexGo = (VertexServerGeoObject) go;
 
@@ -1027,6 +1065,34 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
           }
         }
       }
+      
+      if ( type.getGeometryType().equals(GeometryType.MULTIPOINT) || type.getGeometryType().equals(GeometryType.POINT) 
+           && listType.getIncludeLatLong()
+          )
+      {
+        Geometry geom = vertexGo.getGeometry();
+        
+        if (geom instanceof MultiPoint)
+        {
+          MultiPoint mp = (MultiPoint) geom;
+          
+          Coordinate[] coords = mp.getCoordinates();
+          
+          Coordinate firstCoord = coords[0];
+          
+          this.setValue(business, "latitude", String.valueOf(firstCoord.y));
+          this.setValue(business, "longitude", String.valueOf(firstCoord.x));
+        }
+        else if (geom instanceof Point)
+        {
+          Point point = (Point) geom;
+          
+          Coordinate firstCoord = point.getCoordinate();
+          
+          this.setValue(business, "latitude", String.valueOf(firstCoord.y));
+          this.setValue(business, "longitude", String.valueOf(firstCoord.x));
+        }
+      }
 
       business.apply();
     }
@@ -1079,7 +1145,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
         {
           record.appLock();
 
-          this.publish(object, record, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+          this.publish(masterlist, type, object, record, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
         }
         finally
         {
@@ -1112,7 +1178,7 @@ public class ListTypeVersion extends ListTypeVersionBase implements TableEntity,
 
       Business business = new Business(mdBusiness.definesType());
 
-      this.publish(object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
+      this.publish(masterlist, type, object, business, attributes, ancestorMap, hierarchiesOfSubTypes, locales);
     }
   }
 

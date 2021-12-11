@@ -1,6 +1,6 @@
 package net.geoprism.registry;
 
-@com.runwaysdk.business.ClassSignature(hash = -1585140191)
+@com.runwaysdk.business.ClassSignature(hash = -1379138035)
 /**
  * This class is generated automatically.
  * DO NOT MAKE CHANGES TO IT - THEY WILL BE OVERWRITTEN
@@ -62,6 +62,7 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   private com.runwaysdk.business.Struct geospatialUseConstraints = null;
   
   public static java.lang.String HIERARCHIES = "hierarchies";
+  public static java.lang.String INCLUDELATLONG = "includeLatLong";
   public static java.lang.String KEYNAME = "keyName";
   public static java.lang.String LASTUPDATEDATE = "lastUpdateDate";
   public static java.lang.String LASTUPDATEDBY = "lastUpdatedBy";
@@ -105,7 +106,7 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
   public static java.lang.String TYPE = "type";
   public static java.lang.String UNIVERSAL = "universal";
   public static java.lang.String VALID = "valid";
-  private static final long serialVersionUID = -1585140191;
+  private static final long serialVersionUID = -1379138035;
   
   public ListTypeBase()
   {
@@ -887,6 +888,34 @@ public abstract class ListTypeBase extends com.runwaysdk.business.Business
     else
     {
       setValue(HIERARCHIES, value);
+    }
+  }
+  
+  public Boolean getIncludeLatLong()
+  {
+    return com.runwaysdk.constants.MdAttributeBooleanUtil.getTypeSafeValue(getValue(INCLUDELATLONG));
+  }
+  
+  public void validateIncludeLatLong()
+  {
+    this.validateAttribute(INCLUDELATLONG);
+  }
+  
+  public static com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF getIncludeLatLongMd()
+  {
+    com.runwaysdk.dataaccess.MdClassDAOIF mdClassIF = com.runwaysdk.dataaccess.metadata.MdClassDAO.getMdClassDAO(net.geoprism.registry.ListType.CLASS);
+    return (com.runwaysdk.dataaccess.MdAttributeBooleanDAOIF)mdClassIF.definesAttribute(INCLUDELATLONG);
+  }
+  
+  public void setIncludeLatLong(Boolean value)
+  {
+    if(value == null)
+    {
+      setValue(INCLUDELATLONG, "");
+    }
+    else
+    {
+      setValue(INCLUDELATLONG, java.lang.Boolean.toString(value));
     }
   }
   
