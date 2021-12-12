@@ -233,6 +233,21 @@
         </attributeStruct>
       </object>                  
       
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.layers">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.layers" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Layers" />
+        </attributeStruct>
+      </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.note">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.search.note" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Note: Searching will reset the current context layers" />
+        </attributeStruct>
+      </object>                  
+      
     </createOrUpdate>
   </doIt>
   <undoIt>

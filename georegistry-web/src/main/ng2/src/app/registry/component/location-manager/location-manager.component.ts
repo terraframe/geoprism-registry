@@ -45,12 +45,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         VIEW: 1
     }
 
-    editSessionEnabled: boolean = false;
-
     bsModalRef: BsModalRef;
 
     /*
-     * Root nodes of the tree
+     * Search results from the server
      */
     data: GeoObject[] = [];
 
@@ -85,10 +83,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     map: Map;
 
     /*
-     *  MODE
+     *  Mode used to determine what is being show on the left hand panel
      */
     mode: number = this.MODE.SEARCH;
 
+    /*
+    *  Flag to indicate if the left handle panel should be displayed or not
+     */
     showPanel: boolean = false;
 
     layers: ContextLayer[] = [];
@@ -111,15 +112,19 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
     preventSingleClick: boolean = false;
 
-    hideSearchOptions: boolean = false;
-
     /*
-       * Timer for determining double click vs single click
-       */
+     * Timer for determining double click vs single click
+     */
     timer: any;
 
+    /*
+     * URL pamaters of the component
+     */
     params: any = null;
 
+    /*
+    * Subscription for changes to the URL parameters
+    */
     subscription: Subscription;
 
     // Flag denoting if the map in loaded and initialized     
@@ -368,17 +373,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     onPanelCancel(): void {
-        // if (this.backReference != null && this.backReference.length >= 2) {
-        //     // let ref = this.backReference.substring(0, 2);
-
-        //     // if (ref === "CR") {
-        //     //     this.router.navigate(["/registry/change-requests"]);
-        //     // }
-        // } else {
-        //     // this.changeMode(this.MODE.NONE);
-        // }
-
-        // this.showOriginalGeometry();
         this.clearRecord();
     }
 

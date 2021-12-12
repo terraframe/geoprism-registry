@@ -16,7 +16,7 @@
   <div *ngIf="!baselayerIconHover && layers.length > 0">
     <div style="margin-bottom: 10px;">
       <h4>
-        Layers
+        <localize key="explorer.layers"></localize>
       </h4>
       <div class="list-group">
         <div *ngFor="let layer of layers" class="list-group-item">
@@ -81,7 +81,7 @@
         </div>
         <div *ngIf="lists.length > 0" class="row">
           <div class="col-md-12">
-            <p class="h.6 font-italic">Note: Searching will reset the current context layers</p>
+            <p class="h.6 font-italic"><localize key="explorer.search.note"></localize></p>
           </div>
         </div>
 
