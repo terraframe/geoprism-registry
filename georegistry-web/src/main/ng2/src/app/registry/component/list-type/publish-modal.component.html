@@ -404,6 +404,17 @@
                         <input [(ngModel)]="list.typeCode" name="typeCode" type="text" class="form-control" disabled />
                     </div>
                 </div>
+                
+                <div *ngIf="list.includeLatLong !== undefined" class="row-holder">
+                    <div class="label-holder">
+                        <label for="typeCode">
+                            <localize key="list.type.includeLatLong"></localize>
+                        </label>
+                    </div>
+                    <div class="holder">
+                        <boolean-field [(value)]="list.includeLatLong" label="" [disable]="false"></boolean-field>
+                    </div>
+                </div>
 
                 <div class="row-holder" *ngIf="list.hierarchies.length > 0">
                     <div class="label-holder"></div>

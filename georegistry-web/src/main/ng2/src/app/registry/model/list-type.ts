@@ -2,16 +2,19 @@ import { LocalizedValue } from "@shared/model/core";
 import { GeoObjectType } from "./registry";
 
 export class ListTypeByType {
+
     orgCode: string;
     orgLabel: string;
     typeCode: string;
     typeLabel: string;
+    geometryType: string;
     write: boolean;
     private: boolean;
     lists: ListType[];
 }
 
 export class ListMetadata {
+
     label: LocalizedValue;
     description: LocalizedValue;
     process: LocalizedValue;
@@ -40,6 +43,7 @@ export class ListMetadata {
 }
 
 export class ListType {
+
     oid?: string;
     code: string;
     organization: string;
@@ -56,6 +60,7 @@ export class ListType {
     subtypes?: { label: string, code: string }[];
     subtypeHierarchies?: any[];
     hierarchies: { label: string, code: string, parents: { label: string, code: string }[] }[];
+    includeLatLong?: boolean;
 
     listMetadata: ListMetadata;
     geospatialMetadata: ListMetadata;

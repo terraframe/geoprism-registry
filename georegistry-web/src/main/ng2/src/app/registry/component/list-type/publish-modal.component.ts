@@ -119,6 +119,10 @@ export class ListTypePublishModalComponent implements OnInit {
             this.list.typeLabel = listByType.typeLabel;
             this.list.organization = listByType.orgCode;
 
+            if (listByType.geometryType === "MULTIPOINT" || listByType.geometryType === "POINT") {
+                this.list.includeLatLong = true;
+            }
+
             this.iService.getHierarchiesForType(this.list.typeCode, true).then(hierarchies => {
                 this.list.hierarchies = hierarchies;
             }).catch((err: HttpErrorResponse) => {
