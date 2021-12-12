@@ -31,8 +31,8 @@
                                 <i class="fa fa-table fa-stack-1x" style="margin-left: 5px;margin-top: -4px;"></i>
                             </span>
 
-                            <a [routerLink]="'/registry/master-lists/' + listByType.typeCode + '/' + list.oid"
-                                routerLinkActive="active">
+                            <a [routerLink]="'/registry/master-lists'"
+                                [queryParams]="{typeCode:listByType.typeCode, listId: list.oid}" routerLinkActive="active">
                                 {{list.displayLabel.localizedValue}}
                             </a>
                         </div>
@@ -59,11 +59,12 @@
                         <div class="col-md-12">
                             <ul>
                                 <li>
-                                    <localize key="data.property.label.publishingStartDate"></localize>: {{list.publishingStartDate}}
+                                    <localize key="data.property.label.publishingStartDate"></localize>:
+                                    {{list.publishingStartDate}}
                                 </li>
                                 <li>
                                     <localize key="data.property.label.frequency"></localize>: {{list.frequency}}
-                                </li>                                
+                                </li>
                             </ul>
                         </div>
                     </div>

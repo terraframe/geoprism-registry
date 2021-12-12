@@ -20,9 +20,10 @@
 
                             <li class="list-group-item got-li-item" *ngFor="let type of typeByOrg.types"
                                 [id]="type.code">
-                                <a [routerLink]="'/registry/master-lists/' + type.code" routerLinkActive="active">
+                                <a [routerLink]="'/registry/master-lists'"
+                                    [queryParams]="{typeCode:type.code}" routerLinkActive="active">
                                     {{type.label.localizedValue}}
-                                </a>                                
+                                </a>
                             </li>
                         </div>
                     </ul>
@@ -30,9 +31,10 @@
             </nav>
             <div class="col-md-9 hierarchy-content">
                 <div id="overflow-div">
-                    <lists-for-type *ngIf="listByType != null" [listByType]="listByType" (error)="error($event)" ></lists-for-type>
+                    <lists-for-type *ngIf="listByType != null" [listByType]="listByType" (error)="error($event)">
+                    </lists-for-type>
 
-                    <list-type *ngIf="current != null" [list]="current" (error)="error($event)" ></list-type>
+                    <list-type *ngIf="current != null" [list]="current" (error)="error($event)"></list-type>
                 </div>
             </div>
 
