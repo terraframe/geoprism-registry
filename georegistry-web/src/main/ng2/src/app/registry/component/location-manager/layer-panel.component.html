@@ -72,7 +72,7 @@
               [allowFutureDates]="false" name="endDate"></date-field>
           </div>
           <div class="col-md-4">
-            <button type="button" (click)="confirm()" class="btn btn-primary" role="button">
+            <button type="button" (click)="onConfirm()" class="btn btn-primary" role="button">
               <span>
                 <localize key="modal.button.submit"></localize>
               </span>
@@ -94,7 +94,7 @@
                   <div *ngIf="list.open" class="list-group">
                     <div *ngFor="let version of list.versions">
 
-                      <input type="checkbox" [checked]="version.enabled" (change)="toggleLayer(version, list)"
+                      <input type="checkbox" [checked]="version.enabled" (change)="onToggleLayer(version, list)"
                         style="margin-left: 10px;">
                       {{ version.forDate }}
                       <ng-container *ngIf="version.oid !== CONSTANT.GRAPH_LAYER" [ngTemplateOutlet]="versionDetail"
