@@ -227,8 +227,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         this.handleSelect(this.params.type, this.params.code, this.params.uid);
 
                         showPanel = true;
-                        mode = this.MODE.VIEW;
                     }
+
+                    mode = this.MODE.VIEW;
                 }
 
                 // Handle parameters for select a record from a context layer
@@ -238,8 +239,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                         this.handleRecord(this.params.version, this.params.uid);
 
                         showPanel = true;
-                        mode = this.MODE.VIEW;
                     }
+
+                    mode = this.MODE.VIEW;
                 }
 
             }
@@ -563,18 +565,6 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     handleSelect(type: string, code: string, uid: string) {
-
-        if (this.feature != null) {
-            this.map.removeFeatureState(this.feature);
-        }
-
-        // Highlight the feature on the map
-        this.map.setFeatureState(this.feature = {
-            source: GRAPH_LAYER,
-            id: uid
-        }, {
-            hover: true
-        });
 
         // Highlight the feature on the map
         this.service.getGeoObjectTypes([type], null).then(types => {

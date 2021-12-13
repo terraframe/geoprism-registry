@@ -183,7 +183,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             });
 
             // Determine existing layers which need to be toggled off
-            this.layers.filter(l => layers.indexOf(l.oid) === -1).forEach(layer => {
+            this.layers.filter(l => l.oid !== GRAPH_LAYER && layers.indexOf(l.oid) === -1).forEach(layer => {
                 this.lists.forEach(list => {
                     list.versions.filter(v => v.oid === layer.oid).forEach(v => {
                         this.toggleLayer(v, list);
@@ -232,8 +232,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
         const index = this.layers.findIndex(l => l.oid === layer.oid);
 
-        const layers = index === -1 ? this.layers.map(l => l.oid).concat(layer.oid) :
-            this.layers.filter(l => l.oid !== layer.oid).map(l => l.oid);
+        const layers = index === -1 ? this.layers.filter(l => l.oid !== GRAPH_LAYER).map(l => l.oid).concat(layer.oid) :
+            this.layers.filter(l => l.oid !== GRAPH_LAYER && l.oid !== layer.oid).map(l => l.oid);
 
         this.router.navigate([], {
             relativeTo: this.route,
