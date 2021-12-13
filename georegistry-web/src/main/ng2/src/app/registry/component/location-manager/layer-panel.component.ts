@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, OnDestroy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import { ContextLayer, ContextList } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
@@ -66,27 +66,23 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
     subscription: Subscription;
 
+    params: Params = null;
+
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
         private route: ActivatedRoute,
+        private router: Router,
         public service: ListTypeService) { }
 
     ngOnInit(): void {
 
-        this.subscription = this.route.queryParams.subscribe((params: any) => {
+        this.subscription = this.route.queryParams.subscribe(params => {
+            this.params = params;
 
-            if (params.version != null && this.layers.findIndex(l => l.oid === params.version) === -1) {
-
-                this.confirm().then(lists => {
-                    lists.forEach(list => {
-                        list.versions.filter(v => v.oid === params.version).forEach(v => {
-                            this.toggleLayer(v, list);
-                        });
-                    })
-                });
-            }
+            this.handleParams();
         });
+
     }
 
     ngOnDestroy(): void {
@@ -127,7 +123,91 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    confirm(): Promise<ContextList[]> {
+    handleParams(): void {
+
+        let isSearchRequired = false;
+
+        if (this.params.startDate != null && this.params.startDate !== this.form.startDate) {
+            this.form.startDate = this.params.startDate;
+
+            isSearchRequired = true;
+        }
+
+        if (this.params.endDate != null && this.params.endDate !== this.form.endDate) {
+            this.form.endDate = this.params.endDate;
+
+            isSearchRequired = true;
+        }
+
+        let layers = [];
+
+        if (this.params.layers != null) {
+            if (Array.isArray(this.params.layers)) {
+                layers = this.params.layers;
+            } else {
+                layers = [this.params.layers];
+            }
+        }
+
+        layers.forEach(layer => {
+            const hasList = this.lists.filter(list => list.versions.findIndex(v => v.oid === layer) !== -1).length > 0;
+
+            if (!hasList) {
+                isSearchRequired = true;
+            }
+        });
+
+        if (isSearchRequired) {
+            this.handleSearch().then(lists => {
+                layers.forEach(oid => {
+                    lists.forEach(list => {
+                        list.versions.filter(v => v.oid === oid).forEach(v => {
+                            this.toggleLayer(v, list);
+                        });
+                    })
+                })
+            });
+        }
+        else {
+            // Determine if a layer needs to be toggled on
+            layers.forEach(layer => {
+                const index = this.layers.findIndex(l => l.oid === layer);
+
+                if (index === -1) {
+                    this.lists.forEach(list => {
+                        list.versions.filter(v => v.oid === layer).forEach(v => {
+                            this.toggleLayer(v, list);
+                        });
+                    });
+                }
+            });
+
+            // Determine existing layers which need to be toggled off
+            this.layers.filter(l => layers.indexOf(l.oid) === -1).forEach(layer => {
+                this.lists.forEach(list => {
+                    list.versions.filter(v => v.oid === layer.oid).forEach(v => {
+                        this.toggleLayer(v, list);
+                    });
+                })
+            })
+        }
+    }
+
+    onConfirm(): void {
+
+        if (this.params.startDate == null && this.params.endDate == null && this.params.layers == null && this.form.startDate === null && this.form.endDate === null) {
+            this.handleSearch();
+        }
+        else {
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { startDate: this.form.startDate, endDate: this.form.endDate, layers: null },
+                queryParamsHandling: 'merge', // remove to replace all query params by provided
+            });
+        }
+    }
+
+    handleSearch(): Promise<ContextList[]> {
         // Remove all current lists
         this.lists.forEach(list => {
             list.versions.filter(v => v.enabled && v.oid !== GRAPH_LAYER).forEach(v => {
@@ -144,6 +224,21 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             });
 
             return lists;
+        });
+    }
+
+    onToggleLayer(layer: ContextLayer, list: ContextList): void {
+
+
+        const index = this.layers.findIndex(l => l.oid === layer.oid);
+
+        const layers = index === -1 ? this.layers.map(l => l.oid).concat(layer.oid) :
+            this.layers.filter(l => l.oid !== layer.oid).map(l => l.oid);
+
+        this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: { layers: layers },
+            queryParamsHandling: 'merge', // remove to replace all query params by provided
         });
     }
 
