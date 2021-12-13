@@ -8,6 +8,13 @@
           <attribute name="defaultLocale" value="Include Latitude and Longitude" />
         </attributeStruct>
       </object>
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="list.emptyValue">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="list.emptyValue" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Empty Value" />
+        </attributeStruct>
+      </object>
     </createOrUpdate>
     <create></create>
     <update>
