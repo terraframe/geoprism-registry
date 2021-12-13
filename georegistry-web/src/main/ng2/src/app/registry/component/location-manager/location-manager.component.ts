@@ -200,6 +200,12 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         }
     }
 
+    /**
+    * 
+    * Method responsible for parsing the state from the URL parameters and determining if
+    * the model of the widget needs to be updated or not.
+    *  
+    * */
     handleParameterChange(params: Params): void {
         this.params = params;
 
