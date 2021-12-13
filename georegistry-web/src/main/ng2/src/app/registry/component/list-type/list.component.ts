@@ -185,6 +185,9 @@ export class ListComponent implements OnInit, OnDestroy {
 
             // Get the valid values
             this.service.values(this.list.oid, attribute.search, attribute.name, attribute.base, this.getFilter()).then(options => {
+                if (this.filter.findIndex(filt => filt.value === "null") === -1) {
+                    options.unshift({ label: "[" + this.localizeService.decode("list.emptyValue") + "]", value: "null" });
+                }
                 options.unshift({ label: "[" + this.localizeService.decode("masterlist.nofilter") + "]", value: null });
 
                 observer.next(options);
@@ -246,7 +249,7 @@ export class ListComponent implements OnInit, OnDestroy {
         if (attribute.value != null && attribute.value !== "") {
             const label = "[" + attribute.label + "] : " + "[" + attribute.value + "]";
 
-            this.filter.push({ attribute: attribute.base, value: attribute.value, label: label });
+            this.filter.push({ attribute: attribute.base, value: attribute.value === "null" ? null : attribute.value, label: label });
             this.selected.push(attribute.base);
         }
 
@@ -302,7 +305,6 @@ export class ListComponent implements OnInit, OnDestroy {
             }).catch((err: HttpErrorResponse) => {
                 this.error(err);
             });
-
     }
 
     onNewGeoObject(): void {
