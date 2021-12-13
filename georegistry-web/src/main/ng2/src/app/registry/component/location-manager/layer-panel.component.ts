@@ -123,6 +123,12 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    /**
+     * 
+     * Method responsible for parsing the state from the URL parameters and determining if
+     * the model of the widget needs to be updated or not.
+     * 
+     * */
     handleParams(): void {
 
         let isSearchRequired = false;
@@ -158,6 +164,11 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         if (isSearchRequired) {
+            // One of the enabled layers specified in the URL is not currently in the list/versions data model
+            // In which it can be enabled.  As such we must do a new search for the valid list/versions
+            // in order to populate the option into the data model. 
+            // OR the search dates have been updated, so a new search must be performed.
+
             this.handleSearch().then(lists => {
                 layers.forEach(oid => {
                     lists.forEach(list => {
@@ -169,7 +180,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             });
         }
         else {
-            // Determine if a layer needs to be toggled on
+            // Determine if an existing version in the data model needs to be toggled on based on the state
+            // of the URL 'layers' parameters
             layers.forEach(layer => {
                 const index = this.layers.findIndex(l => l.oid === layer);
 
@@ -182,7 +194,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
                 }
             });
 
-            // Determine existing layers which need to be toggled off
+            // Determine if any existing layers which need to be toggled off based on the state of the URL ''
             this.layers.filter(l => l.oid !== GRAPH_LAYER && layers.indexOf(l.oid) === -1).forEach(layer => {
                 this.lists.forEach(list => {
                     list.versions.filter(v => v.oid === layer.oid).forEach(v => {
@@ -196,13 +208,22 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     onConfirm(): void {
 
         if (this.params.startDate == null && this.params.endDate == null && this.params.layers == null && this.form.startDate === null && this.form.endDate === null) {
+
+            // A new search should null out any currently select layers and any record which has been clicked on
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { layers: null, version: null },
+                queryParamsHandling: 'merge'
+            });
+
             this.handleSearch();
         }
         else {
+            // A new search should null out any currently select layers and any record which has been clicked on
             this.router.navigate([], {
                 relativeTo: this.route,
-                queryParams: { startDate: this.form.startDate, endDate: this.form.endDate, layers: null },
-                queryParamsHandling: 'merge', // remove to replace all query params by provided
+                queryParams: { startDate: this.form.startDate, endDate: this.form.endDate, layers: null, version: null },
+                queryParamsHandling: 'merge'
             });
         }
     }
