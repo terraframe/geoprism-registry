@@ -7,6 +7,7 @@ import { AuthService, LocalizationService } from "@shared/service";
 import { ListType, ListTypeEntry, ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { PublishVersionComponent } from "./publish-version.component";
+import { Router } from "@angular/router";
 
 @Component({
     selector: "list-type",
@@ -26,6 +27,7 @@ export class ListTypeComponent implements OnInit, OnDestroy {
 
     // eslint-disable-next-line no-useless-constructor
     constructor(
+        private router: Router,
         private service: ListTypeService,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
@@ -87,6 +89,12 @@ export class ListTypeComponent implements OnInit, OnDestroy {
             }).catch((err: HttpErrorResponse) => {
                 this.error.emit(err);
             });
+        });
+    }
+
+    onGotoMap(version: ListTypeVersion): void {
+        this.router.navigate(['/registry/location-manager'], {
+            queryParams: {layers: JSON.stringify([version.oid]) },
         });
     }
 

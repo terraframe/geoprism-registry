@@ -73,7 +73,6 @@ import { SynchronizationConfigComponent } from "./component/synchronization-conf
 import { SyncDetailsComponent } from "./component/synchronization-config/details.component";
 
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
-import { DatasetLocationManagerComponent } from "./component/location-manager/dataset-location-manager.component";
 import { LayerPanelComponent } from "./component/location-manager/layer-panel.component";
 import { FeaturePanelComponent } from "./component/location-manager/feature-panel.component";
 import { GeometryPanelComponent } from "./component/location-manager/geometry-panel.component";
@@ -207,7 +206,6 @@ import { SelectTypeModalComponent } from "./component/location-manager/select-ty
         SyncDetailsComponent,
         // Location manager
         LocationManagerComponent,
-        DatasetLocationManagerComponent,
         LayerPanelComponent,
         FeaturePanelComponent,
         GeometryPanelComponent,

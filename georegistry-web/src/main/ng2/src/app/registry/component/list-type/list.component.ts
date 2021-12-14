@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 import { TypeaheadMatch } from "ngx-bootstrap/typeahead";
 import { Observable } from "rxjs";
@@ -54,9 +54,10 @@ export class ListComponent implements OnInit, OnDestroy {
     notifier: WebSocketSubject<{ type: string, content: any }>;
 
     constructor(
+        private router: Router,
+        private route: ActivatedRoute,
         private service: ListTypeService,
         private pService: ProgressService,
-        private route: ActivatedRoute,
         private dateService: DateService,
         private modalService: BsModalService,
         private localizeService: LocalizationService,
@@ -352,4 +353,17 @@ export class ListComponent implements OnInit, OnDestroy {
         this.message = ErrorHandler.getMessageFromError(err);
     }
 
+    onGotoMap(result: any): void {
+
+        const params: any = { layers: JSON.stringify([this.list.oid]) };
+
+        if (result != null) {
+            params.version = this.list.oid;
+            params.uid = result.uid;
+        }
+
+        this.router.navigate(['/registry/location-manager'], {
+            queryParams: params,
+        });
+    }
 }

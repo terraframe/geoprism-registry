@@ -149,15 +149,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             isSearchRequired = true;
         }
 
-        let layers = [];
-
-        if (this.params.layers != null) {
-            if (Array.isArray(this.params.layers)) {
-                layers = this.params.layers;
-            } else {
-                layers = [this.params.layers];
-            }
-        }
+        const layers = this.params.layers != null ? JSON.parse(this.params.layers) : [];
 
         layers.forEach(layer => {
             const hasList = this.lists.filter(list => list.versions.findIndex(v => v.oid === layer) !== -1).length > 0;
@@ -168,6 +160,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         if (isSearchRequired) {
+            console.log('Searching');
+
             // One of the enabled layers specified in the URL is not currently in the list/versions data model
             // As such we must do a new search for the valid list/versions in order to populate the option
             // into the data model. 
@@ -192,6 +186,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
                 if (index === -1) {
                     this.lists.forEach(list => {
                         list.versions.filter(v => v.oid === layer).forEach(v => {
+                            console.log('Enabling layer', v);
+
                             this.toggleLayer(v, list);
                         });
                     });
@@ -202,11 +198,38 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             this.layers.filter(l => l.oid !== GRAPH_LAYER && layers.indexOf(l.oid) === -1).forEach(layer => {
                 this.lists.forEach(list => {
                     list.versions.filter(v => v.oid === layer.oid).forEach(v => {
+                        console.log('Removing layer', v);
+
                         this.toggleLayer(v, list);
                     });
                 })
             })
         }
+
+        // Determine if the order of the layers has changed
+        if (this.params.layers != null) {
+            let isEqual = true;
+            for (let i = 0; i < this.layers.length; i++) {
+                if (this.layers[i].oid !== layers[i]) {
+                    isEqual = false;
+                }
+            }
+
+            if (!isEqual) {
+                const indecies = {};
+                for (let i = 0; i < layers.length; i++) {
+                    indecies[layers[i]] = i;
+                }
+
+                this.layers = this.layers.sort((a, b) => {
+                    return indecies[a.oid] - indecies[b.oid];
+                })
+
+                this.reorder.emit(this.layers);
+            }
+
+        }
+
     }
 
     onConfirm(): void {
@@ -260,12 +283,19 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
         const index = this.layers.findIndex(l => l.oid === layer.oid);
 
-        const layers = index === -1 ? this.layers.filter(l => l.oid !== GRAPH_LAYER).map(l => l.oid).concat(layer.oid) :
-            this.layers.filter(l => l.oid !== GRAPH_LAYER && l.oid !== layer.oid).map(l => l.oid);
+        let layers = this.layers.filter(l => l.oid !== GRAPH_LAYER).map(l => l.oid);
+
+        if (index === -1) {
+            layers.unshift(layer.oid);
+        }
+        else {
+            layers = layers.filter(l => l !== layer.oid);
+        }
+
 
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { layers: layers },
+            queryParams: { layers: JSON.stringify(layers) },
             queryParamsHandling: 'merge', // remove to replace all query params by provided
         });
     }
@@ -280,8 +310,19 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             layer.label = list.label;
         }
 
+        let index: number = 0;
+
         if (layer.enabled) {
-            this.layers.unshift(layer);
+
+            if (layer.oid === GRAPH_LAYER && this.params.layers != null) {
+                const i = JSON.parse(this.params.layers).indexOf(GRAPH_LAYER);
+
+                if (i !== -1) {
+                    index = i;
+                }
+            }
+
+            this.layers.splice(index, 0, layer);
         }
         else {
             const index = this.layers.findIndex(l => l.oid === layer.oid);
@@ -292,6 +333,10 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         }
 
         this.layerChange.emit({ layer: layer });
+
+        if (index !== 0) {
+            this.reorder.emit(this.layers);
+        }
     }
 
     toggleActive(layer: ContextLayer): void {
@@ -338,11 +383,17 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         const target = (index + offset);
 
         if (index !== -1 && target > -1 && target <= this.layers.length - 1) {
-            const a = this.layers[index];
-            this.layers[index] = this.layers[index + offset];
-            this.layers[index + offset] = a;
+            let layers = this.layers.map(l => l.oid);
 
-            this.reorder.emit(this.layers);
+            const a = layers[index];
+            layers[index] = layers[index + offset];
+            layers[index + offset] = a;
+
+            this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: { layers: JSON.stringify(layers) },
+                queryParamsHandling: 'merge', // remove to replace all query params by provided
+            });
         }
     }
 

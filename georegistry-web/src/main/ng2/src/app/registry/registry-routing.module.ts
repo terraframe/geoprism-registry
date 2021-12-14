@@ -13,7 +13,6 @@ import { SynchronizationConfigManagerComponent } from "./component/synchronizati
 import { SynchronizationConfigComponent } from "./component/synchronization-config/synchronization-config.component";
 import { SyncDetailsComponent } from "./component/synchronization-config/details.component";
 import { LocationManagerComponent } from "./component/location-manager/location-manager.component";
-import { DatasetLocationManagerComponent } from "./component/location-manager/dataset-location-manager.component";
 
 import { MaintainerGuard, ContributerGuard, AuthGuard } from "../shared/service/guard.service";
 import { HistoricalEventModuleComponent } from "./component/historical-event-module/historical-event-module.component";
