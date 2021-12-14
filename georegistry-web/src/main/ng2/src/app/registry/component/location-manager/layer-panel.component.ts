@@ -3,6 +3,7 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import { ContextLayer, ContextList } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
+import { LocalizationService } from "@shared/service";
 import * as ColorGen from "color-generator";
 import { Subscription } from "rxjs";
 
@@ -73,7 +74,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        public service: ListTypeService) { }
+        private service: ListTypeService,
+        private lService: LocalizationService) { }
 
     ngOnInit(): void {
 
@@ -101,7 +103,7 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
                 const list = {
                     oid: GRAPH_LAYER,
-                    label: 'Search Results',
+                    label: this.lService.decode('explorer.search.layer'),
                     versions: [layer],
                     open: false,
                 }
@@ -165,8 +167,8 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
         if (isSearchRequired) {
             // One of the enabled layers specified in the URL is not currently in the list/versions data model
-            // In which it can be enabled.  As such we must do a new search for the valid list/versions
-            // in order to populate the option into the data model. 
+            // As such we must do a new search for the valid list/versions in order to populate the option
+            // into the data model. 
             // OR the search dates have been updated, so a new search must be performed.
 
             this.handleSearch().then(lists => {

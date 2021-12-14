@@ -9,13 +9,13 @@
       <article class="panel-toggle" style="width: 40%; background-color: white;">
         <div class="row">
           <div class="col-md-4">
-            <date-field [(value)]="dateStr" label="" [inputName]="'dateStr'" [allowInfinity]="false"
+            <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
               [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
             </date-field>
           </div>
           <div class="col-md-7">
             <div class="input-group">
-              <input type="text" class="form-control" (keyup.enter)="search()" [(ngModel)]="text" name="text">
+              <input type="text" class="form-control" (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
               <span class="input-group-btn">
                 <button [disabled]="isEdit" class="btn btn-primary" type="button" (click)="search()">
                   <span class="glyphicon glyphicon-search" aria-hidden="true"></span>

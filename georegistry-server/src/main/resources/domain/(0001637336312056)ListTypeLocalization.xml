@@ -247,6 +247,13 @@
           <attribute name="defaultLocale" value="Note: Searching will reset the current context layers" />
         </attributeStruct>
       </object>                  
+      <object type="com.runwaysdk.localization.LocalizedValueStore" key="explorer.search.layer">
+        <attribute name="storeTag" value="UIText" />
+        <attribute name="storeKey" value="explorer.search.layer" />
+        <attributeStruct name="storeValue">
+          <attribute name="defaultLocale" value="Search Results" />
+        </attributeStruct>
+      </object>                        
       <object type="com.runwaysdk.localization.LocalizedValueStore" key="masterlist.viewOnMap">
         <attribute name="storeTag" value="UIText" />
         <attribute name="storeKey" value="masterlist.viewOnMap" />

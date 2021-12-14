@@ -52,15 +52,13 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
      */
     data: GeoObject[] = [];
 
-    /*
-     *  Search Text
-     */
-    text: string = "";
 
-    /*
-     * Date of data for explorer
-     */
-    dateStr: string = null;
+    state: {
+        text: string,
+        currentText: string,
+        date: string,
+        currentDate: string
+    } = { text: '', currentText: '', date: '', currentDate: '' }
 
     /*
      * Currently selected record
@@ -218,12 +216,14 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                 // Handle parameters for searching for a geo object
                 if (this.params.text != null) {
-                    this.text = this.params.text;
-                    this.dateStr = this.params.date;
+                    if (this.params.text != this.state.currentText || this.params.date != this.state.currentDate) {
+                        this.state.text = this.params.text;
+                        this.state.date = this.params.date;
+
+                        this.handleSearch(this.params.text, this.params.date);
+                    }
 
                     showPanel = true;
-
-                    this.handleSearch(this.params.text, this.params.date);
                 }
 
                 // Handle parameters for selecting a geo object
@@ -231,10 +231,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
                     if (this.record == null || this.record.type == null || this.record.type.code != this.params.type || this.record.code != this.params.code) {
                         this.handleSelect(this.params.type, this.params.code, this.params.uid);
-
-                        showPanel = true;
                     }
 
+                    showPanel = true;
                     mode = this.MODE.VIEW;
                 }
 
@@ -244,9 +243,9 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     if (this.record == null || this.feature == null || this.feature.source != this.params.version || this.feature.id != this.params.uid) {
                         this.handleRecord(this.params.version, this.params.uid);
 
-                        showPanel = true;
                     }
 
+                    showPanel = true;
                     mode = this.MODE.VIEW;
                 }
 
@@ -469,14 +468,16 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     search(): void {
         this.router.navigate([], {
             relativeTo: this.route,
-            queryParams: { text: this.text, date: this.dateStr, type: null, code: null, version: null, uid: null },
+            queryParams: { text: this.state.text, date: this.state.date, type: null, code: null, version: null, uid: null },
             queryParamsHandling: 'merge', // remove to replace all query params by provided
         });
     }
 
     handleSearch(text: string, date: string): void {
         this.geomService.destroy(false);
-        this.mapService.search(this.text, this.dateStr).then(data => {
+        this.mapService.search(text, date).then(data => {
+            this.state.currentText = text;
+            this.state.currentDate = date;
 
             this.showPanel = true;
 
@@ -593,7 +594,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 recordType: 'GEO_OBJECT',
                 type: type,
                 code: code,
-                forDate: this.dateStr
+                forDate: this.state.currentDate
             };
 
             if (this.record.recordType === 'GEO_OBJECT') {
