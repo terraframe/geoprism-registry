@@ -39,9 +39,11 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
     lists: ContextList[] = [];
     layers: ContextLayer[] = [];
 
-    form: { startDate: string, endDate: string } = {
+    form: { startDate: string, currentStartDate: string, endDate: string, currentEndDate: string } = {
         startDate: '',
-        endDate: ''
+        currentStartDate: '',
+        endDate: '',
+        currentEndDate: ''
     };
 
     /*
@@ -135,13 +137,13 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
 
         let isSearchRequired = false;
 
-        if (this.params.startDate != null && this.params.startDate !== this.form.startDate) {
+        if (this.params.startDate != null && this.params.startDate !== this.form.currentStartDate) {
             this.form.startDate = this.params.startDate;
 
             isSearchRequired = true;
         }
 
-        if (this.params.endDate != null && this.params.endDate !== this.form.endDate) {
+        if (this.params.endDate != null && this.params.endDate !== this.form.currentEndDate) {
             this.form.endDate = this.params.endDate;
 
             isSearchRequired = true;
@@ -239,6 +241,9 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         return this.service.getGeospatialVersions(this.form.startDate, this.form.endDate).then(lists => {
+
+            this.form.currentStartDate = this.form.startDate;
+            this.form.currentEndDate = this.form.endDate;
 
             this.lists = this.lists.filter(v => v.oid === GRAPH_LAYER).concat(lists);
 
