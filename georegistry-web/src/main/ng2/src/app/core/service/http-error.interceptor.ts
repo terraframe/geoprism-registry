@@ -12,7 +12,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-declare var acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
@@ -23,7 +23,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
             if ( event instanceof HttpResponseBase ) {
                 const response = event as HttpResponseBase;
                 if ( response.status === 302 ) {
-                    window.location.href = acp + '/cgr/manage#/login';
+                    window.location.href = registry.contextPath + '/cgr/manage#/login';
                     return;
                 }
             }
@@ -32,7 +32,7 @@ export class HttpErrorInterceptor implements HttpInterceptor {
                 if ( err.status === 401 || err.status === 403 ) {
                     // redirect to the login route
                     // or show a modal
-                    window.location.href = acp + '/cgr/manage#/login';
+                    window.location.href = registry.contextPath + '/cgr/manage#/login';
                 }
             }
         } ));

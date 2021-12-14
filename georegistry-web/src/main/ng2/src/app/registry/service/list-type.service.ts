@@ -6,7 +6,7 @@ import { EventService } from "@shared/service";
 import { ContextList, LayerRecord, ListType, ListTypeByType, ListTypeEntry, ListTypeVersion, ListVersionMetadata } from "@registry/model/list-type";
 import { Observable } from "rxjs";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class ListTypeService {
@@ -20,7 +20,7 @@ export class ListTypeService {
 
         this.eventService.start();
 
-        return this.http.get<ListTypeByType>(acp + "/list-type/list-for-type", { params: params })
+        return this.http.get<ListTypeByType>(registry.contextPath + "/list-type/list-for-type", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -33,7 +33,7 @@ export class ListTypeService {
 
         this.eventService.start();
 
-        return this.http.get<ListType>(acp + "/list-type/entries", { params: params })
+        return this.http.get<ListType>(registry.contextPath + "/list-type/entries", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -46,7 +46,7 @@ export class ListTypeService {
 
         this.eventService.start();
 
-        return this.http.get<ListTypeVersion[]>(acp + "/list-type/versions", { params: params })
+        return this.http.get<ListTypeVersion[]>(registry.contextPath + "/list-type/versions", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -59,7 +59,7 @@ export class ListTypeService {
 
         this.eventService.start();
 
-        return this.http.get<ListTypeVersion>(acp + "/list-type/version", { params: params })
+        return this.http.get<ListTypeVersion>(registry.contextPath + "/list-type/version", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -75,7 +75,7 @@ export class ListTypeService {
         this.eventService.start();
 
         return this.http
-            .post<ListType>(acp + "/list-type/apply", JSON.stringify({ list: list }), { headers: headers })
+            .post<ListType>(registry.contextPath + "/list-type/apply", JSON.stringify({ list: list }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -90,7 +90,7 @@ export class ListTypeService {
         this.eventService.start();
 
         return this.http
-            .post<ListType>(acp + "/list-type/remove", JSON.stringify({ oid: list.oid }), { headers: headers })
+            .post<ListType>(registry.contextPath + "/list-type/remove", JSON.stringify({ oid: list.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -105,7 +105,7 @@ export class ListTypeService {
         this.eventService.start();
 
         return this.http
-            .post<ListTypeVersion>(acp + "/list-type/create-version", JSON.stringify({ oid: entry.oid, metadata: metadata }), { headers: headers })
+            .post<ListTypeVersion>(registry.contextPath + "/list-type/create-version", JSON.stringify({ oid: entry.oid, metadata: metadata }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -120,7 +120,7 @@ export class ListTypeService {
         this.eventService.start();
 
         return this.http
-            .post<ListTypeVersion>(acp + "/list-type/apply-version", JSON.stringify({ oid: metadata.oid, metadata: metadata }), { headers: headers })
+            .post<ListTypeVersion>(registry.contextPath + "/list-type/apply-version", JSON.stringify({ oid: metadata.oid, metadata: metadata }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -136,7 +136,7 @@ export class ListTypeService {
         this.eventService.start();
 
         return this.http
-            .post<ListType>(acp + "/list-type/remove-version", JSON.stringify({ oid: list.oid }), { headers: headers })
+            .post<ListType>(registry.contextPath + "/list-type/remove-version", JSON.stringify({ oid: list.oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -166,7 +166,7 @@ export class ListTypeService {
         }
 
         return this.http
-            .post<any>(acp + "/list-type/data", JSON.stringify(params), { headers: headers })
+            .post<any>(registry.contextPath + "/list-type/data", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 
@@ -184,7 +184,7 @@ export class ListTypeService {
 
 
         return this.http
-            .post<LayerRecord>(acp + "/list-type/record", JSON.stringify(params), { headers: headers })
+            .post<LayerRecord>(registry.contextPath + "/list-type/record", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -212,7 +212,7 @@ export class ListTypeService {
         }
 
         return this.http
-            .post<{ label: string, value: string }[]>(acp + "/list-type/values", JSON.stringify(params), { headers: headers })
+            .post<{ label: string, value: string }[]>(registry.contextPath + "/list-type/values", JSON.stringify(params), { headers: headers })
             .toPromise();
     }
 
@@ -221,14 +221,14 @@ export class ListTypeService {
             "Content-Type": "application/json"
         });
 
-        return this.http.post<string>(acp + "/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
+        return this.http.post<string>(registry.contextPath + "/list-type/publish", JSON.stringify({ oid: oid }), { headers: headers });
     }
 
     getAllLists(): Promise<{ label: string, oid: string }[]> {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<{ label: string, oid: string }[]>(acp + "/list-type/list-all", { params: params })
+            .get<{ label: string, oid: string }[]>(registry.contextPath + "/list-type/list-all", { params: params })
             .toPromise();
     }
 
@@ -237,7 +237,7 @@ export class ListTypeService {
         params = params.append("oid", oid);
 
         return this.http
-            .get<ListTypeVersion[]>(acp + "/list-type/get-public-versions", { params: params })
+            .get<ListTypeVersion[]>(registry.contextPath + "/list-type/get-public-versions", { params: params })
             .toPromise();
     }
 
@@ -253,7 +253,7 @@ export class ListTypeService {
         }
 
         return this.http
-            .get<ContextList[]>(acp + "/list-type/get-geospatial-versions", { params: params })
+            .get<ContextList[]>(registry.contextPath + "/list-type/get-geospatial-versions", { params: params })
             .toPromise();
     }
 
@@ -262,7 +262,7 @@ export class ListTypeService {
         params = params.append("oid", oid);
 
         return this.http
-            .get<number[]>(acp + "/list-type/bounds", { params: params })
+            .get<number[]>(registry.contextPath + "/list-type/bounds", { params: params })
             .toPromise();
     }
 

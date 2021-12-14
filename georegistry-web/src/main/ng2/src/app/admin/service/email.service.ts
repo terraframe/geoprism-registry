@@ -26,7 +26,7 @@ import { EventService } from '@shared/service'
 
 import { Email } from '@admin/model/email';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class EmailService {
@@ -38,7 +38,7 @@ export class EmailService {
 
 		this.eventService.start();
 
-		return this.http.get<Email>(acp + '/email/getInstance')
+		return this.http.get<Email>(registry.contextPath + '/email/getInstance')
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -53,7 +53,7 @@ export class EmailService {
 		this.eventService.start();
 
 		return this.http
-			.post<Email>(acp + '/email/apply', JSON.stringify({ setting: email }), { headers: headers })
+			.post<Email>(registry.contextPath + '/email/apply', JSON.stringify({ setting: email }), { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

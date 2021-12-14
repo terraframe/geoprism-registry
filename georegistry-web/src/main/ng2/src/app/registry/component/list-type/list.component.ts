@@ -15,7 +15,7 @@ import { ListTypeVersion } from "@registry/model/list-type";
 import { ListTypeService } from "@registry/service/list-type.service";
 import { ExportFormatModalComponent } from "./export-format-modal.component";
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
     selector: "list",
@@ -82,7 +82,7 @@ export class ListComponent implements OnInit, OnDestroy {
             }
         });
 
-        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + acp;
+        let baseUrl = "wss://" + window.location.hostname + (window.location.port ? ":" + window.location.port : "") + registry.contextPath;
 
         this.notifier = webSocket(baseUrl + "/websocket/progress/" + oid);
         this.notifier.subscribe(message => {
@@ -327,9 +327,9 @@ export class ListComponent implements OnInit, OnDestroy {
         });
         this.bsModalRef.content.onFormat.subscribe(format => {
             if (format === "SHAPEFILE") {
-                window.location.href = acp + "/list-type/export-shapefile?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.getFilter()));
+                window.location.href = registry.contextPath + "/list-type/export-shapefile?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.getFilter()));
             } else if (format === "EXCEL") {
-                window.location.href = acp + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.getFilter()));
+                window.location.href = registry.contextPath + "/list-type/export-spreadsheet?oid=" + this.list.oid + "&filter=" + encodeURIComponent(JSON.stringify(this.getFilter()));
             }
         });
     }

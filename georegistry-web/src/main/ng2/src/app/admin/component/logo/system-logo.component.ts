@@ -33,7 +33,7 @@ import { EventService } from '@shared/service';
 import { SystemLogoService } from '@admin/service/system-logo.service';
 import { SystemLogo } from '@admin/model/system-logo';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component( {
 
@@ -61,7 +61,7 @@ export class SystemLogoComponent implements OnInit {
         private eventService: EventService,
         public bsModalRef: BsModalRef )
         {
-            this.context = acp as string;
+            this.context = registry.contextPath;
         }
 
     ngOnInit(): void {
@@ -72,7 +72,7 @@ export class SystemLogoComponent implements OnInit {
             autoUpload: false,
             queueLimit: 1,
             removeAfterUpload: true,
-            url: acp + '/logo/apply'
+            url: registry.contextPath + '/logo/apply'
         };
 
         this.uploader = new FileUploader( options );

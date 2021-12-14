@@ -7,8 +7,7 @@ import { AuthService, ProfileService, LocalizationService } from "@shared/servic
 
 import { RegistryRoleType, LocaleView } from "@shared/model/core";
 
-declare let acp: string;
-declare let registry: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -36,7 +35,7 @@ export class CgrHeaderComponent {
         private service: AuthService,
         localizationService: LocalizationService
     ) {
-        this.context = acp;
+        this.context = registry.contextPath;
         this.isAdmin = service.isAdmin();
         this.isMaintainer = this.isAdmin || service.isMaintainer();
         this.isContributor = this.isAdmin || this.isMaintainer || service.isContributer();
@@ -96,7 +95,7 @@ export class CgrHeaderComponent {
     logout(): void {
         sessionStorage.removeItem("locales");
 
-        window.location.href = acp + "/session/logout";
+        window.location.href = registry.contextPath + "/session/logout";
 
         //        this.sessionService.logout().then( response => {
         //            this.router.navigate( ['/login'] );

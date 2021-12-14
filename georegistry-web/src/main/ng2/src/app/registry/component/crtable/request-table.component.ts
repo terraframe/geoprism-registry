@@ -22,7 +22,7 @@ import { DateService } from "@shared/service/date.service";
 
 import { ErrorHandler, ConfirmModalComponent } from "@shared/component";
 
-declare var acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Component({
 
@@ -126,7 +126,7 @@ export class RequestTableComponent {
             this.toggleId = this.oid;
         }
 
-        let getUrl = acp + "/changerequest/upload-file-cr";
+        let getUrl = registry.contextPath + "/changerequest/upload-file-cr";
 
         let options: FileUploaderOptions = {
             queueLimit: 1,
@@ -219,7 +219,7 @@ export class RequestTableComponent {
     }
 
     onDownloadFile(request: ChangeRequest, fileOid: string): void {
-        window.location.href = acp + "/changerequest/download-file-cr?crOid=" + request.oid + "&" + "vfOid=" + fileOid;
+        window.location.href = registry.contextPath + "/changerequest/download-file-cr?crOid=" + request.oid + "&" + "vfOid=" + fileOid;
     }
 
     onDeleteFile(request: ChangeRequest, fileOid: string): void {

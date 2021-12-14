@@ -24,7 +24,7 @@ import { finalize } from "rxjs/operators";
 import { PaginationPage } from "@registry/model/registry";
 import { EventService } from "@shared/service";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class TaskService {
@@ -41,7 +41,7 @@ export class TaskService {
         params = params.set("whereStatus", whereStatus);
 
         return this.http
-            .get<PaginationPage>(acp + "/tasks/get", { params: params })
+            .get<PaginationPage>(registry.contextPath + "/tasks/get", { params: params })
             .toPromise();
     }
 
@@ -53,7 +53,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
+            .post<any>(registry.contextPath + "/tasks/complete", JSON.stringify({ id: taskId }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -68,7 +68,7 @@ export class TaskService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
+            .post<any>(registry.contextPath + "/tasks/setTaskStatus", JSON.stringify({ id: taskId, status: status }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))

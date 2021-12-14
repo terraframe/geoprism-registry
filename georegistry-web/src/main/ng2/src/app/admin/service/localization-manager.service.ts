@@ -27,7 +27,7 @@ import { LocaleView } from '@shared/model/core';
 
 import { AllLocaleInfo } from '@admin/model/localization-manager';
 
-declare var acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class LocalizationManagerService {
@@ -41,7 +41,7 @@ export class LocalizationManagerService {
 		this.eventService.start();
 
 		return this.http
-			.get<AllLocaleInfo>(acp + '/localization/getNewLocaleInformation')
+			.get<AllLocaleInfo>(registry.contextPath + '/localization/getNewLocaleInformation')
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -56,7 +56,7 @@ export class LocalizationManagerService {
     this.eventService.start();
 
     return this.http
-      .get<LocaleView>(acp + '/localization/editLocale', { params: params })
+      .get<LocaleView>(registry.contextPath + '/localization/editLocale', { params: params })
       .pipe(finalize(() => {
         this.eventService.complete();
       }))
@@ -71,7 +71,7 @@ export class LocalizationManagerService {
 		this.eventService.start();
 
 		return this.http
-			.get<LocaleView>(acp + '/localization/installLocale', { params: params })
+			.get<LocaleView>(registry.contextPath + '/localization/installLocale', { params: params })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))
@@ -86,7 +86,7 @@ export class LocalizationManagerService {
     this.eventService.start();
 
     return this.http
-      .get<{ locale: string }>(acp + '/localization/uninstallLocale', { params: params })
+      .get<{ locale: string }>(registry.contextPath + '/localization/uninstallLocale', { params: params })
       .pipe(finalize(() => {
         this.eventService.complete();
       }))
@@ -98,7 +98,7 @@ export class LocalizationManagerService {
 
 		this.eventService.start();
 
-		return this.http.post<void>(acp + "/localization/importSpreadsheet", formData, { headers: headers })
+		return this.http.post<void>(registry.contextPath + "/localization/importSpreadsheet", formData, { headers: headers })
 			.pipe(finalize(() => {
 				this.eventService.complete();
 			}))

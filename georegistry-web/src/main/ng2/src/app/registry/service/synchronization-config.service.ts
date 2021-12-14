@@ -28,7 +28,7 @@ import { PageResult } from "@shared/model/core";
 import { SynchronizationConfig, OrgSyncInfo, ExportScheduledJob } from "@registry/model/registry";
 import { AttributeConfigInfo } from "@registry/model/sync";
 
-declare let acp: any;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 @Injectable()
 export class SynchronizationConfigService {
@@ -44,7 +44,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .get<PageResult<SynchronizationConfig>>(acp + "/synchronization-config/get-all", { params: params })
+            .get<PageResult<SynchronizationConfig>>(registry.contextPath + "/synchronization-config/get-all", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -58,7 +58,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .get<SynchronizationConfig>(acp + "/synchronization-config/get", { params: params })
+            .get<SynchronizationConfig>(registry.contextPath + "/synchronization-config/get", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -73,7 +73,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .get<AttributeConfigInfo[]>(acp + "/synchronization-config/get-custom-attr", { params: params })
+            .get<AttributeConfigInfo[]>(registry.contextPath + "/synchronization-config/get-custom-attr", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -88,7 +88,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .get<any[]>(acp + "/synchronization-config/get-config-for-es", { params: params })
+            .get<any[]>(registry.contextPath + "/synchronization-config/get-config-for-es", { params: params })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -103,7 +103,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .post<SynchronizationConfig>(acp + "/synchronization-config/apply", JSON.stringify({ config: config }), { headers: headers })
+            .post<SynchronizationConfig>(registry.contextPath + "/synchronization-config/apply", JSON.stringify({ config: config }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -124,7 +124,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .post<{ config: SynchronizationConfig, orgs: OrgSyncInfo[] }>(acp + "/synchronization-config/edit", JSON.stringify(params), { headers: headers })
+            .post<{ config: SynchronizationConfig, orgs: OrgSyncInfo[] }>(registry.contextPath + "/synchronization-config/edit", JSON.stringify(params), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -139,7 +139,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/synchronization-config/remove", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<any>(registry.contextPath + "/synchronization-config/remove", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -154,7 +154,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/synchronization-config/unlock", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<any>(registry.contextPath + "/synchronization-config/unlock", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -169,7 +169,7 @@ export class SynchronizationConfigService {
         this.eventService.start();
 
         return this.http
-            .post<any>(acp + "/synchronization-config/run", JSON.stringify({ oid: oid }), { headers: headers })
+            .post<any>(registry.contextPath + "/synchronization-config/run", JSON.stringify({ oid: oid }), { headers: headers })
             .pipe(finalize(() => {
                 this.eventService.complete();
             }))
@@ -185,7 +185,7 @@ export class SynchronizationConfigService {
         //        this.eventService.start();
 
         return this.http
-            .get<PageResult<ExportScheduledJob>>(acp + "/synchronization-config/get-jobs", { params: params })
+            .get<PageResult<ExportScheduledJob>>(registry.contextPath + "/synchronization-config/get-jobs", { params: params })
             //            .pipe(finalize(() => {
             //                this.eventService.complete();
             //            }))
@@ -196,7 +196,7 @@ export class SynchronizationConfigService {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<any[]>(acp + "/synchronization-config/get-fhir-export-implementations", { params: params })
+            .get<any[]>(registry.contextPath + "/synchronization-config/get-fhir-export-implementations", { params: params })
             .toPromise();
     }
 
@@ -204,7 +204,7 @@ export class SynchronizationConfigService {
         let params: HttpParams = new HttpParams();
 
         return this.http
-            .get<any[]>(acp + "/synchronization-config/get-fhir-import-implementations", { params: params })
+            .get<any[]>(registry.contextPath + "/synchronization-config/get-fhir-import-implementations", { params: params })
             .toPromise();
     }
 

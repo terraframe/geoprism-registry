@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpErrorResponse } from "@angular/common/http";
 
-declare let acp;
+import { GeoRegistryConfiguration } from "@core/model/registry"; declare let registry: GeoRegistryConfiguration;
 
 export interface IEventListener {
     start(): void;

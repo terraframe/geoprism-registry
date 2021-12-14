@@ -160,8 +160,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         if (isSearchRequired) {
-            console.log('Searching');
-
             // One of the enabled layers specified in the URL is not currently in the list/versions data model
             // As such we must do a new search for the valid list/versions in order to populate the option
             // into the data model. 
@@ -186,8 +184,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
                 if (index === -1) {
                     this.lists.forEach(list => {
                         list.versions.filter(v => v.oid === layer).forEach(v => {
-                            console.log('Enabling layer', v);
-
                             this.toggleLayer(v, list);
                         });
                     });
@@ -198,8 +194,6 @@ export class LayerPanelComponent implements OnInit, OnDestroy, OnChanges {
             this.layers.filter(l => l.oid !== GRAPH_LAYER && layers.indexOf(l.oid) === -1).forEach(layer => {
                 this.lists.forEach(list => {
                     list.versions.filter(v => v.oid === layer.oid).forEach(v => {
-                        console.log('Removing layer', v);
-
                         this.toggleLayer(v, list);
                     });
                 })

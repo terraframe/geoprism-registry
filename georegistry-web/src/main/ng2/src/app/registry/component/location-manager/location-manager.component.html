@@ -8,12 +8,12 @@
     <div class="row">
       <article class="panel-toggle" style="width: 40%; background-color: white;">
         <div class="row">
-          <div class="col-md-4">
+          <div class="col-md-4" *ngIf="searchEnabled">
             <date-field [(value)]="state.date" label="" [inputName]="'date'" [allowInfinity]="false"
               [allowFutureDates]="false" [required]="false" [placement]="'right'" style="display:inline-grid;">
             </date-field>
           </div>
-          <div class="col-md-7">
+          <div class="col-md-7" *ngIf="searchEnabled">
             <div class="input-group">
               <input type="text" class="form-control" (keyup.enter)="search()" [(ngModel)]="state.text" name="text">
               <span class="input-group-btn">
@@ -38,7 +38,7 @@
       <div *ngIf="showPanel" id="navigator-left-sidebar" class="col-md-5 lw-inner-col"
         style="height: calc(100vh - 245px);overflow-y: auto; margin-top: 100px;">
 
-        <ng-container *ngIf="mode === MODE.SEARCH">
+        <ng-container *ngIf="mode === MODE.SEARCH && searchEnabled">
 
           <div class="row">
             <div class="col-md-12">

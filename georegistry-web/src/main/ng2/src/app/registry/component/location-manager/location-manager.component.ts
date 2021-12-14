@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { Map, LngLatBoundsLike, NavigationControl, MapboxEvent, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
+import { Map, LngLatBoundsLike, NavigationControl, AttributionControl, IControl, LngLatBounds } from "mapbox-gl";
 
 import { BsModalService, BsModalRef } from "ngx-bootstrap/modal";
 
@@ -21,11 +21,10 @@ import { ListTypeService } from "@registry/service/list-type.service";
 import { timeout } from "d3-timer";
 import { Subscription } from "rxjs";
 import { SelectTypeModalComponent } from "./select-type-modal.component";
-import { TabsetComponent } from "ngx-bootstrap/tabs";
 
-declare let acp: string;
+import { GeoRegistryConfiguration } from "@core/model/registry"; 
+declare let registry: GeoRegistryConfiguration;
 
-const DEFAULT_COLOR = "#80cdc1";
 const SELECTED_COLOR = "#800000";
 
 @Component({
@@ -126,7 +125,10 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
     subscription: Subscription;
 
     // Flag denoting if the map in loaded and initialized     
-    private ready: boolean = false;
+    ready: boolean = false;
+
+    // Flag denoting if the search and results panel is enabled at all
+    searchEnabled: boolean = true;
 
     @ViewChild("simpleEditControl") simpleEditControl: IControl;
 
@@ -146,6 +148,8 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
         this.subscription = this.route.queryParams.subscribe(params => {
             this.handleParameterChange(params);
         });
+
+        this.searchEnabled = registry.searchEnabled;
     }
 
     ngOnDestroy(): void {
@@ -172,7 +176,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                     }
                 },
                 sprite: layer.sprite,
-                glyphs: window.location.protocol + "//" + window.location.host + acp + "/glyphs/{fontstack}/{range}.pbf",
+                glyphs: window.location.protocol + "//" + window.location.host + registry.contextPath + "/glyphs/{fontstack}/{range}.pbf",
                 layers: [
                     {
                         id: layer.id,
@@ -453,7 +457,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
                 }
             },
             sprite: layer.sprite,
-            glyphs: window.location.protocol + "//" + window.location.host + acp + "/glyphs/{fontstack}/{range}.pbf",
+            glyphs: window.location.protocol + "//" + window.location.host + registry.contextPath + "/glyphs/{fontstack}/{range}.pbf",
             layers: [
                 {
                     id: layer.id,
@@ -745,7 +749,7 @@ export class LocationManagerComponent implements OnInit, AfterViewInit, OnDestro
 
             this.map.addSource(source, {
                 type: "vector",
-                tiles: [protocol + "//" + host + acp + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))],
+                tiles: [protocol + "//" + host + registry.contextPath + "/list-type/tile?x={x}&y={y}&z={z}&config=" + encodeURIComponent(JSON.stringify({ oid: source }))],
                 promoteId: 'uid'
             });
 
