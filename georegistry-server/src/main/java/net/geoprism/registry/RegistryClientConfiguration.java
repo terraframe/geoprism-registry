@@ -180,6 +180,7 @@ public class RegistryClientConfiguration extends DefaultClientConfiguration impl
     historicalEvents.addRole(RegistryConstants.REGISTRY_SUPER_ADMIN_ROLE);
     historicalEvents.addRole(RegistryConstants.REGISTRY_ADMIN_ROLE);
     historicalEvents.addRole(RegistryConstants.REGISTRY_MAINTAINER_ROLE);
+    historicalEvents.addRole(RegistryConstants.REGISTRY_CONTRIBUTOR_ROLE);
     applications.add(historicalEvents);
     
 

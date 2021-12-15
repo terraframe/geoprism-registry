@@ -63,7 +63,7 @@ public class TransitionEventService
   {
     ServerGeoObjectType type = ServerGeoObjectType.get(typeCode);
 
-    new GeoObjectPermissionService().enforceCanWrite(type.getOrganization().getCode(), type);
+    new GeoObjectPermissionService().enforceCanRead(type.getOrganization().getCode(), type);
 
     return HistoricalRow.getHistoricalReport(type, startDate, endDate, pageSize, pageNumber).toJSON();
   }

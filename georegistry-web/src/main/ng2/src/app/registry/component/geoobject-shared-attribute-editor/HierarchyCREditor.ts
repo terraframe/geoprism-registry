@@ -4,12 +4,15 @@ import { UpdateAttributeOverTimeAction, AbstractAction, ValueOverTimeDiff } from
 import { v4 as uuid } from "uuid";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
 import { ChangeType } from "@registry/model/constants";
+import { HttpErrorResponse } from "@angular/common/http";
 
 export class HierarchyCREditor extends ValueOverTimeCREditor {
 
   hierarchyOverTime: HierarchyOverTime;
 
   hierarchyEntry: HierarchyOverTimeEntry;
+
+  existRangeStale: boolean = false;
 
   constructor(changeRequestAttributeEditor: ChangeRequestChangeOverTimeAttributeEditor, attr: AttributeType, action: AbstractAction, hierarchyEntry: HierarchyOverTimeEntry, hierarchyOverTime: HierarchyOverTime) {
       super(changeRequestAttributeEditor, attr, action);
@@ -31,6 +34,68 @@ export class HierarchyCREditor extends ValueOverTimeCREditor {
       let immediateParent: GeoObject = this.hierarchyEntry.parents[this.hierarchyOverTime.types[this.hierarchyOverTime.types.length - 1].code].geoObject;
       let goVal: string = immediateParent == null ? null : immediateParent.properties.type + "_~VST~_" + immediateParent.properties.code;
       return goVal;
+  }
+
+  // @Override
+  onChange(type: ChangeType) {
+      if (type === ChangeType.END_DATE || type === ChangeType.START_DATE) {
+          this.existRangeStale = true;
+      }
+
+      super.onChange(type);
+  }
+
+  // @Override
+  validate(): boolean {
+      super.validate();
+
+      let invalidParent = this.changeRequestAttributeEditor.changeRequestEditor.dateService.invalidParent;
+      let parentDoesNotExist = this.changeRequestAttributeEditor.changeRequestEditor.dateService.parentDoesNotExist;
+      let service = this.changeRequestAttributeEditor.changeRequestEditor.registryService;
+
+      let len = this.hierarchyOverTime.types.length;
+      for (let i = len - 1; i >= 0; --i) {
+          let type = this.hierarchyOverTime.types[i];
+
+          if (Object.prototype.hasOwnProperty.call(this.hierarchyEntry.parents, type.code) && this.hierarchyEntry.parents[type.code].geoObject) {
+              let goParent = this.hierarchyEntry.parents[type.code].geoObject;
+
+              if (!this.existRangeStale) {
+                  if (goParent.properties.invalid) {
+                      this._isValid = false;
+                      this.conflictMessages.add(invalidParent);
+                  }
+                  if (!goParent.properties.exists) {
+                      this._isValid = false;
+                      this.conflictMessages.add(parentDoesNotExist);
+                  }
+              } else {
+                  service.doesGeoObjectExistAtRange(this.startDate, this.endDate, type.code, goParent.properties.code).then(stats => {
+                      goParent.properties.invalid = stats.invalid;
+                      goParent.properties.exists = stats.exists;
+
+                      this.conflictMessages.delete(invalidParent);
+                      this.conflictMessages.delete(parentDoesNotExist);
+
+                      if (goParent.properties.invalid) {
+                          this._isValid = false;
+                          this.conflictMessages.add(invalidParent);
+                      }
+                      if (!goParent.properties.exists) {
+                          this._isValid = false;
+                          this.conflictMessages.add(parentDoesNotExist);
+                      }
+                  }).catch((err: HttpErrorResponse) => {
+                      // eslint-disable-next-line no-console
+                      console.log(err);
+                  });
+              }
+          }
+      }
+
+      this.existRangeStale = false;
+
+      return this._isValid;
   }
 
   // @Override

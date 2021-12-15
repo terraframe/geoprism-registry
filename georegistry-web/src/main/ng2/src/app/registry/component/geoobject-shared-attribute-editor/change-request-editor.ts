@@ -1,6 +1,7 @@
 import { ChangeType } from "@registry/model/constants";
 import { ChangeRequest } from "@registry/model/crtable";
 import { AttributeType, GeoObjectOverTime, GeoObjectType, HierarchyOverTime, ValueOverTime } from "@registry/model/registry";
+import { RegistryService } from "@registry/service";
 import { DateService, LocalizationService } from "@shared/service";
 import { Subject } from "rxjs";
 import { ChangeRequestChangeOverTimeAttributeEditor } from "./change-request-change-over-time-attribute-editor";
@@ -32,7 +33,9 @@ export class ChangeRequestEditor {
 
     dateService: DateService;
 
-    constructor(changeRequest: ChangeRequest, geoObject: GeoObjectOverTime, geoObjectType: GeoObjectType, hierarchies: HierarchyOverTime[], geometryAttributeType: AttributeType, parentAttributeType: AttributeType, localizationService: LocalizationService, dateService: DateService) {
+    registryService: RegistryService;
+
+    constructor(changeRequest: ChangeRequest, geoObject: GeoObjectOverTime, geoObjectType: GeoObjectType, hierarchies: HierarchyOverTime[], geometryAttributeType: AttributeType, parentAttributeType: AttributeType, localizationService: LocalizationService, dateService: DateService, registryService: RegistryService) {
         this.changeRequest = changeRequest;
         this.geoObject = geoObject;
         this.geoObjectType = geoObjectType;
@@ -41,6 +44,7 @@ export class ChangeRequestEditor {
         this.hierarchies = hierarchies;
         this.localizationService = localizationService;
         this.dateService = dateService;
+        this.registryService = registryService;
 
         this.attributeEditors = this.generateAttributeEditors();
         this.validate();

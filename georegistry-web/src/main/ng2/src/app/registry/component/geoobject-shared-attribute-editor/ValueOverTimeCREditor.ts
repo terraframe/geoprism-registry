@@ -42,6 +42,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     validate(): boolean {
+        if (!this.conflictMessages) {
+            this.conflictMessages = new Set();
+        }
+
         let dateService = this.changeRequestAttributeEditor.changeRequestEditor.dateService;
         let start = dateService.validateDate(this.startDate == null ? null : dateService.getDateFromDateString(this.startDate), true, true);
         let end = dateService.validateDate(this.endDate == null ? null : dateService.getDateFromDateString(this.endDate), true, true);
@@ -61,10 +65,6 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
      */
     validateUpdateReference() {
         let missingReference = this.changeRequestAttributeEditor.changeRequestEditor.dateService.missingReference;
-
-        if (!this.conflictMessages) {
-            this.conflictMessages = new Set();
-        }
 
         this.conflictMessages.delete(missingReference);
 
@@ -110,6 +110,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     get startDate(): string {
+        return this.getStartDate();
+    }
+
+    public getStartDate(): string {
         if (this.diff != null && this.diff.newStartDate !== undefined) {
             return this.diff.newStartDate;
         } else if (this.diff != null && this.diff.oldStartDate !== undefined) {
@@ -152,6 +156,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     get endDate(): string {
+        return this.getEndDate();
+    }
+
+    public getEndDate(): string {
         if (this.diff != null && this.diff.newEndDate !== undefined) {
             return this.diff.newEndDate;
         } else if (this.diff != null && this.diff.oldStartDate !== undefined) {
@@ -164,6 +172,10 @@ export class ValueOverTimeCREditor implements TimeRangeEntry {
     }
 
     set startDate(startDate: string) {
+        this.setStartDate(startDate);
+    }
+
+    public setStartDate(startDate: string) {
         if (this.isDelete()) {
             return; // There are various view components (like the date widgets) which will invoke this method
         }

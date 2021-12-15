@@ -41,7 +41,6 @@ import com.runwaysdk.constants.MdAttributeLocalInfo;
 import com.runwaysdk.dataaccess.BusinessDAO;
 import com.runwaysdk.dataaccess.MdAttributeDAOIF;
 import com.runwaysdk.dataaccess.MdGraphClassDAOIF;
-import com.runwaysdk.dataaccess.graph.attributes.ValueOverTime;
 import com.runwaysdk.dataaccess.metadata.MdAttributeBooleanDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeConcreteDAO;
 import com.runwaysdk.dataaccess.metadata.MdAttributeDAO;
@@ -56,7 +55,6 @@ import com.runwaysdk.query.QueryFactory;
 import com.runwaysdk.session.Request;
 import com.runwaysdk.system.gis.geo.Universal;
 import com.runwaysdk.system.gis.geo.UniversalQuery;
-import com.runwaysdk.system.metadata.MdAttribute;
 import com.runwaysdk.system.scheduler.AllJobStatus;
 import com.runwaysdk.system.scheduler.JobHistory;
 import com.runwaysdk.system.scheduler.JobHistoryRecord;
@@ -113,8 +111,6 @@ public class PatchExistsAndInvalid
       }
     }
     
-    int applied = 0;
-    
     for (Universal uni : unis)
     {
       ServerGeoObjectType type = new ServerGeoObjectTypeConverter().build(uni);
@@ -146,39 +142,6 @@ public class PatchExistsAndInvalid
         invalidMdAttr.setValue(MdAttributeConcreteInfo.DEFAULT_VALUE, MdAttributeBooleanInfo.FALSE);
         invalidMdAttr.addItem(MdAttributeConcreteInfo.INDEX_TYPE, IndexTypes.NON_UNIQUE_INDEX.getOid());
         invalidMdAttr.apply();
-        
-        List<VertexServerGeoObject> data = getInstanceData(type, mdClass);
-        
-        int current = 0;
-        final int size = data.size();
-        
-        logger.info("Starting to patch instance data for type [" + mdClass.getDBClassName() + "] with count [" + size + "] ");
-        
-        for (VertexServerGeoObject go : data)
-        {
-          ValueOverTime defaultExists = go.buildDefaultExists();
-          
-          if (defaultExists != null)
-          {
-            go.setValue(DefaultAttribute.EXISTS.getName(), Boolean.TRUE, defaultExists.getStartDate(), defaultExists.getEndDate());
-            go.setValue(DefaultAttribute.INVALID.getName(), false);
-            
-            // This apply method is mega slow due to the SearchService so we're going to just bypass it
-//            go.apply(false);
-            
-            go.getVertex().setValue(GeoVertex.LASTUPDATEDATE, new Date());
-            go.getVertex().apply();
-            
-            applied++;
-          }
-          
-          if (current % 10 == 0)
-          {
-            logger.info("Finished record " + current + " of " + size);
-          }
-          
-          current++;
-        }
       }
     }
     
@@ -191,8 +154,6 @@ public class PatchExistsAndInvalid
     // still has the 'isNew' flag set to true. We can't do this in a separate transaction because the patching
     // transaction is controlled at a higher level than we have access to here.
 //    enforceInvalidRequired();
-    
-    logger.info("Applied " + applied + " records across " + unis.size() + " types.");
   }
   
   private void enforceInvalidRequired()
@@ -301,25 +262,6 @@ public class PatchExistsAndInvalid
 //    AttributeType invalidAttr = type.getAttribute(DefaultAttribute.INVALID.getName()).get();
 //    MasterList.createMdAttribute(type, invalidAttr);
 //  }
-  
-  private List<VertexServerGeoObject> getInstanceData(ServerGeoObjectType type, MdGraphClassDAOIF mdClass)
-  {
-    StringBuilder statement = new StringBuilder();
-    statement.append("SELECT FROM " + mdClass.getDBClassName());
-
-    GraphQuery<VertexObject> vertexQuery = new GraphQuery<VertexObject>(statement.toString(), new HashMap<String, Object>());
-    
-    List<VertexServerGeoObject> list = new LinkedList<VertexServerGeoObject>();
-
-    List<VertexObject> results = vertexQuery.getResults();
-
-    for (VertexObject result : results)
-    {
-      list.add(new VertexServerGeoObject(type, result, today));
-    }
-
-    return list;
-  }
   
   public static List<Universal> getUniversals()
   {

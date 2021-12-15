@@ -50,6 +50,7 @@ import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.ServerHierarchyType;
 import net.geoprism.registry.model.ServerParentTreeNode;
+import net.geoprism.registry.model.graph.VertexServerGeoObject;
 import net.geoprism.registry.permission.AllowAllGeoObjectPermissionService;
 import net.geoprism.registry.service.ServiceFactory;
 
@@ -264,8 +265,9 @@ public class ServerParentTreeNodeOverTime
 
             if (ptns.size() > 0)
             {
-              final ServerGeoObjectIF sGeoObject = ptns.get(0).getGeoObject();
-              final GeoObject geoObject = sGeoObject.toGeoObject();
+              ServerParentTreeNode sptn = ptns.get(0);
+              final VertexServerGeoObject sGeoObject = (VertexServerGeoObject) sptn.getGeoObject();
+              final GeoObject geoObject = sGeoObject.toGeoObject(node.getStartDate(), node.getEndDate());
               geoObject.setGeometry(null);
 
               JsonObject pObject = new JsonObject();

@@ -56,7 +56,9 @@ import net.geoprism.registry.io.GeoObjectImportConfiguration;
 import net.geoprism.registry.model.ServerGeoObjectIF;
 import net.geoprism.registry.model.ServerGeoObjectType;
 import net.geoprism.registry.model.graph.VertexServerGeoObject;
+import net.geoprism.registry.permission.GeoObjectPermissionService;
 import net.geoprism.registry.permission.RolePermissionService;
+import net.geoprism.registry.query.graph.GeoObjectTypeRestrictionUtil;
 import net.geoprism.registry.service.ServiceFactory;
 import net.geoprism.registry.transition.TransitionPermissionService;
 import net.geoprism.registry.view.JsonSerializable;
@@ -184,7 +186,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       String afterTypeCode = json.get(TransitionEvent.AFTERTYPECODE).getAsString();
       ServerGeoObjectType beforeType = ServerGeoObjectType.get(beforeTypeCode);
       ServerGeoObjectType afterType = ServerGeoObjectType.get(afterTypeCode);
-
+      
       ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(beforeType.getOrganization().getCode(), beforeType);
       // ServiceFactory.getGeoObjectPermissionService().enforceCanWrite(afterType.getOrganization().getCode(),
       // afterType);
@@ -270,21 +272,17 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
     // Add permissions criteria
     if (Session.getCurrentSession() != null)
     {
-      List<String> afterConditions = buildGraphPermissionsFilter(TransitionEvent.AFTERTYPEORGCODE, TransitionEvent.AFTERTYPECODE);
-      List<String> beforeConditions = buildGraphPermissionsFilter(TransitionEvent.BEFORETYPEORGCODE, TransitionEvent.BEFORETYPECODE);
-
-      if (afterConditions.size() > 0 && beforeConditions.size() > 0)
-      {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("((");
-        builder.append(StringUtils.join(afterConditions, " OR "));
-        builder.append(") OR (");
-        builder.append(StringUtils.join(beforeConditions, " OR "));
-        builder.append("))");
-
-        whereConditions.add(builder.toString());
-      }
+        String beforeCondition = GeoObjectTypeRestrictionUtil.buildTypeWritePermissionsFilter(TransitionEvent.BEFORETYPEORGCODE, TransitionEvent.BEFORETYPECODE);
+        if (beforeCondition.length() > 0)
+        {
+          whereConditions.add(beforeCondition);
+        }
+        
+        String afterCondition = GeoObjectTypeRestrictionUtil.buildTypeReadPermissionsFilter(TransitionEvent.AFTERTYPEORGCODE, TransitionEvent.AFTERTYPECODE);
+        if (afterCondition.length() > 0)
+        {
+          whereConditions.add(afterCondition);
+        }
     }
 
     // Filter based on attributes
@@ -354,62 +352,7 @@ public class TransitionEvent extends TransitionEventBase implements JsonSerializ
       statement.append(" WHERE " + StringUtils.join(whereConditions, " AND "));
     }
   }
-
-  public static List<String> buildGraphPermissionsFilter(String orgCodeAttr, String gotCodeAttr)
-  {
-    List<String> criteria = new ArrayList<String>();
-    List<String> raOrgs = new ArrayList<String>();
-    List<String> goRoles = new ArrayList<String>();
-
-    SingleActorDAOIF actor = Session.getCurrentSession().getUser();
-    for (RoleDAOIF role : actor.authorizedRoles())
-    {
-      String roleName = role.getRoleName();
-
-      if (RegistryRole.Type.isOrgRole(roleName) && !RegistryRole.Type.isRootOrgRole(roleName))
-      {
-        if (RegistryRole.Type.isRA_Role(roleName))
-        {
-          String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-          raOrgs.add(roleOrgCode);
-        }
-        else if (RegistryRole.Type.isRM_Role(roleName))
-        {
-          goRoles.add(roleName);
-        }
-      }
-    }
-
-    for (String orgCode : raOrgs)
-    {
-      criteria.add("(" + orgCodeAttr + " = '" + orgCode + "')");
-    }
-
-    for (String roleName : goRoles)
-    {
-      String roleOrgCode = RegistryRole.Type.parseOrgCode(roleName);
-      String gotCode = RegistryRole.Type.parseGotCode(roleName);
-
-      criteria.add("(" + orgCodeAttr + " = '" + roleOrgCode + "' AND " + gotCodeAttr + " = '" + gotCode + "')");
-
-      // If they have permission to an abstract parent type, then they also have
-      // permission to all its children.
-      Optional<ServerGeoObjectType> op = ServiceFactory.getMetadataCache().getGeoObjectType(gotCode);
-
-      if (op.isPresent() && op.get().getIsAbstract())
-      {
-        List<ServerGeoObjectType> subTypes = op.get().getSubtypes();
-
-        for (ServerGeoObjectType subType : subTypes)
-        {
-          criteria.add("(" + orgCodeAttr + " = '" + subType.getOrganization().getCode() + "' AND " + gotCodeAttr + " = '" + subType.getCode() + "')");
-        }
-      }
-    }
-
-    return criteria;
-  }
-
+  
   @Transaction
   public static void removeAll(ServerGeoObjectType type)
   {

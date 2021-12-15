@@ -91,7 +91,7 @@
           </ng-template>
         </tbody>
       </table>
-      <div style="margin-top: 30px; margin-bottom: 30px;" class="row">
+      <div *ngIf="!this.readOnly" style="margin-top: 30px; margin-bottom: 30px;" class="row">
         <div class="col-md-6">
           <button type="submit" (click)="onCreate()" class="btn btn-primary" role="button">
             <localize key="hierarchy.management.button.create"></localize>

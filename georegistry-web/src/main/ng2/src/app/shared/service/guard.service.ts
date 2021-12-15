@@ -13,7 +13,7 @@ export class AdminGuard implements CanActivate {
             return true;
         }
 
-        this.router.navigate(["/export"]);
+        this.router.navigate(["/"]);
 
         return false;
     }
@@ -31,7 +31,7 @@ export class MaintainerGuard implements CanActivate {
             return true;
         }
 
-        this.router.navigate(["/export"]);
+        this.router.navigate(["/"]);
 
         return false;
     }
@@ -49,7 +49,7 @@ export class ContributerGuard implements CanActivate {
             return true;
         }
 
-        this.router.navigate(["/export"]);
+        this.router.navigate(["/"]);
 
         return false;
     }
