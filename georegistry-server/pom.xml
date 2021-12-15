@@ -34,7 +34,7 @@
 
 	<properties>
 		<!-- We need this property because it facilitates replacement via the Jenkins formal release job. -->
-		<hapifhir_version>5.0.2</hapifhir_version>
+		<hapifhir_version>5.4.0</hapifhir_version>
 		<cgr.adapter.version>0.17.1</cgr.adapter.version>
 	</properties>
 
@@ -113,12 +113,12 @@
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.13.1</version>
+      <version>2.16.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
-      <version>2.13.1</version>
+      <version>2.16.0</version>
     </dependency>
     <dependency>
       <groupId>ca.uhn.hapi.fhir</groupId>
@@ -230,7 +230,7 @@
 									<mainClass>com.runwaysdk.dataaccess.io.UndoAll</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
+										<argument/>
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -275,7 +275,7 @@
 									<mainClass>net.geoprism.ImportSchema</mainClass>
 									<arguments>
 										<argument>${project.basedir}/src/main/working</argument>
-										<argument />
+										<argument/>
 										<argument>false</argument>
 									</arguments>
 									<systemProperties>
@@ -453,7 +453,7 @@
 		                </goals>
 		              </pluginExecutionFilter>
 		              <action>
-		                <ignore />
+		                <ignore/>
 		              </action>
 		            </pluginExecution>
 		          </pluginExecutions>
